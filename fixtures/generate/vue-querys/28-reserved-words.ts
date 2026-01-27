@@ -1,895 +1,2158 @@
+import type { QueryFunctionContext, UseMutationOptions, UseQueryOptions } from '@tanstack/vue-query'
 import { useMutation, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferResponseType } from 'hono/client'
+import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/28-reserved-words'
 
 /**
- * GET /class
- */
-export function useGetClass(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetClassQueryKey()
-  return useQuery({
-    queryKey,
-    queryFn: async () => parseResponse(client.class.$get(undefined, clientOptions)),
-  })
-}
-
-/**
  * Generates Vue Query cache key for GET /class
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetClassQueryKey() {
-  return ['/class'] as const
+  return ['class', 'GET', '/class'] as const
 }
 
 /**
- * GET /interface
+ * Returns Vue Query query options for GET /class
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function useGetInterface(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetInterfaceQueryKey()
-  return useQuery({
-    queryKey,
-    queryFn: async () => parseResponse(client.interface.$get(undefined, clientOptions)),
-  })
+export const getGetClassQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetClassQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.class.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
+
+/**
+ * GET /class
+ */
+export function useGetClass(options?: {
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.class.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
+  const { queryKey, queryFn, ...baseOptions } = getGetClassQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /interface
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetInterfaceQueryKey() {
-  return ['/interface'] as const
+  return ['interface', 'GET', '/interface'] as const
 }
 
 /**
- * GET /type
+ * Returns Vue Query query options for GET /interface
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function useGetType(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetTypeQueryKey()
-  return useQuery({
-    queryKey,
-    queryFn: async () => parseResponse(client.type.$get(undefined, clientOptions)),
-  })
+export const getGetInterfaceQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetInterfaceQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.interface.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
+ * GET /interface
+ */
+export function useGetInterface(options?: {
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.interface.$get>>>>
+        >,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
+  const { queryKey, queryFn, ...baseOptions } = getGetInterfaceQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /type
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetTypeQueryKey() {
-  return ['/type'] as const
+  return ['type', 'GET', '/type'] as const
 }
+
+/**
+ * Returns Vue Query query options for GET /type
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetTypeQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetTypeQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.type.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
+
+/**
+ * GET /type
+ */
+export function useGetType(options?: {
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.type.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
+  const { queryKey, queryFn, ...baseOptions } = getGetTypeQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
+}
+
+/**
+ * Generates Vue Query mutation key for POST /function
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostFunctionMutationKey() {
+  return ['function', 'POST', '/function'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /function
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostFunctionMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostFunctionMutationKey(),
+  mutationFn: async () => parseResponse(client.function.$post(undefined, clientOptions)),
+})
 
 /**
  * POST /function
  */
-export function usePostFunction(clientOptions?: ClientRequestOptions) {
-  return useMutation<InferResponseType<typeof client.function.$post> | undefined, Error, void>({
-    mutationFn: async () => parseResponse(client.function.$post(undefined, clientOptions)),
-  })
-}
-
-/**
- * GET /return
- */
-export function useGetReturn(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetReturnQueryKey()
-  return useQuery({
-    queryKey,
-    queryFn: async () => parseResponse(client.return.$get(undefined, clientOptions)),
-  })
+export function usePostFunction(options?: {
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.function.$post>>>>
+        >,
+        Error,
+        void
+      >,
+      'mutationFn' | 'mutationKey'
+    >
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } = getPostFunctionMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /return
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetReturnQueryKey() {
-  return ['/return'] as const
+  return ['return', 'GET', '/return'] as const
 }
 
 /**
- * GET /import
+ * Returns Vue Query query options for GET /return
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function useGetImport(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetImportQueryKey()
-  return useQuery({
-    queryKey,
-    queryFn: async () => parseResponse(client.import.$get(undefined, clientOptions)),
-  })
+export const getGetReturnQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetReturnQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.return.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
+
+/**
+ * GET /return
+ */
+export function useGetReturn(options?: {
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.return.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
+  const { queryKey, queryFn, ...baseOptions } = getGetReturnQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /import
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetImportQueryKey() {
-  return ['/import'] as const
+  return ['import', 'GET', '/import'] as const
 }
 
 /**
- * GET /export
+ * Returns Vue Query query options for GET /import
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function useGetExport(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetExportQueryKey()
-  return useQuery({
-    queryKey,
-    queryFn: async () => parseResponse(client.export.$get(undefined, clientOptions)),
-  })
+export const getGetImportQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetImportQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.import.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
+
+/**
+ * GET /import
+ */
+export function useGetImport(options?: {
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.import.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
+  const { queryKey, queryFn, ...baseOptions } = getGetImportQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /export
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetExportQueryKey() {
-  return ['/export'] as const
+  return ['export', 'GET', '/export'] as const
 }
 
 /**
- * GET /default
+ * Returns Vue Query query options for GET /export
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function useGetDefault(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetDefaultQueryKey()
-  return useQuery({
-    queryKey,
-    queryFn: async () => parseResponse(client.default.$get(undefined, clientOptions)),
-  })
+export const getGetExportQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetExportQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.export.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
+
+/**
+ * GET /export
+ */
+export function useGetExport(options?: {
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.export.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
+  const { queryKey, queryFn, ...baseOptions } = getGetExportQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /default
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetDefaultQueryKey() {
-  return ['/default'] as const
+  return ['default', 'GET', '/default'] as const
 }
+
+/**
+ * Returns Vue Query query options for GET /default
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetDefaultQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetDefaultQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.default.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
+ * GET /default
+ */
+export function useGetDefault(options?: {
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.default.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
+  const { queryKey, queryFn, ...baseOptions } = getGetDefaultQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
+}
+
+/**
+ * Generates Vue Query mutation key for POST /new
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostNewMutationKey() {
+  return ['new', 'POST', '/new'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /new
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostNewMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostNewMutationKey(),
+  mutationFn: async () => parseResponse(client.new.$post(undefined, clientOptions)),
+})
 
 /**
  * POST /new
  */
-export function usePostNew(clientOptions?: ClientRequestOptions) {
-  return useMutation<InferResponseType<typeof client.new.$post> | undefined, Error, void>({
-    mutationFn: async () => parseResponse(client.new.$post(undefined, clientOptions)),
-  })
+export function usePostNew(options?: {
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.new.$post>>>>>,
+        Error,
+        void
+      >,
+      'mutationFn' | 'mutationKey'
+    >
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } = getPostNewMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates Vue Query mutation key for DELETE /delete
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getDeleteDeleteMutationKey() {
+  return ['delete', 'DELETE', '/delete'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for DELETE /delete
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteDeleteMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getDeleteDeleteMutationKey(),
+  mutationFn: async () => parseResponse(client.delete.$delete(undefined, clientOptions)),
+})
 
 /**
  * DELETE /delete
  */
-export function useDeleteDelete(clientOptions?: ClientRequestOptions) {
-  return useMutation<InferResponseType<typeof client.delete.$delete> | undefined, Error, void>({
-    mutationFn: async () => parseResponse(client.delete.$delete(undefined, clientOptions)),
-  })
-}
-
-/**
- * GET /void
- */
-export function useGetVoid(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetVoidQueryKey()
-  return useQuery({
-    queryKey,
-    queryFn: async () => parseResponse(client.void.$get(undefined, clientOptions)),
-  })
+export function useDeleteDelete(options?: {
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.delete.$delete>>>>
+        >,
+        Error,
+        void
+      >,
+      'mutationFn' | 'mutationKey'
+    >
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } = getDeleteDeleteMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /void
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetVoidQueryKey() {
-  return ['/void'] as const
+  return ['void', 'GET', '/void'] as const
 }
 
 /**
- * GET /null
+ * Returns Vue Query query options for GET /void
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function useGetNull(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetNullQueryKey()
-  return useQuery({
-    queryKey,
-    queryFn: async () => parseResponse(client.null.$get(undefined, clientOptions)),
-  })
+export const getGetVoidQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetVoidQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.void.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
+
+/**
+ * GET /void
+ */
+export function useGetVoid(options?: {
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.void.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
+  const { queryKey, queryFn, ...baseOptions } = getGetVoidQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /null
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetNullQueryKey() {
-  return ['/null'] as const
+  return ['null', 'GET', '/null'] as const
 }
 
 /**
- * GET /true
+ * Returns Vue Query query options for GET /null
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function useGetTrue(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetTrueQueryKey()
-  return useQuery({
-    queryKey,
-    queryFn: async () => parseResponse(client.true.$get(undefined, clientOptions)),
-  })
+export const getGetNullQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetNullQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.null.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
+
+/**
+ * GET /null
+ */
+export function useGetNull(options?: {
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.null.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
+  const { queryKey, queryFn, ...baseOptions } = getGetNullQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /true
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetTrueQueryKey() {
-  return ['/true'] as const
+  return ['true', 'GET', '/true'] as const
 }
 
 /**
- * GET /false
+ * Returns Vue Query query options for GET /true
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function useGetFalse(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetFalseQueryKey()
-  return useQuery({
-    queryKey,
-    queryFn: async () => parseResponse(client.false.$get(undefined, clientOptions)),
-  })
+export const getGetTrueQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetTrueQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.true.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
+
+/**
+ * GET /true
+ */
+export function useGetTrue(options?: {
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.true.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
+  const { queryKey, queryFn, ...baseOptions } = getGetTrueQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /false
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetFalseQueryKey() {
-  return ['/false'] as const
+  return ['false', 'GET', '/false'] as const
 }
 
 /**
- * GET /if
+ * Returns Vue Query query options for GET /false
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function useGetIf(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetIfQueryKey()
-  return useQuery({
-    queryKey,
-    queryFn: async () => parseResponse(client.if.$get(undefined, clientOptions)),
-  })
+export const getGetFalseQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetFalseQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.false.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
+
+/**
+ * GET /false
+ */
+export function useGetFalse(options?: {
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.false.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
+  const { queryKey, queryFn, ...baseOptions } = getGetFalseQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /if
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetIfQueryKey() {
-  return ['/if'] as const
+  return ['if', 'GET', '/if'] as const
 }
 
 /**
- * GET /else
+ * Returns Vue Query query options for GET /if
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function useGetElse(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetElseQueryKey()
-  return useQuery({
-    queryKey,
-    queryFn: async () => parseResponse(client.else.$get(undefined, clientOptions)),
-  })
+export const getGetIfQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetIfQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.if.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
+
+/**
+ * GET /if
+ */
+export function useGetIf(options?: {
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.if.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
+  const { queryKey, queryFn, ...baseOptions } = getGetIfQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /else
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetElseQueryKey() {
-  return ['/else'] as const
+  return ['else', 'GET', '/else'] as const
 }
 
 /**
- * GET /for
+ * Returns Vue Query query options for GET /else
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function useGetFor(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetForQueryKey()
-  return useQuery({
-    queryKey,
-    queryFn: async () => parseResponse(client.for.$get(undefined, clientOptions)),
-  })
+export const getGetElseQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetElseQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.else.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
+
+/**
+ * GET /else
+ */
+export function useGetElse(options?: {
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.else.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
+  const { queryKey, queryFn, ...baseOptions } = getGetElseQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /for
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetForQueryKey() {
-  return ['/for'] as const
+  return ['for', 'GET', '/for'] as const
 }
 
 /**
- * GET /while
+ * Returns Vue Query query options for GET /for
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function useGetWhile(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetWhileQueryKey()
-  return useQuery({
-    queryKey,
-    queryFn: async () => parseResponse(client.while.$get(undefined, clientOptions)),
-  })
+export const getGetForQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetForQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.for.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
+
+/**
+ * GET /for
+ */
+export function useGetFor(options?: {
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.for.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
+  const { queryKey, queryFn, ...baseOptions } = getGetForQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /while
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetWhileQueryKey() {
-  return ['/while'] as const
+  return ['while', 'GET', '/while'] as const
 }
 
 /**
- * GET /switch
+ * Returns Vue Query query options for GET /while
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function useGetSwitch(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetSwitchQueryKey()
-  return useQuery({
-    queryKey,
-    queryFn: async () => parseResponse(client.switch.$get(undefined, clientOptions)),
-  })
+export const getGetWhileQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetWhileQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.while.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
+
+/**
+ * GET /while
+ */
+export function useGetWhile(options?: {
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.while.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
+  const { queryKey, queryFn, ...baseOptions } = getGetWhileQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /switch
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetSwitchQueryKey() {
-  return ['/switch'] as const
+  return ['switch', 'GET', '/switch'] as const
 }
 
 /**
- * GET /case
+ * Returns Vue Query query options for GET /switch
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function useGetCase(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetCaseQueryKey()
-  return useQuery({
-    queryKey,
-    queryFn: async () => parseResponse(client.case.$get(undefined, clientOptions)),
-  })
+export const getGetSwitchQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetSwitchQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.switch.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
+
+/**
+ * GET /switch
+ */
+export function useGetSwitch(options?: {
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.switch.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
+  const { queryKey, queryFn, ...baseOptions } = getGetSwitchQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /case
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetCaseQueryKey() {
-  return ['/case'] as const
+  return ['case', 'GET', '/case'] as const
 }
 
 /**
- * GET /break
+ * Returns Vue Query query options for GET /case
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function useGetBreak(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetBreakQueryKey()
-  return useQuery({
-    queryKey,
-    queryFn: async () => parseResponse(client.break.$get(undefined, clientOptions)),
-  })
+export const getGetCaseQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetCaseQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.case.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
+
+/**
+ * GET /case
+ */
+export function useGetCase(options?: {
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.case.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
+  const { queryKey, queryFn, ...baseOptions } = getGetCaseQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /break
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetBreakQueryKey() {
-  return ['/break'] as const
+  return ['break', 'GET', '/break'] as const
 }
 
 /**
- * GET /continue
+ * Returns Vue Query query options for GET /break
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function useGetContinue(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetContinueQueryKey()
-  return useQuery({
-    queryKey,
-    queryFn: async () => parseResponse(client.continue.$get(undefined, clientOptions)),
-  })
+export const getGetBreakQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetBreakQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.break.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
+
+/**
+ * GET /break
+ */
+export function useGetBreak(options?: {
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.break.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
+  const { queryKey, queryFn, ...baseOptions } = getGetBreakQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /continue
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetContinueQueryKey() {
-  return ['/continue'] as const
+  return ['continue', 'GET', '/continue'] as const
 }
 
 /**
- * GET /try
+ * Returns Vue Query query options for GET /continue
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function useGetTry(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetTryQueryKey()
-  return useQuery({
-    queryKey,
-    queryFn: async () => parseResponse(client.try.$get(undefined, clientOptions)),
-  })
+export const getGetContinueQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetContinueQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.continue.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
+ * GET /continue
+ */
+export function useGetContinue(options?: {
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.continue.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
+  const { queryKey, queryFn, ...baseOptions } = getGetContinueQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /try
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetTryQueryKey() {
-  return ['/try'] as const
+  return ['try', 'GET', '/try'] as const
 }
 
 /**
- * GET /catch
+ * Returns Vue Query query options for GET /try
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function useGetCatch(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetCatchQueryKey()
-  return useQuery({
-    queryKey,
-    queryFn: async () => parseResponse(client.catch.$get(undefined, clientOptions)),
-  })
+export const getGetTryQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetTryQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.try.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
+
+/**
+ * GET /try
+ */
+export function useGetTry(options?: {
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.try.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
+  const { queryKey, queryFn, ...baseOptions } = getGetTryQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /catch
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetCatchQueryKey() {
-  return ['/catch'] as const
+  return ['catch', 'GET', '/catch'] as const
 }
 
 /**
- * GET /finally
+ * Returns Vue Query query options for GET /catch
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function useGetFinally(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetFinallyQueryKey()
-  return useQuery({
-    queryKey,
-    queryFn: async () => parseResponse(client.finally.$get(undefined, clientOptions)),
-  })
+export const getGetCatchQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetCatchQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.catch.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
+
+/**
+ * GET /catch
+ */
+export function useGetCatch(options?: {
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.catch.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
+  const { queryKey, queryFn, ...baseOptions } = getGetCatchQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /finally
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetFinallyQueryKey() {
-  return ['/finally'] as const
+  return ['finally', 'GET', '/finally'] as const
 }
 
 /**
- * GET /throw
+ * Returns Vue Query query options for GET /finally
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function useGetThrow(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetThrowQueryKey()
-  return useQuery({
-    queryKey,
-    queryFn: async () => parseResponse(client.throw.$get(undefined, clientOptions)),
-  })
+export const getGetFinallyQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetFinallyQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.finally.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
+ * GET /finally
+ */
+export function useGetFinally(options?: {
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.finally.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
+  const { queryKey, queryFn, ...baseOptions } = getGetFinallyQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /throw
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetThrowQueryKey() {
-  return ['/throw'] as const
+  return ['throw', 'GET', '/throw'] as const
 }
 
 /**
- * GET /async
+ * Returns Vue Query query options for GET /throw
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function useGetAsync(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetAsyncQueryKey()
-  return useQuery({
-    queryKey,
-    queryFn: async () => parseResponse(client.async.$get(undefined, clientOptions)),
-  })
+export const getGetThrowQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetThrowQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.throw.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
+
+/**
+ * GET /throw
+ */
+export function useGetThrow(options?: {
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.throw.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
+  const { queryKey, queryFn, ...baseOptions } = getGetThrowQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /async
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetAsyncQueryKey() {
-  return ['/async'] as const
+  return ['async', 'GET', '/async'] as const
 }
 
 /**
- * GET /await
+ * Returns Vue Query query options for GET /async
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function useGetAwait(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetAwaitQueryKey()
-  return useQuery({
-    queryKey,
-    queryFn: async () => parseResponse(client.await.$get(undefined, clientOptions)),
-  })
+export const getGetAsyncQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetAsyncQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.async.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
+
+/**
+ * GET /async
+ */
+export function useGetAsync(options?: {
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.async.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
+  const { queryKey, queryFn, ...baseOptions } = getGetAsyncQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /await
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetAwaitQueryKey() {
-  return ['/await'] as const
+  return ['await', 'GET', '/await'] as const
 }
 
 /**
- * GET /yield
+ * Returns Vue Query query options for GET /await
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function useGetYield(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetYieldQueryKey()
-  return useQuery({
-    queryKey,
-    queryFn: async () => parseResponse(client.yield.$get(undefined, clientOptions)),
-  })
+export const getGetAwaitQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetAwaitQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.await.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
+
+/**
+ * GET /await
+ */
+export function useGetAwait(options?: {
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.await.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
+  const { queryKey, queryFn, ...baseOptions } = getGetAwaitQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /yield
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetYieldQueryKey() {
-  return ['/yield'] as const
+  return ['yield', 'GET', '/yield'] as const
 }
 
 /**
- * GET /static
+ * Returns Vue Query query options for GET /yield
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function useGetStatic(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetStaticQueryKey()
-  return useQuery({
-    queryKey,
-    queryFn: async () => parseResponse(client.static.$get(undefined, clientOptions)),
-  })
+export const getGetYieldQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetYieldQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.yield.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
+
+/**
+ * GET /yield
+ */
+export function useGetYield(options?: {
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.yield.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
+  const { queryKey, queryFn, ...baseOptions } = getGetYieldQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /static
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetStaticQueryKey() {
-  return ['/static'] as const
+  return ['static', 'GET', '/static'] as const
 }
 
 /**
- * GET /public
+ * Returns Vue Query query options for GET /static
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function useGetPublic(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetPublicQueryKey()
-  return useQuery({
-    queryKey,
-    queryFn: async () => parseResponse(client.public.$get(undefined, clientOptions)),
-  })
+export const getGetStaticQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetStaticQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.static.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
+
+/**
+ * GET /static
+ */
+export function useGetStatic(options?: {
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.static.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
+  const { queryKey, queryFn, ...baseOptions } = getGetStaticQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /public
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetPublicQueryKey() {
-  return ['/public'] as const
+  return ['public', 'GET', '/public'] as const
 }
 
 /**
- * GET /private
+ * Returns Vue Query query options for GET /public
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function useGetPrivate(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetPrivateQueryKey()
-  return useQuery({
-    queryKey,
-    queryFn: async () => parseResponse(client.private.$get(undefined, clientOptions)),
-  })
+export const getGetPublicQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetPublicQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.public.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
+
+/**
+ * GET /public
+ */
+export function useGetPublic(options?: {
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.public.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
+  const { queryKey, queryFn, ...baseOptions } = getGetPublicQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /private
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetPrivateQueryKey() {
-  return ['/private'] as const
+  return ['private', 'GET', '/private'] as const
 }
 
 /**
- * GET /protected
+ * Returns Vue Query query options for GET /private
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function useGetProtected(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetProtectedQueryKey()
-  return useQuery({
-    queryKey,
-    queryFn: async () => parseResponse(client.protected.$get(undefined, clientOptions)),
-  })
+export const getGetPrivateQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetPrivateQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.private.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
+ * GET /private
+ */
+export function useGetPrivate(options?: {
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.private.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
+  const { queryKey, queryFn, ...baseOptions } = getGetPrivateQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /protected
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetProtectedQueryKey() {
-  return ['/protected'] as const
+  return ['protected', 'GET', '/protected'] as const
 }
 
 /**
- * GET /abstract
+ * Returns Vue Query query options for GET /protected
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function useGetAbstract(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetAbstractQueryKey()
-  return useQuery({
-    queryKey,
-    queryFn: async () => parseResponse(client.abstract.$get(undefined, clientOptions)),
-  })
+export const getGetProtectedQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetProtectedQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.protected.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
+ * GET /protected
+ */
+export function useGetProtected(options?: {
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.protected.$get>>>>
+        >,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
+  const { queryKey, queryFn, ...baseOptions } = getGetProtectedQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /abstract
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetAbstractQueryKey() {
-  return ['/abstract'] as const
+  return ['abstract', 'GET', '/abstract'] as const
 }
 
 /**
- * GET /final
+ * Returns Vue Query query options for GET /abstract
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function useGetFinal(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetFinalQueryKey()
-  return useQuery({
-    queryKey,
-    queryFn: async () => parseResponse(client.final.$get(undefined, clientOptions)),
-  })
+export const getGetAbstractQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetAbstractQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.abstract.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
+ * GET /abstract
+ */
+export function useGetAbstract(options?: {
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.abstract.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
+  const { queryKey, queryFn, ...baseOptions } = getGetAbstractQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /final
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetFinalQueryKey() {
-  return ['/final'] as const
+  return ['final', 'GET', '/final'] as const
 }
 
 /**
- * GET /extends
+ * Returns Vue Query query options for GET /final
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function useGetExtends(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetExtendsQueryKey()
-  return useQuery({
-    queryKey,
-    queryFn: async () => parseResponse(client.extends.$get(undefined, clientOptions)),
-  })
+export const getGetFinalQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetFinalQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.final.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
+
+/**
+ * GET /final
+ */
+export function useGetFinal(options?: {
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.final.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
+  const { queryKey, queryFn, ...baseOptions } = getGetFinalQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /extends
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetExtendsQueryKey() {
-  return ['/extends'] as const
+  return ['extends', 'GET', '/extends'] as const
 }
 
 /**
- * GET /implements
+ * Returns Vue Query query options for GET /extends
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function useGetImplements(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetImplementsQueryKey()
-  return useQuery({
-    queryKey,
-    queryFn: async () => parseResponse(client.implements.$get(undefined, clientOptions)),
-  })
+export const getGetExtendsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetExtendsQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.extends.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
+ * GET /extends
+ */
+export function useGetExtends(options?: {
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.extends.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
+  const { queryKey, queryFn, ...baseOptions } = getGetExtendsQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /implements
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetImplementsQueryKey() {
-  return ['/implements'] as const
+  return ['implements', 'GET', '/implements'] as const
 }
 
 /**
- * GET /package
+ * Returns Vue Query query options for GET /implements
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function useGetPackage(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetPackageQueryKey()
-  return useQuery({
-    queryKey,
-    queryFn: async () => parseResponse(client.package.$get(undefined, clientOptions)),
-  })
+export const getGetImplementsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetImplementsQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.implements.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
+ * GET /implements
+ */
+export function useGetImplements(options?: {
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.implements.$get>>>>
+        >,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
+  const { queryKey, queryFn, ...baseOptions } = getGetImplementsQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /package
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetPackageQueryKey() {
-  return ['/package'] as const
+  return ['package', 'GET', '/package'] as const
 }
 
 /**
- * GET /enum
+ * Returns Vue Query query options for GET /package
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function useGetEnum(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetEnumQueryKey()
-  return useQuery({
-    queryKey,
-    queryFn: async () => parseResponse(client.enum.$get(undefined, clientOptions)),
-  })
+export const getGetPackageQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetPackageQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.package.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
+ * GET /package
+ */
+export function useGetPackage(options?: {
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.package.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
+  const { queryKey, queryFn, ...baseOptions } = getGetPackageQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /enum
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetEnumQueryKey() {
-  return ['/enum'] as const
+  return ['enum', 'GET', '/enum'] as const
 }
 
 /**
- * GET /const
+ * Returns Vue Query query options for GET /enum
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function useGetConst(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetConstQueryKey()
-  return useQuery({
-    queryKey,
-    queryFn: async () => parseResponse(client.const.$get(undefined, clientOptions)),
-  })
+export const getGetEnumQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetEnumQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.enum.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
+
+/**
+ * GET /enum
+ */
+export function useGetEnum(options?: {
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.enum.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
+  const { queryKey, queryFn, ...baseOptions } = getGetEnumQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /const
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetConstQueryKey() {
-  return ['/const'] as const
+  return ['const', 'GET', '/const'] as const
 }
 
 /**
- * GET /let
+ * Returns Vue Query query options for GET /const
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function useGetLet(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetLetQueryKey()
-  return useQuery({
-    queryKey,
-    queryFn: async () => parseResponse(client.let.$get(undefined, clientOptions)),
-  })
+export const getGetConstQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetConstQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.const.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
+
+/**
+ * GET /const
+ */
+export function useGetConst(options?: {
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.const.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
+  const { queryKey, queryFn, ...baseOptions } = getGetConstQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /let
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetLetQueryKey() {
-  return ['/let'] as const
+  return ['let', 'GET', '/let'] as const
 }
 
 /**
- * GET /var
+ * Returns Vue Query query options for GET /let
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function useGetVar(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetVarQueryKey()
-  return useQuery({
-    queryKey,
-    queryFn: async () => parseResponse(client.var.$get(undefined, clientOptions)),
-  })
+export const getGetLetQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetLetQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.let.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
+
+/**
+ * GET /let
+ */
+export function useGetLet(options?: {
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.let.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
+  const { queryKey, queryFn, ...baseOptions } = getGetLetQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /var
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetVarQueryKey() {
-  return ['/var'] as const
+  return ['var', 'GET', '/var'] as const
 }
 
 /**
- * GET /this
+ * Returns Vue Query query options for GET /var
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function useGetThis(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetThisQueryKey()
-  return useQuery({
-    queryKey,
-    queryFn: async () => parseResponse(client.this.$get(undefined, clientOptions)),
-  })
+export const getGetVarQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetVarQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.var.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
+
+/**
+ * GET /var
+ */
+export function useGetVar(options?: {
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.var.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
+  const { queryKey, queryFn, ...baseOptions } = getGetVarQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /this
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetThisQueryKey() {
-  return ['/this'] as const
+  return ['this', 'GET', '/this'] as const
 }
 
 /**
- * GET /super
+ * Returns Vue Query query options for GET /this
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function useGetSuper(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetSuperQueryKey()
-  return useQuery({
-    queryKey,
-    queryFn: async () => parseResponse(client.super.$get(undefined, clientOptions)),
-  })
+export const getGetThisQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetThisQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.this.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
+
+/**
+ * GET /this
+ */
+export function useGetThis(options?: {
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.this.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
+  const { queryKey, queryFn, ...baseOptions } = getGetThisQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /super
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetSuperQueryKey() {
-  return ['/super'] as const
+  return ['super', 'GET', '/super'] as const
 }
 
 /**
- * GET /self
+ * Returns Vue Query query options for GET /super
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function useGetSelf(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetSelfQueryKey()
-  return useQuery({
-    queryKey,
-    queryFn: async () => parseResponse(client.self.$get(undefined, clientOptions)),
-  })
+export const getGetSuperQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetSuperQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.super.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
+
+/**
+ * GET /super
+ */
+export function useGetSuper(options?: {
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.super.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
+  const { queryKey, queryFn, ...baseOptions } = getGetSuperQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /self
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetSelfQueryKey() {
-  return ['/self'] as const
+  return ['self', 'GET', '/self'] as const
 }
 
 /**
- * GET /constructor
+ * Returns Vue Query query options for GET /self
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function useGetConstructor(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetConstructorQueryKey()
-  return useQuery({
-    queryKey,
-    queryFn: async () => parseResponse(client.constructor.$get(undefined, clientOptions)),
-  })
+export const getGetSelfQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetSelfQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.self.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
+
+/**
+ * GET /self
+ */
+export function useGetSelf(options?: {
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.self.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
+  const { queryKey, queryFn, ...baseOptions } = getGetSelfQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /constructor
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetConstructorQueryKey() {
-  return ['/constructor'] as const
+  return ['constructor', 'GET', '/constructor'] as const
 }
 
 /**
- * GET /prototype
+ * Returns Vue Query query options for GET /constructor
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function useGetPrototype(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetPrototypeQueryKey()
-  return useQuery({
-    queryKey,
-    queryFn: async () => parseResponse(client.prototype.$get(undefined, clientOptions)),
-  })
+export const getGetConstructorQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetConstructorQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.constructor.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
+ * GET /constructor
+ */
+export function useGetConstructor(options?: {
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.constructor.$get>>>>
+        >,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
+  const { queryKey, queryFn, ...baseOptions } = getGetConstructorQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /prototype
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetPrototypeQueryKey() {
-  return ['/prototype'] as const
+  return ['prototype', 'GET', '/prototype'] as const
 }
 
 /**
- * GET /toString
+ * Returns Vue Query query options for GET /prototype
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function useGetToString(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetToStringQueryKey()
-  return useQuery({
-    queryKey,
-    queryFn: async () => parseResponse(client.toString.$get(undefined, clientOptions)),
-  })
+export const getGetPrototypeQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetPrototypeQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.prototype.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
+ * GET /prototype
+ */
+export function useGetPrototype(options?: {
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.prototype.$get>>>>
+        >,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
+  const { queryKey, queryFn, ...baseOptions } = getGetPrototypeQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /toString
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetToStringQueryKey() {
-  return ['/toString'] as const
+  return ['toString', 'GET', '/toString'] as const
 }
 
 /**
- * GET /valueOf
+ * Returns Vue Query query options for GET /toString
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function useGetValueOf(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetValueOfQueryKey()
-  return useQuery({
-    queryKey,
-    queryFn: async () => parseResponse(client.valueOf.$get(undefined, clientOptions)),
-  })
+export const getGetToStringQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetToStringQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.toString.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
+ * GET /toString
+ */
+export function useGetToString(options?: {
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.toString.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
+  const { queryKey, queryFn, ...baseOptions } = getGetToStringQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /valueOf
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetValueOfQueryKey() {
-  return ['/valueOf'] as const
+  return ['valueOf', 'GET', '/valueOf'] as const
 }
 
 /**
- * GET /hasOwnProperty
+ * Returns Vue Query query options for GET /valueOf
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function useGetHasOwnProperty(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetHasOwnPropertyQueryKey()
-  return useQuery({
-    queryKey,
-    queryFn: async () => parseResponse(client.hasOwnProperty.$get(undefined, clientOptions)),
-  })
+export const getGetValueOfQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetValueOfQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.valueOf.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
+ * GET /valueOf
+ */
+export function useGetValueOf(options?: {
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.valueOf.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
+  const { queryKey, queryFn, ...baseOptions } = getGetValueOfQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /hasOwnProperty
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetHasOwnPropertyQueryKey() {
-  return ['/hasOwnProperty'] as const
+  return ['hasOwnProperty', 'GET', '/hasOwnProperty'] as const
 }
 
 /**
- * GET /name-collisions
+ * Returns Vue Query query options for GET /hasOwnProperty
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function useGetNameCollisions(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetNameCollisionsQueryKey()
-  return useQuery({
-    queryKey,
-    queryFn: async () => parseResponse(client['name-collisions'].$get(undefined, clientOptions)),
-  })
+export const getGetHasOwnPropertyQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetHasOwnPropertyQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.hasOwnProperty.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
+ * GET /hasOwnProperty
+ */
+export function useGetHasOwnProperty(options?: {
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hasOwnProperty.$get>>>>
+        >,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
+  const { queryKey, queryFn, ...baseOptions } = getGetHasOwnPropertyQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /name-collisions
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetNameCollisionsQueryKey() {
-  return ['/name-collisions'] as const
+  return ['name-collisions', 'GET', '/name-collisions'] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /name-collisions
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetNameCollisionsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetNameCollisionsQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['name-collisions'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
+ * GET /name-collisions
+ */
+export function useGetNameCollisions(options?: {
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<Awaited<ReturnType<(typeof client)['name-collisions']['$get']>>>
+          >
+        >,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
+  const { queryKey, queryFn, ...baseOptions } = getGetNameCollisionsQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }

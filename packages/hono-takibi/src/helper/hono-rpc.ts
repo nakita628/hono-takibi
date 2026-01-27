@@ -241,6 +241,95 @@ export type OperationLike = {
 export const isOperationLike = (v: unknown): v is OperationLike => isRecord(v) && 'responses' in v
 
 /**
+ * Extract success status codes (2xx) from operation responses.
+ *
+ * Returns the first 2xx status code found, with preference for:
+ * 1. 200 (OK)
+ * 2. 201 (Created)
+ * 3. 204 (No Content)
+ * 4. Other 2xx codes in order
+ *
+ * @param op - Operation object
+ * @returns First success status code or undefined if none found
+ *
+ * @example
+ * ```ts
+ * const op = { responses: { '200': {...}, '404': {...} } }
+ * getSuccessStatusCode(op)
+ * // => 200
+ *
+ * const createOp = { responses: { '201': {...}, '400': {...} } }
+ * getSuccessStatusCode(createOp)
+ * // => 201
+ * ```
+ */
+export const getSuccessStatusCode = (op: OperationLike): number | undefined => {
+  const responses = op.responses
+  if (!isRecord(responses)) return undefined
+
+  const statusCodes = Object.keys(responses)
+    .map((s) => Number.parseInt(s, 10))
+    .filter((code) => !Number.isNaN(code) && code >= 200 && code < 300)
+    .sort((a, b) => {
+      // Prioritize common success codes
+      const priority = [200, 201, 204]
+      const aIndex = priority.indexOf(a)
+      const bIndex = priority.indexOf(b)
+      if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex
+      if (aIndex !== -1) return -1
+      if (bIndex !== -1) return 1
+      return a - b
+    })
+
+  return statusCodes[0]
+}
+
+/**
+ * HTTP status codes that indicate No Content (no response body).
+ *
+ * When these status codes are defined in OpenAPI responses,
+ * `parseResponse` may return `undefined`.
+ *
+ * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/204
+ * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/205
+ * @see https://github.com/honojs/hono/issues/4264
+ */
+const NO_CONTENT_STATUS_CODES = [204, 205] as const
+
+/**
+ * Check if operation has No Content response (204 or 205).
+ *
+ * When an operation has 204 or 205 response defined,
+ * `parseResponse()` may return `undefined` instead of parsed data.
+ * This function helps determine if `| undefined` should be added to the response type.
+ *
+ * @param op - Operation object
+ * @returns True if operation has 204 or 205 response defined
+ *
+ * @example
+ * ```ts
+ * const deleteOp = { responses: { '204': { description: 'Deleted' } } }
+ * hasNoContentResponse(deleteOp)
+ * // => true
+ *
+ * const getOp = { responses: { '200': { description: 'OK' } } }
+ * hasNoContentResponse(getOp)
+ * // => false
+ * ```
+ *
+ * @see https://hono.dev/docs/guides/rpc#parsing-a-response-with-type-safety-helper
+ */
+export const hasNoContentResponse = (op: OperationLike): boolean => {
+  const responses = op.responses
+  if (!isRecord(responses)) return false
+
+  return Object.keys(responses).some((status) => {
+    const code = Number.parseInt(status, 10)
+    return !Number.isNaN(code) && NO_CONTENT_STATUS_CODES.includes(code as 204 | 205)
+  })
+}
+
+/**
  * HTTP methods supported by OpenAPI.
  */
 export type HttpMethod = 'get' | 'put' | 'post' | 'delete' | 'options' | 'head' | 'patch' | 'trace'
@@ -476,17 +565,68 @@ export const buildInferRequestType = (
  * @param clientName - Client variable name
  * @param pathResult - Formatted path result
  * @param method - HTTP method
+ * @param statusCode - Optional status code to filter response type (e.g., 200, 201)
  * @returns TypeScript type expression string
+ *
+ * @example
+ * ```ts
+ * // Without status code (all responses)
+ * buildInferResponseType('client', pathResult, 'get')
+ * // => 'InferResponseType<typeof client.users.$get>'
+ *
+ * // With status code (only 200 response)
+ * buildInferResponseType('client', pathResult, 'get', 200)
+ * // => 'InferResponseType<typeof client.users.$get, 200>'
+ * ```
  */
 export const buildInferResponseType = (
   clientName: string,
   pathResult: FormatPathResult,
   method: HttpMethod,
+  statusCode?: number,
 ): string => {
   const { runtimePath, typeofPrefix, bracketSuffix, hasBracket } = pathResult
+  const statusSuffix = statusCode !== undefined ? `,${statusCode}` : ''
   return hasBracket
-    ? `InferResponseType<(typeof ${clientName}${typeofPrefix})${bracketSuffix}['$${method}']>`
-    : `InferResponseType<typeof ${clientName}${runtimePath}.$${method}>`
+    ? `InferResponseType<(typeof ${clientName}${typeofPrefix})${bracketSuffix}['$${method}']${statusSuffix}>`
+    : `InferResponseType<typeof ${clientName}${runtimePath}.$${method}${statusSuffix}>`
+}
+
+/**
+ * Build parseResponse return type expression.
+ *
+ * Uses `Awaited<ReturnType<typeof parseResponse<...>>>` to correctly infer
+ * the actual return type of parseResponse, which handles:
+ * - JSON responses (returns parsed object)
+ * - Text responses (returns string)
+ * - No content responses (returns undefined)
+ *
+ * This is more accurate than InferResponseType when the route has multiple
+ * output formats (e.g., both 'json' and 'text' outputFormat in the type union).
+ *
+ * @param clientName - Client variable name
+ * @param pathResult - Formatted path result
+ * @param method - HTTP method
+ * @returns TypeScript type expression string
+ *
+ * @example
+ * ```ts
+ * buildParseResponseType('client', pathResult, 'post')
+ * // => 'Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>'
+ * ```
+ *
+ * @see https://hono.dev/docs/guides/rpc#parsing-a-response-with-type-safety-helper
+ */
+export const buildParseResponseType = (
+  clientName: string,
+  pathResult: FormatPathResult,
+  method: HttpMethod,
+): string => {
+  const { runtimePath, typeofPrefix, bracketSuffix, hasBracket } = pathResult
+  const clientMethodType = hasBracket
+    ? `(typeof ${clientName}${typeofPrefix})${bracketSuffix}['$${method}']`
+    : `typeof ${clientName}${runtimePath}.$${method}`
+  return `Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<${clientMethodType}>>>>>`
 }
 
 /* ─────────────────────────────── Parameter analysis ─────────────────────────────── */

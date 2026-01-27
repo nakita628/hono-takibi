@@ -1,8 +1,32 @@
-import type { CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
+import type { CreateQueryOptions, QueryFunctionContext } from '@tanstack/svelte-query'
 import { createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferResponseType } from 'hono/client'
+import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/additional'
+
+/**
+ * Generates Svelte Query cache key for GET /passthrough
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGetPassthroughQueryKey() {
+  return ['passthrough', 'GET', '/passthrough'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /passthrough
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetPassthroughQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetPassthroughQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.passthrough.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /passthrough
@@ -12,33 +36,19 @@ import { client } from '../clients/additional'
  * zod passthrough
  */
 export function createGetPassthrough(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.passthrough.$get>,
-      Error,
-      InferResponseType<typeof client.passthrough.$get>,
-      readonly ['/passthrough']
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.passthrough.$get>>>>
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetPassthroughQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.passthrough.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
-}
-
-/**
- * Generates Svelte Query cache key for GET /passthrough
- */
-export function getGetPassthroughQueryKey() {
-  return ['/passthrough'] as const
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetPassthroughQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }

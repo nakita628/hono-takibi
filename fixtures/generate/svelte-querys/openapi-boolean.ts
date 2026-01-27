@@ -1,8 +1,32 @@
-import type { CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
+import type { CreateQueryOptions, QueryFunctionContext } from '@tanstack/svelte-query'
 import { createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferResponseType } from 'hono/client'
+import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/openapi-boolean'
+
+/**
+ * Generates Svelte Query cache key for GET /boolean
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGetBooleanQueryKey() {
+  return ['boolean', 'GET', '/boolean'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /boolean
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetBooleanQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetBooleanQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.boolean.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /boolean
@@ -12,33 +36,17 @@ import { client } from '../clients/openapi-boolean'
  * zod boolean
  */
 export function createGetBoolean(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.boolean.$get>,
-      Error,
-      InferResponseType<typeof client.boolean.$get>,
-      readonly ['/boolean']
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.boolean.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetBooleanQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.boolean.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
-}
-
-/**
- * Generates Svelte Query cache key for GET /boolean
- */
-export function getGetBooleanQueryKey() {
-  return ['/boolean'] as const
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetBooleanQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }

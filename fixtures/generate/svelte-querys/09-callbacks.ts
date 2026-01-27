@@ -1,8 +1,27 @@
-import type { CreateMutationOptions, QueryClient } from '@tanstack/svelte-query'
+import type { CreateMutationOptions } from '@tanstack/svelte-query'
 import { createMutation } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/09-callbacks'
+
+/**
+ * Generates Svelte Query mutation key for POST /webhooks
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostWebhooksMutationKey() {
+  return ['webhooks', 'POST', '/webhooks'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /webhooks
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostWebhooksMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostWebhooksMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.webhooks.$post>) =>
+    parseResponse(client.webhooks.$post(args, clientOptions)),
+})
 
 /**
  * POST /webhooks
@@ -10,28 +29,40 @@ import { client } from '../clients/09-callbacks'
  * Register a webhook endpoint
  */
 export function createPostWebhooks(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.webhooks.$post> | undefined,
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.webhooks.$post>>>>>,
       Error,
       InferRequestType<typeof client.webhooks.$post>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.webhooks.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.webhooks.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.webhooks.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostWebhooksMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query mutation key for POST /subscriptions
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostSubscriptionsMutationKey() {
+  return ['subscriptions', 'POST', '/subscriptions'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /subscriptions
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostSubscriptionsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostSubscriptionsMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.subscriptions.$post>) =>
+    parseResponse(client.subscriptions.$post(args, clientOptions)),
+})
 
 /**
  * POST /subscriptions
@@ -39,28 +70,44 @@ export function createPostWebhooks(
  * Create a subscription with payment callbacks
  */
 export function createPostSubscriptions(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.subscriptions.$post> | undefined,
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.subscriptions.$post>>>>
+      >,
       Error,
       InferRequestType<typeof client.subscriptions.$post>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.subscriptions.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.subscriptions.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.subscriptions.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostSubscriptionsMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query mutation key for POST /jobs
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostJobsMutationKey() {
+  return ['jobs', 'POST', '/jobs'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /jobs
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostJobsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostJobsMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.jobs.$post>) =>
+    parseResponse(client.jobs.$post(args, clientOptions)),
+})
 
 /**
  * POST /jobs
@@ -68,28 +115,43 @@ export function createPostSubscriptions(
  * Create an async job with progress callbacks
  */
 export function createPostJobs(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.jobs.$post> | undefined,
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.jobs.$post>>>>>,
       Error,
       InferRequestType<typeof client.jobs.$post>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.jobs.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.jobs.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.jobs.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostJobsMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query mutation key for POST /integrations/{integrationId}/sync
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostIntegrationsIntegrationIdSyncMutationKey() {
+  return ['integrations', 'POST', '/integrations/:integrationId/sync'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /integrations/{integrationId}/sync
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostIntegrationsIntegrationIdSyncMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostIntegrationsIntegrationIdSyncMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.integrations)[':integrationId']['sync']['$post']>,
+  ) => parseResponse(client.integrations[':integrationId'].sync.$post(args, clientOptions)),
+})
 
 /**
  * POST /integrations/{integrationId}/sync
@@ -97,27 +159,25 @@ export function createPostJobs(
  * Trigger data sync with callbacks
  */
 export function createPostIntegrationsIntegrationIdSync(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      | InferResponseType<(typeof client.integrations)[':integrationId']['sync']['$post']>
-      | undefined,
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.integrations)[':integrationId']['sync']['$post']>>
+          >
+        >
+      >,
       Error,
       InferRequestType<(typeof client.integrations)[':integrationId']['sync']['$post']>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<(typeof client.integrations)[':integrationId']['sync']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client.integrations)[':integrationId']['sync']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.integrations[':integrationId'].sync.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPostIntegrationsIntegrationIdSyncMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }

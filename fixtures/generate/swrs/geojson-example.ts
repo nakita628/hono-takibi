@@ -1,8 +1,16 @@
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
 import { client } from '../clients/geojson-example'
+
+/**
+ * Generates SWR cache key for GET /
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGetKey() {
+  return ['', 'GET', '/'] as const
+}
 
 /**
  * GET /
@@ -12,28 +20,29 @@ import { client } from '../clients/geojson-example'
  * This endpoint is used to check if the server is working.
  */
 export function useGet(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.index.$get>, Error> & {
-    swrKey?: Key
-    enabled?: boolean
-  }
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetKey() : null)
-  const query = useSWR<InferResponseType<typeof client.index.$get>, Error>(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetKey()) : null
+  return {
     swrKey,
-    async () => parseResponse(client.index.$get(undefined, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.index.$get(undefined, clientOptions)),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /
+ * Generates SWR cache key for GET /projects
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetKey() {
-  return ['/'] as const
+export function getGetProjectsKey(args: InferRequestType<typeof client.projects.$get>) {
+  return ['projects', 'GET', '/projects', args] as const
 }
 
 /**
@@ -46,27 +55,20 @@ export function getGetKey() {
 export function useGetProjects(
   args: InferRequestType<typeof client.projects.$get>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<typeof client.projects.$get>, Error> & {
-      swrKey?: Key
-      enabled?: boolean
-    }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetProjectsKey(args) : null)
-  const query = useSWR<InferResponseType<typeof client.projects.$get>, Error>(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetProjectsKey(args)) : null
+  return {
     swrKey,
-    async () => parseResponse(client.projects.$get(args, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
-}
-
-/**
- * Generates SWR cache key for GET /projects
- */
-export function getGetProjectsKey(args?: InferRequestType<typeof client.projects.$get>) {
-  return ['/projects', ...(args ? [args] : [])] as const
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.projects.$get(args, clientOptions)),
+      restSwrOptions,
+    ),
+  }
 }

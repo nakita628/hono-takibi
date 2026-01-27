@@ -1,4 +1,4 @@
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
@@ -7,55 +7,76 @@ import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/07-examples'
 
 /**
- * GET /products
+ * Generates SWR cache key for GET /products
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function useGetProducts(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.products.$get>, Error> & {
-    swrKey?: Key
-    enabled?: boolean
-  }
-  client?: ClientRequestOptions
-}) {
-  const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetProductsKey() : null)
-  const query = useSWR<InferResponseType<typeof client.products.$get>, Error>(
-    swrKey,
-    async () => parseResponse(client.products.$get(undefined, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+export function getGetProductsKey() {
+  return ['products', 'GET', '/products'] as const
 }
 
 /**
- * Generates SWR cache key for GET /products
+ * GET /products
  */
-export function getGetProductsKey() {
-  return ['/products'] as const
+export function useGetProducts(options?: {
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
+  client?: ClientRequestOptions
+}) {
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetProductsKey()) : null
+  return {
+    swrKey,
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.products.$get(undefined, clientOptions)),
+      restSwrOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /products
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostProductsMutationKey() {
+  return ['products', 'POST', '/products'] as const
 }
 
 /**
  * POST /products
  */
 export function usePostProducts(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.products.$post>,
+  mutation?: SWRMutationConfiguration<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.products.$post>>>>>,
     Error,
-    string,
+    Key,
     InferRequestType<typeof client.products.$post>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<typeof client.products.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.products.$post>
-  >(
-    'POST /products',
-    async (_, { arg }) => parseResponse(client.products.$post(arg, options?.client)),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostProductsMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (_: Key, { arg }: { arg: InferRequestType<typeof client.products.$post> }) =>
+        parseResponse(client.products.$post(arg, clientOptions)),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /products/{productId}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetProductsProductIdKey(
+  args: InferRequestType<(typeof client.products)[':productId']['$get']>,
+) {
+  return ['products', 'GET', '/products/:productId', args] as const
 }
 
 /**
@@ -64,29 +85,20 @@ export function usePostProducts(options?: {
 export function useGetProductsProductId(
   args: InferRequestType<(typeof client.products)[':productId']['$get']>,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<(typeof client.products)[':productId']['$get']>,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetProductsProductIdKey(args) : null)
-  const query = useSWR<InferResponseType<(typeof client.products)[':productId']['$get']>, Error>(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetProductsProductIdKey(args)) : null
+  return {
     swrKey,
-    async () => parseResponse(client.products[':productId'].$get(args, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
-}
-
-/**
- * Generates SWR cache key for GET /products/{productId}
- */
-export function getGetProductsProductIdKey(
-  args?: InferRequestType<(typeof client.products)[':productId']['$get']>,
-) {
-  return ['/products/:productId', ...(args ? [args] : [])] as const
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.products[':productId'].$get(args, clientOptions)),
+      restSwrOptions,
+    ),
+  }
 }

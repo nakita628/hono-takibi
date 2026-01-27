@@ -1,129 +1,154 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
+import type {
+  QueryFunctionContext,
+  UseMutationOptions,
+  UseQueryOptions,
+} from '@tanstack/react-query'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/19-resolution-order'
 
 /**
- * GET /entities
+ * Generates TanStack Query cache key for GET /entities
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function useGetEntities(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.entities.$get>,
-      Error,
-      InferResponseType<typeof client.entities.$get>,
-      readonly ['/entities']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetEntitiesQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.entities.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+export function getGetEntitiesQueryKey() {
+  return ['entities', 'GET', '/entities'] as const
 }
 
 /**
- * Generates TanStack Query cache key for GET /entities
+ * Returns TanStack Query query options for GET /entities
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetEntitiesQueryKey() {
-  return ['/entities'] as const
+export const getGetEntitiesQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetEntitiesQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.entities.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
+ * GET /entities
+ */
+export function useGetEntities(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.entities.$get>>>>>,
+    Error
+  >
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
+  const { queryKey, queryFn, ...baseOptions } = getGetEntitiesQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /process
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostProcessMutationKey() {
+  return ['process', 'POST', '/process'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /process
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostProcessMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostProcessMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.process.$post>) =>
+    parseResponse(client.process.$post(args, clientOptions)),
+})
 
 /**
  * POST /process
  */
-export function usePostProcess(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.process.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.process.$post>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<typeof client.process.$post> | undefined,
+export function usePostProcess(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.process.$post>>>>>,
     Error,
     InferRequestType<typeof client.process.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.process.$post(args, options?.client)),
-    },
-    queryClient,
-  )
-}
-
-/**
- * GET /graph
- */
-export function useGetGraph(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.graph.$get>,
-      Error,
-      InferResponseType<typeof client.graph.$get>,
-      readonly ['/graph']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetGraphQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.graph.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } = getPostProcessMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query cache key for GET /graph
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetGraphQueryKey() {
-  return ['/graph'] as const
+  return ['graph', 'GET', '/graph'] as const
 }
+
+/**
+ * Returns TanStack Query query options for GET /graph
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetGraphQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetGraphQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.graph.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
+
+/**
+ * GET /graph
+ */
+export function useGetGraph(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.graph.$get>>>>>,
+    Error
+  >
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
+  const { queryKey, queryFn, ...baseOptions } = getGetGraphQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
+}
+
+/**
+ * Generates TanStack Query mutation key for POST /transform
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostTransformMutationKey() {
+  return ['transform', 'POST', '/transform'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /transform
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostTransformMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostTransformMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.transform.$post>) =>
+    parseResponse(client.transform.$post(args, clientOptions)),
+})
 
 /**
  * POST /transform
  */
-export function usePostTransform(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.transform.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.transform.$post>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<typeof client.transform.$post> | undefined,
+export function usePostTransform(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.transform.$post>>>>>,
     Error,
     InferRequestType<typeof client.transform.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.transform.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } = getPostTransformMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }

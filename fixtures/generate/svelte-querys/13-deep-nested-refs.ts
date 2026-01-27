@@ -1,8 +1,50 @@
-import type { CreateMutationOptions, CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
+import type {
+  CreateMutationOptions,
+  CreateQueryOptions,
+  QueryFunctionContext,
+} from '@tanstack/svelte-query'
 import { createMutation, createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/13-deep-nested-refs'
+
+/**
+ * Generates Svelte Query cache key for GET /organizations/{orgId}/departments/{deptId}/teams/{teamId}/members
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersQueryKey(
+  args: InferRequestType<
+    (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$get']
+  >,
+) {
+  return [
+    'organizations',
+    'GET',
+    '/organizations/:orgId/departments/:deptId/teams/:teamId/members',
+    args,
+  ] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /organizations/{orgId}/departments/{deptId}/teams/{teamId}/members
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersQueryOptions = (
+  args: InferRequestType<
+    (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$get']
+  >,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.organizations[':orgId'].departments[':deptId'].teams[':teamId'].members.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /organizations/{orgId}/departments/{deptId}/teams/{teamId}/members
@@ -11,66 +53,83 @@ export function createGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(
   args: InferRequestType<
     (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<
-        (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$get']
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$get']
+              >
+            >
+          >
+        >
       >,
-      Error,
-      InferResponseType<
-        (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$get']
-      >,
-      readonly [
-        '/organizations/:orgId/departments/:deptId/teams/:teamId/members',
-        InferRequestType<
-          (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$get']
-        >,
-      ]
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(
-          client.organizations[':orgId'].departments[':deptId'].teams[':teamId'].members.$get(
-            args,
-            clientOptions,
-          ),
-        ),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } =
+      getGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /organizations/{orgId}/departments/{deptId}/teams/{teamId}/members
+ * Generates Svelte Query mutation key for POST /organizations/{orgId}/departments/{deptId}/teams/{teamId}/members
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersQueryKey(
-  args: InferRequestType<
-    (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$get']
-  >,
-) {
-  return ['/organizations/:orgId/departments/:deptId/teams/:teamId/members', args] as const
+export function getPostOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersMutationKey() {
+  return [
+    'organizations',
+    'POST',
+    '/organizations/:orgId/departments/:deptId/teams/:teamId/members',
+  ] as const
 }
+
+/**
+ * Returns Svelte Query mutation options for POST /organizations/{orgId}/departments/{deptId}/teams/{teamId}/members
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$post']
+    >,
+  ) =>
+    parseResponse(
+      client.organizations[':orgId'].departments[':deptId'].teams[':teamId'].members.$post(
+        args,
+        clientOptions,
+      ),
+    ),
+})
 
 /**
  * POST /organizations/{orgId}/departments/{deptId}/teams/{teamId}/members
  */
 export function createPostOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$post']
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$post']
+              >
+            >
+          >
         >
-      | undefined,
+      >,
       Error,
       InferRequestType<
         (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$post']
@@ -78,64 +137,64 @@ export function createPostOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$post']
-    >
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(
-          client.organizations[':orgId'].departments[':deptId'].teams[':teamId'].members.$post(
-            args,
-            options?.client,
-          ),
-        ),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPostOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query cache key for GET /reports/organization-summary
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGetReportsOrganizationSummaryQueryKey() {
+  return ['reports', 'GET', '/reports/organization-summary'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /reports/organization-summary
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetReportsOrganizationSummaryQueryOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetReportsOrganizationSummaryQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.reports['organization-summary'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /reports/organization-summary
  */
 export function createGetReportsOrganizationSummary(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<(typeof client.reports)['organization-summary']['$get']>,
-      Error,
-      InferResponseType<(typeof client.reports)['organization-summary']['$get']>,
-      readonly ['/reports/organization-summary']
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.reports)['organization-summary']['$get']>>
+          >
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetReportsOrganizationSummaryQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.reports['organization-summary'].$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
-}
-
-/**
- * Generates Svelte Query cache key for GET /reports/organization-summary
- */
-export function getGetReportsOrganizationSummaryQueryKey() {
-  return ['/reports/organization-summary'] as const
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetReportsOrganizationSummaryQueryOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }

@@ -1,8 +1,36 @@
-import type { CreateMutationOptions, CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
+import type {
+  CreateMutationOptions,
+  CreateQueryOptions,
+  QueryFunctionContext,
+} from '@tanstack/svelte-query'
 import { createMutation, createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/40-auth-session-management'
+
+/**
+ * Generates Svelte Query cache key for GET /sessions
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetSessionsQueryKey(args: InferRequestType<typeof client.sessions.$get>) {
+  return ['sessions', 'GET', '/sessions', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /sessions
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetSessionsQueryOptions = (
+  args: InferRequestType<typeof client.sessions.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetSessionsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.sessions.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /sessions
@@ -13,36 +41,39 @@ import { client } from '../clients/40-auth-session-management'
  */
 export function createGetSessions(
   args: InferRequestType<typeof client.sessions.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.sessions.$get>,
-      Error,
-      InferResponseType<typeof client.sessions.$get>,
-      readonly ['/sessions', InferRequestType<typeof client.sessions.$get>]
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.sessions.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetSessionsQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.sessions.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetSessionsQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /sessions
+ * Generates Svelte Query mutation key for POST /sessions
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetSessionsQueryKey(args: InferRequestType<typeof client.sessions.$get>) {
-  return ['/sessions', args] as const
+export function getPostSessionsMutationKey() {
+  return ['sessions', 'POST', '/sessions'] as const
 }
+
+/**
+ * Returns Svelte Query mutation options for POST /sessions
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostSessionsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostSessionsMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.sessions.$post>) =>
+    parseResponse(client.sessions.$post(args, clientOptions)),
+})
 
 /**
  * POST /sessions
@@ -52,28 +83,45 @@ export function getGetSessionsQueryKey(args: InferRequestType<typeof client.sess
  * 認証成功後にセッションを作成
  */
 export function createPostSessions(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.sessions.$post> | undefined,
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.sessions.$post>>>>>,
       Error,
       InferRequestType<typeof client.sessions.$post>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.sessions.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.sessions.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.sessions.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostSessionsMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query cache key for GET /sessions/current
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGetSessionsCurrentQueryKey() {
+  return ['sessions', 'GET', '/sessions/current'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /sessions/current
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetSessionsCurrentQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetSessionsCurrentQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.sessions.current.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /sessions/current
@@ -81,36 +129,40 @@ export function createPostSessions(
  * 現在のセッション取得
  */
 export function createGetSessionsCurrent(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.sessions.current.$get>,
-      Error,
-      InferResponseType<typeof client.sessions.current.$get>,
-      readonly ['/sessions/current']
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.sessions.current.$get>>>>
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetSessionsCurrentQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.sessions.current.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetSessionsCurrentQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /sessions/current
+ * Generates Svelte Query mutation key for DELETE /sessions/current
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetSessionsCurrentQueryKey() {
-  return ['/sessions/current'] as const
+export function getDeleteSessionsCurrentMutationKey() {
+  return ['sessions', 'DELETE', '/sessions/current'] as const
 }
+
+/**
+ * Returns Svelte Query mutation options for DELETE /sessions/current
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteSessionsCurrentMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getDeleteSessionsCurrentMutationKey(),
+  mutationFn: async () => parseResponse(client.sessions.current.$delete(undefined, clientOptions)),
+})
 
 /**
  * DELETE /sessions/current
@@ -118,29 +170,49 @@ export function getGetSessionsCurrentQueryKey() {
  * 現在のセッション終了（ログアウト）
  */
 export function createDeleteSessionsCurrent(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.sessions.current.$delete> | undefined,
+      | Awaited<
+          ReturnType<
+            typeof parseResponse<Awaited<ReturnType<typeof client.sessions.current.$delete>>>
+          >
+        >
+      | undefined,
       Error,
       void
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.sessions.current.$delete> | undefined,
-    Error,
-    void
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async () =>
-        parseResponse(client.sessions.current.$delete(undefined, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getDeleteSessionsCurrentMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query mutation key for POST /sessions/current/refresh
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostSessionsCurrentRefreshMutationKey() {
+  return ['sessions', 'POST', '/sessions/current/refresh'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /sessions/current/refresh
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostSessionsCurrentRefreshMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostSessionsCurrentRefreshMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.sessions.current.refresh.$post>) =>
+    parseResponse(client.sessions.current.refresh.$post(args, clientOptions)),
+})
 
 /**
  * POST /sessions/current/refresh
@@ -150,29 +222,47 @@ export function createDeleteSessionsCurrent(
  * リフレッシュトークンを使用してセッションを更新
  */
 export function createPostSessionsCurrentRefresh(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.sessions.current.refresh.$post> | undefined,
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<typeof client.sessions.current.refresh.$post>>>
+        >
+      >,
       Error,
       InferRequestType<typeof client.sessions.current.refresh.$post>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.sessions.current.refresh.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.sessions.current.refresh.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.sessions.current.refresh.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPostSessionsCurrentRefreshMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query mutation key for POST /sessions/current/extend
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostSessionsCurrentExtendMutationKey() {
+  return ['sessions', 'POST', '/sessions/current/extend'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /sessions/current/extend
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostSessionsCurrentExtendMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostSessionsCurrentExtendMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.sessions.current.extend.$post>) =>
+    parseResponse(client.sessions.current.extend.$post(args, clientOptions)),
+})
 
 /**
  * POST /sessions/current/extend
@@ -182,29 +272,48 @@ export function createPostSessionsCurrentRefresh(
  * アクティブなセッションの有効期限を延長
  */
 export function createPostSessionsCurrentExtend(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.sessions.current.extend.$post> | undefined,
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<typeof client.sessions.current.extend.$post>>>
+        >
+      >,
       Error,
       InferRequestType<typeof client.sessions.current.extend.$post>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.sessions.current.extend.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.sessions.current.extend.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.sessions.current.extend.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostSessionsCurrentExtendMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query mutation key for POST /sessions/current/activity
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostSessionsCurrentActivityMutationKey() {
+  return ['sessions', 'POST', '/sessions/current/activity'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /sessions/current/activity
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostSessionsCurrentActivityMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostSessionsCurrentActivityMutationKey(),
+  mutationFn: async () =>
+    parseResponse(client.sessions.current.activity.$post(undefined, clientOptions)),
+})
 
 /**
  * POST /sessions/current/activity
@@ -214,29 +323,55 @@ export function createPostSessionsCurrentExtend(
  * ユーザーアクティビティを記録してアイドルタイムアウトをリセット
  */
 export function createPostSessionsCurrentActivity(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.sessions.current.activity.$post> | undefined,
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<typeof client.sessions.current.activity.$post>>>
+        >
+      >,
       Error,
       void
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.sessions.current.activity.$post> | undefined,
-    Error,
-    void
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async () =>
-        parseResponse(client.sessions.current.activity.$post(undefined, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPostSessionsCurrentActivityMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query cache key for GET /sessions/{sessionId}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetSessionsSessionIdQueryKey(
+  args: InferRequestType<(typeof client.sessions)[':sessionId']['$get']>,
+) {
+  return ['sessions', 'GET', '/sessions/:sessionId', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /sessions/{sessionId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetSessionsSessionIdQueryOptions = (
+  args: InferRequestType<(typeof client.sessions)[':sessionId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetSessionsSessionIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.sessions[':sessionId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /sessions/{sessionId}
@@ -245,41 +380,48 @@ export function createPostSessionsCurrentActivity(
  */
 export function createGetSessionsSessionId(
   args: InferRequestType<(typeof client.sessions)[':sessionId']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<(typeof client.sessions)[':sessionId']['$get']>,
-      Error,
-      InferResponseType<(typeof client.sessions)[':sessionId']['$get']>,
-      readonly [
-        '/sessions/:sessionId',
-        InferRequestType<(typeof client.sessions)[':sessionId']['$get']>,
-      ]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.sessions)[':sessionId']['$get']>>>
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetSessionsSessionIdQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.sessions[':sessionId'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetSessionsSessionIdQueryOptions(
+      args,
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /sessions/{sessionId}
+ * Generates Svelte Query mutation key for DELETE /sessions/{sessionId}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetSessionsSessionIdQueryKey(
-  args: InferRequestType<(typeof client.sessions)[':sessionId']['$get']>,
-) {
-  return ['/sessions/:sessionId', args] as const
+export function getDeleteSessionsSessionIdMutationKey() {
+  return ['sessions', 'DELETE', '/sessions/:sessionId'] as const
 }
+
+/**
+ * Returns Svelte Query mutation options for DELETE /sessions/{sessionId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteSessionsSessionIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteSessionsSessionIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.sessions)[':sessionId']['$delete']>) =>
+    parseResponse(client.sessions[':sessionId'].$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /sessions/{sessionId}
@@ -289,29 +431,49 @@ export function getGetSessionsSessionIdQueryKey(
  * 指定したセッションを強制的に終了
  */
 export function createDeleteSessionsSessionId(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<(typeof client.sessions)[':sessionId']['$delete']> | undefined,
+      | Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<ReturnType<(typeof client.sessions)[':sessionId']['$delete']>>
+            >
+          >
+        >
+      | undefined,
       Error,
       InferRequestType<(typeof client.sessions)[':sessionId']['$delete']>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<(typeof client.sessions)[':sessionId']['$delete']> | undefined,
-    Error,
-    InferRequestType<(typeof client.sessions)[':sessionId']['$delete']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.sessions[':sessionId'].$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getDeleteSessionsSessionIdMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query mutation key for POST /sessions/revoke-all
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostSessionsRevokeAllMutationKey() {
+  return ['sessions', 'POST', '/sessions/revoke-all'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /sessions/revoke-all
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostSessionsRevokeAllMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostSessionsRevokeAllMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.sessions)['revoke-all']['$post']>) =>
+    parseResponse(client.sessions['revoke-all'].$post(args, clientOptions)),
+})
 
 /**
  * POST /sessions/revoke-all
@@ -321,29 +483,46 @@ export function createDeleteSessionsSessionId(
  * 現在のセッション以外の全セッションを無効化
  */
 export function createPostSessionsRevokeAll(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<(typeof client.sessions)['revoke-all']['$post']> | undefined,
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.sessions)['revoke-all']['$post']>>>
+        >
+      >,
       Error,
       InferRequestType<(typeof client.sessions)['revoke-all']['$post']>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<(typeof client.sessions)['revoke-all']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client.sessions)['revoke-all']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.sessions['revoke-all'].$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostSessionsRevokeAllMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query mutation key for POST /sessions/validate
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostSessionsValidateMutationKey() {
+  return ['sessions', 'POST', '/sessions/validate'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /sessions/validate
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostSessionsValidateMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostSessionsValidateMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.sessions.validate.$post>) =>
+    parseResponse(client.sessions.validate.$post(args, clientOptions)),
+})
 
 /**
  * POST /sessions/validate
@@ -353,29 +532,54 @@ export function createPostSessionsRevokeAll(
  * セッショントークンの有効性を検証
  */
 export function createPostSessionsValidate(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.sessions.validate.$post> | undefined,
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.sessions.validate.$post>>>>
+      >,
       Error,
       InferRequestType<typeof client.sessions.validate.$post>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.sessions.validate.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.sessions.validate.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.sessions.validate.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostSessionsValidateMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query cache key for GET /sessions/history
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetSessionsHistoryQueryKey(
+  args: InferRequestType<typeof client.sessions.history.$get>,
+) {
+  return ['sessions', 'GET', '/sessions/history', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /sessions/history
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetSessionsHistoryQueryOptions = (
+  args: InferRequestType<typeof client.sessions.history.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetSessionsHistoryQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.sessions.history.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /sessions/history
@@ -384,38 +588,54 @@ export function createPostSessionsValidate(
  */
 export function createGetSessionsHistory(
   args: InferRequestType<typeof client.sessions.history.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.sessions.history.$get>,
-      Error,
-      InferResponseType<typeof client.sessions.history.$get>,
-      readonly ['/sessions/history', InferRequestType<typeof client.sessions.history.$get>]
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.sessions.history.$get>>>>
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetSessionsHistoryQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.sessions.history.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetSessionsHistoryQueryOptions(
+      args,
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /sessions/history
+ * Generates Svelte Query cache key for GET /sessions/security-events
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetSessionsHistoryQueryKey(
-  args: InferRequestType<typeof client.sessions.history.$get>,
+export function getGetSessionsSecurityEventsQueryKey(
+  args: InferRequestType<(typeof client.sessions)['security-events']['$get']>,
 ) {
-  return ['/sessions/history', args] as const
+  return ['sessions', 'GET', '/sessions/security-events', args] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /sessions/security-events
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetSessionsSecurityEventsQueryOptions = (
+  args: InferRequestType<(typeof client.sessions)['security-events']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetSessionsSecurityEventsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.sessions['security-events'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /sessions/security-events
@@ -426,42 +646,53 @@ export function getGetSessionsHistoryQueryKey(
  */
 export function createGetSessionsSecurityEvents(
   args: InferRequestType<(typeof client.sessions)['security-events']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<(typeof client.sessions)['security-events']['$get']>,
-      Error,
-      InferResponseType<(typeof client.sessions)['security-events']['$get']>,
-      readonly [
-        '/sessions/security-events',
-        InferRequestType<(typeof client.sessions)['security-events']['$get']>,
-      ]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.sessions)['security-events']['$get']>>
+          >
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetSessionsSecurityEventsQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.sessions['security-events'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetSessionsSecurityEventsQueryOptions(
+      args,
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /sessions/security-events
+ * Generates Svelte Query cache key for GET /sessions/policies
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetSessionsSecurityEventsQueryKey(
-  args: InferRequestType<(typeof client.sessions)['security-events']['$get']>,
-) {
-  return ['/sessions/security-events', args] as const
+export function getGetSessionsPoliciesQueryKey() {
+  return ['sessions', 'GET', '/sessions/policies'] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /sessions/policies
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetSessionsPoliciesQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetSessionsPoliciesQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.sessions.policies.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /sessions/policies
@@ -469,36 +700,41 @@ export function getGetSessionsSecurityEventsQueryKey(
  * セッションポリシー取得
  */
 export function createGetSessionsPolicies(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.sessions.policies.$get>,
-      Error,
-      InferResponseType<typeof client.sessions.policies.$get>,
-      readonly ['/sessions/policies']
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.sessions.policies.$get>>>>
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetSessionsPoliciesQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.sessions.policies.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetSessionsPoliciesQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /sessions/policies
+ * Generates Svelte Query mutation key for PUT /sessions/policies
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetSessionsPoliciesQueryKey() {
-  return ['/sessions/policies'] as const
+export function getPutSessionsPoliciesMutationKey() {
+  return ['sessions', 'PUT', '/sessions/policies'] as const
 }
+
+/**
+ * Returns Svelte Query mutation options for PUT /sessions/policies
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutSessionsPoliciesMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPutSessionsPoliciesMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.sessions.policies.$put>) =>
+    parseResponse(client.sessions.policies.$put(args, clientOptions)),
+})
 
 /**
  * PUT /sessions/policies
@@ -506,29 +742,49 @@ export function getGetSessionsPoliciesQueryKey() {
  * セッションポリシー更新
  */
 export function createPutSessionsPolicies(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.sessions.policies.$put> | undefined,
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.sessions.policies.$put>>>>
+      >,
       Error,
       InferRequestType<typeof client.sessions.policies.$put>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.sessions.policies.$put> | undefined,
-    Error,
-    InferRequestType<typeof client.sessions.policies.$put>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.sessions.policies.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPutSessionsPoliciesMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query cache key for GET /sessions/trusted-devices
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGetSessionsTrustedDevicesQueryKey() {
+  return ['sessions', 'GET', '/sessions/trusted-devices'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /sessions/trusted-devices
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetSessionsTrustedDevicesQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetSessionsTrustedDevicesQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.sessions['trusted-devices'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /sessions/trusted-devices
@@ -536,37 +792,50 @@ export function createPutSessionsPolicies(
  * 信頼済みデバイス一覧
  */
 export function createGetSessionsTrustedDevices(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<(typeof client.sessions)['trusted-devices']['$get']>,
-      Error,
-      InferResponseType<(typeof client.sessions)['trusted-devices']['$get']>,
-      readonly ['/sessions/trusted-devices']
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.sessions)['trusted-devices']['$get']>>
+          >
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetSessionsTrustedDevicesQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.sessions['trusted-devices'].$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetSessionsTrustedDevicesQueryOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /sessions/trusted-devices
+ * Generates Svelte Query mutation key for POST /sessions/trusted-devices
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetSessionsTrustedDevicesQueryKey() {
-  return ['/sessions/trusted-devices'] as const
+export function getPostSessionsTrustedDevicesMutationKey() {
+  return ['sessions', 'POST', '/sessions/trusted-devices'] as const
 }
+
+/**
+ * Returns Svelte Query mutation options for POST /sessions/trusted-devices
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostSessionsTrustedDevicesMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostSessionsTrustedDevicesMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.sessions)['trusted-devices']['$post']>,
+  ) => parseResponse(client.sessions['trusted-devices'].$post(args, clientOptions)),
+})
 
 /**
  * POST /sessions/trusted-devices
@@ -574,29 +843,50 @@ export function getGetSessionsTrustedDevicesQueryKey() {
  * 現在のデバイスを信頼
  */
 export function createPostSessionsTrustedDevices(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<(typeof client.sessions)['trusted-devices']['$post']> | undefined,
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.sessions)['trusted-devices']['$post']>>
+          >
+        >
+      >,
       Error,
       InferRequestType<(typeof client.sessions)['trusted-devices']['$post']>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<(typeof client.sessions)['trusted-devices']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client.sessions)['trusted-devices']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.sessions['trusted-devices'].$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPostSessionsTrustedDevicesMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query mutation key for DELETE /sessions/trusted-devices/{deviceId}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getDeleteSessionsTrustedDevicesDeviceIdMutationKey() {
+  return ['sessions', 'DELETE', '/sessions/trusted-devices/:deviceId'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /sessions/trusted-devices/{deviceId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteSessionsTrustedDevicesDeviceIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteSessionsTrustedDevicesDeviceIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.sessions)['trusted-devices'][':deviceId']['$delete']>,
+  ) => parseResponse(client.sessions['trusted-devices'][':deviceId'].$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /sessions/trusted-devices/{deviceId}
@@ -604,30 +894,28 @@ export function createPostSessionsTrustedDevices(
  * 信頼済みデバイス削除
  */
 export function createDeleteSessionsTrustedDevicesDeviceId(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      | InferResponseType<(typeof client.sessions)['trusted-devices'][':deviceId']['$delete']>
+      | Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<
+                ReturnType<(typeof client.sessions)['trusted-devices'][':deviceId']['$delete']>
+              >
+            >
+          >
+        >
       | undefined,
       Error,
       InferRequestType<(typeof client.sessions)['trusted-devices'][':deviceId']['$delete']>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<(typeof client.sessions)['trusted-devices'][':deviceId']['$delete']>
-    | undefined,
-    Error,
-    InferRequestType<(typeof client.sessions)['trusted-devices'][':deviceId']['$delete']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(
-          client.sessions['trusted-devices'][':deviceId'].$delete(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getDeleteSessionsTrustedDevicesDeviceIdMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }

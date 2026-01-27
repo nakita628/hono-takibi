@@ -1,4 +1,4 @@
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
@@ -7,105 +7,127 @@ import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/19-resolution-order'
 
 /**
- * GET /entities
+ * Generates SWR cache key for GET /entities
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function useGetEntities(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.entities.$get>, Error> & {
-    swrKey?: Key
-    enabled?: boolean
-  }
-  client?: ClientRequestOptions
-}) {
-  const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetEntitiesKey() : null)
-  const query = useSWR<InferResponseType<typeof client.entities.$get>, Error>(
-    swrKey,
-    async () => parseResponse(client.entities.$get(undefined, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+export function getGetEntitiesKey() {
+  return ['entities', 'GET', '/entities'] as const
 }
 
 /**
- * Generates SWR cache key for GET /entities
+ * GET /entities
  */
-export function getGetEntitiesKey() {
-  return ['/entities'] as const
+export function useGetEntities(options?: {
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
+  client?: ClientRequestOptions
+}) {
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetEntitiesKey()) : null
+  return {
+    swrKey,
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.entities.$get(undefined, clientOptions)),
+      restSwrOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /process
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostProcessMutationKey() {
+  return ['process', 'POST', '/process'] as const
 }
 
 /**
  * POST /process
  */
 export function usePostProcess(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.process.$post>,
+  mutation?: SWRMutationConfiguration<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.process.$post>>>>>,
     Error,
-    string,
+    Key,
     InferRequestType<typeof client.process.$post>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<typeof client.process.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.process.$post>
-  >(
-    'POST /process',
-    async (_, { arg }) => parseResponse(client.process.$post(arg, options?.client)),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostProcessMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (_: Key, { arg }: { arg: InferRequestType<typeof client.process.$post> }) =>
+        parseResponse(client.process.$post(arg, clientOptions)),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /graph
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGetGraphKey() {
+  return ['graph', 'GET', '/graph'] as const
 }
 
 /**
  * GET /graph
  */
 export function useGetGraph(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.graph.$get>, Error> & {
-    swrKey?: Key
-    enabled?: boolean
-  }
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetGraphKey() : null)
-  const query = useSWR<InferResponseType<typeof client.graph.$get>, Error>(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetGraphKey()) : null
+  return {
     swrKey,
-    async () => parseResponse(client.graph.$get(undefined, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.graph.$get(undefined, clientOptions)),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /graph
+ * Generates SWR mutation key for POST /transform
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetGraphKey() {
-  return ['/graph'] as const
+export function getPostTransformMutationKey() {
+  return ['transform', 'POST', '/transform'] as const
 }
 
 /**
  * POST /transform
  */
 export function usePostTransform(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.transform.$post>,
+  mutation?: SWRMutationConfiguration<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.transform.$post>>>>>,
     Error,
-    string,
+    Key,
     InferRequestType<typeof client.transform.$post>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<typeof client.transform.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.transform.$post>
-  >(
-    'POST /transform',
-    async (_, { arg }) => parseResponse(client.transform.$post(arg, options?.client)),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostTransformMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (_: Key, { arg }: { arg: InferRequestType<typeof client.transform.$post> }) =>
+        parseResponse(client.transform.$post(arg, clientOptions)),
+      restMutationOptions,
+    ),
+  }
 }

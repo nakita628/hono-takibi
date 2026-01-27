@@ -1,4 +1,4 @@
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
@@ -7,149 +7,200 @@ import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/16-complex-composition'
 
 /**
+ * Generates SWR mutation key for POST /messages
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostMessagesMutationKey() {
+  return ['messages', 'POST', '/messages'] as const
+}
+
+/**
  * POST /messages
  */
 export function usePostMessages(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.messages.$post>,
+  mutation?: SWRMutationConfiguration<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.messages.$post>>>>>,
     Error,
-    string,
+    Key,
     InferRequestType<typeof client.messages.$post>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<typeof client.messages.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.messages.$post>
-  >(
-    'POST /messages',
-    async (_, { arg }) => parseResponse(client.messages.$post(arg, options?.client)),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostMessagesMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (_: Key, { arg }: { arg: InferRequestType<typeof client.messages.$post> }) =>
+        parseResponse(client.messages.$post(arg, clientOptions)),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /events
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostEventsMutationKey() {
+  return ['events', 'POST', '/events'] as const
 }
 
 /**
  * POST /events
  */
 export function usePostEvents(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.events.$post>,
+  mutation?: SWRMutationConfiguration<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.events.$post>>>>>,
     Error,
-    string,
+    Key,
     InferRequestType<typeof client.events.$post>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<typeof client.events.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.events.$post>
-  >(
-    'POST /events',
-    async (_, { arg }) => parseResponse(client.events.$post(arg, options?.client)),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostEventsMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (_: Key, { arg }: { arg: InferRequestType<typeof client.events.$post> }) =>
+        parseResponse(client.events.$post(arg, clientOptions)),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /configs
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGetConfigsKey() {
+  return ['configs', 'GET', '/configs'] as const
 }
 
 /**
  * GET /configs
  */
 export function useGetConfigs(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.configs.$get>, Error> & {
-    swrKey?: Key
-    enabled?: boolean
-  }
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetConfigsKey() : null)
-  const query = useSWR<InferResponseType<typeof client.configs.$get>, Error>(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetConfigsKey()) : null
+  return {
     swrKey,
-    async () => parseResponse(client.configs.$get(undefined, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.configs.$get(undefined, clientOptions)),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /configs
+ * Generates SWR mutation key for PUT /configs
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetConfigsKey() {
-  return ['/configs'] as const
+export function getPutConfigsMutationKey() {
+  return ['configs', 'PUT', '/configs'] as const
 }
 
 /**
  * PUT /configs
  */
 export function usePutConfigs(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.configs.$put>,
+  mutation?: SWRMutationConfiguration<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.configs.$put>>>>>,
     Error,
-    string,
+    Key,
     InferRequestType<typeof client.configs.$put>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<typeof client.configs.$put>,
-    Error,
-    string,
-    InferRequestType<typeof client.configs.$put>
-  >(
-    'PUT /configs',
-    async (_, { arg }) => parseResponse(client.configs.$put(arg, options?.client)),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPutConfigsMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (_: Key, { arg }: { arg: InferRequestType<typeof client.configs.$put> }) =>
+        parseResponse(client.configs.$put(arg, clientOptions)),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /resources
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostResourcesMutationKey() {
+  return ['resources', 'POST', '/resources'] as const
 }
 
 /**
  * POST /resources
  */
 export function usePostResources(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.resources.$post>,
+  mutation?: SWRMutationConfiguration<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.resources.$post>>>>>,
     Error,
-    string,
+    Key,
     InferRequestType<typeof client.resources.$post>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<typeof client.resources.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.resources.$post>
-  >(
-    'POST /resources',
-    async (_, { arg }) => parseResponse(client.resources.$post(arg, options?.client)),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostResourcesMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (_: Key, { arg }: { arg: InferRequestType<typeof client.resources.$post> }) =>
+        parseResponse(client.resources.$post(arg, clientOptions)),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /validations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostValidationsMutationKey() {
+  return ['validations', 'POST', '/validations'] as const
 }
 
 /**
  * POST /validations
  */
 export function usePostValidations(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.validations.$post>,
+  mutation?: SWRMutationConfiguration<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.validations.$post>>>>>,
     Error,
-    string,
+    Key,
     InferRequestType<typeof client.validations.$post>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<typeof client.validations.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.validations.$post>
-  >(
-    'POST /validations',
-    async (_, { arg }) => parseResponse(client.validations.$post(arg, options?.client)),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostValidationsMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (_: Key, { arg }: { arg: InferRequestType<typeof client.validations.$post> }) =>
+        parseResponse(client.validations.$post(arg, clientOptions)),
+      restMutationOptions,
+    ),
+  }
 }

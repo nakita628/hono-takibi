@@ -1,8 +1,32 @@
-import type { CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
+import type { CreateQueryOptions, QueryFunctionContext } from '@tanstack/svelte-query'
 import { createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/fizz-buzz'
+
+/**
+ * Generates Svelte Query cache key for GET /fizzbuzz
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetFizzbuzzQueryKey(args: InferRequestType<typeof client.fizzbuzz.$get>) {
+  return ['fizzbuzz', 'GET', '/fizzbuzz', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /fizzbuzz
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetFizzbuzzQueryOptions = (
+  args: InferRequestType<typeof client.fizzbuzz.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetFizzbuzzQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.fizzbuzz.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /fizzbuzz
@@ -13,33 +37,17 @@ import { client } from '../clients/fizz-buzz'
  */
 export function createGetFizzbuzz(
   args: InferRequestType<typeof client.fizzbuzz.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.fizzbuzz.$get>,
-      Error,
-      InferResponseType<typeof client.fizzbuzz.$get>,
-      readonly ['/fizzbuzz', InferRequestType<typeof client.fizzbuzz.$get>]
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.fizzbuzz.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetFizzbuzzQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.fizzbuzz.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
-}
-
-/**
- * Generates Svelte Query cache key for GET /fizzbuzz
- */
-export function getGetFizzbuzzQueryKey(args: InferRequestType<typeof client.fizzbuzz.$get>) {
-  return ['/fizzbuzz', args] as const
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetFizzbuzzQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }

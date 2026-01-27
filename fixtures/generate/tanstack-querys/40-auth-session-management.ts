@@ -1,8 +1,36 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
+import type {
+  QueryFunctionContext,
+  UseMutationOptions,
+  UseQueryOptions,
+} from '@tanstack/react-query'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/40-auth-session-management'
+
+/**
+ * Generates TanStack Query cache key for GET /sessions
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetSessionsQueryKey(args: InferRequestType<typeof client.sessions.$get>) {
+  return ['sessions', 'GET', '/sessions', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /sessions
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetSessionsQueryOptions = (
+  args: InferRequestType<typeof client.sessions.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetSessionsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.sessions.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /sessions
@@ -15,34 +43,35 @@ export function useGetSessions(
   args: InferRequestType<typeof client.sessions.$get>,
   options?: {
     query?: UseQueryOptions<
-      InferResponseType<typeof client.sessions.$get>,
-      Error,
-      InferResponseType<typeof client.sessions.$get>,
-      readonly ['/sessions', InferRequestType<typeof client.sessions.$get>]
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.sessions.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetSessionsQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.sessions.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  const { queryKey, queryFn, ...baseOptions } = getGetSessionsQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /sessions
+ * Generates TanStack Query mutation key for POST /sessions
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetSessionsQueryKey(args: InferRequestType<typeof client.sessions.$get>) {
-  return ['/sessions', args] as const
+export function getPostSessionsMutationKey() {
+  return ['sessions', 'POST', '/sessions'] as const
 }
+
+/**
+ * Returns TanStack Query mutation options for POST /sessions
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostSessionsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostSessionsMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.sessions.$post>) =>
+    parseResponse(client.sessions.$post(args, clientOptions)),
+})
 
 /**
  * POST /sessions
@@ -51,96 +80,124 @@ export function getGetSessionsQueryKey(args: InferRequestType<typeof client.sess
  *
  * 認証成功後にセッションを作成
  */
-export function usePostSessions(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.sessions.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.sessions.$post>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<typeof client.sessions.$post> | undefined,
+export function usePostSessions(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.sessions.$post>>>>>,
     Error,
     InferRequestType<typeof client.sessions.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.sessions.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } = getPostSessionsMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query cache key for GET /sessions/current
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGetSessionsCurrentQueryKey() {
+  return ['sessions', 'GET', '/sessions/current'] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /sessions/current
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetSessionsCurrentQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetSessionsCurrentQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.sessions.current.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /sessions/current
  *
  * 現在のセッション取得
  */
-export function useGetSessionsCurrent(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.sessions.current.$get>,
-      Error,
-      InferResponseType<typeof client.sessions.current.$get>,
-      readonly ['/sessions/current']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetSessionsCurrent(options?: {
+  query?: UseQueryOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.sessions.current.$get>>>>
+    >,
+    Error
+  >
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetSessionsCurrentQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.sessions.current.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  const { queryKey, queryFn, ...baseOptions } = getGetSessionsCurrentQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /sessions/current
+ * Generates TanStack Query mutation key for DELETE /sessions/current
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetSessionsCurrentQueryKey() {
-  return ['/sessions/current'] as const
+export function getDeleteSessionsCurrentMutationKey() {
+  return ['sessions', 'DELETE', '/sessions/current'] as const
 }
+
+/**
+ * Returns TanStack Query mutation options for DELETE /sessions/current
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteSessionsCurrentMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getDeleteSessionsCurrentMutationKey(),
+  mutationFn: async () => parseResponse(client.sessions.current.$delete(undefined, clientOptions)),
+})
 
 /**
  * DELETE /sessions/current
  *
  * 現在のセッション終了（ログアウト）
  */
-export function useDeleteSessionsCurrent(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.sessions.current.$delete> | undefined,
-      Error,
-      void
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<typeof client.sessions.current.$delete> | undefined,
+export function useDeleteSessionsCurrent(options?: {
+  mutation?: UseMutationOptions<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<typeof client.sessions.current.$delete>>>
+        >
+      >
+    | undefined,
     Error,
     void
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async () =>
-        parseResponse(client.sessions.current.$delete(undefined, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteSessionsCurrentMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /sessions/current/refresh
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostSessionsCurrentRefreshMutationKey() {
+  return ['sessions', 'POST', '/sessions/current/refresh'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /sessions/current/refresh
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostSessionsCurrentRefreshMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostSessionsCurrentRefreshMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.sessions.current.refresh.$post>) =>
+    parseResponse(client.sessions.current.refresh.$post(args, clientOptions)),
+})
 
 /**
  * POST /sessions/current/refresh
@@ -149,30 +206,44 @@ export function useDeleteSessionsCurrent(
  *
  * リフレッシュトークンを使用してセッションを更新
  */
-export function usePostSessionsCurrentRefresh(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.sessions.current.refresh.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.sessions.current.refresh.$post>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<typeof client.sessions.current.refresh.$post> | undefined,
+export function usePostSessionsCurrentRefresh(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<typeof client.sessions.current.refresh.$post>>>
+      >
+    >,
     Error,
     InferRequestType<typeof client.sessions.current.refresh.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.sessions.current.refresh.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostSessionsCurrentRefreshMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /sessions/current/extend
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostSessionsCurrentExtendMutationKey() {
+  return ['sessions', 'POST', '/sessions/current/extend'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /sessions/current/extend
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostSessionsCurrentExtendMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostSessionsCurrentExtendMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.sessions.current.extend.$post>) =>
+    parseResponse(client.sessions.current.extend.$post(args, clientOptions)),
+})
 
 /**
  * POST /sessions/current/extend
@@ -181,30 +252,44 @@ export function usePostSessionsCurrentRefresh(
  *
  * アクティブなセッションの有効期限を延長
  */
-export function usePostSessionsCurrentExtend(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.sessions.current.extend.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.sessions.current.extend.$post>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<typeof client.sessions.current.extend.$post> | undefined,
+export function usePostSessionsCurrentExtend(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<typeof client.sessions.current.extend.$post>>>
+      >
+    >,
     Error,
     InferRequestType<typeof client.sessions.current.extend.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.sessions.current.extend.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostSessionsCurrentExtendMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /sessions/current/activity
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostSessionsCurrentActivityMutationKey() {
+  return ['sessions', 'POST', '/sessions/current/activity'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /sessions/current/activity
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostSessionsCurrentActivityMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostSessionsCurrentActivityMutationKey(),
+  mutationFn: async () =>
+    parseResponse(client.sessions.current.activity.$post(undefined, clientOptions)),
+})
 
 /**
  * POST /sessions/current/activity
@@ -213,30 +298,52 @@ export function usePostSessionsCurrentExtend(
  *
  * ユーザーアクティビティを記録してアイドルタイムアウトをリセット
  */
-export function usePostSessionsCurrentActivity(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.sessions.current.activity.$post> | undefined,
-      Error,
-      void
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<typeof client.sessions.current.activity.$post> | undefined,
+export function usePostSessionsCurrentActivity(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<typeof client.sessions.current.activity.$post>>>
+      >
+    >,
     Error,
     void
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async () =>
-        parseResponse(client.sessions.current.activity.$post(undefined, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostSessionsCurrentActivityMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query cache key for GET /sessions/{sessionId}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetSessionsSessionIdQueryKey(
+  args: InferRequestType<(typeof client.sessions)[':sessionId']['$get']>,
+) {
+  return ['sessions', 'GET', '/sessions/:sessionId', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /sessions/{sessionId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetSessionsSessionIdQueryOptions = (
+  args: InferRequestType<(typeof client.sessions)[':sessionId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetSessionsSessionIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.sessions[':sessionId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /sessions/{sessionId}
@@ -247,39 +354,44 @@ export function useGetSessionsSessionId(
   args: InferRequestType<(typeof client.sessions)[':sessionId']['$get']>,
   options?: {
     query?: UseQueryOptions<
-      InferResponseType<(typeof client.sessions)[':sessionId']['$get']>,
-      Error,
-      InferResponseType<(typeof client.sessions)[':sessionId']['$get']>,
-      readonly [
-        '/sessions/:sessionId',
-        InferRequestType<(typeof client.sessions)[':sessionId']['$get']>,
-      ]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.sessions)[':sessionId']['$get']>>>
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetSessionsSessionIdQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.sessions[':sessionId'].$get(args, clientOptions)),
-    },
-    queryClient,
+  const { queryKey, queryFn, ...baseOptions } = getGetSessionsSessionIdQueryOptions(
+    args,
+    clientOptions,
   )
-  return { ...query, queryKey }
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /sessions/{sessionId}
+ * Generates TanStack Query mutation key for DELETE /sessions/{sessionId}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetSessionsSessionIdQueryKey(
-  args: InferRequestType<(typeof client.sessions)[':sessionId']['$get']>,
-) {
-  return ['/sessions/:sessionId', args] as const
+export function getDeleteSessionsSessionIdMutationKey() {
+  return ['sessions', 'DELETE', '/sessions/:sessionId'] as const
 }
+
+/**
+ * Returns TanStack Query mutation options for DELETE /sessions/{sessionId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteSessionsSessionIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteSessionsSessionIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.sessions)[':sessionId']['$delete']>) =>
+    parseResponse(client.sessions[':sessionId'].$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /sessions/{sessionId}
@@ -288,30 +400,45 @@ export function getGetSessionsSessionIdQueryKey(
  *
  * 指定したセッションを強制的に終了
  */
-export function useDeleteSessionsSessionId(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.sessions)[':sessionId']['$delete']> | undefined,
-      Error,
-      InferRequestType<(typeof client.sessions)[':sessionId']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<(typeof client.sessions)[':sessionId']['$delete']> | undefined,
+export function useDeleteSessionsSessionId(options?: {
+  mutation?: UseMutationOptions<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.sessions)[':sessionId']['$delete']>>
+          >
+        >
+      >
+    | undefined,
     Error,
     InferRequestType<(typeof client.sessions)[':sessionId']['$delete']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.sessions[':sessionId'].$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteSessionsSessionIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /sessions/revoke-all
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostSessionsRevokeAllMutationKey() {
+  return ['sessions', 'POST', '/sessions/revoke-all'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /sessions/revoke-all
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostSessionsRevokeAllMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostSessionsRevokeAllMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.sessions)['revoke-all']['$post']>) =>
+    parseResponse(client.sessions['revoke-all'].$post(args, clientOptions)),
+})
 
 /**
  * POST /sessions/revoke-all
@@ -320,30 +447,42 @@ export function useDeleteSessionsSessionId(
  *
  * 現在のセッション以外の全セッションを無効化
  */
-export function usePostSessionsRevokeAll(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.sessions)['revoke-all']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client.sessions)['revoke-all']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<(typeof client.sessions)['revoke-all']['$post']> | undefined,
+export function usePostSessionsRevokeAll(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client.sessions)['revoke-all']['$post']>>>
+      >
+    >,
     Error,
     InferRequestType<(typeof client.sessions)['revoke-all']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.sessions['revoke-all'].$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostSessionsRevokeAllMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /sessions/validate
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostSessionsValidateMutationKey() {
+  return ['sessions', 'POST', '/sessions/validate'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /sessions/validate
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostSessionsValidateMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostSessionsValidateMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.sessions.validate.$post>) =>
+    parseResponse(client.sessions.validate.$post(args, clientOptions)),
+})
 
 /**
  * POST /sessions/validate
@@ -352,30 +491,50 @@ export function usePostSessionsRevokeAll(
  *
  * セッショントークンの有効性を検証
  */
-export function usePostSessionsValidate(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.sessions.validate.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.sessions.validate.$post>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<typeof client.sessions.validate.$post> | undefined,
+export function usePostSessionsValidate(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.sessions.validate.$post>>>>
+    >,
     Error,
     InferRequestType<typeof client.sessions.validate.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.sessions.validate.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostSessionsValidateMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query cache key for GET /sessions/history
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetSessionsHistoryQueryKey(
+  args: InferRequestType<typeof client.sessions.history.$get>,
+) {
+  return ['sessions', 'GET', '/sessions/history', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /sessions/history
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetSessionsHistoryQueryOptions = (
+  args: InferRequestType<typeof client.sessions.history.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetSessionsHistoryQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.sessions.history.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /sessions/history
@@ -386,36 +545,50 @@ export function useGetSessionsHistory(
   args: InferRequestType<typeof client.sessions.history.$get>,
   options?: {
     query?: UseQueryOptions<
-      InferResponseType<typeof client.sessions.history.$get>,
-      Error,
-      InferResponseType<typeof client.sessions.history.$get>,
-      readonly ['/sessions/history', InferRequestType<typeof client.sessions.history.$get>]
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.sessions.history.$get>>>>
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetSessionsHistoryQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.sessions.history.$get(args, clientOptions)),
-    },
-    queryClient,
+  const { queryKey, queryFn, ...baseOptions } = getGetSessionsHistoryQueryOptions(
+    args,
+    clientOptions,
   )
-  return { ...query, queryKey }
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /sessions/history
+ * Generates TanStack Query cache key for GET /sessions/security-events
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetSessionsHistoryQueryKey(
-  args: InferRequestType<typeof client.sessions.history.$get>,
+export function getGetSessionsSecurityEventsQueryKey(
+  args: InferRequestType<(typeof client.sessions)['security-events']['$get']>,
 ) {
-  return ['/sessions/history', args] as const
+  return ['sessions', 'GET', '/sessions/security-events', args] as const
 }
+
+/**
+ * Returns TanStack Query query options for GET /sessions/security-events
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetSessionsSecurityEventsQueryOptions = (
+  args: InferRequestType<(typeof client.sessions)['security-events']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetSessionsSecurityEventsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.sessions['security-events'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /sessions/security-events
@@ -428,206 +601,248 @@ export function useGetSessionsSecurityEvents(
   args: InferRequestType<(typeof client.sessions)['security-events']['$get']>,
   options?: {
     query?: UseQueryOptions<
-      InferResponseType<(typeof client.sessions)['security-events']['$get']>,
-      Error,
-      InferResponseType<(typeof client.sessions)['security-events']['$get']>,
-      readonly [
-        '/sessions/security-events',
-        InferRequestType<(typeof client.sessions)['security-events']['$get']>,
-      ]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.sessions)['security-events']['$get']>>
+          >
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetSessionsSecurityEventsQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.sessions['security-events'].$get(args, clientOptions)),
-    },
-    queryClient,
+  const { queryKey, queryFn, ...baseOptions } = getGetSessionsSecurityEventsQueryOptions(
+    args,
+    clientOptions,
   )
-  return { ...query, queryKey }
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /sessions/security-events
+ * Generates TanStack Query cache key for GET /sessions/policies
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetSessionsSecurityEventsQueryKey(
-  args: InferRequestType<(typeof client.sessions)['security-events']['$get']>,
-) {
-  return ['/sessions/security-events', args] as const
+export function getGetSessionsPoliciesQueryKey() {
+  return ['sessions', 'GET', '/sessions/policies'] as const
 }
+
+/**
+ * Returns TanStack Query query options for GET /sessions/policies
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetSessionsPoliciesQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetSessionsPoliciesQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.sessions.policies.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /sessions/policies
  *
  * セッションポリシー取得
  */
-export function useGetSessionsPolicies(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.sessions.policies.$get>,
-      Error,
-      InferResponseType<typeof client.sessions.policies.$get>,
-      readonly ['/sessions/policies']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetSessionsPolicies(options?: {
+  query?: UseQueryOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.sessions.policies.$get>>>>
+    >,
+    Error
+  >
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetSessionsPoliciesQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.sessions.policies.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  const { queryKey, queryFn, ...baseOptions } = getGetSessionsPoliciesQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /sessions/policies
+ * Generates TanStack Query mutation key for PUT /sessions/policies
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetSessionsPoliciesQueryKey() {
-  return ['/sessions/policies'] as const
+export function getPutSessionsPoliciesMutationKey() {
+  return ['sessions', 'PUT', '/sessions/policies'] as const
 }
+
+/**
+ * Returns TanStack Query mutation options for PUT /sessions/policies
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutSessionsPoliciesMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPutSessionsPoliciesMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.sessions.policies.$put>) =>
+    parseResponse(client.sessions.policies.$put(args, clientOptions)),
+})
 
 /**
  * PUT /sessions/policies
  *
  * セッションポリシー更新
  */
-export function usePutSessionsPolicies(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.sessions.policies.$put> | undefined,
-      Error,
-      InferRequestType<typeof client.sessions.policies.$put>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<typeof client.sessions.policies.$put> | undefined,
+export function usePutSessionsPolicies(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.sessions.policies.$put>>>>
+    >,
     Error,
     InferRequestType<typeof client.sessions.policies.$put>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.sessions.policies.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPutSessionsPoliciesMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query cache key for GET /sessions/trusted-devices
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGetSessionsTrustedDevicesQueryKey() {
+  return ['sessions', 'GET', '/sessions/trusted-devices'] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /sessions/trusted-devices
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetSessionsTrustedDevicesQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetSessionsTrustedDevicesQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.sessions['trusted-devices'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /sessions/trusted-devices
  *
  * 信頼済みデバイス一覧
  */
-export function useGetSessionsTrustedDevices(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.sessions)['trusted-devices']['$get']>,
-      Error,
-      InferResponseType<(typeof client.sessions)['trusted-devices']['$get']>,
-      readonly ['/sessions/trusted-devices']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetSessionsTrustedDevices(options?: {
+  query?: UseQueryOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.sessions)['trusted-devices']['$get']>>
+        >
+      >
+    >,
+    Error
+  >
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetSessionsTrustedDevicesQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.sessions['trusted-devices'].$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  const { queryKey, queryFn, ...baseOptions } =
+    getGetSessionsTrustedDevicesQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /sessions/trusted-devices
+ * Generates TanStack Query mutation key for POST /sessions/trusted-devices
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetSessionsTrustedDevicesQueryKey() {
-  return ['/sessions/trusted-devices'] as const
+export function getPostSessionsTrustedDevicesMutationKey() {
+  return ['sessions', 'POST', '/sessions/trusted-devices'] as const
 }
+
+/**
+ * Returns TanStack Query mutation options for POST /sessions/trusted-devices
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostSessionsTrustedDevicesMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostSessionsTrustedDevicesMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.sessions)['trusted-devices']['$post']>,
+  ) => parseResponse(client.sessions['trusted-devices'].$post(args, clientOptions)),
+})
 
 /**
  * POST /sessions/trusted-devices
  *
  * 現在のデバイスを信頼
  */
-export function usePostSessionsTrustedDevices(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.sessions)['trusted-devices']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client.sessions)['trusted-devices']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<(typeof client.sessions)['trusted-devices']['$post']> | undefined,
+export function usePostSessionsTrustedDevices(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.sessions)['trusted-devices']['$post']>>
+        >
+      >
+    >,
     Error,
     InferRequestType<(typeof client.sessions)['trusted-devices']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.sessions['trusted-devices'].$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostSessionsTrustedDevicesMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for DELETE /sessions/trusted-devices/{deviceId}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getDeleteSessionsTrustedDevicesDeviceIdMutationKey() {
+  return ['sessions', 'DELETE', '/sessions/trusted-devices/:deviceId'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for DELETE /sessions/trusted-devices/{deviceId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteSessionsTrustedDevicesDeviceIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteSessionsTrustedDevicesDeviceIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.sessions)['trusted-devices'][':deviceId']['$delete']>,
+  ) => parseResponse(client.sessions['trusted-devices'][':deviceId'].$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /sessions/trusted-devices/{deviceId}
  *
  * 信頼済みデバイス削除
  */
-export function useDeleteSessionsTrustedDevicesDeviceId(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client.sessions)['trusted-devices'][':deviceId']['$delete']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client.sessions)['trusted-devices'][':deviceId']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    | InferResponseType<(typeof client.sessions)['trusted-devices'][':deviceId']['$delete']>
+export function useDeleteSessionsTrustedDevicesDeviceId(options?: {
+  mutation?: UseMutationOptions<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.sessions)['trusted-devices'][':deviceId']['$delete']>>
+          >
+        >
+      >
     | undefined,
     Error,
     InferRequestType<(typeof client.sessions)['trusted-devices'][':deviceId']['$delete']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(
-          client.sessions['trusted-devices'][':deviceId'].$delete(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteSessionsTrustedDevicesDeviceIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }

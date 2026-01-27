@@ -1,40 +1,124 @@
+import type { QueryFunctionContext, UseMutationOptions, UseQueryOptions } from '@tanstack/vue-query'
 import { useMutation, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { MaybeRef } from 'vue'
+import { unref } from 'vue'
 import { client } from '../clients/complex-openapi'
+
+/**
+ * Generates Vue Query cache key for GET /users
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGetUsersQueryKey() {
+  return ['users', 'GET', '/users'] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /users
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetUsersQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetUsersQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.users.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /users
  *
  * List all users
  */
-export function useGetUsers(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetUsersQueryKey()
-  return useQuery({
-    queryKey,
-    queryFn: async () => parseResponse(client.users.$get(undefined, clientOptions)),
-  })
+export function useGetUsers(options?: {
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
+  const { queryKey, queryFn, ...baseOptions } = getGetUsersQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates Vue Query cache key for GET /users
+ * Generates Vue Query mutation key for POST /users
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetUsersQueryKey() {
-  return ['/users'] as const
+export function getPostUsersMutationKey() {
+  return ['users', 'POST', '/users'] as const
 }
+
+/**
+ * Returns Vue Query mutation options for POST /users
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostUsersMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostUsersMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.users.$post>) =>
+    parseResponse(client.users.$post(args, clientOptions)),
+})
 
 /**
  * POST /users
  *
  * Create a new user
  */
-export function usePostUsers(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<typeof client.users.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.users.$post>
-  >({ mutationFn: async (args) => parseResponse(client.users.$post(args, clientOptions)) })
+export function usePostUsers(options?: {
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>,
+        Error,
+        InferRequestType<typeof client.users.$post>
+      >,
+      'mutationFn' | 'mutationKey'
+    >
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } = getPostUsersMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates Vue Query cache key for GET /users/{userId}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetUsersUserIdQueryKey(
+  args: MaybeRef<InferRequestType<(typeof client.users)[':userId']['$get']>>,
+) {
+  return ['users', 'GET', '/users/:userId', unref(args)] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /users/{userId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetUsersUserIdQueryOptions = (
+  args: InferRequestType<(typeof client.users)[':userId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetUsersUserIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.users[':userId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /users/{userId}
@@ -43,83 +127,204 @@ export function usePostUsers(clientOptions?: ClientRequestOptions) {
  */
 export function useGetUsersUserId(
   args: InferRequestType<(typeof client.users)[':userId']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: Partial<
+      Omit<
+        UseQueryOptions<
+          Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':userId']['$get']>>>
+            >
+          >,
+          Error
+        >,
+        'queryKey' | 'queryFn'
+      >
+    >
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetUsersUserIdQueryKey(args)
-  return useQuery({
-    queryKey,
-    queryFn: async () => parseResponse(client.users[':userId'].$get(args, clientOptions)),
-  })
+  const { query: queryOptions, client: clientOptions } = options ?? {}
+  const { queryKey, queryFn, ...baseOptions } = getGetUsersUserIdQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates Vue Query cache key for GET /users/{userId}
+ * Generates Vue Query mutation key for PUT /users/{userId}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetUsersUserIdQueryKey(
-  args: InferRequestType<(typeof client.users)[':userId']['$get']>,
-) {
-  return ['/users/:userId', args] as const
+export function getPutUsersUserIdMutationKey() {
+  return ['users', 'PUT', '/users/:userId'] as const
 }
+
+/**
+ * Returns Vue Query mutation options for PUT /users/{userId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutUsersUserIdMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPutUsersUserIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.users)[':userId']['$put']>) =>
+    parseResponse(client.users[':userId'].$put(args, clientOptions)),
+})
 
 /**
  * PUT /users/{userId}
  *
  * Update an existing user
  */
-export function usePutUsersUserId(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client.users)[':userId']['$put']> | undefined,
-    Error,
-    InferRequestType<(typeof client.users)[':userId']['$put']>
-  >({
-    mutationFn: async (args) => parseResponse(client.users[':userId'].$put(args, clientOptions)),
-  })
+export function usePutUsersUserId(options?: {
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':userId']['$put']>>>
+          >
+        >,
+        Error,
+        InferRequestType<(typeof client.users)[':userId']['$put']>
+      >,
+      'mutationFn' | 'mutationKey'
+    >
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPutUsersUserIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates Vue Query mutation key for DELETE /users/{userId}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getDeleteUsersUserIdMutationKey() {
+  return ['users', 'DELETE', '/users/:userId'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for DELETE /users/{userId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteUsersUserIdMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getDeleteUsersUserIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.users)[':userId']['$delete']>) =>
+    parseResponse(client.users[':userId'].$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /users/{userId}
  *
  * Delete a user
  */
-export function useDeleteUsersUserId(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client.users)[':userId']['$delete']> | undefined,
-    Error,
-    InferRequestType<(typeof client.users)[':userId']['$delete']>
-  >({
-    mutationFn: async (args) => parseResponse(client.users[':userId'].$delete(args, clientOptions)),
-  })
+export function useDeleteUsersUserId(options?: {
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':userId']['$delete']>>>
+            >
+          >
+        | undefined,
+        Error,
+        InferRequestType<(typeof client.users)[':userId']['$delete']>
+      >,
+      'mutationFn' | 'mutationKey'
+    >
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteUsersUserIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates Vue Query cache key for GET /orders
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGetOrdersQueryKey() {
+  return ['orders', 'GET', '/orders'] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /orders
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetOrdersQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetOrdersQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.orders.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /orders
  *
  * List all orders
  */
-export function useGetOrders(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetOrdersQueryKey()
-  return useQuery({
-    queryKey,
-    queryFn: async () => parseResponse(client.orders.$get(undefined, clientOptions)),
-  })
+export function useGetOrders(options?: {
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.orders.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
+  const { queryKey, queryFn, ...baseOptions } = getGetOrdersQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates Vue Query cache key for GET /orders
+ * Generates Vue Query mutation key for POST /orders
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetOrdersQueryKey() {
-  return ['/orders'] as const
+export function getPostOrdersMutationKey() {
+  return ['orders', 'POST', '/orders'] as const
 }
+
+/**
+ * Returns Vue Query mutation options for POST /orders
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostOrdersMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostOrdersMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.orders.$post>) =>
+    parseResponse(client.orders.$post(args, clientOptions)),
+})
 
 /**
  * POST /orders
  *
  * Create a new order
  */
-export function usePostOrders(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<typeof client.orders.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.orders.$post>
-  >({ mutationFn: async (args) => parseResponse(client.orders.$post(args, clientOptions)) })
+export function usePostOrders(options?: {
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.orders.$post>>>>>,
+        Error,
+        InferRequestType<typeof client.orders.$post>
+      >,
+      'mutationFn' | 'mutationKey'
+    >
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } = getPostOrdersMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }

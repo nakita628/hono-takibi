@@ -1,145 +1,204 @@
-import type { CreateMutationOptions, CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
+import type {
+  CreateMutationOptions,
+  CreateQueryOptions,
+  QueryFunctionContext,
+} from '@tanstack/svelte-query'
 import { createMutation, createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/06-headers'
+
+/**
+ * Generates Svelte Query cache key for GET /resources
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetResourcesQueryKey(args: InferRequestType<typeof client.resources.$get>) {
+  return ['resources', 'GET', '/resources', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /resources
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetResourcesQueryOptions = (
+  args: InferRequestType<typeof client.resources.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetResourcesQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.resources.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /resources
  */
 export function createGetResources(
   args: InferRequestType<typeof client.resources.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.resources.$get>,
-      Error,
-      InferResponseType<typeof client.resources.$get>,
-      readonly ['/resources', InferRequestType<typeof client.resources.$get>]
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.resources.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetResourcesQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.resources.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetResourcesQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /resources
+ * Generates Svelte Query cache key for GET /resources/{id}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetResourcesQueryKey(args: InferRequestType<typeof client.resources.$get>) {
-  return ['/resources', args] as const
+export function getGetResourcesIdQueryKey(
+  args: InferRequestType<(typeof client.resources)[':id']['$get']>,
+) {
+  return ['resources', 'GET', '/resources/:id', args] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /resources/{id}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetResourcesIdQueryOptions = (
+  args: InferRequestType<(typeof client.resources)[':id']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetResourcesIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.resources[':id'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /resources/{id}
  */
 export function createGetResourcesId(
   args: InferRequestType<(typeof client.resources)[':id']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<(typeof client.resources)[':id']['$get']>,
-      Error,
-      InferResponseType<(typeof client.resources)[':id']['$get']>,
-      readonly ['/resources/:id', InferRequestType<(typeof client.resources)[':id']['$get']>]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.resources)[':id']['$get']>>>
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetResourcesIdQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.resources[':id'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetResourcesIdQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /resources/{id}
+ * Generates Svelte Query mutation key for PUT /resources/{id}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetResourcesIdQueryKey(
-  args: InferRequestType<(typeof client.resources)[':id']['$get']>,
-) {
-  return ['/resources/:id', args] as const
+export function getPutResourcesIdMutationKey() {
+  return ['resources', 'PUT', '/resources/:id'] as const
 }
+
+/**
+ * Returns Svelte Query mutation options for PUT /resources/{id}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutResourcesIdMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPutResourcesIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.resources)[':id']['$put']>) =>
+    parseResponse(client.resources[':id'].$put(args, clientOptions)),
+})
 
 /**
  * PUT /resources/{id}
  */
 export function createPutResourcesId(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<(typeof client.resources)[':id']['$put']> | undefined,
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.resources)[':id']['$put']>>>
+        >
+      >,
       Error,
       InferRequestType<(typeof client.resources)[':id']['$put']>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<(typeof client.resources)[':id']['$put']> | undefined,
-    Error,
-    InferRequestType<(typeof client.resources)[':id']['$put']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.resources[':id'].$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPutResourcesIdMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query cache key for GET /download/{id}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetDownloadIdQueryKey(
+  args: InferRequestType<(typeof client.download)[':id']['$get']>,
+) {
+  return ['download', 'GET', '/download/:id', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /download/{id}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetDownloadIdQueryOptions = (
+  args: InferRequestType<(typeof client.download)[':id']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetDownloadIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.download[':id'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /download/{id}
  */
 export function createGetDownloadId(
   args: InferRequestType<(typeof client.download)[':id']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<(typeof client.download)[':id']['$get']>,
-      Error,
-      InferResponseType<(typeof client.download)[':id']['$get']>,
-      readonly ['/download/:id', InferRequestType<(typeof client.download)[':id']['$get']>]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.download)[':id']['$get']>>>
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetDownloadIdQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.download[':id'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
-}
-
-/**
- * Generates Svelte Query cache key for GET /download/{id}
- */
-export function getGetDownloadIdQueryKey(
-  args: InferRequestType<(typeof client.download)[':id']['$get']>,
-) {
-  return ['/download/:id', args] as const
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetDownloadIdQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }

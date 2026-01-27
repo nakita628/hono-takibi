@@ -1,8 +1,32 @@
-import type { QueryClient, UseQueryOptions } from '@tanstack/react-query'
+import type { QueryFunctionContext, UseQueryOptions } from '@tanstack/react-query'
 import { useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferResponseType } from 'hono/client'
+import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/openapi-literal'
+
+/**
+ * Generates TanStack Query cache key for GET /primitive
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGetPrimitiveQueryKey() {
+  return ['primitive', 'GET', '/primitive'] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /primitive
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetPrimitiveQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetPrimitiveQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.primitive.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /primitive
@@ -11,34 +35,14 @@ import { client } from '../clients/openapi-literal'
  *
  * zod primitive
  */
-export function useGetPrimitive(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.primitive.$get>,
-      Error,
-      InferResponseType<typeof client.primitive.$get>,
-      readonly ['/primitive']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetPrimitive(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.primitive.$get>>>>>,
+    Error
+  >
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetPrimitiveQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.primitive.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
-}
-
-/**
- * Generates TanStack Query cache key for GET /primitive
- */
-export function getGetPrimitiveQueryKey() {
-  return ['/primitive'] as const
+  const { queryKey, queryFn, ...baseOptions } = getGetPrimitiveQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }

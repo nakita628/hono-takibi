@@ -1,8 +1,16 @@
-import type { ClientRequestOptions, InferResponseType } from 'hono/client'
+import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
 import { client } from '../clients/openapi-number'
+
+/**
+ * Generates SWR cache key for GET /number
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGetNumberKey() {
+  return ['number', 'GET', '/number'] as const
+}
 
 /**
  * GET /number
@@ -12,26 +20,19 @@ import { client } from '../clients/openapi-number'
  * zod number
  */
 export function useGetNumber(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.number.$get>, Error> & {
-    swrKey?: Key
-    enabled?: boolean
-  }
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetNumberKey() : null)
-  const query = useSWR<InferResponseType<typeof client.number.$get>, Error>(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetNumberKey()) : null
+  return {
     swrKey,
-    async () => parseResponse(client.number.$get(undefined, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
-}
-
-/**
- * Generates SWR cache key for GET /number
- */
-export function getGetNumberKey() {
-  return ['/number'] as const
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.number.$get(undefined, clientOptions)),
+      restSwrOptions,
+    ),
+  }
 }

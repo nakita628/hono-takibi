@@ -1,140 +1,206 @@
-import type { CreateMutationOptions, QueryClient } from '@tanstack/svelte-query'
+import type { CreateMutationOptions } from '@tanstack/svelte-query'
 import { createMutation } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/10-complex-schemas'
+
+/**
+ * Generates Svelte Query mutation key for POST /events
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostEventsMutationKey() {
+  return ['events', 'POST', '/events'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /events
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostEventsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostEventsMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.events.$post>) =>
+    parseResponse(client.events.$post(args, clientOptions)),
+})
 
 /**
  * POST /events
  */
 export function createPostEvents(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.events.$post> | undefined,
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.events.$post>>>>>,
       Error,
       InferRequestType<typeof client.events.$post>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.events.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.events.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.events.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostEventsMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query mutation key for POST /notifications
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostNotificationsMutationKey() {
+  return ['notifications', 'POST', '/notifications'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /notifications
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostNotificationsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostNotificationsMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.notifications.$post>) =>
+    parseResponse(client.notifications.$post(args, clientOptions)),
+})
 
 /**
  * POST /notifications
  */
 export function createPostNotifications(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.notifications.$post> | undefined,
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.notifications.$post>>>>
+      >,
       Error,
       InferRequestType<typeof client.notifications.$post>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.notifications.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.notifications.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.notifications.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostNotificationsMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query mutation key for POST /shapes
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostShapesMutationKey() {
+  return ['shapes', 'POST', '/shapes'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /shapes
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostShapesMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostShapesMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.shapes.$post>) =>
+    parseResponse(client.shapes.$post(args, clientOptions)),
+})
 
 /**
  * POST /shapes
  */
 export function createPostShapes(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.shapes.$post> | undefined,
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.shapes.$post>>>>>,
       Error,
       InferRequestType<typeof client.shapes.$post>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.shapes.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.shapes.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.shapes.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostShapesMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query mutation key for POST /documents
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostDocumentsMutationKey() {
+  return ['documents', 'POST', '/documents'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /documents
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostDocumentsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostDocumentsMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.documents.$post>) =>
+    parseResponse(client.documents.$post(args, clientOptions)),
+})
 
 /**
  * POST /documents
  */
 export function createPostDocuments(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.documents.$post> | undefined,
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.documents.$post>>>>>,
       Error,
       InferRequestType<typeof client.documents.$post>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.documents.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.documents.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.documents.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostDocumentsMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query mutation key for POST /mixed
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostMixedMutationKey() {
+  return ['mixed', 'POST', '/mixed'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /mixed
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostMixedMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostMixedMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.mixed.$post>) =>
+    parseResponse(client.mixed.$post(args, clientOptions)),
+})
 
 /**
  * POST /mixed
  */
 export function createPostMixed(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.mixed.$post> | undefined,
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mixed.$post>>>>>,
       Error,
       InferRequestType<typeof client.mixed.$post>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.mixed.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.mixed.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.mixed.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostMixedMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }

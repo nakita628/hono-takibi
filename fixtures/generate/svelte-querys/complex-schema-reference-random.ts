@@ -1,8 +1,29 @@
-import type { CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
+import type { CreateQueryOptions, QueryFunctionContext } from '@tanstack/svelte-query'
 import { createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferResponseType } from 'hono/client'
+import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/complex-schema-reference-random'
+
+/**
+ * Generates Svelte Query cache key for GET /test
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGetTestQueryKey() {
+  return ['test', 'GET', '/test'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /test
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetTestQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetTestQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.test.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /test
@@ -10,33 +31,17 @@ import { client } from '../clients/complex-schema-reference-random'
  * Test endpoint for comprehensive schema references
  */
 export function createGetTest(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.test.$get>,
-      Error,
-      InferResponseType<typeof client.test.$get>,
-      readonly ['/test']
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.test.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetTestQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.test.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
-}
-
-/**
- * Generates Svelte Query cache key for GET /test
- */
-export function getGetTestQueryKey() {
-  return ['/test'] as const
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetTestQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }

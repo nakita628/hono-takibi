@@ -1,8 +1,41 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
+import type {
+  QueryFunctionContext,
+  UseMutationOptions,
+  UseQueryOptions,
+} from '@tanstack/react-query'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/35-auth-oauth2-server'
+
+/**
+ * Generates TanStack Query cache key for GET /oauth/authorize
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetOauthAuthorizeQueryKey(
+  args: InferRequestType<typeof client.oauth.authorize.$get>,
+) {
+  return ['oauth', 'GET', '/oauth/authorize', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /oauth/authorize
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetOauthAuthorizeQueryOptions = (
+  args: InferRequestType<typeof client.oauth.authorize.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetOauthAuthorizeQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.oauth.authorize.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /oauth/authorize
@@ -16,36 +49,40 @@ export function useGetOauthAuthorize(
   args: InferRequestType<typeof client.oauth.authorize.$get>,
   options?: {
     query?: UseQueryOptions<
-      InferResponseType<typeof client.oauth.authorize.$get>,
-      Error,
-      InferResponseType<typeof client.oauth.authorize.$get>,
-      readonly ['/oauth/authorize', InferRequestType<typeof client.oauth.authorize.$get>]
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.oauth.authorize.$get>>>>
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetOauthAuthorizeQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.oauth.authorize.$get(args, clientOptions)),
-    },
-    queryClient,
+  const { queryKey, queryFn, ...baseOptions } = getGetOauthAuthorizeQueryOptions(
+    args,
+    clientOptions,
   )
-  return { ...query, queryKey }
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /oauth/authorize
+ * Generates TanStack Query mutation key for POST /oauth/token
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetOauthAuthorizeQueryKey(
-  args: InferRequestType<typeof client.oauth.authorize.$get>,
-) {
-  return ['/oauth/authorize', args] as const
+export function getPostOauthTokenMutationKey() {
+  return ['oauth', 'POST', '/oauth/token'] as const
 }
+
+/**
+ * Returns TanStack Query mutation options for POST /oauth/token
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostOauthTokenMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostOauthTokenMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.oauth.token.$post>) =>
+    parseResponse(client.oauth.token.$post(args, clientOptions)),
+})
 
 /**
  * POST /oauth/token
@@ -55,29 +92,38 @@ export function getGetOauthAuthorizeQueryKey(
  * アクセストークンを発行します。
  * Authorization Code、Client Credentials、Refresh Token、Device Code の各フローに対応。
  */
-export function usePostOauthToken(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.oauth.token.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.oauth.token.$post>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<typeof client.oauth.token.$post> | undefined,
+export function usePostOauthToken(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.oauth.token.$post>>>>>,
     Error,
     InferRequestType<typeof client.oauth.token.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.oauth.token.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostOauthTokenMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /oauth/revoke
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostOauthRevokeMutationKey() {
+  return ['oauth', 'POST', '/oauth/revoke'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /oauth/revoke
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostOauthRevokeMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostOauthRevokeMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.oauth.revoke.$post>) =>
+    parseResponse(client.oauth.revoke.$post(args, clientOptions)),
+})
 
 /**
  * POST /oauth/revoke
@@ -86,29 +132,40 @@ export function usePostOauthToken(
  *
  * アクセストークンまたはリフレッシュトークンを無効化します（RFC 7009）
  */
-export function usePostOauthRevoke(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.oauth.revoke.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.oauth.revoke.$post>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<typeof client.oauth.revoke.$post> | undefined,
+export function usePostOauthRevoke(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.oauth.revoke.$post>>>>
+    >,
     Error,
     InferRequestType<typeof client.oauth.revoke.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.oauth.revoke.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostOauthRevokeMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /oauth/introspect
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostOauthIntrospectMutationKey() {
+  return ['oauth', 'POST', '/oauth/introspect'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /oauth/introspect
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostOauthIntrospectMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostOauthIntrospectMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.oauth.introspect.$post>) =>
+    parseResponse(client.oauth.introspect.$post(args, clientOptions)),
+})
 
 /**
  * POST /oauth/introspect
@@ -117,30 +174,40 @@ export function usePostOauthRevoke(
  *
  * トークンの有効性と情報を取得します（RFC 7662）
  */
-export function usePostOauthIntrospect(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.oauth.introspect.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.oauth.introspect.$post>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<typeof client.oauth.introspect.$post> | undefined,
+export function usePostOauthIntrospect(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.oauth.introspect.$post>>>>
+    >,
     Error,
     InferRequestType<typeof client.oauth.introspect.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.oauth.introspect.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostOauthIntrospectMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /oauth/device/code
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostOauthDeviceCodeMutationKey() {
+  return ['oauth', 'POST', '/oauth/device/code'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /oauth/device/code
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostOauthDeviceCodeMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostOauthDeviceCodeMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.oauth.device.code.$post>) =>
+    parseResponse(client.oauth.device.code.$post(args, clientOptions)),
+})
 
 /**
  * POST /oauth/device/code
@@ -149,30 +216,45 @@ export function usePostOauthIntrospect(
  *
  * デバイスフロー用の認可コードを発行します（RFC 8628）
  */
-export function usePostOauthDeviceCode(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.oauth.device.code.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.oauth.device.code.$post>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<typeof client.oauth.device.code.$post> | undefined,
+export function usePostOauthDeviceCode(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.oauth.device.code.$post>>>>
+    >,
     Error,
     InferRequestType<typeof client.oauth.device.code.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.oauth.device.code.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostOauthDeviceCodeMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query cache key for GET /oauth/userinfo
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGetOauthUserinfoQueryKey() {
+  return ['oauth', 'GET', '/oauth/userinfo'] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /oauth/userinfo
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetOauthUserinfoQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetOauthUserinfoQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.oauth.userinfo.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /oauth/userinfo
@@ -181,37 +263,45 @@ export function usePostOauthDeviceCode(
  *
  * OpenID Connect UserInfo エンドポイント
  */
-export function useGetOauthUserinfo(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.oauth.userinfo.$get>,
-      Error,
-      InferResponseType<typeof client.oauth.userinfo.$get>,
-      readonly ['/oauth/userinfo']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetOauthUserinfo(options?: {
+  query?: UseQueryOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.oauth.userinfo.$get>>>>
+    >,
+    Error
+  >
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetOauthUserinfoQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.oauth.userinfo.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  const { queryKey, queryFn, ...baseOptions } = getGetOauthUserinfoQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /oauth/userinfo
+ * Generates TanStack Query cache key for GET /.well-known/openid-configuration
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetOauthUserinfoQueryKey() {
-  return ['/oauth/userinfo'] as const
+export function getGetWellKnownOpenidConfigurationQueryKey() {
+  return ['.well-known', 'GET', '/.well-known/openid-configuration'] as const
 }
+
+/**
+ * Returns TanStack Query query options for GET /.well-known/openid-configuration
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetWellKnownOpenidConfigurationQueryOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetWellKnownOpenidConfigurationQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['.well-known']['openid-configuration'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /.well-known/openid-configuration
@@ -220,38 +310,48 @@ export function getGetOauthUserinfoQueryKey() {
  *
  * OpenID Connect の設定情報を返します
  */
-export function useGetWellKnownOpenidConfiguration(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client)['.well-known']['openid-configuration']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['.well-known']['openid-configuration']['$get']>,
-      readonly ['/.well-known/openid-configuration']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetWellKnownOpenidConfiguration(options?: {
+  query?: UseQueryOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['.well-known']['openid-configuration']['$get']>>
+        >
+      >
+    >,
+    Error
+  >
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetWellKnownOpenidConfigurationQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client['.well-known']['openid-configuration'].$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  const { queryKey, queryFn, ...baseOptions } =
+    getGetWellKnownOpenidConfigurationQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /.well-known/openid-configuration
+ * Generates TanStack Query cache key for GET /.well-known/jwks.json
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetWellKnownOpenidConfigurationQueryKey() {
-  return ['/.well-known/openid-configuration'] as const
+export function getGetWellKnownJwksJsonQueryKey() {
+  return ['.well-known', 'GET', '/.well-known/jwks.json'] as const
 }
+
+/**
+ * Returns TanStack Query query options for GET /.well-known/jwks.json
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetWellKnownJwksJsonQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetWellKnownJwksJsonQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['.well-known']['jwks.json'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /.well-known/jwks.json
@@ -260,104 +360,135 @@ export function getGetWellKnownOpenidConfigurationQueryKey() {
  *
  * JWTの検証に使用する公開鍵セット
  */
-export function useGetWellKnownJwksJson(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client)['.well-known']['jwks.json']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['.well-known']['jwks.json']['$get']>,
-      readonly ['/.well-known/jwks.json']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetWellKnownJwksJson(options?: {
+  query?: UseQueryOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['.well-known']['jwks.json']['$get']>>
+        >
+      >
+    >,
+    Error
+  >
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetWellKnownJwksJsonQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client['.well-known']['jwks.json'].$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  const { queryKey, queryFn, ...baseOptions } = getGetWellKnownJwksJsonQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /.well-known/jwks.json
+ * Generates TanStack Query cache key for GET /oauth/clients
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetWellKnownJwksJsonQueryKey() {
-  return ['/.well-known/jwks.json'] as const
+export function getGetOauthClientsQueryKey() {
+  return ['oauth', 'GET', '/oauth/clients'] as const
 }
+
+/**
+ * Returns TanStack Query query options for GET /oauth/clients
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetOauthClientsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetOauthClientsQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.oauth.clients.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /oauth/clients
  *
  * クライアント一覧取得
  */
-export function useGetOauthClients(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.oauth.clients.$get>,
-      Error,
-      InferResponseType<typeof client.oauth.clients.$get>,
-      readonly ['/oauth/clients']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetOauthClients(options?: {
+  query?: UseQueryOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.oauth.clients.$get>>>>
+    >,
+    Error
+  >
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetOauthClientsQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.oauth.clients.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  const { queryKey, queryFn, ...baseOptions } = getGetOauthClientsQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /oauth/clients
+ * Generates TanStack Query mutation key for POST /oauth/clients
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetOauthClientsQueryKey() {
-  return ['/oauth/clients'] as const
+export function getPostOauthClientsMutationKey() {
+  return ['oauth', 'POST', '/oauth/clients'] as const
 }
+
+/**
+ * Returns TanStack Query mutation options for POST /oauth/clients
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostOauthClientsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostOauthClientsMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.oauth.clients.$post>) =>
+    parseResponse(client.oauth.clients.$post(args, clientOptions)),
+})
 
 /**
  * POST /oauth/clients
  *
  * クライアント作成
  */
-export function usePostOauthClients(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.oauth.clients.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.oauth.clients.$post>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<typeof client.oauth.clients.$post> | undefined,
+export function usePostOauthClients(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.oauth.clients.$post>>>>
+    >,
     Error,
     InferRequestType<typeof client.oauth.clients.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.oauth.clients.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostOauthClientsMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query cache key for GET /oauth/clients/{clientId}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetOauthClientsClientIdQueryKey(
+  args: InferRequestType<(typeof client.oauth.clients)[':clientId']['$get']>,
+) {
+  return ['oauth', 'GET', '/oauth/clients/:clientId', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /oauth/clients/{clientId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetOauthClientsClientIdQueryOptions = (
+  args: InferRequestType<(typeof client.oauth.clients)[':clientId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetOauthClientsClientIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.oauth.clients[':clientId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /oauth/clients/{clientId}
@@ -368,130 +499,190 @@ export function useGetOauthClientsClientId(
   args: InferRequestType<(typeof client.oauth.clients)[':clientId']['$get']>,
   options?: {
     query?: UseQueryOptions<
-      InferResponseType<(typeof client.oauth.clients)[':clientId']['$get']>,
-      Error,
-      InferResponseType<(typeof client.oauth.clients)[':clientId']['$get']>,
-      readonly [
-        '/oauth/clients/:clientId',
-        InferRequestType<(typeof client.oauth.clients)[':clientId']['$get']>,
-      ]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.oauth.clients)[':clientId']['$get']>>
+          >
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetOauthClientsClientIdQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.oauth.clients[':clientId'].$get(args, clientOptions)),
-    },
-    queryClient,
+  const { queryKey, queryFn, ...baseOptions } = getGetOauthClientsClientIdQueryOptions(
+    args,
+    clientOptions,
   )
-  return { ...query, queryKey }
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /oauth/clients/{clientId}
+ * Generates TanStack Query mutation key for PUT /oauth/clients/{clientId}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetOauthClientsClientIdQueryKey(
-  args: InferRequestType<(typeof client.oauth.clients)[':clientId']['$get']>,
-) {
-  return ['/oauth/clients/:clientId', args] as const
+export function getPutOauthClientsClientIdMutationKey() {
+  return ['oauth', 'PUT', '/oauth/clients/:clientId'] as const
 }
+
+/**
+ * Returns TanStack Query mutation options for PUT /oauth/clients/{clientId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutOauthClientsClientIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPutOauthClientsClientIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.oauth.clients)[':clientId']['$put']>) =>
+    parseResponse(client.oauth.clients[':clientId'].$put(args, clientOptions)),
+})
 
 /**
  * PUT /oauth/clients/{clientId}
  *
  * クライアント更新
  */
-export function usePutOauthClientsClientId(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.oauth.clients)[':clientId']['$put']> | undefined,
-      Error,
-      InferRequestType<(typeof client.oauth.clients)[':clientId']['$put']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<(typeof client.oauth.clients)[':clientId']['$put']> | undefined,
+export function usePutOauthClientsClientId(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.oauth.clients)[':clientId']['$put']>>
+        >
+      >
+    >,
     Error,
     InferRequestType<(typeof client.oauth.clients)[':clientId']['$put']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.oauth.clients[':clientId'].$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPutOauthClientsClientIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for DELETE /oauth/clients/{clientId}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getDeleteOauthClientsClientIdMutationKey() {
+  return ['oauth', 'DELETE', '/oauth/clients/:clientId'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for DELETE /oauth/clients/{clientId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteOauthClientsClientIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteOauthClientsClientIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.oauth.clients)[':clientId']['$delete']>,
+  ) => parseResponse(client.oauth.clients[':clientId'].$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /oauth/clients/{clientId}
  *
  * クライアント削除
  */
-export function useDeleteOauthClientsClientId(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.oauth.clients)[':clientId']['$delete']> | undefined,
-      Error,
-      InferRequestType<(typeof client.oauth.clients)[':clientId']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<(typeof client.oauth.clients)[':clientId']['$delete']> | undefined,
+export function useDeleteOauthClientsClientId(options?: {
+  mutation?: UseMutationOptions<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.oauth.clients)[':clientId']['$delete']>>
+          >
+        >
+      >
+    | undefined,
     Error,
     InferRequestType<(typeof client.oauth.clients)[':clientId']['$delete']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.oauth.clients[':clientId'].$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteOauthClientsClientIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /oauth/clients/{clientId}/secret
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostOauthClientsClientIdSecretMutationKey() {
+  return ['oauth', 'POST', '/oauth/clients/:clientId/secret'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /oauth/clients/{clientId}/secret
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostOauthClientsClientIdSecretMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostOauthClientsClientIdSecretMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.oauth.clients)[':clientId']['secret']['$post']>,
+  ) => parseResponse(client.oauth.clients[':clientId'].secret.$post(args, clientOptions)),
+})
 
 /**
  * POST /oauth/clients/{clientId}/secret
  *
  * クライアントシークレット再生成
  */
-export function usePostOauthClientsClientIdSecret(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.oauth.clients)[':clientId']['secret']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client.oauth.clients)[':clientId']['secret']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<(typeof client.oauth.clients)[':clientId']['secret']['$post']> | undefined,
+export function usePostOauthClientsClientIdSecret(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.oauth.clients)[':clientId']['secret']['$post']>>
+        >
+      >
+    >,
     Error,
     InferRequestType<(typeof client.oauth.clients)[':clientId']['secret']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.oauth.clients[':clientId'].secret.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostOauthClientsClientIdSecretMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query cache key for GET /oauth/consents
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGetOauthConsentsQueryKey() {
+  return ['oauth', 'GET', '/oauth/consents'] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /oauth/consents
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetOauthConsentsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetOauthConsentsQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.oauth.consents.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /oauth/consents
@@ -500,37 +691,41 @@ export function usePostOauthClientsClientIdSecret(
  *
  * ユーザーが許可したアプリケーション一覧
  */
-export function useGetOauthConsents(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.oauth.consents.$get>,
-      Error,
-      InferResponseType<typeof client.oauth.consents.$get>,
-      readonly ['/oauth/consents']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetOauthConsents(options?: {
+  query?: UseQueryOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.oauth.consents.$get>>>>
+    >,
+    Error
+  >
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetOauthConsentsQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.oauth.consents.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  const { queryKey, queryFn, ...baseOptions } = getGetOauthConsentsQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /oauth/consents
+ * Generates TanStack Query mutation key for DELETE /oauth/consents/{clientId}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetOauthConsentsQueryKey() {
-  return ['/oauth/consents'] as const
+export function getDeleteOauthConsentsClientIdMutationKey() {
+  return ['oauth', 'DELETE', '/oauth/consents/:clientId'] as const
 }
+
+/**
+ * Returns TanStack Query mutation options for DELETE /oauth/consents/{clientId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteOauthConsentsClientIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteOauthConsentsClientIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.oauth.consents)[':clientId']['$delete']>,
+  ) => parseResponse(client.oauth.consents[':clientId'].$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /oauth/consents/{clientId}
@@ -539,27 +734,23 @@ export function getGetOauthConsentsQueryKey() {
  *
  * アプリケーションへのアクセス許可を取り消します
  */
-export function useDeleteOauthConsentsClientId(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.oauth.consents)[':clientId']['$delete']> | undefined,
-      Error,
-      InferRequestType<(typeof client.oauth.consents)[':clientId']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<(typeof client.oauth.consents)[':clientId']['$delete']> | undefined,
+export function useDeleteOauthConsentsClientId(options?: {
+  mutation?: UseMutationOptions<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.oauth.consents)[':clientId']['$delete']>>
+          >
+        >
+      >
+    | undefined,
     Error,
     InferRequestType<(typeof client.oauth.consents)[':clientId']['$delete']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.oauth.consents[':clientId'].$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteOauthConsentsClientIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }

@@ -215,6 +215,41 @@ export function lowerFirst(text: string): string {
 }
 
 /**
+ * Converts the first character of a string to uppercase.
+ *
+ * @param text - The string to convert.
+ * @returns The string with its first character uppercased.
+ *
+ * @example
+ * ```ts
+ * upperFirst('hello')  // → 'Hello'
+ * upperFirst('abc')    // → 'Abc'
+ * upperFirst('')       // → ''
+ * ```
+ */
+export function upperFirst(text: string): string {
+  return text ? (text[0]?.toUpperCase() ?? '') + text.slice(1) : text
+}
+
+/**
+ * Escapes comment closing sequence in JSDoc comments.
+ *
+ * Replaces `* /` with `* /` (with space) to prevent premature comment termination.
+ *
+ * @param text - The string to escape.
+ * @returns The string with escaped comment closings.
+ *
+ * @example
+ * ```ts
+ * escapeCommentEnd('path/* /file')  // → 'path/* /file' (with space)
+ * escapeCommentEnd('/api/v1')       // → '/api/v1' (unchanged)
+ * ```
+ */
+export function escapeCommentEnd(text: string): string {
+  return text.replace(/\*\//g, '* /')
+}
+
+/**
  * Ensures that a string ends with the specified suffix.
  *
  * @param text - The string to check and potentially modify.

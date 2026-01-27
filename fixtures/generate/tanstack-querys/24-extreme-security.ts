@@ -1,467 +1,571 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
+import type {
+  QueryFunctionContext,
+  UseMutationOptions,
+  UseQueryOptions,
+} from '@tanstack/react-query'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferResponseType } from 'hono/client'
+import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/24-extreme-security'
+
+/**
+ * Generates TanStack Query cache key for GET /public
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGetPublicQueryKey() {
+  return ['public', 'GET', '/public'] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /public
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetPublicQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetPublicQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.public.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /public
  *
  * Completely public endpoint
  */
-export function useGetPublic(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.public.$get>,
-      Error,
-      InferResponseType<typeof client.public.$get>,
-      readonly ['/public']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetPublic(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.public.$get>>>>>,
+    Error
+  >
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetPublicQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.public.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  const { queryKey, queryFn, ...baseOptions } = getGetPublicQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /public
+ * Generates TanStack Query cache key for GET /single-auth
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetPublicQueryKey() {
-  return ['/public'] as const
+export function getGetSingleAuthQueryKey() {
+  return ['single-auth', 'GET', '/single-auth'] as const
 }
+
+/**
+ * Returns TanStack Query query options for GET /single-auth
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetSingleAuthQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetSingleAuthQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['single-auth'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /single-auth
  *
  * Single authentication required
  */
-export function useGetSingleAuth(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client)['single-auth']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['single-auth']['$get']>,
-      readonly ['/single-auth']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetSingleAuth(options?: {
+  query?: UseQueryOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['single-auth']['$get']>>>>
+    >,
+    Error
+  >
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetSingleAuthQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client['single-auth'].$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  const { queryKey, queryFn, ...baseOptions } = getGetSingleAuthQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /single-auth
+ * Generates TanStack Query cache key for GET /any-auth
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetSingleAuthQueryKey() {
-  return ['/single-auth'] as const
+export function getGetAnyAuthQueryKey() {
+  return ['any-auth', 'GET', '/any-auth'] as const
 }
+
+/**
+ * Returns TanStack Query query options for GET /any-auth
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetAnyAuthQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetAnyAuthQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['any-auth'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /any-auth
  *
  * Any of these auth methods works (OR)
  */
-export function useGetAnyAuth(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client)['any-auth']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['any-auth']['$get']>,
-      readonly ['/any-auth']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetAnyAuth(options?: {
+  query?: UseQueryOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['any-auth']['$get']>>>>
+    >,
+    Error
+  >
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetAnyAuthQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client['any-auth'].$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  const { queryKey, queryFn, ...baseOptions } = getGetAnyAuthQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /any-auth
+ * Generates TanStack Query cache key for GET /all-auth
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetAnyAuthQueryKey() {
-  return ['/any-auth'] as const
+export function getGetAllAuthQueryKey() {
+  return ['all-auth', 'GET', '/all-auth'] as const
 }
+
+/**
+ * Returns TanStack Query query options for GET /all-auth
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetAllAuthQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetAllAuthQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['all-auth'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /all-auth
  *
  * All of these auth methods required (AND)
  */
-export function useGetAllAuth(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client)['all-auth']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['all-auth']['$get']>,
-      readonly ['/all-auth']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetAllAuth(options?: {
+  query?: UseQueryOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['all-auth']['$get']>>>>
+    >,
+    Error
+  >
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetAllAuthQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client['all-auth'].$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  const { queryKey, queryFn, ...baseOptions } = getGetAllAuthQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /all-auth
+ * Generates TanStack Query cache key for GET /complex-auth
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetAllAuthQueryKey() {
-  return ['/all-auth'] as const
+export function getGetComplexAuthQueryKey() {
+  return ['complex-auth', 'GET', '/complex-auth'] as const
 }
+
+/**
+ * Returns TanStack Query query options for GET /complex-auth
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetComplexAuthQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetComplexAuthQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['complex-auth'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /complex-auth
  *
  * Complex AND/OR security requirements
  */
-export function useGetComplexAuth(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client)['complex-auth']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['complex-auth']['$get']>,
-      readonly ['/complex-auth']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetComplexAuth(options?: {
+  query?: UseQueryOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['complex-auth']['$get']>>>>
+    >,
+    Error
+  >
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetComplexAuthQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client['complex-auth'].$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  const { queryKey, queryFn, ...baseOptions } = getGetComplexAuthQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /complex-auth
+ * Generates TanStack Query cache key for GET /scoped-oauth
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetComplexAuthQueryKey() {
-  return ['/complex-auth'] as const
+export function getGetScopedOauthQueryKey() {
+  return ['scoped-oauth', 'GET', '/scoped-oauth'] as const
 }
+
+/**
+ * Returns TanStack Query query options for GET /scoped-oauth
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetScopedOauthQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetScopedOauthQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['scoped-oauth'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /scoped-oauth
  *
  * OAuth with many specific scopes
  */
-export function useGetScopedOauth(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client)['scoped-oauth']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['scoped-oauth']['$get']>,
-      readonly ['/scoped-oauth']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetScopedOauth(options?: {
+  query?: UseQueryOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['scoped-oauth']['$get']>>>>
+    >,
+    Error
+  >
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetScopedOauthQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client['scoped-oauth'].$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  const { queryKey, queryFn, ...baseOptions } = getGetScopedOauthQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /scoped-oauth
+ * Generates TanStack Query cache key for GET /mixed-level-security
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetScopedOauthQueryKey() {
-  return ['/scoped-oauth'] as const
+export function getGetMixedLevelSecurityQueryKey() {
+  return ['mixed-level-security', 'GET', '/mixed-level-security'] as const
 }
+
+/**
+ * Returns TanStack Query query options for GET /mixed-level-security
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetMixedLevelSecurityQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetMixedLevelSecurityQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['mixed-level-security'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /mixed-level-security
  *
  * Path level + operation level security
  */
-export function useGetMixedLevelSecurity(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client)['mixed-level-security']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['mixed-level-security']['$get']>,
-      readonly ['/mixed-level-security']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetMixedLevelSecurity(options?: {
+  query?: UseQueryOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client)['mixed-level-security']['$get']>>>
+      >
+    >,
+    Error
+  >
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetMixedLevelSecurityQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client['mixed-level-security'].$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  const { queryKey, queryFn, ...baseOptions } = getGetMixedLevelSecurityQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /mixed-level-security
+ * Generates TanStack Query mutation key for PUT /mixed-level-security
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetMixedLevelSecurityQueryKey() {
-  return ['/mixed-level-security'] as const
+export function getPutMixedLevelSecurityMutationKey() {
+  return ['mixed-level-security', 'PUT', '/mixed-level-security'] as const
 }
+
+/**
+ * Returns TanStack Query mutation options for PUT /mixed-level-security
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutMixedLevelSecurityMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPutMixedLevelSecurityMutationKey(),
+  mutationFn: async () =>
+    parseResponse(client['mixed-level-security'].$put(undefined, clientOptions)),
+})
 
 /**
  * PUT /mixed-level-security
  *
  * Admin-only security
  */
-export function usePutMixedLevelSecurity(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['mixed-level-security']['$put']> | undefined,
-      Error,
-      void
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<(typeof client)['mixed-level-security']['$put']> | undefined,
+export function usePutMixedLevelSecurity(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client)['mixed-level-security']['$put']>>>
+      >
+    >,
     Error,
     void
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async () =>
-        parseResponse(client['mixed-level-security'].$put(undefined, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPutMixedLevelSecurityMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /mixed-level-security
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostMixedLevelSecurityMutationKey() {
+  return ['mixed-level-security', 'POST', '/mixed-level-security'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /mixed-level-security
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostMixedLevelSecurityMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostMixedLevelSecurityMutationKey(),
+  mutationFn: async () =>
+    parseResponse(client['mixed-level-security'].$post(undefined, clientOptions)),
+})
 
 /**
  * POST /mixed-level-security
  *
  * Different security for POST
  */
-export function usePostMixedLevelSecurity(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['mixed-level-security']['$post']> | undefined,
-      Error,
-      void
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<(typeof client)['mixed-level-security']['$post']> | undefined,
+export function usePostMixedLevelSecurity(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client)['mixed-level-security']['$post']>>>
+      >
+    >,
     Error,
     void
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async () =>
-        parseResponse(client['mixed-level-security'].$post(undefined, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostMixedLevelSecurityMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for DELETE /mixed-level-security
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getDeleteMixedLevelSecurityMutationKey() {
+  return ['mixed-level-security', 'DELETE', '/mixed-level-security'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for DELETE /mixed-level-security
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteMixedLevelSecurityMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteMixedLevelSecurityMutationKey(),
+  mutationFn: async () =>
+    parseResponse(client['mixed-level-security'].$delete(undefined, clientOptions)),
+})
 
 /**
  * DELETE /mixed-level-security
  *
  * Super admin security
  */
-export function useDeleteMixedLevelSecurity(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['mixed-level-security']['$delete']> | undefined,
-      Error,
-      void
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<(typeof client)['mixed-level-security']['$delete']> | undefined,
+export function useDeleteMixedLevelSecurity(options?: {
+  mutation?: UseMutationOptions<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['mixed-level-security']['$delete']>>
+          >
+        >
+      >
+    | undefined,
     Error,
     void
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async () =>
-        parseResponse(client['mixed-level-security'].$delete(undefined, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteMixedLevelSecurityMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query cache key for GET /override-global
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGetOverrideGlobalQueryKey() {
+  return ['override-global', 'GET', '/override-global'] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /override-global
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetOverrideGlobalQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetOverrideGlobalQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['override-global'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /override-global
  *
  * Override global security with public
  */
-export function useGetOverrideGlobal(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client)['override-global']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['override-global']['$get']>,
-      readonly ['/override-global']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetOverrideGlobal(options?: {
+  query?: UseQueryOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client)['override-global']['$get']>>>
+      >
+    >,
+    Error
+  >
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetOverrideGlobalQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client['override-global'].$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  const { queryKey, queryFn, ...baseOptions } = getGetOverrideGlobalQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /override-global
+ * Generates TanStack Query cache key for GET /optional-enhanced
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetOverrideGlobalQueryKey() {
-  return ['/override-global'] as const
+export function getGetOptionalEnhancedQueryKey() {
+  return ['optional-enhanced', 'GET', '/optional-enhanced'] as const
 }
+
+/**
+ * Returns TanStack Query query options for GET /optional-enhanced
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetOptionalEnhancedQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetOptionalEnhancedQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['optional-enhanced'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /optional-enhanced
  *
  * Optional auth with enhanced access if authenticated
  */
-export function useGetOptionalEnhanced(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client)['optional-enhanced']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['optional-enhanced']['$get']>,
-      readonly ['/optional-enhanced']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetOptionalEnhanced(options?: {
+  query?: UseQueryOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client)['optional-enhanced']['$get']>>>
+      >
+    >,
+    Error
+  >
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetOptionalEnhancedQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client['optional-enhanced'].$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  const { queryKey, queryFn, ...baseOptions } = getGetOptionalEnhancedQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /optional-enhanced
+ * Generates TanStack Query cache key for GET /multi-tenant
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetOptionalEnhancedQueryKey() {
-  return ['/optional-enhanced'] as const
+export function getGetMultiTenantQueryKey() {
+  return ['multi-tenant', 'GET', '/multi-tenant'] as const
 }
+
+/**
+ * Returns TanStack Query query options for GET /multi-tenant
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetMultiTenantQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetMultiTenantQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['multi-tenant'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /multi-tenant
  *
  * Multi-tenant with org-level auth
  */
-export function useGetMultiTenant(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client)['multi-tenant']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['multi-tenant']['$get']>,
-      readonly ['/multi-tenant']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetMultiTenant(options?: {
+  query?: UseQueryOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['multi-tenant']['$get']>>>>
+    >,
+    Error
+  >
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetMultiTenantQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client['multi-tenant'].$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
-}
-
-/**
- * Generates TanStack Query cache key for GET /multi-tenant
- */
-export function getGetMultiTenantQueryKey() {
-  return ['/multi-tenant'] as const
+  const { queryKey, queryFn, ...baseOptions } = getGetMultiTenantQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }

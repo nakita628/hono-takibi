@@ -1,40 +1,41 @@
-import type { QueryClient, UseQueryOptions } from '@tanstack/react-query'
+import type { QueryFunctionContext, UseQueryOptions } from '@tanstack/react-query'
 import { useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferResponseType } from 'hono/client'
+import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/01-minimal'
 
 /**
- * GET /health
+ * Generates TanStack Query cache key for GET /health
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function useGetHealth(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.health.$get>,
-      Error,
-      InferResponseType<typeof client.health.$get>,
-      readonly ['/health']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetHealthQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.health.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+export function getGetHealthQueryKey() {
+  return ['health', 'GET', '/health'] as const
 }
 
 /**
- * Generates TanStack Query cache key for GET /health
+ * Returns TanStack Query query options for GET /health
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetHealthQueryKey() {
-  return ['/health'] as const
+export const getGetHealthQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetHealthQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.health.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
+
+/**
+ * GET /health
+ */
+export function useGetHealth(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.health.$get>>>>>,
+    Error
+  >
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
+  const { queryKey, queryFn, ...baseOptions } = getGetHealthQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }

@@ -1,42 +1,43 @@
-import type { QueryClient, UseQueryOptions } from '@tanstack/react-query'
+import type { QueryFunctionContext, UseQueryOptions } from '@tanstack/react-query'
 import { useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferResponseType } from 'hono/client'
+import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/example'
+
+/**
+ * Generates TanStack Query cache key for GET /sample
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGetSampleQueryKey() {
+  return ['sample', 'GET', '/sample'] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /sample
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetSampleQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetSampleQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.sample.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /sample
  *
  * Returns a payload exercising every custom format, constraint, and nullable case
  */
-export function useGetSample(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.sample.$get>,
-      Error,
-      InferResponseType<typeof client.sample.$get>,
-      readonly ['/sample']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetSample(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.sample.$get>>>>>,
+    Error
+  >
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetSampleQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.sample.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
-}
-
-/**
- * Generates TanStack Query cache key for GET /sample
- */
-export function getGetSampleQueryKey() {
-  return ['/sample'] as const
+  const { queryKey, queryFn, ...baseOptions } = getGetSampleQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }

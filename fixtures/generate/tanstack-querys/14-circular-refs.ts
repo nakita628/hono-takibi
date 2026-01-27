@@ -1,347 +1,397 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
+import type {
+  QueryFunctionContext,
+  UseMutationOptions,
+  UseQueryOptions,
+} from '@tanstack/react-query'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/14-circular-refs'
 
 /**
- * GET /trees
+ * Generates TanStack Query cache key for GET /trees
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function useGetTrees(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.trees.$get>,
-      Error,
-      InferResponseType<typeof client.trees.$get>,
-      readonly ['/trees']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetTreesQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.trees.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+export function getGetTreesQueryKey() {
+  return ['trees', 'GET', '/trees'] as const
 }
 
 /**
- * Generates TanStack Query cache key for GET /trees
+ * Returns TanStack Query query options for GET /trees
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetTreesQueryKey() {
-  return ['/trees'] as const
+export const getGetTreesQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetTreesQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.trees.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
+
+/**
+ * GET /trees
+ */
+export function useGetTrees(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.trees.$get>>>>>,
+    Error
+  >
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
+  const { queryKey, queryFn, ...baseOptions } = getGetTreesQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /trees
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostTreesMutationKey() {
+  return ['trees', 'POST', '/trees'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /trees
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostTreesMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostTreesMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.trees.$post>) =>
+    parseResponse(client.trees.$post(args, clientOptions)),
+})
 
 /**
  * POST /trees
  */
-export function usePostTrees(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.trees.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.trees.$post>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<typeof client.trees.$post> | undefined,
+export function usePostTrees(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.trees.$post>>>>>,
     Error,
     InferRequestType<typeof client.trees.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.trees.$post(args, options?.client)),
-    },
-    queryClient,
-  )
-}
-
-/**
- * GET /graphs
- */
-export function useGetGraphs(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.graphs.$get>,
-      Error,
-      InferResponseType<typeof client.graphs.$get>,
-      readonly ['/graphs']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetGraphsQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.graphs.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } = getPostTreesMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query cache key for GET /graphs
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetGraphsQueryKey() {
-  return ['/graphs'] as const
+  return ['graphs', 'GET', '/graphs'] as const
 }
 
 /**
- * GET /linked-lists
+ * Returns TanStack Query query options for GET /graphs
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function useGetLinkedLists(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client)['linked-lists']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['linked-lists']['$get']>,
-      readonly ['/linked-lists']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export const getGetGraphsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetGraphsQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.graphs.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
+
+/**
+ * GET /graphs
+ */
+export function useGetGraphs(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.graphs.$get>>>>>,
+    Error
+  >
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetLinkedListsQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client['linked-lists'].$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  const { queryKey, queryFn, ...baseOptions } = getGetGraphsQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
  * Generates TanStack Query cache key for GET /linked-lists
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetLinkedListsQueryKey() {
-  return ['/linked-lists'] as const
+  return ['linked-lists', 'GET', '/linked-lists'] as const
 }
 
 /**
- * GET /social-network
+ * Returns TanStack Query query options for GET /linked-lists
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function useGetSocialNetwork(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client)['social-network']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['social-network']['$get']>,
-      readonly ['/social-network']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export const getGetLinkedListsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetLinkedListsQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['linked-lists'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
+ * GET /linked-lists
+ */
+export function useGetLinkedLists(options?: {
+  query?: UseQueryOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['linked-lists']['$get']>>>>
+    >,
+    Error
+  >
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetSocialNetworkQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client['social-network'].$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  const { queryKey, queryFn, ...baseOptions } = getGetLinkedListsQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
  * Generates TanStack Query cache key for GET /social-network
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetSocialNetworkQueryKey() {
-  return ['/social-network'] as const
+  return ['social-network', 'GET', '/social-network'] as const
 }
 
 /**
- * GET /file-system
+ * Returns TanStack Query query options for GET /social-network
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function useGetFileSystem(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client)['file-system']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['file-system']['$get']>,
-      readonly ['/file-system']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export const getGetSocialNetworkQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetSocialNetworkQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['social-network'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
+ * GET /social-network
+ */
+export function useGetSocialNetwork(options?: {
+  query?: UseQueryOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client)['social-network']['$get']>>>
+      >
+    >,
+    Error
+  >
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetFileSystemQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client['file-system'].$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  const { queryKey, queryFn, ...baseOptions } = getGetSocialNetworkQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
  * Generates TanStack Query cache key for GET /file-system
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetFileSystemQueryKey() {
-  return ['/file-system'] as const
+  return ['file-system', 'GET', '/file-system'] as const
 }
 
 /**
- * GET /comments
+ * Returns TanStack Query query options for GET /file-system
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function useGetComments(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.comments.$get>,
-      Error,
-      InferResponseType<typeof client.comments.$get>,
-      readonly ['/comments']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export const getGetFileSystemQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetFileSystemQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['file-system'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
+ * GET /file-system
+ */
+export function useGetFileSystem(options?: {
+  query?: UseQueryOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['file-system']['$get']>>>>
+    >,
+    Error
+  >
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetCommentsQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.comments.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  const { queryKey, queryFn, ...baseOptions } = getGetFileSystemQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
  * Generates TanStack Query cache key for GET /comments
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetCommentsQueryKey() {
-  return ['/comments'] as const
+  return ['comments', 'GET', '/comments'] as const
 }
 
 /**
- * GET /polymorphic
+ * Returns TanStack Query query options for GET /comments
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function useGetPolymorphic(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.polymorphic.$get>,
-      Error,
-      InferResponseType<typeof client.polymorphic.$get>,
-      readonly ['/polymorphic']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export const getGetCommentsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetCommentsQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.comments.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
+ * GET /comments
+ */
+export function useGetComments(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.comments.$get>>>>>,
+    Error
+  >
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetPolymorphicQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.polymorphic.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  const { queryKey, queryFn, ...baseOptions } = getGetCommentsQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
  * Generates TanStack Query cache key for GET /polymorphic
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetPolymorphicQueryKey() {
-  return ['/polymorphic'] as const
+  return ['polymorphic', 'GET', '/polymorphic'] as const
 }
 
 /**
- * GET /categories
+ * Returns TanStack Query query options for GET /polymorphic
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function useGetCategories(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.categories.$get>,
-      Error,
-      InferResponseType<typeof client.categories.$get>,
-      readonly ['/categories']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export const getGetPolymorphicQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetPolymorphicQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.polymorphic.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
+ * GET /polymorphic
+ */
+export function useGetPolymorphic(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.polymorphic.$get>>>>>,
+    Error
+  >
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetCategoriesQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.categories.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  const { queryKey, queryFn, ...baseOptions } = getGetPolymorphicQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
  * Generates TanStack Query cache key for GET /categories
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetCategoriesQueryKey() {
-  return ['/categories'] as const
+  return ['categories', 'GET', '/categories'] as const
 }
 
 /**
- * GET /workflow
+ * Returns TanStack Query query options for GET /categories
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function useGetWorkflow(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.workflow.$get>,
-      Error,
-      InferResponseType<typeof client.workflow.$get>,
-      readonly ['/workflow']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export const getGetCategoriesQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetCategoriesQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.categories.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
+ * GET /categories
+ */
+export function useGetCategories(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.categories.$get>>>>>,
+    Error
+  >
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetWorkflowQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.workflow.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  const { queryKey, queryFn, ...baseOptions } = getGetCategoriesQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
  * Generates TanStack Query cache key for GET /workflow
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetWorkflowQueryKey() {
-  return ['/workflow'] as const
+  return ['workflow', 'GET', '/workflow'] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /workflow
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetWorkflowQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetWorkflowQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.workflow.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
+ * GET /workflow
+ */
+export function useGetWorkflow(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.workflow.$get>>>>>,
+    Error
+  >
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
+  const { queryKey, queryFn, ...baseOptions } = getGetWorkflowQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }

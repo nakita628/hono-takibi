@@ -1,8 +1,29 @@
-import type { CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
+import type { CreateQueryOptions, QueryFunctionContext } from '@tanstack/svelte-query'
 import { createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/sample-geojson'
+
+/**
+ * Generates Svelte Query cache key for GET /
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGetQueryKey() {
+  return ['', 'GET', '/'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.index.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /
@@ -12,36 +33,44 @@ import { client } from '../clients/sample-geojson'
  * This endpoint is used to check if the server is working properly.
  */
 export function createGet(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.index.$get>,
-      Error,
-      InferResponseType<typeof client.index.$get>,
-      readonly ['/']
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.index.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.index.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /
+ * Generates Svelte Query cache key for GET /projects
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetQueryKey() {
-  return ['/'] as const
+export function getGetProjectsQueryKey(args: InferRequestType<typeof client.projects.$get>) {
+  return ['projects', 'GET', '/projects', args] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /projects
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetProjectsQueryOptions = (
+  args: InferRequestType<typeof client.projects.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetProjectsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.projects.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /projects
@@ -52,33 +81,17 @@ export function getGetQueryKey() {
  */
 export function createGetProjects(
   args: InferRequestType<typeof client.projects.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.projects.$get>,
-      Error,
-      InferResponseType<typeof client.projects.$get>,
-      readonly ['/projects', InferRequestType<typeof client.projects.$get>]
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.projects.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetProjectsQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.projects.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
-}
-
-/**
- * Generates Svelte Query cache key for GET /projects
- */
-export function getGetProjectsQueryKey(args: InferRequestType<typeof client.projects.$get>) {
-  return ['/projects', args] as const
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetProjectsQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }

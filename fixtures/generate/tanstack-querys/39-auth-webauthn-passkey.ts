@@ -1,8 +1,33 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
+import type {
+  QueryFunctionContext,
+  UseMutationOptions,
+  UseQueryOptions,
+} from '@tanstack/react-query'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/39-auth-webauthn-passkey'
+
+/**
+ * Generates TanStack Query mutation key for POST /webauthn/register/options
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostWebauthnRegisterOptionsMutationKey() {
+  return ['webauthn', 'POST', '/webauthn/register/options'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /webauthn/register/options
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostWebauthnRegisterOptionsMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostWebauthnRegisterOptionsMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.webauthn.register.options.$post>) =>
+    parseResponse(client.webauthn.register.options.$post(args, clientOptions)),
+})
 
 /**
  * POST /webauthn/register/options
@@ -11,30 +36,44 @@ import { client } from '../clients/39-auth-webauthn-passkey'
  *
  * パスキー登録のためのPublicKeyCredentialCreationOptionsを生成
  */
-export function usePostWebauthnRegisterOptions(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.webauthn.register.options.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.webauthn.register.options.$post>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<typeof client.webauthn.register.options.$post> | undefined,
+export function usePostWebauthnRegisterOptions(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<typeof client.webauthn.register.options.$post>>>
+      >
+    >,
     Error,
     InferRequestType<typeof client.webauthn.register.options.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.webauthn.register.options.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostWebauthnRegisterOptionsMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /webauthn/register/verify
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostWebauthnRegisterVerifyMutationKey() {
+  return ['webauthn', 'POST', '/webauthn/register/verify'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /webauthn/register/verify
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostWebauthnRegisterVerifyMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostWebauthnRegisterVerifyMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.webauthn.register.verify.$post>) =>
+    parseResponse(client.webauthn.register.verify.$post(args, clientOptions)),
+})
 
 /**
  * POST /webauthn/register/verify
@@ -43,30 +82,44 @@ export function usePostWebauthnRegisterOptions(
  *
  * クライアントから送信された認証情報を検証し、パスキーを登録
  */
-export function usePostWebauthnRegisterVerify(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.webauthn.register.verify.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.webauthn.register.verify.$post>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<typeof client.webauthn.register.verify.$post> | undefined,
+export function usePostWebauthnRegisterVerify(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<typeof client.webauthn.register.verify.$post>>>
+      >
+    >,
     Error,
     InferRequestType<typeof client.webauthn.register.verify.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.webauthn.register.verify.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostWebauthnRegisterVerifyMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /webauthn/authenticate/options
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostWebauthnAuthenticateOptionsMutationKey() {
+  return ['webauthn', 'POST', '/webauthn/authenticate/options'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /webauthn/authenticate/options
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostWebauthnAuthenticateOptionsMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostWebauthnAuthenticateOptionsMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.webauthn.authenticate.options.$post>) =>
+    parseResponse(client.webauthn.authenticate.options.$post(args, clientOptions)),
+})
 
 /**
  * POST /webauthn/authenticate/options
@@ -75,30 +128,44 @@ export function usePostWebauthnRegisterVerify(
  *
  * パスキー認証のためのPublicKeyCredentialRequestOptionsを生成
  */
-export function usePostWebauthnAuthenticateOptions(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.webauthn.authenticate.options.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.webauthn.authenticate.options.$post>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<typeof client.webauthn.authenticate.options.$post> | undefined,
+export function usePostWebauthnAuthenticateOptions(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<typeof client.webauthn.authenticate.options.$post>>>
+      >
+    >,
     Error,
     InferRequestType<typeof client.webauthn.authenticate.options.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.webauthn.authenticate.options.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostWebauthnAuthenticateOptionsMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /webauthn/authenticate/verify
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostWebauthnAuthenticateVerifyMutationKey() {
+  return ['webauthn', 'POST', '/webauthn/authenticate/verify'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /webauthn/authenticate/verify
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostWebauthnAuthenticateVerifyMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostWebauthnAuthenticateVerifyMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.webauthn.authenticate.verify.$post>) =>
+    parseResponse(client.webauthn.authenticate.verify.$post(args, clientOptions)),
+})
 
 /**
  * POST /webauthn/authenticate/verify
@@ -107,30 +174,47 @@ export function usePostWebauthnAuthenticateOptions(
  *
  * クライアントから送信された認証レスポンスを検証
  */
-export function usePostWebauthnAuthenticateVerify(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.webauthn.authenticate.verify.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.webauthn.authenticate.verify.$post>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<typeof client.webauthn.authenticate.verify.$post> | undefined,
+export function usePostWebauthnAuthenticateVerify(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<typeof client.webauthn.authenticate.verify.$post>>>
+      >
+    >,
     Error,
     InferRequestType<typeof client.webauthn.authenticate.verify.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.webauthn.authenticate.verify.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostWebauthnAuthenticateVerifyMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query cache key for GET /webauthn/credentials
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGetWebauthnCredentialsQueryKey() {
+  return ['webauthn', 'GET', '/webauthn/credentials'] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /webauthn/credentials
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetWebauthnCredentialsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetWebauthnCredentialsQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.webauthn.credentials.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /webauthn/credentials
@@ -139,38 +223,48 @@ export function usePostWebauthnAuthenticateVerify(
  *
  * ユーザーに登録されているパスキー一覧を取得
  */
-export function useGetWebauthnCredentials(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.webauthn.credentials.$get>,
-      Error,
-      InferResponseType<typeof client.webauthn.credentials.$get>,
-      readonly ['/webauthn/credentials']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetWebauthnCredentials(options?: {
+  query?: UseQueryOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.webauthn.credentials.$get>>>>
+    >,
+    Error
+  >
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetWebauthnCredentialsQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.webauthn.credentials.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  const { queryKey, queryFn, ...baseOptions } = getGetWebauthnCredentialsQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /webauthn/credentials
+ * Generates TanStack Query cache key for GET /webauthn/credentials/{credentialId}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetWebauthnCredentialsQueryKey() {
-  return ['/webauthn/credentials'] as const
+export function getGetWebauthnCredentialsCredentialIdQueryKey(
+  args: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$get']>,
+) {
+  return ['webauthn', 'GET', '/webauthn/credentials/:credentialId', args] as const
 }
+
+/**
+ * Returns TanStack Query query options for GET /webauthn/credentials/{credentialId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetWebauthnCredentialsCredentialIdQueryOptions = (
+  args: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetWebauthnCredentialsCredentialIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.webauthn.credentials[':credentialId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /webauthn/credentials/{credentialId}
@@ -181,40 +275,47 @@ export function useGetWebauthnCredentialsCredentialId(
   args: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$get']>,
   options?: {
     query?: UseQueryOptions<
-      InferResponseType<(typeof client.webauthn.credentials)[':credentialId']['$get']>,
-      Error,
-      InferResponseType<(typeof client.webauthn.credentials)[':credentialId']['$get']>,
-      readonly [
-        '/webauthn/credentials/:credentialId',
-        InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$get']>,
-      ]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.webauthn.credentials)[':credentialId']['$get']>>
+          >
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetWebauthnCredentialsCredentialIdQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.webauthn.credentials[':credentialId'].$get(args, clientOptions)),
-    },
-    queryClient,
+  const { queryKey, queryFn, ...baseOptions } = getGetWebauthnCredentialsCredentialIdQueryOptions(
+    args,
+    clientOptions,
   )
-  return { ...query, queryKey }
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /webauthn/credentials/{credentialId}
+ * Generates TanStack Query mutation key for DELETE /webauthn/credentials/{credentialId}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetWebauthnCredentialsCredentialIdQueryKey(
-  args: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$get']>,
-) {
-  return ['/webauthn/credentials/:credentialId', args] as const
+export function getDeleteWebauthnCredentialsCredentialIdMutationKey() {
+  return ['webauthn', 'DELETE', '/webauthn/credentials/:credentialId'] as const
 }
+
+/**
+ * Returns TanStack Query mutation options for DELETE /webauthn/credentials/{credentialId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteWebauthnCredentialsCredentialIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteWebauthnCredentialsCredentialIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$delete']>,
+  ) => parseResponse(client.webauthn.credentials[':credentialId'].$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /webauthn/credentials/{credentialId}
@@ -223,31 +324,48 @@ export function getGetWebauthnCredentialsCredentialIdQueryKey(
  *
  * パスキーを削除（少なくとも1つは残す必要がある場合あり）
  */
-export function useDeleteWebauthnCredentialsCredentialId(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client.webauthn.credentials)[':credentialId']['$delete']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<(typeof client.webauthn.credentials)[':credentialId']['$delete']> | undefined,
+export function useDeleteWebauthnCredentialsCredentialId(options?: {
+  mutation?: UseMutationOptions<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.webauthn.credentials)[':credentialId']['$delete']>>
+          >
+        >
+      >
+    | undefined,
     Error,
     InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$delete']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.webauthn.credentials[':credentialId'].$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteWebauthnCredentialsCredentialIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for PATCH /webauthn/credentials/{credentialId}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPatchWebauthnCredentialsCredentialIdMutationKey() {
+  return ['webauthn', 'PATCH', '/webauthn/credentials/:credentialId'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for PATCH /webauthn/credentials/{credentialId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPatchWebauthnCredentialsCredentialIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPatchWebauthnCredentialsCredentialIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$patch']>,
+  ) => parseResponse(client.webauthn.credentials[':credentialId'].$patch(args, clientOptions)),
+})
 
 /**
  * PATCH /webauthn/credentials/{credentialId}
@@ -256,31 +374,49 @@ export function useDeleteWebauthnCredentialsCredentialId(
  *
  * パスキーの名前などを更新
  */
-export function usePatchWebauthnCredentialsCredentialId(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client.webauthn.credentials)[':credentialId']['$patch']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$patch']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<(typeof client.webauthn.credentials)[':credentialId']['$patch']> | undefined,
+export function usePatchWebauthnCredentialsCredentialId(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.webauthn.credentials)[':credentialId']['$patch']>>
+        >
+      >
+    >,
     Error,
     InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$patch']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.webauthn.credentials[':credentialId'].$patch(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPatchWebauthnCredentialsCredentialIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query cache key for GET /webauthn/settings
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGetWebauthnSettingsQueryKey() {
+  return ['webauthn', 'GET', '/webauthn/settings'] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /webauthn/settings
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetWebauthnSettingsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetWebauthnSettingsQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.webauthn.settings.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /webauthn/settings
@@ -289,105 +425,126 @@ export function usePatchWebauthnCredentialsCredentialId(
  *
  * リライングパーティの設定情報を取得
  */
-export function useGetWebauthnSettings(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.webauthn.settings.$get>,
-      Error,
-      InferResponseType<typeof client.webauthn.settings.$get>,
-      readonly ['/webauthn/settings']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetWebauthnSettings(options?: {
+  query?: UseQueryOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.webauthn.settings.$get>>>>
+    >,
+    Error
+  >
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetWebauthnSettingsQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.webauthn.settings.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  const { queryKey, queryFn, ...baseOptions } = getGetWebauthnSettingsQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /webauthn/settings
+ * Generates TanStack Query cache key for GET /webauthn/settings/rp
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetWebauthnSettingsQueryKey() {
-  return ['/webauthn/settings'] as const
+export function getGetWebauthnSettingsRpQueryKey() {
+  return ['webauthn', 'GET', '/webauthn/settings/rp'] as const
 }
+
+/**
+ * Returns TanStack Query query options for GET /webauthn/settings/rp
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetWebauthnSettingsRpQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetWebauthnSettingsRpQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.webauthn.settings.rp.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /webauthn/settings/rp
  *
  * リライングパーティ情報取得
  */
-export function useGetWebauthnSettingsRp(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.webauthn.settings.rp.$get>,
-      Error,
-      InferResponseType<typeof client.webauthn.settings.rp.$get>,
-      readonly ['/webauthn/settings/rp']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetWebauthnSettingsRp(options?: {
+  query?: UseQueryOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.webauthn.settings.rp.$get>>>>
+    >,
+    Error
+  >
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetWebauthnSettingsRpQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.webauthn.settings.rp.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  const { queryKey, queryFn, ...baseOptions } = getGetWebauthnSettingsRpQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /webauthn/settings/rp
+ * Generates TanStack Query mutation key for PUT /webauthn/settings/rp
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetWebauthnSettingsRpQueryKey() {
-  return ['/webauthn/settings/rp'] as const
+export function getPutWebauthnSettingsRpMutationKey() {
+  return ['webauthn', 'PUT', '/webauthn/settings/rp'] as const
 }
+
+/**
+ * Returns TanStack Query mutation options for PUT /webauthn/settings/rp
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutWebauthnSettingsRpMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPutWebauthnSettingsRpMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.webauthn.settings.rp.$put>) =>
+    parseResponse(client.webauthn.settings.rp.$put(args, clientOptions)),
+})
 
 /**
  * PUT /webauthn/settings/rp
  *
  * リライングパーティ情報更新
  */
-export function usePutWebauthnSettingsRp(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.webauthn.settings.rp.$put> | undefined,
-      Error,
-      InferRequestType<typeof client.webauthn.settings.rp.$put>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<typeof client.webauthn.settings.rp.$put> | undefined,
+export function usePutWebauthnSettingsRp(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.webauthn.settings.rp.$put>>>>
+    >,
     Error,
     InferRequestType<typeof client.webauthn.settings.rp.$put>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.webauthn.settings.rp.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPutWebauthnSettingsRpMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query cache key for GET /webauthn/authenticators
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGetWebauthnAuthenticatorsQueryKey() {
+  return ['webauthn', 'GET', '/webauthn/authenticators'] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /webauthn/authenticators
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetWebauthnAuthenticatorsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetWebauthnAuthenticatorsQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.webauthn.authenticators.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /webauthn/authenticators
@@ -396,35 +553,19 @@ export function usePutWebauthnSettingsRp(
  *
  * 許可されている認証器のAAGUID一覧
  */
-export function useGetWebauthnAuthenticators(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.webauthn.authenticators.$get>,
-      Error,
-      InferResponseType<typeof client.webauthn.authenticators.$get>,
-      readonly ['/webauthn/authenticators']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetWebauthnAuthenticators(options?: {
+  query?: UseQueryOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<typeof client.webauthn.authenticators.$get>>>
+      >
+    >,
+    Error
+  >
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetWebauthnAuthenticatorsQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.webauthn.authenticators.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
-}
-
-/**
- * Generates TanStack Query cache key for GET /webauthn/authenticators
- */
-export function getGetWebauthnAuthenticatorsQueryKey() {
-  return ['/webauthn/authenticators'] as const
+  const { queryKey, queryFn, ...baseOptions } =
+    getGetWebauthnAuthenticatorsQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }

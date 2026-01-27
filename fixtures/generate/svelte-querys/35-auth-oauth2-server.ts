@@ -1,8 +1,41 @@
-import type { CreateMutationOptions, CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
+import type {
+  CreateMutationOptions,
+  CreateQueryOptions,
+  QueryFunctionContext,
+} from '@tanstack/svelte-query'
 import { createMutation, createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/35-auth-oauth2-server'
+
+/**
+ * Generates Svelte Query cache key for GET /oauth/authorize
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetOauthAuthorizeQueryKey(
+  args: InferRequestType<typeof client.oauth.authorize.$get>,
+) {
+  return ['oauth', 'GET', '/oauth/authorize', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /oauth/authorize
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetOauthAuthorizeQueryOptions = (
+  args: InferRequestType<typeof client.oauth.authorize.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetOauthAuthorizeQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.oauth.authorize.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /oauth/authorize
@@ -14,38 +47,44 @@ import { client } from '../clients/35-auth-oauth2-server'
  */
 export function createGetOauthAuthorize(
   args: InferRequestType<typeof client.oauth.authorize.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.oauth.authorize.$get>,
-      Error,
-      InferResponseType<typeof client.oauth.authorize.$get>,
-      readonly ['/oauth/authorize', InferRequestType<typeof client.oauth.authorize.$get>]
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.oauth.authorize.$get>>>>
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetOauthAuthorizeQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.oauth.authorize.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetOauthAuthorizeQueryOptions(
+      args,
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /oauth/authorize
+ * Generates Svelte Query mutation key for POST /oauth/token
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetOauthAuthorizeQueryKey(
-  args: InferRequestType<typeof client.oauth.authorize.$get>,
-) {
-  return ['/oauth/authorize', args] as const
+export function getPostOauthTokenMutationKey() {
+  return ['oauth', 'POST', '/oauth/token'] as const
 }
+
+/**
+ * Returns Svelte Query mutation options for POST /oauth/token
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostOauthTokenMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostOauthTokenMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.oauth.token.$post>) =>
+    parseResponse(client.oauth.token.$post(args, clientOptions)),
+})
 
 /**
  * POST /oauth/token
@@ -56,28 +95,44 @@ export function getGetOauthAuthorizeQueryKey(
  * Authorization Code、Client Credentials、Refresh Token、Device Code の各フローに対応。
  */
 export function createPostOauthToken(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.oauth.token.$post> | undefined,
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.oauth.token.$post>>>>
+      >,
       Error,
       InferRequestType<typeof client.oauth.token.$post>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.oauth.token.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.oauth.token.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.oauth.token.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostOauthTokenMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query mutation key for POST /oauth/revoke
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostOauthRevokeMutationKey() {
+  return ['oauth', 'POST', '/oauth/revoke'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /oauth/revoke
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostOauthRevokeMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostOauthRevokeMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.oauth.revoke.$post>) =>
+    parseResponse(client.oauth.revoke.$post(args, clientOptions)),
+})
 
 /**
  * POST /oauth/revoke
@@ -87,28 +142,44 @@ export function createPostOauthToken(
  * アクセストークンまたはリフレッシュトークンを無効化します（RFC 7009）
  */
 export function createPostOauthRevoke(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.oauth.revoke.$post> | undefined,
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.oauth.revoke.$post>>>>
+      >,
       Error,
       InferRequestType<typeof client.oauth.revoke.$post>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.oauth.revoke.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.oauth.revoke.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.oauth.revoke.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostOauthRevokeMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query mutation key for POST /oauth/introspect
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostOauthIntrospectMutationKey() {
+  return ['oauth', 'POST', '/oauth/introspect'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /oauth/introspect
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostOauthIntrospectMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostOauthIntrospectMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.oauth.introspect.$post>) =>
+    parseResponse(client.oauth.introspect.$post(args, clientOptions)),
+})
 
 /**
  * POST /oauth/introspect
@@ -118,29 +189,44 @@ export function createPostOauthRevoke(
  * トークンの有効性と情報を取得します（RFC 7662）
  */
 export function createPostOauthIntrospect(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.oauth.introspect.$post> | undefined,
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.oauth.introspect.$post>>>>
+      >,
       Error,
       InferRequestType<typeof client.oauth.introspect.$post>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.oauth.introspect.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.oauth.introspect.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.oauth.introspect.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostOauthIntrospectMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query mutation key for POST /oauth/device/code
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostOauthDeviceCodeMutationKey() {
+  return ['oauth', 'POST', '/oauth/device/code'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /oauth/device/code
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostOauthDeviceCodeMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostOauthDeviceCodeMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.oauth.device.code.$post>) =>
+    parseResponse(client.oauth.device.code.$post(args, clientOptions)),
+})
 
 /**
  * POST /oauth/device/code
@@ -150,29 +236,49 @@ export function createPostOauthIntrospect(
  * デバイスフロー用の認可コードを発行します（RFC 8628）
  */
 export function createPostOauthDeviceCode(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.oauth.device.code.$post> | undefined,
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.oauth.device.code.$post>>>>
+      >,
       Error,
       InferRequestType<typeof client.oauth.device.code.$post>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.oauth.device.code.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.oauth.device.code.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.oauth.device.code.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostOauthDeviceCodeMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query cache key for GET /oauth/userinfo
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGetOauthUserinfoQueryKey() {
+  return ['oauth', 'GET', '/oauth/userinfo'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /oauth/userinfo
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetOauthUserinfoQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetOauthUserinfoQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.oauth.userinfo.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /oauth/userinfo
@@ -182,36 +288,48 @@ export function createPostOauthDeviceCode(
  * OpenID Connect UserInfo エンドポイント
  */
 export function createGetOauthUserinfo(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.oauth.userinfo.$get>,
-      Error,
-      InferResponseType<typeof client.oauth.userinfo.$get>,
-      readonly ['/oauth/userinfo']
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.oauth.userinfo.$get>>>>
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetOauthUserinfoQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.oauth.userinfo.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetOauthUserinfoQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /oauth/userinfo
+ * Generates Svelte Query cache key for GET /.well-known/openid-configuration
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetOauthUserinfoQueryKey() {
-  return ['/oauth/userinfo'] as const
+export function getGetWellKnownOpenidConfigurationQueryKey() {
+  return ['.well-known', 'GET', '/.well-known/openid-configuration'] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /.well-known/openid-configuration
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetWellKnownOpenidConfigurationQueryOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetWellKnownOpenidConfigurationQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['.well-known']['openid-configuration'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /.well-known/openid-configuration
@@ -221,37 +339,52 @@ export function getGetOauthUserinfoQueryKey() {
  * OpenID Connect の設定情報を返します
  */
 export function createGetWellKnownOpenidConfiguration(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<(typeof client)['.well-known']['openid-configuration']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['.well-known']['openid-configuration']['$get']>,
-      readonly ['/.well-known/openid-configuration']
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['.well-known']['openid-configuration']['$get']>>
+          >
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetWellKnownOpenidConfigurationQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client['.well-known']['openid-configuration'].$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetWellKnownOpenidConfigurationQueryOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /.well-known/openid-configuration
+ * Generates Svelte Query cache key for GET /.well-known/jwks.json
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetWellKnownOpenidConfigurationQueryKey() {
-  return ['/.well-known/openid-configuration'] as const
+export function getGetWellKnownJwksJsonQueryKey() {
+  return ['.well-known', 'GET', '/.well-known/jwks.json'] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /.well-known/jwks.json
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetWellKnownJwksJsonQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetWellKnownJwksJsonQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['.well-known']['jwks.json'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /.well-known/jwks.json
@@ -261,37 +394,50 @@ export function getGetWellKnownOpenidConfigurationQueryKey() {
  * JWTの検証に使用する公開鍵セット
  */
 export function createGetWellKnownJwksJson(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<(typeof client)['.well-known']['jwks.json']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['.well-known']['jwks.json']['$get']>,
-      readonly ['/.well-known/jwks.json']
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['.well-known']['jwks.json']['$get']>>
+          >
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetWellKnownJwksJsonQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client['.well-known']['jwks.json'].$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetWellKnownJwksJsonQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /.well-known/jwks.json
+ * Generates Svelte Query cache key for GET /oauth/clients
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetWellKnownJwksJsonQueryKey() {
-  return ['/.well-known/jwks.json'] as const
+export function getGetOauthClientsQueryKey() {
+  return ['oauth', 'GET', '/oauth/clients'] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /oauth/clients
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetOauthClientsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetOauthClientsQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.oauth.clients.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /oauth/clients
@@ -299,36 +445,41 @@ export function getGetWellKnownJwksJsonQueryKey() {
  * クライアント一覧取得
  */
 export function createGetOauthClients(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.oauth.clients.$get>,
-      Error,
-      InferResponseType<typeof client.oauth.clients.$get>,
-      readonly ['/oauth/clients']
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.oauth.clients.$get>>>>
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetOauthClientsQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.oauth.clients.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetOauthClientsQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /oauth/clients
+ * Generates Svelte Query mutation key for POST /oauth/clients
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetOauthClientsQueryKey() {
-  return ['/oauth/clients'] as const
+export function getPostOauthClientsMutationKey() {
+  return ['oauth', 'POST', '/oauth/clients'] as const
 }
+
+/**
+ * Returns Svelte Query mutation options for POST /oauth/clients
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostOauthClientsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostOauthClientsMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.oauth.clients.$post>) =>
+    parseResponse(client.oauth.clients.$post(args, clientOptions)),
+})
 
 /**
  * POST /oauth/clients
@@ -336,28 +487,54 @@ export function getGetOauthClientsQueryKey() {
  * クライアント作成
  */
 export function createPostOauthClients(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.oauth.clients.$post> | undefined,
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.oauth.clients.$post>>>>
+      >,
       Error,
       InferRequestType<typeof client.oauth.clients.$post>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.oauth.clients.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.oauth.clients.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.oauth.clients.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostOauthClientsMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query cache key for GET /oauth/clients/{clientId}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetOauthClientsClientIdQueryKey(
+  args: InferRequestType<(typeof client.oauth.clients)[':clientId']['$get']>,
+) {
+  return ['oauth', 'GET', '/oauth/clients/:clientId', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /oauth/clients/{clientId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetOauthClientsClientIdQueryOptions = (
+  args: InferRequestType<(typeof client.oauth.clients)[':clientId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetOauthClientsClientIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.oauth.clients[':clientId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /oauth/clients/{clientId}
@@ -366,42 +543,50 @@ export function createPostOauthClients(
  */
 export function createGetOauthClientsClientId(
   args: InferRequestType<(typeof client.oauth.clients)[':clientId']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<(typeof client.oauth.clients)[':clientId']['$get']>,
-      Error,
-      InferResponseType<(typeof client.oauth.clients)[':clientId']['$get']>,
-      readonly [
-        '/oauth/clients/:clientId',
-        InferRequestType<(typeof client.oauth.clients)[':clientId']['$get']>,
-      ]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.oauth.clients)[':clientId']['$get']>>
+          >
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetOauthClientsClientIdQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.oauth.clients[':clientId'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetOauthClientsClientIdQueryOptions(
+      args,
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /oauth/clients/{clientId}
+ * Generates Svelte Query mutation key for PUT /oauth/clients/{clientId}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetOauthClientsClientIdQueryKey(
-  args: InferRequestType<(typeof client.oauth.clients)[':clientId']['$get']>,
-) {
-  return ['/oauth/clients/:clientId', args] as const
+export function getPutOauthClientsClientIdMutationKey() {
+  return ['oauth', 'PUT', '/oauth/clients/:clientId'] as const
 }
+
+/**
+ * Returns Svelte Query mutation options for PUT /oauth/clients/{clientId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutOauthClientsClientIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPutOauthClientsClientIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.oauth.clients)[':clientId']['$put']>) =>
+    parseResponse(client.oauth.clients[':clientId'].$put(args, clientOptions)),
+})
 
 /**
  * PUT /oauth/clients/{clientId}
@@ -409,29 +594,51 @@ export function getGetOauthClientsClientIdQueryKey(
  * クライアント更新
  */
 export function createPutOauthClientsClientId(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<(typeof client.oauth.clients)[':clientId']['$put']> | undefined,
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.oauth.clients)[':clientId']['$put']>>
+          >
+        >
+      >,
       Error,
       InferRequestType<(typeof client.oauth.clients)[':clientId']['$put']>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<(typeof client.oauth.clients)[':clientId']['$put']> | undefined,
-    Error,
-    InferRequestType<(typeof client.oauth.clients)[':clientId']['$put']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.oauth.clients[':clientId'].$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPutOauthClientsClientIdMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query mutation key for DELETE /oauth/clients/{clientId}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getDeleteOauthClientsClientIdMutationKey() {
+  return ['oauth', 'DELETE', '/oauth/clients/:clientId'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /oauth/clients/{clientId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteOauthClientsClientIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteOauthClientsClientIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.oauth.clients)[':clientId']['$delete']>,
+  ) => parseResponse(client.oauth.clients[':clientId'].$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /oauth/clients/{clientId}
@@ -439,29 +646,51 @@ export function createPutOauthClientsClientId(
  * クライアント削除
  */
 export function createDeleteOauthClientsClientId(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<(typeof client.oauth.clients)[':clientId']['$delete']> | undefined,
+      | Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<ReturnType<(typeof client.oauth.clients)[':clientId']['$delete']>>
+            >
+          >
+        >
+      | undefined,
       Error,
       InferRequestType<(typeof client.oauth.clients)[':clientId']['$delete']>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<(typeof client.oauth.clients)[':clientId']['$delete']> | undefined,
-    Error,
-    InferRequestType<(typeof client.oauth.clients)[':clientId']['$delete']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.oauth.clients[':clientId'].$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getDeleteOauthClientsClientIdMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query mutation key for POST /oauth/clients/{clientId}/secret
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostOauthClientsClientIdSecretMutationKey() {
+  return ['oauth', 'POST', '/oauth/clients/:clientId/secret'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /oauth/clients/{clientId}/secret
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostOauthClientsClientIdSecretMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostOauthClientsClientIdSecretMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.oauth.clients)[':clientId']['secret']['$post']>,
+  ) => parseResponse(client.oauth.clients[':clientId'].secret.$post(args, clientOptions)),
+})
 
 /**
  * POST /oauth/clients/{clientId}/secret
@@ -469,29 +698,52 @@ export function createDeleteOauthClientsClientId(
  * クライアントシークレット再生成
  */
 export function createPostOauthClientsClientIdSecret(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<(typeof client.oauth.clients)[':clientId']['secret']['$post']> | undefined,
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.oauth.clients)[':clientId']['secret']['$post']>>
+          >
+        >
+      >,
       Error,
       InferRequestType<(typeof client.oauth.clients)[':clientId']['secret']['$post']>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<(typeof client.oauth.clients)[':clientId']['secret']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client.oauth.clients)[':clientId']['secret']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.oauth.clients[':clientId'].secret.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPostOauthClientsClientIdSecretMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query cache key for GET /oauth/consents
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGetOauthConsentsQueryKey() {
+  return ['oauth', 'GET', '/oauth/consents'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /oauth/consents
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetOauthConsentsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetOauthConsentsQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.oauth.consents.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /oauth/consents
@@ -501,36 +753,44 @@ export function createPostOauthClientsClientIdSecret(
  * ユーザーが許可したアプリケーション一覧
  */
 export function createGetOauthConsents(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.oauth.consents.$get>,
-      Error,
-      InferResponseType<typeof client.oauth.consents.$get>,
-      readonly ['/oauth/consents']
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.oauth.consents.$get>>>>
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetOauthConsentsQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.oauth.consents.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetOauthConsentsQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /oauth/consents
+ * Generates Svelte Query mutation key for DELETE /oauth/consents/{clientId}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetOauthConsentsQueryKey() {
-  return ['/oauth/consents'] as const
+export function getDeleteOauthConsentsClientIdMutationKey() {
+  return ['oauth', 'DELETE', '/oauth/consents/:clientId'] as const
 }
+
+/**
+ * Returns Svelte Query mutation options for DELETE /oauth/consents/{clientId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteOauthConsentsClientIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteOauthConsentsClientIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.oauth.consents)[':clientId']['$delete']>,
+  ) => parseResponse(client.oauth.consents[':clientId'].$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /oauth/consents/{clientId}
@@ -540,26 +800,26 @@ export function getGetOauthConsentsQueryKey() {
  * アプリケーションへのアクセス許可を取り消します
  */
 export function createDeleteOauthConsentsClientId(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<(typeof client.oauth.consents)[':clientId']['$delete']> | undefined,
+      | Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<ReturnType<(typeof client.oauth.consents)[':clientId']['$delete']>>
+            >
+          >
+        >
+      | undefined,
       Error,
       InferRequestType<(typeof client.oauth.consents)[':clientId']['$delete']>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<(typeof client.oauth.consents)[':clientId']['$delete']> | undefined,
-    Error,
-    InferRequestType<(typeof client.oauth.consents)[':clientId']['$delete']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.oauth.consents[':clientId'].$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getDeleteOauthConsentsClientIdMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }

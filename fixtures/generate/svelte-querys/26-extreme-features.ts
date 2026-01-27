@@ -1,8 +1,33 @@
-import type { CreateMutationOptions, CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
+import type {
+  CreateMutationOptions,
+  CreateQueryOptions,
+  QueryFunctionContext,
+} from '@tanstack/svelte-query'
 import { createMutation, createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/26-extreme-features'
+
+/**
+ * Generates Svelte Query cache key for GET /stream
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGetStreamQueryKey() {
+  return ['stream', 'GET', '/stream'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /stream
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetStreamQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetStreamQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.stream.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /stream
@@ -10,36 +35,39 @@ import { client } from '../clients/26-extreme-features'
  * Stream data with Server-Sent Events
  */
 export function createGetStream(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.stream.$get>,
-      Error,
-      InferResponseType<typeof client.stream.$get>,
-      readonly ['/stream']
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.stream.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetStreamQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.stream.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetStreamQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /stream
+ * Generates Svelte Query mutation key for POST /graphql
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetStreamQueryKey() {
-  return ['/stream'] as const
+export function getPostGraphqlMutationKey() {
+  return ['graphql', 'POST', '/graphql'] as const
 }
+
+/**
+ * Returns Svelte Query mutation options for POST /graphql
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostGraphqlMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostGraphqlMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.graphql.$post>) =>
+    parseResponse(client.graphql.$post(args, clientOptions)),
+})
 
 /**
  * POST /graphql
@@ -47,28 +75,40 @@ export function getGetStreamQueryKey() {
  * GraphQL endpoint
  */
 export function createPostGraphql(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.graphql.$post> | undefined,
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.graphql.$post>>>>>,
       Error,
       InferRequestType<typeof client.graphql.$post>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.graphql.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.graphql.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.graphql.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostGraphqlMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query mutation key for POST /grpc-gateway
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostGrpcGatewayMutationKey() {
+  return ['grpc-gateway', 'POST', '/grpc-gateway'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /grpc-gateway
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostGrpcGatewayMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostGrpcGatewayMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client)['grpc-gateway']['$post']>) =>
+    parseResponse(client['grpc-gateway'].$post(args, clientOptions)),
+})
 
 /**
  * POST /grpc-gateway
@@ -76,29 +116,51 @@ export function createPostGraphql(
  * gRPC-Gateway endpoint
  */
 export function createPostGrpcGateway(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<(typeof client)['grpc-gateway']['$post']> | undefined,
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client)['grpc-gateway']['$post']>>>
+        >
+      >,
       Error,
       InferRequestType<(typeof client)['grpc-gateway']['$post']>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<(typeof client)['grpc-gateway']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client)['grpc-gateway']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['grpc-gateway'].$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostGrpcGatewayMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query cache key for GET /deprecated-endpoint
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGetDeprecatedEndpointQueryKey() {
+  return ['deprecated-endpoint', 'GET', '/deprecated-endpoint'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /deprecated-endpoint
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetDeprecatedEndpointQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetDeprecatedEndpointQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['deprecated-endpoint'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /deprecated-endpoint
@@ -110,34 +172,21 @@ export function createPostGrpcGateway(
  * Please use `/new-endpoint` instead.
  */
 export function createGetDeprecatedEndpoint(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<(typeof client)['deprecated-endpoint']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['deprecated-endpoint']['$get']>,
-      readonly ['/deprecated-endpoint']
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client)['deprecated-endpoint']['$get']>>>
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetDeprecatedEndpointQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client['deprecated-endpoint'].$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
-}
-
-/**
- * Generates Svelte Query cache key for GET /deprecated-endpoint
- */
-export function getGetDeprecatedEndpointQueryKey() {
-  return ['/deprecated-endpoint'] as const
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetDeprecatedEndpointQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }

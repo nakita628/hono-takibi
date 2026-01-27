@@ -1,8 +1,36 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
+import type {
+  QueryFunctionContext,
+  UseMutationOptions,
+  UseQueryOptions,
+} from '@tanstack/react-query'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/38-auth-apikey-management'
+
+/**
+ * Generates TanStack Query cache key for GET /api-keys
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetApiKeysQueryKey(args: InferRequestType<(typeof client)['api-keys']['$get']>) {
+  return ['api-keys', 'GET', '/api-keys', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /api-keys
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetApiKeysQueryOptions = (
+  args: InferRequestType<(typeof client)['api-keys']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetApiKeysQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['api-keys'].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /api-keys
@@ -13,63 +41,86 @@ export function useGetApiKeys(
   args: InferRequestType<(typeof client)['api-keys']['$get']>,
   options?: {
     query?: UseQueryOptions<
-      InferResponseType<(typeof client)['api-keys']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['api-keys']['$get']>,
-      readonly ['/api-keys', InferRequestType<(typeof client)['api-keys']['$get']>]
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['api-keys']['$get']>>>>
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetApiKeysQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client['api-keys'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  const { queryKey, queryFn, ...baseOptions } = getGetApiKeysQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /api-keys
+ * Generates TanStack Query mutation key for POST /api-keys
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetApiKeysQueryKey(args: InferRequestType<(typeof client)['api-keys']['$get']>) {
-  return ['/api-keys', args] as const
+export function getPostApiKeysMutationKey() {
+  return ['api-keys', 'POST', '/api-keys'] as const
 }
+
+/**
+ * Returns TanStack Query mutation options for POST /api-keys
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostApiKeysMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostApiKeysMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client)['api-keys']['$post']>) =>
+    parseResponse(client['api-keys'].$post(args, clientOptions)),
+})
 
 /**
  * POST /api-keys
  *
  * APIキー作成
  */
-export function usePostApiKeys(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['api-keys']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['api-keys']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<(typeof client)['api-keys']['$post']> | undefined,
+export function usePostApiKeys(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['api-keys']['$post']>>>>
+    >,
     Error,
     InferRequestType<(typeof client)['api-keys']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client['api-keys'].$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } = getPostApiKeysMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query cache key for GET /api-keys/{keyId}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetApiKeysKeyIdQueryKey(
+  args: InferRequestType<(typeof client)['api-keys'][':keyId']['$get']>,
+) {
+  return ['api-keys', 'GET', '/api-keys/:keyId', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /api-keys/{keyId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetApiKeysKeyIdQueryOptions = (
+  args: InferRequestType<(typeof client)['api-keys'][':keyId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetApiKeysKeyIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['api-keys'][':keyId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /api-keys/{keyId}
@@ -80,156 +131,226 @@ export function useGetApiKeysKeyId(
   args: InferRequestType<(typeof client)['api-keys'][':keyId']['$get']>,
   options?: {
     query?: UseQueryOptions<
-      InferResponseType<(typeof client)['api-keys'][':keyId']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['api-keys'][':keyId']['$get']>,
-      readonly ['/api-keys/:keyId', InferRequestType<(typeof client)['api-keys'][':keyId']['$get']>]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client)['api-keys'][':keyId']['$get']>>>
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetApiKeysKeyIdQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client['api-keys'][':keyId'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  const { queryKey, queryFn, ...baseOptions } = getGetApiKeysKeyIdQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /api-keys/{keyId}
+ * Generates TanStack Query mutation key for DELETE /api-keys/{keyId}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetApiKeysKeyIdQueryKey(
-  args: InferRequestType<(typeof client)['api-keys'][':keyId']['$get']>,
-) {
-  return ['/api-keys/:keyId', args] as const
+export function getDeleteApiKeysKeyIdMutationKey() {
+  return ['api-keys', 'DELETE', '/api-keys/:keyId'] as const
 }
+
+/**
+ * Returns TanStack Query mutation options for DELETE /api-keys/{keyId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteApiKeysKeyIdMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getDeleteApiKeysKeyIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client)['api-keys'][':keyId']['$delete']>) =>
+    parseResponse(client['api-keys'][':keyId'].$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /api-keys/{keyId}
  *
  * APIキー削除
  */
-export function useDeleteApiKeysKeyId(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['api-keys'][':keyId']['$delete']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['api-keys'][':keyId']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<(typeof client)['api-keys'][':keyId']['$delete']> | undefined,
+export function useDeleteApiKeysKeyId(options?: {
+  mutation?: UseMutationOptions<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['api-keys'][':keyId']['$delete']>>
+          >
+        >
+      >
+    | undefined,
     Error,
     InferRequestType<(typeof client)['api-keys'][':keyId']['$delete']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['api-keys'][':keyId'].$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteApiKeysKeyIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for PATCH /api-keys/{keyId}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPatchApiKeysKeyIdMutationKey() {
+  return ['api-keys', 'PATCH', '/api-keys/:keyId'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for PATCH /api-keys/{keyId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPatchApiKeysKeyIdMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPatchApiKeysKeyIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client)['api-keys'][':keyId']['$patch']>) =>
+    parseResponse(client['api-keys'][':keyId'].$patch(args, clientOptions)),
+})
 
 /**
  * PATCH /api-keys/{keyId}
  *
  * APIキー更新
  */
-export function usePatchApiKeysKeyId(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['api-keys'][':keyId']['$patch']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['api-keys'][':keyId']['$patch']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<(typeof client)['api-keys'][':keyId']['$patch']> | undefined,
+export function usePatchApiKeysKeyId(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client)['api-keys'][':keyId']['$patch']>>>
+      >
+    >,
     Error,
     InferRequestType<(typeof client)['api-keys'][':keyId']['$patch']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['api-keys'][':keyId'].$patch(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPatchApiKeysKeyIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /api-keys/{keyId}/revoke
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostApiKeysKeyIdRevokeMutationKey() {
+  return ['api-keys', 'POST', '/api-keys/:keyId/revoke'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /api-keys/{keyId}/revoke
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostApiKeysKeyIdRevokeMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostApiKeysKeyIdRevokeMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client)['api-keys'][':keyId']['revoke']['$post']>,
+  ) => parseResponse(client['api-keys'][':keyId'].revoke.$post(args, clientOptions)),
+})
 
 /**
  * POST /api-keys/{keyId}/revoke
  *
  * APIキー無効化
  */
-export function usePostApiKeysKeyIdRevoke(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['api-keys'][':keyId']['revoke']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['api-keys'][':keyId']['revoke']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<(typeof client)['api-keys'][':keyId']['revoke']['$post']> | undefined,
+export function usePostApiKeysKeyIdRevoke(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['api-keys'][':keyId']['revoke']['$post']>>
+        >
+      >
+    >,
     Error,
     InferRequestType<(typeof client)['api-keys'][':keyId']['revoke']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['api-keys'][':keyId'].revoke.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostApiKeysKeyIdRevokeMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /api-keys/{keyId}/rotate
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostApiKeysKeyIdRotateMutationKey() {
+  return ['api-keys', 'POST', '/api-keys/:keyId/rotate'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /api-keys/{keyId}/rotate
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostApiKeysKeyIdRotateMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostApiKeysKeyIdRotateMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client)['api-keys'][':keyId']['rotate']['$post']>,
+  ) => parseResponse(client['api-keys'][':keyId'].rotate.$post(args, clientOptions)),
+})
 
 /**
  * POST /api-keys/{keyId}/rotate
  *
  * APIキーローテーション
  */
-export function usePostApiKeysKeyIdRotate(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['api-keys'][':keyId']['rotate']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['api-keys'][':keyId']['rotate']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<(typeof client)['api-keys'][':keyId']['rotate']['$post']> | undefined,
+export function usePostApiKeysKeyIdRotate(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['api-keys'][':keyId']['rotate']['$post']>>
+        >
+      >
+    >,
     Error,
     InferRequestType<(typeof client)['api-keys'][':keyId']['rotate']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['api-keys'][':keyId'].rotate.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostApiKeysKeyIdRotateMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query cache key for GET /api-keys/{keyId}/usage
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetApiKeysKeyIdUsageQueryKey(
+  args: InferRequestType<(typeof client)['api-keys'][':keyId']['usage']['$get']>,
+) {
+  return ['api-keys', 'GET', '/api-keys/:keyId/usage', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /api-keys/{keyId}/usage
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetApiKeysKeyIdUsageQueryOptions = (
+  args: InferRequestType<(typeof client)['api-keys'][':keyId']['usage']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetApiKeysKeyIdUsageQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['api-keys'][':keyId'].usage.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /api-keys/{keyId}/usage
@@ -240,40 +361,54 @@ export function useGetApiKeysKeyIdUsage(
   args: InferRequestType<(typeof client)['api-keys'][':keyId']['usage']['$get']>,
   options?: {
     query?: UseQueryOptions<
-      InferResponseType<(typeof client)['api-keys'][':keyId']['usage']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['api-keys'][':keyId']['usage']['$get']>,
-      readonly [
-        '/api-keys/:keyId/usage',
-        InferRequestType<(typeof client)['api-keys'][':keyId']['usage']['$get']>,
-      ]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['api-keys'][':keyId']['usage']['$get']>>
+          >
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetApiKeysKeyIdUsageQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client['api-keys'][':keyId'].usage.$get(args, clientOptions)),
-    },
-    queryClient,
+  const { queryKey, queryFn, ...baseOptions } = getGetApiKeysKeyIdUsageQueryOptions(
+    args,
+    clientOptions,
   )
-  return { ...query, queryKey }
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /api-keys/{keyId}/usage
+ * Generates TanStack Query cache key for GET /api-keys/{keyId}/rate-limit/current
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetApiKeysKeyIdUsageQueryKey(
-  args: InferRequestType<(typeof client)['api-keys'][':keyId']['usage']['$get']>,
+export function getGetApiKeysKeyIdRateLimitCurrentQueryKey(
+  args: InferRequestType<(typeof client)['api-keys'][':keyId']['rate-limit']['current']['$get']>,
 ) {
-  return ['/api-keys/:keyId/usage', args] as const
+  return ['api-keys', 'GET', '/api-keys/:keyId/rate-limit/current', args] as const
 }
+
+/**
+ * Returns TanStack Query query options for GET /api-keys/{keyId}/rate-limit/current
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetApiKeysKeyIdRateLimitCurrentQueryOptions = (
+  args: InferRequestType<(typeof client)['api-keys'][':keyId']['rate-limit']['current']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetApiKeysKeyIdRateLimitCurrentQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['api-keys'][':keyId']['rate-limit'].current.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /api-keys/{keyId}/rate-limit/current
@@ -284,104 +419,104 @@ export function useGetApiKeysKeyIdRateLimitCurrent(
   args: InferRequestType<(typeof client)['api-keys'][':keyId']['rate-limit']['current']['$get']>,
   options?: {
     query?: UseQueryOptions<
-      InferResponseType<(typeof client)['api-keys'][':keyId']['rate-limit']['current']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['api-keys'][':keyId']['rate-limit']['current']['$get']>,
-      readonly [
-        '/api-keys/:keyId/rate-limit/current',
-        InferRequestType<(typeof client)['api-keys'][':keyId']['rate-limit']['current']['$get']>,
-      ]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<(typeof client)['api-keys'][':keyId']['rate-limit']['current']['$get']>
+            >
+          >
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetApiKeysKeyIdRateLimitCurrentQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client['api-keys'][':keyId']['rate-limit'].current.$get(args, clientOptions)),
-    },
-    queryClient,
+  const { queryKey, queryFn, ...baseOptions } = getGetApiKeysKeyIdRateLimitCurrentQueryOptions(
+    args,
+    clientOptions,
   )
-  return { ...query, queryKey }
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /api-keys/{keyId}/rate-limit/current
+ * Generates TanStack Query mutation key for POST /api-keys/verify
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetApiKeysKeyIdRateLimitCurrentQueryKey(
-  args: InferRequestType<(typeof client)['api-keys'][':keyId']['rate-limit']['current']['$get']>,
-) {
-  return ['/api-keys/:keyId/rate-limit/current', args] as const
+export function getPostApiKeysVerifyMutationKey() {
+  return ['api-keys', 'POST', '/api-keys/verify'] as const
 }
+
+/**
+ * Returns TanStack Query mutation options for POST /api-keys/verify
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostApiKeysVerifyMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostApiKeysVerifyMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client)['api-keys']['verify']['$post']>) =>
+    parseResponse(client['api-keys'].verify.$post(args, clientOptions)),
+})
 
 /**
  * POST /api-keys/verify
  *
  * APIキー検証
  */
-export function usePostApiKeysVerify(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['api-keys']['verify']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['api-keys']['verify']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<(typeof client)['api-keys']['verify']['$post']> | undefined,
+export function usePostApiKeysVerify(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client)['api-keys']['verify']['$post']>>>
+      >
+    >,
     Error,
     InferRequestType<(typeof client)['api-keys']['verify']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['api-keys'].verify.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostApiKeysVerifyMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query cache key for GET /scopes
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGetScopesQueryKey() {
+  return ['scopes', 'GET', '/scopes'] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /scopes
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetScopesQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetScopesQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.scopes.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /scopes
  *
  * 利用可能なスコープ一覧
  */
-export function useGetScopes(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.scopes.$get>,
-      Error,
-      InferResponseType<typeof client.scopes.$get>,
-      readonly ['/scopes']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetScopes(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.scopes.$get>>>>>,
+    Error
+  >
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetScopesQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.scopes.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
-}
-
-/**
- * Generates TanStack Query cache key for GET /scopes
- */
-export function getGetScopesQueryKey() {
-  return ['/scopes'] as const
+  const { queryKey, queryFn, ...baseOptions } = getGetScopesQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }

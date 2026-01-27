@@ -1,24 +1,48 @@
+import type { QueryFunctionContext, UseQueryOptions } from '@tanstack/vue-query'
 import { useQuery } from '@tanstack/vue-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/complex-schema-reference'
 
 /**
+ * Generates Vue Query cache key for GET /test
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGetTestQueryKey() {
+  return ['test', 'GET', '/test'] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /test
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetTestQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetTestQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.test.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
+
+/**
  * GET /test
  *
  * Test endpoint for comprehensive schema references
  */
-export function useGetTest(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetTestQueryKey()
-  return useQuery({
-    queryKey,
-    queryFn: async () => parseResponse(client.test.$get(undefined, clientOptions)),
-  })
-}
-
-/**
- * Generates Vue Query cache key for GET /test
- */
-export function getGetTestQueryKey() {
-  return ['/test'] as const
+export function useGetTest(options?: {
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.test.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
+  const { queryKey, queryFn, ...baseOptions } = getGetTestQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }

@@ -1,4 +1,4 @@
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
@@ -7,277 +7,296 @@ import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/14-circular-refs'
 
 /**
- * GET /trees
+ * Generates SWR cache key for GET /trees
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function useGetTrees(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.trees.$get>, Error> & {
-    swrKey?: Key
-    enabled?: boolean
-  }
-  client?: ClientRequestOptions
-}) {
-  const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetTreesKey() : null)
-  const query = useSWR<InferResponseType<typeof client.trees.$get>, Error>(
-    swrKey,
-    async () => parseResponse(client.trees.$get(undefined, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+export function getGetTreesKey() {
+  return ['trees', 'GET', '/trees'] as const
 }
 
 /**
- * Generates SWR cache key for GET /trees
+ * GET /trees
  */
-export function getGetTreesKey() {
-  return ['/trees'] as const
+export function useGetTrees(options?: {
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
+  client?: ClientRequestOptions
+}) {
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetTreesKey()) : null
+  return {
+    swrKey,
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.trees.$get(undefined, clientOptions)),
+      restSwrOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /trees
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostTreesMutationKey() {
+  return ['trees', 'POST', '/trees'] as const
 }
 
 /**
  * POST /trees
  */
 export function usePostTrees(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.trees.$post>,
+  mutation?: SWRMutationConfiguration<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.trees.$post>>>>>,
     Error,
-    string,
+    Key,
     InferRequestType<typeof client.trees.$post>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<typeof client.trees.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.trees.$post>
-  >(
-    'POST /trees',
-    async (_, { arg }) => parseResponse(client.trees.$post(arg, options?.client)),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostTreesMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (_: Key, { arg }: { arg: InferRequestType<typeof client.trees.$post> }) =>
+        parseResponse(client.trees.$post(arg, clientOptions)),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /graphs
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGetGraphsKey() {
+  return ['graphs', 'GET', '/graphs'] as const
 }
 
 /**
  * GET /graphs
  */
 export function useGetGraphs(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.graphs.$get>, Error> & {
-    swrKey?: Key
-    enabled?: boolean
-  }
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetGraphsKey() : null)
-  const query = useSWR<InferResponseType<typeof client.graphs.$get>, Error>(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetGraphsKey()) : null
+  return {
     swrKey,
-    async () => parseResponse(client.graphs.$get(undefined, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.graphs.$get(undefined, clientOptions)),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /graphs
+ * Generates SWR cache key for GET /linked-lists
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetGraphsKey() {
-  return ['/graphs'] as const
+export function getGetLinkedListsKey() {
+  return ['linked-lists', 'GET', '/linked-lists'] as const
 }
 
 /**
  * GET /linked-lists
  */
 export function useGetLinkedLists(options?: {
-  swr?: SWRConfiguration<InferResponseType<(typeof client)['linked-lists']['$get']>, Error> & {
-    swrKey?: Key
-    enabled?: boolean
-  }
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetLinkedListsKey() : null)
-  const query = useSWR<InferResponseType<(typeof client)['linked-lists']['$get']>, Error>(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetLinkedListsKey()) : null
+  return {
     swrKey,
-    async () => parseResponse(client['linked-lists'].$get(undefined, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client['linked-lists'].$get(undefined, clientOptions)),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /linked-lists
+ * Generates SWR cache key for GET /social-network
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetLinkedListsKey() {
-  return ['/linked-lists'] as const
+export function getGetSocialNetworkKey() {
+  return ['social-network', 'GET', '/social-network'] as const
 }
 
 /**
  * GET /social-network
  */
 export function useGetSocialNetwork(options?: {
-  swr?: SWRConfiguration<InferResponseType<(typeof client)['social-network']['$get']>, Error> & {
-    swrKey?: Key
-    enabled?: boolean
-  }
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetSocialNetworkKey() : null)
-  const query = useSWR<InferResponseType<(typeof client)['social-network']['$get']>, Error>(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetSocialNetworkKey()) : null
+  return {
     swrKey,
-    async () => parseResponse(client['social-network'].$get(undefined, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client['social-network'].$get(undefined, clientOptions)),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /social-network
+ * Generates SWR cache key for GET /file-system
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetSocialNetworkKey() {
-  return ['/social-network'] as const
+export function getGetFileSystemKey() {
+  return ['file-system', 'GET', '/file-system'] as const
 }
 
 /**
  * GET /file-system
  */
 export function useGetFileSystem(options?: {
-  swr?: SWRConfiguration<InferResponseType<(typeof client)['file-system']['$get']>, Error> & {
-    swrKey?: Key
-    enabled?: boolean
-  }
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetFileSystemKey() : null)
-  const query = useSWR<InferResponseType<(typeof client)['file-system']['$get']>, Error>(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetFileSystemKey()) : null
+  return {
     swrKey,
-    async () => parseResponse(client['file-system'].$get(undefined, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client['file-system'].$get(undefined, clientOptions)),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /file-system
+ * Generates SWR cache key for GET /comments
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetFileSystemKey() {
-  return ['/file-system'] as const
+export function getGetCommentsKey() {
+  return ['comments', 'GET', '/comments'] as const
 }
 
 /**
  * GET /comments
  */
 export function useGetComments(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.comments.$get>, Error> & {
-    swrKey?: Key
-    enabled?: boolean
-  }
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetCommentsKey() : null)
-  const query = useSWR<InferResponseType<typeof client.comments.$get>, Error>(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetCommentsKey()) : null
+  return {
     swrKey,
-    async () => parseResponse(client.comments.$get(undefined, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.comments.$get(undefined, clientOptions)),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /comments
+ * Generates SWR cache key for GET /polymorphic
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetCommentsKey() {
-  return ['/comments'] as const
+export function getGetPolymorphicKey() {
+  return ['polymorphic', 'GET', '/polymorphic'] as const
 }
 
 /**
  * GET /polymorphic
  */
 export function useGetPolymorphic(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.polymorphic.$get>, Error> & {
-    swrKey?: Key
-    enabled?: boolean
-  }
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetPolymorphicKey() : null)
-  const query = useSWR<InferResponseType<typeof client.polymorphic.$get>, Error>(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetPolymorphicKey()) : null
+  return {
     swrKey,
-    async () => parseResponse(client.polymorphic.$get(undefined, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.polymorphic.$get(undefined, clientOptions)),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /polymorphic
+ * Generates SWR cache key for GET /categories
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetPolymorphicKey() {
-  return ['/polymorphic'] as const
+export function getGetCategoriesKey() {
+  return ['categories', 'GET', '/categories'] as const
 }
 
 /**
  * GET /categories
  */
 export function useGetCategories(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.categories.$get>, Error> & {
-    swrKey?: Key
-    enabled?: boolean
-  }
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetCategoriesKey() : null)
-  const query = useSWR<InferResponseType<typeof client.categories.$get>, Error>(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetCategoriesKey()) : null
+  return {
     swrKey,
-    async () => parseResponse(client.categories.$get(undefined, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.categories.$get(undefined, clientOptions)),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /categories
+ * Generates SWR cache key for GET /workflow
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetCategoriesKey() {
-  return ['/categories'] as const
+export function getGetWorkflowKey() {
+  return ['workflow', 'GET', '/workflow'] as const
 }
 
 /**
  * GET /workflow
  */
 export function useGetWorkflow(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.workflow.$get>, Error> & {
-    swrKey?: Key
-    enabled?: boolean
-  }
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetWorkflowKey() : null)
-  const query = useSWR<InferResponseType<typeof client.workflow.$get>, Error>(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetWorkflowKey()) : null
+  return {
     swrKey,
-    async () => parseResponse(client.workflow.$get(undefined, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
-}
-
-/**
- * Generates SWR cache key for GET /workflow
- */
-export function getGetWorkflowKey() {
-  return ['/workflow'] as const
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.workflow.$get(undefined, clientOptions)),
+      restSwrOptions,
+    ),
+  }
 }

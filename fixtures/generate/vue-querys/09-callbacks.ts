@@ -1,59 +1,188 @@
+import type { UseMutationOptions } from '@tanstack/vue-query'
 import { useMutation } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/09-callbacks'
+
+/**
+ * Generates Vue Query mutation key for POST /webhooks
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostWebhooksMutationKey() {
+  return ['webhooks', 'POST', '/webhooks'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /webhooks
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostWebhooksMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostWebhooksMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.webhooks.$post>) =>
+    parseResponse(client.webhooks.$post(args, clientOptions)),
+})
 
 /**
  * POST /webhooks
  *
  * Register a webhook endpoint
  */
-export function usePostWebhooks(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<typeof client.webhooks.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.webhooks.$post>
-  >({ mutationFn: async (args) => parseResponse(client.webhooks.$post(args, clientOptions)) })
+export function usePostWebhooks(options?: {
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.webhooks.$post>>>>
+        >,
+        Error,
+        InferRequestType<typeof client.webhooks.$post>
+      >,
+      'mutationFn' | 'mutationKey'
+    >
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } = getPostWebhooksMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates Vue Query mutation key for POST /subscriptions
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostSubscriptionsMutationKey() {
+  return ['subscriptions', 'POST', '/subscriptions'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /subscriptions
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostSubscriptionsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostSubscriptionsMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.subscriptions.$post>) =>
+    parseResponse(client.subscriptions.$post(args, clientOptions)),
+})
 
 /**
  * POST /subscriptions
  *
  * Create a subscription with payment callbacks
  */
-export function usePostSubscriptions(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<typeof client.subscriptions.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.subscriptions.$post>
-  >({ mutationFn: async (args) => parseResponse(client.subscriptions.$post(args, clientOptions)) })
+export function usePostSubscriptions(options?: {
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.subscriptions.$post>>>>
+        >,
+        Error,
+        InferRequestType<typeof client.subscriptions.$post>
+      >,
+      'mutationFn' | 'mutationKey'
+    >
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostSubscriptionsMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates Vue Query mutation key for POST /jobs
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostJobsMutationKey() {
+  return ['jobs', 'POST', '/jobs'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /jobs
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostJobsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostJobsMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.jobs.$post>) =>
+    parseResponse(client.jobs.$post(args, clientOptions)),
+})
 
 /**
  * POST /jobs
  *
  * Create an async job with progress callbacks
  */
-export function usePostJobs(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<typeof client.jobs.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.jobs.$post>
-  >({ mutationFn: async (args) => parseResponse(client.jobs.$post(args, clientOptions)) })
+export function usePostJobs(options?: {
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.jobs.$post>>>>>,
+        Error,
+        InferRequestType<typeof client.jobs.$post>
+      >,
+      'mutationFn' | 'mutationKey'
+    >
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } = getPostJobsMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates Vue Query mutation key for POST /integrations/{integrationId}/sync
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostIntegrationsIntegrationIdSyncMutationKey() {
+  return ['integrations', 'POST', '/integrations/:integrationId/sync'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /integrations/{integrationId}/sync
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostIntegrationsIntegrationIdSyncMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostIntegrationsIntegrationIdSyncMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.integrations)[':integrationId']['sync']['$post']>,
+  ) => parseResponse(client.integrations[':integrationId'].sync.$post(args, clientOptions)),
+})
 
 /**
  * POST /integrations/{integrationId}/sync
  *
  * Trigger data sync with callbacks
  */
-export function usePostIntegrationsIntegrationIdSync(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client.integrations)[':integrationId']['sync']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client.integrations)[':integrationId']['sync']['$post']>
-  >({
-    mutationFn: async (args) =>
-      parseResponse(client.integrations[':integrationId'].sync.$post(args, clientOptions)),
-  })
+export function usePostIntegrationsIntegrationIdSync(options?: {
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<ReturnType<(typeof client.integrations)[':integrationId']['sync']['$post']>>
+            >
+          >
+        >,
+        Error,
+        InferRequestType<(typeof client.integrations)[':integrationId']['sync']['$post']>
+      >,
+      'mutationFn' | 'mutationKey'
+    >
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostIntegrationsIntegrationIdSyncMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }

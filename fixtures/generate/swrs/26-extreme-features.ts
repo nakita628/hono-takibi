@@ -1,4 +1,4 @@
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
@@ -7,33 +7,42 @@ import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/26-extreme-features'
 
 /**
+ * Generates SWR cache key for GET /stream
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGetStreamKey() {
+  return ['stream', 'GET', '/stream'] as const
+}
+
+/**
  * GET /stream
  *
  * Stream data with Server-Sent Events
  */
 export function useGetStream(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.stream.$get>, Error> & {
-    swrKey?: Key
-    enabled?: boolean
-  }
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetStreamKey() : null)
-  const query = useSWR<InferResponseType<typeof client.stream.$get>, Error>(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetStreamKey()) : null
+  return {
     swrKey,
-    async () => parseResponse(client.stream.$get(undefined, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.stream.$get(undefined, clientOptions)),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /stream
+ * Generates SWR mutation key for POST /graphql
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetStreamKey() {
-  return ['/stream'] as const
+export function getPostGraphqlMutationKey() {
+  return ['graphql', 'POST', '/graphql'] as const
 }
 
 /**
@@ -42,24 +51,34 @@ export function getGetStreamKey() {
  * GraphQL endpoint
  */
 export function usePostGraphql(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.graphql.$post>,
+  mutation?: SWRMutationConfiguration<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.graphql.$post>>>>>,
     Error,
-    string,
+    Key,
     InferRequestType<typeof client.graphql.$post>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<typeof client.graphql.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.graphql.$post>
-  >(
-    'POST /graphql',
-    async (_, { arg }) => parseResponse(client.graphql.$post(arg, options?.client)),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostGraphqlMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (_: Key, { arg }: { arg: InferRequestType<typeof client.graphql.$post> }) =>
+        parseResponse(client.graphql.$post(arg, clientOptions)),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /grpc-gateway
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostGrpcGatewayMutationKey() {
+  return ['grpc-gateway', 'POST', '/grpc-gateway'] as const
 }
 
 /**
@@ -68,24 +87,40 @@ export function usePostGraphql(options?: {
  * gRPC-Gateway endpoint
  */
 export function usePostGrpcGateway(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['grpc-gateway']['$post']>,
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client)['grpc-gateway']['$post']>>>
+      >
+    >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client)['grpc-gateway']['$post']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<(typeof client)['grpc-gateway']['$post']>,
-    Error,
-    string,
-    InferRequestType<(typeof client)['grpc-gateway']['$post']>
-  >(
-    'POST /grpc-gateway',
-    async (_, { arg }) => parseResponse(client['grpc-gateway'].$post(arg, options?.client)),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostGrpcGatewayMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        { arg }: { arg: InferRequestType<(typeof client)['grpc-gateway']['$post']> },
+      ) => parseResponse(client['grpc-gateway'].$post(arg, clientOptions)),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /deprecated-endpoint
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGetDeprecatedEndpointKey() {
+  return ['deprecated-endpoint', 'GET', '/deprecated-endpoint'] as const
 }
 
 /**
@@ -98,26 +133,19 @@ export function usePostGrpcGateway(options?: {
  * Please use `/new-endpoint` instead.
  */
 export function useGetDeprecatedEndpoint(options?: {
-  swr?: SWRConfiguration<
-    InferResponseType<(typeof client)['deprecated-endpoint']['$get']>,
-    Error
-  > & { swrKey?: Key; enabled?: boolean }
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetDeprecatedEndpointKey() : null)
-  const query = useSWR<InferResponseType<(typeof client)['deprecated-endpoint']['$get']>, Error>(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetDeprecatedEndpointKey()) : null
+  return {
     swrKey,
-    async () => parseResponse(client['deprecated-endpoint'].$get(undefined, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
-}
-
-/**
- * Generates SWR cache key for GET /deprecated-endpoint
- */
-export function getGetDeprecatedEndpointKey() {
-  return ['/deprecated-endpoint'] as const
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client['deprecated-endpoint'].$get(undefined, clientOptions)),
+      restSwrOptions,
+    ),
+  }
 }

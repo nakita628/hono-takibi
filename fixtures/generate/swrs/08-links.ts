@@ -1,4 +1,4 @@
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
@@ -7,27 +7,47 @@ import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/08-links'
 
 /**
+ * Generates SWR mutation key for POST /orders
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostOrdersMutationKey() {
+  return ['orders', 'POST', '/orders'] as const
+}
+
+/**
  * POST /orders
  */
 export function usePostOrders(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.orders.$post>,
+  mutation?: SWRMutationConfiguration<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.orders.$post>>>>>,
     Error,
-    string,
+    Key,
     InferRequestType<typeof client.orders.$post>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<typeof client.orders.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.orders.$post>
-  >(
-    'POST /orders',
-    async (_, { arg }) => parseResponse(client.orders.$post(arg, options?.client)),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostOrdersMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (_: Key, { arg }: { arg: InferRequestType<typeof client.orders.$post> }) =>
+        parseResponse(client.orders.$post(arg, clientOptions)),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /orders/{orderId}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetOrdersOrderIdKey(
+  args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
+) {
+  return ['orders', 'GET', '/orders/:orderId', args] as const
 }
 
 /**
@@ -36,55 +56,72 @@ export function usePostOrders(options?: {
 export function useGetOrdersOrderId(
   args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<(typeof client.orders)[':orderId']['$get']>, Error> & {
-      swrKey?: Key
-      enabled?: boolean
-    }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetOrdersOrderIdKey(args) : null)
-  const query = useSWR<InferResponseType<(typeof client.orders)[':orderId']['$get']>, Error>(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetOrdersOrderIdKey(args)) : null
+  return {
     swrKey,
-    async () => parseResponse(client.orders[':orderId'].$get(args, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.orders[':orderId'].$get(args, clientOptions)),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /orders/{orderId}
+ * Generates SWR mutation key for DELETE /orders/{orderId}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetOrdersOrderIdKey(
-  args?: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
-) {
-  return ['/orders/:orderId', ...(args ? [args] : [])] as const
+export function getDeleteOrdersOrderIdMutationKey() {
+  return ['orders', 'DELETE', '/orders/:orderId'] as const
 }
 
 /**
  * DELETE /orders/{orderId}
  */
 export function useDeleteOrdersOrderId(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.orders)[':orderId']['$delete']>,
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client.orders)[':orderId']['$delete']>>>
+      >
+    >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client.orders)[':orderId']['$delete']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<(typeof client.orders)[':orderId']['$delete']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.orders)[':orderId']['$delete']>
-  >(
-    'DELETE /orders/:orderId',
-    async (_, { arg }) => parseResponse(client.orders[':orderId'].$delete(arg, options?.client)),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDeleteOrdersOrderIdMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        { arg }: { arg: InferRequestType<(typeof client.orders)[':orderId']['$delete']> },
+      ) => parseResponse(client.orders[':orderId'].$delete(arg, clientOptions)),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /orders/{orderId}/items
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetOrdersOrderIdItemsKey(
+  args: InferRequestType<(typeof client.orders)[':orderId']['items']['$get']>,
+) {
+  return ['orders', 'GET', '/orders/:orderId/items', args] as const
 }
 
 /**
@@ -93,34 +130,32 @@ export function useDeleteOrdersOrderId(options?: {
 export function useGetOrdersOrderIdItems(
   args: InferRequestType<(typeof client.orders)[':orderId']['items']['$get']>,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<(typeof client.orders)[':orderId']['items']['$get']>,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetOrdersOrderIdItemsKey(args) : null)
-  const query = useSWR<
-    InferResponseType<(typeof client.orders)[':orderId']['items']['$get']>,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetOrdersOrderIdItemsKey(args)) : null
+  return {
     swrKey,
-    async () => parseResponse(client.orders[':orderId'].items.$get(args, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.orders[':orderId'].items.$get(args, clientOptions)),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /orders/{orderId}/items
+ * Generates SWR cache key for GET /customers/{customerId}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetOrdersOrderIdItemsKey(
-  args?: InferRequestType<(typeof client.orders)[':orderId']['items']['$get']>,
+export function getGetCustomersCustomerIdKey(
+  args: InferRequestType<(typeof client.customers)[':customerId']['$get']>,
 ) {
-  return ['/orders/:orderId/items', ...(args ? [args] : [])] as const
+  return ['customers', 'GET', '/customers/:customerId', args] as const
 }
 
 /**
@@ -129,31 +164,32 @@ export function getGetOrdersOrderIdItemsKey(
 export function useGetCustomersCustomerId(
   args: InferRequestType<(typeof client.customers)[':customerId']['$get']>,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<(typeof client.customers)[':customerId']['$get']>,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetCustomersCustomerIdKey(args) : null)
-  const query = useSWR<InferResponseType<(typeof client.customers)[':customerId']['$get']>, Error>(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetCustomersCustomerIdKey(args)) : null
+  return {
     swrKey,
-    async () => parseResponse(client.customers[':customerId'].$get(args, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.customers[':customerId'].$get(args, clientOptions)),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /customers/{customerId}
+ * Generates SWR cache key for GET /customers/{customerId}/orders
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetCustomersCustomerIdKey(
-  args?: InferRequestType<(typeof client.customers)[':customerId']['$get']>,
+export function getGetCustomersCustomerIdOrdersKey(
+  args: InferRequestType<(typeof client.customers)[':customerId']['orders']['$get']>,
 ) {
-  return ['/customers/:customerId', ...(args ? [args] : [])] as const
+  return ['customers', 'GET', '/customers/:customerId/orders', args] as const
 }
 
 /**
@@ -162,34 +198,32 @@ export function getGetCustomersCustomerIdKey(
 export function useGetCustomersCustomerIdOrders(
   args: InferRequestType<(typeof client.customers)[':customerId']['orders']['$get']>,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<(typeof client.customers)[':customerId']['orders']['$get']>,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetCustomersCustomerIdOrdersKey(args) : null)
-  const query = useSWR<
-    InferResponseType<(typeof client.customers)[':customerId']['orders']['$get']>,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetCustomersCustomerIdOrdersKey(args)) : null
+  return {
     swrKey,
-    async () => parseResponse(client.customers[':customerId'].orders.$get(args, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.customers[':customerId'].orders.$get(args, clientOptions)),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /customers/{customerId}/orders
+ * Generates SWR cache key for GET /payments/{paymentId}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetCustomersCustomerIdOrdersKey(
-  args?: InferRequestType<(typeof client.customers)[':customerId']['orders']['$get']>,
+export function getGetPaymentsPaymentIdKey(
+  args: InferRequestType<(typeof client.payments)[':paymentId']['$get']>,
 ) {
-  return ['/customers/:customerId/orders', ...(args ? [args] : [])] as const
+  return ['payments', 'GET', '/payments/:paymentId', args] as const
 }
 
 /**
@@ -198,29 +232,20 @@ export function getGetCustomersCustomerIdOrdersKey(
 export function useGetPaymentsPaymentId(
   args: InferRequestType<(typeof client.payments)[':paymentId']['$get']>,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<(typeof client.payments)[':paymentId']['$get']>,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetPaymentsPaymentIdKey(args) : null)
-  const query = useSWR<InferResponseType<(typeof client.payments)[':paymentId']['$get']>, Error>(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetPaymentsPaymentIdKey(args)) : null
+  return {
     swrKey,
-    async () => parseResponse(client.payments[':paymentId'].$get(args, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
-}
-
-/**
- * Generates SWR cache key for GET /payments/{paymentId}
- */
-export function getGetPaymentsPaymentIdKey(
-  args?: InferRequestType<(typeof client.payments)[':paymentId']['$get']>,
-) {
-  return ['/payments/:paymentId', ...(args ? [args] : [])] as const
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.payments[':paymentId'].$get(args, clientOptions)),
+      restSwrOptions,
+    ),
+  }
 }

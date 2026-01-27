@@ -1,24 +1,51 @@
+import type { QueryFunctionContext, UseQueryOptions } from '@tanstack/vue-query'
 import { useQuery } from '@tanstack/vue-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/schema-reference'
 
 /**
+ * Generates Vue Query cache key for GET /example
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGetExampleQueryKey() {
+  return ['example', 'GET', '/example'] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /example
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetExampleQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetExampleQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.example.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /example
  *
  * Sample Endpoint
  */
-export function useGetExample(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetExampleQueryKey()
-  return useQuery({
-    queryKey,
-    queryFn: async () => parseResponse(client.example.$get(undefined, clientOptions)),
-  })
-}
-
-/**
- * Generates Vue Query cache key for GET /example
- */
-export function getGetExampleQueryKey() {
-  return ['/example'] as const
+export function useGetExample(options?: {
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.example.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
+  const { queryKey, queryFn, ...baseOptions } = getGetExampleQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }

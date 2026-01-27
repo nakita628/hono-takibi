@@ -1,8 +1,36 @@
-import type { CreateMutationOptions, CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
+import type {
+  CreateMutationOptions,
+  CreateQueryOptions,
+  QueryFunctionContext,
+} from '@tanstack/svelte-query'
 import { createMutation, createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/spotify'
+
+/**
+ * Generates Svelte Query cache key for GET /albums
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetAlbumsQueryKey(args: InferRequestType<typeof client.albums.$get>) {
+  return ['albums', 'GET', '/albums', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /albums
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetAlbumsQueryOptions = (
+  args: InferRequestType<typeof client.albums.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetAlbumsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.albums.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /albums
@@ -13,36 +41,49 @@ import { client } from '../clients/spotify'
  */
 export function createGetAlbums(
   args: InferRequestType<typeof client.albums.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.albums.$get>,
-      Error,
-      InferResponseType<typeof client.albums.$get>,
-      readonly ['/albums', InferRequestType<typeof client.albums.$get>]
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.albums.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetAlbumsQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.albums.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetAlbumsQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /albums
+ * Generates Svelte Query cache key for GET /albums/{id}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetAlbumsQueryKey(args: InferRequestType<typeof client.albums.$get>) {
-  return ['/albums', args] as const
+export function getGetAlbumsIdQueryKey(
+  args: InferRequestType<(typeof client.albums)[':id']['$get']>,
+) {
+  return ['albums', 'GET', '/albums/:id', args] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /albums/{id}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetAlbumsIdQueryOptions = (
+  args: InferRequestType<(typeof client.albums)[':id']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetAlbumsIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.albums[':id'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /albums/{id}
@@ -53,38 +94,51 @@ export function getGetAlbumsQueryKey(args: InferRequestType<typeof client.albums
  */
 export function createGetAlbumsId(
   args: InferRequestType<(typeof client.albums)[':id']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<(typeof client.albums)[':id']['$get']>,
-      Error,
-      InferResponseType<(typeof client.albums)[':id']['$get']>,
-      readonly ['/albums/:id', InferRequestType<(typeof client.albums)[':id']['$get']>]
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.albums)[':id']['$get']>>>>
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetAlbumsIdQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.albums[':id'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetAlbumsIdQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /albums/{id}
+ * Generates Svelte Query cache key for GET /albums/{id}/tracks
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetAlbumsIdQueryKey(
-  args: InferRequestType<(typeof client.albums)[':id']['$get']>,
+export function getGetAlbumsIdTracksQueryKey(
+  args: InferRequestType<(typeof client.albums)[':id']['tracks']['$get']>,
 ) {
-  return ['/albums/:id', args] as const
+  return ['albums', 'GET', '/albums/:id/tracks', args] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /albums/{id}/tracks
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetAlbumsIdTracksQueryOptions = (
+  args: InferRequestType<(typeof client.albums)[':id']['tracks']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetAlbumsIdTracksQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.albums[':id'].tracks.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /albums/{id}/tracks
@@ -96,41 +150,51 @@ export function getGetAlbumsIdQueryKey(
  */
 export function createGetAlbumsIdTracks(
   args: InferRequestType<(typeof client.albums)[':id']['tracks']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<(typeof client.albums)[':id']['tracks']['$get']>,
-      Error,
-      InferResponseType<(typeof client.albums)[':id']['tracks']['$get']>,
-      readonly [
-        '/albums/:id/tracks',
-        InferRequestType<(typeof client.albums)[':id']['tracks']['$get']>,
-      ]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.albums)[':id']['tracks']['$get']>>>
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetAlbumsIdTracksQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.albums[':id'].tracks.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetAlbumsIdTracksQueryOptions(
+      args,
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /albums/{id}/tracks
+ * Generates Svelte Query cache key for GET /artists
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetAlbumsIdTracksQueryKey(
-  args: InferRequestType<(typeof client.albums)[':id']['tracks']['$get']>,
-) {
-  return ['/albums/:id/tracks', args] as const
+export function getGetArtistsQueryKey(args: InferRequestType<typeof client.artists.$get>) {
+  return ['artists', 'GET', '/artists', args] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /artists
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetArtistsQueryOptions = (
+  args: InferRequestType<typeof client.artists.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetArtistsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.artists.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /artists
@@ -141,36 +205,49 @@ export function getGetAlbumsIdTracksQueryKey(
  */
 export function createGetArtists(
   args: InferRequestType<typeof client.artists.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.artists.$get>,
-      Error,
-      InferResponseType<typeof client.artists.$get>,
-      readonly ['/artists', InferRequestType<typeof client.artists.$get>]
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.artists.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetArtistsQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.artists.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetArtistsQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /artists
+ * Generates Svelte Query cache key for GET /artists/{id}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetArtistsQueryKey(args: InferRequestType<typeof client.artists.$get>) {
-  return ['/artists', args] as const
+export function getGetArtistsIdQueryKey(
+  args: InferRequestType<(typeof client.artists)[':id']['$get']>,
+) {
+  return ['artists', 'GET', '/artists/:id', args] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /artists/{id}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetArtistsIdQueryOptions = (
+  args: InferRequestType<(typeof client.artists)[':id']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetArtistsIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.artists[':id'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /artists/{id}
@@ -181,38 +258,53 @@ export function getGetArtistsQueryKey(args: InferRequestType<typeof client.artis
  */
 export function createGetArtistsId(
   args: InferRequestType<(typeof client.artists)[':id']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<(typeof client.artists)[':id']['$get']>,
-      Error,
-      InferResponseType<(typeof client.artists)[':id']['$get']>,
-      readonly ['/artists/:id', InferRequestType<(typeof client.artists)[':id']['$get']>]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.artists)[':id']['$get']>>>
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetArtistsIdQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.artists[':id'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetArtistsIdQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /artists/{id}
+ * Generates Svelte Query cache key for GET /artists/{id}/albums
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetArtistsIdQueryKey(
-  args: InferRequestType<(typeof client.artists)[':id']['$get']>,
+export function getGetArtistsIdAlbumsQueryKey(
+  args: InferRequestType<(typeof client.artists)[':id']['albums']['$get']>,
 ) {
-  return ['/artists/:id', args] as const
+  return ['artists', 'GET', '/artists/:id/albums', args] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /artists/{id}/albums
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetArtistsIdAlbumsQueryOptions = (
+  args: InferRequestType<(typeof client.artists)[':id']['albums']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetArtistsIdAlbumsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.artists[':id'].albums.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /artists/{id}/albums
@@ -223,41 +315,58 @@ export function getGetArtistsIdQueryKey(
  */
 export function createGetArtistsIdAlbums(
   args: InferRequestType<(typeof client.artists)[':id']['albums']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<(typeof client.artists)[':id']['albums']['$get']>,
-      Error,
-      InferResponseType<(typeof client.artists)[':id']['albums']['$get']>,
-      readonly [
-        '/artists/:id/albums',
-        InferRequestType<(typeof client.artists)[':id']['albums']['$get']>,
-      ]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.artists)[':id']['albums']['$get']>>
+          >
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetArtistsIdAlbumsQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.artists[':id'].albums.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetArtistsIdAlbumsQueryOptions(
+      args,
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /artists/{id}/albums
+ * Generates Svelte Query cache key for GET /artists/{id}/related-artists
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetArtistsIdAlbumsQueryKey(
-  args: InferRequestType<(typeof client.artists)[':id']['albums']['$get']>,
+export function getGetArtistsIdRelatedArtistsQueryKey(
+  args: InferRequestType<(typeof client.artists)[':id']['related-artists']['$get']>,
 ) {
-  return ['/artists/:id/albums', args] as const
+  return ['artists', 'GET', '/artists/:id/related-artists', args] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /artists/{id}/related-artists
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetArtistsIdRelatedArtistsQueryOptions = (
+  args: InferRequestType<(typeof client.artists)[':id']['related-artists']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetArtistsIdRelatedArtistsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.artists[':id']['related-artists'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /artists/{id}/related-artists
@@ -268,42 +377,58 @@ export function getGetArtistsIdAlbumsQueryKey(
  */
 export function createGetArtistsIdRelatedArtists(
   args: InferRequestType<(typeof client.artists)[':id']['related-artists']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<(typeof client.artists)[':id']['related-artists']['$get']>,
-      Error,
-      InferResponseType<(typeof client.artists)[':id']['related-artists']['$get']>,
-      readonly [
-        '/artists/:id/related-artists',
-        InferRequestType<(typeof client.artists)[':id']['related-artists']['$get']>,
-      ]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.artists)[':id']['related-artists']['$get']>>
+          >
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetArtistsIdRelatedArtistsQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.artists[':id']['related-artists'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetArtistsIdRelatedArtistsQueryOptions(
+      args,
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /artists/{id}/related-artists
+ * Generates Svelte Query cache key for GET /artists/{id}/top-tracks
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetArtistsIdRelatedArtistsQueryKey(
-  args: InferRequestType<(typeof client.artists)[':id']['related-artists']['$get']>,
+export function getGetArtistsIdTopTracksQueryKey(
+  args: InferRequestType<(typeof client.artists)[':id']['top-tracks']['$get']>,
 ) {
-  return ['/artists/:id/related-artists', args] as const
+  return ['artists', 'GET', '/artists/:id/top-tracks', args] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /artists/{id}/top-tracks
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetArtistsIdTopTracksQueryOptions = (
+  args: InferRequestType<(typeof client.artists)[':id']['top-tracks']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetArtistsIdTopTracksQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.artists[':id']['top-tracks'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /artists/{id}/top-tracks
@@ -314,42 +439,58 @@ export function getGetArtistsIdRelatedArtistsQueryKey(
  */
 export function createGetArtistsIdTopTracks(
   args: InferRequestType<(typeof client.artists)[':id']['top-tracks']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<(typeof client.artists)[':id']['top-tracks']['$get']>,
-      Error,
-      InferResponseType<(typeof client.artists)[':id']['top-tracks']['$get']>,
-      readonly [
-        '/artists/:id/top-tracks',
-        InferRequestType<(typeof client.artists)[':id']['top-tracks']['$get']>,
-      ]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.artists)[':id']['top-tracks']['$get']>>
+          >
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetArtistsIdTopTracksQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.artists[':id']['top-tracks'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetArtistsIdTopTracksQueryOptions(
+      args,
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /artists/{id}/top-tracks
+ * Generates Svelte Query cache key for GET /audio-analysis/{id}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetArtistsIdTopTracksQueryKey(
-  args: InferRequestType<(typeof client.artists)[':id']['top-tracks']['$get']>,
+export function getGetAudioAnalysisIdQueryKey(
+  args: InferRequestType<(typeof client)['audio-analysis'][':id']['$get']>,
 ) {
-  return ['/artists/:id/top-tracks', args] as const
+  return ['audio-analysis', 'GET', '/audio-analysis/:id', args] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /audio-analysis/{id}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetAudioAnalysisIdQueryOptions = (
+  args: InferRequestType<(typeof client)['audio-analysis'][':id']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetAudioAnalysisIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['audio-analysis'][':id'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /audio-analysis/{id}
@@ -360,41 +501,58 @@ export function getGetArtistsIdTopTracksQueryKey(
  */
 export function createGetAudioAnalysisId(
   args: InferRequestType<(typeof client)['audio-analysis'][':id']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<(typeof client)['audio-analysis'][':id']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['audio-analysis'][':id']['$get']>,
-      readonly [
-        '/audio-analysis/:id',
-        InferRequestType<(typeof client)['audio-analysis'][':id']['$get']>,
-      ]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['audio-analysis'][':id']['$get']>>
+          >
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetAudioAnalysisIdQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client['audio-analysis'][':id'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetAudioAnalysisIdQueryOptions(
+      args,
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /audio-analysis/{id}
+ * Generates Svelte Query cache key for GET /audio-features
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetAudioAnalysisIdQueryKey(
-  args: InferRequestType<(typeof client)['audio-analysis'][':id']['$get']>,
+export function getGetAudioFeaturesQueryKey(
+  args: InferRequestType<(typeof client)['audio-features']['$get']>,
 ) {
-  return ['/audio-analysis/:id', args] as const
+  return ['audio-features', 'GET', '/audio-features', args] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /audio-features
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetAudioFeaturesQueryOptions = (
+  args: InferRequestType<(typeof client)['audio-features']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetAudioFeaturesQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['audio-features'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /audio-features
@@ -405,38 +563,56 @@ export function getGetAudioAnalysisIdQueryKey(
  */
 export function createGetAudioFeatures(
   args: InferRequestType<(typeof client)['audio-features']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<(typeof client)['audio-features']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['audio-features']['$get']>,
-      readonly ['/audio-features', InferRequestType<(typeof client)['audio-features']['$get']>]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client)['audio-features']['$get']>>>
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetAudioFeaturesQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client['audio-features'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetAudioFeaturesQueryOptions(
+      args,
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /audio-features
+ * Generates Svelte Query cache key for GET /audio-features/{id}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetAudioFeaturesQueryKey(
-  args: InferRequestType<(typeof client)['audio-features']['$get']>,
+export function getGetAudioFeaturesIdQueryKey(
+  args: InferRequestType<(typeof client)['audio-features'][':id']['$get']>,
 ) {
-  return ['/audio-features', args] as const
+  return ['audio-features', 'GET', '/audio-features/:id', args] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /audio-features/{id}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetAudioFeaturesIdQueryOptions = (
+  args: InferRequestType<(typeof client)['audio-features'][':id']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetAudioFeaturesIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['audio-features'][':id'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /audio-features/{id}
@@ -448,41 +624,53 @@ export function getGetAudioFeaturesQueryKey(
  */
 export function createGetAudioFeaturesId(
   args: InferRequestType<(typeof client)['audio-features'][':id']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<(typeof client)['audio-features'][':id']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['audio-features'][':id']['$get']>,
-      readonly [
-        '/audio-features/:id',
-        InferRequestType<(typeof client)['audio-features'][':id']['$get']>,
-      ]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['audio-features'][':id']['$get']>>
+          >
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetAudioFeaturesIdQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client['audio-features'][':id'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetAudioFeaturesIdQueryOptions(
+      args,
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /audio-features/{id}
+ * Generates Svelte Query cache key for GET /audiobooks
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetAudioFeaturesIdQueryKey(
-  args: InferRequestType<(typeof client)['audio-features'][':id']['$get']>,
-) {
-  return ['/audio-features/:id', args] as const
+export function getGetAudiobooksQueryKey(args: InferRequestType<typeof client.audiobooks.$get>) {
+  return ['audiobooks', 'GET', '/audiobooks', args] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /audiobooks
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetAudiobooksQueryOptions = (
+  args: InferRequestType<typeof client.audiobooks.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetAudiobooksQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.audiobooks.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /audiobooks
@@ -494,36 +682,49 @@ export function getGetAudioFeaturesIdQueryKey(
  */
 export function createGetAudiobooks(
   args: InferRequestType<typeof client.audiobooks.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.audiobooks.$get>,
-      Error,
-      InferResponseType<typeof client.audiobooks.$get>,
-      readonly ['/audiobooks', InferRequestType<typeof client.audiobooks.$get>]
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.audiobooks.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetAudiobooksQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.audiobooks.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetAudiobooksQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /audiobooks
+ * Generates Svelte Query cache key for GET /audiobooks/{id}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetAudiobooksQueryKey(args: InferRequestType<typeof client.audiobooks.$get>) {
-  return ['/audiobooks', args] as const
+export function getGetAudiobooksIdQueryKey(
+  args: InferRequestType<(typeof client.audiobooks)[':id']['$get']>,
+) {
+  return ['audiobooks', 'GET', '/audiobooks/:id', args] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /audiobooks/{id}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetAudiobooksIdQueryOptions = (
+  args: InferRequestType<(typeof client.audiobooks)[':id']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetAudiobooksIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.audiobooks[':id'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /audiobooks/{id}
@@ -535,38 +736,53 @@ export function getGetAudiobooksQueryKey(args: InferRequestType<typeof client.au
  */
 export function createGetAudiobooksId(
   args: InferRequestType<(typeof client.audiobooks)[':id']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<(typeof client.audiobooks)[':id']['$get']>,
-      Error,
-      InferResponseType<(typeof client.audiobooks)[':id']['$get']>,
-      readonly ['/audiobooks/:id', InferRequestType<(typeof client.audiobooks)[':id']['$get']>]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.audiobooks)[':id']['$get']>>>
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetAudiobooksIdQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.audiobooks[':id'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetAudiobooksIdQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /audiobooks/{id}
+ * Generates Svelte Query cache key for GET /audiobooks/{id}/chapters
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetAudiobooksIdQueryKey(
-  args: InferRequestType<(typeof client.audiobooks)[':id']['$get']>,
+export function getGetAudiobooksIdChaptersQueryKey(
+  args: InferRequestType<(typeof client.audiobooks)[':id']['chapters']['$get']>,
 ) {
-  return ['/audiobooks/:id', args] as const
+  return ['audiobooks', 'GET', '/audiobooks/:id/chapters', args] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /audiobooks/{id}/chapters
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetAudiobooksIdChaptersQueryOptions = (
+  args: InferRequestType<(typeof client.audiobooks)[':id']['chapters']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetAudiobooksIdChaptersQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.audiobooks[':id'].chapters.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /audiobooks/{id}/chapters
@@ -578,42 +794,58 @@ export function getGetAudiobooksIdQueryKey(
  */
 export function createGetAudiobooksIdChapters(
   args: InferRequestType<(typeof client.audiobooks)[':id']['chapters']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<(typeof client.audiobooks)[':id']['chapters']['$get']>,
-      Error,
-      InferResponseType<(typeof client.audiobooks)[':id']['chapters']['$get']>,
-      readonly [
-        '/audiobooks/:id/chapters',
-        InferRequestType<(typeof client.audiobooks)[':id']['chapters']['$get']>,
-      ]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.audiobooks)[':id']['chapters']['$get']>>
+          >
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetAudiobooksIdChaptersQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.audiobooks[':id'].chapters.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetAudiobooksIdChaptersQueryOptions(
+      args,
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /audiobooks/{id}/chapters
+ * Generates Svelte Query cache key for GET /browse/categories
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetAudiobooksIdChaptersQueryKey(
-  args: InferRequestType<(typeof client.audiobooks)[':id']['chapters']['$get']>,
+export function getGetBrowseCategoriesQueryKey(
+  args: InferRequestType<typeof client.browse.categories.$get>,
 ) {
-  return ['/audiobooks/:id/chapters', args] as const
+  return ['browse', 'GET', '/browse/categories', args] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /browse/categories
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetBrowseCategoriesQueryOptions = (
+  args: InferRequestType<typeof client.browse.categories.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetBrowseCategoriesQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.browse.categories.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /browse/categories
@@ -624,38 +856,54 @@ export function getGetAudiobooksIdChaptersQueryKey(
  */
 export function createGetBrowseCategories(
   args: InferRequestType<typeof client.browse.categories.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.browse.categories.$get>,
-      Error,
-      InferResponseType<typeof client.browse.categories.$get>,
-      readonly ['/browse/categories', InferRequestType<typeof client.browse.categories.$get>]
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.browse.categories.$get>>>>
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetBrowseCategoriesQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.browse.categories.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetBrowseCategoriesQueryOptions(
+      args,
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /browse/categories
+ * Generates Svelte Query cache key for GET /browse/categories/{category_id}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetBrowseCategoriesQueryKey(
-  args: InferRequestType<typeof client.browse.categories.$get>,
+export function getGetBrowseCategoriesCategoryIdQueryKey(
+  args: InferRequestType<(typeof client.browse.categories)[':category_id']['$get']>,
 ) {
-  return ['/browse/categories', args] as const
+  return ['browse', 'GET', '/browse/categories/:category_id', args] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /browse/categories/{category_id}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetBrowseCategoriesCategoryIdQueryOptions = (
+  args: InferRequestType<(typeof client.browse.categories)[':category_id']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetBrowseCategoriesCategoryIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.browse.categories[':category_id'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /browse/categories/{category_id}
@@ -666,42 +914,58 @@ export function getGetBrowseCategoriesQueryKey(
  */
 export function createGetBrowseCategoriesCategoryId(
   args: InferRequestType<(typeof client.browse.categories)[':category_id']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<(typeof client.browse.categories)[':category_id']['$get']>,
-      Error,
-      InferResponseType<(typeof client.browse.categories)[':category_id']['$get']>,
-      readonly [
-        '/browse/categories/:category_id',
-        InferRequestType<(typeof client.browse.categories)[':category_id']['$get']>,
-      ]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.browse.categories)[':category_id']['$get']>>
+          >
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetBrowseCategoriesCategoryIdQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.browse.categories[':category_id'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetBrowseCategoriesCategoryIdQueryOptions(
+      args,
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /browse/categories/{category_id}
+ * Generates Svelte Query cache key for GET /browse/categories/{category_id}/playlists
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetBrowseCategoriesCategoryIdQueryKey(
-  args: InferRequestType<(typeof client.browse.categories)[':category_id']['$get']>,
+export function getGetBrowseCategoriesCategoryIdPlaylistsQueryKey(
+  args: InferRequestType<(typeof client.browse.categories)[':category_id']['playlists']['$get']>,
 ) {
-  return ['/browse/categories/:category_id', args] as const
+  return ['browse', 'GET', '/browse/categories/:category_id/playlists', args] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /browse/categories/{category_id}/playlists
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetBrowseCategoriesCategoryIdPlaylistsQueryOptions = (
+  args: InferRequestType<(typeof client.browse.categories)[':category_id']['playlists']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetBrowseCategoriesCategoryIdPlaylistsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.browse.categories[':category_id'].playlists.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /browse/categories/{category_id}/playlists
@@ -712,42 +976,58 @@ export function getGetBrowseCategoriesCategoryIdQueryKey(
  */
 export function createGetBrowseCategoriesCategoryIdPlaylists(
   args: InferRequestType<(typeof client.browse.categories)[':category_id']['playlists']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<(typeof client.browse.categories)[':category_id']['playlists']['$get']>,
-      Error,
-      InferResponseType<(typeof client.browse.categories)[':category_id']['playlists']['$get']>,
-      readonly [
-        '/browse/categories/:category_id/playlists',
-        InferRequestType<(typeof client.browse.categories)[':category_id']['playlists']['$get']>,
-      ]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<(typeof client.browse.categories)[':category_id']['playlists']['$get']>
+            >
+          >
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetBrowseCategoriesCategoryIdPlaylistsQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.browse.categories[':category_id'].playlists.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } =
+      getGetBrowseCategoriesCategoryIdPlaylistsQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /browse/categories/{category_id}/playlists
+ * Generates Svelte Query cache key for GET /browse/featured-playlists
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetBrowseCategoriesCategoryIdPlaylistsQueryKey(
-  args: InferRequestType<(typeof client.browse.categories)[':category_id']['playlists']['$get']>,
+export function getGetBrowseFeaturedPlaylistsQueryKey(
+  args: InferRequestType<(typeof client.browse)['featured-playlists']['$get']>,
 ) {
-  return ['/browse/categories/:category_id/playlists', args] as const
+  return ['browse', 'GET', '/browse/featured-playlists', args] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /browse/featured-playlists
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetBrowseFeaturedPlaylistsQueryOptions = (
+  args: InferRequestType<(typeof client.browse)['featured-playlists']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetBrowseFeaturedPlaylistsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.browse['featured-playlists'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /browse/featured-playlists
@@ -758,42 +1038,58 @@ export function getGetBrowseCategoriesCategoryIdPlaylistsQueryKey(
  */
 export function createGetBrowseFeaturedPlaylists(
   args: InferRequestType<(typeof client.browse)['featured-playlists']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<(typeof client.browse)['featured-playlists']['$get']>,
-      Error,
-      InferResponseType<(typeof client.browse)['featured-playlists']['$get']>,
-      readonly [
-        '/browse/featured-playlists',
-        InferRequestType<(typeof client.browse)['featured-playlists']['$get']>,
-      ]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.browse)['featured-playlists']['$get']>>
+          >
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetBrowseFeaturedPlaylistsQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.browse['featured-playlists'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetBrowseFeaturedPlaylistsQueryOptions(
+      args,
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /browse/featured-playlists
+ * Generates Svelte Query cache key for GET /browse/new-releases
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetBrowseFeaturedPlaylistsQueryKey(
-  args: InferRequestType<(typeof client.browse)['featured-playlists']['$get']>,
+export function getGetBrowseNewReleasesQueryKey(
+  args: InferRequestType<(typeof client.browse)['new-releases']['$get']>,
 ) {
-  return ['/browse/featured-playlists', args] as const
+  return ['browse', 'GET', '/browse/new-releases', args] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /browse/new-releases
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetBrowseNewReleasesQueryOptions = (
+  args: InferRequestType<(typeof client.browse)['new-releases']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetBrowseNewReleasesQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.browse['new-releases'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /browse/new-releases
@@ -804,41 +1100,51 @@ export function getGetBrowseFeaturedPlaylistsQueryKey(
  */
 export function createGetBrowseNewReleases(
   args: InferRequestType<(typeof client.browse)['new-releases']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<(typeof client.browse)['new-releases']['$get']>,
-      Error,
-      InferResponseType<(typeof client.browse)['new-releases']['$get']>,
-      readonly [
-        '/browse/new-releases',
-        InferRequestType<(typeof client.browse)['new-releases']['$get']>,
-      ]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.browse)['new-releases']['$get']>>>
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetBrowseNewReleasesQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.browse['new-releases'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetBrowseNewReleasesQueryOptions(
+      args,
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /browse/new-releases
+ * Generates Svelte Query cache key for GET /chapters
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetBrowseNewReleasesQueryKey(
-  args: InferRequestType<(typeof client.browse)['new-releases']['$get']>,
-) {
-  return ['/browse/new-releases', args] as const
+export function getGetChaptersQueryKey(args: InferRequestType<typeof client.chapters.$get>) {
+  return ['chapters', 'GET', '/chapters', args] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /chapters
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetChaptersQueryOptions = (
+  args: InferRequestType<typeof client.chapters.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetChaptersQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.chapters.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /chapters
@@ -850,36 +1156,49 @@ export function getGetBrowseNewReleasesQueryKey(
  */
 export function createGetChapters(
   args: InferRequestType<typeof client.chapters.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.chapters.$get>,
-      Error,
-      InferResponseType<typeof client.chapters.$get>,
-      readonly ['/chapters', InferRequestType<typeof client.chapters.$get>]
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.chapters.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetChaptersQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.chapters.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetChaptersQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /chapters
+ * Generates Svelte Query cache key for GET /chapters/{id}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetChaptersQueryKey(args: InferRequestType<typeof client.chapters.$get>) {
-  return ['/chapters', args] as const
+export function getGetChaptersIdQueryKey(
+  args: InferRequestType<(typeof client.chapters)[':id']['$get']>,
+) {
+  return ['chapters', 'GET', '/chapters/:id', args] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /chapters/{id}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetChaptersIdQueryOptions = (
+  args: InferRequestType<(typeof client.chapters)[':id']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetChaptersIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.chapters[':id'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /chapters/{id}
@@ -891,38 +1210,48 @@ export function getGetChaptersQueryKey(args: InferRequestType<typeof client.chap
  */
 export function createGetChaptersId(
   args: InferRequestType<(typeof client.chapters)[':id']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<(typeof client.chapters)[':id']['$get']>,
-      Error,
-      InferResponseType<(typeof client.chapters)[':id']['$get']>,
-      readonly ['/chapters/:id', InferRequestType<(typeof client.chapters)[':id']['$get']>]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.chapters)[':id']['$get']>>>
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetChaptersIdQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.chapters[':id'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetChaptersIdQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /chapters/{id}
+ * Generates Svelte Query cache key for GET /episodes
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetChaptersIdQueryKey(
-  args: InferRequestType<(typeof client.chapters)[':id']['$get']>,
-) {
-  return ['/chapters/:id', args] as const
+export function getGetEpisodesQueryKey(args: InferRequestType<typeof client.episodes.$get>) {
+  return ['episodes', 'GET', '/episodes', args] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /episodes
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetEpisodesQueryOptions = (
+  args: InferRequestType<typeof client.episodes.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetEpisodesQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.episodes.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /episodes
@@ -933,36 +1262,49 @@ export function getGetChaptersIdQueryKey(
  */
 export function createGetEpisodes(
   args: InferRequestType<typeof client.episodes.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.episodes.$get>,
-      Error,
-      InferResponseType<typeof client.episodes.$get>,
-      readonly ['/episodes', InferRequestType<typeof client.episodes.$get>]
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.episodes.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetEpisodesQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.episodes.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetEpisodesQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /episodes
+ * Generates Svelte Query cache key for GET /episodes/{id}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetEpisodesQueryKey(args: InferRequestType<typeof client.episodes.$get>) {
-  return ['/episodes', args] as const
+export function getGetEpisodesIdQueryKey(
+  args: InferRequestType<(typeof client.episodes)[':id']['$get']>,
+) {
+  return ['episodes', 'GET', '/episodes/:id', args] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /episodes/{id}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetEpisodesIdQueryOptions = (
+  args: InferRequestType<(typeof client.episodes)[':id']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetEpisodesIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.episodes[':id'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /episodes/{id}
@@ -974,38 +1316,48 @@ export function getGetEpisodesQueryKey(args: InferRequestType<typeof client.epis
  */
 export function createGetEpisodesId(
   args: InferRequestType<(typeof client.episodes)[':id']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<(typeof client.episodes)[':id']['$get']>,
-      Error,
-      InferResponseType<(typeof client.episodes)[':id']['$get']>,
-      readonly ['/episodes/:id', InferRequestType<(typeof client.episodes)[':id']['$get']>]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.episodes)[':id']['$get']>>>
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetEpisodesIdQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.episodes[':id'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetEpisodesIdQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /episodes/{id}
+ * Generates Svelte Query cache key for GET /markets
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetEpisodesIdQueryKey(
-  args: InferRequestType<(typeof client.episodes)[':id']['$get']>,
-) {
-  return ['/episodes/:id', args] as const
+export function getGetMarketsQueryKey() {
+  return ['markets', 'GET', '/markets'] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /markets
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetMarketsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetMarketsQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.markets.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /markets
@@ -1015,36 +1367,41 @@ export function getGetEpisodesIdQueryKey(
  * Get the list of markets where Spotify is available.
  */
 export function createGetMarkets(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.markets.$get>,
-      Error,
-      InferResponseType<typeof client.markets.$get>,
-      readonly ['/markets']
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.markets.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetMarketsQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.markets.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetMarketsQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /markets
+ * Generates Svelte Query cache key for GET /me
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetMarketsQueryKey() {
-  return ['/markets'] as const
+export function getGetMeQueryKey() {
+  return ['me', 'GET', '/me'] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /me
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetMeQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetMeQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.me.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /me
@@ -1055,36 +1412,44 @@ export function getGetMarketsQueryKey() {
  * current user's username).
  */
 export function createGetMe(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.me.$get>,
-      Error,
-      InferResponseType<typeof client.me.$get>,
-      readonly ['/me']
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetMeQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.me.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetMeQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /me
+ * Generates Svelte Query cache key for GET /me/albums
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetMeQueryKey() {
-  return ['/me'] as const
+export function getGetMeAlbumsQueryKey(args: InferRequestType<typeof client.me.albums.$get>) {
+  return ['me', 'GET', '/me/albums', args] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /me/albums
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetMeAlbumsQueryOptions = (
+  args: InferRequestType<typeof client.me.albums.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetMeAlbumsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.me.albums.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /me/albums
@@ -1095,36 +1460,39 @@ export function getGetMeQueryKey() {
  */
 export function createGetMeAlbums(
   args: InferRequestType<typeof client.me.albums.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.me.albums.$get>,
-      Error,
-      InferResponseType<typeof client.me.albums.$get>,
-      readonly ['/me/albums', InferRequestType<typeof client.me.albums.$get>]
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.albums.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetMeAlbumsQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.me.albums.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetMeAlbumsQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /me/albums
+ * Generates Svelte Query mutation key for PUT /me/albums
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetMeAlbumsQueryKey(args: InferRequestType<typeof client.me.albums.$get>) {
-  return ['/me/albums', args] as const
+export function getPutMeAlbumsMutationKey() {
+  return ['me', 'PUT', '/me/albums'] as const
 }
+
+/**
+ * Returns Svelte Query mutation options for PUT /me/albums
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutMeAlbumsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPutMeAlbumsMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.me.albums.$put>) =>
+    parseResponse(client.me.albums.$put(args, clientOptions)),
+})
 
 /**
  * PUT /me/albums
@@ -1134,28 +1502,40 @@ export function getGetMeAlbumsQueryKey(args: InferRequestType<typeof client.me.a
  * Save one or more albums to the current user's 'Your Music' library.
  */
 export function createPutMeAlbums(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.me.albums.$put> | undefined,
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.albums.$put>>>>>,
       Error,
       InferRequestType<typeof client.me.albums.$put>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.me.albums.$put> | undefined,
-    Error,
-    InferRequestType<typeof client.me.albums.$put>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.me.albums.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPutMeAlbumsMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query mutation key for DELETE /me/albums
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getDeleteMeAlbumsMutationKey() {
+  return ['me', 'DELETE', '/me/albums'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /me/albums
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteMeAlbumsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getDeleteMeAlbumsMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.me.albums.$delete>) =>
+    parseResponse(client.me.albums.$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /me/albums
@@ -1165,28 +1545,54 @@ export function createPutMeAlbums(
  * Remove one or more albums from the current user's 'Your Music' library.
  */
 export function createDeleteMeAlbums(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.me.albums.$delete> | undefined,
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.albums.$delete>>>>
+      >,
       Error,
       InferRequestType<typeof client.me.albums.$delete>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.me.albums.$delete> | undefined,
-    Error,
-    InferRequestType<typeof client.me.albums.$delete>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.me.albums.$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getDeleteMeAlbumsMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query cache key for GET /me/albums/contains
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetMeAlbumsContainsQueryKey(
+  args: InferRequestType<typeof client.me.albums.contains.$get>,
+) {
+  return ['me', 'GET', '/me/albums/contains', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /me/albums/contains
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetMeAlbumsContainsQueryOptions = (
+  args: InferRequestType<typeof client.me.albums.contains.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetMeAlbumsContainsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.me.albums.contains.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /me/albums/contains
@@ -1197,38 +1603,54 @@ export function createDeleteMeAlbums(
  */
 export function createGetMeAlbumsContains(
   args: InferRequestType<typeof client.me.albums.contains.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.me.albums.contains.$get>,
-      Error,
-      InferResponseType<typeof client.me.albums.contains.$get>,
-      readonly ['/me/albums/contains', InferRequestType<typeof client.me.albums.contains.$get>]
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.albums.contains.$get>>>>
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetMeAlbumsContainsQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.me.albums.contains.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetMeAlbumsContainsQueryOptions(
+      args,
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /me/albums/contains
+ * Generates Svelte Query cache key for GET /me/audiobooks
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetMeAlbumsContainsQueryKey(
-  args: InferRequestType<typeof client.me.albums.contains.$get>,
+export function getGetMeAudiobooksQueryKey(
+  args: InferRequestType<typeof client.me.audiobooks.$get>,
 ) {
-  return ['/me/albums/contains', args] as const
+  return ['me', 'GET', '/me/audiobooks', args] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /me/audiobooks
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetMeAudiobooksQueryOptions = (
+  args: InferRequestType<typeof client.me.audiobooks.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetMeAudiobooksQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.me.audiobooks.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /me/audiobooks
@@ -1239,38 +1661,41 @@ export function getGetMeAlbumsContainsQueryKey(
  */
 export function createGetMeAudiobooks(
   args: InferRequestType<typeof client.me.audiobooks.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.me.audiobooks.$get>,
-      Error,
-      InferResponseType<typeof client.me.audiobooks.$get>,
-      readonly ['/me/audiobooks', InferRequestType<typeof client.me.audiobooks.$get>]
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.audiobooks.$get>>>>
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetMeAudiobooksQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.me.audiobooks.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetMeAudiobooksQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /me/audiobooks
+ * Generates Svelte Query mutation key for PUT /me/audiobooks
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetMeAudiobooksQueryKey(
-  args: InferRequestType<typeof client.me.audiobooks.$get>,
-) {
-  return ['/me/audiobooks', args] as const
+export function getPutMeAudiobooksMutationKey() {
+  return ['me', 'PUT', '/me/audiobooks'] as const
 }
+
+/**
+ * Returns Svelte Query mutation options for PUT /me/audiobooks
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutMeAudiobooksMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPutMeAudiobooksMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.me.audiobooks.$put>) =>
+    parseResponse(client.me.audiobooks.$put(args, clientOptions)),
+})
 
 /**
  * PUT /me/audiobooks
@@ -1280,28 +1705,44 @@ export function getGetMeAudiobooksQueryKey(
  * Save one or more audiobooks to the current Spotify user's library.
  */
 export function createPutMeAudiobooks(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.me.audiobooks.$put> | undefined,
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.audiobooks.$put>>>>
+      >,
       Error,
       InferRequestType<typeof client.me.audiobooks.$put>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.me.audiobooks.$put> | undefined,
-    Error,
-    InferRequestType<typeof client.me.audiobooks.$put>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.me.audiobooks.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPutMeAudiobooksMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query mutation key for DELETE /me/audiobooks
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getDeleteMeAudiobooksMutationKey() {
+  return ['me', 'DELETE', '/me/audiobooks'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /me/audiobooks
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteMeAudiobooksMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getDeleteMeAudiobooksMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.me.audiobooks.$delete>) =>
+    parseResponse(client.me.audiobooks.$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /me/audiobooks
@@ -1311,29 +1752,54 @@ export function createPutMeAudiobooks(
  * Remove one or more audiobooks from the Spotify user's library.
  */
 export function createDeleteMeAudiobooks(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.me.audiobooks.$delete> | undefined,
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.audiobooks.$delete>>>>
+      >,
       Error,
       InferRequestType<typeof client.me.audiobooks.$delete>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.me.audiobooks.$delete> | undefined,
-    Error,
-    InferRequestType<typeof client.me.audiobooks.$delete>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.me.audiobooks.$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getDeleteMeAudiobooksMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query cache key for GET /me/audiobooks/contains
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetMeAudiobooksContainsQueryKey(
+  args: InferRequestType<typeof client.me.audiobooks.contains.$get>,
+) {
+  return ['me', 'GET', '/me/audiobooks/contains', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /me/audiobooks/contains
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetMeAudiobooksContainsQueryOptions = (
+  args: InferRequestType<typeof client.me.audiobooks.contains.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetMeAudiobooksContainsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.me.audiobooks.contains.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /me/audiobooks/contains
@@ -1344,41 +1810,51 @@ export function createDeleteMeAudiobooks(
  */
 export function createGetMeAudiobooksContains(
   args: InferRequestType<typeof client.me.audiobooks.contains.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.me.audiobooks.contains.$get>,
-      Error,
-      InferResponseType<typeof client.me.audiobooks.contains.$get>,
-      readonly [
-        '/me/audiobooks/contains',
-        InferRequestType<typeof client.me.audiobooks.contains.$get>,
-      ]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<typeof client.me.audiobooks.contains.$get>>>
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetMeAudiobooksContainsQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.me.audiobooks.contains.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetMeAudiobooksContainsQueryOptions(
+      args,
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /me/audiobooks/contains
+ * Generates Svelte Query cache key for GET /me/episodes
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetMeAudiobooksContainsQueryKey(
-  args: InferRequestType<typeof client.me.audiobooks.contains.$get>,
-) {
-  return ['/me/audiobooks/contains', args] as const
+export function getGetMeEpisodesQueryKey(args: InferRequestType<typeof client.me.episodes.$get>) {
+  return ['me', 'GET', '/me/episodes', args] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /me/episodes
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetMeEpisodesQueryOptions = (
+  args: InferRequestType<typeof client.me.episodes.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetMeEpisodesQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.me.episodes.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /me/episodes
@@ -1390,36 +1866,41 @@ export function getGetMeAudiobooksContainsQueryKey(
  */
 export function createGetMeEpisodes(
   args: InferRequestType<typeof client.me.episodes.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.me.episodes.$get>,
-      Error,
-      InferResponseType<typeof client.me.episodes.$get>,
-      readonly ['/me/episodes', InferRequestType<typeof client.me.episodes.$get>]
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.episodes.$get>>>>
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetMeEpisodesQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.me.episodes.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetMeEpisodesQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /me/episodes
+ * Generates Svelte Query mutation key for PUT /me/episodes
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetMeEpisodesQueryKey(args: InferRequestType<typeof client.me.episodes.$get>) {
-  return ['/me/episodes', args] as const
+export function getPutMeEpisodesMutationKey() {
+  return ['me', 'PUT', '/me/episodes'] as const
 }
+
+/**
+ * Returns Svelte Query mutation options for PUT /me/episodes
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutMeEpisodesMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPutMeEpisodesMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.me.episodes.$put>) =>
+    parseResponse(client.me.episodes.$put(args, clientOptions)),
+})
 
 /**
  * PUT /me/episodes
@@ -1430,28 +1911,44 @@ export function getGetMeEpisodesQueryKey(args: InferRequestType<typeof client.me
  * This API endpoint is in __beta__ and could change without warning. Please share any feedback that you have, or issues that you discover, in our [developer community forum](https://community.spotify.com/t5/Spotify-for-Developers/bd-p/Spotify_Developer).
  */
 export function createPutMeEpisodes(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.me.episodes.$put> | undefined,
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.episodes.$put>>>>
+      >,
       Error,
       InferRequestType<typeof client.me.episodes.$put>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.me.episodes.$put> | undefined,
-    Error,
-    InferRequestType<typeof client.me.episodes.$put>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.me.episodes.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPutMeEpisodesMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query mutation key for DELETE /me/episodes
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getDeleteMeEpisodesMutationKey() {
+  return ['me', 'DELETE', '/me/episodes'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /me/episodes
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteMeEpisodesMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getDeleteMeEpisodesMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.me.episodes.$delete>) =>
+    parseResponse(client.me.episodes.$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /me/episodes
@@ -1462,28 +1959,54 @@ export function createPutMeEpisodes(
  * This API endpoint is in __beta__ and could change without warning. Please share any feedback that you have, or issues that you discover, in our [developer community forum](https://community.spotify.com/t5/Spotify-for-Developers/bd-p/Spotify_Developer).
  */
 export function createDeleteMeEpisodes(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.me.episodes.$delete> | undefined,
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.episodes.$delete>>>>
+      >,
       Error,
       InferRequestType<typeof client.me.episodes.$delete>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.me.episodes.$delete> | undefined,
-    Error,
-    InferRequestType<typeof client.me.episodes.$delete>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.me.episodes.$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getDeleteMeEpisodesMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query cache key for GET /me/episodes/contains
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetMeEpisodesContainsQueryKey(
+  args: InferRequestType<typeof client.me.episodes.contains.$get>,
+) {
+  return ['me', 'GET', '/me/episodes/contains', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /me/episodes/contains
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetMeEpisodesContainsQueryOptions = (
+  args: InferRequestType<typeof client.me.episodes.contains.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetMeEpisodesContainsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.me.episodes.contains.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /me/episodes/contains
@@ -1495,38 +2018,54 @@ export function createDeleteMeEpisodes(
  */
 export function createGetMeEpisodesContains(
   args: InferRequestType<typeof client.me.episodes.contains.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.me.episodes.contains.$get>,
-      Error,
-      InferResponseType<typeof client.me.episodes.contains.$get>,
-      readonly ['/me/episodes/contains', InferRequestType<typeof client.me.episodes.contains.$get>]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<typeof client.me.episodes.contains.$get>>>
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetMeEpisodesContainsQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.me.episodes.contains.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetMeEpisodesContainsQueryOptions(
+      args,
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /me/episodes/contains
+ * Generates Svelte Query cache key for GET /me/following
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetMeEpisodesContainsQueryKey(
-  args: InferRequestType<typeof client.me.episodes.contains.$get>,
-) {
-  return ['/me/episodes/contains', args] as const
+export function getGetMeFollowingQueryKey(args: InferRequestType<typeof client.me.following.$get>) {
+  return ['me', 'GET', '/me/following', args] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /me/following
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetMeFollowingQueryOptions = (
+  args: InferRequestType<typeof client.me.following.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetMeFollowingQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.me.following.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /me/following
@@ -1537,36 +2076,41 @@ export function getGetMeEpisodesContainsQueryKey(
  */
 export function createGetMeFollowing(
   args: InferRequestType<typeof client.me.following.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.me.following.$get>,
-      Error,
-      InferResponseType<typeof client.me.following.$get>,
-      readonly ['/me/following', InferRequestType<typeof client.me.following.$get>]
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.following.$get>>>>
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetMeFollowingQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.me.following.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetMeFollowingQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /me/following
+ * Generates Svelte Query mutation key for PUT /me/following
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetMeFollowingQueryKey(args: InferRequestType<typeof client.me.following.$get>) {
-  return ['/me/following', args] as const
+export function getPutMeFollowingMutationKey() {
+  return ['me', 'PUT', '/me/following'] as const
 }
+
+/**
+ * Returns Svelte Query mutation options for PUT /me/following
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutMeFollowingMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPutMeFollowingMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.me.following.$put>) =>
+    parseResponse(client.me.following.$put(args, clientOptions)),
+})
 
 /**
  * PUT /me/following
@@ -1576,28 +2120,45 @@ export function getGetMeFollowingQueryKey(args: InferRequestType<typeof client.m
  * Add the current user as a follower of one or more artists or other Spotify users.
  */
 export function createPutMeFollowing(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.me.following.$put> | undefined,
+      | Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.following.$put>>>>
+        >
+      | undefined,
       Error,
       InferRequestType<typeof client.me.following.$put>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.me.following.$put> | undefined,
-    Error,
-    InferRequestType<typeof client.me.following.$put>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.me.following.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPutMeFollowingMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query mutation key for DELETE /me/following
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getDeleteMeFollowingMutationKey() {
+  return ['me', 'DELETE', '/me/following'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /me/following
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteMeFollowingMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getDeleteMeFollowingMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.me.following.$delete>) =>
+    parseResponse(client.me.following.$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /me/following
@@ -1607,28 +2168,54 @@ export function createPutMeFollowing(
  * Remove the current user as a follower of one or more artists or other Spotify users.
  */
 export function createDeleteMeFollowing(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.me.following.$delete> | undefined,
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.following.$delete>>>>
+      >,
       Error,
       InferRequestType<typeof client.me.following.$delete>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.me.following.$delete> | undefined,
-    Error,
-    InferRequestType<typeof client.me.following.$delete>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.me.following.$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getDeleteMeFollowingMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query cache key for GET /me/following/contains
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetMeFollowingContainsQueryKey(
+  args: InferRequestType<typeof client.me.following.contains.$get>,
+) {
+  return ['me', 'GET', '/me/following/contains', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /me/following/contains
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetMeFollowingContainsQueryOptions = (
+  args: InferRequestType<typeof client.me.following.contains.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetMeFollowingContainsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.me.following.contains.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /me/following/contains
@@ -1639,41 +2226,51 @@ export function createDeleteMeFollowing(
  */
 export function createGetMeFollowingContains(
   args: InferRequestType<typeof client.me.following.contains.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.me.following.contains.$get>,
-      Error,
-      InferResponseType<typeof client.me.following.contains.$get>,
-      readonly [
-        '/me/following/contains',
-        InferRequestType<typeof client.me.following.contains.$get>,
-      ]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<typeof client.me.following.contains.$get>>>
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetMeFollowingContainsQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.me.following.contains.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetMeFollowingContainsQueryOptions(
+      args,
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /me/following/contains
+ * Generates Svelte Query cache key for GET /me/player
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetMeFollowingContainsQueryKey(
-  args: InferRequestType<typeof client.me.following.contains.$get>,
-) {
-  return ['/me/following/contains', args] as const
+export function getGetMePlayerQueryKey(args: InferRequestType<typeof client.me.player.$get>) {
+  return ['me', 'GET', '/me/player', args] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /me/player
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetMePlayerQueryOptions = (
+  args: InferRequestType<typeof client.me.player.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetMePlayerQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.me.player.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /me/player
@@ -1684,36 +2281,39 @@ export function getGetMeFollowingContainsQueryKey(
  */
 export function createGetMePlayer(
   args: InferRequestType<typeof client.me.player.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.me.player.$get>,
-      Error,
-      InferResponseType<typeof client.me.player.$get>,
-      readonly ['/me/player', InferRequestType<typeof client.me.player.$get>]
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.player.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetMePlayerQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.me.player.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetMePlayerQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /me/player
+ * Generates Svelte Query mutation key for PUT /me/player
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetMePlayerQueryKey(args: InferRequestType<typeof client.me.player.$get>) {
-  return ['/me/player', args] as const
+export function getPutMePlayerMutationKey() {
+  return ['me', 'PUT', '/me/player'] as const
 }
+
+/**
+ * Returns Svelte Query mutation options for PUT /me/player
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutMePlayerMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPutMePlayerMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.me.player.$put>) =>
+    parseResponse(client.me.player.$put(args, clientOptions)),
+})
 
 /**
  * PUT /me/player
@@ -1723,28 +2323,51 @@ export function getGetMePlayerQueryKey(args: InferRequestType<typeof client.me.p
  * Transfer playback to a new device and determine if it should start playing.
  */
 export function createPutMePlayer(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.me.player.$put> | undefined,
+      | Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.player.$put>>>>>
+      | undefined,
       Error,
       InferRequestType<typeof client.me.player.$put>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.me.player.$put> | undefined,
-    Error,
-    InferRequestType<typeof client.me.player.$put>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.me.player.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPutMePlayerMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query cache key for GET /me/player/currently-playing
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetMePlayerCurrentlyPlayingQueryKey(
+  args: InferRequestType<(typeof client.me.player)['currently-playing']['$get']>,
+) {
+  return ['me', 'GET', '/me/player/currently-playing', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /me/player/currently-playing
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetMePlayerCurrentlyPlayingQueryOptions = (
+  args: InferRequestType<(typeof client.me.player)['currently-playing']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetMePlayerCurrentlyPlayingQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.me.player['currently-playing'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /me/player/currently-playing
@@ -1755,42 +2378,53 @@ export function createPutMePlayer(
  */
 export function createGetMePlayerCurrentlyPlaying(
   args: InferRequestType<(typeof client.me.player)['currently-playing']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<(typeof client.me.player)['currently-playing']['$get']>,
-      Error,
-      InferResponseType<(typeof client.me.player)['currently-playing']['$get']>,
-      readonly [
-        '/me/player/currently-playing',
-        InferRequestType<(typeof client.me.player)['currently-playing']['$get']>,
-      ]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.me.player)['currently-playing']['$get']>>
+          >
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetMePlayerCurrentlyPlayingQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.me.player['currently-playing'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetMePlayerCurrentlyPlayingQueryOptions(
+      args,
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /me/player/currently-playing
+ * Generates Svelte Query cache key for GET /me/player/devices
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetMePlayerCurrentlyPlayingQueryKey(
-  args: InferRequestType<(typeof client.me.player)['currently-playing']['$get']>,
-) {
-  return ['/me/player/currently-playing', args] as const
+export function getGetMePlayerDevicesQueryKey() {
+  return ['me', 'GET', '/me/player/devices'] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /me/player/devices
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetMePlayerDevicesQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetMePlayerDevicesQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.me.player.devices.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /me/player/devices
@@ -1800,36 +2434,41 @@ export function getGetMePlayerCurrentlyPlayingQueryKey(
  * Get information about a user’s available devices.
  */
 export function createGetMePlayerDevices(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.me.player.devices.$get>,
-      Error,
-      InferResponseType<typeof client.me.player.devices.$get>,
-      readonly ['/me/player/devices']
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.player.devices.$get>>>>
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetMePlayerDevicesQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.me.player.devices.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetMePlayerDevicesQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /me/player/devices
+ * Generates Svelte Query mutation key for POST /me/player/next
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetMePlayerDevicesQueryKey() {
-  return ['/me/player/devices'] as const
+export function getPostMePlayerNextMutationKey() {
+  return ['me', 'POST', '/me/player/next'] as const
 }
+
+/**
+ * Returns Svelte Query mutation options for POST /me/player/next
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostMePlayerNextMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostMePlayerNextMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.me.player.next.$post>) =>
+    parseResponse(client.me.player.next.$post(args, clientOptions)),
+})
 
 /**
  * POST /me/player/next
@@ -1839,28 +2478,45 @@ export function getGetMePlayerDevicesQueryKey() {
  * Skips to next track in the user’s queue.
  */
 export function createPostMePlayerNext(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.me.player.next.$post> | undefined,
+      | Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.player.next.$post>>>>
+        >
+      | undefined,
       Error,
       InferRequestType<typeof client.me.player.next.$post>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.me.player.next.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.me.player.next.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.me.player.next.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostMePlayerNextMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query mutation key for PUT /me/player/pause
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPutMePlayerPauseMutationKey() {
+  return ['me', 'PUT', '/me/player/pause'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PUT /me/player/pause
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutMePlayerPauseMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPutMePlayerPauseMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.me.player.pause.$put>) =>
+    parseResponse(client.me.player.pause.$put(args, clientOptions)),
+})
 
 /**
  * PUT /me/player/pause
@@ -1870,28 +2526,45 @@ export function createPostMePlayerNext(
  * Pause playback on the user's account.
  */
 export function createPutMePlayerPause(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.me.player.pause.$put> | undefined,
+      | Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.player.pause.$put>>>>
+        >
+      | undefined,
       Error,
       InferRequestType<typeof client.me.player.pause.$put>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.me.player.pause.$put> | undefined,
-    Error,
-    InferRequestType<typeof client.me.player.pause.$put>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.me.player.pause.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPutMePlayerPauseMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query mutation key for PUT /me/player/play
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPutMePlayerPlayMutationKey() {
+  return ['me', 'PUT', '/me/player/play'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PUT /me/player/play
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutMePlayerPlayMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPutMePlayerPlayMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.me.player.play.$put>) =>
+    parseResponse(client.me.player.play.$put(args, clientOptions)),
+})
 
 /**
  * PUT /me/player/play
@@ -1901,28 +2574,45 @@ export function createPutMePlayerPause(
  * Start a new context or resume current playback on the user's active device.
  */
 export function createPutMePlayerPlay(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.me.player.play.$put> | undefined,
+      | Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.player.play.$put>>>>
+        >
+      | undefined,
       Error,
       InferRequestType<typeof client.me.player.play.$put>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.me.player.play.$put> | undefined,
-    Error,
-    InferRequestType<typeof client.me.player.play.$put>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.me.player.play.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPutMePlayerPlayMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query mutation key for POST /me/player/previous
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostMePlayerPreviousMutationKey() {
+  return ['me', 'POST', '/me/player/previous'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /me/player/previous
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostMePlayerPreviousMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostMePlayerPreviousMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.me.player.previous.$post>) =>
+    parseResponse(client.me.player.previous.$post(args, clientOptions)),
+})
 
 /**
  * POST /me/player/previous
@@ -1932,29 +2622,52 @@ export function createPutMePlayerPlay(
  * Skips to previous track in the user’s queue.
  */
 export function createPostMePlayerPrevious(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.me.player.previous.$post> | undefined,
+      | Awaited<
+          ReturnType<
+            typeof parseResponse<Awaited<ReturnType<typeof client.me.player.previous.$post>>>
+          >
+        >
+      | undefined,
       Error,
       InferRequestType<typeof client.me.player.previous.$post>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.me.player.previous.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.me.player.previous.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.me.player.previous.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostMePlayerPreviousMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query cache key for GET /me/player/queue
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGetMePlayerQueueQueryKey() {
+  return ['me', 'GET', '/me/player/queue'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /me/player/queue
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetMePlayerQueueQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetMePlayerQueueQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.me.player.queue.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /me/player/queue
@@ -1964,36 +2677,41 @@ export function createPostMePlayerPrevious(
  * Get the list of objects that make up the user's queue.
  */
 export function createGetMePlayerQueue(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.me.player.queue.$get>,
-      Error,
-      InferResponseType<typeof client.me.player.queue.$get>,
-      readonly ['/me/player/queue']
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.player.queue.$get>>>>
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetMePlayerQueueQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.me.player.queue.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetMePlayerQueueQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /me/player/queue
+ * Generates Svelte Query mutation key for POST /me/player/queue
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetMePlayerQueueQueryKey() {
-  return ['/me/player/queue'] as const
+export function getPostMePlayerQueueMutationKey() {
+  return ['me', 'POST', '/me/player/queue'] as const
 }
+
+/**
+ * Returns Svelte Query mutation options for POST /me/player/queue
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostMePlayerQueueMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostMePlayerQueueMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.me.player.queue.$post>) =>
+    parseResponse(client.me.player.queue.$post(args, clientOptions)),
+})
 
 /**
  * POST /me/player/queue
@@ -2003,29 +2721,55 @@ export function getGetMePlayerQueueQueryKey() {
  * Add an item to the end of the user's current playback queue.
  */
 export function createPostMePlayerQueue(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.me.player.queue.$post> | undefined,
+      | Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.player.queue.$post>>>>
+        >
+      | undefined,
       Error,
       InferRequestType<typeof client.me.player.queue.$post>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.me.player.queue.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.me.player.queue.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.me.player.queue.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostMePlayerQueueMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query cache key for GET /me/player/recently-played
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetMePlayerRecentlyPlayedQueryKey(
+  args: InferRequestType<(typeof client.me.player)['recently-played']['$get']>,
+) {
+  return ['me', 'GET', '/me/player/recently-played', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /me/player/recently-played
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetMePlayerRecentlyPlayedQueryOptions = (
+  args: InferRequestType<(typeof client.me.player)['recently-played']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetMePlayerRecentlyPlayedQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.me.player['recently-played'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /me/player/recently-played
@@ -2037,42 +2781,48 @@ export function createPostMePlayerQueue(
  */
 export function createGetMePlayerRecentlyPlayed(
   args: InferRequestType<(typeof client.me.player)['recently-played']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<(typeof client.me.player)['recently-played']['$get']>,
-      Error,
-      InferResponseType<(typeof client.me.player)['recently-played']['$get']>,
-      readonly [
-        '/me/player/recently-played',
-        InferRequestType<(typeof client.me.player)['recently-played']['$get']>,
-      ]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.me.player)['recently-played']['$get']>>
+          >
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetMePlayerRecentlyPlayedQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.me.player['recently-played'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetMePlayerRecentlyPlayedQueryOptions(
+      args,
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /me/player/recently-played
+ * Generates Svelte Query mutation key for PUT /me/player/repeat
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetMePlayerRecentlyPlayedQueryKey(
-  args: InferRequestType<(typeof client.me.player)['recently-played']['$get']>,
-) {
-  return ['/me/player/recently-played', args] as const
+export function getPutMePlayerRepeatMutationKey() {
+  return ['me', 'PUT', '/me/player/repeat'] as const
 }
+
+/**
+ * Returns Svelte Query mutation options for PUT /me/player/repeat
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutMePlayerRepeatMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPutMePlayerRepeatMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.me.player.repeat.$put>) =>
+    parseResponse(client.me.player.repeat.$put(args, clientOptions)),
+})
 
 /**
  * PUT /me/player/repeat
@@ -2083,29 +2833,45 @@ export function getGetMePlayerRecentlyPlayedQueryKey(
  * repeat-context, and off.
  */
 export function createPutMePlayerRepeat(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.me.player.repeat.$put> | undefined,
+      | Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.player.repeat.$put>>>>
+        >
+      | undefined,
       Error,
       InferRequestType<typeof client.me.player.repeat.$put>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.me.player.repeat.$put> | undefined,
-    Error,
-    InferRequestType<typeof client.me.player.repeat.$put>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.me.player.repeat.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPutMePlayerRepeatMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query mutation key for PUT /me/player/seek
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPutMePlayerSeekMutationKey() {
+  return ['me', 'PUT', '/me/player/seek'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PUT /me/player/seek
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutMePlayerSeekMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPutMePlayerSeekMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.me.player.seek.$put>) =>
+    parseResponse(client.me.player.seek.$put(args, clientOptions)),
+})
 
 /**
  * PUT /me/player/seek
@@ -2115,28 +2881,45 @@ export function createPutMePlayerRepeat(
  * Seeks to the given position in the user’s currently playing track.
  */
 export function createPutMePlayerSeek(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.me.player.seek.$put> | undefined,
+      | Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.player.seek.$put>>>>
+        >
+      | undefined,
       Error,
       InferRequestType<typeof client.me.player.seek.$put>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.me.player.seek.$put> | undefined,
-    Error,
-    InferRequestType<typeof client.me.player.seek.$put>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.me.player.seek.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPutMePlayerSeekMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query mutation key for PUT /me/player/shuffle
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPutMePlayerShuffleMutationKey() {
+  return ['me', 'PUT', '/me/player/shuffle'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PUT /me/player/shuffle
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutMePlayerShuffleMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPutMePlayerShuffleMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.me.player.shuffle.$put>) =>
+    parseResponse(client.me.player.shuffle.$put(args, clientOptions)),
+})
 
 /**
  * PUT /me/player/shuffle
@@ -2146,29 +2929,47 @@ export function createPutMePlayerSeek(
  * Toggle shuffle on or off for user’s playback.
  */
 export function createPutMePlayerShuffle(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.me.player.shuffle.$put> | undefined,
+      | Awaited<
+          ReturnType<
+            typeof parseResponse<Awaited<ReturnType<typeof client.me.player.shuffle.$put>>>
+          >
+        >
+      | undefined,
       Error,
       InferRequestType<typeof client.me.player.shuffle.$put>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.me.player.shuffle.$put> | undefined,
-    Error,
-    InferRequestType<typeof client.me.player.shuffle.$put>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.me.player.shuffle.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPutMePlayerShuffleMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query mutation key for PUT /me/player/volume
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPutMePlayerVolumeMutationKey() {
+  return ['me', 'PUT', '/me/player/volume'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PUT /me/player/volume
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutMePlayerVolumeMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPutMePlayerVolumeMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.me.player.volume.$put>) =>
+    parseResponse(client.me.player.volume.$put(args, clientOptions)),
+})
 
 /**
  * PUT /me/player/volume
@@ -2178,29 +2979,53 @@ export function createPutMePlayerShuffle(
  * Set the volume for the user’s current playback device.
  */
 export function createPutMePlayerVolume(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.me.player.volume.$put> | undefined,
+      | Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.player.volume.$put>>>>
+        >
+      | undefined,
       Error,
       InferRequestType<typeof client.me.player.volume.$put>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.me.player.volume.$put> | undefined,
-    Error,
-    InferRequestType<typeof client.me.player.volume.$put>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.me.player.volume.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPutMePlayerVolumeMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query cache key for GET /me/playlists
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetMePlaylistsQueryKey(args: InferRequestType<typeof client.me.playlists.$get>) {
+  return ['me', 'GET', '/me/playlists', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /me/playlists
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetMePlaylistsQueryOptions = (
+  args: InferRequestType<typeof client.me.playlists.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetMePlaylistsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.me.playlists.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /me/playlists
@@ -2212,36 +3037,46 @@ export function createPutMePlayerVolume(
  */
 export function createGetMePlaylists(
   args: InferRequestType<typeof client.me.playlists.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.me.playlists.$get>,
-      Error,
-      InferResponseType<typeof client.me.playlists.$get>,
-      readonly ['/me/playlists', InferRequestType<typeof client.me.playlists.$get>]
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.playlists.$get>>>>
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetMePlaylistsQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.me.playlists.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetMePlaylistsQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /me/playlists
+ * Generates Svelte Query cache key for GET /me/shows
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetMePlaylistsQueryKey(args: InferRequestType<typeof client.me.playlists.$get>) {
-  return ['/me/playlists', args] as const
+export function getGetMeShowsQueryKey(args: InferRequestType<typeof client.me.shows.$get>) {
+  return ['me', 'GET', '/me/shows', args] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /me/shows
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetMeShowsQueryOptions = (
+  args: InferRequestType<typeof client.me.shows.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetMeShowsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.me.shows.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /me/shows
@@ -2252,36 +3087,39 @@ export function getGetMePlaylistsQueryKey(args: InferRequestType<typeof client.m
  */
 export function createGetMeShows(
   args: InferRequestType<typeof client.me.shows.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.me.shows.$get>,
-      Error,
-      InferResponseType<typeof client.me.shows.$get>,
-      readonly ['/me/shows', InferRequestType<typeof client.me.shows.$get>]
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.shows.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetMeShowsQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.me.shows.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetMeShowsQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /me/shows
+ * Generates Svelte Query mutation key for PUT /me/shows
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetMeShowsQueryKey(args: InferRequestType<typeof client.me.shows.$get>) {
-  return ['/me/shows', args] as const
+export function getPutMeShowsMutationKey() {
+  return ['me', 'PUT', '/me/shows'] as const
 }
+
+/**
+ * Returns Svelte Query mutation options for PUT /me/shows
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutMeShowsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPutMeShowsMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.me.shows.$put>) =>
+    parseResponse(client.me.shows.$put(args, clientOptions)),
+})
 
 /**
  * PUT /me/shows
@@ -2291,28 +3129,40 @@ export function getGetMeShowsQueryKey(args: InferRequestType<typeof client.me.sh
  * Save one or more shows to current Spotify user's library.
  */
 export function createPutMeShows(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.me.shows.$put> | undefined,
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.shows.$put>>>>>,
       Error,
       InferRequestType<typeof client.me.shows.$put>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.me.shows.$put> | undefined,
-    Error,
-    InferRequestType<typeof client.me.shows.$put>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.me.shows.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPutMeShowsMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query mutation key for DELETE /me/shows
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getDeleteMeShowsMutationKey() {
+  return ['me', 'DELETE', '/me/shows'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /me/shows
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteMeShowsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getDeleteMeShowsMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.me.shows.$delete>) =>
+    parseResponse(client.me.shows.$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /me/shows
@@ -2322,28 +3172,54 @@ export function createPutMeShows(
  * Delete one or more shows from current Spotify user's library.
  */
 export function createDeleteMeShows(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.me.shows.$delete> | undefined,
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.shows.$delete>>>>
+      >,
       Error,
       InferRequestType<typeof client.me.shows.$delete>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.me.shows.$delete> | undefined,
-    Error,
-    InferRequestType<typeof client.me.shows.$delete>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.me.shows.$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getDeleteMeShowsMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query cache key for GET /me/shows/contains
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetMeShowsContainsQueryKey(
+  args: InferRequestType<typeof client.me.shows.contains.$get>,
+) {
+  return ['me', 'GET', '/me/shows/contains', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /me/shows/contains
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetMeShowsContainsQueryOptions = (
+  args: InferRequestType<typeof client.me.shows.contains.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetMeShowsContainsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.me.shows.contains.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /me/shows/contains
@@ -2354,38 +3230,54 @@ export function createDeleteMeShows(
  */
 export function createGetMeShowsContains(
   args: InferRequestType<typeof client.me.shows.contains.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.me.shows.contains.$get>,
-      Error,
-      InferResponseType<typeof client.me.shows.contains.$get>,
-      readonly ['/me/shows/contains', InferRequestType<typeof client.me.shows.contains.$get>]
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.shows.contains.$get>>>>
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetMeShowsContainsQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.me.shows.contains.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetMeShowsContainsQueryOptions(
+      args,
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /me/shows/contains
+ * Generates Svelte Query cache key for GET /me/top/{type}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetMeShowsContainsQueryKey(
-  args: InferRequestType<typeof client.me.shows.contains.$get>,
+export function getGetMeTopTypeQueryKey(
+  args: InferRequestType<(typeof client.me.top)[':type']['$get']>,
 ) {
-  return ['/me/shows/contains', args] as const
+  return ['me', 'GET', '/me/top/:type', args] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /me/top/{type}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetMeTopTypeQueryOptions = (
+  args: InferRequestType<(typeof client.me.top)[':type']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetMeTopTypeQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.me.top[':type'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /me/top/{type}
@@ -2396,38 +3288,48 @@ export function getGetMeShowsContainsQueryKey(
  */
 export function createGetMeTopType(
   args: InferRequestType<(typeof client.me.top)[':type']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<(typeof client.me.top)[':type']['$get']>,
-      Error,
-      InferResponseType<(typeof client.me.top)[':type']['$get']>,
-      readonly ['/me/top/:type', InferRequestType<(typeof client.me.top)[':type']['$get']>]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.me.top)[':type']['$get']>>>
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetMeTopTypeQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.me.top[':type'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetMeTopTypeQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /me/top/{type}
+ * Generates Svelte Query cache key for GET /me/tracks
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetMeTopTypeQueryKey(
-  args: InferRequestType<(typeof client.me.top)[':type']['$get']>,
-) {
-  return ['/me/top/:type', args] as const
+export function getGetMeTracksQueryKey(args: InferRequestType<typeof client.me.tracks.$get>) {
+  return ['me', 'GET', '/me/tracks', args] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /me/tracks
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetMeTracksQueryOptions = (
+  args: InferRequestType<typeof client.me.tracks.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetMeTracksQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.me.tracks.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /me/tracks
@@ -2438,36 +3340,39 @@ export function getGetMeTopTypeQueryKey(
  */
 export function createGetMeTracks(
   args: InferRequestType<typeof client.me.tracks.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.me.tracks.$get>,
-      Error,
-      InferResponseType<typeof client.me.tracks.$get>,
-      readonly ['/me/tracks', InferRequestType<typeof client.me.tracks.$get>]
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.tracks.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetMeTracksQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.me.tracks.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetMeTracksQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /me/tracks
+ * Generates Svelte Query mutation key for PUT /me/tracks
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetMeTracksQueryKey(args: InferRequestType<typeof client.me.tracks.$get>) {
-  return ['/me/tracks', args] as const
+export function getPutMeTracksMutationKey() {
+  return ['me', 'PUT', '/me/tracks'] as const
 }
+
+/**
+ * Returns Svelte Query mutation options for PUT /me/tracks
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutMeTracksMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPutMeTracksMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.me.tracks.$put>) =>
+    parseResponse(client.me.tracks.$put(args, clientOptions)),
+})
 
 /**
  * PUT /me/tracks
@@ -2477,28 +3382,40 @@ export function getGetMeTracksQueryKey(args: InferRequestType<typeof client.me.t
  * Save one or more tracks to the current user's 'Your Music' library.
  */
 export function createPutMeTracks(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.me.tracks.$put> | undefined,
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.tracks.$put>>>>>,
       Error,
       InferRequestType<typeof client.me.tracks.$put>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.me.tracks.$put> | undefined,
-    Error,
-    InferRequestType<typeof client.me.tracks.$put>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.me.tracks.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPutMeTracksMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query mutation key for DELETE /me/tracks
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getDeleteMeTracksMutationKey() {
+  return ['me', 'DELETE', '/me/tracks'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /me/tracks
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteMeTracksMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getDeleteMeTracksMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.me.tracks.$delete>) =>
+    parseResponse(client.me.tracks.$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /me/tracks
@@ -2508,28 +3425,54 @@ export function createPutMeTracks(
  * Remove one or more tracks from the current user's 'Your Music' library.
  */
 export function createDeleteMeTracks(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.me.tracks.$delete> | undefined,
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.tracks.$delete>>>>
+      >,
       Error,
       InferRequestType<typeof client.me.tracks.$delete>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.me.tracks.$delete> | undefined,
-    Error,
-    InferRequestType<typeof client.me.tracks.$delete>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.me.tracks.$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getDeleteMeTracksMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query cache key for GET /me/tracks/contains
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetMeTracksContainsQueryKey(
+  args: InferRequestType<typeof client.me.tracks.contains.$get>,
+) {
+  return ['me', 'GET', '/me/tracks/contains', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /me/tracks/contains
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetMeTracksContainsQueryOptions = (
+  args: InferRequestType<typeof client.me.tracks.contains.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetMeTracksContainsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.me.tracks.contains.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /me/tracks/contains
@@ -2540,38 +3483,54 @@ export function createDeleteMeTracks(
  */
 export function createGetMeTracksContains(
   args: InferRequestType<typeof client.me.tracks.contains.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.me.tracks.contains.$get>,
-      Error,
-      InferResponseType<typeof client.me.tracks.contains.$get>,
-      readonly ['/me/tracks/contains', InferRequestType<typeof client.me.tracks.contains.$get>]
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.tracks.contains.$get>>>>
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetMeTracksContainsQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.me.tracks.contains.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetMeTracksContainsQueryOptions(
+      args,
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /me/tracks/contains
+ * Generates Svelte Query cache key for GET /playlists/{playlist_id}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetMeTracksContainsQueryKey(
-  args: InferRequestType<typeof client.me.tracks.contains.$get>,
+export function getGetPlaylistsPlaylistIdQueryKey(
+  args: InferRequestType<(typeof client.playlists)[':playlist_id']['$get']>,
 ) {
-  return ['/me/tracks/contains', args] as const
+  return ['playlists', 'GET', '/playlists/:playlist_id', args] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /playlists/{playlist_id}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetPlaylistsPlaylistIdQueryOptions = (
+  args: InferRequestType<(typeof client.playlists)[':playlist_id']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetPlaylistsPlaylistIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.playlists[':playlist_id'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /playlists/{playlist_id}
@@ -2582,42 +3541,48 @@ export function getGetMeTracksContainsQueryKey(
  */
 export function createGetPlaylistsPlaylistId(
   args: InferRequestType<(typeof client.playlists)[':playlist_id']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<(typeof client.playlists)[':playlist_id']['$get']>,
-      Error,
-      InferResponseType<(typeof client.playlists)[':playlist_id']['$get']>,
-      readonly [
-        '/playlists/:playlist_id',
-        InferRequestType<(typeof client.playlists)[':playlist_id']['$get']>,
-      ]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.playlists)[':playlist_id']['$get']>>
+          >
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetPlaylistsPlaylistIdQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.playlists[':playlist_id'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetPlaylistsPlaylistIdQueryOptions(
+      args,
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /playlists/{playlist_id}
+ * Generates Svelte Query mutation key for PUT /playlists/{playlist_id}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetPlaylistsPlaylistIdQueryKey(
-  args: InferRequestType<(typeof client.playlists)[':playlist_id']['$get']>,
-) {
-  return ['/playlists/:playlist_id', args] as const
+export function getPutPlaylistsPlaylistIdMutationKey() {
+  return ['playlists', 'PUT', '/playlists/:playlist_id'] as const
 }
+
+/**
+ * Returns Svelte Query mutation options for PUT /playlists/{playlist_id}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutPlaylistsPlaylistIdMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPutPlaylistsPlaylistIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.playlists)[':playlist_id']['$put']>) =>
+    parseResponse(client.playlists[':playlist_id'].$put(args, clientOptions)),
+})
 
 /**
  * PUT /playlists/{playlist_id}
@@ -2628,29 +3593,51 @@ export function getGetPlaylistsPlaylistIdQueryKey(
  * course, own the playlist.)
  */
 export function createPutPlaylistsPlaylistId(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<(typeof client.playlists)[':playlist_id']['$put']> | undefined,
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.playlists)[':playlist_id']['$put']>>
+          >
+        >
+      >,
       Error,
       InferRequestType<(typeof client.playlists)[':playlist_id']['$put']>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<(typeof client.playlists)[':playlist_id']['$put']> | undefined,
-    Error,
-    InferRequestType<(typeof client.playlists)[':playlist_id']['$put']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.playlists[':playlist_id'].$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPutPlaylistsPlaylistIdMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query mutation key for PUT /playlists/{playlist_id}/followers
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPutPlaylistsPlaylistIdFollowersMutationKey() {
+  return ['playlists', 'PUT', '/playlists/:playlist_id/followers'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PUT /playlists/{playlist_id}/followers
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutPlaylistsPlaylistIdFollowersMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPutPlaylistsPlaylistIdFollowersMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.playlists)[':playlist_id']['followers']['$put']>,
+  ) => parseResponse(client.playlists[':playlist_id'].followers.$put(args, clientOptions)),
+})
 
 /**
  * PUT /playlists/{playlist_id}/followers
@@ -2660,29 +3647,50 @@ export function createPutPlaylistsPlaylistId(
  * Add the current user as a follower of a playlist.
  */
 export function createPutPlaylistsPlaylistIdFollowers(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<(typeof client.playlists)[':playlist_id']['followers']['$put']> | undefined,
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.playlists)[':playlist_id']['followers']['$put']>>
+          >
+        >
+      >,
       Error,
       InferRequestType<(typeof client.playlists)[':playlist_id']['followers']['$put']>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<(typeof client.playlists)[':playlist_id']['followers']['$put']> | undefined,
-    Error,
-    InferRequestType<(typeof client.playlists)[':playlist_id']['followers']['$put']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.playlists[':playlist_id'].followers.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPutPlaylistsPlaylistIdFollowersMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query mutation key for DELETE /playlists/{playlist_id}/followers
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getDeletePlaylistsPlaylistIdFollowersMutationKey() {
+  return ['playlists', 'DELETE', '/playlists/:playlist_id/followers'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /playlists/{playlist_id}/followers
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeletePlaylistsPlaylistIdFollowersMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeletePlaylistsPlaylistIdFollowersMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.playlists)[':playlist_id']['followers']['$delete']>,
+  ) => parseResponse(client.playlists[':playlist_id'].followers.$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /playlists/{playlist_id}/followers
@@ -2692,31 +3700,61 @@ export function createPutPlaylistsPlaylistIdFollowers(
  * Remove the current user as a follower of a playlist.
  */
 export function createDeletePlaylistsPlaylistIdFollowers(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      | InferResponseType<(typeof client.playlists)[':playlist_id']['followers']['$delete']>
-      | undefined,
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.playlists)[':playlist_id']['followers']['$delete']>>
+          >
+        >
+      >,
       Error,
       InferRequestType<(typeof client.playlists)[':playlist_id']['followers']['$delete']>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<(typeof client.playlists)[':playlist_id']['followers']['$delete']>
-    | undefined,
-    Error,
-    InferRequestType<(typeof client.playlists)[':playlist_id']['followers']['$delete']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.playlists[':playlist_id'].followers.$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getDeletePlaylistsPlaylistIdFollowersMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query cache key for GET /playlists/{playlist_id}/followers/contains
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetPlaylistsPlaylistIdFollowersContainsQueryKey(
+  args: InferRequestType<
+    (typeof client.playlists)[':playlist_id']['followers']['contains']['$get']
+  >,
+) {
+  return ['playlists', 'GET', '/playlists/:playlist_id/followers/contains', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /playlists/{playlist_id}/followers/contains
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetPlaylistsPlaylistIdFollowersContainsQueryOptions = (
+  args: InferRequestType<
+    (typeof client.playlists)[':playlist_id']['followers']['contains']['$get']
+  >,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetPlaylistsPlaylistIdFollowersContainsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.playlists[':playlist_id'].followers.contains.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /playlists/{playlist_id}/followers/contains
@@ -2729,48 +3767,58 @@ export function createGetPlaylistsPlaylistIdFollowersContains(
   args: InferRequestType<
     (typeof client.playlists)[':playlist_id']['followers']['contains']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<(typeof client.playlists)[':playlist_id']['followers']['contains']['$get']>,
-      Error,
-      InferResponseType<(typeof client.playlists)[':playlist_id']['followers']['contains']['$get']>,
-      readonly [
-        '/playlists/:playlist_id/followers/contains',
-        InferRequestType<
-          (typeof client.playlists)[':playlist_id']['followers']['contains']['$get']
-        >,
-      ]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<(typeof client.playlists)[':playlist_id']['followers']['contains']['$get']>
+            >
+          >
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetPlaylistsPlaylistIdFollowersContainsQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(
-          client.playlists[':playlist_id'].followers.contains.$get(args, clientOptions),
-        ),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } =
+      getGetPlaylistsPlaylistIdFollowersContainsQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /playlists/{playlist_id}/followers/contains
+ * Generates Svelte Query cache key for GET /playlists/{playlist_id}/images
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetPlaylistsPlaylistIdFollowersContainsQueryKey(
-  args: InferRequestType<
-    (typeof client.playlists)[':playlist_id']['followers']['contains']['$get']
-  >,
+export function getGetPlaylistsPlaylistIdImagesQueryKey(
+  args: InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$get']>,
 ) {
-  return ['/playlists/:playlist_id/followers/contains', args] as const
+  return ['playlists', 'GET', '/playlists/:playlist_id/images', args] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /playlists/{playlist_id}/images
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetPlaylistsPlaylistIdImagesQueryOptions = (
+  args: InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetPlaylistsPlaylistIdImagesQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.playlists[':playlist_id'].images.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /playlists/{playlist_id}/images
@@ -2781,42 +3829,51 @@ export function getGetPlaylistsPlaylistIdFollowersContainsQueryKey(
  */
 export function createGetPlaylistsPlaylistIdImages(
   args: InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<(typeof client.playlists)[':playlist_id']['images']['$get']>,
-      Error,
-      InferResponseType<(typeof client.playlists)[':playlist_id']['images']['$get']>,
-      readonly [
-        '/playlists/:playlist_id/images',
-        InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$get']>,
-      ]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.playlists)[':playlist_id']['images']['$get']>>
+          >
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetPlaylistsPlaylistIdImagesQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.playlists[':playlist_id'].images.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetPlaylistsPlaylistIdImagesQueryOptions(
+      args,
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /playlists/{playlist_id}/images
+ * Generates Svelte Query mutation key for PUT /playlists/{playlist_id}/images
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetPlaylistsPlaylistIdImagesQueryKey(
-  args: InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$get']>,
-) {
-  return ['/playlists/:playlist_id/images', args] as const
+export function getPutPlaylistsPlaylistIdImagesMutationKey() {
+  return ['playlists', 'PUT', '/playlists/:playlist_id/images'] as const
 }
+
+/**
+ * Returns Svelte Query mutation options for PUT /playlists/{playlist_id}/images
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutPlaylistsPlaylistIdImagesMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPutPlaylistsPlaylistIdImagesMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$put']>,
+  ) => parseResponse(client.playlists[':playlist_id'].images.$put(args, clientOptions)),
+})
 
 /**
  * PUT /playlists/{playlist_id}/images
@@ -2826,29 +3883,57 @@ export function getGetPlaylistsPlaylistIdImagesQueryKey(
  * Replace the image used to represent a specific playlist.
  */
 export function createPutPlaylistsPlaylistIdImages(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<(typeof client.playlists)[':playlist_id']['images']['$put']> | undefined,
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.playlists)[':playlist_id']['images']['$put']>>
+          >
+        >
+      >,
       Error,
       InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$put']>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<(typeof client.playlists)[':playlist_id']['images']['$put']> | undefined,
-    Error,
-    InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$put']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.playlists[':playlist_id'].images.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPutPlaylistsPlaylistIdImagesMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query cache key for GET /playlists/{playlist_id}/tracks
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetPlaylistsPlaylistIdTracksQueryKey(
+  args: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$get']>,
+) {
+  return ['playlists', 'GET', '/playlists/:playlist_id/tracks', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /playlists/{playlist_id}/tracks
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetPlaylistsPlaylistIdTracksQueryOptions = (
+  args: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetPlaylistsPlaylistIdTracksQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.playlists[':playlist_id'].tracks.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /playlists/{playlist_id}/tracks
@@ -2859,42 +3944,51 @@ export function createPutPlaylistsPlaylistIdImages(
  */
 export function createGetPlaylistsPlaylistIdTracks(
   args: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<(typeof client.playlists)[':playlist_id']['tracks']['$get']>,
-      Error,
-      InferResponseType<(typeof client.playlists)[':playlist_id']['tracks']['$get']>,
-      readonly [
-        '/playlists/:playlist_id/tracks',
-        InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$get']>,
-      ]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.playlists)[':playlist_id']['tracks']['$get']>>
+          >
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetPlaylistsPlaylistIdTracksQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.playlists[':playlist_id'].tracks.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetPlaylistsPlaylistIdTracksQueryOptions(
+      args,
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /playlists/{playlist_id}/tracks
+ * Generates Svelte Query mutation key for PUT /playlists/{playlist_id}/tracks
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetPlaylistsPlaylistIdTracksQueryKey(
-  args: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$get']>,
-) {
-  return ['/playlists/:playlist_id/tracks', args] as const
+export function getPutPlaylistsPlaylistIdTracksMutationKey() {
+  return ['playlists', 'PUT', '/playlists/:playlist_id/tracks'] as const
 }
+
+/**
+ * Returns Svelte Query mutation options for PUT /playlists/{playlist_id}/tracks
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutPlaylistsPlaylistIdTracksMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPutPlaylistsPlaylistIdTracksMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$put']>,
+  ) => parseResponse(client.playlists[':playlist_id'].tracks.$put(args, clientOptions)),
+})
 
 /**
  * PUT /playlists/{playlist_id}/tracks
@@ -2910,29 +4004,50 @@ export function getGetPlaylistsPlaylistIdTracksQueryKey(
  * These operations can't be applied together in a single request.
  */
 export function createPutPlaylistsPlaylistIdTracks(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<(typeof client.playlists)[':playlist_id']['tracks']['$put']> | undefined,
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.playlists)[':playlist_id']['tracks']['$put']>>
+          >
+        >
+      >,
       Error,
       InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$put']>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<(typeof client.playlists)[':playlist_id']['tracks']['$put']> | undefined,
-    Error,
-    InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$put']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.playlists[':playlist_id'].tracks.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPutPlaylistsPlaylistIdTracksMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query mutation key for POST /playlists/{playlist_id}/tracks
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostPlaylistsPlaylistIdTracksMutationKey() {
+  return ['playlists', 'POST', '/playlists/:playlist_id/tracks'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /playlists/{playlist_id}/tracks
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostPlaylistsPlaylistIdTracksMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostPlaylistsPlaylistIdTracksMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$post']>,
+  ) => parseResponse(client.playlists[':playlist_id'].tracks.$post(args, clientOptions)),
+})
 
 /**
  * POST /playlists/{playlist_id}/tracks
@@ -2942,29 +4057,50 @@ export function createPutPlaylistsPlaylistIdTracks(
  * Add one or more items to a user's playlist.
  */
 export function createPostPlaylistsPlaylistIdTracks(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<(typeof client.playlists)[':playlist_id']['tracks']['$post']> | undefined,
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.playlists)[':playlist_id']['tracks']['$post']>>
+          >
+        >
+      >,
       Error,
       InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$post']>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<(typeof client.playlists)[':playlist_id']['tracks']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.playlists[':playlist_id'].tracks.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPostPlaylistsPlaylistIdTracksMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query mutation key for DELETE /playlists/{playlist_id}/tracks
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getDeletePlaylistsPlaylistIdTracksMutationKey() {
+  return ['playlists', 'DELETE', '/playlists/:playlist_id/tracks'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /playlists/{playlist_id}/tracks
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeletePlaylistsPlaylistIdTracksMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeletePlaylistsPlaylistIdTracksMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$delete']>,
+  ) => parseResponse(client.playlists[':playlist_id'].tracks.$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /playlists/{playlist_id}/tracks
@@ -2974,29 +4110,57 @@ export function createPostPlaylistsPlaylistIdTracks(
  * Remove one or more items from a user's playlist.
  */
 export function createDeletePlaylistsPlaylistIdTracks(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<(typeof client.playlists)[':playlist_id']['tracks']['$delete']> | undefined,
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.playlists)[':playlist_id']['tracks']['$delete']>>
+          >
+        >
+      >,
       Error,
       InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$delete']>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<(typeof client.playlists)[':playlist_id']['tracks']['$delete']> | undefined,
-    Error,
-    InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$delete']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.playlists[':playlist_id'].tracks.$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getDeletePlaylistsPlaylistIdTracksMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query cache key for GET /recommendations
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetRecommendationsQueryKey(
+  args: InferRequestType<typeof client.recommendations.$get>,
+) {
+  return ['recommendations', 'GET', '/recommendations', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /recommendations
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetRecommendationsQueryOptions = (
+  args: InferRequestType<typeof client.recommendations.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetRecommendationsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.recommendations.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /recommendations
@@ -3009,38 +4173,51 @@ export function createDeletePlaylistsPlaylistIdTracks(
  */
 export function createGetRecommendations(
   args: InferRequestType<typeof client.recommendations.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.recommendations.$get>,
-      Error,
-      InferResponseType<typeof client.recommendations.$get>,
-      readonly ['/recommendations', InferRequestType<typeof client.recommendations.$get>]
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.recommendations.$get>>>>
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetRecommendationsQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.recommendations.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetRecommendationsQueryOptions(
+      args,
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /recommendations
+ * Generates Svelte Query cache key for GET /recommendations/available-genre-seeds
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetRecommendationsQueryKey(
-  args: InferRequestType<typeof client.recommendations.$get>,
-) {
-  return ['/recommendations', args] as const
+export function getGetRecommendationsAvailableGenreSeedsQueryKey() {
+  return ['recommendations', 'GET', '/recommendations/available-genre-seeds'] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /recommendations/available-genre-seeds
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetRecommendationsAvailableGenreSeedsQueryOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetRecommendationsAvailableGenreSeedsQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.recommendations['available-genre-seeds'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /recommendations/available-genre-seeds
@@ -3050,39 +4227,51 @@ export function getGetRecommendationsQueryKey(
  * Retrieve a list of available genres seed parameter values for [recommendations](/documentation/web-api/reference/get-recommendations).
  */
 export function createGetRecommendationsAvailableGenreSeeds(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<(typeof client.recommendations)['available-genre-seeds']['$get']>,
-      Error,
-      InferResponseType<(typeof client.recommendations)['available-genre-seeds']['$get']>,
-      readonly ['/recommendations/available-genre-seeds']
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.recommendations)['available-genre-seeds']['$get']>>
+          >
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetRecommendationsAvailableGenreSeedsQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(
-          client.recommendations['available-genre-seeds'].$get(undefined, clientOptions),
-        ),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } =
+      getGetRecommendationsAvailableGenreSeedsQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /recommendations/available-genre-seeds
+ * Generates Svelte Query cache key for GET /search
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetRecommendationsAvailableGenreSeedsQueryKey() {
-  return ['/recommendations/available-genre-seeds'] as const
+export function getGetSearchQueryKey(args: InferRequestType<typeof client.search.$get>) {
+  return ['search', 'GET', '/search', args] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /search
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetSearchQueryOptions = (
+  args: InferRequestType<typeof client.search.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetSearchQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.search.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /search
@@ -3095,36 +4284,44 @@ export function getGetRecommendationsAvailableGenreSeedsQueryKey() {
  */
 export function createGetSearch(
   args: InferRequestType<typeof client.search.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.search.$get>,
-      Error,
-      InferResponseType<typeof client.search.$get>,
-      readonly ['/search', InferRequestType<typeof client.search.$get>]
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.search.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetSearchQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.search.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetSearchQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /search
+ * Generates Svelte Query cache key for GET /shows
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetSearchQueryKey(args: InferRequestType<typeof client.search.$get>) {
-  return ['/search', args] as const
+export function getGetShowsQueryKey(args: InferRequestType<typeof client.shows.$get>) {
+  return ['shows', 'GET', '/shows', args] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /shows
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetShowsQueryOptions = (
+  args: InferRequestType<typeof client.shows.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetShowsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.shows.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /shows
@@ -3135,36 +4332,49 @@ export function getGetSearchQueryKey(args: InferRequestType<typeof client.search
  */
 export function createGetShows(
   args: InferRequestType<typeof client.shows.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.shows.$get>,
-      Error,
-      InferResponseType<typeof client.shows.$get>,
-      readonly ['/shows', InferRequestType<typeof client.shows.$get>]
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.shows.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetShowsQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.shows.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetShowsQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /shows
+ * Generates Svelte Query cache key for GET /shows/{id}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetShowsQueryKey(args: InferRequestType<typeof client.shows.$get>) {
-  return ['/shows', args] as const
+export function getGetShowsIdQueryKey(
+  args: InferRequestType<(typeof client.shows)[':id']['$get']>,
+) {
+  return ['shows', 'GET', '/shows/:id', args] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /shows/{id}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetShowsIdQueryOptions = (
+  args: InferRequestType<(typeof client.shows)[':id']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetShowsIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.shows[':id'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /shows/{id}
@@ -3176,38 +4386,51 @@ export function getGetShowsQueryKey(args: InferRequestType<typeof client.shows.$
  */
 export function createGetShowsId(
   args: InferRequestType<(typeof client.shows)[':id']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<(typeof client.shows)[':id']['$get']>,
-      Error,
-      InferResponseType<(typeof client.shows)[':id']['$get']>,
-      readonly ['/shows/:id', InferRequestType<(typeof client.shows)[':id']['$get']>]
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.shows)[':id']['$get']>>>>
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetShowsIdQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.shows[':id'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetShowsIdQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /shows/{id}
+ * Generates Svelte Query cache key for GET /shows/{id}/episodes
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetShowsIdQueryKey(
-  args: InferRequestType<(typeof client.shows)[':id']['$get']>,
+export function getGetShowsIdEpisodesQueryKey(
+  args: InferRequestType<(typeof client.shows)[':id']['episodes']['$get']>,
 ) {
-  return ['/shows/:id', args] as const
+  return ['shows', 'GET', '/shows/:id/episodes', args] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /shows/{id}/episodes
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetShowsIdEpisodesQueryOptions = (
+  args: InferRequestType<(typeof client.shows)[':id']['episodes']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetShowsIdEpisodesQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.shows[':id'].episodes.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /shows/{id}/episodes
@@ -3218,41 +4441,53 @@ export function getGetShowsIdQueryKey(
  */
 export function createGetShowsIdEpisodes(
   args: InferRequestType<(typeof client.shows)[':id']['episodes']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<(typeof client.shows)[':id']['episodes']['$get']>,
-      Error,
-      InferResponseType<(typeof client.shows)[':id']['episodes']['$get']>,
-      readonly [
-        '/shows/:id/episodes',
-        InferRequestType<(typeof client.shows)[':id']['episodes']['$get']>,
-      ]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.shows)[':id']['episodes']['$get']>>
+          >
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetShowsIdEpisodesQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.shows[':id'].episodes.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetShowsIdEpisodesQueryOptions(
+      args,
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /shows/{id}/episodes
+ * Generates Svelte Query cache key for GET /tracks
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetShowsIdEpisodesQueryKey(
-  args: InferRequestType<(typeof client.shows)[':id']['episodes']['$get']>,
-) {
-  return ['/shows/:id/episodes', args] as const
+export function getGetTracksQueryKey(args: InferRequestType<typeof client.tracks.$get>) {
+  return ['tracks', 'GET', '/tracks', args] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /tracks
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetTracksQueryOptions = (
+  args: InferRequestType<typeof client.tracks.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetTracksQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.tracks.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /tracks
@@ -3263,36 +4498,49 @@ export function getGetShowsIdEpisodesQueryKey(
  */
 export function createGetTracks(
   args: InferRequestType<typeof client.tracks.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.tracks.$get>,
-      Error,
-      InferResponseType<typeof client.tracks.$get>,
-      readonly ['/tracks', InferRequestType<typeof client.tracks.$get>]
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.tracks.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetTracksQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.tracks.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetTracksQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /tracks
+ * Generates Svelte Query cache key for GET /tracks/{id}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetTracksQueryKey(args: InferRequestType<typeof client.tracks.$get>) {
-  return ['/tracks', args] as const
+export function getGetTracksIdQueryKey(
+  args: InferRequestType<(typeof client.tracks)[':id']['$get']>,
+) {
+  return ['tracks', 'GET', '/tracks/:id', args] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /tracks/{id}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetTracksIdQueryOptions = (
+  args: InferRequestType<(typeof client.tracks)[':id']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetTracksIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.tracks[':id'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /tracks/{id}
@@ -3304,38 +4552,51 @@ export function getGetTracksQueryKey(args: InferRequestType<typeof client.tracks
  */
 export function createGetTracksId(
   args: InferRequestType<(typeof client.tracks)[':id']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<(typeof client.tracks)[':id']['$get']>,
-      Error,
-      InferResponseType<(typeof client.tracks)[':id']['$get']>,
-      readonly ['/tracks/:id', InferRequestType<(typeof client.tracks)[':id']['$get']>]
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.tracks)[':id']['$get']>>>>
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetTracksIdQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.tracks[':id'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetTracksIdQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /tracks/{id}
+ * Generates Svelte Query cache key for GET /users/{user_id}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetTracksIdQueryKey(
-  args: InferRequestType<(typeof client.tracks)[':id']['$get']>,
+export function getGetUsersUserIdQueryKey(
+  args: InferRequestType<(typeof client.users)[':user_id']['$get']>,
 ) {
-  return ['/tracks/:id', args] as const
+  return ['users', 'GET', '/users/:user_id', args] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /users/{user_id}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetUsersUserIdQueryOptions = (
+  args: InferRequestType<(typeof client.users)[':user_id']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetUsersUserIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.users[':user_id'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /users/{user_id}
@@ -3346,38 +4607,53 @@ export function getGetTracksIdQueryKey(
  */
 export function createGetUsersUserId(
   args: InferRequestType<(typeof client.users)[':user_id']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<(typeof client.users)[':user_id']['$get']>,
-      Error,
-      InferResponseType<(typeof client.users)[':user_id']['$get']>,
-      readonly ['/users/:user_id', InferRequestType<(typeof client.users)[':user_id']['$get']>]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':user_id']['$get']>>>
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetUsersUserIdQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.users[':user_id'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetUsersUserIdQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /users/{user_id}
+ * Generates Svelte Query cache key for GET /users/{user_id}/playlists
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetUsersUserIdQueryKey(
-  args: InferRequestType<(typeof client.users)[':user_id']['$get']>,
+export function getGetUsersUserIdPlaylistsQueryKey(
+  args: InferRequestType<(typeof client.users)[':user_id']['playlists']['$get']>,
 ) {
-  return ['/users/:user_id', args] as const
+  return ['users', 'GET', '/users/:user_id/playlists', args] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /users/{user_id}/playlists
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetUsersUserIdPlaylistsQueryOptions = (
+  args: InferRequestType<(typeof client.users)[':user_id']['playlists']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetUsersUserIdPlaylistsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.users[':user_id'].playlists.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /users/{user_id}/playlists
@@ -3388,42 +4664,51 @@ export function getGetUsersUserIdQueryKey(
  */
 export function createGetUsersUserIdPlaylists(
   args: InferRequestType<(typeof client.users)[':user_id']['playlists']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<(typeof client.users)[':user_id']['playlists']['$get']>,
-      Error,
-      InferResponseType<(typeof client.users)[':user_id']['playlists']['$get']>,
-      readonly [
-        '/users/:user_id/playlists',
-        InferRequestType<(typeof client.users)[':user_id']['playlists']['$get']>,
-      ]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.users)[':user_id']['playlists']['$get']>>
+          >
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetUsersUserIdPlaylistsQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.users[':user_id'].playlists.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetUsersUserIdPlaylistsQueryOptions(
+      args,
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /users/{user_id}/playlists
+ * Generates Svelte Query mutation key for POST /users/{user_id}/playlists
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetUsersUserIdPlaylistsQueryKey(
-  args: InferRequestType<(typeof client.users)[':user_id']['playlists']['$get']>,
-) {
-  return ['/users/:user_id/playlists', args] as const
+export function getPostUsersUserIdPlaylistsMutationKey() {
+  return ['users', 'POST', '/users/:user_id/playlists'] as const
 }
+
+/**
+ * Returns Svelte Query mutation options for POST /users/{user_id}/playlists
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostUsersUserIdPlaylistsMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostUsersUserIdPlaylistsMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.users)[':user_id']['playlists']['$post']>,
+  ) => parseResponse(client.users[':user_id'].playlists.$post(args, clientOptions)),
+})
 
 /**
  * POST /users/{user_id}/playlists
@@ -3434,26 +4719,26 @@ export function getGetUsersUserIdPlaylistsQueryKey(
  * you [add tracks](/documentation/web-api/reference/add-tracks-to-playlist).)
  */
 export function createPostUsersUserIdPlaylists(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<(typeof client.users)[':user_id']['playlists']['$post']> | undefined,
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.users)[':user_id']['playlists']['$post']>>
+          >
+        >
+      >,
       Error,
       InferRequestType<(typeof client.users)[':user_id']['playlists']['$post']>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<(typeof client.users)[':user_id']['playlists']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client.users)[':user_id']['playlists']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.users[':user_id'].playlists.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostUsersUserIdPlaylistsMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }

@@ -22,7 +22,7 @@
  * @link https://hono.dev/docs/guides/rpc
  */
 
-import { makeQueryHooks, SVELTE_QUERY_CONFIG } from '../../helper/query.js'
+import { makeQueryHooks } from '../../helper/query.js'
 import type { OpenAPI } from '../../openapi/index.js'
 
 /**
@@ -72,5 +72,17 @@ export async function svelteQuery(
 ): Promise<
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {
-  return makeQueryHooks(openAPI, output, importPath, SVELTE_QUERY_CONFIG, split, clientName)
+  // Svelte Query v5+ requires thunk pattern: createQuery(() => options)
+  // @see https://tanstack.com/query/v5/docs/framework/svelte/reactivity
+  const config = {
+    packageName: '@tanstack/svelte-query',
+    frameworkName: 'Svelte Query',
+    hookPrefix: 'create',
+    queryFn: 'createQuery',
+    mutationFn: 'createMutation',
+    useThunk: true,
+    useQueryOptionsType: 'CreateQueryOptions',
+    useMutationOptionsType: 'CreateMutationOptions',
+  }
+  return makeQueryHooks(openAPI, output, importPath, config, split, clientName)
 }

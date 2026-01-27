@@ -1,10 +1,18 @@
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/38-auth-apikey-management'
+
+/**
+ * Generates SWR cache key for GET /api-keys
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetApiKeysKey(args: InferRequestType<(typeof client)['api-keys']['$get']>) {
+  return ['api-keys', 'GET', '/api-keys', args] as const
+}
 
 /**
  * GET /api-keys
@@ -14,29 +22,30 @@ import { client } from '../clients/38-auth-apikey-management'
 export function useGetApiKeys(
   args: InferRequestType<(typeof client)['api-keys']['$get']>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<(typeof client)['api-keys']['$get']>, Error> & {
-      swrKey?: Key
-      enabled?: boolean
-    }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetApiKeysKey(args) : null)
-  const query = useSWR<InferResponseType<(typeof client)['api-keys']['$get']>, Error>(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetApiKeysKey(args)) : null
+  return {
     swrKey,
-    async () => parseResponse(client['api-keys'].$get(args, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client['api-keys'].$get(args, clientOptions)),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /api-keys
+ * Generates SWR mutation key for POST /api-keys
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetApiKeysKey(args?: InferRequestType<(typeof client)['api-keys']['$get']>) {
-  return ['/api-keys', ...(args ? [args] : [])] as const
+export function getPostApiKeysMutationKey() {
+  return ['api-keys', 'POST', '/api-keys'] as const
 }
 
 /**
@@ -45,24 +54,38 @@ export function getGetApiKeysKey(args?: InferRequestType<(typeof client)['api-ke
  * APIキー作成
  */
 export function usePostApiKeys(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['api-keys']['$post']>,
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['api-keys']['$post']>>>>
+    >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client)['api-keys']['$post']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<(typeof client)['api-keys']['$post']>,
-    Error,
-    string,
-    InferRequestType<(typeof client)['api-keys']['$post']>
-  >(
-    'POST /api-keys',
-    async (_, { arg }) => parseResponse(client['api-keys'].$post(arg, options?.client)),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostApiKeysMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (_: Key, { arg }: { arg: InferRequestType<(typeof client)['api-keys']['$post']> }) =>
+        parseResponse(client['api-keys'].$post(arg, clientOptions)),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /api-keys/{keyId}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetApiKeysKeyIdKey(
+  args: InferRequestType<(typeof client)['api-keys'][':keyId']['$get']>,
+) {
+  return ['api-keys', 'GET', '/api-keys/:keyId', args] as const
 }
 
 /**
@@ -73,31 +96,30 @@ export function usePostApiKeys(options?: {
 export function useGetApiKeysKeyId(
   args: InferRequestType<(typeof client)['api-keys'][':keyId']['$get']>,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<(typeof client)['api-keys'][':keyId']['$get']>,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetApiKeysKeyIdKey(args) : null)
-  const query = useSWR<InferResponseType<(typeof client)['api-keys'][':keyId']['$get']>, Error>(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetApiKeysKeyIdKey(args)) : null
+  return {
     swrKey,
-    async () => parseResponse(client['api-keys'][':keyId'].$get(args, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client['api-keys'][':keyId'].$get(args, clientOptions)),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /api-keys/{keyId}
+ * Generates SWR mutation key for DELETE /api-keys/{keyId}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetApiKeysKeyIdKey(
-  args?: InferRequestType<(typeof client)['api-keys'][':keyId']['$get']>,
-) {
-  return ['/api-keys/:keyId', ...(args ? [args] : [])] as const
+export function getDeleteApiKeysKeyIdMutationKey() {
+  return ['api-keys', 'DELETE', '/api-keys/:keyId'] as const
 }
 
 /**
@@ -106,24 +128,43 @@ export function getGetApiKeysKeyIdKey(
  * APIキー削除
  */
 export function useDeleteApiKeysKeyId(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['api-keys'][':keyId']['$delete']>,
+  mutation?: SWRMutationConfiguration<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['api-keys'][':keyId']['$delete']>>
+          >
+        >
+      >
+    | undefined,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client)['api-keys'][':keyId']['$delete']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<(typeof client)['api-keys'][':keyId']['$delete']>,
-    Error,
-    string,
-    InferRequestType<(typeof client)['api-keys'][':keyId']['$delete']>
-  >(
-    'DELETE /api-keys/:keyId',
-    async (_, { arg }) => parseResponse(client['api-keys'][':keyId'].$delete(arg, options?.client)),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDeleteApiKeysKeyIdMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        { arg }: { arg: InferRequestType<(typeof client)['api-keys'][':keyId']['$delete']> },
+      ) => parseResponse(client['api-keys'][':keyId'].$delete(arg, clientOptions)),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for PATCH /api-keys/{keyId}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPatchApiKeysKeyIdMutationKey() {
+  return ['api-keys', 'PATCH', '/api-keys/:keyId'] as const
 }
 
 /**
@@ -132,24 +173,40 @@ export function useDeleteApiKeysKeyId(options?: {
  * APIキー更新
  */
 export function usePatchApiKeysKeyId(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['api-keys'][':keyId']['$patch']>,
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client)['api-keys'][':keyId']['$patch']>>>
+      >
+    >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client)['api-keys'][':keyId']['$patch']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<(typeof client)['api-keys'][':keyId']['$patch']>,
-    Error,
-    string,
-    InferRequestType<(typeof client)['api-keys'][':keyId']['$patch']>
-  >(
-    'PATCH /api-keys/:keyId',
-    async (_, { arg }) => parseResponse(client['api-keys'][':keyId'].$patch(arg, options?.client)),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPatchApiKeysKeyIdMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        { arg }: { arg: InferRequestType<(typeof client)['api-keys'][':keyId']['$patch']> },
+      ) => parseResponse(client['api-keys'][':keyId'].$patch(arg, clientOptions)),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /api-keys/{keyId}/revoke
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostApiKeysKeyIdRevokeMutationKey() {
+  return ['api-keys', 'POST', '/api-keys/:keyId/revoke'] as const
 }
 
 /**
@@ -158,25 +215,44 @@ export function usePatchApiKeysKeyId(options?: {
  * APIキー無効化
  */
 export function usePostApiKeysKeyIdRevoke(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['api-keys'][':keyId']['revoke']['$post']>,
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['api-keys'][':keyId']['revoke']['$post']>>
+        >
+      >
+    >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client)['api-keys'][':keyId']['revoke']['$post']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<(typeof client)['api-keys'][':keyId']['revoke']['$post']>,
-    Error,
-    string,
-    InferRequestType<(typeof client)['api-keys'][':keyId']['revoke']['$post']>
-  >(
-    'POST /api-keys/:keyId/revoke',
-    async (_, { arg }) =>
-      parseResponse(client['api-keys'][':keyId'].revoke.$post(arg, options?.client)),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostApiKeysKeyIdRevokeMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: { arg: InferRequestType<(typeof client)['api-keys'][':keyId']['revoke']['$post']> },
+      ) => parseResponse(client['api-keys'][':keyId'].revoke.$post(arg, clientOptions)),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /api-keys/{keyId}/rotate
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostApiKeysKeyIdRotateMutationKey() {
+  return ['api-keys', 'POST', '/api-keys/:keyId/rotate'] as const
 }
 
 /**
@@ -185,25 +261,46 @@ export function usePostApiKeysKeyIdRevoke(options?: {
  * APIキーローテーション
  */
 export function usePostApiKeysKeyIdRotate(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['api-keys'][':keyId']['rotate']['$post']>,
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['api-keys'][':keyId']['rotate']['$post']>>
+        >
+      >
+    >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client)['api-keys'][':keyId']['rotate']['$post']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<(typeof client)['api-keys'][':keyId']['rotate']['$post']>,
-    Error,
-    string,
-    InferRequestType<(typeof client)['api-keys'][':keyId']['rotate']['$post']>
-  >(
-    'POST /api-keys/:keyId/rotate',
-    async (_, { arg }) =>
-      parseResponse(client['api-keys'][':keyId'].rotate.$post(arg, options?.client)),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostApiKeysKeyIdRotateMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: { arg: InferRequestType<(typeof client)['api-keys'][':keyId']['rotate']['$post']> },
+      ) => parseResponse(client['api-keys'][':keyId'].rotate.$post(arg, clientOptions)),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /api-keys/{keyId}/usage
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetApiKeysKeyIdUsageKey(
+  args: InferRequestType<(typeof client)['api-keys'][':keyId']['usage']['$get']>,
+) {
+  return ['api-keys', 'GET', '/api-keys/:keyId/usage', args] as const
 }
 
 /**
@@ -214,34 +311,32 @@ export function usePostApiKeysKeyIdRotate(options?: {
 export function useGetApiKeysKeyIdUsage(
   args: InferRequestType<(typeof client)['api-keys'][':keyId']['usage']['$get']>,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<(typeof client)['api-keys'][':keyId']['usage']['$get']>,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetApiKeysKeyIdUsageKey(args) : null)
-  const query = useSWR<
-    InferResponseType<(typeof client)['api-keys'][':keyId']['usage']['$get']>,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetApiKeysKeyIdUsageKey(args)) : null
+  return {
     swrKey,
-    async () => parseResponse(client['api-keys'][':keyId'].usage.$get(args, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client['api-keys'][':keyId'].usage.$get(args, clientOptions)),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /api-keys/{keyId}/usage
+ * Generates SWR cache key for GET /api-keys/{keyId}/rate-limit/current
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetApiKeysKeyIdUsageKey(
-  args?: InferRequestType<(typeof client)['api-keys'][':keyId']['usage']['$get']>,
+export function getGetApiKeysKeyIdRateLimitCurrentKey(
+  args: InferRequestType<(typeof client)['api-keys'][':keyId']['rate-limit']['current']['$get']>,
 ) {
-  return ['/api-keys/:keyId/usage', ...(args ? [args] : [])] as const
+  return ['api-keys', 'GET', '/api-keys/:keyId/rate-limit/current', args] as const
 }
 
 /**
@@ -252,36 +347,31 @@ export function getGetApiKeysKeyIdUsageKey(
 export function useGetApiKeysKeyIdRateLimitCurrent(
   args: InferRequestType<(typeof client)['api-keys'][':keyId']['rate-limit']['current']['$get']>,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<(typeof client)['api-keys'][':keyId']['rate-limit']['current']['$get']>,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ?? (isEnabled ? getGetApiKeysKeyIdRateLimitCurrentKey(args) : null)
-  const query = useSWR<
-    InferResponseType<(typeof client)['api-keys'][':keyId']['rate-limit']['current']['$get']>,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetApiKeysKeyIdRateLimitCurrentKey(args)) : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(client['api-keys'][':keyId']['rate-limit'].current.$get(args, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(client['api-keys'][':keyId']['rate-limit'].current.$get(args, clientOptions)),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /api-keys/{keyId}/rate-limit/current
+ * Generates SWR mutation key for POST /api-keys/verify
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetApiKeysKeyIdRateLimitCurrentKey(
-  args?: InferRequestType<(typeof client)['api-keys'][':keyId']['rate-limit']['current']['$get']>,
-) {
-  return ['/api-keys/:keyId/rate-limit/current', ...(args ? [args] : [])] as const
+export function getPostApiKeysVerifyMutationKey() {
+  return ['api-keys', 'POST', '/api-keys/verify'] as const
 }
 
 /**
@@ -290,24 +380,40 @@ export function getGetApiKeysKeyIdRateLimitCurrentKey(
  * APIキー検証
  */
 export function usePostApiKeysVerify(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['api-keys']['verify']['$post']>,
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client)['api-keys']['verify']['$post']>>>
+      >
+    >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client)['api-keys']['verify']['$post']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<(typeof client)['api-keys']['verify']['$post']>,
-    Error,
-    string,
-    InferRequestType<(typeof client)['api-keys']['verify']['$post']>
-  >(
-    'POST /api-keys/verify',
-    async (_, { arg }) => parseResponse(client['api-keys'].verify.$post(arg, options?.client)),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostApiKeysVerifyMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        { arg }: { arg: InferRequestType<(typeof client)['api-keys']['verify']['$post']> },
+      ) => parseResponse(client['api-keys'].verify.$post(arg, clientOptions)),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /scopes
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGetScopesKey() {
+  return ['scopes', 'GET', '/scopes'] as const
 }
 
 /**
@@ -316,26 +422,19 @@ export function usePostApiKeysVerify(options?: {
  * 利用可能なスコープ一覧
  */
 export function useGetScopes(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.scopes.$get>, Error> & {
-    swrKey?: Key
-    enabled?: boolean
-  }
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetScopesKey() : null)
-  const query = useSWR<InferResponseType<typeof client.scopes.$get>, Error>(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetScopesKey()) : null
+  return {
     swrKey,
-    async () => parseResponse(client.scopes.$get(undefined, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
-}
-
-/**
- * Generates SWR cache key for GET /scopes
- */
-export function getGetScopesKey() {
-  return ['/scopes'] as const
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.scopes.$get(undefined, clientOptions)),
+      restSwrOptions,
+    ),
+  }
 }

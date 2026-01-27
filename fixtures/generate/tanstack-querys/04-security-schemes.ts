@@ -1,180 +1,200 @@
-import type { QueryClient, UseQueryOptions } from '@tanstack/react-query'
+import type { QueryFunctionContext, UseQueryOptions } from '@tanstack/react-query'
 import { useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferResponseType } from 'hono/client'
+import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/04-security-schemes'
 
 /**
- * GET /public
- */
-export function useGetPublic(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.public.$get>,
-      Error,
-      InferResponseType<typeof client.public.$get>,
-      readonly ['/public']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetPublicQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.public.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
-}
-
-/**
  * Generates TanStack Query cache key for GET /public
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetPublicQueryKey() {
-  return ['/public'] as const
+  return ['public', 'GET', '/public'] as const
 }
 
 /**
- * GET /protected
+ * Returns TanStack Query query options for GET /public
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function useGetProtected(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.protected.$get>,
-      Error,
-      InferResponseType<typeof client.protected.$get>,
-      readonly ['/protected']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export const getGetPublicQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetPublicQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.public.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
+
+/**
+ * GET /public
+ */
+export function useGetPublic(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.public.$get>>>>>,
+    Error
+  >
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetProtectedQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.protected.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  const { queryKey, queryFn, ...baseOptions } = getGetPublicQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
  * Generates TanStack Query cache key for GET /protected
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetProtectedQueryKey() {
-  return ['/protected'] as const
+  return ['protected', 'GET', '/protected'] as const
 }
 
 /**
- * GET /admin
+ * Returns TanStack Query query options for GET /protected
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function useGetAdmin(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.admin.$get>,
-      Error,
-      InferResponseType<typeof client.admin.$get>,
-      readonly ['/admin']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export const getGetProtectedQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetProtectedQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.protected.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
+ * GET /protected
+ */
+export function useGetProtected(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.protected.$get>>>>>,
+    Error
+  >
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetAdminQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.admin.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  const { queryKey, queryFn, ...baseOptions } = getGetProtectedQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
  * Generates TanStack Query cache key for GET /admin
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetAdminQueryKey() {
-  return ['/admin'] as const
+  return ['admin', 'GET', '/admin'] as const
 }
 
 /**
- * GET /oauth-resource
+ * Returns TanStack Query query options for GET /admin
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function useGetOauthResource(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client)['oauth-resource']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['oauth-resource']['$get']>,
-      readonly ['/oauth-resource']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export const getGetAdminQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetAdminQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.admin.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
+
+/**
+ * GET /admin
+ */
+export function useGetAdmin(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.admin.$get>>>>>,
+    Error
+  >
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetOauthResourceQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client['oauth-resource'].$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  const { queryKey, queryFn, ...baseOptions } = getGetAdminQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
  * Generates TanStack Query cache key for GET /oauth-resource
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetOauthResourceQueryKey() {
-  return ['/oauth-resource'] as const
+  return ['oauth-resource', 'GET', '/oauth-resource'] as const
 }
 
 /**
- * GET /multi-auth
+ * Returns TanStack Query query options for GET /oauth-resource
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function useGetMultiAuth(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client)['multi-auth']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['multi-auth']['$get']>,
-      readonly ['/multi-auth']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export const getGetOauthResourceQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetOauthResourceQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['oauth-resource'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
+ * GET /oauth-resource
+ */
+export function useGetOauthResource(options?: {
+  query?: UseQueryOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client)['oauth-resource']['$get']>>>
+      >
+    >,
+    Error
+  >
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetMultiAuthQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client['multi-auth'].$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  const { queryKey, queryFn, ...baseOptions } = getGetOauthResourceQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
  * Generates TanStack Query cache key for GET /multi-auth
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetMultiAuthQueryKey() {
-  return ['/multi-auth'] as const
+  return ['multi-auth', 'GET', '/multi-auth'] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /multi-auth
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetMultiAuthQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetMultiAuthQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['multi-auth'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
+ * GET /multi-auth
+ */
+export function useGetMultiAuth(options?: {
+  query?: UseQueryOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['multi-auth']['$get']>>>>
+    >,
+    Error
+  >
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
+  const { queryKey, queryFn, ...baseOptions } = getGetMultiAuthQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }

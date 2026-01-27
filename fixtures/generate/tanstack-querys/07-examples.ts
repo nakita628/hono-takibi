@@ -1,70 +1,115 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
+import type {
+  QueryFunctionContext,
+  UseMutationOptions,
+  UseQueryOptions,
+} from '@tanstack/react-query'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/07-examples'
 
 /**
- * GET /products
+ * Generates TanStack Query cache key for GET /products
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function useGetProducts(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.products.$get>,
-      Error,
-      InferResponseType<typeof client.products.$get>,
-      readonly ['/products']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetProductsQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.products.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+export function getGetProductsQueryKey() {
+  return ['products', 'GET', '/products'] as const
 }
 
 /**
- * Generates TanStack Query cache key for GET /products
+ * Returns TanStack Query query options for GET /products
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetProductsQueryKey() {
-  return ['/products'] as const
+export const getGetProductsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetProductsQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.products.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
+ * GET /products
+ */
+export function useGetProducts(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.products.$get>>>>>,
+    Error
+  >
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
+  const { queryKey, queryFn, ...baseOptions } = getGetProductsQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /products
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostProductsMutationKey() {
+  return ['products', 'POST', '/products'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /products
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostProductsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostProductsMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.products.$post>) =>
+    parseResponse(client.products.$post(args, clientOptions)),
+})
 
 /**
  * POST /products
  */
-export function usePostProducts(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.products.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.products.$post>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<typeof client.products.$post> | undefined,
+export function usePostProducts(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.products.$post>>>>>,
     Error,
     InferRequestType<typeof client.products.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.products.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } = getPostProductsMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query cache key for GET /products/{productId}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetProductsProductIdQueryKey(
+  args: InferRequestType<(typeof client.products)[':productId']['$get']>,
+) {
+  return ['products', 'GET', '/products/:productId', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /products/{productId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetProductsProductIdQueryOptions = (
+  args: InferRequestType<(typeof client.products)[':productId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetProductsProductIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.products[':productId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /products/{productId}
@@ -73,36 +118,20 @@ export function useGetProductsProductId(
   args: InferRequestType<(typeof client.products)[':productId']['$get']>,
   options?: {
     query?: UseQueryOptions<
-      InferResponseType<(typeof client.products)[':productId']['$get']>,
-      Error,
-      InferResponseType<(typeof client.products)[':productId']['$get']>,
-      readonly [
-        '/products/:productId',
-        InferRequestType<(typeof client.products)[':productId']['$get']>,
-      ]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.products)[':productId']['$get']>>>
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetProductsProductIdQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.products[':productId'].$get(args, clientOptions)),
-    },
-    queryClient,
+  const { queryKey, queryFn, ...baseOptions } = getGetProductsProductIdQueryOptions(
+    args,
+    clientOptions,
   )
-  return { ...query, queryKey }
-}
-
-/**
- * Generates TanStack Query cache key for GET /products/{productId}
- */
-export function getGetProductsProductIdQueryKey(
-  args: InferRequestType<(typeof client.products)[':productId']['$get']>,
-) {
-  return ['/products/:productId', args] as const
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }

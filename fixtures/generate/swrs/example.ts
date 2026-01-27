@@ -1,8 +1,16 @@
-import type { ClientRequestOptions, InferResponseType } from 'hono/client'
+import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
 import { client } from '../clients/example'
+
+/**
+ * Generates SWR cache key for GET /sample
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGetSampleKey() {
+  return ['sample', 'GET', '/sample'] as const
+}
 
 /**
  * GET /sample
@@ -10,26 +18,19 @@ import { client } from '../clients/example'
  * Returns a payload exercising every custom format, constraint, and nullable case
  */
 export function useGetSample(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.sample.$get>, Error> & {
-    swrKey?: Key
-    enabled?: boolean
-  }
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetSampleKey() : null)
-  const query = useSWR<InferResponseType<typeof client.sample.$get>, Error>(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetSampleKey()) : null
+  return {
     swrKey,
-    async () => parseResponse(client.sample.$get(undefined, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
-}
-
-/**
- * Generates SWR cache key for GET /sample
- */
-export function getGetSampleKey() {
-  return ['/sample'] as const
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.sample.$get(undefined, clientOptions)),
+      restSwrOptions,
+    ),
+  }
 }

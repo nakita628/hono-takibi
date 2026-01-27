@@ -1,75 +1,124 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
+import type {
+  QueryFunctionContext,
+  UseMutationOptions,
+  UseQueryOptions,
+} from '@tanstack/react-query'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/45-sns-settings-moderation'
+
+/**
+ * Generates TanStack Query cache key for GET /settings/account
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGetSettingsAccountQueryKey() {
+  return ['settings', 'GET', '/settings/account'] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /settings/account
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetSettingsAccountQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetSettingsAccountQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.settings.account.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /settings/account
  *
  * アカウント設定取得
  */
-export function useGetSettingsAccount(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.settings.account.$get>,
-      Error,
-      InferResponseType<typeof client.settings.account.$get>,
-      readonly ['/settings/account']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetSettingsAccount(options?: {
+  query?: UseQueryOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.settings.account.$get>>>>
+    >,
+    Error
+  >
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetSettingsAccountQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.settings.account.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  const { queryKey, queryFn, ...baseOptions } = getGetSettingsAccountQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /settings/account
+ * Generates TanStack Query mutation key for PUT /settings/account
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetSettingsAccountQueryKey() {
-  return ['/settings/account'] as const
+export function getPutSettingsAccountMutationKey() {
+  return ['settings', 'PUT', '/settings/account'] as const
 }
+
+/**
+ * Returns TanStack Query mutation options for PUT /settings/account
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutSettingsAccountMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPutSettingsAccountMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.settings.account.$put>) =>
+    parseResponse(client.settings.account.$put(args, clientOptions)),
+})
 
 /**
  * PUT /settings/account
  *
  * アカウント設定更新
  */
-export function usePutSettingsAccount(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.settings.account.$put> | undefined,
-      Error,
-      InferRequestType<typeof client.settings.account.$put>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<typeof client.settings.account.$put> | undefined,
+export function usePutSettingsAccount(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.settings.account.$put>>>>
+    >,
     Error,
     InferRequestType<typeof client.settings.account.$put>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.settings.account.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPutSettingsAccountMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query cache key for GET /settings/username/check
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetSettingsUsernameCheckQueryKey(
+  args: InferRequestType<typeof client.settings.username.check.$get>,
+) {
+  return ['settings', 'GET', '/settings/username/check', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /settings/username/check
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetSettingsUsernameCheckQueryOptions = (
+  args: InferRequestType<typeof client.settings.username.check.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetSettingsUsernameCheckQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.settings.username.check.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /settings/username/check
@@ -80,438 +129,596 @@ export function useGetSettingsUsernameCheck(
   args: InferRequestType<typeof client.settings.username.check.$get>,
   options?: {
     query?: UseQueryOptions<
-      InferResponseType<typeof client.settings.username.check.$get>,
-      Error,
-      InferResponseType<typeof client.settings.username.check.$get>,
-      readonly [
-        '/settings/username/check',
-        InferRequestType<typeof client.settings.username.check.$get>,
-      ]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<typeof client.settings.username.check.$get>>>
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetSettingsUsernameCheckQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.settings.username.check.$get(args, clientOptions)),
-    },
-    queryClient,
+  const { queryKey, queryFn, ...baseOptions } = getGetSettingsUsernameCheckQueryOptions(
+    args,
+    clientOptions,
   )
-  return { ...query, queryKey }
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /settings/username/check
+ * Generates TanStack Query cache key for GET /settings/privacy
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetSettingsUsernameCheckQueryKey(
-  args: InferRequestType<typeof client.settings.username.check.$get>,
-) {
-  return ['/settings/username/check', args] as const
+export function getGetSettingsPrivacyQueryKey() {
+  return ['settings', 'GET', '/settings/privacy'] as const
 }
+
+/**
+ * Returns TanStack Query query options for GET /settings/privacy
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetSettingsPrivacyQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetSettingsPrivacyQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.settings.privacy.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /settings/privacy
  *
  * プライバシー設定取得
  */
-export function useGetSettingsPrivacy(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.settings.privacy.$get>,
-      Error,
-      InferResponseType<typeof client.settings.privacy.$get>,
-      readonly ['/settings/privacy']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetSettingsPrivacy(options?: {
+  query?: UseQueryOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.settings.privacy.$get>>>>
+    >,
+    Error
+  >
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetSettingsPrivacyQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.settings.privacy.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  const { queryKey, queryFn, ...baseOptions } = getGetSettingsPrivacyQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /settings/privacy
+ * Generates TanStack Query mutation key for PUT /settings/privacy
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetSettingsPrivacyQueryKey() {
-  return ['/settings/privacy'] as const
+export function getPutSettingsPrivacyMutationKey() {
+  return ['settings', 'PUT', '/settings/privacy'] as const
 }
+
+/**
+ * Returns TanStack Query mutation options for PUT /settings/privacy
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutSettingsPrivacyMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPutSettingsPrivacyMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.settings.privacy.$put>) =>
+    parseResponse(client.settings.privacy.$put(args, clientOptions)),
+})
 
 /**
  * PUT /settings/privacy
  *
  * プライバシー設定更新
  */
-export function usePutSettingsPrivacy(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.settings.privacy.$put> | undefined,
-      Error,
-      InferRequestType<typeof client.settings.privacy.$put>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<typeof client.settings.privacy.$put> | undefined,
+export function usePutSettingsPrivacy(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.settings.privacy.$put>>>>
+    >,
     Error,
     InferRequestType<typeof client.settings.privacy.$put>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.settings.privacy.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPutSettingsPrivacyMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query cache key for GET /settings/content-preferences
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGetSettingsContentPreferencesQueryKey() {
+  return ['settings', 'GET', '/settings/content-preferences'] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /settings/content-preferences
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetSettingsContentPreferencesQueryOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetSettingsContentPreferencesQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.settings['content-preferences'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /settings/content-preferences
  *
  * コンテンツ設定取得
  */
-export function useGetSettingsContentPreferences(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.settings)['content-preferences']['$get']>,
-      Error,
-      InferResponseType<(typeof client.settings)['content-preferences']['$get']>,
-      readonly ['/settings/content-preferences']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetSettingsContentPreferences(options?: {
+  query?: UseQueryOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.settings)['content-preferences']['$get']>>
+        >
+      >
+    >,
+    Error
+  >
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetSettingsContentPreferencesQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.settings['content-preferences'].$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  const { queryKey, queryFn, ...baseOptions } =
+    getGetSettingsContentPreferencesQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /settings/content-preferences
+ * Generates TanStack Query mutation key for PUT /settings/content-preferences
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetSettingsContentPreferencesQueryKey() {
-  return ['/settings/content-preferences'] as const
+export function getPutSettingsContentPreferencesMutationKey() {
+  return ['settings', 'PUT', '/settings/content-preferences'] as const
 }
+
+/**
+ * Returns TanStack Query mutation options for PUT /settings/content-preferences
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutSettingsContentPreferencesMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPutSettingsContentPreferencesMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.settings)['content-preferences']['$put']>,
+  ) => parseResponse(client.settings['content-preferences'].$put(args, clientOptions)),
+})
 
 /**
  * PUT /settings/content-preferences
  *
  * コンテンツ設定更新
  */
-export function usePutSettingsContentPreferences(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.settings)['content-preferences']['$put']> | undefined,
-      Error,
-      InferRequestType<(typeof client.settings)['content-preferences']['$put']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<(typeof client.settings)['content-preferences']['$put']> | undefined,
+export function usePutSettingsContentPreferences(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.settings)['content-preferences']['$put']>>
+        >
+      >
+    >,
     Error,
     InferRequestType<(typeof client.settings)['content-preferences']['$put']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.settings['content-preferences'].$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPutSettingsContentPreferencesMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query cache key for GET /settings/muted-words
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGetSettingsMutedWordsQueryKey() {
+  return ['settings', 'GET', '/settings/muted-words'] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /settings/muted-words
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetSettingsMutedWordsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetSettingsMutedWordsQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.settings['muted-words'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /settings/muted-words
  *
  * ミュートワード一覧取得
  */
-export function useGetSettingsMutedWords(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.settings)['muted-words']['$get']>,
-      Error,
-      InferResponseType<(typeof client.settings)['muted-words']['$get']>,
-      readonly ['/settings/muted-words']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetSettingsMutedWords(options?: {
+  query?: UseQueryOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client.settings)['muted-words']['$get']>>>
+      >
+    >,
+    Error
+  >
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetSettingsMutedWordsQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.settings['muted-words'].$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  const { queryKey, queryFn, ...baseOptions } = getGetSettingsMutedWordsQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /settings/muted-words
+ * Generates TanStack Query mutation key for POST /settings/muted-words
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetSettingsMutedWordsQueryKey() {
-  return ['/settings/muted-words'] as const
+export function getPostSettingsMutedWordsMutationKey() {
+  return ['settings', 'POST', '/settings/muted-words'] as const
 }
+
+/**
+ * Returns TanStack Query mutation options for POST /settings/muted-words
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostSettingsMutedWordsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostSettingsMutedWordsMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.settings)['muted-words']['$post']>) =>
+    parseResponse(client.settings['muted-words'].$post(args, clientOptions)),
+})
 
 /**
  * POST /settings/muted-words
  *
  * ミュートワード追加
  */
-export function usePostSettingsMutedWords(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.settings)['muted-words']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client.settings)['muted-words']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<(typeof client.settings)['muted-words']['$post']> | undefined,
+export function usePostSettingsMutedWords(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client.settings)['muted-words']['$post']>>>
+      >
+    >,
     Error,
     InferRequestType<(typeof client.settings)['muted-words']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.settings['muted-words'].$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostSettingsMutedWordsMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for DELETE /settings/muted-words/{wordId}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getDeleteSettingsMutedWordsWordIdMutationKey() {
+  return ['settings', 'DELETE', '/settings/muted-words/:wordId'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for DELETE /settings/muted-words/{wordId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteSettingsMutedWordsWordIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteSettingsMutedWordsWordIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.settings)['muted-words'][':wordId']['$delete']>,
+  ) => parseResponse(client.settings['muted-words'][':wordId'].$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /settings/muted-words/{wordId}
  *
  * ミュートワード削除
  */
-export function useDeleteSettingsMutedWordsWordId(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.settings)['muted-words'][':wordId']['$delete']> | undefined,
-      Error,
-      InferRequestType<(typeof client.settings)['muted-words'][':wordId']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<(typeof client.settings)['muted-words'][':wordId']['$delete']> | undefined,
+export function useDeleteSettingsMutedWordsWordId(options?: {
+  mutation?: UseMutationOptions<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.settings)['muted-words'][':wordId']['$delete']>>
+          >
+        >
+      >
+    | undefined,
     Error,
     InferRequestType<(typeof client.settings)['muted-words'][':wordId']['$delete']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.settings['muted-words'][':wordId'].$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteSettingsMutedWordsWordIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query cache key for GET /settings/sessions
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGetSettingsSessionsQueryKey() {
+  return ['settings', 'GET', '/settings/sessions'] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /settings/sessions
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetSettingsSessionsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetSettingsSessionsQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.settings.sessions.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /settings/sessions
  *
  * ログインセッション一覧
  */
-export function useGetSettingsSessions(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.settings.sessions.$get>,
-      Error,
-      InferResponseType<typeof client.settings.sessions.$get>,
-      readonly ['/settings/sessions']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetSettingsSessions(options?: {
+  query?: UseQueryOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.settings.sessions.$get>>>>
+    >,
+    Error
+  >
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetSettingsSessionsQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.settings.sessions.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  const { queryKey, queryFn, ...baseOptions } = getGetSettingsSessionsQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /settings/sessions
+ * Generates TanStack Query mutation key for DELETE /settings/sessions/{sessionId}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetSettingsSessionsQueryKey() {
-  return ['/settings/sessions'] as const
+export function getDeleteSettingsSessionsSessionIdMutationKey() {
+  return ['settings', 'DELETE', '/settings/sessions/:sessionId'] as const
 }
+
+/**
+ * Returns TanStack Query mutation options for DELETE /settings/sessions/{sessionId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteSettingsSessionsSessionIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteSettingsSessionsSessionIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.settings.sessions)[':sessionId']['$delete']>,
+  ) => parseResponse(client.settings.sessions[':sessionId'].$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /settings/sessions/{sessionId}
  *
  * セッション無効化
  */
-export function useDeleteSettingsSessionsSessionId(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.settings.sessions)[':sessionId']['$delete']> | undefined,
-      Error,
-      InferRequestType<(typeof client.settings.sessions)[':sessionId']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<(typeof client.settings.sessions)[':sessionId']['$delete']> | undefined,
+export function useDeleteSettingsSessionsSessionId(options?: {
+  mutation?: UseMutationOptions<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.settings.sessions)[':sessionId']['$delete']>>
+          >
+        >
+      >
+    | undefined,
     Error,
     InferRequestType<(typeof client.settings.sessions)[':sessionId']['$delete']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.settings.sessions[':sessionId'].$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteSettingsSessionsSessionIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query cache key for GET /settings/connected-apps
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGetSettingsConnectedAppsQueryKey() {
+  return ['settings', 'GET', '/settings/connected-apps'] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /settings/connected-apps
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetSettingsConnectedAppsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetSettingsConnectedAppsQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.settings['connected-apps'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /settings/connected-apps
  *
  * 連携アプリ一覧
  */
-export function useGetSettingsConnectedApps(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.settings)['connected-apps']['$get']>,
-      Error,
-      InferResponseType<(typeof client.settings)['connected-apps']['$get']>,
-      readonly ['/settings/connected-apps']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetSettingsConnectedApps(options?: {
+  query?: UseQueryOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.settings)['connected-apps']['$get']>>
+        >
+      >
+    >,
+    Error
+  >
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetSettingsConnectedAppsQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.settings['connected-apps'].$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  const { queryKey, queryFn, ...baseOptions } =
+    getGetSettingsConnectedAppsQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /settings/connected-apps
+ * Generates TanStack Query mutation key for DELETE /settings/connected-apps/{appId}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetSettingsConnectedAppsQueryKey() {
-  return ['/settings/connected-apps'] as const
+export function getDeleteSettingsConnectedAppsAppIdMutationKey() {
+  return ['settings', 'DELETE', '/settings/connected-apps/:appId'] as const
 }
+
+/**
+ * Returns TanStack Query mutation options for DELETE /settings/connected-apps/{appId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteSettingsConnectedAppsAppIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteSettingsConnectedAppsAppIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.settings)['connected-apps'][':appId']['$delete']>,
+  ) => parseResponse(client.settings['connected-apps'][':appId'].$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /settings/connected-apps/{appId}
  *
  * 連携アプリ解除
  */
-export function useDeleteSettingsConnectedAppsAppId(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client.settings)['connected-apps'][':appId']['$delete']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client.settings)['connected-apps'][':appId']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<(typeof client.settings)['connected-apps'][':appId']['$delete']> | undefined,
+export function useDeleteSettingsConnectedAppsAppId(options?: {
+  mutation?: UseMutationOptions<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.settings)['connected-apps'][':appId']['$delete']>>
+          >
+        >
+      >
+    | undefined,
     Error,
     InferRequestType<(typeof client.settings)['connected-apps'][':appId']['$delete']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.settings['connected-apps'][':appId'].$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteSettingsConnectedAppsAppIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /settings/data-export
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostSettingsDataExportMutationKey() {
+  return ['settings', 'POST', '/settings/data-export'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /settings/data-export
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostSettingsDataExportMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostSettingsDataExportMutationKey(),
+  mutationFn: async () =>
+    parseResponse(client.settings['data-export'].$post(undefined, clientOptions)),
+})
 
 /**
  * POST /settings/data-export
  *
  * データエクスポートリクエスト
  */
-export function usePostSettingsDataExport(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.settings)['data-export']['$post']> | undefined,
-      Error,
-      void
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<(typeof client.settings)['data-export']['$post']> | undefined,
+export function usePostSettingsDataExport(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client.settings)['data-export']['$post']>>>
+      >
+    >,
     Error,
     void
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async () =>
-        parseResponse(client.settings['data-export'].$post(undefined, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostSettingsDataExportMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query cache key for GET /settings/data-export/{requestId}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetSettingsDataExportRequestIdQueryKey(
+  args: InferRequestType<(typeof client.settings)['data-export'][':requestId']['$get']>,
+) {
+  return ['settings', 'GET', '/settings/data-export/:requestId', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /settings/data-export/{requestId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetSettingsDataExportRequestIdQueryOptions = (
+  args: InferRequestType<(typeof client.settings)['data-export'][':requestId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetSettingsDataExportRequestIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.settings['data-export'][':requestId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /settings/data-export/{requestId}
@@ -522,99 +729,131 @@ export function useGetSettingsDataExportRequestId(
   args: InferRequestType<(typeof client.settings)['data-export'][':requestId']['$get']>,
   options?: {
     query?: UseQueryOptions<
-      InferResponseType<(typeof client.settings)['data-export'][':requestId']['$get']>,
-      Error,
-      InferResponseType<(typeof client.settings)['data-export'][':requestId']['$get']>,
-      readonly [
-        '/settings/data-export/:requestId',
-        InferRequestType<(typeof client.settings)['data-export'][':requestId']['$get']>,
-      ]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.settings)['data-export'][':requestId']['$get']>>
+          >
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetSettingsDataExportRequestIdQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.settings['data-export'][':requestId'].$get(args, clientOptions)),
-    },
-    queryClient,
+  const { queryKey, queryFn, ...baseOptions } = getGetSettingsDataExportRequestIdQueryOptions(
+    args,
+    clientOptions,
   )
-  return { ...query, queryKey }
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /settings/data-export/{requestId}
+ * Generates TanStack Query mutation key for POST /settings/deactivate
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetSettingsDataExportRequestIdQueryKey(
-  args: InferRequestType<(typeof client.settings)['data-export'][':requestId']['$get']>,
-) {
-  return ['/settings/data-export/:requestId', args] as const
+export function getPostSettingsDeactivateMutationKey() {
+  return ['settings', 'POST', '/settings/deactivate'] as const
 }
+
+/**
+ * Returns TanStack Query mutation options for POST /settings/deactivate
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostSettingsDeactivateMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostSettingsDeactivateMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.settings.deactivate.$post>) =>
+    parseResponse(client.settings.deactivate.$post(args, clientOptions)),
+})
 
 /**
  * POST /settings/deactivate
  *
  * アカウント一時停止
  */
-export function usePostSettingsDeactivate(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.settings.deactivate.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.settings.deactivate.$post>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<typeof client.settings.deactivate.$post> | undefined,
+export function usePostSettingsDeactivate(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.settings.deactivate.$post>>>>
+    >,
     Error,
     InferRequestType<typeof client.settings.deactivate.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.settings.deactivate.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostSettingsDeactivateMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /reports
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostReportsMutationKey() {
+  return ['reports', 'POST', '/reports'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /reports
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostReportsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostReportsMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.reports.$post>) =>
+    parseResponse(client.reports.$post(args, clientOptions)),
+})
 
 /**
  * POST /reports
  *
  * 通報作成
  */
-export function usePostReports(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.reports.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.reports.$post>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<typeof client.reports.$post> | undefined,
+export function usePostReports(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.reports.$post>>>>>,
     Error,
     InferRequestType<typeof client.reports.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.reports.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } = getPostReportsMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query cache key for GET /reports/{reportId}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetReportsReportIdQueryKey(
+  args: InferRequestType<(typeof client.reports)[':reportId']['$get']>,
+) {
+  return ['reports', 'GET', '/reports/:reportId', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /reports/{reportId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetReportsReportIdQueryOptions = (
+  args: InferRequestType<(typeof client.reports)[':reportId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetReportsReportIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.reports[':reportId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /reports/{reportId}
@@ -625,39 +864,52 @@ export function useGetReportsReportId(
   args: InferRequestType<(typeof client.reports)[':reportId']['$get']>,
   options?: {
     query?: UseQueryOptions<
-      InferResponseType<(typeof client.reports)[':reportId']['$get']>,
-      Error,
-      InferResponseType<(typeof client.reports)[':reportId']['$get']>,
-      readonly [
-        '/reports/:reportId',
-        InferRequestType<(typeof client.reports)[':reportId']['$get']>,
-      ]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.reports)[':reportId']['$get']>>>
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetReportsReportIdQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.reports[':reportId'].$get(args, clientOptions)),
-    },
-    queryClient,
+  const { queryKey, queryFn, ...baseOptions } = getGetReportsReportIdQueryOptions(
+    args,
+    clientOptions,
   )
-  return { ...query, queryKey }
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /reports/{reportId}
+ * Generates TanStack Query cache key for GET /moderation/queue
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetReportsReportIdQueryKey(
-  args: InferRequestType<(typeof client.reports)[':reportId']['$get']>,
+export function getGetModerationQueueQueryKey(
+  args: InferRequestType<typeof client.moderation.queue.$get>,
 ) {
-  return ['/reports/:reportId', args] as const
+  return ['moderation', 'GET', '/moderation/queue', args] as const
 }
+
+/**
+ * Returns TanStack Query query options for GET /moderation/queue
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetModerationQueueQueryOptions = (
+  args: InferRequestType<typeof client.moderation.queue.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetModerationQueueQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.moderation.queue.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /moderation/queue
@@ -670,36 +922,50 @@ export function useGetModerationQueue(
   args: InferRequestType<typeof client.moderation.queue.$get>,
   options?: {
     query?: UseQueryOptions<
-      InferResponseType<typeof client.moderation.queue.$get>,
-      Error,
-      InferResponseType<typeof client.moderation.queue.$get>,
-      readonly ['/moderation/queue', InferRequestType<typeof client.moderation.queue.$get>]
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.moderation.queue.$get>>>>
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetModerationQueueQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.moderation.queue.$get(args, clientOptions)),
-    },
-    queryClient,
+  const { queryKey, queryFn, ...baseOptions } = getGetModerationQueueQueryOptions(
+    args,
+    clientOptions,
   )
-  return { ...query, queryKey }
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /moderation/queue
+ * Generates TanStack Query cache key for GET /moderation/items/{itemId}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetModerationQueueQueryKey(
-  args: InferRequestType<typeof client.moderation.queue.$get>,
+export function getGetModerationItemsItemIdQueryKey(
+  args: InferRequestType<(typeof client.moderation.items)[':itemId']['$get']>,
 ) {
-  return ['/moderation/queue', args] as const
+  return ['moderation', 'GET', '/moderation/items/:itemId', args] as const
 }
+
+/**
+ * Returns TanStack Query query options for GET /moderation/items/{itemId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetModerationItemsItemIdQueryOptions = (
+  args: InferRequestType<(typeof client.moderation.items)[':itemId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetModerationItemsItemIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.moderation.items[':itemId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /moderation/items/{itemId}
@@ -710,70 +976,101 @@ export function useGetModerationItemsItemId(
   args: InferRequestType<(typeof client.moderation.items)[':itemId']['$get']>,
   options?: {
     query?: UseQueryOptions<
-      InferResponseType<(typeof client.moderation.items)[':itemId']['$get']>,
-      Error,
-      InferResponseType<(typeof client.moderation.items)[':itemId']['$get']>,
-      readonly [
-        '/moderation/items/:itemId',
-        InferRequestType<(typeof client.moderation.items)[':itemId']['$get']>,
-      ]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.moderation.items)[':itemId']['$get']>>
+          >
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetModerationItemsItemIdQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.moderation.items[':itemId'].$get(args, clientOptions)),
-    },
-    queryClient,
+  const { queryKey, queryFn, ...baseOptions } = getGetModerationItemsItemIdQueryOptions(
+    args,
+    clientOptions,
   )
-  return { ...query, queryKey }
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /moderation/items/{itemId}
+ * Generates TanStack Query mutation key for POST /moderation/items/{itemId}/action
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetModerationItemsItemIdQueryKey(
-  args: InferRequestType<(typeof client.moderation.items)[':itemId']['$get']>,
-) {
-  return ['/moderation/items/:itemId', args] as const
+export function getPostModerationItemsItemIdActionMutationKey() {
+  return ['moderation', 'POST', '/moderation/items/:itemId/action'] as const
 }
+
+/**
+ * Returns TanStack Query mutation options for POST /moderation/items/{itemId}/action
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostModerationItemsItemIdActionMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostModerationItemsItemIdActionMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.moderation.items)[':itemId']['action']['$post']>,
+  ) => parseResponse(client.moderation.items[':itemId'].action.$post(args, clientOptions)),
+})
 
 /**
  * POST /moderation/items/{itemId}/action
  *
  * モデレーションアクション実行
  */
-export function usePostModerationItemsItemIdAction(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.moderation.items)[':itemId']['action']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client.moderation.items)[':itemId']['action']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<(typeof client.moderation.items)[':itemId']['action']['$post']> | undefined,
+export function usePostModerationItemsItemIdAction(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.moderation.items)[':itemId']['action']['$post']>>
+        >
+      >
+    >,
     Error,
     InferRequestType<(typeof client.moderation.items)[':itemId']['action']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.moderation.items[':itemId'].action.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostModerationItemsItemIdActionMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query cache key for GET /moderation/users/{userId}/history
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetModerationUsersUserIdHistoryQueryKey(
+  args: InferRequestType<(typeof client.moderation.users)[':userId']['history']['$get']>,
+) {
+  return ['moderation', 'GET', '/moderation/users/:userId/history', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /moderation/users/{userId}/history
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetModerationUsersUserIdHistoryQueryOptions = (
+  args: InferRequestType<(typeof client.moderation.users)[':userId']['history']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetModerationUsersUserIdHistoryQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.moderation.users[':userId'].history.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /moderation/users/{userId}/history
@@ -784,103 +1081,148 @@ export function useGetModerationUsersUserIdHistory(
   args: InferRequestType<(typeof client.moderation.users)[':userId']['history']['$get']>,
   options?: {
     query?: UseQueryOptions<
-      InferResponseType<(typeof client.moderation.users)[':userId']['history']['$get']>,
-      Error,
-      InferResponseType<(typeof client.moderation.users)[':userId']['history']['$get']>,
-      readonly [
-        '/moderation/users/:userId/history',
-        InferRequestType<(typeof client.moderation.users)[':userId']['history']['$get']>,
-      ]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.moderation.users)[':userId']['history']['$get']>>
+          >
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetModerationUsersUserIdHistoryQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.moderation.users[':userId'].history.$get(args, clientOptions)),
-    },
-    queryClient,
+  const { queryKey, queryFn, ...baseOptions } = getGetModerationUsersUserIdHistoryQueryOptions(
+    args,
+    clientOptions,
   )
-  return { ...query, queryKey }
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /moderation/users/{userId}/history
+ * Generates TanStack Query mutation key for POST /moderation/users/{userId}/suspend
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetModerationUsersUserIdHistoryQueryKey(
-  args: InferRequestType<(typeof client.moderation.users)[':userId']['history']['$get']>,
-) {
-  return ['/moderation/users/:userId/history', args] as const
+export function getPostModerationUsersUserIdSuspendMutationKey() {
+  return ['moderation', 'POST', '/moderation/users/:userId/suspend'] as const
 }
+
+/**
+ * Returns TanStack Query mutation options for POST /moderation/users/{userId}/suspend
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostModerationUsersUserIdSuspendMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostModerationUsersUserIdSuspendMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.moderation.users)[':userId']['suspend']['$post']>,
+  ) => parseResponse(client.moderation.users[':userId'].suspend.$post(args, clientOptions)),
+})
 
 /**
  * POST /moderation/users/{userId}/suspend
  *
  * ユーザー凍結
  */
-export function usePostModerationUsersUserIdSuspend(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client.moderation.users)[':userId']['suspend']['$post']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client.moderation.users)[':userId']['suspend']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<(typeof client.moderation.users)[':userId']['suspend']['$post']> | undefined,
+export function usePostModerationUsersUserIdSuspend(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.moderation.users)[':userId']['suspend']['$post']>>
+        >
+      >
+    >,
     Error,
     InferRequestType<(typeof client.moderation.users)[':userId']['suspend']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.moderation.users[':userId'].suspend.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostModerationUsersUserIdSuspendMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /moderation/users/{userId}/unsuspend
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostModerationUsersUserIdUnsuspendMutationKey() {
+  return ['moderation', 'POST', '/moderation/users/:userId/unsuspend'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /moderation/users/{userId}/unsuspend
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostModerationUsersUserIdUnsuspendMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostModerationUsersUserIdUnsuspendMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.moderation.users)[':userId']['unsuspend']['$post']>,
+  ) => parseResponse(client.moderation.users[':userId'].unsuspend.$post(args, clientOptions)),
+})
 
 /**
  * POST /moderation/users/{userId}/unsuspend
  *
  * ユーザー凍結解除
  */
-export function usePostModerationUsersUserIdUnsuspend(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client.moderation.users)[':userId']['unsuspend']['$post']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client.moderation.users)[':userId']['unsuspend']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    | InferResponseType<(typeof client.moderation.users)[':userId']['unsuspend']['$post']>
-    | undefined,
+export function usePostModerationUsersUserIdUnsuspend(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.moderation.users)[':userId']['unsuspend']['$post']>>
+        >
+      >
+    >,
     Error,
     InferRequestType<(typeof client.moderation.users)[':userId']['unsuspend']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.moderation.users[':userId'].unsuspend.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostModerationUsersUserIdUnsuspendMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query cache key for GET /analytics/posts/{postId}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetAnalyticsPostsPostIdQueryKey(
+  args: InferRequestType<(typeof client.analytics.posts)[':postId']['$get']>,
+) {
+  return ['analytics', 'GET', '/analytics/posts/:postId', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /analytics/posts/{postId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetAnalyticsPostsPostIdQueryOptions = (
+  args: InferRequestType<(typeof client.analytics.posts)[':postId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetAnalyticsPostsPostIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.analytics.posts[':postId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /analytics/posts/{postId}
@@ -891,40 +1233,54 @@ export function useGetAnalyticsPostsPostId(
   args: InferRequestType<(typeof client.analytics.posts)[':postId']['$get']>,
   options?: {
     query?: UseQueryOptions<
-      InferResponseType<(typeof client.analytics.posts)[':postId']['$get']>,
-      Error,
-      InferResponseType<(typeof client.analytics.posts)[':postId']['$get']>,
-      readonly [
-        '/analytics/posts/:postId',
-        InferRequestType<(typeof client.analytics.posts)[':postId']['$get']>,
-      ]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.analytics.posts)[':postId']['$get']>>
+          >
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetAnalyticsPostsPostIdQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.analytics.posts[':postId'].$get(args, clientOptions)),
-    },
-    queryClient,
+  const { queryKey, queryFn, ...baseOptions } = getGetAnalyticsPostsPostIdQueryOptions(
+    args,
+    clientOptions,
   )
-  return { ...query, queryKey }
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /analytics/posts/{postId}
+ * Generates TanStack Query cache key for GET /analytics/account
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetAnalyticsPostsPostIdQueryKey(
-  args: InferRequestType<(typeof client.analytics.posts)[':postId']['$get']>,
+export function getGetAnalyticsAccountQueryKey(
+  args: InferRequestType<typeof client.analytics.account.$get>,
 ) {
-  return ['/analytics/posts/:postId', args] as const
+  return ['analytics', 'GET', '/analytics/account', args] as const
 }
+
+/**
+ * Returns TanStack Query query options for GET /analytics/account
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetAnalyticsAccountQueryOptions = (
+  args: InferRequestType<typeof client.analytics.account.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetAnalyticsAccountQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.analytics.account.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /analytics/account
@@ -935,36 +1291,50 @@ export function useGetAnalyticsAccount(
   args: InferRequestType<typeof client.analytics.account.$get>,
   options?: {
     query?: UseQueryOptions<
-      InferResponseType<typeof client.analytics.account.$get>,
-      Error,
-      InferResponseType<typeof client.analytics.account.$get>,
-      readonly ['/analytics/account', InferRequestType<typeof client.analytics.account.$get>]
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.analytics.account.$get>>>>
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetAnalyticsAccountQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.analytics.account.$get(args, clientOptions)),
-    },
-    queryClient,
+  const { queryKey, queryFn, ...baseOptions } = getGetAnalyticsAccountQueryOptions(
+    args,
+    clientOptions,
   )
-  return { ...query, queryKey }
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /analytics/account
+ * Generates TanStack Query cache key for GET /analytics/followers
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetAnalyticsAccountQueryKey(
-  args: InferRequestType<typeof client.analytics.account.$get>,
+export function getGetAnalyticsFollowersQueryKey(
+  args: InferRequestType<typeof client.analytics.followers.$get>,
 ) {
-  return ['/analytics/account', args] as const
+  return ['analytics', 'GET', '/analytics/followers', args] as const
 }
+
+/**
+ * Returns TanStack Query query options for GET /analytics/followers
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetAnalyticsFollowersQueryOptions = (
+  args: InferRequestType<typeof client.analytics.followers.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetAnalyticsFollowersQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.analytics.followers.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /analytics/followers
@@ -975,36 +1345,52 @@ export function useGetAnalyticsFollowers(
   args: InferRequestType<typeof client.analytics.followers.$get>,
   options?: {
     query?: UseQueryOptions<
-      InferResponseType<typeof client.analytics.followers.$get>,
-      Error,
-      InferResponseType<typeof client.analytics.followers.$get>,
-      readonly ['/analytics/followers', InferRequestType<typeof client.analytics.followers.$get>]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<typeof client.analytics.followers.$get>>>
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetAnalyticsFollowersQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.analytics.followers.$get(args, clientOptions)),
-    },
-    queryClient,
+  const { queryKey, queryFn, ...baseOptions } = getGetAnalyticsFollowersQueryOptions(
+    args,
+    clientOptions,
   )
-  return { ...query, queryKey }
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /analytics/followers
+ * Generates TanStack Query cache key for GET /analytics/top-posts
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetAnalyticsFollowersQueryKey(
-  args: InferRequestType<typeof client.analytics.followers.$get>,
+export function getGetAnalyticsTopPostsQueryKey(
+  args: InferRequestType<(typeof client.analytics)['top-posts']['$get']>,
 ) {
-  return ['/analytics/followers', args] as const
+  return ['analytics', 'GET', '/analytics/top-posts', args] as const
 }
+
+/**
+ * Returns TanStack Query query options for GET /analytics/top-posts
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetAnalyticsTopPostsQueryOptions = (
+  args: InferRequestType<(typeof client.analytics)['top-posts']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetAnalyticsTopPostsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.analytics['top-posts'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /analytics/top-posts
@@ -1015,36 +1401,20 @@ export function useGetAnalyticsTopPosts(
   args: InferRequestType<(typeof client.analytics)['top-posts']['$get']>,
   options?: {
     query?: UseQueryOptions<
-      InferResponseType<(typeof client.analytics)['top-posts']['$get']>,
-      Error,
-      InferResponseType<(typeof client.analytics)['top-posts']['$get']>,
-      readonly [
-        '/analytics/top-posts',
-        InferRequestType<(typeof client.analytics)['top-posts']['$get']>,
-      ]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.analytics)['top-posts']['$get']>>>
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetAnalyticsTopPostsQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.analytics['top-posts'].$get(args, clientOptions)),
-    },
-    queryClient,
+  const { queryKey, queryFn, ...baseOptions } = getGetAnalyticsTopPostsQueryOptions(
+    args,
+    clientOptions,
   )
-  return { ...query, queryKey }
-}
-
-/**
- * Generates TanStack Query cache key for GET /analytics/top-posts
- */
-export function getGetAnalyticsTopPostsQueryKey(
-  args: InferRequestType<(typeof client.analytics)['top-posts']['$get']>,
-) {
-  return ['/analytics/top-posts', args] as const
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }

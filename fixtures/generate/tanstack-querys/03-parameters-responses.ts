@@ -1,8 +1,36 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
+import type {
+  QueryFunctionContext,
+  UseMutationOptions,
+  UseQueryOptions,
+} from '@tanstack/react-query'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/03-parameters-responses'
+
+/**
+ * Generates TanStack Query cache key for GET /items
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetItemsQueryKey(args: InferRequestType<typeof client.items.$get>) {
+  return ['items', 'GET', '/items', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /items
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetItemsQueryOptions = (
+  args: InferRequestType<typeof client.items.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetItemsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.items.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /items
@@ -11,34 +39,45 @@ export function useGetItems(
   args: InferRequestType<typeof client.items.$get>,
   options?: {
     query?: UseQueryOptions<
-      InferResponseType<typeof client.items.$get>,
-      Error,
-      InferResponseType<typeof client.items.$get>,
-      readonly ['/items', InferRequestType<typeof client.items.$get>]
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.items.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetItemsQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.items.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  const { queryKey, queryFn, ...baseOptions } = getGetItemsQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /items
+ * Generates TanStack Query cache key for GET /items/{itemId}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetItemsQueryKey(args: InferRequestType<typeof client.items.$get>) {
-  return ['/items', args] as const
+export function getGetItemsItemIdQueryKey(
+  args: InferRequestType<(typeof client.items)[':itemId']['$get']>,
+) {
+  return ['items', 'GET', '/items/:itemId', args] as const
 }
+
+/**
+ * Returns TanStack Query query options for GET /items/{itemId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetItemsItemIdQueryOptions = (
+  args: InferRequestType<(typeof client.items)[':itemId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetItemsItemIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.items[':itemId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /items/{itemId}
@@ -47,61 +86,58 @@ export function useGetItemsItemId(
   args: InferRequestType<(typeof client.items)[':itemId']['$get']>,
   options?: {
     query?: UseQueryOptions<
-      InferResponseType<(typeof client.items)[':itemId']['$get']>,
-      Error,
-      InferResponseType<(typeof client.items)[':itemId']['$get']>,
-      readonly ['/items/:itemId', InferRequestType<(typeof client.items)[':itemId']['$get']>]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.items)[':itemId']['$get']>>>
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetItemsItemIdQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.items[':itemId'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  const { queryKey, queryFn, ...baseOptions } = getGetItemsItemIdQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /items/{itemId}
+ * Generates TanStack Query mutation key for DELETE /items/{itemId}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetItemsItemIdQueryKey(
-  args: InferRequestType<(typeof client.items)[':itemId']['$get']>,
-) {
-  return ['/items/:itemId', args] as const
+export function getDeleteItemsItemIdMutationKey() {
+  return ['items', 'DELETE', '/items/:itemId'] as const
 }
+
+/**
+ * Returns TanStack Query mutation options for DELETE /items/{itemId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteItemsItemIdMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getDeleteItemsItemIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.items)[':itemId']['$delete']>) =>
+    parseResponse(client.items[':itemId'].$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /items/{itemId}
  */
-export function useDeleteItemsItemId(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.items)[':itemId']['$delete']> | undefined,
-      Error,
-      InferRequestType<(typeof client.items)[':itemId']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<(typeof client.items)[':itemId']['$delete']> | undefined,
+export function useDeleteItemsItemId(options?: {
+  mutation?: UseMutationOptions<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.items)[':itemId']['$delete']>>>
+        >
+      >
+    | undefined,
     Error,
     InferRequestType<(typeof client.items)[':itemId']['$delete']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.items[':itemId'].$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteItemsItemIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }

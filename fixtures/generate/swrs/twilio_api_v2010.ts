@@ -1,10 +1,20 @@
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/twilio_api_v2010'
+
+/**
+ * Generates SWR cache key for GET /2010-04-01/Accounts.json
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGet20100401AccountsJsonKey(
+  args: InferRequestType<(typeof client)['2010-04-01']['Accounts.json']['$get']>,
+) {
+  return ['2010-04-01', 'GET', '/2010-04-01/Accounts.json', args] as const
+}
 
 /**
  * GET /2010-04-01/Accounts.json
@@ -16,34 +26,30 @@ import { client } from '../clients/twilio_api_v2010'
 export function useGet20100401AccountsJson(
   args: InferRequestType<(typeof client)['2010-04-01']['Accounts.json']['$get']>,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<(typeof client)['2010-04-01']['Accounts.json']['$get']>,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGet20100401AccountsJsonKey(args) : null)
-  const query = useSWR<
-    InferResponseType<(typeof client)['2010-04-01']['Accounts.json']['$get']>,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGet20100401AccountsJsonKey(args)) : null
+  return {
     swrKey,
-    async () => parseResponse(client['2010-04-01']['Accounts.json'].$get(args, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client['2010-04-01']['Accounts.json'].$get(args, clientOptions)),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts.json
+ * Generates SWR mutation key for POST /2010-04-01/Accounts.json
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet20100401AccountsJsonKey(
-  args?: InferRequestType<(typeof client)['2010-04-01']['Accounts.json']['$get']>,
-) {
-  return ['/2010-04-01/Accounts.json', ...(args ? [args] : [])] as const
+export function getPost20100401AccountsJsonMutationKey() {
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts.json'] as const
 }
 
 /**
@@ -54,25 +60,44 @@ export function getGet20100401AccountsJsonKey(
  * Create a new Twilio Subaccount from the account making the request
  */
 export function usePost20100401AccountsJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['2010-04-01']['Accounts.json']['$post']>,
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['2010-04-01']['Accounts.json']['$post']>>
+        >
+      >
+    >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client)['2010-04-01']['Accounts.json']['$post']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<(typeof client)['2010-04-01']['Accounts.json']['$post']>,
-    Error,
-    string,
-    InferRequestType<(typeof client)['2010-04-01']['Accounts.json']['$post']>
-  >(
-    'POST /2010-04-01/Accounts.json',
-    async (_, { arg }) =>
-      parseResponse(client['2010-04-01']['Accounts.json'].$post(arg, options?.client)),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPost20100401AccountsJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        { arg }: { arg: InferRequestType<(typeof client)['2010-04-01']['Accounts.json']['$post']> },
+      ) => parseResponse(client['2010-04-01']['Accounts.json'].$post(arg, clientOptions)),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{Sid.json}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGet20100401AccountsSidJsonKey(
+  args: InferRequestType<(typeof client)['2010-04-01']['Accounts'][':Sid.json']['$get']>,
+) {
+  return ['2010-04-01', 'GET', '/2010-04-01/Accounts/:Sid.json', args] as const
 }
 
 /**
@@ -85,34 +110,31 @@ export function usePost20100401AccountsJson(options?: {
 export function useGet20100401AccountsSidJson(
   args: InferRequestType<(typeof client)['2010-04-01']['Accounts'][':Sid.json']['$get']>,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<(typeof client)['2010-04-01']['Accounts'][':Sid.json']['$get']>,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGet20100401AccountsSidJsonKey(args) : null)
-  const query = useSWR<
-    InferResponseType<(typeof client)['2010-04-01']['Accounts'][':Sid.json']['$get']>,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGet20100401AccountsSidJsonKey(args)) : null
+  return {
     swrKey,
-    async () => parseResponse(client['2010-04-01'].Accounts[':Sid.json'].$get(args, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(client['2010-04-01'].Accounts[':Sid.json'].$get(args, clientOptions)),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{Sid}.json
+ * Generates SWR mutation key for POST /2010-04-01/Accounts/{Sid.json}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet20100401AccountsSidJsonKey(
-  args?: InferRequestType<(typeof client)['2010-04-01']['Accounts'][':Sid.json']['$get']>,
-) {
-  return ['/2010-04-01/Accounts/:Sid.json', ...(args ? [args] : [])] as const
+export function getPost20100401AccountsSidJsonMutationKey() {
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:Sid.json'] as const
 }
 
 /**
@@ -123,25 +145,50 @@ export function getGet20100401AccountsSidJsonKey(
  * Modify the properties of a given Account
  */
 export function usePost20100401AccountsSidJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['2010-04-01']['Accounts'][':Sid.json']['$post']>,
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['2010-04-01']['Accounts'][':Sid.json']['$post']>>
+        >
+      >
+    >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client)['2010-04-01']['Accounts'][':Sid.json']['$post']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<(typeof client)['2010-04-01']['Accounts'][':Sid.json']['$post']>,
-    Error,
-    string,
-    InferRequestType<(typeof client)['2010-04-01']['Accounts'][':Sid.json']['$post']>
-  >(
-    'POST /2010-04-01/Accounts/:Sid.json',
-    async (_, { arg }) =>
-      parseResponse(client['2010-04-01'].Accounts[':Sid.json'].$post(arg, options?.client)),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPost20100401AccountsSidJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<(typeof client)['2010-04-01']['Accounts'][':Sid.json']['$post']>
+        },
+      ) => parseResponse(client['2010-04-01'].Accounts[':Sid.json'].$post(arg, clientOptions)),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Addresses.json
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGet20100401AccountsAccountSidAddressesJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses.json']['$get']
+  >,
+) {
+  return ['2010-04-01', 'GET', '/2010-04-01/Accounts/:AccountSid/Addresses.json', args] as const
 }
 
 /**
@@ -152,80 +199,101 @@ export function useGet20100401AccountsAccountSidAddressesJson(
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidAddressesJsonKey(args) : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidAddressesJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid']['Addresses.json'].$get(args, clientOptions),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid']['Addresses.json'].$get(args, clientOptions),
+        ),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Addresses.json
+ * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Addresses.json
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet20100401AccountsAccountSidAddressesJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses.json']['$get']
-  >,
-) {
-  return ['/2010-04-01/Accounts/:AccountSid/Addresses.json', ...(args ? [args] : [])] as const
+export function getPost20100401AccountsAccountSidAddressesJsonMutationKey() {
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/Addresses.json'] as const
 }
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/Addresses.json
  */
 export function usePost20100401AccountsAccountSidAddressesJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses.json']['$post']
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses.json']['$post']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses.json']['$post']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses.json']['$post']
-    >
-  >(
-    'POST /2010-04-01/Accounts/:AccountSid/Addresses.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid']['Addresses.json'].$post(arg, options?.client),
-      ),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPost20100401AccountsAccountSidAddressesJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses.json']['$post']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid']['Addresses.json'].$post(arg, clientOptions),
+        ),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Addresses/{Sid.json}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGet20100401AccountsAccountSidAddressesSidJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Addresses/:Sid.json',
+    args,
+  ] as const
 }
 
 /**
@@ -236,124 +304,163 @@ export function useGet20100401AccountsAccountSidAddressesSidJson(
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidAddressesSidJsonKey(args) : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidAddressesSidJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Addresses[':Sid.json'].$get(
-          args,
-          clientOptions,
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Addresses[':Sid.json'].$get(
+            args,
+            clientOptions,
+          ),
         ),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Addresses/{Sid}.json
+ * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Addresses/{Sid.json}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet20100401AccountsAccountSidAddressesSidJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$get']
-  >,
-) {
-  return ['/2010-04-01/Accounts/:AccountSid/Addresses/:Sid.json', ...(args ? [args] : [])] as const
+export function getPost20100401AccountsAccountSidAddressesSidJsonMutationKey() {
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/Addresses/:Sid.json'] as const
 }
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/Addresses/{Sid}.json
  */
 export function usePost20100401AccountsAccountSidAddressesSidJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$post']
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$post']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$post']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$post']
-    >
-  >(
-    'POST /2010-04-01/Accounts/:AccountSid/Addresses/:Sid.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Addresses[':Sid.json'].$post(
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPost20100401AccountsAccountSidAddressesSidJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
           arg,
-          options?.client,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$post']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Addresses[':Sid.json'].$post(
+            arg,
+            clientOptions,
+          ),
         ),
-      ),
-    options?.swr,
-  )
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Addresses/{Sid.json}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getDelete20100401AccountsAccountSidAddressesSidJsonMutationKey() {
+  return ['2010-04-01', 'DELETE', '/2010-04-01/Accounts/:AccountSid/Addresses/:Sid.json'] as const
 }
 
 /**
  * DELETE /2010-04-01/Accounts/{AccountSid}/Addresses/{Sid}.json
  */
 export function useDelete20100401AccountsAccountSidAddressesSidJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$delete']
-    >,
+  mutation?: SWRMutationConfiguration<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$delete']
+              >
+            >
+          >
+        >
+      >
+    | undefined,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$delete']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$delete']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$delete']
-    >
-  >(
-    'DELETE /2010-04-01/Accounts/:AccountSid/Addresses/:Sid.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Addresses[':Sid.json'].$delete(
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDelete20100401AccountsAccountSidAddressesSidJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
           arg,
-          options?.client,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$delete']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Addresses[':Sid.json'].$delete(
+            arg,
+            clientOptions,
+          ),
         ),
-      ),
-    options?.swr,
-  )
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Applications.json
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGet20100401AccountsAccountSidApplicationsJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications.json']['$get']
+  >,
+) {
+  return ['2010-04-01', 'GET', '/2010-04-01/Accounts/:AccountSid/Applications.json', args] as const
 }
 
 /**
@@ -368,45 +475,38 @@ export function useGet20100401AccountsAccountSidApplicationsJson(
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidApplicationsJsonKey(args) : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidApplicationsJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid']['Applications.json'].$get(args, clientOptions),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid']['Applications.json'].$get(
+            args,
+            clientOptions,
+          ),
+        ),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Applications.json
+ * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Applications.json
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet20100401AccountsAccountSidApplicationsJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications.json']['$get']
-  >,
-) {
-  return ['/2010-04-01/Accounts/:AccountSid/Applications.json', ...(args ? [args] : [])] as const
+export function getPost20100401AccountsAccountSidApplicationsJsonMutationKey() {
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/Applications.json'] as const
 }
 
 /**
@@ -417,38 +517,69 @@ export function getGet20100401AccountsAccountSidApplicationsJsonKey(
  * Create a new application within your account
  */
 export function usePost20100401AccountsAccountSidApplicationsJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications.json']['$post']
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications.json']['$post']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications.json']['$post']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications.json']['$post']
-    >
-  >(
-    'POST /2010-04-01/Accounts/:AccountSid/Applications.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid']['Applications.json'].$post(
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPost20100401AccountsAccountSidApplicationsJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
           arg,
-          options?.client,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications.json']['$post']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid']['Applications.json'].$post(
+            arg,
+            clientOptions,
+          ),
         ),
-      ),
-    options?.swr,
-  )
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Applications/{Sid.json}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGet20100401AccountsAccountSidApplicationsSidJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Applications/:Sid.json',
+    args,
+  ] as const
 }
 
 /**
@@ -463,51 +594,38 @@ export function useGet20100401AccountsAccountSidApplicationsSidJson(
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidApplicationsSidJsonKey(args) : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidApplicationsSidJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Applications[':Sid.json'].$get(
-          args,
-          clientOptions,
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Applications[':Sid.json'].$get(
+            args,
+            clientOptions,
+          ),
         ),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Applications/{Sid}.json
+ * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Applications/{Sid.json}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet20100401AccountsAccountSidApplicationsSidJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$get']
-  >,
-) {
-  return [
-    '/2010-04-01/Accounts/:AccountSid/Applications/:Sid.json',
-    ...(args ? [args] : []),
-  ] as const
+export function getPost20100401AccountsAccountSidApplicationsSidJsonMutationKey() {
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/Applications/:Sid.json'] as const
 }
 
 /**
@@ -518,38 +636,64 @@ export function getGet20100401AccountsAccountSidApplicationsSidJsonKey(
  * Updates the application's properties
  */
 export function usePost20100401AccountsAccountSidApplicationsSidJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$post']
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$post']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$post']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$post']
-    >
-  >(
-    'POST /2010-04-01/Accounts/:AccountSid/Applications/:Sid.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Applications[':Sid.json'].$post(
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPost20100401AccountsAccountSidApplicationsSidJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
           arg,
-          options?.client,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$post']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Applications[':Sid.json'].$post(
+            arg,
+            clientOptions,
+          ),
         ),
-      ),
-    options?.swr,
-  )
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Applications/{Sid.json}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getDelete20100401AccountsAccountSidApplicationsSidJsonMutationKey() {
+  return [
+    '2010-04-01',
+    'DELETE',
+    '/2010-04-01/Accounts/:AccountSid/Applications/:Sid.json',
+  ] as const
 }
 
 /**
@@ -560,38 +704,70 @@ export function usePost20100401AccountsAccountSidApplicationsSidJson(options?: {
  * Delete the application by the specified application sid
  */
 export function useDelete20100401AccountsAccountSidApplicationsSidJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$delete']
-    >,
+  mutation?: SWRMutationConfiguration<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$delete']
+              >
+            >
+          >
+        >
+      >
+    | undefined,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$delete']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$delete']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$delete']
-    >
-  >(
-    'DELETE /2010-04-01/Accounts/:AccountSid/Applications/:Sid.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Applications[':Sid.json'].$delete(
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDelete20100401AccountsAccountSidApplicationsSidJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
           arg,
-          options?.client,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$delete']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Applications[':Sid.json'].$delete(
+            arg,
+            clientOptions,
+          ),
         ),
-      ),
-    options?.swr,
-  )
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/AuthorizedConnectApps/{ConnectAppSid.json}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGet20100401AccountsAccountSidAuthorizedConnectAppsConnectAppSidJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AuthorizedConnectApps'][':ConnectAppSid.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/AuthorizedConnectApps/:ConnectAppSid.json',
+    args,
+  ] as const
 }
 
 /**
@@ -606,51 +782,45 @@ export function useGet20100401AccountsAccountSidAuthorizedConnectAppsConnectAppS
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AuthorizedConnectApps'][':ConnectAppSid.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AuthorizedConnectApps'][':ConnectAppSid.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidAuthorizedConnectAppsConnectAppSidJsonKey(args)
-      : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AuthorizedConnectApps'][':ConnectAppSid.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidAuthorizedConnectAppsConnectAppSidJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].AuthorizedConnectApps[
-          ':ConnectAppSid.json'
-        ].$get(args, clientOptions),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].AuthorizedConnectApps[
+            ':ConnectAppSid.json'
+          ].$get(args, clientOptions),
+        ),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/AuthorizedConnectApps/{ConnectAppSid}.json
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/AuthorizedConnectApps.json
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGet20100401AccountsAccountSidAuthorizedConnectAppsConnectAppSidJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AuthorizedConnectApps'][':ConnectAppSid.json']['$get']
+export function getGet20100401AccountsAccountSidAuthorizedConnectAppsJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AuthorizedConnectApps.json']['$get']
   >,
 ) {
   return [
-    '/2010-04-01/Accounts/:AccountSid/AuthorizedConnectApps/:ConnectAppSid.json',
-    ...(args ? [args] : []),
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/AuthorizedConnectApps.json',
+    args,
   ] as const
 }
 
@@ -666,50 +836,46 @@ export function useGet20100401AccountsAccountSidAuthorizedConnectAppsJson(
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AuthorizedConnectApps.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AuthorizedConnectApps.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidAuthorizedConnectAppsJsonKey(args) : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AuthorizedConnectApps.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidAuthorizedConnectAppsJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid']['AuthorizedConnectApps.json'].$get(
-          args,
-          clientOptions,
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid']['AuthorizedConnectApps.json'].$get(
+            args,
+            clientOptions,
+          ),
         ),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/AuthorizedConnectApps.json
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers.json
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGet20100401AccountsAccountSidAuthorizedConnectAppsJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AuthorizedConnectApps.json']['$get']
+export function getGet20100401AccountsAccountSidAvailablePhoneNumbersJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers.json']['$get']
   >,
 ) {
   return [
-    '/2010-04-01/Accounts/:AccountSid/AuthorizedConnectApps.json',
-    ...(args ? [args] : []),
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers.json',
+    args,
   ] as const
 }
 
@@ -721,50 +887,46 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersJson(
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidAvailablePhoneNumbersJsonKey(args) : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidAvailablePhoneNumbersJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid']['AvailablePhoneNumbers.json'].$get(
-          args,
-          clientOptions,
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid']['AvailablePhoneNumbers.json'].$get(
+            args,
+            clientOptions,
+          ),
         ),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers.json
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode.json}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGet20100401AccountsAccountSidAvailablePhoneNumbersJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers.json']['$get']
+export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode.json']['$get']
   >,
 ) {
   return [
-    '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers.json',
-    ...(args ? [args] : []),
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode.json',
+    args,
   ] as const
 }
 
@@ -776,51 +938,45 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeJsonKey(args)
-      : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[
-          ':CountryCode.json'
-        ].$get(args, clientOptions),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[
+            ':CountryCode.json'
+          ].$get(args, clientOptions),
+        ),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}.json
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/Local.json
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode.json']['$get']
+export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeLocalJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['Local.json']['$get']
   >,
 ) {
   return [
-    '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode.json',
-    ...(args ? [args] : []),
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode/Local.json',
+    args,
   ] as const
 }
 
@@ -832,51 +988,46 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['Local.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['Local.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeLocalJsonKey(args)
-      : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['Local.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ??
+      getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeLocalJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
-          'Local.json'
-        ].$get(args, clientOptions),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
+            'Local.json'
+          ].$get(args, clientOptions),
+        ),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/Local.json
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/MachineToMachine.json
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeLocalJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['Local.json']['$get']
+export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMachineToMachineJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['MachineToMachine.json']['$get']
   >,
 ) {
   return [
-    '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode/Local.json',
-    ...(args ? [args] : []),
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode/MachineToMachine.json',
+    args,
   ] as const
 }
 
@@ -888,53 +1039,46 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['MachineToMachine.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['MachineToMachine.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMachineToMachineJsonKey(
-          args,
-        )
-      : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['MachineToMachine.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ??
+      getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMachineToMachineJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
-          'MachineToMachine.json'
-        ].$get(args, clientOptions),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
+            'MachineToMachine.json'
+          ].$get(args, clientOptions),
+        ),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/MachineToMachine.json
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/Mobile.json
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMachineToMachineJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['MachineToMachine.json']['$get']
+export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMobileJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['Mobile.json']['$get']
   >,
 ) {
   return [
-    '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode/MachineToMachine.json',
-    ...(args ? [args] : []),
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode/Mobile.json',
+    args,
   ] as const
 }
 
@@ -946,51 +1090,46 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['Mobile.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['Mobile.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMobileJsonKey(args)
-      : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['Mobile.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ??
+      getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMobileJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
-          'Mobile.json'
-        ].$get(args, clientOptions),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
+            'Mobile.json'
+          ].$get(args, clientOptions),
+        ),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/Mobile.json
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/National.json
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMobileJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['Mobile.json']['$get']
+export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeNationalJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['National.json']['$get']
   >,
 ) {
   return [
-    '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode/Mobile.json',
-    ...(args ? [args] : []),
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode/National.json',
+    args,
   ] as const
 }
 
@@ -1002,51 +1141,46 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['National.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['National.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeNationalJsonKey(args)
-      : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['National.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ??
+      getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeNationalJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
-          'National.json'
-        ].$get(args, clientOptions),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
+            'National.json'
+          ].$get(args, clientOptions),
+        ),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/National.json
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/SharedCost.json
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeNationalJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['National.json']['$get']
+export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeSharedCostJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['SharedCost.json']['$get']
   >,
 ) {
   return [
-    '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode/National.json',
-    ...(args ? [args] : []),
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode/SharedCost.json',
+    args,
   ] as const
 }
 
@@ -1058,51 +1192,46 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['SharedCost.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['SharedCost.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeSharedCostJsonKey(args)
-      : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['SharedCost.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ??
+      getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeSharedCostJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
-          'SharedCost.json'
-        ].$get(args, clientOptions),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
+            'SharedCost.json'
+          ].$get(args, clientOptions),
+        ),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/SharedCost.json
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/TollFree.json
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeSharedCostJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['SharedCost.json']['$get']
+export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeTollFreeJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['TollFree.json']['$get']
   >,
 ) {
   return [
-    '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode/SharedCost.json',
-    ...(args ? [args] : []),
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode/TollFree.json',
+    args,
   ] as const
 }
 
@@ -1114,51 +1243,46 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['TollFree.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['TollFree.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeTollFreeJsonKey(args)
-      : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['TollFree.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ??
+      getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeTollFreeJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
-          'TollFree.json'
-        ].$get(args, clientOptions),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
+            'TollFree.json'
+          ].$get(args, clientOptions),
+        ),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/TollFree.json
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/Voip.json
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeTollFreeJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['TollFree.json']['$get']
+export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeVoipJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['Voip.json']['$get']
   >,
 ) {
   return [
-    '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode/TollFree.json',
-    ...(args ? [args] : []),
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode/Voip.json',
+    args,
   ] as const
 }
 
@@ -1170,52 +1294,42 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['Voip.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['Voip.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeVoipJsonKey(args)
-      : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['Voip.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ??
+      getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeVoipJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
-          'Voip.json'
-        ].$get(args, clientOptions),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
+            'Voip.json'
+          ].$get(args, clientOptions),
+        ),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/Voip.json
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Balance.json
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeVoipJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['Voip.json']['$get']
+export function getGet20100401AccountsAccountSidBalanceJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Balance.json']['$get']
   >,
 ) {
-  return [
-    '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode/Voip.json',
-    ...(args ? [args] : []),
-  ] as const
+  return ['2010-04-01', 'GET', '/2010-04-01/Accounts/:AccountSid/Balance.json', args] as const
 }
 
 /**
@@ -1230,44 +1344,39 @@ export function useGet20100401AccountsAccountSidBalanceJson(
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Balance.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Balance.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ?? (isEnabled ? getGet20100401AccountsAccountSidBalanceJsonKey(args) : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Balance.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidBalanceJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid']['Balance.json'].$get(args, clientOptions),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid']['Balance.json'].$get(args, clientOptions),
+        ),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Balance.json
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls.json
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGet20100401AccountsAccountSidBalanceJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Balance.json']['$get']
+export function getGet20100401AccountsAccountSidCallsJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls.json']['$get']
   >,
 ) {
-  return ['/2010-04-01/Accounts/:AccountSid/Balance.json', ...(args ? [args] : [])] as const
+  return ['2010-04-01', 'GET', '/2010-04-01/Accounts/:AccountSid/Calls.json', args] as const
 }
 
 /**
@@ -1282,44 +1391,35 @@ export function useGet20100401AccountsAccountSidCallsJson(
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ?? (isEnabled ? getGet20100401AccountsAccountSidCallsJsonKey(args) : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidCallsJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid']['Calls.json'].$get(args, clientOptions),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid']['Calls.json'].$get(args, clientOptions),
+        ),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls.json
+ * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls.json
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet20100401AccountsAccountSidCallsJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls.json']['$get']
-  >,
-) {
-  return ['/2010-04-01/Accounts/:AccountSid/Calls.json', ...(args ? [args] : [])] as const
+export function getPost20100401AccountsAccountSidCallsJsonMutationKey() {
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/Calls.json'] as const
 }
 
 /**
@@ -1330,35 +1430,61 @@ export function getGet20100401AccountsAccountSidCallsJsonKey(
  * Create a new outgoing call to phones, SIP-enabled endpoints or Twilio Client connections
  */
 export function usePost20100401AccountsAccountSidCallsJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls.json']['$post']
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls.json']['$post']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls.json']['$post']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls.json']['$post']
-    >
-  >(
-    'POST /2010-04-01/Accounts/:AccountSid/Calls.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid']['Calls.json'].$post(arg, options?.client),
-      ),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPost20100401AccountsAccountSidCallsJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls.json']['$post']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid']['Calls.json'].$post(arg, clientOptions),
+        ),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{Sid.json}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGet20100401AccountsAccountSidCallsSidJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$get']
+  >,
+) {
+  return ['2010-04-01', 'GET', '/2010-04-01/Accounts/:AccountSid/Calls/:Sid.json', args] as const
 }
 
 /**
@@ -1373,44 +1499,35 @@ export function useGet20100401AccountsAccountSidCallsSidJson(
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ?? (isEnabled ? getGet20100401AccountsAccountSidCallsSidJsonKey(args) : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidCallsSidJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Calls[':Sid.json'].$get(args, clientOptions),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Calls[':Sid.json'].$get(args, clientOptions),
+        ),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{Sid}.json
+ * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{Sid.json}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet20100401AccountsAccountSidCallsSidJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$get']
-  >,
-) {
-  return ['/2010-04-01/Accounts/:AccountSid/Calls/:Sid.json', ...(args ? [args] : [])] as const
+export function getPost20100401AccountsAccountSidCallsSidJsonMutationKey() {
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/Calls/:Sid.json'] as const
 }
 
 /**
@@ -1421,35 +1538,57 @@ export function getGet20100401AccountsAccountSidCallsSidJsonKey(
  * Initiates a call redirect or terminates a call
  */
 export function usePost20100401AccountsAccountSidCallsSidJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$post']
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$post']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$post']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$post']
-    >
-  >(
-    'POST /2010-04-01/Accounts/:AccountSid/Calls/:Sid.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Calls[':Sid.json'].$post(arg, options?.client),
-      ),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPost20100401AccountsAccountSidCallsSidJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$post']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Calls[':Sid.json'].$post(arg, clientOptions),
+        ),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Calls/{Sid.json}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getDelete20100401AccountsAccountSidCallsSidJsonMutationKey() {
+  return ['2010-04-01', 'DELETE', '/2010-04-01/Accounts/:AccountSid/Calls/:Sid.json'] as const
 }
 
 /**
@@ -1460,38 +1599,70 @@ export function usePost20100401AccountsAccountSidCallsSidJson(options?: {
  * Delete a Call record from your account. Once the record is deleted, it will no longer appear in the API and Account Portal logs.
  */
 export function useDelete20100401AccountsAccountSidCallsSidJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$delete']
-    >,
+  mutation?: SWRMutationConfiguration<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$delete']
+              >
+            >
+          >
+        >
+      >
+    | undefined,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$delete']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$delete']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$delete']
-    >
-  >(
-    'DELETE /2010-04-01/Accounts/:AccountSid/Calls/:Sid.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Calls[':Sid.json'].$delete(
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDelete20100401AccountsAccountSidCallsSidJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
           arg,
-          options?.client,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$delete']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Calls[':Sid.json'].$delete(
+            arg,
+            clientOptions,
+          ),
         ),
-      ),
-    options?.swr,
-  )
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Events.json
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGet20100401AccountsAccountSidCallsCallSidEventsJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Events.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Events.json',
+    args,
+  ] as const
 }
 
 /**
@@ -1506,50 +1677,46 @@ export function useGet20100401AccountsAccountSidCallsCallSidEventsJson(
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Events.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Events.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidCallsCallSidEventsJsonKey(args) : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Events.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidCallsCallSidEventsJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Events.json'].$get(
-          args,
-          clientOptions,
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Events.json'].$get(
+            args,
+            clientOptions,
+          ),
         ),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Events.json
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Notifications/{Sid.json}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGet20100401AccountsAccountSidCallsCallSidEventsJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Events.json']['$get']
+export function getGet20100401AccountsAccountSidCallsCallSidNotificationsSidJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Notifications'][':Sid.json']['$get']
   >,
 ) {
   return [
-    '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Events.json',
-    ...(args ? [args] : []),
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Notifications/:Sid.json',
+    args,
   ] as const
 }
 
@@ -1561,49 +1728,45 @@ export function useGet20100401AccountsAccountSidCallsCallSidNotificationsSidJson
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Notifications'][':Sid.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Notifications'][':Sid.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidCallsCallSidNotificationsSidJsonKey(args) : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Notifications'][':Sid.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidCallsCallSidNotificationsSidJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'].Notifications[
-          ':Sid.json'
-        ].$get(args, clientOptions),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'].Notifications[
+            ':Sid.json'
+          ].$get(args, clientOptions),
+        ),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Notifications/{Sid}.json
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Notifications.json
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGet20100401AccountsAccountSidCallsCallSidNotificationsSidJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Notifications'][':Sid.json']['$get']
+export function getGet20100401AccountsAccountSidCallsCallSidNotificationsJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Notifications.json']['$get']
   >,
 ) {
   return [
-    '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Notifications/:Sid.json',
-    ...(args ? [args] : []),
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Notifications.json',
+    args,
   ] as const
 }
 
@@ -1615,50 +1778,46 @@ export function useGet20100401AccountsAccountSidCallsCallSidNotificationsJson(
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Notifications.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Notifications.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidCallsCallSidNotificationsJsonKey(args) : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Notifications.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidCallsCallSidNotificationsJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Notifications.json'].$get(
-          args,
-          clientOptions,
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Notifications.json'].$get(
+            args,
+            clientOptions,
+          ),
         ),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Notifications.json
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Recordings.json
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGet20100401AccountsAccountSidCallsCallSidNotificationsJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Notifications.json']['$get']
+export function getGet20100401AccountsAccountSidCallsCallSidRecordingsJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings.json']['$get']
   >,
 ) {
   return [
-    '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Notifications.json',
-    ...(args ? [args] : []),
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Recordings.json',
+    args,
   ] as const
 }
 
@@ -1674,50 +1833,41 @@ export function useGet20100401AccountsAccountSidCallsCallSidRecordingsJson(
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidCallsCallSidRecordingsJsonKey(args) : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidCallsCallSidRecordingsJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Recordings.json'].$get(
-          args,
-          clientOptions,
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Recordings.json'].$get(
+            args,
+            clientOptions,
+          ),
         ),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Recordings.json
+ * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Recordings.json
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet20100401AccountsAccountSidCallsCallSidRecordingsJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings.json']['$get']
-  >,
-) {
+export function getPost20100401AccountsAccountSidCallsCallSidRecordingsJsonMutationKey() {
   return [
+    '2010-04-01',
+    'POST',
     '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Recordings.json',
-    ...(args ? [args] : []),
   ] as const
 }
 
@@ -1729,38 +1879,70 @@ export function getGet20100401AccountsAccountSidCallsCallSidRecordingsJsonKey(
  * Create a recording for the call
  */
 export function usePost20100401AccountsAccountSidCallsCallSidRecordingsJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings.json']['$post']
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings.json']['$post']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings.json']['$post']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings.json']['$post']
-    >
-  >(
-    'POST /2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Recordings.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Recordings.json'].$post(
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey =
+    customKey ?? getPost20100401AccountsAccountSidCallsCallSidRecordingsJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
           arg,
-          options?.client,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings.json']['$post']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Recordings.json'].$post(
+            arg,
+            clientOptions,
+          ),
         ),
-      ),
-    options?.swr,
-  )
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Recordings/{Sid.json}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGet20100401AccountsAccountSidCallsCallSidRecordingsSidJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Recordings/:Sid.json',
+    args,
+  ] as const
 }
 
 /**
@@ -1775,50 +1957,40 @@ export function useGet20100401AccountsAccountSidCallsCallSidRecordingsSidJson(
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidCallsCallSidRecordingsSidJsonKey(args) : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidCallsCallSidRecordingsSidJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'].Recordings[':Sid.json'].$get(
-          args,
-          clientOptions,
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'].Recordings[
+            ':Sid.json'
+          ].$get(args, clientOptions),
         ),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Recordings/{Sid}.json
+ * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Recordings/{Sid.json}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet20100401AccountsAccountSidCallsCallSidRecordingsSidJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$get']
-  >,
-) {
+export function getPost20100401AccountsAccountSidCallsCallSidRecordingsSidJsonMutationKey() {
   return [
+    '2010-04-01',
+    'POST',
     '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Recordings/:Sid.json',
-    ...(args ? [args] : []),
   ] as const
 }
 
@@ -1830,37 +2002,64 @@ export function getGet20100401AccountsAccountSidCallsCallSidRecordingsSidJsonKey
  * Changes the status of the recording to paused, stopped, or in-progress. Note: Pass `Twilio.CURRENT` instead of recording sid to reference current active recording.
  */
 export function usePost20100401AccountsAccountSidCallsCallSidRecordingsSidJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$post']
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$post']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$post']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$post']
-    >
-  >(
-    'POST /2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Recordings/:Sid.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'].Recordings[
-          ':Sid.json'
-        ].$post(arg, options?.client),
-      ),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey =
+    customKey ?? getPost20100401AccountsAccountSidCallsCallSidRecordingsSidJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$post']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'].Recordings[
+            ':Sid.json'
+          ].$post(arg, clientOptions),
+        ),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Recordings/{Sid.json}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getDelete20100401AccountsAccountSidCallsCallSidRecordingsSidJsonMutationKey() {
+  return [
+    '2010-04-01',
+    'DELETE',
+    '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Recordings/:Sid.json',
+  ] as const
 }
 
 /**
@@ -1871,37 +2070,70 @@ export function usePost20100401AccountsAccountSidCallsCallSidRecordingsSidJson(o
  * Delete a recording from your account
  */
 export function useDelete20100401AccountsAccountSidCallsCallSidRecordingsSidJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$delete']
-    >,
+  mutation?: SWRMutationConfiguration<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$delete']
+              >
+            >
+          >
+        >
+      >
+    | undefined,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$delete']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$delete']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$delete']
-    >
-  >(
-    'DELETE /2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Recordings/:Sid.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'].Recordings[
-          ':Sid.json'
-        ].$delete(arg, options?.client),
-      ),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey =
+    customKey ?? getDelete20100401AccountsAccountSidCallsCallSidRecordingsSidJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$delete']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'].Recordings[
+            ':Sid.json'
+          ].$delete(arg, clientOptions),
+        ),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{Sid.json}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGet20100401AccountsAccountSidConferencesSidJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':Sid.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Conferences/:Sid.json',
+    args,
+  ] as const
 }
 
 /**
@@ -1916,89 +2148,102 @@ export function useGet20100401AccountsAccountSidConferencesSidJson(
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':Sid.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':Sid.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidConferencesSidJsonKey(args) : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':Sid.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidConferencesSidJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Conferences[':Sid.json'].$get(
-          args,
-          clientOptions,
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Conferences[':Sid.json'].$get(
+            args,
+            clientOptions,
+          ),
         ),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{Sid}.json
+ * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Conferences/{Sid.json}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet20100401AccountsAccountSidConferencesSidJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':Sid.json']['$get']
-  >,
-) {
-  return [
-    '/2010-04-01/Accounts/:AccountSid/Conferences/:Sid.json',
-    ...(args ? [args] : []),
-  ] as const
+export function getPost20100401AccountsAccountSidConferencesSidJsonMutationKey() {
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/Conferences/:Sid.json'] as const
 }
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/Conferences/{Sid}.json
  */
 export function usePost20100401AccountsAccountSidConferencesSidJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':Sid.json']['$post']
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':Sid.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':Sid.json']['$post']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':Sid.json']['$post']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':Sid.json']['$post']
-    >
-  >(
-    'POST /2010-04-01/Accounts/:AccountSid/Conferences/:Sid.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Conferences[':Sid.json'].$post(
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPost20100401AccountsAccountSidConferencesSidJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
           arg,
-          options?.client,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':Sid.json']['$post']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Conferences[':Sid.json'].$post(
+            arg,
+            clientOptions,
+          ),
         ),
-      ),
-    options?.swr,
-  )
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences.json
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGet20100401AccountsAccountSidConferencesJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences.json']['$get']
+  >,
+) {
+  return ['2010-04-01', 'GET', '/2010-04-01/Accounts/:AccountSid/Conferences.json', args] as const
 }
 
 /**
@@ -2013,45 +2258,47 @@ export function useGet20100401AccountsAccountSidConferencesJson(
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidConferencesJsonKey(args) : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidConferencesJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid']['Conferences.json'].$get(args, clientOptions),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid']['Conferences.json'].$get(
+            args,
+            clientOptions,
+          ),
+        ),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences.json
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Recordings.json
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGet20100401AccountsAccountSidConferencesJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences.json']['$get']
+export function getGet20100401AccountsAccountSidConferencesConferenceSidRecordingsJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings.json']['$get']
   >,
 ) {
-  return ['/2010-04-01/Accounts/:AccountSid/Conferences.json', ...(args ? [args] : [])] as const
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Recordings.json',
+    args,
+  ] as const
 }
 
 /**
@@ -2066,51 +2313,45 @@ export function useGet20100401AccountsAccountSidConferencesConferenceSidRecordin
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidConferencesConferenceSidRecordingsJsonKey(args)
-      : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidConferencesConferenceSidRecordingsJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'][
-          'Recordings.json'
-        ].$get(args, clientOptions),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'][
+            'Recordings.json'
+          ].$get(args, clientOptions),
+        ),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Recordings.json
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Recordings/{Sid.json}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGet20100401AccountsAccountSidConferencesConferenceSidRecordingsJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings.json']['$get']
+export function getGet20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$get']
   >,
 ) {
   return [
-    '/2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Recordings.json',
-    ...(args ? [args] : []),
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Recordings/:Sid.json',
+    args,
   ] as const
 }
 
@@ -2126,51 +2367,41 @@ export function useGet20100401AccountsAccountSidConferencesConferenceSidRecordin
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJsonKey(args)
-      : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ??
+      getGet20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'].Recordings[
-          ':Sid.json'
-        ].$get(args, clientOptions),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'].Recordings[
+            ':Sid.json'
+          ].$get(args, clientOptions),
+        ),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Recordings/{Sid}.json
+ * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Recordings/{Sid.json}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$get']
-  >,
-) {
+export function getPost20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJsonMutationKey() {
   return [
+    '2010-04-01',
+    'POST',
     '/2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Recordings/:Sid.json',
-    ...(args ? [args] : []),
   ] as const
 }
 
@@ -2182,37 +2413,65 @@ export function getGet20100401AccountsAccountSidConferencesConferenceSidRecordin
  * Changes the status of the recording to paused, stopped, or in-progress. Note: To use `Twilio.CURRENT`, pass it as recording sid.
  */
 export function usePost20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$post']
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$post']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$post']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$post']
-    >
-  >(
-    'POST /2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Recordings/:Sid.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'].Recordings[
-          ':Sid.json'
-        ].$post(arg, options?.client),
-      ),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey =
+    customKey ??
+    getPost20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$post']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'].Recordings[
+            ':Sid.json'
+          ].$post(arg, clientOptions),
+        ),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Recordings/{Sid.json}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getDelete20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJsonMutationKey() {
+  return [
+    '2010-04-01',
+    'DELETE',
+    '/2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Recordings/:Sid.json',
+  ] as const
 }
 
 /**
@@ -2223,37 +2482,71 @@ export function usePost20100401AccountsAccountSidConferencesConferenceSidRecordi
  * Delete a recording from your account
  */
 export function useDelete20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$delete']
-    >,
+  mutation?: SWRMutationConfiguration<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$delete']
+              >
+            >
+          >
+        >
+      >
+    | undefined,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$delete']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$delete']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$delete']
-    >
-  >(
-    'DELETE /2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Recordings/:Sid.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'].Recordings[
-          ':Sid.json'
-        ].$delete(arg, options?.client),
-      ),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey =
+    customKey ??
+    getDelete20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$delete']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'].Recordings[
+            ':Sid.json'
+          ].$delete(arg, clientOptions),
+        ),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/ConnectApps/{Sid.json}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGet20100401AccountsAccountSidConnectAppsSidJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/ConnectApps/:Sid.json',
+    args,
+  ] as const
 }
 
 /**
@@ -2268,51 +2561,38 @@ export function useGet20100401AccountsAccountSidConnectAppsSidJson(
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidConnectAppsSidJsonKey(args) : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidConnectAppsSidJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].ConnectApps[':Sid.json'].$get(
-          args,
-          clientOptions,
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].ConnectApps[':Sid.json'].$get(
+            args,
+            clientOptions,
+          ),
         ),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/ConnectApps/{Sid}.json
+ * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/ConnectApps/{Sid.json}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet20100401AccountsAccountSidConnectAppsSidJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$get']
-  >,
-) {
-  return [
-    '/2010-04-01/Accounts/:AccountSid/ConnectApps/:Sid.json',
-    ...(args ? [args] : []),
-  ] as const
+export function getPost20100401AccountsAccountSidConnectAppsSidJsonMutationKey() {
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/ConnectApps/:Sid.json'] as const
 }
 
 /**
@@ -2323,38 +2603,60 @@ export function getGet20100401AccountsAccountSidConnectAppsSidJsonKey(
  * Update a connect-app with the specified parameters
  */
 export function usePost20100401AccountsAccountSidConnectAppsSidJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$post']
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$post']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$post']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$post']
-    >
-  >(
-    'POST /2010-04-01/Accounts/:AccountSid/ConnectApps/:Sid.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].ConnectApps[':Sid.json'].$post(
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPost20100401AccountsAccountSidConnectAppsSidJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
           arg,
-          options?.client,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$post']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].ConnectApps[':Sid.json'].$post(
+            arg,
+            clientOptions,
+          ),
         ),
-      ),
-    options?.swr,
-  )
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/ConnectApps/{Sid.json}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getDelete20100401AccountsAccountSidConnectAppsSidJsonMutationKey() {
+  return ['2010-04-01', 'DELETE', '/2010-04-01/Accounts/:AccountSid/ConnectApps/:Sid.json'] as const
 }
 
 /**
@@ -2365,38 +2667,65 @@ export function usePost20100401AccountsAccountSidConnectAppsSidJson(options?: {
  * Delete an instance of a connect-app
  */
 export function useDelete20100401AccountsAccountSidConnectAppsSidJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$delete']
-    >,
+  mutation?: SWRMutationConfiguration<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$delete']
+              >
+            >
+          >
+        >
+      >
+    | undefined,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$delete']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$delete']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$delete']
-    >
-  >(
-    'DELETE /2010-04-01/Accounts/:AccountSid/ConnectApps/:Sid.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].ConnectApps[':Sid.json'].$delete(
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDelete20100401AccountsAccountSidConnectAppsSidJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
           arg,
-          options?.client,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$delete']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].ConnectApps[':Sid.json'].$delete(
+            arg,
+            clientOptions,
+          ),
         ),
-      ),
-    options?.swr,
-  )
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/ConnectApps.json
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGet20100401AccountsAccountSidConnectAppsJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps.json']['$get']
+  >,
+) {
+  return ['2010-04-01', 'GET', '/2010-04-01/Accounts/:AccountSid/ConnectApps.json', args] as const
 }
 
 /**
@@ -2411,45 +2740,47 @@ export function useGet20100401AccountsAccountSidConnectAppsJson(
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidConnectAppsJsonKey(args) : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidConnectAppsJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid']['ConnectApps.json'].$get(args, clientOptions),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid']['ConnectApps.json'].$get(
+            args,
+            clientOptions,
+          ),
+        ),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/ConnectApps.json
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Addresses/{AddressSid}/DependentPhoneNumbers.json
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGet20100401AccountsAccountSidConnectAppsJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps.json']['$get']
+export function getGet20100401AccountsAccountSidAddressesAddressSidDependentPhoneNumbersJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':AddressSid']['DependentPhoneNumbers.json']['$get']
   >,
 ) {
-  return ['/2010-04-01/Accounts/:AccountSid/ConnectApps.json', ...(args ? [args] : [])] as const
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Addresses/:AddressSid/DependentPhoneNumbers.json',
+    args,
+  ] as const
 }
 
 /**
@@ -2460,51 +2791,46 @@ export function useGet20100401AccountsAccountSidAddressesAddressSidDependentPhon
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':AddressSid']['DependentPhoneNumbers.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':AddressSid']['DependentPhoneNumbers.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidAddressesAddressSidDependentPhoneNumbersJsonKey(args)
-      : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':AddressSid']['DependentPhoneNumbers.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ??
+      getGet20100401AccountsAccountSidAddressesAddressSidDependentPhoneNumbersJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Addresses[':AddressSid'][
-          'DependentPhoneNumbers.json'
-        ].$get(args, clientOptions),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Addresses[':AddressSid'][
+            'DependentPhoneNumbers.json'
+          ].$get(args, clientOptions),
+        ),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Addresses/{AddressSid}/DependentPhoneNumbers.json
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{Sid.json}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGet20100401AccountsAccountSidAddressesAddressSidDependentPhoneNumbersJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':AddressSid']['DependentPhoneNumbers.json']['$get']
+export function getGet20100401AccountsAccountSidIncomingPhoneNumbersSidJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$get']
   >,
 ) {
   return [
-    '/2010-04-01/Accounts/:AccountSid/Addresses/:AddressSid/DependentPhoneNumbers.json',
-    ...(args ? [args] : []),
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:Sid.json',
+    args,
   ] as const
 }
 
@@ -2520,50 +2846,41 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersSidJson(
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidIncomingPhoneNumbersSidJsonKey(args) : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidIncomingPhoneNumbersSidJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[':Sid.json'].$get(
-          args,
-          clientOptions,
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[':Sid.json'].$get(
+            args,
+            clientOptions,
+          ),
         ),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{Sid}.json
+ * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{Sid.json}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet20100401AccountsAccountSidIncomingPhoneNumbersSidJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$get']
-  >,
-) {
+export function getPost20100401AccountsAccountSidIncomingPhoneNumbersSidJsonMutationKey() {
   return [
+    '2010-04-01',
+    'POST',
     '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:Sid.json',
-    ...(args ? [args] : []),
   ] as const
 }
 
@@ -2575,38 +2892,65 @@ export function getGet20100401AccountsAccountSidIncomingPhoneNumbersSidJsonKey(
  * Update an incoming-phone-number instance.
  */
 export function usePost20100401AccountsAccountSidIncomingPhoneNumbersSidJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$post']
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$post']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$post']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$post']
-    >
-  >(
-    'POST /2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:Sid.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[':Sid.json'].$post(
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey =
+    customKey ?? getPost20100401AccountsAccountSidIncomingPhoneNumbersSidJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
           arg,
-          options?.client,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$post']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[':Sid.json'].$post(
+            arg,
+            clientOptions,
+          ),
         ),
-      ),
-    options?.swr,
-  )
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{Sid.json}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getDelete20100401AccountsAccountSidIncomingPhoneNumbersSidJsonMutationKey() {
+  return [
+    '2010-04-01',
+    'DELETE',
+    '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:Sid.json',
+  ] as const
 }
 
 /**
@@ -2617,38 +2961,71 @@ export function usePost20100401AccountsAccountSidIncomingPhoneNumbersSidJson(opt
  * Delete a phone-numbers belonging to the account used to make the request.
  */
 export function useDelete20100401AccountsAccountSidIncomingPhoneNumbersSidJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$delete']
-    >,
+  mutation?: SWRMutationConfiguration<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$delete']
+              >
+            >
+          >
+        >
+      >
+    | undefined,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$delete']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$delete']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$delete']
-    >
-  >(
-    'DELETE /2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:Sid.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[':Sid.json'].$delete(
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey =
+    customKey ?? getDelete20100401AccountsAccountSidIncomingPhoneNumbersSidJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
           arg,
-          options?.client,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$delete']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[':Sid.json'].$delete(
+            arg,
+            clientOptions,
+          ),
         ),
-      ),
-    options?.swr,
-  )
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers.json
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGet20100401AccountsAccountSidIncomingPhoneNumbersJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers.json',
+    args,
+  ] as const
 }
 
 /**
@@ -2663,50 +3040,41 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersJson(
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidIncomingPhoneNumbersJsonKey(args) : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidIncomingPhoneNumbersJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid']['IncomingPhoneNumbers.json'].$get(
-          args,
-          clientOptions,
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid']['IncomingPhoneNumbers.json'].$get(
+            args,
+            clientOptions,
+          ),
         ),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers.json
+ * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers.json
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet20100401AccountsAccountSidIncomingPhoneNumbersJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers.json']['$get']
-  >,
-) {
+export function getPost20100401AccountsAccountSidIncomingPhoneNumbersJsonMutationKey() {
   return [
+    '2010-04-01',
+    'POST',
     '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers.json',
-    ...(args ? [args] : []),
   ] as const
 }
 
@@ -2718,38 +3086,69 @@ export function getGet20100401AccountsAccountSidIncomingPhoneNumbersJsonKey(
  * Purchase a phone-number for the account.
  */
 export function usePost20100401AccountsAccountSidIncomingPhoneNumbersJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers.json']['$post']
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers.json']['$post']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers.json']['$post']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers.json']['$post']
-    >
-  >(
-    'POST /2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid']['IncomingPhoneNumbers.json'].$post(
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPost20100401AccountsAccountSidIncomingPhoneNumbersJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
           arg,
-          options?.client,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers.json']['$post']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid']['IncomingPhoneNumbers.json'].$post(
+            arg,
+            clientOptions,
+          ),
         ),
-      ),
-    options?.swr,
-  )
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns/{Sid.json}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsSidJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':Sid.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:ResourceSid/AssignedAddOns/:Sid.json',
+    args,
+  ] as const
 }
 
 /**
@@ -2764,53 +3163,41 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':Sid.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':Sid.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsSidJsonKey(
-          args,
-        )
-      : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':Sid.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ??
+      getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsSidJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[
-          ':ResourceSid'
-        ].AssignedAddOns[':Sid.json'].$get(args, clientOptions),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[
+            ':ResourceSid'
+          ].AssignedAddOns[':Sid.json'].$get(args, clientOptions),
+        ),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns/{Sid}.json
+ * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns/{Sid.json}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsSidJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':Sid.json']['$get']
-  >,
-) {
+export function getDelete20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsSidJsonMutationKey() {
   return [
+    '2010-04-01',
+    'DELETE',
     '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:ResourceSid/AssignedAddOns/:Sid.json',
-    ...(args ? [args] : []),
   ] as const
 }
 
@@ -2822,37 +3209,71 @@ export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
  * Remove the assignment of an Add-on installation from the Number specified.
  */
 export function useDelete20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsSidJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':Sid.json']['$delete']
-    >,
+  mutation?: SWRMutationConfiguration<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':Sid.json']['$delete']
+              >
+            >
+          >
+        >
+      >
+    | undefined,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':Sid.json']['$delete']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':Sid.json']['$delete']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':Sid.json']['$delete']
-    >
-  >(
-    'DELETE /2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:ResourceSid/AssignedAddOns/:Sid.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[
-          ':ResourceSid'
-        ].AssignedAddOns[':Sid.json'].$delete(arg, options?.client),
-      ),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey =
+    customKey ??
+    getDelete20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsSidJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':Sid.json']['$delete']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[
+            ':ResourceSid'
+          ].AssignedAddOns[':Sid.json'].$delete(arg, clientOptions),
+        ),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns.json
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:ResourceSid/AssignedAddOns.json',
+    args,
+  ] as const
 }
 
 /**
@@ -2867,51 +3288,41 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsJsonKey(args)
-      : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ??
+      getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[':ResourceSid'][
-          'AssignedAddOns.json'
-        ].$get(args, clientOptions),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[':ResourceSid'][
+            'AssignedAddOns.json'
+          ].$get(args, clientOptions),
+        ),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns.json
+ * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns.json
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns.json']['$get']
-  >,
-) {
+export function getPost20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsJsonMutationKey() {
   return [
+    '2010-04-01',
+    'POST',
     '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:ResourceSid/AssignedAddOns.json',
-    ...(args ? [args] : []),
   ] as const
 }
 
@@ -2923,37 +3334,70 @@ export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
  * Assign an Add-on installation to the Number specified.
  */
 export function usePost20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns.json']['$post']
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns.json']['$post']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns.json']['$post']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns.json']['$post']
-    >
-  >(
-    'POST /2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:ResourceSid/AssignedAddOns.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[':ResourceSid'][
-          'AssignedAddOns.json'
-        ].$post(arg, options?.client),
-      ),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey =
+    customKey ??
+    getPost20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns.json']['$post']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[':ResourceSid'][
+            'AssignedAddOns.json'
+          ].$post(arg, clientOptions),
+        ),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns/{AssignedAddOnSid}/Extensions/{Sid.json}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsAssignedAddOnSidExtensionsSidJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':AssignedAddOnSid']['Extensions'][':Sid.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:ResourceSid/AssignedAddOns/:AssignedAddOnSid/Extensions/:Sid.json',
+    args,
+  ] as const
 }
 
 /**
@@ -2968,53 +3412,48 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':AssignedAddOnSid']['Extensions'][':Sid.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':AssignedAddOnSid']['Extensions'][':Sid.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsAssignedAddOnSidExtensionsSidJsonKey(
-          args,
-        )
-      : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':AssignedAddOnSid']['Extensions'][':Sid.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ??
+      getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsAssignedAddOnSidExtensionsSidJsonKey(
+        args,
+      ))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[
-          ':ResourceSid'
-        ].AssignedAddOns[':AssignedAddOnSid'].Extensions[':Sid.json'].$get(args, clientOptions),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[
+            ':ResourceSid'
+          ].AssignedAddOns[':AssignedAddOnSid'].Extensions[':Sid.json'].$get(args, clientOptions),
+        ),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns/{AssignedAddOnSid}/Extensions/{Sid}.json
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns/{AssignedAddOnSid}/Extensions.json
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsAssignedAddOnSidExtensionsSidJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':AssignedAddOnSid']['Extensions'][':Sid.json']['$get']
+export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsAssignedAddOnSidExtensionsJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':AssignedAddOnSid']['Extensions.json']['$get']
   >,
 ) {
   return [
-    '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:ResourceSid/AssignedAddOns/:AssignedAddOnSid/Extensions/:Sid.json',
-    ...(args ? [args] : []),
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:ResourceSid/AssignedAddOns/:AssignedAddOnSid/Extensions.json',
+    args,
   ] as const
 }
 
@@ -3030,53 +3469,48 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':AssignedAddOnSid']['Extensions.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':AssignedAddOnSid']['Extensions.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsAssignedAddOnSidExtensionsJsonKey(
-          args,
-        )
-      : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':AssignedAddOnSid']['Extensions.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ??
+      getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsAssignedAddOnSidExtensionsJsonKey(
+        args,
+      ))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[
-          ':ResourceSid'
-        ].AssignedAddOns[':AssignedAddOnSid']['Extensions.json'].$get(args, clientOptions),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[
+            ':ResourceSid'
+          ].AssignedAddOns[':AssignedAddOnSid']['Extensions.json'].$get(args, clientOptions),
+        ),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns/{AssignedAddOnSid}/Extensions.json
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/Local.json
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsAssignedAddOnSidExtensionsJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':AssignedAddOnSid']['Extensions.json']['$get']
+export function getGet20100401AccountsAccountSidIncomingPhoneNumbersLocalJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Local.json']['$get']
   >,
 ) {
   return [
-    '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:ResourceSid/AssignedAddOns/:AssignedAddOnSid/Extensions.json',
-    ...(args ? [args] : []),
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/Local.json',
+    args,
   ] as const
 }
 
@@ -3088,50 +3522,41 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersLocalJson(
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Local.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Local.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidIncomingPhoneNumbersLocalJsonKey(args) : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Local.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidIncomingPhoneNumbersLocalJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers['Local.json'].$get(
-          args,
-          clientOptions,
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers['Local.json'].$get(
+            args,
+            clientOptions,
+          ),
         ),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/Local.json
+ * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/Local.json
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet20100401AccountsAccountSidIncomingPhoneNumbersLocalJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Local.json']['$get']
-  >,
-) {
+export function getPost20100401AccountsAccountSidIncomingPhoneNumbersLocalJsonMutationKey() {
   return [
+    '2010-04-01',
+    'POST',
     '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/Local.json',
-    ...(args ? [args] : []),
   ] as const
 }
 
@@ -3139,38 +3564,70 @@ export function getGet20100401AccountsAccountSidIncomingPhoneNumbersLocalJsonKey
  * POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/Local.json
  */
 export function usePost20100401AccountsAccountSidIncomingPhoneNumbersLocalJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Local.json']['$post']
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Local.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Local.json']['$post']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Local.json']['$post']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Local.json']['$post']
-    >
-  >(
-    'POST /2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/Local.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers['Local.json'].$post(
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey =
+    customKey ?? getPost20100401AccountsAccountSidIncomingPhoneNumbersLocalJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
           arg,
-          options?.client,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Local.json']['$post']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers['Local.json'].$post(
+            arg,
+            clientOptions,
+          ),
         ),
-      ),
-    options?.swr,
-  )
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/Mobile.json
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGet20100401AccountsAccountSidIncomingPhoneNumbersMobileJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Mobile.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/Mobile.json',
+    args,
+  ] as const
 }
 
 /**
@@ -3181,50 +3638,41 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersMobileJson(
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Mobile.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Mobile.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidIncomingPhoneNumbersMobileJsonKey(args) : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Mobile.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidIncomingPhoneNumbersMobileJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers['Mobile.json'].$get(
-          args,
-          clientOptions,
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers['Mobile.json'].$get(
+            args,
+            clientOptions,
+          ),
         ),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/Mobile.json
+ * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/Mobile.json
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet20100401AccountsAccountSidIncomingPhoneNumbersMobileJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Mobile.json']['$get']
-  >,
-) {
+export function getPost20100401AccountsAccountSidIncomingPhoneNumbersMobileJsonMutationKey() {
   return [
+    '2010-04-01',
+    'POST',
     '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/Mobile.json',
-    ...(args ? [args] : []),
   ] as const
 }
 
@@ -3232,38 +3680,70 @@ export function getGet20100401AccountsAccountSidIncomingPhoneNumbersMobileJsonKe
  * POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/Mobile.json
  */
 export function usePost20100401AccountsAccountSidIncomingPhoneNumbersMobileJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Mobile.json']['$post']
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Mobile.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Mobile.json']['$post']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Mobile.json']['$post']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Mobile.json']['$post']
-    >
-  >(
-    'POST /2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/Mobile.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers['Mobile.json'].$post(
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey =
+    customKey ?? getPost20100401AccountsAccountSidIncomingPhoneNumbersMobileJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
           arg,
-          options?.client,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Mobile.json']['$post']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers['Mobile.json'].$post(
+            arg,
+            clientOptions,
+          ),
         ),
-      ),
-    options?.swr,
-  )
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/TollFree.json
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGet20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['TollFree.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/TollFree.json',
+    args,
+  ] as const
 }
 
 /**
@@ -3274,50 +3754,41 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJson
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['TollFree.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['TollFree.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJsonKey(args) : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['TollFree.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers['TollFree.json'].$get(
-          args,
-          clientOptions,
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers['TollFree.json'].$get(
+            args,
+            clientOptions,
+          ),
         ),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/TollFree.json
+ * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/TollFree.json
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['TollFree.json']['$get']
-  >,
-) {
+export function getPost20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJsonMutationKey() {
   return [
+    '2010-04-01',
+    'POST',
     '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/TollFree.json',
-    ...(args ? [args] : []),
   ] as const
 }
 
@@ -3325,38 +3796,65 @@ export function getGet20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJson
  * POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/TollFree.json
  */
 export function usePost20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['TollFree.json']['$post']
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['TollFree.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['TollFree.json']['$post']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['TollFree.json']['$post']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['TollFree.json']['$post']
-    >
-  >(
-    'POST /2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/TollFree.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers['TollFree.json'].$post(
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey =
+    customKey ?? getPost20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
           arg,
-          options?.client,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['TollFree.json']['$post']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers['TollFree.json'].$post(
+            arg,
+            clientOptions,
+          ),
         ),
-      ),
-    options?.swr,
-  )
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Keys/{Sid.json}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGet20100401AccountsAccountSidKeysSidJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$get']
+  >,
+) {
+  return ['2010-04-01', 'GET', '/2010-04-01/Accounts/:AccountSid/Keys/:Sid.json', args] as const
 }
 
 /**
@@ -3367,117 +3865,157 @@ export function useGet20100401AccountsAccountSidKeysSidJson(
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ?? (isEnabled ? getGet20100401AccountsAccountSidKeysSidJsonKey(args) : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidKeysSidJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Keys[':Sid.json'].$get(args, clientOptions),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Keys[':Sid.json'].$get(args, clientOptions),
+        ),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Keys/{Sid}.json
+ * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Keys/{Sid.json}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet20100401AccountsAccountSidKeysSidJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$get']
-  >,
-) {
-  return ['/2010-04-01/Accounts/:AccountSid/Keys/:Sid.json', ...(args ? [args] : [])] as const
+export function getPost20100401AccountsAccountSidKeysSidJsonMutationKey() {
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/Keys/:Sid.json'] as const
 }
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/Keys/{Sid}.json
  */
 export function usePost20100401AccountsAccountSidKeysSidJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$post']
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$post']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$post']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$post']
-    >
-  >(
-    'POST /2010-04-01/Accounts/:AccountSid/Keys/:Sid.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Keys[':Sid.json'].$post(arg, options?.client),
-      ),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPost20100401AccountsAccountSidKeysSidJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$post']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Keys[':Sid.json'].$post(arg, clientOptions),
+        ),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Keys/{Sid.json}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getDelete20100401AccountsAccountSidKeysSidJsonMutationKey() {
+  return ['2010-04-01', 'DELETE', '/2010-04-01/Accounts/:AccountSid/Keys/:Sid.json'] as const
 }
 
 /**
  * DELETE /2010-04-01/Accounts/{AccountSid}/Keys/{Sid}.json
  */
 export function useDelete20100401AccountsAccountSidKeysSidJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$delete']
-    >,
+  mutation?: SWRMutationConfiguration<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$delete']
+              >
+            >
+          >
+        >
+      >
+    | undefined,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$delete']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$delete']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$delete']
-    >
-  >(
-    'DELETE /2010-04-01/Accounts/:AccountSid/Keys/:Sid.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Keys[':Sid.json'].$delete(
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDelete20100401AccountsAccountSidKeysSidJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
           arg,
-          options?.client,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$delete']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Keys[':Sid.json'].$delete(
+            arg,
+            clientOptions,
+          ),
         ),
-      ),
-    options?.swr,
-  )
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Keys.json
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGet20100401AccountsAccountSidKeysJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys.json']['$get']
+  >,
+) {
+  return ['2010-04-01', 'GET', '/2010-04-01/Accounts/:AccountSid/Keys.json', args] as const
 }
 
 /**
@@ -3488,75 +4026,97 @@ export function useGet20100401AccountsAccountSidKeysJson(
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ?? (isEnabled ? getGet20100401AccountsAccountSidKeysJsonKey(args) : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGet20100401AccountsAccountSidKeysJsonKey(args)) : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid']['Keys.json'].$get(args, clientOptions),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid']['Keys.json'].$get(args, clientOptions),
+        ),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Keys.json
+ * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Keys.json
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet20100401AccountsAccountSidKeysJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys.json']['$get']
-  >,
-) {
-  return ['/2010-04-01/Accounts/:AccountSid/Keys.json', ...(args ? [args] : [])] as const
+export function getPost20100401AccountsAccountSidKeysJsonMutationKey() {
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/Keys.json'] as const
 }
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/Keys.json
  */
 export function usePost20100401AccountsAccountSidKeysJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys.json']['$post']
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys.json']['$post']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys.json']['$post']
-    >,
-    Error,
-    string,
-    InferRequestType<(typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys.json']['$post']>
-  >(
-    'POST /2010-04-01/Accounts/:AccountSid/Keys.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid']['Keys.json'].$post(arg, options?.client),
-      ),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPost20100401AccountsAccountSidKeysJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys.json']['$post']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid']['Keys.json'].$post(arg, clientOptions),
+        ),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Messages/{MessageSid}/Media/{Sid.json}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGet20100401AccountsAccountSidMessagesMessageSidMediaSidJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media'][':Sid.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Messages/:MessageSid/Media/:Sid.json',
+    args,
+  ] as const
 }
 
 /**
@@ -3571,49 +4131,40 @@ export function useGet20100401AccountsAccountSidMessagesMessageSidMediaSidJson(
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media'][':Sid.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media'][':Sid.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidMessagesMessageSidMediaSidJsonKey(args) : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media'][':Sid.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidMessagesMessageSidMediaSidJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Messages[':MessageSid'].Media[
-          ':Sid.json'
-        ].$get(args, clientOptions),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Messages[':MessageSid'].Media[
+            ':Sid.json'
+          ].$get(args, clientOptions),
+        ),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Messages/{MessageSid}/Media/{Sid}.json
+ * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Messages/{MessageSid}/Media/{Sid.json}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet20100401AccountsAccountSidMessagesMessageSidMediaSidJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media'][':Sid.json']['$get']
-  >,
-) {
+export function getDelete20100401AccountsAccountSidMessagesMessageSidMediaSidJsonMutationKey() {
   return [
+    '2010-04-01',
+    'DELETE',
     '/2010-04-01/Accounts/:AccountSid/Messages/:MessageSid/Media/:Sid.json',
-    ...(args ? [args] : []),
   ] as const
 }
 
@@ -3625,37 +4176,70 @@ export function getGet20100401AccountsAccountSidMessagesMessageSidMediaSidJsonKe
  * Delete the Media resource.
  */
 export function useDelete20100401AccountsAccountSidMessagesMessageSidMediaSidJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media'][':Sid.json']['$delete']
-    >,
+  mutation?: SWRMutationConfiguration<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media'][':Sid.json']['$delete']
+              >
+            >
+          >
+        >
+      >
+    | undefined,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media'][':Sid.json']['$delete']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media'][':Sid.json']['$delete']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media'][':Sid.json']['$delete']
-    >
-  >(
-    'DELETE /2010-04-01/Accounts/:AccountSid/Messages/:MessageSid/Media/:Sid.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Messages[':MessageSid'].Media[
-          ':Sid.json'
-        ].$delete(arg, options?.client),
-      ),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey =
+    customKey ?? getDelete20100401AccountsAccountSidMessagesMessageSidMediaSidJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media'][':Sid.json']['$delete']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Messages[':MessageSid'].Media[
+            ':Sid.json'
+          ].$delete(arg, clientOptions),
+        ),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Messages/{MessageSid}/Media.json
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGet20100401AccountsAccountSidMessagesMessageSidMediaJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Messages/:MessageSid/Media.json',
+    args,
+  ] as const
 }
 
 /**
@@ -3670,50 +4254,46 @@ export function useGet20100401AccountsAccountSidMessagesMessageSidMediaJson(
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidMessagesMessageSidMediaJsonKey(args) : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidMessagesMessageSidMediaJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Messages[':MessageSid']['Media.json'].$get(
-          args,
-          clientOptions,
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Messages[':MessageSid']['Media.json'].$get(
+            args,
+            clientOptions,
+          ),
         ),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Messages/{MessageSid}/Media.json
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Queues/{QueueSid}/Members/{CallSid.json}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGet20100401AccountsAccountSidMessagesMessageSidMediaJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media.json']['$get']
+export function getGet20100401AccountsAccountSidQueuesQueueSidMembersCallSidJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members'][':CallSid.json']['$get']
   >,
 ) {
   return [
-    '/2010-04-01/Accounts/:AccountSid/Messages/:MessageSid/Media.json',
-    ...(args ? [args] : []),
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Queues/:QueueSid/Members/:CallSid.json',
+    args,
   ] as const
 }
 
@@ -3729,49 +4309,40 @@ export function useGet20100401AccountsAccountSidQueuesQueueSidMembersCallSidJson
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members'][':CallSid.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members'][':CallSid.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidQueuesQueueSidMembersCallSidJsonKey(args) : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members'][':CallSid.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidQueuesQueueSidMembersCallSidJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Queues[':QueueSid'].Members[
-          ':CallSid.json'
-        ].$get(args, clientOptions),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Queues[':QueueSid'].Members[
+            ':CallSid.json'
+          ].$get(args, clientOptions),
+        ),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Queues/{QueueSid}/Members/{CallSid}.json
+ * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Queues/{QueueSid}/Members/{CallSid.json}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet20100401AccountsAccountSidQueuesQueueSidMembersCallSidJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members'][':CallSid.json']['$get']
-  >,
-) {
+export function getPost20100401AccountsAccountSidQueuesQueueSidMembersCallSidJsonMutationKey() {
   return [
+    '2010-04-01',
+    'POST',
     '/2010-04-01/Accounts/:AccountSid/Queues/:QueueSid/Members/:CallSid.json',
-    ...(args ? [args] : []),
   ] as const
 }
 
@@ -3783,37 +4354,69 @@ export function getGet20100401AccountsAccountSidQueuesQueueSidMembersCallSidJson
  * Dequeue a member from a queue and have the member's call begin executing the TwiML document at that URL
  */
 export function usePost20100401AccountsAccountSidQueuesQueueSidMembersCallSidJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members'][':CallSid.json']['$post']
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members'][':CallSid.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members'][':CallSid.json']['$post']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members'][':CallSid.json']['$post']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members'][':CallSid.json']['$post']
-    >
-  >(
-    'POST /2010-04-01/Accounts/:AccountSid/Queues/:QueueSid/Members/:CallSid.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Queues[':QueueSid'].Members[
-          ':CallSid.json'
-        ].$post(arg, options?.client),
-      ),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey =
+    customKey ?? getPost20100401AccountsAccountSidQueuesQueueSidMembersCallSidJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members'][':CallSid.json']['$post']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Queues[':QueueSid'].Members[
+            ':CallSid.json'
+          ].$post(arg, clientOptions),
+        ),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Queues/{QueueSid}/Members.json
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGet20100401AccountsAccountSidQueuesQueueSidMembersJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Queues/:QueueSid/Members.json',
+    args,
+  ] as const
 }
 
 /**
@@ -3828,51 +4431,42 @@ export function useGet20100401AccountsAccountSidQueuesQueueSidMembersJson(
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidQueuesQueueSidMembersJsonKey(args) : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidQueuesQueueSidMembersJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Queues[':QueueSid']['Members.json'].$get(
-          args,
-          clientOptions,
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Queues[':QueueSid']['Members.json'].$get(
+            args,
+            clientOptions,
+          ),
         ),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Queues/{QueueSid}/Members.json
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Messages.json
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGet20100401AccountsAccountSidQueuesQueueSidMembersJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members.json']['$get']
+export function getGet20100401AccountsAccountSidMessagesJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages.json']['$get']
   >,
 ) {
-  return [
-    '/2010-04-01/Accounts/:AccountSid/Queues/:QueueSid/Members.json',
-    ...(args ? [args] : []),
-  ] as const
+  return ['2010-04-01', 'GET', '/2010-04-01/Accounts/:AccountSid/Messages.json', args] as const
 }
 
 /**
@@ -3887,44 +4481,35 @@ export function useGet20100401AccountsAccountSidMessagesJson(
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ?? (isEnabled ? getGet20100401AccountsAccountSidMessagesJsonKey(args) : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidMessagesJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid']['Messages.json'].$get(args, clientOptions),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid']['Messages.json'].$get(args, clientOptions),
+        ),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Messages.json
+ * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Messages.json
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet20100401AccountsAccountSidMessagesJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages.json']['$get']
-  >,
-) {
-  return ['/2010-04-01/Accounts/:AccountSid/Messages.json', ...(args ? [args] : [])] as const
+export function getPost20100401AccountsAccountSidMessagesJsonMutationKey() {
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/Messages.json'] as const
 }
 
 /**
@@ -3935,35 +4520,61 @@ export function getGet20100401AccountsAccountSidMessagesJsonKey(
  * Send a message
  */
 export function usePost20100401AccountsAccountSidMessagesJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages.json']['$post']
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages.json']['$post']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages.json']['$post']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages.json']['$post']
-    >
-  >(
-    'POST /2010-04-01/Accounts/:AccountSid/Messages.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid']['Messages.json'].$post(arg, options?.client),
-      ),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPost20100401AccountsAccountSidMessagesJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages.json']['$post']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid']['Messages.json'].$post(arg, clientOptions),
+        ),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Messages/{Sid.json}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGet20100401AccountsAccountSidMessagesSidJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$get']
+  >,
+) {
+  return ['2010-04-01', 'GET', '/2010-04-01/Accounts/:AccountSid/Messages/:Sid.json', args] as const
 }
 
 /**
@@ -3978,48 +4589,38 @@ export function useGet20100401AccountsAccountSidMessagesSidJson(
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidMessagesSidJsonKey(args) : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidMessagesSidJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Messages[':Sid.json'].$get(
-          args,
-          clientOptions,
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Messages[':Sid.json'].$get(
+            args,
+            clientOptions,
+          ),
         ),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Messages/{Sid}.json
+ * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Messages/{Sid.json}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet20100401AccountsAccountSidMessagesSidJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$get']
-  >,
-) {
-  return ['/2010-04-01/Accounts/:AccountSid/Messages/:Sid.json', ...(args ? [args] : [])] as const
+export function getPost20100401AccountsAccountSidMessagesSidJsonMutationKey() {
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/Messages/:Sid.json'] as const
 }
 
 /**
@@ -4030,38 +4631,60 @@ export function getGet20100401AccountsAccountSidMessagesSidJsonKey(
  * Update a Message resource (used to redact Message `body` text and to cancel not-yet-sent messages)
  */
 export function usePost20100401AccountsAccountSidMessagesSidJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$post']
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$post']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$post']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$post']
-    >
-  >(
-    'POST /2010-04-01/Accounts/:AccountSid/Messages/:Sid.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Messages[':Sid.json'].$post(
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPost20100401AccountsAccountSidMessagesSidJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
           arg,
-          options?.client,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$post']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Messages[':Sid.json'].$post(
+            arg,
+            clientOptions,
+          ),
         ),
-      ),
-    options?.swr,
-  )
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Messages/{Sid.json}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getDelete20100401AccountsAccountSidMessagesSidJsonMutationKey() {
+  return ['2010-04-01', 'DELETE', '/2010-04-01/Accounts/:AccountSid/Messages/:Sid.json'] as const
 }
 
 /**
@@ -4072,38 +4695,65 @@ export function usePost20100401AccountsAccountSidMessagesSidJson(options?: {
  * Deletes a Message resource from your account
  */
 export function useDelete20100401AccountsAccountSidMessagesSidJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$delete']
-    >,
+  mutation?: SWRMutationConfiguration<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$delete']
+              >
+            >
+          >
+        >
+      >
+    | undefined,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$delete']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$delete']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$delete']
-    >
-  >(
-    'DELETE /2010-04-01/Accounts/:AccountSid/Messages/:Sid.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Messages[':Sid.json'].$delete(
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDelete20100401AccountsAccountSidMessagesSidJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
           arg,
-          options?.client,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$delete']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Messages[':Sid.json'].$delete(
+            arg,
+            clientOptions,
+          ),
         ),
-      ),
-    options?.swr,
-  )
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Messages/{MessageSid}/Feedback.json
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPost20100401AccountsAccountSidMessagesMessageSidFeedbackJsonMutationKey() {
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/Messages/:MessageSid/Feedback.json',
+  ] as const
 }
 
 /**
@@ -4114,38 +4764,64 @@ export function useDelete20100401AccountsAccountSidMessagesSidJson(options?: {
  * Create Message Feedback to confirm a tracked user action was performed by the recipient of the associated Message
  */
 export function usePost20100401AccountsAccountSidMessagesMessageSidFeedbackJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Feedback.json']['$post']
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Feedback.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Feedback.json']['$post']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Feedback.json']['$post']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Feedback.json']['$post']
-    >
-  >(
-    'POST /2010-04-01/Accounts/:AccountSid/Messages/:MessageSid/Feedback.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Messages[':MessageSid']['Feedback.json'].$post(
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey =
+    customKey ?? getPost20100401AccountsAccountSidMessagesMessageSidFeedbackJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
           arg,
-          options?.client,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Feedback.json']['$post']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Messages[':MessageSid'][
+            'Feedback.json'
+          ].$post(arg, clientOptions),
         ),
-      ),
-    options?.swr,
-  )
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SigningKeys.json
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGet20100401AccountsAccountSidSigningKeysJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys.json']['$get']
+  >,
+) {
+  return ['2010-04-01', 'GET', '/2010-04-01/Accounts/:AccountSid/SigningKeys.json', args] as const
 }
 
 /**
@@ -4156,45 +4832,38 @@ export function useGet20100401AccountsAccountSidSigningKeysJson(
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidSigningKeysJsonKey(args) : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidSigningKeysJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid']['SigningKeys.json'].$get(args, clientOptions),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid']['SigningKeys.json'].$get(
+            args,
+            clientOptions,
+          ),
+        ),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SigningKeys.json
+ * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/SigningKeys.json
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet20100401AccountsAccountSidSigningKeysJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys.json']['$get']
-  >,
-) {
-  return ['/2010-04-01/Accounts/:AccountSid/SigningKeys.json', ...(args ? [args] : [])] as const
+export function getPost20100401AccountsAccountSidSigningKeysJsonMutationKey() {
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/SigningKeys.json'] as const
 }
 
 /**
@@ -4205,38 +4874,69 @@ export function getGet20100401AccountsAccountSidSigningKeysJsonKey(
  * Create a new Signing Key for the account making the request.
  */
 export function usePost20100401AccountsAccountSidSigningKeysJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys.json']['$post']
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys.json']['$post']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys.json']['$post']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys.json']['$post']
-    >
-  >(
-    'POST /2010-04-01/Accounts/:AccountSid/SigningKeys.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid']['SigningKeys.json'].$post(
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPost20100401AccountsAccountSidSigningKeysJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
           arg,
-          options?.client,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys.json']['$post']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid']['SigningKeys.json'].$post(
+            arg,
+            clientOptions,
+          ),
         ),
-      ),
-    options?.swr,
-  )
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Notifications/{Sid.json}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGet20100401AccountsAccountSidNotificationsSidJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Notifications'][':Sid.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Notifications/:Sid.json',
+    args,
+  ] as const
 }
 
 /**
@@ -4251,51 +4951,42 @@ export function useGet20100401AccountsAccountSidNotificationsSidJson(
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Notifications'][':Sid.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Notifications'][':Sid.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidNotificationsSidJsonKey(args) : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Notifications'][':Sid.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidNotificationsSidJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Notifications[':Sid.json'].$get(
-          args,
-          clientOptions,
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Notifications[':Sid.json'].$get(
+            args,
+            clientOptions,
+          ),
         ),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Notifications/{Sid}.json
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Notifications.json
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGet20100401AccountsAccountSidNotificationsSidJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Notifications'][':Sid.json']['$get']
+export function getGet20100401AccountsAccountSidNotificationsJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Notifications.json']['$get']
   >,
 ) {
-  return [
-    '/2010-04-01/Accounts/:AccountSid/Notifications/:Sid.json',
-    ...(args ? [args] : []),
-  ] as const
+  return ['2010-04-01', 'GET', '/2010-04-01/Accounts/:AccountSid/Notifications.json', args] as const
 }
 
 /**
@@ -4310,48 +5001,47 @@ export function useGet20100401AccountsAccountSidNotificationsJson(
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Notifications.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Notifications.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidNotificationsJsonKey(args) : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Notifications.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidNotificationsJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid']['Notifications.json'].$get(
-          args,
-          clientOptions,
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid']['Notifications.json'].$get(
+            args,
+            clientOptions,
+          ),
         ),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Notifications.json
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/OutgoingCallerIds/{Sid.json}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGet20100401AccountsAccountSidNotificationsJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Notifications.json']['$get']
+export function getGet20100401AccountsAccountSidOutgoingCallerIdsSidJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$get']
   >,
 ) {
-  return ['/2010-04-01/Accounts/:AccountSid/Notifications.json', ...(args ? [args] : [])] as const
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/OutgoingCallerIds/:Sid.json',
+    args,
+  ] as const
 }
 
 /**
@@ -4366,50 +5056,41 @@ export function useGet20100401AccountsAccountSidOutgoingCallerIdsSidJson(
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidOutgoingCallerIdsSidJsonKey(args) : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidOutgoingCallerIdsSidJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].OutgoingCallerIds[':Sid.json'].$get(
-          args,
-          clientOptions,
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].OutgoingCallerIds[':Sid.json'].$get(
+            args,
+            clientOptions,
+          ),
         ),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/OutgoingCallerIds/{Sid}.json
+ * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/OutgoingCallerIds/{Sid.json}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet20100401AccountsAccountSidOutgoingCallerIdsSidJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$get']
-  >,
-) {
+export function getPost20100401AccountsAccountSidOutgoingCallerIdsSidJsonMutationKey() {
   return [
+    '2010-04-01',
+    'POST',
     '/2010-04-01/Accounts/:AccountSid/OutgoingCallerIds/:Sid.json',
-    ...(args ? [args] : []),
   ] as const
 }
 
@@ -4421,38 +5102,64 @@ export function getGet20100401AccountsAccountSidOutgoingCallerIdsSidJsonKey(
  * Updates the caller-id
  */
 export function usePost20100401AccountsAccountSidOutgoingCallerIdsSidJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$post']
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$post']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$post']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$post']
-    >
-  >(
-    'POST /2010-04-01/Accounts/:AccountSid/OutgoingCallerIds/:Sid.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].OutgoingCallerIds[':Sid.json'].$post(
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPost20100401AccountsAccountSidOutgoingCallerIdsSidJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
           arg,
-          options?.client,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$post']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].OutgoingCallerIds[':Sid.json'].$post(
+            arg,
+            clientOptions,
+          ),
         ),
-      ),
-    options?.swr,
-  )
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/OutgoingCallerIds/{Sid.json}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getDelete20100401AccountsAccountSidOutgoingCallerIdsSidJsonMutationKey() {
+  return [
+    '2010-04-01',
+    'DELETE',
+    '/2010-04-01/Accounts/:AccountSid/OutgoingCallerIds/:Sid.json',
+  ] as const
 }
 
 /**
@@ -4463,38 +5170,71 @@ export function usePost20100401AccountsAccountSidOutgoingCallerIdsSidJson(option
  * Delete the caller-id specified from the account
  */
 export function useDelete20100401AccountsAccountSidOutgoingCallerIdsSidJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$delete']
-    >,
+  mutation?: SWRMutationConfiguration<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$delete']
+              >
+            >
+          >
+        >
+      >
+    | undefined,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$delete']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$delete']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$delete']
-    >
-  >(
-    'DELETE /2010-04-01/Accounts/:AccountSid/OutgoingCallerIds/:Sid.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].OutgoingCallerIds[':Sid.json'].$delete(
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey =
+    customKey ?? getDelete20100401AccountsAccountSidOutgoingCallerIdsSidJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
           arg,
-          options?.client,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$delete']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].OutgoingCallerIds[':Sid.json'].$delete(
+            arg,
+            clientOptions,
+          ),
         ),
-      ),
-    options?.swr,
-  )
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/OutgoingCallerIds.json
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGet20100401AccountsAccountSidOutgoingCallerIdsJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/OutgoingCallerIds.json',
+    args,
+  ] as const
 }
 
 /**
@@ -4509,89 +5249,107 @@ export function useGet20100401AccountsAccountSidOutgoingCallerIdsJson(
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidOutgoingCallerIdsJsonKey(args) : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidOutgoingCallerIdsJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid']['OutgoingCallerIds.json'].$get(
-          args,
-          clientOptions,
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid']['OutgoingCallerIds.json'].$get(
+            args,
+            clientOptions,
+          ),
         ),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/OutgoingCallerIds.json
+ * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/OutgoingCallerIds.json
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet20100401AccountsAccountSidOutgoingCallerIdsJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds.json']['$get']
-  >,
-) {
-  return [
-    '/2010-04-01/Accounts/:AccountSid/OutgoingCallerIds.json',
-    ...(args ? [args] : []),
-  ] as const
+export function getPost20100401AccountsAccountSidOutgoingCallerIdsJsonMutationKey() {
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/OutgoingCallerIds.json'] as const
 }
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/OutgoingCallerIds.json
  */
 export function usePost20100401AccountsAccountSidOutgoingCallerIdsJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds.json']['$post']
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds.json']['$post']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds.json']['$post']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds.json']['$post']
-    >
-  >(
-    'POST /2010-04-01/Accounts/:AccountSid/OutgoingCallerIds.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid']['OutgoingCallerIds.json'].$post(
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPost20100401AccountsAccountSidOutgoingCallerIdsJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
           arg,
-          options?.client,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds.json']['$post']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid']['OutgoingCallerIds.json'].$post(
+            arg,
+            clientOptions,
+          ),
         ),
-      ),
-    options?.swr,
-  )
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Participants/{CallSid.json}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGet20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Participants/:CallSid.json',
+    args,
+  ] as const
 }
 
 /**
@@ -4606,51 +5364,41 @@ export function useGet20100401AccountsAccountSidConferencesConferenceSidParticip
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJsonKey(args)
-      : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ??
+      getGet20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'].Participants[
-          ':CallSid.json'
-        ].$get(args, clientOptions),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'].Participants[
+            ':CallSid.json'
+          ].$get(args, clientOptions),
+        ),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Participants/{CallSid}.json
+ * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Participants/{CallSid.json}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$get']
-  >,
-) {
+export function getPost20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJsonMutationKey() {
   return [
+    '2010-04-01',
+    'POST',
     '/2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Participants/:CallSid.json',
-    ...(args ? [args] : []),
   ] as const
 }
 
@@ -4662,37 +5410,65 @@ export function getGet20100401AccountsAccountSidConferencesConferenceSidParticip
  * Update the properties of the participant
  */
 export function usePost20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$post']
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$post']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$post']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$post']
-    >
-  >(
-    'POST /2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Participants/:CallSid.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'].Participants[
-          ':CallSid.json'
-        ].$post(arg, options?.client),
-      ),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey =
+    customKey ??
+    getPost20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$post']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'].Participants[
+            ':CallSid.json'
+          ].$post(arg, clientOptions),
+        ),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Participants/{CallSid.json}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getDelete20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJsonMutationKey() {
+  return [
+    '2010-04-01',
+    'DELETE',
+    '/2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Participants/:CallSid.json',
+  ] as const
 }
 
 /**
@@ -4703,37 +5479,71 @@ export function usePost20100401AccountsAccountSidConferencesConferenceSidPartici
  * Kick a participant from a given conference
  */
 export function useDelete20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$delete']
-    >,
+  mutation?: SWRMutationConfiguration<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$delete']
+              >
+            >
+          >
+        >
+      >
+    | undefined,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$delete']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$delete']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$delete']
-    >
-  >(
-    'DELETE /2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Participants/:CallSid.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'].Participants[
-          ':CallSid.json'
-        ].$delete(arg, options?.client),
-      ),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey =
+    customKey ??
+    getDelete20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$delete']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'].Participants[
+            ':CallSid.json'
+          ].$delete(arg, clientOptions),
+        ),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Participants.json
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGet20100401AccountsAccountSidConferencesConferenceSidParticipantsJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Participants.json',
+    args,
+  ] as const
 }
 
 /**
@@ -4748,51 +5558,41 @@ export function useGet20100401AccountsAccountSidConferencesConferenceSidParticip
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidConferencesConferenceSidParticipantsJsonKey(args)
-      : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ??
+      getGet20100401AccountsAccountSidConferencesConferenceSidParticipantsJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'][
-          'Participants.json'
-        ].$get(args, clientOptions),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'][
+            'Participants.json'
+          ].$get(args, clientOptions),
+        ),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Participants.json
+ * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Participants.json
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet20100401AccountsAccountSidConferencesConferenceSidParticipantsJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants.json']['$get']
-  >,
-) {
+export function getPost20100401AccountsAccountSidConferencesConferenceSidParticipantsJsonMutationKey() {
   return [
+    '2010-04-01',
+    'POST',
     '/2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Participants.json',
-    ...(args ? [args] : []),
   ] as const
 }
 
@@ -4800,37 +5600,65 @@ export function getGet20100401AccountsAccountSidConferencesConferenceSidParticip
  * POST /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Participants.json
  */
 export function usePost20100401AccountsAccountSidConferencesConferenceSidParticipantsJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants.json']['$post']
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants.json']['$post']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants.json']['$post']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants.json']['$post']
-    >
-  >(
-    'POST /2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Participants.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'][
-          'Participants.json'
-        ].$post(arg, options?.client),
-      ),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey =
+    customKey ??
+    getPost20100401AccountsAccountSidConferencesConferenceSidParticipantsJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants.json']['$post']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'][
+            'Participants.json'
+          ].$post(arg, clientOptions),
+        ),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Payments.json
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPost20100401AccountsAccountSidCallsCallSidPaymentsJsonMutationKey() {
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Payments.json',
+  ] as const
 }
 
 /**
@@ -4841,38 +5669,64 @@ export function usePost20100401AccountsAccountSidConferencesConferenceSidPartici
  * create an instance of payments. This will start a new payments session
  */
 export function usePost20100401AccountsAccountSidCallsCallSidPaymentsJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Payments.json']['$post']
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Payments.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Payments.json']['$post']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Payments.json']['$post']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Payments.json']['$post']
-    >
-  >(
-    'POST /2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Payments.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Payments.json'].$post(
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPost20100401AccountsAccountSidCallsCallSidPaymentsJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
           arg,
-          options?.client,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Payments.json']['$post']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Payments.json'].$post(
+            arg,
+            clientOptions,
+          ),
         ),
-      ),
-    options?.swr,
-  )
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Payments/{Sid.json}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPost20100401AccountsAccountSidCallsCallSidPaymentsSidJsonMutationKey() {
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Payments/:Sid.json',
+  ] as const
 }
 
 /**
@@ -4883,38 +5737,64 @@ export function usePost20100401AccountsAccountSidCallsCallSidPaymentsJson(option
  * update an instance of payments with different phases of payment flows.
  */
 export function usePost20100401AccountsAccountSidCallsCallSidPaymentsSidJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Payments'][':Sid.json']['$post']
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Payments'][':Sid.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Payments'][':Sid.json']['$post']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Payments'][':Sid.json']['$post']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Payments'][':Sid.json']['$post']
-    >
-  >(
-    'POST /2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Payments/:Sid.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'].Payments[':Sid.json'].$post(
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey =
+    customKey ?? getPost20100401AccountsAccountSidCallsCallSidPaymentsSidJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
           arg,
-          options?.client,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Payments'][':Sid.json']['$post']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'].Payments[
+            ':Sid.json'
+          ].$post(arg, clientOptions),
         ),
-      ),
-    options?.swr,
-  )
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Queues/{Sid.json}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGet20100401AccountsAccountSidQueuesSidJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$get']
+  >,
+) {
+  return ['2010-04-01', 'GET', '/2010-04-01/Accounts/:AccountSid/Queues/:Sid.json', args] as const
 }
 
 /**
@@ -4929,45 +5809,38 @@ export function useGet20100401AccountsAccountSidQueuesSidJson(
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidQueuesSidJsonKey(args) : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidQueuesSidJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Queues[':Sid.json'].$get(args, clientOptions),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Queues[':Sid.json'].$get(
+            args,
+            clientOptions,
+          ),
+        ),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Queues/{Sid}.json
+ * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Queues/{Sid.json}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet20100401AccountsAccountSidQueuesSidJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$get']
-  >,
-) {
-  return ['/2010-04-01/Accounts/:AccountSid/Queues/:Sid.json', ...(args ? [args] : [])] as const
+export function getPost20100401AccountsAccountSidQueuesSidJsonMutationKey() {
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/Queues/:Sid.json'] as const
 }
 
 /**
@@ -4978,38 +5851,60 @@ export function getGet20100401AccountsAccountSidQueuesSidJsonKey(
  * Update the queue with the new parameters
  */
 export function usePost20100401AccountsAccountSidQueuesSidJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$post']
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$post']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$post']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$post']
-    >
-  >(
-    'POST /2010-04-01/Accounts/:AccountSid/Queues/:Sid.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Queues[':Sid.json'].$post(
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPost20100401AccountsAccountSidQueuesSidJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
           arg,
-          options?.client,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$post']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Queues[':Sid.json'].$post(
+            arg,
+            clientOptions,
+          ),
         ),
-      ),
-    options?.swr,
-  )
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Queues/{Sid.json}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getDelete20100401AccountsAccountSidQueuesSidJsonMutationKey() {
+  return ['2010-04-01', 'DELETE', '/2010-04-01/Accounts/:AccountSid/Queues/:Sid.json'] as const
 }
 
 /**
@@ -5020,38 +5915,65 @@ export function usePost20100401AccountsAccountSidQueuesSidJson(options?: {
  * Remove an empty queue
  */
 export function useDelete20100401AccountsAccountSidQueuesSidJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$delete']
-    >,
+  mutation?: SWRMutationConfiguration<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$delete']
+              >
+            >
+          >
+        >
+      >
+    | undefined,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$delete']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$delete']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$delete']
-    >
-  >(
-    'DELETE /2010-04-01/Accounts/:AccountSid/Queues/:Sid.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Queues[':Sid.json'].$delete(
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDelete20100401AccountsAccountSidQueuesSidJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
           arg,
-          options?.client,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$delete']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Queues[':Sid.json'].$delete(
+            arg,
+            clientOptions,
+          ),
         ),
-      ),
-    options?.swr,
-  )
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Queues.json
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGet20100401AccountsAccountSidQueuesJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues.json']['$get']
+  >,
+) {
+  return ['2010-04-01', 'GET', '/2010-04-01/Accounts/:AccountSid/Queues.json', args] as const
 }
 
 /**
@@ -5066,44 +5988,35 @@ export function useGet20100401AccountsAccountSidQueuesJson(
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ?? (isEnabled ? getGet20100401AccountsAccountSidQueuesJsonKey(args) : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidQueuesJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid']['Queues.json'].$get(args, clientOptions),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid']['Queues.json'].$get(args, clientOptions),
+        ),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Queues.json
+ * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Queues.json
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet20100401AccountsAccountSidQueuesJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues.json']['$get']
-  >,
-) {
-  return ['/2010-04-01/Accounts/:AccountSid/Queues.json', ...(args ? [args] : [])] as const
+export function getPost20100401AccountsAccountSidQueuesJsonMutationKey() {
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/Queues.json'] as const
 }
 
 /**
@@ -5114,35 +6027,61 @@ export function getGet20100401AccountsAccountSidQueuesJsonKey(
  * Create a queue
  */
 export function usePost20100401AccountsAccountSidQueuesJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues.json']['$post']
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues.json']['$post']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues.json']['$post']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues.json']['$post']
-    >
-  >(
-    'POST /2010-04-01/Accounts/:AccountSid/Queues.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid']['Queues.json'].$post(arg, options?.client),
-      ),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPost20100401AccountsAccountSidQueuesJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues.json']['$post']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid']['Queues.json'].$post(arg, clientOptions),
+        ),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Transcriptions.json
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPost20100401AccountsAccountSidCallsCallSidTranscriptionsJsonMutationKey() {
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Transcriptions.json',
+  ] as const
 }
 
 /**
@@ -5153,38 +6092,64 @@ export function usePost20100401AccountsAccountSidQueuesJson(options?: {
  * Create a Transcription
  */
 export function usePost20100401AccountsAccountSidCallsCallSidTranscriptionsJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Transcriptions.json']['$post']
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Transcriptions.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Transcriptions.json']['$post']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Transcriptions.json']['$post']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Transcriptions.json']['$post']
-    >
-  >(
-    'POST /2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Transcriptions.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Transcriptions.json'].$post(
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey =
+    customKey ?? getPost20100401AccountsAccountSidCallsCallSidTranscriptionsJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
           arg,
-          options?.client,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Transcriptions.json']['$post']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'][
+            'Transcriptions.json'
+          ].$post(arg, clientOptions),
         ),
-      ),
-    options?.swr,
-  )
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Transcriptions/{Sid.json}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPost20100401AccountsAccountSidCallsCallSidTranscriptionsSidJsonMutationKey() {
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Transcriptions/:Sid.json',
+  ] as const
 }
 
 /**
@@ -5195,37 +6160,69 @@ export function usePost20100401AccountsAccountSidCallsCallSidTranscriptionsJson(
  * Stop a Transcription using either the SID of the Transcription resource or the `name` used when creating the resource
  */
 export function usePost20100401AccountsAccountSidCallsCallSidTranscriptionsSidJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Transcriptions'][':Sid.json']['$post']
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Transcriptions'][':Sid.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Transcriptions'][':Sid.json']['$post']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Transcriptions'][':Sid.json']['$post']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Transcriptions'][':Sid.json']['$post']
-    >
-  >(
-    'POST /2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Transcriptions/:Sid.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'].Transcriptions[
-          ':Sid.json'
-        ].$post(arg, options?.client),
-      ),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey =
+    customKey ?? getPost20100401AccountsAccountSidCallsCallSidTranscriptionsSidJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Transcriptions'][':Sid.json']['$post']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'].Transcriptions[
+            ':Sid.json'
+          ].$post(arg, clientOptions),
+        ),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{Sid.json}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGet20100401AccountsAccountSidRecordingsSidJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':Sid.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Recordings/:Sid.json',
+    args,
+  ] as const
 }
 
 /**
@@ -5240,48 +6237,38 @@ export function useGet20100401AccountsAccountSidRecordingsSidJson(
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':Sid.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':Sid.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidRecordingsSidJsonKey(args) : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':Sid.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidRecordingsSidJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Recordings[':Sid.json'].$get(
-          args,
-          clientOptions,
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Recordings[':Sid.json'].$get(
+            args,
+            clientOptions,
+          ),
         ),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{Sid}.json
+ * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Recordings/{Sid.json}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet20100401AccountsAccountSidRecordingsSidJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':Sid.json']['$get']
-  >,
-) {
-  return ['/2010-04-01/Accounts/:AccountSid/Recordings/:Sid.json', ...(args ? [args] : [])] as const
+export function getDelete20100401AccountsAccountSidRecordingsSidJsonMutationKey() {
+  return ['2010-04-01', 'DELETE', '/2010-04-01/Accounts/:AccountSid/Recordings/:Sid.json'] as const
 }
 
 /**
@@ -5292,38 +6279,65 @@ export function getGet20100401AccountsAccountSidRecordingsSidJsonKey(
  * Delete a recording from your account
  */
 export function useDelete20100401AccountsAccountSidRecordingsSidJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':Sid.json']['$delete']
-    >,
+  mutation?: SWRMutationConfiguration<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':Sid.json']['$delete']
+              >
+            >
+          >
+        >
+      >
+    | undefined,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':Sid.json']['$delete']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':Sid.json']['$delete']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':Sid.json']['$delete']
-    >
-  >(
-    'DELETE /2010-04-01/Accounts/:AccountSid/Recordings/:Sid.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Recordings[':Sid.json'].$delete(
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDelete20100401AccountsAccountSidRecordingsSidJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
           arg,
-          options?.client,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':Sid.json']['$delete']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Recordings[':Sid.json'].$delete(
+            arg,
+            clientOptions,
+          ),
         ),
-      ),
-    options?.swr,
-  )
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings.json
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGet20100401AccountsAccountSidRecordingsJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings.json']['$get']
+  >,
+) {
+  return ['2010-04-01', 'GET', '/2010-04-01/Accounts/:AccountSid/Recordings.json', args] as const
 }
 
 /**
@@ -5338,45 +6352,44 @@ export function useGet20100401AccountsAccountSidRecordingsJson(
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidRecordingsJsonKey(args) : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidRecordingsJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid']['Recordings.json'].$get(args, clientOptions),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid']['Recordings.json'].$get(args, clientOptions),
+        ),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings.json
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{Sid.json}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGet20100401AccountsAccountSidRecordingsJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings.json']['$get']
+export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsSidJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':Sid.json']['$get']
   >,
 ) {
-  return ['/2010-04-01/Accounts/:AccountSid/Recordings.json', ...(args ? [args] : [])] as const
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Recordings/:ReferenceSid/AddOnResults/:Sid.json',
+    args,
+  ] as const
 }
 
 /**
@@ -5391,51 +6404,41 @@ export function useGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':Sid.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':Sid.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsSidJsonKey(args)
-      : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':Sid.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ??
+      getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsSidJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Recordings[':ReferenceSid'].AddOnResults[
-          ':Sid.json'
-        ].$get(args, clientOptions),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Recordings[':ReferenceSid'].AddOnResults[
+            ':Sid.json'
+          ].$get(args, clientOptions),
+        ),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{Sid}.json
+ * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{Sid.json}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsSidJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':Sid.json']['$get']
-  >,
-) {
+export function getDelete20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsSidJsonMutationKey() {
   return [
+    '2010-04-01',
+    'DELETE',
     '/2010-04-01/Accounts/:AccountSid/Recordings/:ReferenceSid/AddOnResults/:Sid.json',
-    ...(args ? [args] : []),
   ] as const
 }
 
@@ -5447,37 +6450,71 @@ export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
  * Delete a result and purge all associated Payloads
  */
 export function useDelete20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsSidJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':Sid.json']['$delete']
-    >,
+  mutation?: SWRMutationConfiguration<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':Sid.json']['$delete']
+              >
+            >
+          >
+        >
+      >
+    | undefined,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':Sid.json']['$delete']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':Sid.json']['$delete']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':Sid.json']['$delete']
-    >
-  >(
-    'DELETE /2010-04-01/Accounts/:AccountSid/Recordings/:ReferenceSid/AddOnResults/:Sid.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Recordings[':ReferenceSid'].AddOnResults[
-          ':Sid.json'
-        ].$delete(arg, options?.client),
-      ),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey =
+    customKey ??
+    getDelete20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsSidJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':Sid.json']['$delete']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Recordings[':ReferenceSid'].AddOnResults[
+            ':Sid.json'
+          ].$delete(arg, clientOptions),
+        ),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults.json
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Recordings/:ReferenceSid/AddOnResults.json',
+    args,
+  ] as const
 }
 
 /**
@@ -5492,51 +6529,45 @@ export function useGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsJsonKey(args)
-      : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Recordings[':ReferenceSid'][
-          'AddOnResults.json'
-        ].$get(args, clientOptions),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Recordings[':ReferenceSid'][
+            'AddOnResults.json'
+          ].$get(args, clientOptions),
+        ),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults.json
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{AddOnResultSid}/Payloads/{Sid.json}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults.json']['$get']
+export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsSidJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':Sid.json']['$get']
   >,
 ) {
   return [
-    '/2010-04-01/Accounts/:AccountSid/Recordings/:ReferenceSid/AddOnResults.json',
-    ...(args ? [args] : []),
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Recordings/:ReferenceSid/AddOnResults/:AddOnResultSid/Payloads/:Sid.json',
+    args,
   ] as const
 }
 
@@ -5552,53 +6583,43 @@ export function useGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':Sid.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':Sid.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsSidJsonKey(
-          args,
-        )
-      : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':Sid.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ??
+      getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsSidJsonKey(
+        args,
+      ))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Recordings[':ReferenceSid'].AddOnResults[
-          ':AddOnResultSid'
-        ].Payloads[':Sid.json'].$get(args, clientOptions),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Recordings[':ReferenceSid'].AddOnResults[
+            ':AddOnResultSid'
+          ].Payloads[':Sid.json'].$get(args, clientOptions),
+        ),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{AddOnResultSid}/Payloads/{Sid}.json
+ * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{AddOnResultSid}/Payloads/{Sid.json}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsSidJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':Sid.json']['$get']
-  >,
-) {
+export function getDelete20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsSidJsonMutationKey() {
   return [
+    '2010-04-01',
+    'DELETE',
     '/2010-04-01/Accounts/:AccountSid/Recordings/:ReferenceSid/AddOnResults/:AddOnResultSid/Payloads/:Sid.json',
-    ...(args ? [args] : []),
   ] as const
 }
 
@@ -5610,37 +6631,71 @@ export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
  * Delete a payload from the result along with all associated Data
  */
 export function useDelete20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsSidJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':Sid.json']['$delete']
-    >,
+  mutation?: SWRMutationConfiguration<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':Sid.json']['$delete']
+              >
+            >
+          >
+        >
+      >
+    | undefined,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':Sid.json']['$delete']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':Sid.json']['$delete']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':Sid.json']['$delete']
-    >
-  >(
-    'DELETE /2010-04-01/Accounts/:AccountSid/Recordings/:ReferenceSid/AddOnResults/:AddOnResultSid/Payloads/:Sid.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Recordings[':ReferenceSid'].AddOnResults[
-          ':AddOnResultSid'
-        ].Payloads[':Sid.json'].$delete(arg, options?.client),
-      ),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey =
+    customKey ??
+    getDelete20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsSidJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':Sid.json']['$delete']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Recordings[':ReferenceSid'].AddOnResults[
+            ':AddOnResultSid'
+          ].Payloads[':Sid.json'].$delete(arg, clientOptions),
+        ),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{AddOnResultSid}/Payloads.json
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Recordings/:ReferenceSid/AddOnResults/:AddOnResultSid/Payloads.json',
+    args,
+  ] as const
 }
 
 /**
@@ -5655,53 +6710,48 @@ export function useGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsJsonKey(
-          args,
-        )
-      : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ??
+      getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsJsonKey(
+        args,
+      ))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Recordings[':ReferenceSid'].AddOnResults[
-          ':AddOnResultSid'
-        ]['Payloads.json'].$get(args, clientOptions),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Recordings[':ReferenceSid'].AddOnResults[
+            ':AddOnResultSid'
+          ]['Payloads.json'].$get(args, clientOptions),
+        ),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{AddOnResultSid}/Payloads.json
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{AddOnResultSid}/Payloads/{PayloadSid}/Data.json
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads.json']['$get']
+export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsPayloadSidDataJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':PayloadSid']['Data.json']['$get']
   >,
 ) {
   return [
-    '/2010-04-01/Accounts/:AccountSid/Recordings/:ReferenceSid/AddOnResults/:AddOnResultSid/Payloads.json',
-    ...(args ? [args] : []),
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Recordings/:ReferenceSid/AddOnResults/:AddOnResultSid/Payloads/:PayloadSid/Data.json',
+    args,
   ] as const
 }
 
@@ -5717,53 +6767,48 @@ export function useGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':PayloadSid']['Data.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':PayloadSid']['Data.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsPayloadSidDataJsonKey(
-          args,
-        )
-      : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':PayloadSid']['Data.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ??
+      getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsPayloadSidDataJsonKey(
+        args,
+      ))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Recordings[':ReferenceSid'].AddOnResults[
-          ':AddOnResultSid'
-        ].Payloads[':PayloadSid']['Data.json'].$get(args, clientOptions),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Recordings[':ReferenceSid'].AddOnResults[
+            ':AddOnResultSid'
+          ].Payloads[':PayloadSid']['Data.json'].$get(args, clientOptions),
+        ),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{AddOnResultSid}/Payloads/{PayloadSid}/Data.json
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{RecordingSid}/Transcriptions/{Sid.json}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsPayloadSidDataJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':PayloadSid']['Data.json']['$get']
+export function getGet20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsSidJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions'][':Sid.json']['$get']
   >,
 ) {
   return [
-    '/2010-04-01/Accounts/:AccountSid/Recordings/:ReferenceSid/AddOnResults/:AddOnResultSid/Payloads/:PayloadSid/Data.json',
-    ...(args ? [args] : []),
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Recordings/:RecordingSid/Transcriptions/:Sid.json',
+    args,
   ] as const
 }
 
@@ -5775,51 +6820,41 @@ export function useGet20100401AccountsAccountSidRecordingsRecordingSidTranscript
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions'][':Sid.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions'][':Sid.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsSidJsonKey(args)
-      : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions'][':Sid.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ??
+      getGet20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsSidJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Recordings[':RecordingSid'].Transcriptions[
-          ':Sid.json'
-        ].$get(args, clientOptions),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Recordings[':RecordingSid'].Transcriptions[
+            ':Sid.json'
+          ].$get(args, clientOptions),
+        ),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{RecordingSid}/Transcriptions/{Sid}.json
+ * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Recordings/{RecordingSid}/Transcriptions/{Sid.json}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsSidJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions'][':Sid.json']['$get']
-  >,
-) {
+export function getDelete20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsSidJsonMutationKey() {
   return [
+    '2010-04-01',
+    'DELETE',
     '/2010-04-01/Accounts/:AccountSid/Recordings/:RecordingSid/Transcriptions/:Sid.json',
-    ...(args ? [args] : []),
   ] as const
 }
 
@@ -5827,37 +6862,71 @@ export function getGet20100401AccountsAccountSidRecordingsRecordingSidTranscript
  * DELETE /2010-04-01/Accounts/{AccountSid}/Recordings/{RecordingSid}/Transcriptions/{Sid}.json
  */
 export function useDelete20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsSidJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions'][':Sid.json']['$delete']
-    >,
+  mutation?: SWRMutationConfiguration<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions'][':Sid.json']['$delete']
+              >
+            >
+          >
+        >
+      >
+    | undefined,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions'][':Sid.json']['$delete']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions'][':Sid.json']['$delete']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions'][':Sid.json']['$delete']
-    >
-  >(
-    'DELETE /2010-04-01/Accounts/:AccountSid/Recordings/:RecordingSid/Transcriptions/:Sid.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Recordings[':RecordingSid'].Transcriptions[
-          ':Sid.json'
-        ].$delete(arg, options?.client),
-      ),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey =
+    customKey ??
+    getDelete20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsSidJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions'][':Sid.json']['$delete']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Recordings[':RecordingSid'].Transcriptions[
+            ':Sid.json'
+          ].$delete(arg, clientOptions),
+        ),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{RecordingSid}/Transcriptions.json
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGet20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Recordings/:RecordingSid/Transcriptions.json',
+    args,
+  ] as const
 }
 
 /**
@@ -5868,51 +6937,46 @@ export function useGet20100401AccountsAccountSidRecordingsRecordingSidTranscript
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsJsonKey(args)
-      : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ??
+      getGet20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Recordings[':RecordingSid'][
-          'Transcriptions.json'
-        ].$get(args, clientOptions),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Recordings[':RecordingSid'][
+            'Transcriptions.json'
+          ].$get(args, clientOptions),
+        ),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{RecordingSid}/Transcriptions.json
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SMS/ShortCodes/{Sid.json}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGet20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions.json']['$get']
+export function getGet20100401AccountsAccountSidSMSShortCodesSidJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes'][':Sid.json']['$get']
   >,
 ) {
   return [
-    '/2010-04-01/Accounts/:AccountSid/Recordings/:RecordingSid/Transcriptions.json',
-    ...(args ? [args] : []),
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/SMS/ShortCodes/:Sid.json',
+    args,
   ] as const
 }
 
@@ -5928,50 +6992,41 @@ export function useGet20100401AccountsAccountSidSMSShortCodesSidJson(
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes'][':Sid.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes'][':Sid.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidSMSShortCodesSidJsonKey(args) : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes'][':Sid.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidSMSShortCodesSidJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SMS.ShortCodes[':Sid.json'].$get(
-          args,
-          clientOptions,
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].SMS.ShortCodes[':Sid.json'].$get(
+            args,
+            clientOptions,
+          ),
         ),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SMS/ShortCodes/{Sid}.json
+ * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/SMS/ShortCodes/{Sid.json}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet20100401AccountsAccountSidSMSShortCodesSidJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes'][':Sid.json']['$get']
-  >,
-) {
+export function getPost20100401AccountsAccountSidSMSShortCodesSidJsonMutationKey() {
   return [
+    '2010-04-01',
+    'POST',
     '/2010-04-01/Accounts/:AccountSid/SMS/ShortCodes/:Sid.json',
-    ...(args ? [args] : []),
   ] as const
 }
 
@@ -5983,38 +7038,69 @@ export function getGet20100401AccountsAccountSidSMSShortCodesSidJsonKey(
  * Update a short code with the following parameters
  */
 export function usePost20100401AccountsAccountSidSMSShortCodesSidJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes'][':Sid.json']['$post']
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes'][':Sid.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes'][':Sid.json']['$post']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes'][':Sid.json']['$post']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes'][':Sid.json']['$post']
-    >
-  >(
-    'POST /2010-04-01/Accounts/:AccountSid/SMS/ShortCodes/:Sid.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SMS.ShortCodes[':Sid.json'].$post(
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPost20100401AccountsAccountSidSMSShortCodesSidJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
           arg,
-          options?.client,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes'][':Sid.json']['$post']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].SMS.ShortCodes[':Sid.json'].$post(
+            arg,
+            clientOptions,
+          ),
         ),
-      ),
-    options?.swr,
-  )
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SMS/ShortCodes.json
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGet20100401AccountsAccountSidSMSShortCodesJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/SMS/ShortCodes.json',
+    args,
+  ] as const
 }
 
 /**
@@ -6029,48 +7115,47 @@ export function useGet20100401AccountsAccountSidSMSShortCodesJson(
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidSMSShortCodesJsonKey(args) : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidSMSShortCodesJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SMS['ShortCodes.json'].$get(
-          args,
-          clientOptions,
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].SMS['ShortCodes.json'].$get(
+            args,
+            clientOptions,
+          ),
         ),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SMS/ShortCodes.json
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SigningKeys/{Sid.json}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGet20100401AccountsAccountSidSMSShortCodesJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes.json']['$get']
+export function getGet20100401AccountsAccountSidSigningKeysSidJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$get']
   >,
 ) {
-  return ['/2010-04-01/Accounts/:AccountSid/SMS/ShortCodes.json', ...(args ? [args] : [])] as const
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/SigningKeys/:Sid.json',
+    args,
+  ] as const
 }
 
 /**
@@ -6081,127 +7166,168 @@ export function useGet20100401AccountsAccountSidSigningKeysSidJson(
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidSigningKeysSidJsonKey(args) : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidSigningKeysSidJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SigningKeys[':Sid.json'].$get(
-          args,
-          clientOptions,
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].SigningKeys[':Sid.json'].$get(
+            args,
+            clientOptions,
+          ),
         ),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SigningKeys/{Sid}.json
+ * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/SigningKeys/{Sid.json}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet20100401AccountsAccountSidSigningKeysSidJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$get']
-  >,
-) {
-  return [
-    '/2010-04-01/Accounts/:AccountSid/SigningKeys/:Sid.json',
-    ...(args ? [args] : []),
-  ] as const
+export function getPost20100401AccountsAccountSidSigningKeysSidJsonMutationKey() {
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/SigningKeys/:Sid.json'] as const
 }
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/SigningKeys/{Sid}.json
  */
 export function usePost20100401AccountsAccountSidSigningKeysSidJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$post']
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$post']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$post']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$post']
-    >
-  >(
-    'POST /2010-04-01/Accounts/:AccountSid/SigningKeys/:Sid.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SigningKeys[':Sid.json'].$post(
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPost20100401AccountsAccountSidSigningKeysSidJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
           arg,
-          options?.client,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$post']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].SigningKeys[':Sid.json'].$post(
+            arg,
+            clientOptions,
+          ),
         ),
-      ),
-    options?.swr,
-  )
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SigningKeys/{Sid.json}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getDelete20100401AccountsAccountSidSigningKeysSidJsonMutationKey() {
+  return ['2010-04-01', 'DELETE', '/2010-04-01/Accounts/:AccountSid/SigningKeys/:Sid.json'] as const
 }
 
 /**
  * DELETE /2010-04-01/Accounts/{AccountSid}/SigningKeys/{Sid}.json
  */
 export function useDelete20100401AccountsAccountSidSigningKeysSidJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$delete']
-    >,
+  mutation?: SWRMutationConfiguration<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$delete']
+              >
+            >
+          >
+        >
+      >
+    | undefined,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$delete']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$delete']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$delete']
-    >
-  >(
-    'DELETE /2010-04-01/Accounts/:AccountSid/SigningKeys/:Sid.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SigningKeys[':Sid.json'].$delete(
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDelete20100401AccountsAccountSidSigningKeysSidJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
           arg,
-          options?.client,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$delete']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].SigningKeys[':Sid.json'].$delete(
+            arg,
+            clientOptions,
+          ),
         ),
-      ),
-    options?.swr,
-  )
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/CredentialListMappings.json
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Calls/CredentialListMappings.json',
+    args,
+  ] as const
 }
 
 /**
@@ -6216,53 +7342,43 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCred
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsJsonKey(
-          args,
-        )
-      : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ??
+      getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsJsonKey(
+        args,
+      ))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'].Auth.Calls[
-          'CredentialListMappings.json'
-        ].$get(args, clientOptions),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'].Auth.Calls[
+            'CredentialListMappings.json'
+          ].$get(args, clientOptions),
+        ),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/CredentialListMappings.json
+ * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/CredentialListMappings.json
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings.json']['$get']
-  >,
-) {
+export function getPost20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsJsonMutationKey() {
   return [
+    '2010-04-01',
+    'POST',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Calls/CredentialListMappings.json',
-    ...(args ? [args] : []),
   ] as const
 }
 
@@ -6274,37 +7390,70 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCred
  * Create a new credential list mapping resource
  */
 export function usePost20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings.json']['$post']
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings.json']['$post']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings.json']['$post']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings.json']['$post']
-    >
-  >(
-    'POST /2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Calls/CredentialListMappings.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'].Auth.Calls[
-          'CredentialListMappings.json'
-        ].$post(arg, options?.client),
-      ),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey =
+    customKey ??
+    getPost20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings.json']['$post']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'].Auth.Calls[
+            'CredentialListMappings.json'
+          ].$post(arg, clientOptions),
+        ),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/CredentialListMappings/{Sid.json}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsSidJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings'][':Sid.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Calls/CredentialListMappings/:Sid.json',
+    args,
+  ] as const
 }
 
 /**
@@ -6319,53 +7468,43 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCred
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings'][':Sid.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings'][':Sid.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsSidJsonKey(
-          args,
-        )
-      : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings'][':Sid.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ??
+      getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsSidJsonKey(
+        args,
+      ))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
-          ':DomainSid'
-        ].Auth.Calls.CredentialListMappings[':Sid.json'].$get(args, clientOptions),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
+            ':DomainSid'
+          ].Auth.Calls.CredentialListMappings[':Sid.json'].$get(args, clientOptions),
+        ),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/CredentialListMappings/{Sid}.json
+ * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/CredentialListMappings/{Sid.json}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsSidJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings'][':Sid.json']['$get']
-  >,
-) {
+export function getDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsSidJsonMutationKey() {
   return [
+    '2010-04-01',
+    'DELETE',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Calls/CredentialListMappings/:Sid.json',
-    ...(args ? [args] : []),
   ] as const
 }
 
@@ -6377,37 +7516,71 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCred
  * Delete a credential list mapping from the requested domain
  */
 export function useDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsSidJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings'][':Sid.json']['$delete']
-    >,
+  mutation?: SWRMutationConfiguration<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings'][':Sid.json']['$delete']
+              >
+            >
+          >
+        >
+      >
+    | undefined,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings'][':Sid.json']['$delete']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings'][':Sid.json']['$delete']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings'][':Sid.json']['$delete']
-    >
-  >(
-    'DELETE /2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Calls/CredentialListMappings/:Sid.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
-          ':DomainSid'
-        ].Auth.Calls.CredentialListMappings[':Sid.json'].$delete(arg, options?.client),
-      ),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey =
+    customKey ??
+    getDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsSidJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings'][':Sid.json']['$delete']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
+            ':DomainSid'
+          ].Auth.Calls.CredentialListMappings[':Sid.json'].$delete(arg, clientOptions),
+        ),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/IpAccessControlListMappings.json
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Calls/IpAccessControlListMappings.json',
+    args,
+  ] as const
 }
 
 /**
@@ -6422,53 +7595,43 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAc
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsJsonKey(
-          args,
-        )
-      : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ??
+      getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsJsonKey(
+        args,
+      ))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'].Auth.Calls[
-          'IpAccessControlListMappings.json'
-        ].$get(args, clientOptions),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'].Auth.Calls[
+            'IpAccessControlListMappings.json'
+          ].$get(args, clientOptions),
+        ),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/IpAccessControlListMappings.json
+ * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/IpAccessControlListMappings.json
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings.json']['$get']
-  >,
-) {
+export function getPost20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsJsonMutationKey() {
   return [
+    '2010-04-01',
+    'POST',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Calls/IpAccessControlListMappings.json',
-    ...(args ? [args] : []),
   ] as const
 }
 
@@ -6480,37 +7643,70 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAc
  * Create a new IP Access Control List mapping
  */
 export function usePost20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings.json']['$post']
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings.json']['$post']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings.json']['$post']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings.json']['$post']
-    >
-  >(
-    'POST /2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Calls/IpAccessControlListMappings.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'].Auth.Calls[
-          'IpAccessControlListMappings.json'
-        ].$post(arg, options?.client),
-      ),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey =
+    customKey ??
+    getPost20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings.json']['$post']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'].Auth.Calls[
+            'IpAccessControlListMappings.json'
+          ].$post(arg, clientOptions),
+        ),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/IpAccessControlListMappings/{Sid.json}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsSidJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings'][':Sid.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Calls/IpAccessControlListMappings/:Sid.json',
+    args,
+  ] as const
 }
 
 /**
@@ -6525,53 +7721,43 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAc
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings'][':Sid.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings'][':Sid.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsSidJsonKey(
-          args,
-        )
-      : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings'][':Sid.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ??
+      getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsSidJsonKey(
+        args,
+      ))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
-          ':DomainSid'
-        ].Auth.Calls.IpAccessControlListMappings[':Sid.json'].$get(args, clientOptions),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
+            ':DomainSid'
+          ].Auth.Calls.IpAccessControlListMappings[':Sid.json'].$get(args, clientOptions),
+        ),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/IpAccessControlListMappings/{Sid}.json
+ * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/IpAccessControlListMappings/{Sid.json}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsSidJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings'][':Sid.json']['$get']
-  >,
-) {
+export function getDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsSidJsonMutationKey() {
   return [
+    '2010-04-01',
+    'DELETE',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Calls/IpAccessControlListMappings/:Sid.json',
-    ...(args ? [args] : []),
   ] as const
 }
 
@@ -6583,37 +7769,71 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAc
  * Delete an IP Access Control List mapping from the requested domain
  */
 export function useDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsSidJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings'][':Sid.json']['$delete']
-    >,
+  mutation?: SWRMutationConfiguration<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings'][':Sid.json']['$delete']
+              >
+            >
+          >
+        >
+      >
+    | undefined,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings'][':Sid.json']['$delete']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings'][':Sid.json']['$delete']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings'][':Sid.json']['$delete']
-    >
-  >(
-    'DELETE /2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Calls/IpAccessControlListMappings/:Sid.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
-          ':DomainSid'
-        ].Auth.Calls.IpAccessControlListMappings[':Sid.json'].$delete(arg, options?.client),
-      ),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey =
+    customKey ??
+    getDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsSidJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings'][':Sid.json']['$delete']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
+            ':DomainSid'
+          ].Auth.Calls.IpAccessControlListMappings[':Sid.json'].$delete(arg, clientOptions),
+        ),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Registrations/CredentialListMappings.json
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Registrations/CredentialListMappings.json',
+    args,
+  ] as const
 }
 
 /**
@@ -6628,53 +7848,43 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrat
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsJsonKey(
-          args,
-        )
-      : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ??
+      getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsJsonKey(
+        args,
+      ))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'].Auth.Registrations[
-          'CredentialListMappings.json'
-        ].$get(args, clientOptions),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'].Auth.Registrations[
+            'CredentialListMappings.json'
+          ].$get(args, clientOptions),
+        ),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Registrations/CredentialListMappings.json
+ * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Registrations/CredentialListMappings.json
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings.json']['$get']
-  >,
-) {
+export function getPost20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsJsonMutationKey() {
   return [
+    '2010-04-01',
+    'POST',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Registrations/CredentialListMappings.json',
-    ...(args ? [args] : []),
   ] as const
 }
 
@@ -6686,37 +7896,70 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrat
  * Create a new credential list mapping resource
  */
 export function usePost20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings.json']['$post']
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings.json']['$post']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings.json']['$post']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings.json']['$post']
-    >
-  >(
-    'POST /2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Registrations/CredentialListMappings.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'].Auth.Registrations[
-          'CredentialListMappings.json'
-        ].$post(arg, options?.client),
-      ),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey =
+    customKey ??
+    getPost20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings.json']['$post']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'].Auth.Registrations[
+            'CredentialListMappings.json'
+          ].$post(arg, clientOptions),
+        ),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Registrations/CredentialListMappings/{Sid.json}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsSidJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings'][':Sid.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Registrations/CredentialListMappings/:Sid.json',
+    args,
+  ] as const
 }
 
 /**
@@ -6731,53 +7974,43 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrat
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings'][':Sid.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings'][':Sid.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsSidJsonKey(
-          args,
-        )
-      : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings'][':Sid.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ??
+      getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsSidJsonKey(
+        args,
+      ))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
-          ':DomainSid'
-        ].Auth.Registrations.CredentialListMappings[':Sid.json'].$get(args, clientOptions),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
+            ':DomainSid'
+          ].Auth.Registrations.CredentialListMappings[':Sid.json'].$get(args, clientOptions),
+        ),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Registrations/CredentialListMappings/{Sid}.json
+ * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Registrations/CredentialListMappings/{Sid.json}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsSidJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings'][':Sid.json']['$get']
-  >,
-) {
+export function getDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsSidJsonMutationKey() {
   return [
+    '2010-04-01',
+    'DELETE',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Registrations/CredentialListMappings/:Sid.json',
-    ...(args ? [args] : []),
   ] as const
 }
 
@@ -6789,37 +8022,71 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrat
  * Delete a credential list mapping from the requested domain
  */
 export function useDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsSidJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings'][':Sid.json']['$delete']
-    >,
+  mutation?: SWRMutationConfiguration<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings'][':Sid.json']['$delete']
+              >
+            >
+          >
+        >
+      >
+    | undefined,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings'][':Sid.json']['$delete']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings'][':Sid.json']['$delete']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings'][':Sid.json']['$delete']
-    >
-  >(
-    'DELETE /2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Registrations/CredentialListMappings/:Sid.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
-          ':DomainSid'
-        ].Auth.Registrations.CredentialListMappings[':Sid.json'].$delete(arg, options?.client),
-      ),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey =
+    customKey ??
+    getDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsSidJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings'][':Sid.json']['$delete']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
+            ':DomainSid'
+          ].Auth.Registrations.CredentialListMappings[':Sid.json'].$delete(arg, clientOptions),
+        ),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{CredentialListSid}/Credentials.json
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGet20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists/:CredentialListSid/Credentials.json',
+    args,
+  ] as const
 }
 
 /**
@@ -6834,51 +8101,41 @@ export function useGet20100401AccountsAccountSidSIPCredentialListsCredentialList
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsJsonKey(args)
-      : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ??
+      getGet20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[':CredentialListSid'][
-          'Credentials.json'
-        ].$get(args, clientOptions),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[':CredentialListSid'][
+            'Credentials.json'
+          ].$get(args, clientOptions),
+        ),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{CredentialListSid}/Credentials.json
+ * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{CredentialListSid}/Credentials.json
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials.json']['$get']
-  >,
-) {
+export function getPost20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsJsonMutationKey() {
   return [
+    '2010-04-01',
+    'POST',
     '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists/:CredentialListSid/Credentials.json',
-    ...(args ? [args] : []),
   ] as const
 }
 
@@ -6890,37 +8147,70 @@ export function getGet20100401AccountsAccountSidSIPCredentialListsCredentialList
  * Create a new credential resource.
  */
 export function usePost20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials.json']['$post']
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials.json']['$post']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials.json']['$post']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials.json']['$post']
-    >
-  >(
-    'POST /2010-04-01/Accounts/:AccountSid/SIP/CredentialLists/:CredentialListSid/Credentials.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[':CredentialListSid'][
-          'Credentials.json'
-        ].$post(arg, options?.client),
-      ),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey =
+    customKey ??
+    getPost20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials.json']['$post']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[':CredentialListSid'][
+            'Credentials.json'
+          ].$post(arg, clientOptions),
+        ),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{CredentialListSid}/Credentials/{Sid.json}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGet20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists/:CredentialListSid/Credentials/:Sid.json',
+    args,
+  ] as const
 }
 
 /**
@@ -6935,53 +8225,43 @@ export function useGet20100401AccountsAccountSidSIPCredentialListsCredentialList
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJsonKey(
-          args,
-        )
-      : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ??
+      getGet20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJsonKey(
+        args,
+      ))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[
-          ':CredentialListSid'
-        ].Credentials[':Sid.json'].$get(args, clientOptions),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[
+            ':CredentialListSid'
+          ].Credentials[':Sid.json'].$get(args, clientOptions),
+        ),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{CredentialListSid}/Credentials/{Sid}.json
+ * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{CredentialListSid}/Credentials/{Sid.json}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$get']
-  >,
-) {
+export function getPost20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJsonMutationKey() {
   return [
+    '2010-04-01',
+    'POST',
     '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists/:CredentialListSid/Credentials/:Sid.json',
-    ...(args ? [args] : []),
   ] as const
 }
 
@@ -6993,37 +8273,65 @@ export function getGet20100401AccountsAccountSidSIPCredentialListsCredentialList
  * Update a credential resource.
  */
 export function usePost20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$post']
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$post']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$post']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$post']
-    >
-  >(
-    'POST /2010-04-01/Accounts/:AccountSid/SIP/CredentialLists/:CredentialListSid/Credentials/:Sid.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[
-          ':CredentialListSid'
-        ].Credentials[':Sid.json'].$post(arg, options?.client),
-      ),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey =
+    customKey ??
+    getPost20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$post']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[
+            ':CredentialListSid'
+          ].Credentials[':Sid.json'].$post(arg, clientOptions),
+        ),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{CredentialListSid}/Credentials/{Sid.json}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getDelete20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJsonMutationKey() {
+  return [
+    '2010-04-01',
+    'DELETE',
+    '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists/:CredentialListSid/Credentials/:Sid.json',
+  ] as const
 }
 
 /**
@@ -7034,37 +8342,71 @@ export function usePost20100401AccountsAccountSidSIPCredentialListsCredentialLis
  * Delete a credential resource.
  */
 export function useDelete20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$delete']
-    >,
+  mutation?: SWRMutationConfiguration<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$delete']
+              >
+            >
+          >
+        >
+      >
+    | undefined,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$delete']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$delete']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$delete']
-    >
-  >(
-    'DELETE /2010-04-01/Accounts/:AccountSid/SIP/CredentialLists/:CredentialListSid/Credentials/:Sid.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[
-          ':CredentialListSid'
-        ].Credentials[':Sid.json'].$delete(arg, options?.client),
-      ),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey =
+    customKey ??
+    getDelete20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$delete']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[
+            ':CredentialListSid'
+          ].Credentials[':Sid.json'].$delete(arg, clientOptions),
+        ),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists.json
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGet20100401AccountsAccountSidSIPCredentialListsJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists.json',
+    args,
+  ] as const
 }
 
 /**
@@ -7079,50 +8421,41 @@ export function useGet20100401AccountsAccountSidSIPCredentialListsJson(
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidSIPCredentialListsJsonKey(args) : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidSIPCredentialListsJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP['CredentialLists.json'].$get(
-          args,
-          clientOptions,
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].SIP['CredentialLists.json'].$get(
+            args,
+            clientOptions,
+          ),
         ),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists.json
+ * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists.json
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet20100401AccountsAccountSidSIPCredentialListsJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists.json']['$get']
-  >,
-) {
+export function getPost20100401AccountsAccountSidSIPCredentialListsJsonMutationKey() {
   return [
+    '2010-04-01',
+    'POST',
     '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists.json',
-    ...(args ? [args] : []),
   ] as const
 }
 
@@ -7134,38 +8467,69 @@ export function getGet20100401AccountsAccountSidSIPCredentialListsJsonKey(
  * Create a Credential List
  */
 export function usePost20100401AccountsAccountSidSIPCredentialListsJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists.json']['$post']
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists.json']['$post']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists.json']['$post']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists.json']['$post']
-    >
-  >(
-    'POST /2010-04-01/Accounts/:AccountSid/SIP/CredentialLists.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP['CredentialLists.json'].$post(
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPost20100401AccountsAccountSidSIPCredentialListsJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
           arg,
-          options?.client,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists.json']['$post']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].SIP['CredentialLists.json'].$post(
+            arg,
+            clientOptions,
+          ),
         ),
-      ),
-    options?.swr,
-  )
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{Sid.json}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGet20100401AccountsAccountSidSIPCredentialListsSidJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists/:Sid.json',
+    args,
+  ] as const
 }
 
 /**
@@ -7180,50 +8544,41 @@ export function useGet20100401AccountsAccountSidSIPCredentialListsSidJson(
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidSIPCredentialListsSidJsonKey(args) : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidSIPCredentialListsSidJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[':Sid.json'].$get(
-          args,
-          clientOptions,
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[':Sid.json'].$get(
+            args,
+            clientOptions,
+          ),
         ),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{Sid}.json
+ * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{Sid.json}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet20100401AccountsAccountSidSIPCredentialListsSidJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$get']
-  >,
-) {
+export function getPost20100401AccountsAccountSidSIPCredentialListsSidJsonMutationKey() {
   return [
+    '2010-04-01',
+    'POST',
     '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists/:Sid.json',
-    ...(args ? [args] : []),
   ] as const
 }
 
@@ -7235,38 +8590,65 @@ export function getGet20100401AccountsAccountSidSIPCredentialListsSidJsonKey(
  * Update a Credential List
  */
 export function usePost20100401AccountsAccountSidSIPCredentialListsSidJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$post']
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$post']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$post']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$post']
-    >
-  >(
-    'POST /2010-04-01/Accounts/:AccountSid/SIP/CredentialLists/:Sid.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[':Sid.json'].$post(
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey =
+    customKey ?? getPost20100401AccountsAccountSidSIPCredentialListsSidJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
           arg,
-          options?.client,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$post']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[':Sid.json'].$post(
+            arg,
+            clientOptions,
+          ),
         ),
-      ),
-    options?.swr,
-  )
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{Sid.json}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getDelete20100401AccountsAccountSidSIPCredentialListsSidJsonMutationKey() {
+  return [
+    '2010-04-01',
+    'DELETE',
+    '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists/:Sid.json',
+  ] as const
 }
 
 /**
@@ -7277,38 +8659,71 @@ export function usePost20100401AccountsAccountSidSIPCredentialListsSidJson(optio
  * Delete a Credential List
  */
 export function useDelete20100401AccountsAccountSidSIPCredentialListsSidJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$delete']
-    >,
+  mutation?: SWRMutationConfiguration<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$delete']
+              >
+            >
+          >
+        >
+      >
+    | undefined,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$delete']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$delete']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$delete']
-    >
-  >(
-    'DELETE /2010-04-01/Accounts/:AccountSid/SIP/CredentialLists/:Sid.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[':Sid.json'].$delete(
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey =
+    customKey ?? getDelete20100401AccountsAccountSidSIPCredentialListsSidJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
           arg,
-          options?.client,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$delete']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[':Sid.json'].$delete(
+            arg,
+            clientOptions,
+          ),
         ),
-      ),
-    options?.swr,
-  )
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/CredentialListMappings.json
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/CredentialListMappings.json',
+    args,
+  ] as const
 }
 
 /**
@@ -7323,51 +8738,41 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialLis
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsJsonKey(args)
-      : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ??
+      getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'][
-          'CredentialListMappings.json'
-        ].$get(args, clientOptions),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'][
+            'CredentialListMappings.json'
+          ].$get(args, clientOptions),
+        ),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/CredentialListMappings.json
+ * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/CredentialListMappings.json
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings.json']['$get']
-  >,
-) {
+export function getPost20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsJsonMutationKey() {
   return [
+    '2010-04-01',
+    'POST',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/CredentialListMappings.json',
-    ...(args ? [args] : []),
   ] as const
 }
 
@@ -7379,37 +8784,70 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialLis
  * Create a CredentialListMapping resource for an account.
  */
 export function usePost20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings.json']['$post']
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings.json']['$post']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings.json']['$post']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings.json']['$post']
-    >
-  >(
-    'POST /2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/CredentialListMappings.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'][
-          'CredentialListMappings.json'
-        ].$post(arg, options?.client),
-      ),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey =
+    customKey ??
+    getPost20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings.json']['$post']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'][
+            'CredentialListMappings.json'
+          ].$post(arg, clientOptions),
+        ),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/CredentialListMappings/{Sid.json}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsSidJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings'][':Sid.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/CredentialListMappings/:Sid.json',
+    args,
+  ] as const
 }
 
 /**
@@ -7424,51 +8862,41 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialLis
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings'][':Sid.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings'][':Sid.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsSidJsonKey(args)
-      : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings'][':Sid.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ??
+      getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsSidJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
-          ':DomainSid'
-        ].CredentialListMappings[':Sid.json'].$get(args, clientOptions),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
+            ':DomainSid'
+          ].CredentialListMappings[':Sid.json'].$get(args, clientOptions),
+        ),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/CredentialListMappings/{Sid}.json
+ * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/CredentialListMappings/{Sid.json}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsSidJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings'][':Sid.json']['$get']
-  >,
-) {
+export function getDelete20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsSidJsonMutationKey() {
   return [
+    '2010-04-01',
+    'DELETE',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/CredentialListMappings/:Sid.json',
-    ...(args ? [args] : []),
   ] as const
 }
 
@@ -7480,37 +8908,66 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialLis
  * Delete a CredentialListMapping resource from an account.
  */
 export function useDelete20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsSidJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings'][':Sid.json']['$delete']
-    >,
+  mutation?: SWRMutationConfiguration<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings'][':Sid.json']['$delete']
+              >
+            >
+          >
+        >
+      >
+    | undefined,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings'][':Sid.json']['$delete']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings'][':Sid.json']['$delete']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings'][':Sid.json']['$delete']
-    >
-  >(
-    'DELETE /2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/CredentialListMappings/:Sid.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
-          ':DomainSid'
-        ].CredentialListMappings[':Sid.json'].$delete(arg, options?.client),
-      ),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey =
+    customKey ??
+    getDelete20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsSidJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings'][':Sid.json']['$delete']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
+            ':DomainSid'
+          ].CredentialListMappings[':Sid.json'].$delete(arg, clientOptions),
+        ),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains.json
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGet20100401AccountsAccountSidSIPDomainsJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains.json']['$get']
+  >,
+) {
+  return ['2010-04-01', 'GET', '/2010-04-01/Accounts/:AccountSid/SIP/Domains.json', args] as const
 }
 
 /**
@@ -7525,45 +8982,38 @@ export function useGet20100401AccountsAccountSidSIPDomainsJson(
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidSIPDomainsJsonKey(args) : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidSIPDomainsJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP['Domains.json'].$get(args, clientOptions),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].SIP['Domains.json'].$get(
+            args,
+            clientOptions,
+          ),
+        ),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains.json
+ * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains.json
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet20100401AccountsAccountSidSIPDomainsJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains.json']['$get']
-  >,
-) {
-  return ['/2010-04-01/Accounts/:AccountSid/SIP/Domains.json', ...(args ? [args] : [])] as const
+export function getPost20100401AccountsAccountSidSIPDomainsJsonMutationKey() {
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/SIP/Domains.json'] as const
 }
 
 /**
@@ -7574,38 +9024,69 @@ export function getGet20100401AccountsAccountSidSIPDomainsJsonKey(
  * Create a new Domain
  */
 export function usePost20100401AccountsAccountSidSIPDomainsJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains.json']['$post']
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains.json']['$post']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains.json']['$post']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains.json']['$post']
-    >
-  >(
-    'POST /2010-04-01/Accounts/:AccountSid/SIP/Domains.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP['Domains.json'].$post(
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPost20100401AccountsAccountSidSIPDomainsJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
           arg,
-          options?.client,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains.json']['$post']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].SIP['Domains.json'].$post(
+            arg,
+            clientOptions,
+          ),
         ),
-      ),
-    options?.swr,
-  )
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{Sid.json}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGet20100401AccountsAccountSidSIPDomainsSidJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:Sid.json',
+    args,
+  ] as const
 }
 
 /**
@@ -7620,51 +9101,38 @@ export function useGet20100401AccountsAccountSidSIPDomainsSidJson(
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidSIPDomainsSidJsonKey(args) : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidSIPDomainsSidJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':Sid.json'].$get(
-          args,
-          clientOptions,
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':Sid.json'].$get(
+            args,
+            clientOptions,
+          ),
         ),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{Sid}.json
+ * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{Sid.json}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet20100401AccountsAccountSidSIPDomainsSidJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$get']
-  >,
-) {
-  return [
-    '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:Sid.json',
-    ...(args ? [args] : []),
-  ] as const
+export function getPost20100401AccountsAccountSidSIPDomainsSidJsonMutationKey() {
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:Sid.json'] as const
 }
 
 /**
@@ -7675,38 +9143,60 @@ export function getGet20100401AccountsAccountSidSIPDomainsSidJsonKey(
  * Update the attributes of a domain
  */
 export function usePost20100401AccountsAccountSidSIPDomainsSidJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$post']
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$post']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$post']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$post']
-    >
-  >(
-    'POST /2010-04-01/Accounts/:AccountSid/SIP/Domains/:Sid.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':Sid.json'].$post(
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPost20100401AccountsAccountSidSIPDomainsSidJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
           arg,
-          options?.client,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$post']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':Sid.json'].$post(
+            arg,
+            clientOptions,
+          ),
         ),
-      ),
-    options?.swr,
-  )
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{Sid.json}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getDelete20100401AccountsAccountSidSIPDomainsSidJsonMutationKey() {
+  return ['2010-04-01', 'DELETE', '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:Sid.json'] as const
 }
 
 /**
@@ -7717,38 +9207,70 @@ export function usePost20100401AccountsAccountSidSIPDomainsSidJson(options?: {
  * Delete an instance of a Domain
  */
 export function useDelete20100401AccountsAccountSidSIPDomainsSidJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$delete']
-    >,
+  mutation?: SWRMutationConfiguration<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$delete']
+              >
+            >
+          >
+        >
+      >
+    | undefined,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$delete']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$delete']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$delete']
-    >
-  >(
-    'DELETE /2010-04-01/Accounts/:AccountSid/SIP/Domains/:Sid.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':Sid.json'].$delete(
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDelete20100401AccountsAccountSidSIPDomainsSidJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
           arg,
-          options?.client,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$delete']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':Sid.json'].$delete(
+            arg,
+            clientOptions,
+          ),
         ),
-      ),
-    options?.swr,
-  )
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists.json
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGet20100401AccountsAccountSidSIPIpAccessControlListsJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists.json',
+    args,
+  ] as const
 }
 
 /**
@@ -7763,50 +9285,41 @@ export function useGet20100401AccountsAccountSidSIPIpAccessControlListsJson(
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidSIPIpAccessControlListsJsonKey(args) : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidSIPIpAccessControlListsJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP['IpAccessControlLists.json'].$get(
-          args,
-          clientOptions,
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].SIP['IpAccessControlLists.json'].$get(
+            args,
+            clientOptions,
+          ),
         ),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists.json
+ * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists.json
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet20100401AccountsAccountSidSIPIpAccessControlListsJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists.json']['$get']
-  >,
-) {
+export function getPost20100401AccountsAccountSidSIPIpAccessControlListsJsonMutationKey() {
   return [
+    '2010-04-01',
+    'POST',
     '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists.json',
-    ...(args ? [args] : []),
   ] as const
 }
 
@@ -7818,38 +9331,70 @@ export function getGet20100401AccountsAccountSidSIPIpAccessControlListsJsonKey(
  * Create a new IpAccessControlList resource
  */
 export function usePost20100401AccountsAccountSidSIPIpAccessControlListsJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists.json']['$post']
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists.json']['$post']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists.json']['$post']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists.json']['$post']
-    >
-  >(
-    'POST /2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP['IpAccessControlLists.json'].$post(
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey =
+    customKey ?? getPost20100401AccountsAccountSidSIPIpAccessControlListsJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
           arg,
-          options?.client,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists.json']['$post']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].SIP['IpAccessControlLists.json'].$post(
+            arg,
+            clientOptions,
+          ),
         ),
-      ),
-    options?.swr,
-  )
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{Sid.json}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGet20100401AccountsAccountSidSIPIpAccessControlListsSidJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists/:Sid.json',
+    args,
+  ] as const
 }
 
 /**
@@ -7864,50 +9409,41 @@ export function useGet20100401AccountsAccountSidSIPIpAccessControlListsSidJson(
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidSIPIpAccessControlListsSidJsonKey(args) : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidSIPIpAccessControlListsSidJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[':Sid.json'].$get(
-          args,
-          clientOptions,
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[':Sid.json'].$get(
+            args,
+            clientOptions,
+          ),
         ),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{Sid}.json
+ * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{Sid.json}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet20100401AccountsAccountSidSIPIpAccessControlListsSidJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$get']
-  >,
-) {
+export function getPost20100401AccountsAccountSidSIPIpAccessControlListsSidJsonMutationKey() {
   return [
+    '2010-04-01',
+    'POST',
     '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists/:Sid.json',
-    ...(args ? [args] : []),
   ] as const
 }
 
@@ -7919,38 +9455,65 @@ export function getGet20100401AccountsAccountSidSIPIpAccessControlListsSidJsonKe
  * Rename an IpAccessControlList
  */
 export function usePost20100401AccountsAccountSidSIPIpAccessControlListsSidJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$post']
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$post']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$post']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$post']
-    >
-  >(
-    'POST /2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists/:Sid.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[':Sid.json'].$post(
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey =
+    customKey ?? getPost20100401AccountsAccountSidSIPIpAccessControlListsSidJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
           arg,
-          options?.client,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$post']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[':Sid.json'].$post(
+            arg,
+            clientOptions,
+          ),
         ),
-      ),
-    options?.swr,
-  )
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{Sid.json}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getDelete20100401AccountsAccountSidSIPIpAccessControlListsSidJsonMutationKey() {
+  return [
+    '2010-04-01',
+    'DELETE',
+    '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists/:Sid.json',
+  ] as const
 }
 
 /**
@@ -7961,38 +9524,70 @@ export function usePost20100401AccountsAccountSidSIPIpAccessControlListsSidJson(
  * Delete an IpAccessControlList from the requested account
  */
 export function useDelete20100401AccountsAccountSidSIPIpAccessControlListsSidJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$delete']
-    >,
+  mutation?: SWRMutationConfiguration<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$delete']
+              >
+            >
+          >
+        >
+      >
+    | undefined,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$delete']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$delete']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$delete']
-    >
-  >(
-    'DELETE /2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists/:Sid.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[':Sid.json'].$delete(
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey =
+    customKey ?? getDelete20100401AccountsAccountSidSIPIpAccessControlListsSidJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
           arg,
-          options?.client,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$delete']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[
+            ':Sid.json'
+          ].$delete(arg, clientOptions),
         ),
-      ),
-    options?.swr,
-  )
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/IpAccessControlListMappings/{Sid.json}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsSidJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings'][':Sid.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/IpAccessControlListMappings/:Sid.json',
+    args,
+  ] as const
 }
 
 /**
@@ -8007,53 +9602,43 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessContr
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings'][':Sid.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings'][':Sid.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsSidJsonKey(
-          args,
-        )
-      : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings'][':Sid.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ??
+      getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsSidJsonKey(
+        args,
+      ))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
-          ':DomainSid'
-        ].IpAccessControlListMappings[':Sid.json'].$get(args, clientOptions),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
+            ':DomainSid'
+          ].IpAccessControlListMappings[':Sid.json'].$get(args, clientOptions),
+        ),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/IpAccessControlListMappings/{Sid}.json
+ * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/IpAccessControlListMappings/{Sid.json}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsSidJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings'][':Sid.json']['$get']
-  >,
-) {
+export function getDelete20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsSidJsonMutationKey() {
   return [
+    '2010-04-01',
+    'DELETE',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/IpAccessControlListMappings/:Sid.json',
-    ...(args ? [args] : []),
   ] as const
 }
 
@@ -8065,37 +9650,71 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessContr
  * Delete an IpAccessControlListMapping resource.
  */
 export function useDelete20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsSidJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings'][':Sid.json']['$delete']
-    >,
+  mutation?: SWRMutationConfiguration<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings'][':Sid.json']['$delete']
+              >
+            >
+          >
+        >
+      >
+    | undefined,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings'][':Sid.json']['$delete']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings'][':Sid.json']['$delete']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings'][':Sid.json']['$delete']
-    >
-  >(
-    'DELETE /2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/IpAccessControlListMappings/:Sid.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
-          ':DomainSid'
-        ].IpAccessControlListMappings[':Sid.json'].$delete(arg, options?.client),
-      ),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey =
+    customKey ??
+    getDelete20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsSidJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings'][':Sid.json']['$delete']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
+            ':DomainSid'
+          ].IpAccessControlListMappings[':Sid.json'].$delete(arg, clientOptions),
+        ),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/IpAccessControlListMappings.json
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/IpAccessControlListMappings.json',
+    args,
+  ] as const
 }
 
 /**
@@ -8110,51 +9729,41 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessContr
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsJsonKey(args)
-      : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ??
+      getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'][
-          'IpAccessControlListMappings.json'
-        ].$get(args, clientOptions),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'][
+            'IpAccessControlListMappings.json'
+          ].$get(args, clientOptions),
+        ),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/IpAccessControlListMappings.json
+ * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/IpAccessControlListMappings.json
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings.json']['$get']
-  >,
-) {
+export function getPost20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsJsonMutationKey() {
   return [
+    '2010-04-01',
+    'POST',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/IpAccessControlListMappings.json',
-    ...(args ? [args] : []),
   ] as const
 }
 
@@ -8166,37 +9775,70 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessContr
  * Create a new IpAccessControlListMapping resource.
  */
 export function usePost20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings.json']['$post']
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings.json']['$post']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings.json']['$post']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings.json']['$post']
-    >
-  >(
-    'POST /2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/IpAccessControlListMappings.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'][
-          'IpAccessControlListMappings.json'
-        ].$post(arg, options?.client),
-      ),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey =
+    customKey ??
+    getPost20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings.json']['$post']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'][
+            'IpAccessControlListMappings.json'
+          ].$post(arg, clientOptions),
+        ),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{IpAccessControlListSid}/IpAddresses.json
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists/:IpAccessControlListSid/IpAddresses.json',
+    args,
+  ] as const
 }
 
 /**
@@ -8211,53 +9853,43 @@ export function useGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessC
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesJsonKey(
-          args,
-        )
-      : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ??
+      getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesJsonKey(
+        args,
+      ))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[
-          ':IpAccessControlListSid'
-        ]['IpAddresses.json'].$get(args, clientOptions),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[
+            ':IpAccessControlListSid'
+          ]['IpAddresses.json'].$get(args, clientOptions),
+        ),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{IpAccessControlListSid}/IpAddresses.json
+ * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{IpAccessControlListSid}/IpAddresses.json
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses.json']['$get']
-  >,
-) {
+export function getPost20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesJsonMutationKey() {
   return [
+    '2010-04-01',
+    'POST',
     '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists/:IpAccessControlListSid/IpAddresses.json',
-    ...(args ? [args] : []),
   ] as const
 }
 
@@ -8269,37 +9901,70 @@ export function getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessC
  * Create a new IpAddress resource.
  */
 export function usePost20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses.json']['$post']
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses.json']['$post']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses.json']['$post']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses.json']['$post']
-    >
-  >(
-    'POST /2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists/:IpAccessControlListSid/IpAddresses.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[
-          ':IpAccessControlListSid'
-        ]['IpAddresses.json'].$post(arg, options?.client),
-      ),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey =
+    customKey ??
+    getPost20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses.json']['$post']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[
+            ':IpAccessControlListSid'
+          ]['IpAddresses.json'].$post(arg, clientOptions),
+        ),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{IpAccessControlListSid}/IpAddresses/{Sid.json}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists/:IpAccessControlListSid/IpAddresses/:Sid.json',
+    args,
+  ] as const
 }
 
 /**
@@ -8314,53 +9979,43 @@ export function useGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessC
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJsonKey(
-          args,
-        )
-      : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ??
+      getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJsonKey(
+        args,
+      ))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[
-          ':IpAccessControlListSid'
-        ].IpAddresses[':Sid.json'].$get(args, clientOptions),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[
+            ':IpAccessControlListSid'
+          ].IpAddresses[':Sid.json'].$get(args, clientOptions),
+        ),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{IpAccessControlListSid}/IpAddresses/{Sid}.json
+ * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{IpAccessControlListSid}/IpAddresses/{Sid.json}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$get']
-  >,
-) {
+export function getPost20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJsonMutationKey() {
   return [
+    '2010-04-01',
+    'POST',
     '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists/:IpAccessControlListSid/IpAddresses/:Sid.json',
-    ...(args ? [args] : []),
   ] as const
 }
 
@@ -8372,37 +10027,65 @@ export function getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessC
  * Update an IpAddress resource.
  */
 export function usePost20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$post']
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$post']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$post']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$post']
-    >
-  >(
-    'POST /2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists/:IpAccessControlListSid/IpAddresses/:Sid.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[
-          ':IpAccessControlListSid'
-        ].IpAddresses[':Sid.json'].$post(arg, options?.client),
-      ),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey =
+    customKey ??
+    getPost20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$post']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[
+            ':IpAccessControlListSid'
+          ].IpAddresses[':Sid.json'].$post(arg, clientOptions),
+        ),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{IpAccessControlListSid}/IpAddresses/{Sid.json}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getDelete20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJsonMutationKey() {
+  return [
+    '2010-04-01',
+    'DELETE',
+    '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists/:IpAccessControlListSid/IpAddresses/:Sid.json',
+  ] as const
 }
 
 /**
@@ -8413,37 +10096,66 @@ export function usePost20100401AccountsAccountSidSIPIpAccessControlListsIpAccess
  * Delete an IpAddress resource.
  */
 export function useDelete20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$delete']
-    >,
+  mutation?: SWRMutationConfiguration<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$delete']
+              >
+            >
+          >
+        >
+      >
+    | undefined,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$delete']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$delete']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$delete']
-    >
-  >(
-    'DELETE /2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists/:IpAccessControlListSid/IpAddresses/:Sid.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[
-          ':IpAccessControlListSid'
-        ].IpAddresses[':Sid.json'].$delete(arg, options?.client),
-      ),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey =
+    customKey ??
+    getDelete20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$delete']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[
+            ':IpAccessControlListSid'
+          ].IpAddresses[':Sid.json'].$delete(arg, clientOptions),
+        ),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Siprec.json
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPost20100401AccountsAccountSidCallsCallSidSiprecJsonMutationKey() {
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Siprec.json',
+  ] as const
 }
 
 /**
@@ -8454,38 +10166,64 @@ export function useDelete20100401AccountsAccountSidSIPIpAccessControlListsIpAcce
  * Create a Siprec
  */
 export function usePost20100401AccountsAccountSidCallsCallSidSiprecJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Siprec.json']['$post']
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Siprec.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Siprec.json']['$post']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Siprec.json']['$post']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Siprec.json']['$post']
-    >
-  >(
-    'POST /2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Siprec.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Siprec.json'].$post(
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPost20100401AccountsAccountSidCallsCallSidSiprecJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
           arg,
-          options?.client,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Siprec.json']['$post']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Siprec.json'].$post(
+            arg,
+            clientOptions,
+          ),
         ),
-      ),
-    options?.swr,
-  )
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Siprec/{Sid.json}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPost20100401AccountsAccountSidCallsCallSidSiprecSidJsonMutationKey() {
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Siprec/:Sid.json',
+  ] as const
 }
 
 /**
@@ -8496,38 +10234,65 @@ export function usePost20100401AccountsAccountSidCallsCallSidSiprecJson(options?
  * Stop a Siprec using either the SID of the Siprec resource or the `name` used when creating the resource
  */
 export function usePost20100401AccountsAccountSidCallsCallSidSiprecSidJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Siprec'][':Sid.json']['$post']
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Siprec'][':Sid.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Siprec'][':Sid.json']['$post']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Siprec'][':Sid.json']['$post']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Siprec'][':Sid.json']['$post']
-    >
-  >(
-    'POST /2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Siprec/:Sid.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'].Siprec[':Sid.json'].$post(
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey =
+    customKey ?? getPost20100401AccountsAccountSidCallsCallSidSiprecSidJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
           arg,
-          options?.client,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Siprec'][':Sid.json']['$post']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'].Siprec[':Sid.json'].$post(
+            arg,
+            clientOptions,
+          ),
         ),
-      ),
-    options?.swr,
-  )
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Streams.json
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPost20100401AccountsAccountSidCallsCallSidStreamsJsonMutationKey() {
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Streams.json',
+  ] as const
 }
 
 /**
@@ -8538,38 +10303,64 @@ export function usePost20100401AccountsAccountSidCallsCallSidSiprecSidJson(optio
  * Create a Stream
  */
 export function usePost20100401AccountsAccountSidCallsCallSidStreamsJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Streams.json']['$post']
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Streams.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Streams.json']['$post']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Streams.json']['$post']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Streams.json']['$post']
-    >
-  >(
-    'POST /2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Streams.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Streams.json'].$post(
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPost20100401AccountsAccountSidCallsCallSidStreamsJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
           arg,
-          options?.client,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Streams.json']['$post']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Streams.json'].$post(
+            arg,
+            clientOptions,
+          ),
         ),
-      ),
-    options?.swr,
-  )
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Streams/{Sid.json}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPost20100401AccountsAccountSidCallsCallSidStreamsSidJsonMutationKey() {
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Streams/:Sid.json',
+  ] as const
 }
 
 /**
@@ -8580,38 +10371,61 @@ export function usePost20100401AccountsAccountSidCallsCallSidStreamsJson(options
  * Stop a Stream using either the SID of the Stream resource or the `name` used when creating the resource
  */
 export function usePost20100401AccountsAccountSidCallsCallSidStreamsSidJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Streams'][':Sid.json']['$post']
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Streams'][':Sid.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Streams'][':Sid.json']['$post']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Streams'][':Sid.json']['$post']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Streams'][':Sid.json']['$post']
-    >
-  >(
-    'POST /2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Streams/:Sid.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'].Streams[':Sid.json'].$post(
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey =
+    customKey ?? getPost20100401AccountsAccountSidCallsCallSidStreamsSidJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
           arg,
-          options?.client,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Streams'][':Sid.json']['$post']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'].Streams[':Sid.json'].$post(
+            arg,
+            clientOptions,
+          ),
         ),
-      ),
-    options?.swr,
-  )
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Tokens.json
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPost20100401AccountsAccountSidTokensJsonMutationKey() {
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/Tokens.json'] as const
 }
 
 /**
@@ -8622,35 +10436,66 @@ export function usePost20100401AccountsAccountSidCallsCallSidStreamsSidJson(opti
  * Create a new token for ICE servers
  */
 export function usePost20100401AccountsAccountSidTokensJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Tokens.json']['$post']
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Tokens.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Tokens.json']['$post']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Tokens.json']['$post']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Tokens.json']['$post']
-    >
-  >(
-    'POST /2010-04-01/Accounts/:AccountSid/Tokens.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid']['Tokens.json'].$post(arg, options?.client),
-      ),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPost20100401AccountsAccountSidTokensJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Tokens.json']['$post']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid']['Tokens.json'].$post(arg, clientOptions),
+        ),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Transcriptions/{Sid.json}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGet20100401AccountsAccountSidTranscriptionsSidJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions'][':Sid.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Transcriptions/:Sid.json',
+    args,
+  ] as const
 }
 
 /**
@@ -8665,50 +10510,41 @@ export function useGet20100401AccountsAccountSidTranscriptionsSidJson(
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions'][':Sid.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions'][':Sid.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidTranscriptionsSidJsonKey(args) : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions'][':Sid.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidTranscriptionsSidJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Transcriptions[':Sid.json'].$get(
-          args,
-          clientOptions,
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Transcriptions[':Sid.json'].$get(
+            args,
+            clientOptions,
+          ),
         ),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Transcriptions/{Sid}.json
+ * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Transcriptions/{Sid.json}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet20100401AccountsAccountSidTranscriptionsSidJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions'][':Sid.json']['$get']
-  >,
-) {
+export function getDelete20100401AccountsAccountSidTranscriptionsSidJsonMutationKey() {
   return [
+    '2010-04-01',
+    'DELETE',
     '/2010-04-01/Accounts/:AccountSid/Transcriptions/:Sid.json',
-    ...(args ? [args] : []),
   ] as const
 }
 
@@ -8720,38 +10556,70 @@ export function getGet20100401AccountsAccountSidTranscriptionsSidJsonKey(
  * Delete a transcription from the account used to make the request
  */
 export function useDelete20100401AccountsAccountSidTranscriptionsSidJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions'][':Sid.json']['$delete']
-    >,
+  mutation?: SWRMutationConfiguration<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions'][':Sid.json']['$delete']
+              >
+            >
+          >
+        >
+      >
+    | undefined,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions'][':Sid.json']['$delete']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions'][':Sid.json']['$delete']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions'][':Sid.json']['$delete']
-    >
-  >(
-    'DELETE /2010-04-01/Accounts/:AccountSid/Transcriptions/:Sid.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Transcriptions[':Sid.json'].$delete(
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDelete20100401AccountsAccountSidTranscriptionsSidJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
           arg,
-          options?.client,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions'][':Sid.json']['$delete']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Transcriptions[':Sid.json'].$delete(
+            arg,
+            clientOptions,
+          ),
         ),
-      ),
-    options?.swr,
-  )
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Transcriptions.json
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGet20100401AccountsAccountSidTranscriptionsJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Transcriptions.json',
+    args,
+  ] as const
 }
 
 /**
@@ -8766,48 +10634,42 @@ export function useGet20100401AccountsAccountSidTranscriptionsJson(
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidTranscriptionsJsonKey(args) : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidTranscriptionsJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid']['Transcriptions.json'].$get(
-          args,
-          clientOptions,
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid']['Transcriptions.json'].$get(
+            args,
+            clientOptions,
+          ),
         ),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Transcriptions.json
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records.json
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGet20100401AccountsAccountSidTranscriptionsJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions.json']['$get']
+export function getGet20100401AccountsAccountSidUsageRecordsJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records.json']['$get']
   >,
 ) {
-  return ['/2010-04-01/Accounts/:AccountSid/Transcriptions.json', ...(args ? [args] : [])] as const
+  return ['2010-04-01', 'GET', '/2010-04-01/Accounts/:AccountSid/Usage/Records.json', args] as const
 }
 
 /**
@@ -8822,48 +10684,47 @@ export function useGet20100401AccountsAccountSidUsageRecordsJson(
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidUsageRecordsJsonKey(args) : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidUsageRecordsJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Usage['Records.json'].$get(
-          args,
-          clientOptions,
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Usage['Records.json'].$get(
+            args,
+            clientOptions,
+          ),
         ),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records.json
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/AllTime.json
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGet20100401AccountsAccountSidUsageRecordsJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records.json']['$get']
+export function getGet20100401AccountsAccountSidUsageRecordsAllTimeJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['AllTime.json']['$get']
   >,
 ) {
-  return ['/2010-04-01/Accounts/:AccountSid/Usage/Records.json', ...(args ? [args] : [])] as const
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Usage/Records/AllTime.json',
+    args,
+  ] as const
 }
 
 /**
@@ -8874,50 +10735,46 @@ export function useGet20100401AccountsAccountSidUsageRecordsAllTimeJson(
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['AllTime.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['AllTime.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidUsageRecordsAllTimeJsonKey(args) : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['AllTime.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidUsageRecordsAllTimeJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['AllTime.json'].$get(
-          args,
-          clientOptions,
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['AllTime.json'].$get(
+            args,
+            clientOptions,
+          ),
         ),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/AllTime.json
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Daily.json
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGet20100401AccountsAccountSidUsageRecordsAllTimeJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['AllTime.json']['$get']
+export function getGet20100401AccountsAccountSidUsageRecordsDailyJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Daily.json']['$get']
   >,
 ) {
   return [
-    '/2010-04-01/Accounts/:AccountSid/Usage/Records/AllTime.json',
-    ...(args ? [args] : []),
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Usage/Records/Daily.json',
+    args,
   ] as const
 }
 
@@ -8929,50 +10786,46 @@ export function useGet20100401AccountsAccountSidUsageRecordsDailyJson(
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Daily.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Daily.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidUsageRecordsDailyJsonKey(args) : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Daily.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidUsageRecordsDailyJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['Daily.json'].$get(
-          args,
-          clientOptions,
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['Daily.json'].$get(
+            args,
+            clientOptions,
+          ),
         ),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Daily.json
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/LastMonth.json
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGet20100401AccountsAccountSidUsageRecordsDailyJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Daily.json']['$get']
+export function getGet20100401AccountsAccountSidUsageRecordsLastMonthJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['LastMonth.json']['$get']
   >,
 ) {
   return [
-    '/2010-04-01/Accounts/:AccountSid/Usage/Records/Daily.json',
-    ...(args ? [args] : []),
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Usage/Records/LastMonth.json',
+    args,
   ] as const
 }
 
@@ -8984,50 +10837,46 @@ export function useGet20100401AccountsAccountSidUsageRecordsLastMonthJson(
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['LastMonth.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['LastMonth.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidUsageRecordsLastMonthJsonKey(args) : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['LastMonth.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidUsageRecordsLastMonthJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['LastMonth.json'].$get(
-          args,
-          clientOptions,
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['LastMonth.json'].$get(
+            args,
+            clientOptions,
+          ),
         ),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/LastMonth.json
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Monthly.json
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGet20100401AccountsAccountSidUsageRecordsLastMonthJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['LastMonth.json']['$get']
+export function getGet20100401AccountsAccountSidUsageRecordsMonthlyJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Monthly.json']['$get']
   >,
 ) {
   return [
-    '/2010-04-01/Accounts/:AccountSid/Usage/Records/LastMonth.json',
-    ...(args ? [args] : []),
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Usage/Records/Monthly.json',
+    args,
   ] as const
 }
 
@@ -9039,50 +10888,46 @@ export function useGet20100401AccountsAccountSidUsageRecordsMonthlyJson(
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Monthly.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Monthly.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidUsageRecordsMonthlyJsonKey(args) : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Monthly.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidUsageRecordsMonthlyJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['Monthly.json'].$get(
-          args,
-          clientOptions,
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['Monthly.json'].$get(
+            args,
+            clientOptions,
+          ),
         ),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Monthly.json
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/ThisMonth.json
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGet20100401AccountsAccountSidUsageRecordsMonthlyJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Monthly.json']['$get']
+export function getGet20100401AccountsAccountSidUsageRecordsThisMonthJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['ThisMonth.json']['$get']
   >,
 ) {
   return [
-    '/2010-04-01/Accounts/:AccountSid/Usage/Records/Monthly.json',
-    ...(args ? [args] : []),
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Usage/Records/ThisMonth.json',
+    args,
   ] as const
 }
 
@@ -9094,50 +10939,46 @@ export function useGet20100401AccountsAccountSidUsageRecordsThisMonthJson(
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['ThisMonth.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['ThisMonth.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidUsageRecordsThisMonthJsonKey(args) : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['ThisMonth.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidUsageRecordsThisMonthJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['ThisMonth.json'].$get(
-          args,
-          clientOptions,
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['ThisMonth.json'].$get(
+            args,
+            clientOptions,
+          ),
         ),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/ThisMonth.json
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Today.json
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGet20100401AccountsAccountSidUsageRecordsThisMonthJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['ThisMonth.json']['$get']
+export function getGet20100401AccountsAccountSidUsageRecordsTodayJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Today.json']['$get']
   >,
 ) {
   return [
-    '/2010-04-01/Accounts/:AccountSid/Usage/Records/ThisMonth.json',
-    ...(args ? [args] : []),
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Usage/Records/Today.json',
+    args,
   ] as const
 }
 
@@ -9149,50 +10990,46 @@ export function useGet20100401AccountsAccountSidUsageRecordsTodayJson(
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Today.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Today.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidUsageRecordsTodayJsonKey(args) : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Today.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidUsageRecordsTodayJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['Today.json'].$get(
-          args,
-          clientOptions,
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['Today.json'].$get(
+            args,
+            clientOptions,
+          ),
         ),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Today.json
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Yearly.json
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGet20100401AccountsAccountSidUsageRecordsTodayJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Today.json']['$get']
+export function getGet20100401AccountsAccountSidUsageRecordsYearlyJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Yearly.json']['$get']
   >,
 ) {
   return [
-    '/2010-04-01/Accounts/:AccountSid/Usage/Records/Today.json',
-    ...(args ? [args] : []),
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Usage/Records/Yearly.json',
+    args,
   ] as const
 }
 
@@ -9204,50 +11041,46 @@ export function useGet20100401AccountsAccountSidUsageRecordsYearlyJson(
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Yearly.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Yearly.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidUsageRecordsYearlyJsonKey(args) : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Yearly.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidUsageRecordsYearlyJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['Yearly.json'].$get(
-          args,
-          clientOptions,
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['Yearly.json'].$get(
+            args,
+            clientOptions,
+          ),
         ),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Yearly.json
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Yesterday.json
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGet20100401AccountsAccountSidUsageRecordsYearlyJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Yearly.json']['$get']
+export function getGet20100401AccountsAccountSidUsageRecordsYesterdayJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Yesterday.json']['$get']
   >,
 ) {
   return [
-    '/2010-04-01/Accounts/:AccountSid/Usage/Records/Yearly.json',
-    ...(args ? [args] : []),
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Usage/Records/Yesterday.json',
+    args,
   ] as const
 }
 
@@ -9259,50 +11092,46 @@ export function useGet20100401AccountsAccountSidUsageRecordsYesterdayJson(
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Yesterday.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Yesterday.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidUsageRecordsYesterdayJsonKey(args) : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Yesterday.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidUsageRecordsYesterdayJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['Yesterday.json'].$get(
-          args,
-          clientOptions,
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['Yesterday.json'].$get(
+            args,
+            clientOptions,
+          ),
         ),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Yesterday.json
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Triggers/{Sid.json}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGet20100401AccountsAccountSidUsageRecordsYesterdayJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Yesterday.json']['$get']
+export function getGet20100401AccountsAccountSidUsageTriggersSidJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$get']
   >,
 ) {
   return [
-    '/2010-04-01/Accounts/:AccountSid/Usage/Records/Yesterday.json',
-    ...(args ? [args] : []),
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Usage/Triggers/:Sid.json',
+    args,
   ] as const
 }
 
@@ -9318,50 +11147,41 @@ export function useGet20100401AccountsAccountSidUsageTriggersSidJson(
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidUsageTriggersSidJsonKey(args) : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidUsageTriggersSidJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Usage.Triggers[':Sid.json'].$get(
-          args,
-          clientOptions,
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Usage.Triggers[':Sid.json'].$get(
+            args,
+            clientOptions,
+          ),
         ),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Triggers/{Sid}.json
+ * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Usage/Triggers/{Sid.json}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet20100401AccountsAccountSidUsageTriggersSidJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$get']
-  >,
-) {
+export function getPost20100401AccountsAccountSidUsageTriggersSidJsonMutationKey() {
   return [
+    '2010-04-01',
+    'POST',
     '/2010-04-01/Accounts/:AccountSid/Usage/Triggers/:Sid.json',
-    ...(args ? [args] : []),
   ] as const
 }
 
@@ -9373,76 +11193,134 @@ export function getGet20100401AccountsAccountSidUsageTriggersSidJsonKey(
  * Update an instance of a usage trigger
  */
 export function usePost20100401AccountsAccountSidUsageTriggersSidJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$post']
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$post']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$post']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$post']
-    >
-  >(
-    'POST /2010-04-01/Accounts/:AccountSid/Usage/Triggers/:Sid.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Usage.Triggers[':Sid.json'].$post(
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPost20100401AccountsAccountSidUsageTriggersSidJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
           arg,
-          options?.client,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$post']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Usage.Triggers[':Sid.json'].$post(
+            arg,
+            clientOptions,
+          ),
         ),
-      ),
-    options?.swr,
-  )
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Usage/Triggers/{Sid.json}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getDelete20100401AccountsAccountSidUsageTriggersSidJsonMutationKey() {
+  return [
+    '2010-04-01',
+    'DELETE',
+    '/2010-04-01/Accounts/:AccountSid/Usage/Triggers/:Sid.json',
+  ] as const
 }
 
 /**
  * DELETE /2010-04-01/Accounts/{AccountSid}/Usage/Triggers/{Sid}.json
  */
 export function useDelete20100401AccountsAccountSidUsageTriggersSidJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$delete']
-    >,
+  mutation?: SWRMutationConfiguration<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$delete']
+              >
+            >
+          >
+        >
+      >
+    | undefined,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$delete']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$delete']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$delete']
-    >
-  >(
-    'DELETE /2010-04-01/Accounts/:AccountSid/Usage/Triggers/:Sid.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Usage.Triggers[':Sid.json'].$delete(
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDelete20100401AccountsAccountSidUsageTriggersSidJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
           arg,
-          options?.client,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$delete']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Usage.Triggers[':Sid.json'].$delete(
+            arg,
+            clientOptions,
+          ),
         ),
-      ),
-    options?.swr,
-  )
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Triggers.json
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGet20100401AccountsAccountSidUsageTriggersJsonKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Usage/Triggers.json',
+    args,
+  ] as const
 }
 
 /**
@@ -9457,48 +11335,38 @@ export function useGet20100401AccountsAccountSidUsageTriggersJson(
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers.json']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers.json']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidUsageTriggersJsonKey(args) : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers.json']['$get']
-    >,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidUsageTriggersJsonKey(args))
+    : null
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Usage['Triggers.json'].$get(
-          args,
-          clientOptions,
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Usage['Triggers.json'].$get(
+            args,
+            clientOptions,
+          ),
         ),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Triggers.json
+ * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Usage/Triggers.json
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet20100401AccountsAccountSidUsageTriggersJsonKey(
-  args?: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers.json']['$get']
-  >,
-) {
-  return ['/2010-04-01/Accounts/:AccountSid/Usage/Triggers.json', ...(args ? [args] : [])] as const
+export function getPost20100401AccountsAccountSidUsageTriggersJsonMutationKey() {
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/Usage/Triggers.json'] as const
 }
 
 /**
@@ -9509,38 +11377,64 @@ export function getGet20100401AccountsAccountSidUsageTriggersJsonKey(
  * Create a new UsageTrigger
  */
 export function usePost20100401AccountsAccountSidUsageTriggersJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers.json']['$post']
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers.json']['$post']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers.json']['$post']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers.json']['$post']
-    >
-  >(
-    'POST /2010-04-01/Accounts/:AccountSid/Usage/Triggers.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Usage['Triggers.json'].$post(
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPost20100401AccountsAccountSidUsageTriggersJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
           arg,
-          options?.client,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers.json']['$post']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Usage['Triggers.json'].$post(
+            arg,
+            clientOptions,
+          ),
         ),
-      ),
-    options?.swr,
-  )
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/UserDefinedMessages.json
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPost20100401AccountsAccountSidCallsCallSidUserDefinedMessagesJsonMutationKey() {
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/UserDefinedMessages.json',
+  ] as const
 }
 
 /**
@@ -9551,37 +11445,64 @@ export function usePost20100401AccountsAccountSidUsageTriggersJson(options?: {
  * Create a new User Defined Message for the given Call SID.
  */
 export function usePost20100401AccountsAccountSidCallsCallSidUserDefinedMessagesJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessages.json']['$post']
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessages.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessages.json']['$post']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessages.json']['$post']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessages.json']['$post']
-    >
-  >(
-    'POST /2010-04-01/Accounts/:AccountSid/Calls/:CallSid/UserDefinedMessages.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'][
-          'UserDefinedMessages.json'
-        ].$post(arg, options?.client),
-      ),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey =
+    customKey ?? getPost20100401AccountsAccountSidCallsCallSidUserDefinedMessagesJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessages.json']['$post']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'][
+            'UserDefinedMessages.json'
+          ].$post(arg, clientOptions),
+        ),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/UserDefinedMessageSubscriptions.json
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPost20100401AccountsAccountSidCallsCallSidUserDefinedMessageSubscriptionsJsonMutationKey() {
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/UserDefinedMessageSubscriptions.json',
+  ] as const
 }
 
 /**
@@ -9592,37 +11513,65 @@ export function usePost20100401AccountsAccountSidCallsCallSidUserDefinedMessages
  * Subscribe to User Defined Messages for a given Call SID.
  */
 export function usePost20100401AccountsAccountSidCallsCallSidUserDefinedMessageSubscriptionsJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessageSubscriptions.json']['$post']
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessageSubscriptions.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessageSubscriptions.json']['$post']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessageSubscriptions.json']['$post']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessageSubscriptions.json']['$post']
-    >
-  >(
-    'POST /2010-04-01/Accounts/:AccountSid/Calls/:CallSid/UserDefinedMessageSubscriptions.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'][
-          'UserDefinedMessageSubscriptions.json'
-        ].$post(arg, options?.client),
-      ),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey =
+    customKey ??
+    getPost20100401AccountsAccountSidCallsCallSidUserDefinedMessageSubscriptionsJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessageSubscriptions.json']['$post']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'][
+            'UserDefinedMessageSubscriptions.json'
+          ].$post(arg, clientOptions),
+        ),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/UserDefinedMessageSubscriptions/{Sid.json}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getDelete20100401AccountsAccountSidCallsCallSidUserDefinedMessageSubscriptionsSidJsonMutationKey() {
+  return [
+    '2010-04-01',
+    'DELETE',
+    '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/UserDefinedMessageSubscriptions/:Sid.json',
+  ] as const
 }
 
 /**
@@ -9633,35 +11582,52 @@ export function usePost20100401AccountsAccountSidCallsCallSidUserDefinedMessageS
  * Delete a specific User Defined Message Subscription.
  */
 export function useDelete20100401AccountsAccountSidCallsCallSidUserDefinedMessageSubscriptionsSidJson(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessageSubscriptions'][':Sid.json']['$delete']
-    >,
+  mutation?: SWRMutationConfiguration<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessageSubscriptions'][':Sid.json']['$delete']
+              >
+            >
+          >
+        >
+      >
+    | undefined,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessageSubscriptions'][':Sid.json']['$delete']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessageSubscriptions'][':Sid.json']['$delete']
-    >,
-    Error,
-    string,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessageSubscriptions'][':Sid.json']['$delete']
-    >
-  >(
-    'DELETE /2010-04-01/Accounts/:AccountSid/Calls/:CallSid/UserDefinedMessageSubscriptions/:Sid.json',
-    async (_, { arg }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Calls[
-          ':CallSid'
-        ].UserDefinedMessageSubscriptions[':Sid.json'].$delete(arg, options?.client),
-      ),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey =
+    customKey ??
+    getDelete20100401AccountsAccountSidCallsCallSidUserDefinedMessageSubscriptionsSidJsonMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessageSubscriptions'][':Sid.json']['$delete']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Calls[
+            ':CallSid'
+          ].UserDefinedMessageSubscriptions[':Sid.json'].$delete(arg, clientOptions),
+        ),
+      restMutationOptions,
+    ),
+  }
 }

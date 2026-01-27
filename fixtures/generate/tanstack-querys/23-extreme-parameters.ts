@@ -1,8 +1,45 @@
-import type { QueryClient, UseQueryOptions } from '@tanstack/react-query'
+import type { QueryFunctionContext, UseQueryOptions } from '@tanstack/react-query'
 import { useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/23-extreme-parameters'
+
+/**
+ * Generates TanStack Query cache key for GET /a/{p1}/b/{p2}/c/{p3}/d/{p4}/e/{p5}/f/{p6}/g/{p7}/h/{p8}/i/{p9}/j/{p10}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetAP1BP2CP3DP4EP5FP6GP7HP8IP9JP10QueryKey(
+  args: InferRequestType<
+    (typeof client.a)[':p1']['b'][':p2']['c'][':p3']['d'][':p4']['e'][':p5']['f'][':p6']['g'][':p7']['h'][':p8']['i'][':p9']['j'][':p10']['$get']
+  >,
+) {
+  return [
+    'a',
+    'GET',
+    '/a/:p1/b/:p2/c/:p3/d/:p4/e/:p5/f/:p6/g/:p7/h/:p8/i/:p9/j/:p10',
+    args,
+  ] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /a/{p1}/b/{p2}/c/{p3}/d/{p4}/e/{p5}/f/{p6}/g/{p7}/h/{p8}/i/{p9}/j/{p10}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetAP1BP2CP3DP4EP5FP6GP7HP8IP9JP10QueryOptions = (
+  args: InferRequestType<
+    (typeof client.a)[':p1']['b'][':p2']['c'][':p3']['d'][':p4']['e'][':p5']['f'][':p6']['g'][':p7']['h'][':p8']['i'][':p9']['j'][':p10']['$get']
+  >,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetAP1BP2CP3DP4EP5FP6GP7HP8IP9JP10QueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.a[':p1'].b[':p2'].c[':p3'].d[':p4'].e[':p5'].f[':p6'].g[':p7'].h[':p8'].i[':p9'].j[
+        ':p10'
+      ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /a/{p1}/b/{p2}/c/{p3}/d/{p4}/e/{p5}/f/{p6}/g/{p7}/h/{p8}/i/{p9}/j/{p10}
@@ -13,52 +50,58 @@ export function useGetAP1BP2CP3DP4EP5FP6GP7HP8IP9JP10(
   >,
   options?: {
     query?: UseQueryOptions<
-      InferResponseType<
-        (typeof client.a)[':p1']['b'][':p2']['c'][':p3']['d'][':p4']['e'][':p5']['f'][':p6']['g'][':p7']['h'][':p8']['i'][':p9']['j'][':p10']['$get']
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client.a)[':p1']['b'][':p2']['c'][':p3']['d'][':p4']['e'][':p5']['f'][':p6']['g'][':p7']['h'][':p8']['i'][':p9']['j'][':p10']['$get']
+              >
+            >
+          >
+        >
       >,
-      Error,
-      InferResponseType<
-        (typeof client.a)[':p1']['b'][':p2']['c'][':p3']['d'][':p4']['e'][':p5']['f'][':p6']['g'][':p7']['h'][':p8']['i'][':p9']['j'][':p10']['$get']
-      >,
-      readonly [
-        '/a/:p1/b/:p2/c/:p3/d/:p4/e/:p5/f/:p6/g/:p7/h/:p8/i/:p9/j/:p10',
-        InferRequestType<
-          (typeof client.a)[':p1']['b'][':p2']['c'][':p3']['d'][':p4']['e'][':p5']['f'][':p6']['g'][':p7']['h'][':p8']['i'][':p9']['j'][':p10']['$get']
-        >,
-      ]
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetAP1BP2CP3DP4EP5FP6GP7HP8IP9JP10QueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(
-          client.a[':p1'].b[':p2'].c[':p3'].d[':p4'].e[':p5'].f[':p6'].g[':p7'].h[':p8'].i[':p9'].j[
-            ':p10'
-          ].$get(args, clientOptions),
-        ),
-    },
-    queryClient,
+  const { queryKey, queryFn, ...baseOptions } = getGetAP1BP2CP3DP4EP5FP6GP7HP8IP9JP10QueryOptions(
+    args,
+    clientOptions,
   )
-  return { ...query, queryKey }
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /a/{p1}/b/{p2}/c/{p3}/d/{p4}/e/{p5}/f/{p6}/g/{p7}/h/{p8}/i/{p9}/j/{p10}
+ * Generates TanStack Query cache key for GET /query-styles
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetAP1BP2CP3DP4EP5FP6GP7HP8IP9JP10QueryKey(
-  args: InferRequestType<
-    (typeof client.a)[':p1']['b'][':p2']['c'][':p3']['d'][':p4']['e'][':p5']['f'][':p6']['g'][':p7']['h'][':p8']['i'][':p9']['j'][':p10']['$get']
-  >,
+export function getGetQueryStylesQueryKey(
+  args: InferRequestType<(typeof client)['query-styles']['$get']>,
 ) {
-  return ['/a/:p1/b/:p2/c/:p3/d/:p4/e/:p5/f/:p6/g/:p7/h/:p8/i/:p9/j/:p10', args] as const
+  return ['query-styles', 'GET', '/query-styles', args] as const
 }
+
+/**
+ * Returns TanStack Query query options for GET /query-styles
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetQueryStylesQueryOptions = (
+  args: InferRequestType<(typeof client)['query-styles']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetQueryStylesQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['query-styles'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /query-styles
@@ -67,36 +110,49 @@ export function useGetQueryStyles(
   args: InferRequestType<(typeof client)['query-styles']['$get']>,
   options?: {
     query?: UseQueryOptions<
-      InferResponseType<(typeof client)['query-styles']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['query-styles']['$get']>,
-      readonly ['/query-styles', InferRequestType<(typeof client)['query-styles']['$get']>]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client)['query-styles']['$get']>>>
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetQueryStylesQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client['query-styles'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  const { queryKey, queryFn, ...baseOptions } = getGetQueryStylesQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /query-styles
+ * Generates TanStack Query cache key for GET /path-styles/{simple}/{label}/{matrix}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetQueryStylesQueryKey(
-  args: InferRequestType<(typeof client)['query-styles']['$get']>,
+export function getGetPathStylesSimpleLabelMatrixQueryKey(
+  args: InferRequestType<(typeof client)['path-styles'][':simple'][':label'][':matrix']['$get']>,
 ) {
-  return ['/query-styles', args] as const
+  return ['path-styles', 'GET', '/path-styles/:simple/:label/:matrix', args] as const
 }
+
+/**
+ * Returns TanStack Query query options for GET /path-styles/{simple}/{label}/{matrix}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetPathStylesSimpleLabelMatrixQueryOptions = (
+  args: InferRequestType<(typeof client)['path-styles'][':simple'][':label'][':matrix']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetPathStylesSimpleLabelMatrixQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['path-styles'][':simple'][':label'][':matrix'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /path-styles/{simple}/{label}/{matrix}
@@ -105,42 +161,56 @@ export function useGetPathStylesSimpleLabelMatrix(
   args: InferRequestType<(typeof client)['path-styles'][':simple'][':label'][':matrix']['$get']>,
   options?: {
     query?: UseQueryOptions<
-      InferResponseType<(typeof client)['path-styles'][':simple'][':label'][':matrix']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['path-styles'][':simple'][':label'][':matrix']['$get']>,
-      readonly [
-        '/path-styles/:simple/:label/:matrix',
-        InferRequestType<(typeof client)['path-styles'][':simple'][':label'][':matrix']['$get']>,
-      ]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<(typeof client)['path-styles'][':simple'][':label'][':matrix']['$get']>
+            >
+          >
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetPathStylesSimpleLabelMatrixQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(
-          client['path-styles'][':simple'][':label'][':matrix'].$get(args, clientOptions),
-        ),
-    },
-    queryClient,
+  const { queryKey, queryFn, ...baseOptions } = getGetPathStylesSimpleLabelMatrixQueryOptions(
+    args,
+    clientOptions,
   )
-  return { ...query, queryKey }
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /path-styles/{simple}/{label}/{matrix}
+ * Generates TanStack Query cache key for GET /header-styles
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetPathStylesSimpleLabelMatrixQueryKey(
-  args: InferRequestType<(typeof client)['path-styles'][':simple'][':label'][':matrix']['$get']>,
+export function getGetHeaderStylesQueryKey(
+  args: InferRequestType<(typeof client)['header-styles']['$get']>,
 ) {
-  return ['/path-styles/:simple/:label/:matrix', args] as const
+  return ['header-styles', 'GET', '/header-styles', args] as const
 }
+
+/**
+ * Returns TanStack Query query options for GET /header-styles
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetHeaderStylesQueryOptions = (
+  args: InferRequestType<(typeof client)['header-styles']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetHeaderStylesQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['header-styles'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /header-styles
@@ -149,36 +219,49 @@ export function useGetHeaderStyles(
   args: InferRequestType<(typeof client)['header-styles']['$get']>,
   options?: {
     query?: UseQueryOptions<
-      InferResponseType<(typeof client)['header-styles']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['header-styles']['$get']>,
-      readonly ['/header-styles', InferRequestType<(typeof client)['header-styles']['$get']>]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client)['header-styles']['$get']>>>
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetHeaderStylesQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client['header-styles'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  const { queryKey, queryFn, ...baseOptions } = getGetHeaderStylesQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /header-styles
+ * Generates TanStack Query cache key for GET /cookie-styles
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetHeaderStylesQueryKey(
-  args: InferRequestType<(typeof client)['header-styles']['$get']>,
+export function getGetCookieStylesQueryKey(
+  args: InferRequestType<(typeof client)['cookie-styles']['$get']>,
 ) {
-  return ['/header-styles', args] as const
+  return ['cookie-styles', 'GET', '/cookie-styles', args] as const
 }
+
+/**
+ * Returns TanStack Query query options for GET /cookie-styles
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetCookieStylesQueryOptions = (
+  args: InferRequestType<(typeof client)['cookie-styles']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetCookieStylesQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['cookie-styles'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /cookie-styles
@@ -187,36 +270,49 @@ export function useGetCookieStyles(
   args: InferRequestType<(typeof client)['cookie-styles']['$get']>,
   options?: {
     query?: UseQueryOptions<
-      InferResponseType<(typeof client)['cookie-styles']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['cookie-styles']['$get']>,
-      readonly ['/cookie-styles', InferRequestType<(typeof client)['cookie-styles']['$get']>]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client)['cookie-styles']['$get']>>>
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetCookieStylesQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client['cookie-styles'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  const { queryKey, queryFn, ...baseOptions } = getGetCookieStylesQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /cookie-styles
+ * Generates TanStack Query cache key for GET /many-query-params
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetCookieStylesQueryKey(
-  args: InferRequestType<(typeof client)['cookie-styles']['$get']>,
+export function getGetManyQueryParamsQueryKey(
+  args: InferRequestType<(typeof client)['many-query-params']['$get']>,
 ) {
-  return ['/cookie-styles', args] as const
+  return ['many-query-params', 'GET', '/many-query-params', args] as const
 }
+
+/**
+ * Returns TanStack Query query options for GET /many-query-params
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetManyQueryParamsQueryOptions = (
+  args: InferRequestType<(typeof client)['many-query-params']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetManyQueryParamsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['many-query-params'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /many-query-params
@@ -225,39 +321,52 @@ export function useGetManyQueryParams(
   args: InferRequestType<(typeof client)['many-query-params']['$get']>,
   options?: {
     query?: UseQueryOptions<
-      InferResponseType<(typeof client)['many-query-params']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['many-query-params']['$get']>,
-      readonly [
-        '/many-query-params',
-        InferRequestType<(typeof client)['many-query-params']['$get']>,
-      ]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client)['many-query-params']['$get']>>>
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetManyQueryParamsQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client['many-query-params'].$get(args, clientOptions)),
-    },
-    queryClient,
+  const { queryKey, queryFn, ...baseOptions } = getGetManyQueryParamsQueryOptions(
+    args,
+    clientOptions,
   )
-  return { ...query, queryKey }
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /many-query-params
+ * Generates TanStack Query cache key for GET /parameter-content
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetManyQueryParamsQueryKey(
-  args: InferRequestType<(typeof client)['many-query-params']['$get']>,
+export function getGetParameterContentQueryKey(
+  args: InferRequestType<(typeof client)['parameter-content']['$get']>,
 ) {
-  return ['/many-query-params', args] as const
+  return ['parameter-content', 'GET', '/parameter-content', args] as const
 }
+
+/**
+ * Returns TanStack Query query options for GET /parameter-content
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetParameterContentQueryOptions = (
+  args: InferRequestType<(typeof client)['parameter-content']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetParameterContentQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['parameter-content'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /parameter-content
@@ -266,39 +375,52 @@ export function useGetParameterContent(
   args: InferRequestType<(typeof client)['parameter-content']['$get']>,
   options?: {
     query?: UseQueryOptions<
-      InferResponseType<(typeof client)['parameter-content']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['parameter-content']['$get']>,
-      readonly [
-        '/parameter-content',
-        InferRequestType<(typeof client)['parameter-content']['$get']>,
-      ]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client)['parameter-content']['$get']>>>
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetParameterContentQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client['parameter-content'].$get(args, clientOptions)),
-    },
-    queryClient,
+  const { queryKey, queryFn, ...baseOptions } = getGetParameterContentQueryOptions(
+    args,
+    clientOptions,
   )
-  return { ...query, queryKey }
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /parameter-content
+ * Generates TanStack Query cache key for GET /deprecated-params
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetParameterContentQueryKey(
-  args: InferRequestType<(typeof client)['parameter-content']['$get']>,
+export function getGetDeprecatedParamsQueryKey(
+  args: InferRequestType<(typeof client)['deprecated-params']['$get']>,
 ) {
-  return ['/parameter-content', args] as const
+  return ['deprecated-params', 'GET', '/deprecated-params', args] as const
 }
+
+/**
+ * Returns TanStack Query query options for GET /deprecated-params
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetDeprecatedParamsQueryOptions = (
+  args: InferRequestType<(typeof client)['deprecated-params']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetDeprecatedParamsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['deprecated-params'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /deprecated-params
@@ -307,39 +429,52 @@ export function useGetDeprecatedParams(
   args: InferRequestType<(typeof client)['deprecated-params']['$get']>,
   options?: {
     query?: UseQueryOptions<
-      InferResponseType<(typeof client)['deprecated-params']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['deprecated-params']['$get']>,
-      readonly [
-        '/deprecated-params',
-        InferRequestType<(typeof client)['deprecated-params']['$get']>,
-      ]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client)['deprecated-params']['$get']>>>
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetDeprecatedParamsQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client['deprecated-params'].$get(args, clientOptions)),
-    },
-    queryClient,
+  const { queryKey, queryFn, ...baseOptions } = getGetDeprecatedParamsQueryOptions(
+    args,
+    clientOptions,
   )
-  return { ...query, queryKey }
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /deprecated-params
+ * Generates TanStack Query cache key for GET /examples-params
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetDeprecatedParamsQueryKey(
-  args: InferRequestType<(typeof client)['deprecated-params']['$get']>,
+export function getGetExamplesParamsQueryKey(
+  args: InferRequestType<(typeof client)['examples-params']['$get']>,
 ) {
-  return ['/deprecated-params', args] as const
+  return ['examples-params', 'GET', '/examples-params', args] as const
 }
+
+/**
+ * Returns TanStack Query query options for GET /examples-params
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetExamplesParamsQueryOptions = (
+  args: InferRequestType<(typeof client)['examples-params']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetExamplesParamsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['examples-params'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /examples-params
@@ -348,33 +483,20 @@ export function useGetExamplesParams(
   args: InferRequestType<(typeof client)['examples-params']['$get']>,
   options?: {
     query?: UseQueryOptions<
-      InferResponseType<(typeof client)['examples-params']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['examples-params']['$get']>,
-      readonly ['/examples-params', InferRequestType<(typeof client)['examples-params']['$get']>]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client)['examples-params']['$get']>>>
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetExamplesParamsQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client['examples-params'].$get(args, clientOptions)),
-    },
-    queryClient,
+  const { queryKey, queryFn, ...baseOptions } = getGetExamplesParamsQueryOptions(
+    args,
+    clientOptions,
   )
-  return { ...query, queryKey }
-}
-
-/**
- * Generates TanStack Query cache key for GET /examples-params
- */
-export function getGetExamplesParamsQueryKey(
-  args: InferRequestType<(typeof client)['examples-params']['$get']>,
-) {
-  return ['/examples-params', args] as const
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }

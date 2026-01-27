@@ -1,4 +1,4 @@
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
@@ -7,77 +7,110 @@ import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/21-extreme-status-content'
 
 /**
- * GET /extreme-responses
+ * Generates SWR cache key for GET /extreme-responses
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function useGetExtremeResponses(options?: {
-  swr?: SWRConfiguration<InferResponseType<(typeof client)['extreme-responses']['$get']>, Error> & {
-    swrKey?: Key
-    enabled?: boolean
-  }
-  client?: ClientRequestOptions
-}) {
-  const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetExtremeResponsesKey() : null)
-  const query = useSWR<InferResponseType<(typeof client)['extreme-responses']['$get']>, Error>(
-    swrKey,
-    async () => parseResponse(client['extreme-responses'].$get(undefined, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+export function getGetExtremeResponsesKey() {
+  return ['extreme-responses', 'GET', '/extreme-responses'] as const
 }
 
 /**
- * Generates SWR cache key for GET /extreme-responses
+ * GET /extreme-responses
  */
-export function getGetExtremeResponsesKey() {
-  return ['/extreme-responses'] as const
+export function useGetExtremeResponses(options?: {
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
+  client?: ClientRequestOptions
+}) {
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetExtremeResponsesKey()) : null
+  return {
+    swrKey,
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client['extreme-responses'].$get(undefined, clientOptions)),
+      restSwrOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /multipart-variations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostMultipartVariationsMutationKey() {
+  return ['multipart-variations', 'POST', '/multipart-variations'] as const
 }
 
 /**
  * POST /multipart-variations
  */
 export function usePostMultipartVariations(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['multipart-variations']['$post']>,
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client)['multipart-variations']['$post']>>>
+      >
+    >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client)['multipart-variations']['$post']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<(typeof client)['multipart-variations']['$post']>,
-    Error,
-    string,
-    InferRequestType<(typeof client)['multipart-variations']['$post']>
-  >(
-    'POST /multipart-variations',
-    async (_, { arg }) => parseResponse(client['multipart-variations'].$post(arg, options?.client)),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostMultipartVariationsMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        { arg }: { arg: InferRequestType<(typeof client)['multipart-variations']['$post']> },
+      ) => parseResponse(client['multipart-variations'].$post(arg, clientOptions)),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /charset-variations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostCharsetVariationsMutationKey() {
+  return ['charset-variations', 'POST', '/charset-variations'] as const
 }
 
 /**
  * POST /charset-variations
  */
 export function usePostCharsetVariations(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['charset-variations']['$post']>,
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client)['charset-variations']['$post']>>>
+      >
+    >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client)['charset-variations']['$post']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<(typeof client)['charset-variations']['$post']>,
-    Error,
-    string,
-    InferRequestType<(typeof client)['charset-variations']['$post']>
-  >(
-    'POST /charset-variations',
-    async (_, { arg }) => parseResponse(client['charset-variations'].$post(arg, options?.client)),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostCharsetVariationsMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        { arg }: { arg: InferRequestType<(typeof client)['charset-variations']['$post']> },
+      ) => parseResponse(client['charset-variations'].$post(arg, clientOptions)),
+      restMutationOptions,
+    ),
+  }
 }

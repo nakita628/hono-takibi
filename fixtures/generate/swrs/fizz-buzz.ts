@@ -1,8 +1,16 @@
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
 import { client } from '../clients/fizz-buzz'
+
+/**
+ * Generates SWR cache key for GET /fizzbuzz
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetFizzbuzzKey(args: InferRequestType<typeof client.fizzbuzz.$get>) {
+  return ['fizzbuzz', 'GET', '/fizzbuzz', args] as const
+}
 
 /**
  * GET /fizzbuzz
@@ -14,27 +22,20 @@ import { client } from '../clients/fizz-buzz'
 export function useGetFizzbuzz(
   args: InferRequestType<typeof client.fizzbuzz.$get>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<typeof client.fizzbuzz.$get>, Error> & {
-      swrKey?: Key
-      enabled?: boolean
-    }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetFizzbuzzKey(args) : null)
-  const query = useSWR<InferResponseType<typeof client.fizzbuzz.$get>, Error>(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetFizzbuzzKey(args)) : null
+  return {
     swrKey,
-    async () => parseResponse(client.fizzbuzz.$get(args, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
-}
-
-/**
- * Generates SWR cache key for GET /fizzbuzz
- */
-export function getGetFizzbuzzKey(args?: InferRequestType<typeof client.fizzbuzz.$get>) {
-  return ['/fizzbuzz', ...(args ? [args] : [])] as const
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.fizzbuzz.$get(args, clientOptions)),
+      restSwrOptions,
+    ),
+  }
 }

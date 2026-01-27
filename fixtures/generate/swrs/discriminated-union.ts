@@ -1,29 +1,40 @@
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key } from 'swr'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/discriminated-union'
 
 /**
+ * Generates SWR mutation key for POST /messages
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostMessagesMutationKey() {
+  return ['messages', 'POST', '/messages'] as const
+}
+
+/**
  * POST /messages
  */
 export function usePostMessages(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.messages.$post>,
+  mutation?: SWRMutationConfiguration<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.messages.$post>>>>>,
     Error,
-    string,
+    Key,
     InferRequestType<typeof client.messages.$post>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<typeof client.messages.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.messages.$post>
-  >(
-    'POST /messages',
-    async (_, { arg }) => parseResponse(client.messages.$post(arg, options?.client)),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostMessagesMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (_: Key, { arg }: { arg: InferRequestType<typeof client.messages.$post> }) =>
+        parseResponse(client.messages.$post(arg, clientOptions)),
+      restMutationOptions,
+    ),
+  }
 }

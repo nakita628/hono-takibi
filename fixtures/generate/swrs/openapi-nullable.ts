@@ -1,8 +1,16 @@
-import type { ClientRequestOptions, InferResponseType } from 'hono/client'
+import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
 import { client } from '../clients/openapi-nullable'
+
+/**
+ * Generates SWR cache key for GET /nullable
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGetNullableKey() {
+  return ['nullable', 'GET', '/nullable'] as const
+}
 
 /**
  * GET /nullable
@@ -12,26 +20,19 @@ import { client } from '../clients/openapi-nullable'
  * zod nullable
  */
 export function useGetNullable(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.nullable.$get>, Error> & {
-    swrKey?: Key
-    enabled?: boolean
-  }
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetNullableKey() : null)
-  const query = useSWR<InferResponseType<typeof client.nullable.$get>, Error>(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetNullableKey()) : null
+  return {
     swrKey,
-    async () => parseResponse(client.nullable.$get(undefined, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
-}
-
-/**
- * Generates SWR cache key for GET /nullable
- */
-export function getGetNullableKey() {
-  return ['/nullable'] as const
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.nullable.$get(undefined, clientOptions)),
+      restSwrOptions,
+    ),
+  }
 }

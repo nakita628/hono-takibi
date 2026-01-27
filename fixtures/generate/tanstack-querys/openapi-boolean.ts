@@ -1,8 +1,32 @@
-import type { QueryClient, UseQueryOptions } from '@tanstack/react-query'
+import type { QueryFunctionContext, UseQueryOptions } from '@tanstack/react-query'
 import { useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferResponseType } from 'hono/client'
+import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/openapi-boolean'
+
+/**
+ * Generates TanStack Query cache key for GET /boolean
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGetBooleanQueryKey() {
+  return ['boolean', 'GET', '/boolean'] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /boolean
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetBooleanQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetBooleanQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.boolean.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /boolean
@@ -11,34 +35,14 @@ import { client } from '../clients/openapi-boolean'
  *
  * zod boolean
  */
-export function useGetBoolean(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.boolean.$get>,
-      Error,
-      InferResponseType<typeof client.boolean.$get>,
-      readonly ['/boolean']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetBoolean(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.boolean.$get>>>>>,
+    Error
+  >
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetBooleanQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.boolean.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
-}
-
-/**
- * Generates TanStack Query cache key for GET /boolean
- */
-export function getGetBooleanQueryKey() {
-  return ['/boolean'] as const
+  const { queryKey, queryFn, ...baseOptions } = getGetBooleanQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }

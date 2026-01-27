@@ -1,8 +1,36 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
+import type {
+  QueryFunctionContext,
+  UseMutationOptions,
+  UseQueryOptions,
+} from '@tanstack/react-query'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/algolia'
+
+/**
+ * Generates TanStack Query cache key for GET /{path}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetPathQueryKey(args: InferRequestType<(typeof client)[':path']['$get']>) {
+  return [':path', 'GET', '/:path', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /{path}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetPathQueryOptions = (
+  args: InferRequestType<(typeof client)[':path']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetPathQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client[':path'].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /{path}
@@ -15,34 +43,37 @@ export function useGetPath(
   args: InferRequestType<(typeof client)[':path']['$get']>,
   options?: {
     query?: UseQueryOptions<
-      InferResponseType<(typeof client)[':path']['$get']>,
-      Error,
-      InferResponseType<(typeof client)[':path']['$get']>,
-      readonly ['/:path', InferRequestType<(typeof client)[':path']['$get']>]
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)[':path']['$get']>>>>
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetPathQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client[':path'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  const { queryKey, queryFn, ...baseOptions } = getGetPathQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /{path}
+ * Generates TanStack Query mutation key for PUT /{path}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetPathQueryKey(args: InferRequestType<(typeof client)[':path']['$get']>) {
-  return ['/:path', args] as const
+export function getPutPathMutationKey() {
+  return [':path', 'PUT', '/:path'] as const
 }
+
+/**
+ * Returns TanStack Query mutation options for PUT /{path}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutPathMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPutPathMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client)[':path']['$put']>) =>
+    parseResponse(client[':path'].$put(args, clientOptions)),
+})
 
 /**
  * PUT /{path}
@@ -51,29 +82,39 @@ export function getGetPathQueryKey(args: InferRequestType<(typeof client)[':path
  *
  * This method lets you send requests to the Algolia REST API.
  */
-export function usePutPath(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)[':path']['$put']> | undefined,
-      Error,
-      InferRequestType<(typeof client)[':path']['$put']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<(typeof client)[':path']['$put']> | undefined,
+export function usePutPath(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)[':path']['$put']>>>>
+    >,
     Error,
     InferRequestType<(typeof client)[':path']['$put']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client[':path'].$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } = getPutPathMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /{path}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostPathMutationKey() {
+  return [':path', 'POST', '/:path'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /{path}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostPathMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostPathMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client)[':path']['$post']>) =>
+    parseResponse(client[':path'].$post(args, clientOptions)),
+})
 
 /**
  * POST /{path}
@@ -82,29 +123,39 @@ export function usePutPath(
  *
  * This method lets you send requests to the Algolia REST API.
  */
-export function usePostPath(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)[':path']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client)[':path']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<(typeof client)[':path']['$post']> | undefined,
+export function usePostPath(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)[':path']['$post']>>>>
+    >,
     Error,
     InferRequestType<(typeof client)[':path']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client[':path'].$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } = getPostPathMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for DELETE /{path}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getDeletePathMutationKey() {
+  return [':path', 'DELETE', '/:path'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for DELETE /{path}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeletePathMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getDeletePathMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client)[':path']['$delete']>) =>
+    parseResponse(client[':path'].$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /{path}
@@ -113,29 +164,42 @@ export function usePostPath(
  *
  * This method lets you send requests to the Algolia REST API.
  */
-export function useDeletePath(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)[':path']['$delete']> | undefined,
-      Error,
-      InferRequestType<(typeof client)[':path']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<(typeof client)[':path']['$delete']> | undefined,
+export function useDeletePath(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)[':path']['$delete']>>>>
+    >,
     Error,
     InferRequestType<(typeof client)[':path']['$delete']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client[':path'].$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } = getDeletePathMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /1/indexes/{indexName}/query
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPost1IndexesIndexNameQueryMutationKey() {
+  return ['1', 'POST', '/1/indexes/:indexName/query'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /1/indexes/{indexName}/query
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost1IndexesIndexNameQueryMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost1IndexesIndexNameQueryMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['query']['$post']>,
+  ) => parseResponse(client['1'].indexes[':indexName'].query.$post(args, clientOptions)),
+})
 
 /**
  * POST /1/indexes/{indexName}/query
@@ -147,31 +211,45 @@ export function useDeletePath(
  * This method lets you retrieve up to 1,000 hits.
  * If you need more, use the [`browse` operation](https://www.algolia.com/doc/rest-api/search/browse) or increase the `paginatedLimitedTo` index setting.
  */
-export function usePost1IndexesIndexNameQuery(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client)['1']['indexes'][':indexName']['query']['$post']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['indexes'][':indexName']['query']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<(typeof client)['1']['indexes'][':indexName']['query']['$post']> | undefined,
+export function usePost1IndexesIndexNameQuery(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName']['query']['$post']>>
+        >
+      >
+    >,
     Error,
     InferRequestType<(typeof client)['1']['indexes'][':indexName']['query']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].indexes[':indexName'].query.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost1IndexesIndexNameQueryMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /1/indexes/* /queries
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPost1IndexesQueriesMutationKey() {
+  return ['1', 'POST', '/1/indexes/*/queries'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /1/indexes/* /queries
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost1IndexesQueriesMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPost1IndexesQueriesMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client)['1']['indexes']['*']['queries']['$post']>,
+  ) => parseResponse(client['1'].indexes['*'].queries.$post(args, clientOptions)),
+})
 
 /**
  * POST /1/indexes/[*]/queries
@@ -187,30 +265,52 @@ export function usePost1IndexesIndexNameQuery(
  *
  * Use the helper `searchForHits` or `searchForFacets` to get the results in a more convenient format, if you already know the return type you want.
  */
-export function usePost1IndexesQueries(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['1']['indexes']['*']['queries']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['indexes']['*']['queries']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<(typeof client)['1']['indexes']['*']['queries']['$post']> | undefined,
+export function usePost1IndexesQueries(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['indexes']['*']['queries']['$post']>>
+        >
+      >
+    >,
     Error,
     InferRequestType<(typeof client)['1']['indexes']['*']['queries']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].indexes['*'].queries.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost1IndexesQueriesMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /1/indexes/{indexName}/facets/{facetName}/query
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPost1IndexesIndexNameFacetsFacetNameQueryMutationKey() {
+  return ['1', 'POST', '/1/indexes/:indexName/facets/:facetName/query'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /1/indexes/{indexName}/facets/{facetName}/query
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost1IndexesIndexNameFacetsFacetNameQueryMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost1IndexesIndexNameFacetsFacetNameQueryMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['1']['indexes'][':indexName']['facets'][':facetName']['query']['$post']
+    >,
+  ) =>
+    parseResponse(
+      client['1'].indexes[':indexName'].facets[':facetName'].query.$post(args, clientOptions),
+    ),
+})
 
 /**
  * POST /1/indexes/{indexName}/facets/{facetName}/query
@@ -223,42 +323,53 @@ export function usePost1IndexesQueries(
  *   You can adjust this with the `sortFacetValueBy` parameter.
  * - Searching for facet values doesn't work if you have **more than 65 searchable facets and searchable attributes combined**.
  */
-export function usePost1IndexesIndexNameFacetsFacetNameQuery(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client)['1']['indexes'][':indexName']['facets'][':facetName']['query']['$post']
+export function usePost1IndexesIndexNameFacetsFacetNameQuery(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['1']['indexes'][':indexName']['facets'][':facetName']['query']['$post']
+            >
+          >
         >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['facets'][':facetName']['query']['$post']
       >
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    | InferResponseType<
-        (typeof client)['1']['indexes'][':indexName']['facets'][':facetName']['query']['$post']
-      >
-    | undefined,
+    >,
     Error,
     InferRequestType<
       (typeof client)['1']['indexes'][':indexName']['facets'][':facetName']['query']['$post']
     >
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(
-          client['1'].indexes[':indexName'].facets[':facetName'].query.$post(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost1IndexesIndexNameFacetsFacetNameQueryMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /1/indexes/{indexName}/browse
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPost1IndexesIndexNameBrowseMutationKey() {
+  return ['1', 'POST', '/1/indexes/:indexName/browse'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /1/indexes/{indexName}/browse
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost1IndexesIndexNameBrowseMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost1IndexesIndexNameBrowseMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['browse']['$post']>,
+  ) => parseResponse(client['1'].indexes[':indexName'].browse.$post(args, clientOptions)),
+})
 
 /**
  * POST /1/indexes/{indexName}/browse
@@ -291,31 +402,45 @@ export function usePost1IndexesIndexNameFacetsFacetNameQuery(
  *
  * If you send these parameters with your browse requests, they'll be ignored.
  */
-export function usePost1IndexesIndexNameBrowse(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client)['1']['indexes'][':indexName']['browse']['$post']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['indexes'][':indexName']['browse']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<(typeof client)['1']['indexes'][':indexName']['browse']['$post']> | undefined,
+export function usePost1IndexesIndexNameBrowse(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName']['browse']['$post']>>
+        >
+      >
+    >,
     Error,
     InferRequestType<(typeof client)['1']['indexes'][':indexName']['browse']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].indexes[':indexName'].browse.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost1IndexesIndexNameBrowseMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /1/indexes/{indexName}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPost1IndexesIndexNameMutationKey() {
+  return ['1', 'POST', '/1/indexes/:indexName'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /1/indexes/{indexName}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost1IndexesIndexNameMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPost1IndexesIndexNameMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['$post']>,
+  ) => parseResponse(client['1'].indexes[':indexName'].$post(args, clientOptions)),
+})
 
 /**
  * POST /1/indexes/{indexName}
@@ -334,30 +459,47 @@ export function usePost1IndexesIndexNameBrowse(
  *
  * This operation is subject to [indexing rate limits](https://support.algolia.com/hc/articles/4406975251089-Is-there-a-rate-limit-for-indexing-on-Algolia).
  */
-export function usePost1IndexesIndexName(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['1']['indexes'][':indexName']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['indexes'][':indexName']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<(typeof client)['1']['indexes'][':indexName']['$post']> | undefined,
+export function usePost1IndexesIndexName(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName']['$post']>>
+        >
+      >
+    >,
     Error,
     InferRequestType<(typeof client)['1']['indexes'][':indexName']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].indexes[':indexName'].$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost1IndexesIndexNameMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for DELETE /1/indexes/{indexName}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getDelete1IndexesIndexNameMutationKey() {
+  return ['1', 'DELETE', '/1/indexes/:indexName'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for DELETE /1/indexes/{indexName}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDelete1IndexesIndexNameMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDelete1IndexesIndexNameMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['$delete']>,
+  ) => parseResponse(client['1'].indexes[':indexName'].$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /1/indexes/{indexName}
@@ -372,30 +514,54 @@ export function usePost1IndexesIndexName(
  * - If the index you want to delete is a replica index, you must first unlink it from its primary index before you can delete it.
  *   For more information, see [Delete replica indices](https://www.algolia.com/doc/guides/managing-results/refine-results/sorting/how-to/deleting-replicas).
  */
-export function useDelete1IndexesIndexName(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['1']['indexes'][':indexName']['$delete']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['indexes'][':indexName']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<(typeof client)['1']['indexes'][':indexName']['$delete']> | undefined,
+export function useDelete1IndexesIndexName(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName']['$delete']>>
+        >
+      >
+    >,
     Error,
     InferRequestType<(typeof client)['1']['indexes'][':indexName']['$delete']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].indexes[':indexName'].$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDelete1IndexesIndexNameMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query cache key for GET /1/indexes/{indexName}/{objectID}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGet1IndexesIndexNameObjectIDQueryKey(
+  args: InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$get']>,
+) {
+  return ['1', 'GET', '/1/indexes/:indexName/:objectID', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /1/indexes/{indexName}/{objectID}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet1IndexesIndexNameObjectIDQueryOptions = (
+  args: InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet1IndexesIndexNameObjectIDQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['1'].indexes[':indexName'][':objectID'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /1/indexes/{indexName}/{objectID}
@@ -410,40 +576,47 @@ export function useGet1IndexesIndexNameObjectID(
   args: InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$get']>,
   options?: {
     query?: UseQueryOptions<
-      InferResponseType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$get']>,
-      readonly [
-        '/1/indexes/:indexName/:objectID',
-        InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$get']>,
-      ]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$get']>>
+          >
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGet1IndexesIndexNameObjectIDQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client['1'].indexes[':indexName'][':objectID'].$get(args, clientOptions)),
-    },
-    queryClient,
+  const { queryKey, queryFn, ...baseOptions } = getGet1IndexesIndexNameObjectIDQueryOptions(
+    args,
+    clientOptions,
   )
-  return { ...query, queryKey }
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /1/indexes/{indexName}/{objectID}
+ * Generates TanStack Query mutation key for PUT /1/indexes/{indexName}/{objectID}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet1IndexesIndexNameObjectIDQueryKey(
-  args: InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$get']>,
-) {
-  return ['/1/indexes/:indexName/:objectID', args] as const
+export function getPut1IndexesIndexNameObjectIDMutationKey() {
+  return ['1', 'PUT', '/1/indexes/:indexName/:objectID'] as const
 }
+
+/**
+ * Returns TanStack Query mutation options for PUT /1/indexes/{indexName}/{objectID}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPut1IndexesIndexNameObjectIDMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPut1IndexesIndexNameObjectIDMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$put']>,
+  ) => parseResponse(client['1'].indexes[':indexName'][':objectID'].$put(args, clientOptions)),
+})
 
 /**
  * PUT /1/indexes/{indexName}/{objectID}
@@ -457,32 +630,47 @@ export function getGet1IndexesIndexNameObjectIDQueryKey(
  * To update _some_ attributes of an existing record, use the [`partial` operation](https://www.algolia.com/doc/rest-api/search/partial-update-object) instead.
  * To add, update, or replace multiple records, use the [`batch` operation](https://www.algolia.com/doc/rest-api/search/batch).
  */
-export function usePut1IndexesIndexNameObjectID(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$put']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$put']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    | InferResponseType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$put']>
-    | undefined,
+export function usePut1IndexesIndexNameObjectID(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$put']>>
+        >
+      >
+    >,
     Error,
     InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$put']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].indexes[':indexName'][':objectID'].$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPut1IndexesIndexNameObjectIDMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for DELETE /1/indexes/{indexName}/{objectID}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getDelete1IndexesIndexNameObjectIDMutationKey() {
+  return ['1', 'DELETE', '/1/indexes/:indexName/:objectID'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for DELETE /1/indexes/{indexName}/{objectID}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDelete1IndexesIndexNameObjectIDMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDelete1IndexesIndexNameObjectIDMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$delete']>,
+  ) => parseResponse(client['1'].indexes[':indexName'][':objectID'].$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /1/indexes/{indexName}/{objectID}
@@ -494,34 +682,47 @@ export function usePut1IndexesIndexNameObjectID(
  * To delete more than one record, use the [`batch` operation](https://www.algolia.com/doc/rest-api/search/batch).
  * To delete records matching a query, use the [`deleteBy` operation](https://www.algolia.com/doc/rest-api/search/delete-by).
  */
-export function useDelete1IndexesIndexNameObjectID(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$delete']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    | InferResponseType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$delete']>
-    | undefined,
+export function useDelete1IndexesIndexNameObjectID(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$delete']>>
+        >
+      >
+    >,
     Error,
     InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$delete']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(
-          client['1'].indexes[':indexName'][':objectID'].$delete(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDelete1IndexesIndexNameObjectIDMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /1/indexes/{indexName}/deleteByQuery
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPost1IndexesIndexNameDeleteByQueryMutationKey() {
+  return ['1', 'POST', '/1/indexes/:indexName/deleteByQuery'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /1/indexes/{indexName}/deleteByQuery
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost1IndexesIndexNameDeleteByQueryMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost1IndexesIndexNameDeleteByQueryMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['deleteByQuery']['$post']>,
+  ) => parseResponse(client['1'].indexes[':indexName'].deleteByQuery.$post(args, clientOptions)),
+})
 
 /**
  * POST /1/indexes/{indexName}/deleteByQuery
@@ -537,32 +738,49 @@ export function useDelete1IndexesIndexNameObjectID(
  *
  * This operation is subject to [indexing rate limits](https://support.algolia.com/hc/articles/4406975251089-Is-there-a-rate-limit-for-indexing-on-Algolia).
  */
-export function usePost1IndexesIndexNameDeleteByQuery(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client)['1']['indexes'][':indexName']['deleteByQuery']['$post']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['indexes'][':indexName']['deleteByQuery']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    | InferResponseType<(typeof client)['1']['indexes'][':indexName']['deleteByQuery']['$post']>
-    | undefined,
+export function usePost1IndexesIndexNameDeleteByQuery(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<(typeof client)['1']['indexes'][':indexName']['deleteByQuery']['$post']>
+          >
+        >
+      >
+    >,
     Error,
     InferRequestType<(typeof client)['1']['indexes'][':indexName']['deleteByQuery']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].indexes[':indexName'].deleteByQuery.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost1IndexesIndexNameDeleteByQueryMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /1/indexes/{indexName}/clear
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPost1IndexesIndexNameClearMutationKey() {
+  return ['1', 'POST', '/1/indexes/:indexName/clear'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /1/indexes/{indexName}/clear
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost1IndexesIndexNameClearMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost1IndexesIndexNameClearMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['clear']['$post']>,
+  ) => parseResponse(client['1'].indexes[':indexName'].clear.$post(args, clientOptions)),
+})
 
 /**
  * POST /1/indexes/{indexName}/clear
@@ -572,31 +790,52 @@ export function usePost1IndexesIndexNameDeleteByQuery(
  * Deletes only the records from an index while keeping settings, synonyms, and rules.
  * This operation is resource-intensive and subject to [indexing rate limits](https://support.algolia.com/hc/articles/4406975251089-Is-there-a-rate-limit-for-indexing-on-Algolia).
  */
-export function usePost1IndexesIndexNameClear(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client)['1']['indexes'][':indexName']['clear']['$post']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['indexes'][':indexName']['clear']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<(typeof client)['1']['indexes'][':indexName']['clear']['$post']> | undefined,
+export function usePost1IndexesIndexNameClear(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName']['clear']['$post']>>
+        >
+      >
+    >,
     Error,
     InferRequestType<(typeof client)['1']['indexes'][':indexName']['clear']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].indexes[':indexName'].clear.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost1IndexesIndexNameClearMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /1/indexes/{indexName}/{objectID}/partial
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPost1IndexesIndexNameObjectIDPartialMutationKey() {
+  return ['1', 'POST', '/1/indexes/:indexName/:objectID/partial'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /1/indexes/{indexName}/{objectID}/partial
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost1IndexesIndexNameObjectIDPartialMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost1IndexesIndexNameObjectIDPartialMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['1']['indexes'][':indexName'][':objectID']['partial']['$post']
+    >,
+  ) =>
+    parseResponse(
+      client['1'].indexes[':indexName'][':objectID'].partial.$post(args, clientOptions),
+    ),
+})
 
 /**
  * POST /1/indexes/{indexName}/{objectID}/partial
@@ -631,40 +870,51 @@ export function usePost1IndexesIndexNameClear(
  *
  * This operation is subject to [indexing rate limits](https://support.algolia.com/hc/articles/4406975251089-Is-there-a-rate-limit-for-indexing-on-Algolia).
  */
-export function usePost1IndexesIndexNameObjectIDPartial(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client)['1']['indexes'][':indexName'][':objectID']['partial']['$post']
+export function usePost1IndexesIndexNameObjectIDPartial(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['1']['indexes'][':indexName'][':objectID']['partial']['$post']
+            >
+          >
         >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['1']['indexes'][':indexName'][':objectID']['partial']['$post']
       >
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    | InferResponseType<
-        (typeof client)['1']['indexes'][':indexName'][':objectID']['partial']['$post']
-      >
-    | undefined,
+    >,
     Error,
     InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['partial']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(
-          client['1'].indexes[':indexName'][':objectID'].partial.$post(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost1IndexesIndexNameObjectIDPartialMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /1/indexes/{indexName}/batch
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPost1IndexesIndexNameBatchMutationKey() {
+  return ['1', 'POST', '/1/indexes/:indexName/batch'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /1/indexes/{indexName}/batch
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost1IndexesIndexNameBatchMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost1IndexesIndexNameBatchMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['batch']['$post']>,
+  ) => parseResponse(client['1'].indexes[':indexName'].batch.$post(args, clientOptions)),
+})
 
 /**
  * POST /1/indexes/{indexName}/batch
@@ -680,31 +930,45 @@ export function usePost1IndexesIndexNameObjectIDPartial(
  *
  * This operation is subject to [indexing rate limits](https://support.algolia.com/hc/articles/4406975251089-Is-there-a-rate-limit-for-indexing-on-Algolia).
  */
-export function usePost1IndexesIndexNameBatch(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client)['1']['indexes'][':indexName']['batch']['$post']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['indexes'][':indexName']['batch']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<(typeof client)['1']['indexes'][':indexName']['batch']['$post']> | undefined,
+export function usePost1IndexesIndexNameBatch(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName']['batch']['$post']>>
+        >
+      >
+    >,
     Error,
     InferRequestType<(typeof client)['1']['indexes'][':indexName']['batch']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].indexes[':indexName'].batch.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost1IndexesIndexNameBatchMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /1/indexes/* /batch
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPost1IndexesBatchMutationKey() {
+  return ['1', 'POST', '/1/indexes/*/batch'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /1/indexes/* /batch
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost1IndexesBatchMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPost1IndexesBatchMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client)['1']['indexes']['*']['batch']['$post']>,
+  ) => parseResponse(client['1'].indexes['*'].batch.$post(args, clientOptions)),
+})
 
 /**
  * POST /1/indexes/[*]/batch
@@ -718,30 +982,45 @@ export function usePost1IndexesIndexNameBatch(
  *
  * This operation is subject to [indexing rate limits](https://support.algolia.com/hc/articles/4406975251089-Is-there-a-rate-limit-for-indexing-on-Algolia).
  */
-export function usePost1IndexesBatch(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['1']['indexes']['*']['batch']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['indexes']['*']['batch']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<(typeof client)['1']['indexes']['*']['batch']['$post']> | undefined,
+export function usePost1IndexesBatch(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['indexes']['*']['batch']['$post']>>
+        >
+      >
+    >,
     Error,
     InferRequestType<(typeof client)['1']['indexes']['*']['batch']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].indexes['*'].batch.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost1IndexesBatchMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /1/indexes/* /objects
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPost1IndexesObjectsMutationKey() {
+  return ['1', 'POST', '/1/indexes/*/objects'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /1/indexes/* /objects
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost1IndexesObjectsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPost1IndexesObjectsMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client)['1']['indexes']['*']['objects']['$post']>,
+  ) => parseResponse(client['1'].indexes['*'].objects.$post(args, clientOptions)),
+})
 
 /**
  * POST /1/indexes/[*]/objects
@@ -752,30 +1031,54 @@ export function usePost1IndexesBatch(
  *
  * Records are returned in the same order as the requests.
  */
-export function usePost1IndexesObjects(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['1']['indexes']['*']['objects']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['indexes']['*']['objects']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<(typeof client)['1']['indexes']['*']['objects']['$post']> | undefined,
+export function usePost1IndexesObjects(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['indexes']['*']['objects']['$post']>>
+        >
+      >
+    >,
     Error,
     InferRequestType<(typeof client)['1']['indexes']['*']['objects']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].indexes['*'].objects.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost1IndexesObjectsMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query cache key for GET /1/indexes/{indexName}/settings
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGet1IndexesIndexNameSettingsQueryKey(
+  args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['settings']['$get']>,
+) {
+  return ['1', 'GET', '/1/indexes/:indexName/settings', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /1/indexes/{indexName}/settings
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet1IndexesIndexNameSettingsQueryOptions = (
+  args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['settings']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet1IndexesIndexNameSettingsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['1'].indexes[':indexName'].settings.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /1/indexes/{indexName}/settings
@@ -788,40 +1091,47 @@ export function useGet1IndexesIndexNameSettings(
   args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['settings']['$get']>,
   options?: {
     query?: UseQueryOptions<
-      InferResponseType<(typeof client)['1']['indexes'][':indexName']['settings']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['1']['indexes'][':indexName']['settings']['$get']>,
-      readonly [
-        '/1/indexes/:indexName/settings',
-        InferRequestType<(typeof client)['1']['indexes'][':indexName']['settings']['$get']>,
-      ]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName']['settings']['$get']>>
+          >
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGet1IndexesIndexNameSettingsQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client['1'].indexes[':indexName'].settings.$get(args, clientOptions)),
-    },
-    queryClient,
+  const { queryKey, queryFn, ...baseOptions } = getGet1IndexesIndexNameSettingsQueryOptions(
+    args,
+    clientOptions,
   )
-  return { ...query, queryKey }
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /1/indexes/{indexName}/settings
+ * Generates TanStack Query mutation key for PUT /1/indexes/{indexName}/settings
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet1IndexesIndexNameSettingsQueryKey(
-  args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['settings']['$get']>,
-) {
-  return ['/1/indexes/:indexName/settings', args] as const
+export function getPut1IndexesIndexNameSettingsMutationKey() {
+  return ['1', 'PUT', '/1/indexes/:indexName/settings'] as const
 }
+
+/**
+ * Returns TanStack Query mutation options for PUT /1/indexes/{indexName}/settings
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPut1IndexesIndexNameSettingsMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPut1IndexesIndexNameSettingsMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['settings']['$put']>,
+  ) => parseResponse(client['1'].indexes[':indexName'].settings.$put(args, clientOptions)),
+})
 
 /**
  * PUT /1/indexes/{indexName}/settings
@@ -835,32 +1145,58 @@ export function getGet1IndexesIndexNameSettingsQueryKey(
  *
  * For best performance, update the index settings before you add new records to your index.
  */
-export function usePut1IndexesIndexNameSettings(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client)['1']['indexes'][':indexName']['settings']['$put']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['indexes'][':indexName']['settings']['$put']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    | InferResponseType<(typeof client)['1']['indexes'][':indexName']['settings']['$put']>
-    | undefined,
+export function usePut1IndexesIndexNameSettings(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName']['settings']['$put']>>
+        >
+      >
+    >,
     Error,
     InferRequestType<(typeof client)['1']['indexes'][':indexName']['settings']['$put']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].indexes[':indexName'].settings.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPut1IndexesIndexNameSettingsMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query cache key for GET /1/indexes/{indexName}/synonyms/{objectID}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGet1IndexesIndexNameSynonymsObjectIDQueryKey(
+  args: InferRequestType<
+    (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$get']
+  >,
+) {
+  return ['1', 'GET', '/1/indexes/:indexName/synonyms/:objectID', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /1/indexes/{indexName}/synonyms/{objectID}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet1IndexesIndexNameSynonymsObjectIDQueryOptions = (
+  args: InferRequestType<
+    (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$get']
+  >,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet1IndexesIndexNameSynonymsObjectIDQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['1'].indexes[':indexName'].synonyms[':objectID'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /1/indexes/{indexName}/synonyms/{objectID}
@@ -877,50 +1213,56 @@ export function useGet1IndexesIndexNameSynonymsObjectID(
   >,
   options?: {
     query?: UseQueryOptions<
-      InferResponseType<
-        (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$get']
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$get']
+              >
+            >
+          >
+        >
       >,
-      Error,
-      InferResponseType<
-        (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$get']
-      >,
-      readonly [
-        '/1/indexes/:indexName/synonyms/:objectID',
-        InferRequestType<
-          (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$get']
-        >,
-      ]
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGet1IndexesIndexNameSynonymsObjectIDQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(
-          client['1'].indexes[':indexName'].synonyms[':objectID'].$get(args, clientOptions),
-        ),
-    },
-    queryClient,
+  const { queryKey, queryFn, ...baseOptions } = getGet1IndexesIndexNameSynonymsObjectIDQueryOptions(
+    args,
+    clientOptions,
   )
-  return { ...query, queryKey }
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /1/indexes/{indexName}/synonyms/{objectID}
+ * Generates TanStack Query mutation key for PUT /1/indexes/{indexName}/synonyms/{objectID}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet1IndexesIndexNameSynonymsObjectIDQueryKey(
-  args: InferRequestType<
-    (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$get']
-  >,
-) {
-  return ['/1/indexes/:indexName/synonyms/:objectID', args] as const
+export function getPut1IndexesIndexNameSynonymsObjectIDMutationKey() {
+  return ['1', 'PUT', '/1/indexes/:indexName/synonyms/:objectID'] as const
 }
+
+/**
+ * Returns TanStack Query mutation options for PUT /1/indexes/{indexName}/synonyms/{objectID}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPut1IndexesIndexNameSynonymsObjectIDMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPut1IndexesIndexNameSynonymsObjectIDMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$put']
+    >,
+  ) =>
+    parseResponse(
+      client['1'].indexes[':indexName'].synonyms[':objectID'].$put(args, clientOptions),
+    ),
+})
 
 /**
  * PUT /1/indexes/{indexName}/synonyms/{objectID}
@@ -931,40 +1273,56 @@ export function getGet1IndexesIndexNameSynonymsObjectIDQueryKey(
  * Otherwise, the existing synonym is replaced.
  * To add multiple synonyms in a single API request, use the [`batch` operation](https://www.algolia.com/doc/rest-api/search/save-synonyms).
  */
-export function usePut1IndexesIndexNameSynonymsObjectID(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$put']
+export function usePut1IndexesIndexNameSynonymsObjectID(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$put']
+            >
+          >
         >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$put']
       >
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    | InferResponseType<
-        (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$put']
-      >
-    | undefined,
+    >,
     Error,
     InferRequestType<(typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$put']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(
-          client['1'].indexes[':indexName'].synonyms[':objectID'].$put(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPut1IndexesIndexNameSynonymsObjectIDMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for DELETE /1/indexes/{indexName}/synonyms/{objectID}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getDelete1IndexesIndexNameSynonymsObjectIDMutationKey() {
+  return ['1', 'DELETE', '/1/indexes/:indexName/synonyms/:objectID'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for DELETE /1/indexes/{indexName}/synonyms/{objectID}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDelete1IndexesIndexNameSynonymsObjectIDMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDelete1IndexesIndexNameSynonymsObjectIDMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$delete']
+    >,
+  ) =>
+    parseResponse(
+      client['1'].indexes[':indexName'].synonyms[':objectID'].$delete(args, clientOptions),
+    ),
+})
 
 /**
  * DELETE /1/indexes/{indexName}/synonyms/{objectID}
@@ -974,42 +1332,55 @@ export function usePut1IndexesIndexNameSynonymsObjectID(
  * Deletes a synonym by its ID.
  * To find the object IDs of your synonyms, use the [`search` operation](https://www.algolia.com/doc/rest-api/search/search-synonyms).
  */
-export function useDelete1IndexesIndexNameSynonymsObjectID(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$delete']
+export function useDelete1IndexesIndexNameSynonymsObjectID(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$delete']
+            >
+          >
         >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$delete']
       >
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    | InferResponseType<
-        (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$delete']
-      >
-    | undefined,
+    >,
     Error,
     InferRequestType<
       (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$delete']
     >
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(
-          client['1'].indexes[':indexName'].synonyms[':objectID'].$delete(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDelete1IndexesIndexNameSynonymsObjectIDMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /1/indexes/{indexName}/synonyms/batch
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPost1IndexesIndexNameSynonymsBatchMutationKey() {
+  return ['1', 'POST', '/1/indexes/:indexName/synonyms/batch'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /1/indexes/{indexName}/synonyms/batch
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost1IndexesIndexNameSynonymsBatchMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost1IndexesIndexNameSynonymsBatchMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['1']['indexes'][':indexName']['synonyms']['batch']['$post']
+    >,
+  ) => parseResponse(client['1'].indexes[':indexName'].synonyms.batch.$post(args, clientOptions)),
+})
 
 /**
  * POST /1/indexes/{indexName}/synonyms/batch
@@ -1021,36 +1392,51 @@ export function useDelete1IndexesIndexNameSynonymsObjectID(
  *
  * This operation is subject to [indexing rate limits](https://support.algolia.com/hc/articles/4406975251089-Is-there-a-rate-limit-for-indexing-on-Algolia).
  */
-export function usePost1IndexesIndexNameSynonymsBatch(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client)['1']['indexes'][':indexName']['synonyms']['batch']['$post']
+export function usePost1IndexesIndexNameSynonymsBatch(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<(typeof client)['1']['indexes'][':indexName']['synonyms']['batch']['$post']>
+          >
         >
-      | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['indexes'][':indexName']['synonyms']['batch']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    | InferResponseType<(typeof client)['1']['indexes'][':indexName']['synonyms']['batch']['$post']>
-    | undefined,
+      >
+    >,
     Error,
     InferRequestType<(typeof client)['1']['indexes'][':indexName']['synonyms']['batch']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(
-          client['1'].indexes[':indexName'].synonyms.batch.$post(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost1IndexesIndexNameSynonymsBatchMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /1/indexes/{indexName}/synonyms/clear
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPost1IndexesIndexNameSynonymsClearMutationKey() {
+  return ['1', 'POST', '/1/indexes/:indexName/synonyms/clear'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /1/indexes/{indexName}/synonyms/clear
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost1IndexesIndexNameSynonymsClearMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost1IndexesIndexNameSynonymsClearMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['1']['indexes'][':indexName']['synonyms']['clear']['$post']
+    >,
+  ) => parseResponse(client['1'].indexes[':indexName'].synonyms.clear.$post(args, clientOptions)),
+})
 
 /**
  * POST /1/indexes/{indexName}/synonyms/clear
@@ -1059,36 +1445,51 @@ export function usePost1IndexesIndexNameSynonymsBatch(
  *
  * Deletes all synonyms from the index.
  */
-export function usePost1IndexesIndexNameSynonymsClear(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client)['1']['indexes'][':indexName']['synonyms']['clear']['$post']
+export function usePost1IndexesIndexNameSynonymsClear(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<(typeof client)['1']['indexes'][':indexName']['synonyms']['clear']['$post']>
+          >
         >
-      | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['indexes'][':indexName']['synonyms']['clear']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    | InferResponseType<(typeof client)['1']['indexes'][':indexName']['synonyms']['clear']['$post']>
-    | undefined,
+      >
+    >,
     Error,
     InferRequestType<(typeof client)['1']['indexes'][':indexName']['synonyms']['clear']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(
-          client['1'].indexes[':indexName'].synonyms.clear.$post(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost1IndexesIndexNameSynonymsClearMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /1/indexes/{indexName}/synonyms/search
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPost1IndexesIndexNameSynonymsSearchMutationKey() {
+  return ['1', 'POST', '/1/indexes/:indexName/synonyms/search'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /1/indexes/{indexName}/synonyms/search
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost1IndexesIndexNameSynonymsSearchMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost1IndexesIndexNameSynonymsSearchMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['1']['indexes'][':indexName']['synonyms']['search']['$post']
+    >,
+  ) => parseResponse(client['1'].indexes[':indexName'].synonyms.search.$post(args, clientOptions)),
+})
 
 /**
  * POST /1/indexes/{indexName}/synonyms/search
@@ -1097,38 +1498,51 @@ export function usePost1IndexesIndexNameSynonymsClear(
  *
  * Searches for synonyms in your index.
  */
-export function usePost1IndexesIndexNameSynonymsSearch(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client)['1']['indexes'][':indexName']['synonyms']['search']['$post']
+export function usePost1IndexesIndexNameSynonymsSearch(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<(typeof client)['1']['indexes'][':indexName']['synonyms']['search']['$post']>
+          >
         >
-      | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['indexes'][':indexName']['synonyms']['search']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    | InferResponseType<
-        (typeof client)['1']['indexes'][':indexName']['synonyms']['search']['$post']
       >
-    | undefined,
+    >,
     Error,
     InferRequestType<(typeof client)['1']['indexes'][':indexName']['synonyms']['search']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(
-          client['1'].indexes[':indexName'].synonyms.search.$post(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost1IndexesIndexNameSynonymsSearchMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query cache key for GET /1/keys
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGet1KeysQueryKey() {
+  return ['1', 'GET', '/1/keys'] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /1/keys
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet1KeysQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGet1KeysQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['1'].keys.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /1/keys
@@ -1137,37 +1551,38 @@ export function usePost1IndexesIndexNameSynonymsSearch(
  *
  * Lists all API keys associated with your Algolia application, including their permissions and restrictions.
  */
-export function useGet1Keys(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client)['1']['keys']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['1']['keys']['$get']>,
-      readonly ['/1/keys']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGet1Keys(options?: {
+  query?: UseQueryOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['1']['keys']['$get']>>>>
+    >,
+    Error
+  >
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGet1KeysQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client['1'].keys.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  const { queryKey, queryFn, ...baseOptions } = getGet1KeysQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /1/keys
+ * Generates TanStack Query mutation key for POST /1/keys
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet1KeysQueryKey() {
-  return ['/1/keys'] as const
+export function getPost1KeysMutationKey() {
+  return ['1', 'POST', '/1/keys'] as const
 }
+
+/**
+ * Returns TanStack Query mutation options for POST /1/keys
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost1KeysMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPost1KeysMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client)['1']['keys']['$post']>) =>
+    parseResponse(client['1'].keys.$post(args, clientOptions)),
+})
 
 /**
  * POST /1/keys
@@ -1176,29 +1591,49 @@ export function getGet1KeysQueryKey() {
  *
  * Creates a new API key with specific permissions and restrictions.
  */
-export function usePost1Keys(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['1']['keys']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['keys']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<(typeof client)['1']['keys']['$post']> | undefined,
+export function usePost1Keys(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['1']['keys']['$post']>>>>
+    >,
     Error,
     InferRequestType<(typeof client)['1']['keys']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client['1'].keys.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } = getPost1KeysMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query cache key for GET /1/keys/{key}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGet1KeysKeyQueryKey(
+  args: InferRequestType<(typeof client)['1']['keys'][':key']['$get']>,
+) {
+  return ['1', 'GET', '/1/keys/:key', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /1/keys/{key}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet1KeysKeyQueryOptions = (
+  args: InferRequestType<(typeof client)['1']['keys'][':key']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet1KeysKeyQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['1'].keys[':key'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /1/keys/{key}
@@ -1215,36 +1650,39 @@ export function useGet1KeysKey(
   args: InferRequestType<(typeof client)['1']['keys'][':key']['$get']>,
   options?: {
     query?: UseQueryOptions<
-      InferResponseType<(typeof client)['1']['keys'][':key']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['1']['keys'][':key']['$get']>,
-      readonly ['/1/keys/:key', InferRequestType<(typeof client)['1']['keys'][':key']['$get']>]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client)['1']['keys'][':key']['$get']>>>
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGet1KeysKeyQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client['1'].keys[':key'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  const { queryKey, queryFn, ...baseOptions } = getGet1KeysKeyQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /1/keys/{key}
+ * Generates TanStack Query mutation key for PUT /1/keys/{key}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet1KeysKeyQueryKey(
-  args: InferRequestType<(typeof client)['1']['keys'][':key']['$get']>,
-) {
-  return ['/1/keys/:key', args] as const
+export function getPut1KeysKeyMutationKey() {
+  return ['1', 'PUT', '/1/keys/:key'] as const
 }
+
+/**
+ * Returns TanStack Query mutation options for PUT /1/keys/{key}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPut1KeysKeyMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPut1KeysKeyMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client)['1']['keys'][':key']['$put']>) =>
+    parseResponse(client['1'].keys[':key'].$put(args, clientOptions)),
+})
 
 /**
  * PUT /1/keys/{key}
@@ -1255,30 +1693,41 @@ export function getGet1KeysKeyQueryKey(
  *
  * Any unspecified attribute resets that attribute to its default value.
  */
-export function usePut1KeysKey(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['1']['keys'][':key']['$put']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['keys'][':key']['$put']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<(typeof client)['1']['keys'][':key']['$put']> | undefined,
+export function usePut1KeysKey(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client)['1']['keys'][':key']['$put']>>>
+      >
+    >,
     Error,
     InferRequestType<(typeof client)['1']['keys'][':key']['$put']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].keys[':key'].$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } = getPut1KeysKeyMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for DELETE /1/keys/{key}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getDelete1KeysKeyMutationKey() {
+  return ['1', 'DELETE', '/1/keys/:key'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for DELETE /1/keys/{key}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDelete1KeysKeyMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getDelete1KeysKeyMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client)['1']['keys'][':key']['$delete']>) =>
+    parseResponse(client['1'].keys[':key'].$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /1/keys/{key}
@@ -1287,30 +1736,43 @@ export function usePut1KeysKey(
  *
  * Deletes the API key.
  */
-export function useDelete1KeysKey(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['1']['keys'][':key']['$delete']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['keys'][':key']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<(typeof client)['1']['keys'][':key']['$delete']> | undefined,
+export function useDelete1KeysKey(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client)['1']['keys'][':key']['$delete']>>>
+      >
+    >,
     Error,
     InferRequestType<(typeof client)['1']['keys'][':key']['$delete']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].keys[':key'].$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDelete1KeysKeyMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /1/keys/{key}/restore
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPost1KeysKeyRestoreMutationKey() {
+  return ['1', 'POST', '/1/keys/:key/restore'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /1/keys/{key}/restore
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost1KeysKeyRestoreMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPost1KeysKeyRestoreMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client)['1']['keys'][':key']['restore']['$post']>,
+  ) => parseResponse(client['1'].keys[':key'].restore.$post(args, clientOptions)),
+})
 
 /**
  * POST /1/keys/{key}/restore
@@ -1324,30 +1786,58 @@ export function useDelete1KeysKey(
  * Algolia stores up to 1,000 API keys per application.
  * If you create more, the oldest API keys are deleted and can't be restored.
  */
-export function usePost1KeysKeyRestore(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['1']['keys'][':key']['restore']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['keys'][':key']['restore']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<(typeof client)['1']['keys'][':key']['restore']['$post']> | undefined,
+export function usePost1KeysKeyRestore(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['keys'][':key']['restore']['$post']>>
+        >
+      >
+    >,
     Error,
     InferRequestType<(typeof client)['1']['keys'][':key']['restore']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].keys[':key'].restore.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost1KeysKeyRestoreMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query cache key for GET /1/indexes/{indexName}/rules/{objectID}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGet1IndexesIndexNameRulesObjectIDQueryKey(
+  args: InferRequestType<
+    (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$get']
+  >,
+) {
+  return ['1', 'GET', '/1/indexes/:indexName/rules/:objectID', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /1/indexes/{indexName}/rules/{objectID}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet1IndexesIndexNameRulesObjectIDQueryOptions = (
+  args: InferRequestType<
+    (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$get']
+  >,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet1IndexesIndexNameRulesObjectIDQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['1'].indexes[':indexName'].rules[':objectID'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /1/indexes/{indexName}/rules/{objectID}
@@ -1363,50 +1853,54 @@ export function useGet1IndexesIndexNameRulesObjectID(
   >,
   options?: {
     query?: UseQueryOptions<
-      InferResponseType<
-        (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$get']
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$get']
+              >
+            >
+          >
+        >
       >,
-      Error,
-      InferResponseType<
-        (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$get']
-      >,
-      readonly [
-        '/1/indexes/:indexName/rules/:objectID',
-        InferRequestType<
-          (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$get']
-        >,
-      ]
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGet1IndexesIndexNameRulesObjectIDQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(
-          client['1'].indexes[':indexName'].rules[':objectID'].$get(args, clientOptions),
-        ),
-    },
-    queryClient,
+  const { queryKey, queryFn, ...baseOptions } = getGet1IndexesIndexNameRulesObjectIDQueryOptions(
+    args,
+    clientOptions,
   )
-  return { ...query, queryKey }
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /1/indexes/{indexName}/rules/{objectID}
+ * Generates TanStack Query mutation key for PUT /1/indexes/{indexName}/rules/{objectID}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet1IndexesIndexNameRulesObjectIDQueryKey(
-  args: InferRequestType<
-    (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$get']
-  >,
-) {
-  return ['/1/indexes/:indexName/rules/:objectID', args] as const
+export function getPut1IndexesIndexNameRulesObjectIDMutationKey() {
+  return ['1', 'PUT', '/1/indexes/:indexName/rules/:objectID'] as const
 }
+
+/**
+ * Returns TanStack Query mutation options for PUT /1/indexes/{indexName}/rules/{objectID}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPut1IndexesIndexNameRulesObjectIDMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPut1IndexesIndexNameRulesObjectIDMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$put']
+    >,
+  ) =>
+    parseResponse(client['1'].indexes[':indexName'].rules[':objectID'].$put(args, clientOptions)),
+})
 
 /**
  * PUT /1/indexes/{indexName}/rules/{objectID}
@@ -1418,36 +1912,54 @@ export function getGet1IndexesIndexNameRulesObjectIDQueryKey(
  *
  * To create or update more than one rule, use the [`batch` operation](https://www.algolia.com/doc/rest-api/search/save-rules).
  */
-export function usePut1IndexesIndexNameRulesObjectID(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$put']
+export function usePut1IndexesIndexNameRulesObjectID(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<(typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$put']>
+          >
         >
-      | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$put']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    | InferResponseType<(typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$put']>
-    | undefined,
+      >
+    >,
     Error,
     InferRequestType<(typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$put']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(
-          client['1'].indexes[':indexName'].rules[':objectID'].$put(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPut1IndexesIndexNameRulesObjectIDMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for DELETE /1/indexes/{indexName}/rules/{objectID}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getDelete1IndexesIndexNameRulesObjectIDMutationKey() {
+  return ['1', 'DELETE', '/1/indexes/:indexName/rules/:objectID'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for DELETE /1/indexes/{indexName}/rules/{objectID}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDelete1IndexesIndexNameRulesObjectIDMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDelete1IndexesIndexNameRulesObjectIDMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$delete']
+    >,
+  ) =>
+    parseResponse(
+      client['1'].indexes[':indexName'].rules[':objectID'].$delete(args, clientOptions),
+    ),
+})
 
 /**
  * DELETE /1/indexes/{indexName}/rules/{objectID}
@@ -1458,40 +1970,53 @@ export function usePut1IndexesIndexNameRulesObjectID(
  * To find the object ID for rules,
  * use the [`search` operation](https://www.algolia.com/doc/rest-api/search/search-rules).
  */
-export function useDelete1IndexesIndexNameRulesObjectID(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$delete']
+export function useDelete1IndexesIndexNameRulesObjectID(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$delete']
+            >
+          >
         >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$delete']
       >
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    | InferResponseType<
-        (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$delete']
-      >
-    | undefined,
+    >,
     Error,
     InferRequestType<(typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$delete']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(
-          client['1'].indexes[':indexName'].rules[':objectID'].$delete(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDelete1IndexesIndexNameRulesObjectIDMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /1/indexes/{indexName}/rules/batch
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPost1IndexesIndexNameRulesBatchMutationKey() {
+  return ['1', 'POST', '/1/indexes/:indexName/rules/batch'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /1/indexes/{indexName}/rules/batch
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost1IndexesIndexNameRulesBatchMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost1IndexesIndexNameRulesBatchMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['1']['indexes'][':indexName']['rules']['batch']['$post']
+    >,
+  ) => parseResponse(client['1'].indexes[':indexName'].rules.batch.$post(args, clientOptions)),
+})
 
 /**
  * POST /1/indexes/{indexName}/rules/batch
@@ -1505,32 +2030,51 @@ export function useDelete1IndexesIndexNameRulesObjectID(
  *
  * This operation is subject to [indexing rate limits](https://support.algolia.com/hc/articles/4406975251089-Is-there-a-rate-limit-for-indexing-on-Algolia).
  */
-export function usePost1IndexesIndexNameRulesBatch(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client)['1']['indexes'][':indexName']['rules']['batch']['$post']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['indexes'][':indexName']['rules']['batch']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    | InferResponseType<(typeof client)['1']['indexes'][':indexName']['rules']['batch']['$post']>
-    | undefined,
+export function usePost1IndexesIndexNameRulesBatch(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<(typeof client)['1']['indexes'][':indexName']['rules']['batch']['$post']>
+          >
+        >
+      >
+    >,
     Error,
     InferRequestType<(typeof client)['1']['indexes'][':indexName']['rules']['batch']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].indexes[':indexName'].rules.batch.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost1IndexesIndexNameRulesBatchMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /1/indexes/{indexName}/rules/clear
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPost1IndexesIndexNameRulesClearMutationKey() {
+  return ['1', 'POST', '/1/indexes/:indexName/rules/clear'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /1/indexes/{indexName}/rules/clear
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost1IndexesIndexNameRulesClearMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost1IndexesIndexNameRulesClearMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['1']['indexes'][':indexName']['rules']['clear']['$post']
+    >,
+  ) => parseResponse(client['1'].indexes[':indexName'].rules.clear.$post(args, clientOptions)),
+})
 
 /**
  * POST /1/indexes/{indexName}/rules/clear
@@ -1539,32 +2083,51 @@ export function usePost1IndexesIndexNameRulesBatch(
  *
  * Deletes all rules from the index.
  */
-export function usePost1IndexesIndexNameRulesClear(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client)['1']['indexes'][':indexName']['rules']['clear']['$post']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['indexes'][':indexName']['rules']['clear']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    | InferResponseType<(typeof client)['1']['indexes'][':indexName']['rules']['clear']['$post']>
-    | undefined,
+export function usePost1IndexesIndexNameRulesClear(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<(typeof client)['1']['indexes'][':indexName']['rules']['clear']['$post']>
+          >
+        >
+      >
+    >,
     Error,
     InferRequestType<(typeof client)['1']['indexes'][':indexName']['rules']['clear']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].indexes[':indexName'].rules.clear.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost1IndexesIndexNameRulesClearMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /1/indexes/{indexName}/rules/search
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPost1IndexesIndexNameRulesSearchMutationKey() {
+  return ['1', 'POST', '/1/indexes/:indexName/rules/search'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /1/indexes/{indexName}/rules/search
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost1IndexesIndexNameRulesSearchMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost1IndexesIndexNameRulesSearchMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['1']['indexes'][':indexName']['rules']['search']['$post']
+    >,
+  ) => parseResponse(client['1'].indexes[':indexName'].rules.search.$post(args, clientOptions)),
+})
 
 /**
  * POST /1/indexes/{indexName}/rules/search
@@ -1573,32 +2136,51 @@ export function usePost1IndexesIndexNameRulesClear(
  *
  * Searches for rules in your index.
  */
-export function usePost1IndexesIndexNameRulesSearch(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client)['1']['indexes'][':indexName']['rules']['search']['$post']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['indexes'][':indexName']['rules']['search']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    | InferResponseType<(typeof client)['1']['indexes'][':indexName']['rules']['search']['$post']>
-    | undefined,
+export function usePost1IndexesIndexNameRulesSearch(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<(typeof client)['1']['indexes'][':indexName']['rules']['search']['$post']>
+          >
+        >
+      >
+    >,
     Error,
     InferRequestType<(typeof client)['1']['indexes'][':indexName']['rules']['search']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].indexes[':indexName'].rules.search.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost1IndexesIndexNameRulesSearchMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /1/dictionaries/{dictionaryName}/batch
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPost1DictionariesDictionaryNameBatchMutationKey() {
+  return ['1', 'POST', '/1/dictionaries/:dictionaryName/batch'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /1/dictionaries/{dictionaryName}/batch
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost1DictionariesDictionaryNameBatchMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost1DictionariesDictionaryNameBatchMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['1']['dictionaries'][':dictionaryName']['batch']['$post']
+    >,
+  ) => parseResponse(client['1'].dictionaries[':dictionaryName'].batch.$post(args, clientOptions)),
+})
 
 /**
  * POST /1/dictionaries/{dictionaryName}/batch
@@ -1607,34 +2189,51 @@ export function usePost1IndexesIndexNameRulesSearch(
  *
  * Adds or deletes multiple entries from your plurals, segmentation, or stop word dictionaries.
  */
-export function usePost1DictionariesDictionaryNameBatch(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client)['1']['dictionaries'][':dictionaryName']['batch']['$post']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['dictionaries'][':dictionaryName']['batch']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    | InferResponseType<(typeof client)['1']['dictionaries'][':dictionaryName']['batch']['$post']>
-    | undefined,
+export function usePost1DictionariesDictionaryNameBatch(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<(typeof client)['1']['dictionaries'][':dictionaryName']['batch']['$post']>
+          >
+        >
+      >
+    >,
     Error,
     InferRequestType<(typeof client)['1']['dictionaries'][':dictionaryName']['batch']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(
-          client['1'].dictionaries[':dictionaryName'].batch.$post(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost1DictionariesDictionaryNameBatchMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /1/dictionaries/{dictionaryName}/search
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPost1DictionariesDictionaryNameSearchMutationKey() {
+  return ['1', 'POST', '/1/dictionaries/:dictionaryName/search'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /1/dictionaries/{dictionaryName}/search
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost1DictionariesDictionaryNameSearchMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost1DictionariesDictionaryNameSearchMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['1']['dictionaries'][':dictionaryName']['search']['$post']
+    >,
+  ) => parseResponse(client['1'].dictionaries[':dictionaryName'].search.$post(args, clientOptions)),
+})
 
 /**
  * POST /1/dictionaries/{dictionaryName}/search
@@ -1643,36 +2242,51 @@ export function usePost1DictionariesDictionaryNameBatch(
  *
  * Searches for standard and custom dictionary entries.
  */
-export function usePost1DictionariesDictionaryNameSearch(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client)['1']['dictionaries'][':dictionaryName']['search']['$post']
+export function usePost1DictionariesDictionaryNameSearch(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<(typeof client)['1']['dictionaries'][':dictionaryName']['search']['$post']>
+          >
         >
-      | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['dictionaries'][':dictionaryName']['search']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    | InferResponseType<(typeof client)['1']['dictionaries'][':dictionaryName']['search']['$post']>
-    | undefined,
+      >
+    >,
     Error,
     InferRequestType<(typeof client)['1']['dictionaries'][':dictionaryName']['search']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(
-          client['1'].dictionaries[':dictionaryName'].search.$post(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost1DictionariesDictionaryNameSearchMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query cache key for GET /1/dictionaries/* /settings
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGet1DictionariesSettingsQueryKey() {
+  return ['1', 'GET', '/1/dictionaries/*/settings'] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /1/dictionaries/* /settings
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet1DictionariesSettingsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGet1DictionariesSettingsQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['1'].dictionaries['*'].settings.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /1/dictionaries/[*]/settings
@@ -1681,38 +2295,46 @@ export function usePost1DictionariesDictionaryNameSearch(
  *
  * Retrieves the languages for which standard dictionary entries are turned off.
  */
-export function useGet1DictionariesSettings(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client)['1']['dictionaries']['*']['settings']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['1']['dictionaries']['*']['settings']['$get']>,
-      readonly ['/1/dictionaries/*/settings']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGet1DictionariesSettings(options?: {
+  query?: UseQueryOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['dictionaries']['*']['settings']['$get']>>
+        >
+      >
+    >,
+    Error
+  >
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGet1DictionariesSettingsQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client['1'].dictionaries['*'].settings.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet1DictionariesSettingsQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /1/dictionaries/[*]/settings
+ * Generates TanStack Query mutation key for PUT /1/dictionaries/* /settings
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet1DictionariesSettingsQueryKey() {
-  return ['/1/dictionaries/*/settings'] as const
+export function getPut1DictionariesSettingsMutationKey() {
+  return ['1', 'PUT', '/1/dictionaries/*/settings'] as const
 }
+
+/**
+ * Returns TanStack Query mutation options for PUT /1/dictionaries/* /settings
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPut1DictionariesSettingsMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPut1DictionariesSettingsMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client)['1']['dictionaries']['*']['settings']['$put']>,
+  ) => parseResponse(client['1'].dictionaries['*'].settings.$put(args, clientOptions)),
+})
 
 /**
  * PUT /1/dictionaries/[*]/settings
@@ -1721,30 +2343,49 @@ export function getGet1DictionariesSettingsQueryKey() {
  *
  * Turns standard stop word dictionary entries on or off for a given language.
  */
-export function usePut1DictionariesSettings(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['1']['dictionaries']['*']['settings']['$put']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['dictionaries']['*']['settings']['$put']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<(typeof client)['1']['dictionaries']['*']['settings']['$put']> | undefined,
+export function usePut1DictionariesSettings(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['dictionaries']['*']['settings']['$put']>>
+        >
+      >
+    >,
     Error,
     InferRequestType<(typeof client)['1']['dictionaries']['*']['settings']['$put']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].dictionaries['*'].settings.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPut1DictionariesSettingsMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query cache key for GET /1/dictionaries/* /languages
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGet1DictionariesLanguagesQueryKey() {
+  return ['1', 'GET', '/1/dictionaries/*/languages'] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /1/dictionaries/* /languages
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet1DictionariesLanguagesQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGet1DictionariesLanguagesQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['1'].dictionaries['*'].languages.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /1/dictionaries/[*]/languages
@@ -1753,38 +2394,53 @@ export function usePut1DictionariesSettings(
  *
  * Lists supported languages with their supported dictionary types and number of custom entries.
  */
-export function useGet1DictionariesLanguages(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client)['1']['dictionaries']['*']['languages']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['1']['dictionaries']['*']['languages']['$get']>,
-      readonly ['/1/dictionaries/*/languages']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGet1DictionariesLanguages(options?: {
+  query?: UseQueryOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['dictionaries']['*']['languages']['$get']>>
+        >
+      >
+    >,
+    Error
+  >
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGet1DictionariesLanguagesQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client['1'].dictionaries['*'].languages.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet1DictionariesLanguagesQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /1/dictionaries/[*]/languages
+ * Generates TanStack Query cache key for GET /1/clusters/mapping
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGet1DictionariesLanguagesQueryKey() {
-  return ['/1/dictionaries/*/languages'] as const
+export function getGet1ClustersMappingQueryKey(
+  args: InferRequestType<(typeof client)['1']['clusters']['mapping']['$get']>,
+) {
+  return ['1', 'GET', '/1/clusters/mapping', args] as const
 }
+
+/**
+ * Returns TanStack Query query options for GET /1/clusters/mapping
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet1ClustersMappingQueryOptions = (
+  args: InferRequestType<(typeof client)['1']['clusters']['mapping']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet1ClustersMappingQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['1'].clusters.mapping.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /1/clusters/mapping
@@ -1800,39 +2456,45 @@ export function useGet1ClustersMapping(
   args: InferRequestType<(typeof client)['1']['clusters']['mapping']['$get']>,
   options?: {
     query?: UseQueryOptions<
-      InferResponseType<(typeof client)['1']['clusters']['mapping']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['1']['clusters']['mapping']['$get']>,
-      readonly [
-        '/1/clusters/mapping',
-        InferRequestType<(typeof client)['1']['clusters']['mapping']['$get']>,
-      ]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['1']['clusters']['mapping']['$get']>>
+          >
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGet1ClustersMappingQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client['1'].clusters.mapping.$get(args, clientOptions)),
-    },
-    queryClient,
+  const { queryKey, queryFn, ...baseOptions } = getGet1ClustersMappingQueryOptions(
+    args,
+    clientOptions,
   )
-  return { ...query, queryKey }
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /1/clusters/mapping
+ * Generates TanStack Query mutation key for POST /1/clusters/mapping
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet1ClustersMappingQueryKey(
-  args: InferRequestType<(typeof client)['1']['clusters']['mapping']['$get']>,
-) {
-  return ['/1/clusters/mapping', args] as const
+export function getPost1ClustersMappingMutationKey() {
+  return ['1', 'POST', '/1/clusters/mapping'] as const
 }
+
+/**
+ * Returns TanStack Query mutation options for POST /1/clusters/mapping
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost1ClustersMappingMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPost1ClustersMappingMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client)['1']['clusters']['mapping']['$post']>,
+  ) => parseResponse(client['1'].clusters.mapping.$post(args, clientOptions)),
+})
 
 /**
  * POST /1/clusters/mapping
@@ -1843,30 +2505,47 @@ export function getGet1ClustersMappingQueryKey(
  *
  * The time it takes to move a user is proportional to the amount of data linked to the user ID.
  */
-export function usePost1ClustersMapping(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['1']['clusters']['mapping']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['clusters']['mapping']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<(typeof client)['1']['clusters']['mapping']['$post']> | undefined,
+export function usePost1ClustersMapping(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['clusters']['mapping']['$post']>>
+        >
+      >
+    >,
     Error,
     InferRequestType<(typeof client)['1']['clusters']['mapping']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].clusters.mapping.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost1ClustersMappingMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /1/clusters/mapping/batch
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPost1ClustersMappingBatchMutationKey() {
+  return ['1', 'POST', '/1/clusters/mapping/batch'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /1/clusters/mapping/batch
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost1ClustersMappingBatchMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost1ClustersMappingBatchMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client)['1']['clusters']['mapping']['batch']['$post']>,
+  ) => parseResponse(client['1'].clusters.mapping.batch.$post(args, clientOptions)),
+})
 
 /**
  * POST /1/clusters/mapping/batch
@@ -1877,30 +2556,49 @@ export function usePost1ClustersMapping(
  *
  * **You can't move users with this operation**.
  */
-export function usePost1ClustersMappingBatch(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['1']['clusters']['mapping']['batch']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['clusters']['mapping']['batch']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<(typeof client)['1']['clusters']['mapping']['batch']['$post']> | undefined,
+export function usePost1ClustersMappingBatch(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['clusters']['mapping']['batch']['$post']>>
+        >
+      >
+    >,
     Error,
     InferRequestType<(typeof client)['1']['clusters']['mapping']['batch']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].clusters.mapping.batch.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost1ClustersMappingBatchMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query cache key for GET /1/clusters/mapping/top
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGet1ClustersMappingTopQueryKey() {
+  return ['1', 'GET', '/1/clusters/mapping/top'] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /1/clusters/mapping/top
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet1ClustersMappingTopQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGet1ClustersMappingTopQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['1'].clusters.mapping.top.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /1/clusters/mapping/top
@@ -1912,38 +2610,52 @@ export function usePost1ClustersMappingBatch(
  * Since it can take a few seconds to get the data from the different clusters,
  * the response isn't real-time.
  */
-export function useGet1ClustersMappingTop(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client)['1']['clusters']['mapping']['top']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['1']['clusters']['mapping']['top']['$get']>,
-      readonly ['/1/clusters/mapping/top']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGet1ClustersMappingTop(options?: {
+  query?: UseQueryOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['clusters']['mapping']['top']['$get']>>
+        >
+      >
+    >,
+    Error
+  >
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGet1ClustersMappingTopQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client['1'].clusters.mapping.top.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  const { queryKey, queryFn, ...baseOptions } = getGet1ClustersMappingTopQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /1/clusters/mapping/top
+ * Generates TanStack Query cache key for GET /1/clusters/mapping/{userID}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGet1ClustersMappingTopQueryKey() {
-  return ['/1/clusters/mapping/top'] as const
+export function getGet1ClustersMappingUserIDQueryKey(
+  args: InferRequestType<(typeof client)['1']['clusters']['mapping'][':userID']['$get']>,
+) {
+  return ['1', 'GET', '/1/clusters/mapping/:userID', args] as const
 }
+
+/**
+ * Returns TanStack Query query options for GET /1/clusters/mapping/{userID}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet1ClustersMappingUserIDQueryOptions = (
+  args: InferRequestType<(typeof client)['1']['clusters']['mapping'][':userID']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet1ClustersMappingUserIDQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['1'].clusters.mapping[':userID'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /1/clusters/mapping/{userID}
@@ -1959,40 +2671,47 @@ export function useGet1ClustersMappingUserID(
   args: InferRequestType<(typeof client)['1']['clusters']['mapping'][':userID']['$get']>,
   options?: {
     query?: UseQueryOptions<
-      InferResponseType<(typeof client)['1']['clusters']['mapping'][':userID']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['1']['clusters']['mapping'][':userID']['$get']>,
-      readonly [
-        '/1/clusters/mapping/:userID',
-        InferRequestType<(typeof client)['1']['clusters']['mapping'][':userID']['$get']>,
-      ]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['1']['clusters']['mapping'][':userID']['$get']>>
+          >
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGet1ClustersMappingUserIDQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client['1'].clusters.mapping[':userID'].$get(args, clientOptions)),
-    },
-    queryClient,
+  const { queryKey, queryFn, ...baseOptions } = getGet1ClustersMappingUserIDQueryOptions(
+    args,
+    clientOptions,
   )
-  return { ...query, queryKey }
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /1/clusters/mapping/{userID}
+ * Generates TanStack Query mutation key for DELETE /1/clusters/mapping/{userID}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet1ClustersMappingUserIDQueryKey(
-  args: InferRequestType<(typeof client)['1']['clusters']['mapping'][':userID']['$get']>,
-) {
-  return ['/1/clusters/mapping/:userID', args] as const
+export function getDelete1ClustersMappingUserIDMutationKey() {
+  return ['1', 'DELETE', '/1/clusters/mapping/:userID'] as const
 }
+
+/**
+ * Returns TanStack Query mutation options for DELETE /1/clusters/mapping/{userID}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDelete1ClustersMappingUserIDMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDelete1ClustersMappingUserIDMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client)['1']['clusters']['mapping'][':userID']['$delete']>,
+  ) => parseResponse(client['1'].clusters.mapping[':userID'].$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /1/clusters/mapping/{userID}
@@ -2001,32 +2720,49 @@ export function getGet1ClustersMappingUserIDQueryKey(
  *
  * Deletes a user ID and its associated data from the clusters.
  */
-export function useDelete1ClustersMappingUserID(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client)['1']['clusters']['mapping'][':userID']['$delete']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['clusters']['mapping'][':userID']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    | InferResponseType<(typeof client)['1']['clusters']['mapping'][':userID']['$delete']>
-    | undefined,
+export function useDelete1ClustersMappingUserID(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['clusters']['mapping'][':userID']['$delete']>>
+        >
+      >
+    >,
     Error,
     InferRequestType<(typeof client)['1']['clusters']['mapping'][':userID']['$delete']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].clusters.mapping[':userID'].$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDelete1ClustersMappingUserIDMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query cache key for GET /1/clusters
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGet1ClustersQueryKey() {
+  return ['1', 'GET', '/1/clusters'] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /1/clusters
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet1ClustersQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGet1ClustersQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['1'].clusters.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /1/clusters
@@ -2035,37 +2771,43 @@ export function useDelete1ClustersMappingUserID(
  *
  * Lists the available clusters in a multi-cluster setup.
  */
-export function useGet1Clusters(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client)['1']['clusters']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['1']['clusters']['$get']>,
-      readonly ['/1/clusters']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGet1Clusters(options?: {
+  query?: UseQueryOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client)['1']['clusters']['$get']>>>
+      >
+    >,
+    Error
+  >
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGet1ClustersQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client['1'].clusters.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  const { queryKey, queryFn, ...baseOptions } = getGet1ClustersQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /1/clusters
+ * Generates TanStack Query mutation key for POST /1/clusters/mapping/search
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet1ClustersQueryKey() {
-  return ['/1/clusters'] as const
+export function getPost1ClustersMappingSearchMutationKey() {
+  return ['1', 'POST', '/1/clusters/mapping/search'] as const
 }
+
+/**
+ * Returns TanStack Query mutation options for POST /1/clusters/mapping/search
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost1ClustersMappingSearchMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost1ClustersMappingSearchMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client)['1']['clusters']['mapping']['search']['$post']>,
+  ) => parseResponse(client['1'].clusters.mapping.search.$post(args, clientOptions)),
+})
 
 /**
  * POST /1/clusters/mapping/search
@@ -2077,30 +2819,54 @@ export function getGet1ClustersQueryKey() {
  *
  * To ensure rapid updates, the user IDs index isn't built at the same time as the mapping. Instead, it's built every 12 hours, at the same time as the update of user ID usage. For example, if you add or move a user ID, the search will show an old value until the next time the mapping is rebuilt (every 12 hours).
  */
-export function usePost1ClustersMappingSearch(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['1']['clusters']['mapping']['search']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['clusters']['mapping']['search']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<(typeof client)['1']['clusters']['mapping']['search']['$post']> | undefined,
+export function usePost1ClustersMappingSearch(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['clusters']['mapping']['search']['$post']>>
+        >
+      >
+    >,
     Error,
     InferRequestType<(typeof client)['1']['clusters']['mapping']['search']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].clusters.mapping.search.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost1ClustersMappingSearchMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query cache key for GET /1/clusters/mapping/pending
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGet1ClustersMappingPendingQueryKey(
+  args: InferRequestType<(typeof client)['1']['clusters']['mapping']['pending']['$get']>,
+) {
+  return ['1', 'GET', '/1/clusters/mapping/pending', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /1/clusters/mapping/pending
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet1ClustersMappingPendingQueryOptions = (
+  args: InferRequestType<(typeof client)['1']['clusters']['mapping']['pending']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet1ClustersMappingPendingQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['1'].clusters.mapping.pending.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /1/clusters/mapping/pending
@@ -2113,40 +2879,49 @@ export function useGet1ClustersMappingPending(
   args: InferRequestType<(typeof client)['1']['clusters']['mapping']['pending']['$get']>,
   options?: {
     query?: UseQueryOptions<
-      InferResponseType<(typeof client)['1']['clusters']['mapping']['pending']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['1']['clusters']['mapping']['pending']['$get']>,
-      readonly [
-        '/1/clusters/mapping/pending',
-        InferRequestType<(typeof client)['1']['clusters']['mapping']['pending']['$get']>,
-      ]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['1']['clusters']['mapping']['pending']['$get']>>
+          >
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGet1ClustersMappingPendingQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client['1'].clusters.mapping.pending.$get(args, clientOptions)),
-    },
-    queryClient,
+  const { queryKey, queryFn, ...baseOptions } = getGet1ClustersMappingPendingQueryOptions(
+    args,
+    clientOptions,
   )
-  return { ...query, queryKey }
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /1/clusters/mapping/pending
+ * Generates TanStack Query cache key for GET /1/security/sources
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGet1ClustersMappingPendingQueryKey(
-  args: InferRequestType<(typeof client)['1']['clusters']['mapping']['pending']['$get']>,
-) {
-  return ['/1/clusters/mapping/pending', args] as const
+export function getGet1SecuritySourcesQueryKey() {
+  return ['1', 'GET', '/1/security/sources'] as const
 }
+
+/**
+ * Returns TanStack Query query options for GET /1/security/sources
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet1SecuritySourcesQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGet1SecuritySourcesQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['1'].security.sources.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /1/security/sources
@@ -2155,38 +2930,42 @@ export function getGet1ClustersMappingPendingQueryKey(
  *
  * Retrieves all allowed IP addresses with access to your application.
  */
-export function useGet1SecuritySources(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client)['1']['security']['sources']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['1']['security']['sources']['$get']>,
-      readonly ['/1/security/sources']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGet1SecuritySources(options?: {
+  query?: UseQueryOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['security']['sources']['$get']>>
+        >
+      >
+    >,
+    Error
+  >
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGet1SecuritySourcesQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client['1'].security.sources.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  const { queryKey, queryFn, ...baseOptions } = getGet1SecuritySourcesQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /1/security/sources
+ * Generates TanStack Query mutation key for PUT /1/security/sources
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet1SecuritySourcesQueryKey() {
-  return ['/1/security/sources'] as const
+export function getPut1SecuritySourcesMutationKey() {
+  return ['1', 'PUT', '/1/security/sources'] as const
 }
+
+/**
+ * Returns TanStack Query mutation options for PUT /1/security/sources
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPut1SecuritySourcesMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPut1SecuritySourcesMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client)['1']['security']['sources']['$put']>) =>
+    parseResponse(client['1'].security.sources.$put(args, clientOptions)),
+})
 
 /**
  * PUT /1/security/sources
@@ -2195,30 +2974,47 @@ export function getGet1SecuritySourcesQueryKey() {
  *
  * Replaces the list of allowed sources.
  */
-export function usePut1SecuritySources(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['1']['security']['sources']['$put']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['security']['sources']['$put']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<(typeof client)['1']['security']['sources']['$put']> | undefined,
+export function usePut1SecuritySources(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['security']['sources']['$put']>>
+        >
+      >
+    >,
     Error,
     InferRequestType<(typeof client)['1']['security']['sources']['$put']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].security.sources.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPut1SecuritySourcesMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /1/security/sources/append
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPost1SecuritySourcesAppendMutationKey() {
+  return ['1', 'POST', '/1/security/sources/append'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /1/security/sources/append
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost1SecuritySourcesAppendMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost1SecuritySourcesAppendMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client)['1']['security']['sources']['append']['$post']>,
+  ) => parseResponse(client['1'].security.sources.append.$post(args, clientOptions)),
+})
 
 /**
  * POST /1/security/sources/append
@@ -2227,30 +3023,47 @@ export function usePut1SecuritySources(
  *
  * Adds a source to the list of allowed sources.
  */
-export function usePost1SecuritySourcesAppend(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['1']['security']['sources']['append']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['security']['sources']['append']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<(typeof client)['1']['security']['sources']['append']['$post']> | undefined,
+export function usePost1SecuritySourcesAppend(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['security']['sources']['append']['$post']>>
+        >
+      >
+    >,
     Error,
     InferRequestType<(typeof client)['1']['security']['sources']['append']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].security.sources.append.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost1SecuritySourcesAppendMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for DELETE /1/security/sources/{source}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getDelete1SecuritySourcesSourceMutationKey() {
+  return ['1', 'DELETE', '/1/security/sources/:source'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for DELETE /1/security/sources/{source}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDelete1SecuritySourcesSourceMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDelete1SecuritySourcesSourceMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client)['1']['security']['sources'][':source']['$delete']>,
+  ) => parseResponse(client['1'].security.sources[':source'].$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /1/security/sources/{source}
@@ -2259,32 +3072,49 @@ export function usePost1SecuritySourcesAppend(
  *
  * Deletes a source from the list of allowed sources.
  */
-export function useDelete1SecuritySourcesSource(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client)['1']['security']['sources'][':source']['$delete']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['security']['sources'][':source']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    | InferResponseType<(typeof client)['1']['security']['sources'][':source']['$delete']>
-    | undefined,
+export function useDelete1SecuritySourcesSource(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['security']['sources'][':source']['$delete']>>
+        >
+      >
+    >,
     Error,
     InferRequestType<(typeof client)['1']['security']['sources'][':source']['$delete']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].security.sources[':source'].$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDelete1SecuritySourcesSourceMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query cache key for GET /1/logs
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGet1LogsQueryKey(args: InferRequestType<(typeof client)['1']['logs']['$get']>) {
+  return ['1', 'GET', '/1/logs', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /1/logs
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet1LogsQueryOptions = (
+  args: InferRequestType<(typeof client)['1']['logs']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet1LogsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['1'].logs.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /1/logs
@@ -2301,34 +3131,47 @@ export function useGet1Logs(
   args: InferRequestType<(typeof client)['1']['logs']['$get']>,
   options?: {
     query?: UseQueryOptions<
-      InferResponseType<(typeof client)['1']['logs']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['1']['logs']['$get']>,
-      readonly ['/1/logs', InferRequestType<(typeof client)['1']['logs']['$get']>]
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['1']['logs']['$get']>>>>
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGet1LogsQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client['1'].logs.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  const { queryKey, queryFn, ...baseOptions } = getGet1LogsQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /1/logs
+ * Generates TanStack Query cache key for GET /1/task/{taskID}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGet1LogsQueryKey(args: InferRequestType<(typeof client)['1']['logs']['$get']>) {
-  return ['/1/logs', args] as const
+export function getGet1TaskTaskIDQueryKey(
+  args: InferRequestType<(typeof client)['1']['task'][':taskID']['$get']>,
+) {
+  return ['1', 'GET', '/1/task/:taskID', args] as const
 }
+
+/**
+ * Returns TanStack Query query options for GET /1/task/{taskID}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet1TaskTaskIDQueryOptions = (
+  args: InferRequestType<(typeof client)['1']['task'][':taskID']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet1TaskTaskIDQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['1'].task[':taskID'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /1/task/{taskID}
@@ -2341,39 +3184,49 @@ export function useGet1TaskTaskID(
   args: InferRequestType<(typeof client)['1']['task'][':taskID']['$get']>,
   options?: {
     query?: UseQueryOptions<
-      InferResponseType<(typeof client)['1']['task'][':taskID']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['1']['task'][':taskID']['$get']>,
-      readonly [
-        '/1/task/:taskID',
-        InferRequestType<(typeof client)['1']['task'][':taskID']['$get']>,
-      ]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client)['1']['task'][':taskID']['$get']>>>
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGet1TaskTaskIDQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client['1'].task[':taskID'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  const { queryKey, queryFn, ...baseOptions } = getGet1TaskTaskIDQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /1/task/{taskID}
+ * Generates TanStack Query cache key for GET /1/indexes/{indexName}/task/{taskID}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGet1TaskTaskIDQueryKey(
-  args: InferRequestType<(typeof client)['1']['task'][':taskID']['$get']>,
+export function getGet1IndexesIndexNameTaskTaskIDQueryKey(
+  args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['task'][':taskID']['$get']>,
 ) {
-  return ['/1/task/:taskID', args] as const
+  return ['1', 'GET', '/1/indexes/:indexName/task/:taskID', args] as const
 }
+
+/**
+ * Returns TanStack Query query options for GET /1/indexes/{indexName}/task/{taskID}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet1IndexesIndexNameTaskTaskIDQueryOptions = (
+  args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['task'][':taskID']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet1IndexesIndexNameTaskTaskIDQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['1'].indexes[':indexName'].task[':taskID'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /1/indexes/{indexName}/task/{taskID}
@@ -2392,40 +3245,49 @@ export function useGet1IndexesIndexNameTaskTaskID(
   args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['task'][':taskID']['$get']>,
   options?: {
     query?: UseQueryOptions<
-      InferResponseType<(typeof client)['1']['indexes'][':indexName']['task'][':taskID']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['1']['indexes'][':indexName']['task'][':taskID']['$get']>,
-      readonly [
-        '/1/indexes/:indexName/task/:taskID',
-        InferRequestType<(typeof client)['1']['indexes'][':indexName']['task'][':taskID']['$get']>,
-      ]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<(typeof client)['1']['indexes'][':indexName']['task'][':taskID']['$get']>
+            >
+          >
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGet1IndexesIndexNameTaskTaskIDQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client['1'].indexes[':indexName'].task[':taskID'].$get(args, clientOptions)),
-    },
-    queryClient,
+  const { queryKey, queryFn, ...baseOptions } = getGet1IndexesIndexNameTaskTaskIDQueryOptions(
+    args,
+    clientOptions,
   )
-  return { ...query, queryKey }
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /1/indexes/{indexName}/task/{taskID}
+ * Generates TanStack Query mutation key for POST /1/indexes/{indexName}/operation
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGet1IndexesIndexNameTaskTaskIDQueryKey(
-  args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['task'][':taskID']['$get']>,
-) {
-  return ['/1/indexes/:indexName/task/:taskID', args] as const
+export function getPost1IndexesIndexNameOperationMutationKey() {
+  return ['1', 'POST', '/1/indexes/:indexName/operation'] as const
 }
+
+/**
+ * Returns TanStack Query mutation options for POST /1/indexes/{indexName}/operation
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost1IndexesIndexNameOperationMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost1IndexesIndexNameOperationMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['operation']['$post']>,
+  ) => parseResponse(client['1'].indexes[':indexName'].operation.$post(args, clientOptions)),
+})
 
 /**
  * POST /1/indexes/{indexName}/operation
@@ -2457,32 +3319,54 @@ export function getGet1IndexesIndexNameTaskTaskIDQueryKey(
  *
  * This operation is subject to [indexing rate limits](https://support.algolia.com/hc/articles/4406975251089-Is-there-a-rate-limit-for-indexing-on-Algolia).
  */
-export function usePost1IndexesIndexNameOperation(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client)['1']['indexes'][':indexName']['operation']['$post']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['indexes'][':indexName']['operation']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    | InferResponseType<(typeof client)['1']['indexes'][':indexName']['operation']['$post']>
-    | undefined,
+export function usePost1IndexesIndexNameOperation(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName']['operation']['$post']>>
+        >
+      >
+    >,
     Error,
     InferRequestType<(typeof client)['1']['indexes'][':indexName']['operation']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].indexes[':indexName'].operation.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost1IndexesIndexNameOperationMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query cache key for GET /1/indexes
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGet1IndexesQueryKey(
+  args: InferRequestType<(typeof client)['1']['indexes']['$get']>,
+) {
+  return ['1', 'GET', '/1/indexes', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /1/indexes
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet1IndexesQueryOptions = (
+  args: InferRequestType<(typeof client)['1']['indexes']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet1IndexesQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['1'].indexes.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /1/indexes
@@ -2497,36 +3381,49 @@ export function useGet1Indexes(
   args: InferRequestType<(typeof client)['1']['indexes']['$get']>,
   options?: {
     query?: UseQueryOptions<
-      InferResponseType<(typeof client)['1']['indexes']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['1']['indexes']['$get']>,
-      readonly ['/1/indexes', InferRequestType<(typeof client)['1']['indexes']['$get']>]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client)['1']['indexes']['$get']>>>
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGet1IndexesQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client['1'].indexes.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  const { queryKey, queryFn, ...baseOptions } = getGet1IndexesQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /1/indexes
+ * Generates TanStack Query cache key for GET /waitForApiKey
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGet1IndexesQueryKey(
-  args: InferRequestType<(typeof client)['1']['indexes']['$get']>,
+export function getGetWaitForApiKeyQueryKey(
+  args: InferRequestType<typeof client.waitForApiKey.$get>,
 ) {
-  return ['/1/indexes', args] as const
+  return ['waitForApiKey', 'GET', '/waitForApiKey', args] as const
 }
+
+/**
+ * Returns TanStack Query query options for GET /waitForApiKey
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetWaitForApiKeyQueryOptions = (
+  args: InferRequestType<typeof client.waitForApiKey.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetWaitForApiKeyQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.waitForApiKey.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /waitForApiKey
@@ -2539,36 +3436,42 @@ export function useGetWaitForApiKey(
   args: InferRequestType<typeof client.waitForApiKey.$get>,
   options?: {
     query?: UseQueryOptions<
-      InferResponseType<typeof client.waitForApiKey.$get>,
-      Error,
-      InferResponseType<typeof client.waitForApiKey.$get>,
-      readonly ['/waitForApiKey', InferRequestType<typeof client.waitForApiKey.$get>]
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.waitForApiKey.$get>>>>
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetWaitForApiKeyQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.waitForApiKey.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  const { queryKey, queryFn, ...baseOptions } = getGetWaitForApiKeyQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /waitForApiKey
+ * Generates TanStack Query cache key for GET /waitForTask
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetWaitForApiKeyQueryKey(
-  args: InferRequestType<typeof client.waitForApiKey.$get>,
-) {
-  return ['/waitForApiKey', args] as const
+export function getGetWaitForTaskQueryKey(args: InferRequestType<typeof client.waitForTask.$get>) {
+  return ['waitForTask', 'GET', '/waitForTask', args] as const
 }
+
+/**
+ * Returns TanStack Query query options for GET /waitForTask
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetWaitForTaskQueryOptions = (
+  args: InferRequestType<typeof client.waitForTask.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetWaitForTaskQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.waitForTask.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /waitForTask
@@ -2583,34 +3486,47 @@ export function useGetWaitForTask(
   args: InferRequestType<typeof client.waitForTask.$get>,
   options?: {
     query?: UseQueryOptions<
-      InferResponseType<typeof client.waitForTask.$get>,
-      Error,
-      InferResponseType<typeof client.waitForTask.$get>,
-      readonly ['/waitForTask', InferRequestType<typeof client.waitForTask.$get>]
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.waitForTask.$get>>>>
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetWaitForTaskQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.waitForTask.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  const { queryKey, queryFn, ...baseOptions } = getGetWaitForTaskQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /waitForTask
+ * Generates TanStack Query cache key for GET /waitForAppTask
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetWaitForTaskQueryKey(args: InferRequestType<typeof client.waitForTask.$get>) {
-  return ['/waitForTask', args] as const
+export function getGetWaitForAppTaskQueryKey(
+  args: InferRequestType<typeof client.waitForAppTask.$get>,
+) {
+  return ['waitForAppTask', 'GET', '/waitForAppTask', args] as const
 }
+
+/**
+ * Returns TanStack Query query options for GET /waitForAppTask
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetWaitForAppTaskQueryOptions = (
+  args: InferRequestType<typeof client.waitForAppTask.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetWaitForAppTaskQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.waitForAppTask.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /waitForAppTask
@@ -2623,36 +3539,50 @@ export function useGetWaitForAppTask(
   args: InferRequestType<typeof client.waitForAppTask.$get>,
   options?: {
     query?: UseQueryOptions<
-      InferResponseType<typeof client.waitForAppTask.$get>,
-      Error,
-      InferResponseType<typeof client.waitForAppTask.$get>,
-      readonly ['/waitForAppTask', InferRequestType<typeof client.waitForAppTask.$get>]
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.waitForAppTask.$get>>>>
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetWaitForAppTaskQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.waitForAppTask.$get(args, clientOptions)),
-    },
-    queryClient,
+  const { queryKey, queryFn, ...baseOptions } = getGetWaitForAppTaskQueryOptions(
+    args,
+    clientOptions,
   )
-  return { ...query, queryKey }
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /waitForAppTask
+ * Generates TanStack Query cache key for GET /browseObjects
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetWaitForAppTaskQueryKey(
-  args: InferRequestType<typeof client.waitForAppTask.$get>,
+export function getGetBrowseObjectsQueryKey(
+  args: InferRequestType<typeof client.browseObjects.$get>,
 ) {
-  return ['/waitForAppTask', args] as const
+  return ['browseObjects', 'GET', '/browseObjects', args] as const
 }
+
+/**
+ * Returns TanStack Query query options for GET /browseObjects
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetBrowseObjectsQueryOptions = (
+  args: InferRequestType<typeof client.browseObjects.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetBrowseObjectsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.browseObjects.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /browseObjects
@@ -2669,36 +3599,47 @@ export function useGetBrowseObjects(
   args: InferRequestType<typeof client.browseObjects.$get>,
   options?: {
     query?: UseQueryOptions<
-      InferResponseType<typeof client.browseObjects.$get>,
-      Error,
-      InferResponseType<typeof client.browseObjects.$get>,
-      readonly ['/browseObjects', InferRequestType<typeof client.browseObjects.$get>]
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.browseObjects.$get>>>>
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetBrowseObjectsQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.browseObjects.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  const { queryKey, queryFn, ...baseOptions } = getGetBrowseObjectsQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /browseObjects
+ * Generates TanStack Query cache key for GET /generateSecuredApiKey
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetBrowseObjectsQueryKey(
-  args: InferRequestType<typeof client.browseObjects.$get>,
+export function getGetGenerateSecuredApiKeyQueryKey(
+  args: InferRequestType<typeof client.generateSecuredApiKey.$get>,
 ) {
-  return ['/browseObjects', args] as const
+  return ['generateSecuredApiKey', 'GET', '/generateSecuredApiKey', args] as const
 }
+
+/**
+ * Returns TanStack Query query options for GET /generateSecuredApiKey
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetGenerateSecuredApiKeyQueryOptions = (
+  args: InferRequestType<typeof client.generateSecuredApiKey.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetGenerateSecuredApiKeyQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.generateSecuredApiKey.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /generateSecuredApiKey
@@ -2723,39 +3664,52 @@ export function useGetGenerateSecuredApiKey(
   args: InferRequestType<typeof client.generateSecuredApiKey.$get>,
   options?: {
     query?: UseQueryOptions<
-      InferResponseType<typeof client.generateSecuredApiKey.$get>,
-      Error,
-      InferResponseType<typeof client.generateSecuredApiKey.$get>,
-      readonly [
-        '/generateSecuredApiKey',
-        InferRequestType<typeof client.generateSecuredApiKey.$get>,
-      ]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<typeof client.generateSecuredApiKey.$get>>>
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetGenerateSecuredApiKeyQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.generateSecuredApiKey.$get(args, clientOptions)),
-    },
-    queryClient,
+  const { queryKey, queryFn, ...baseOptions } = getGetGenerateSecuredApiKeyQueryOptions(
+    args,
+    clientOptions,
   )
-  return { ...query, queryKey }
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /generateSecuredApiKey
+ * Generates TanStack Query cache key for GET /accountCopyIndex
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetGenerateSecuredApiKeyQueryKey(
-  args: InferRequestType<typeof client.generateSecuredApiKey.$get>,
+export function getGetAccountCopyIndexQueryKey(
+  args: InferRequestType<typeof client.accountCopyIndex.$get>,
 ) {
-  return ['/generateSecuredApiKey', args] as const
+  return ['accountCopyIndex', 'GET', '/accountCopyIndex', args] as const
 }
+
+/**
+ * Returns TanStack Query query options for GET /accountCopyIndex
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetAccountCopyIndexQueryOptions = (
+  args: InferRequestType<typeof client.accountCopyIndex.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetAccountCopyIndexQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.accountCopyIndex.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /accountCopyIndex
@@ -2768,36 +3722,50 @@ export function useGetAccountCopyIndex(
   args: InferRequestType<typeof client.accountCopyIndex.$get>,
   options?: {
     query?: UseQueryOptions<
-      InferResponseType<typeof client.accountCopyIndex.$get>,
-      Error,
-      InferResponseType<typeof client.accountCopyIndex.$get>,
-      readonly ['/accountCopyIndex', InferRequestType<typeof client.accountCopyIndex.$get>]
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.accountCopyIndex.$get>>>>
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetAccountCopyIndexQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.accountCopyIndex.$get(args, clientOptions)),
-    },
-    queryClient,
+  const { queryKey, queryFn, ...baseOptions } = getGetAccountCopyIndexQueryOptions(
+    args,
+    clientOptions,
   )
-  return { ...query, queryKey }
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /accountCopyIndex
+ * Generates TanStack Query cache key for GET /replaceAllObjects
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetAccountCopyIndexQueryKey(
-  args: InferRequestType<typeof client.accountCopyIndex.$get>,
+export function getGetReplaceAllObjectsQueryKey(
+  args: InferRequestType<typeof client.replaceAllObjects.$get>,
 ) {
-  return ['/accountCopyIndex', args] as const
+  return ['replaceAllObjects', 'GET', '/replaceAllObjects', args] as const
 }
+
+/**
+ * Returns TanStack Query query options for GET /replaceAllObjects
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetReplaceAllObjectsQueryOptions = (
+  args: InferRequestType<typeof client.replaceAllObjects.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetReplaceAllObjectsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.replaceAllObjects.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /replaceAllObjects
@@ -2825,36 +3793,55 @@ export function useGetReplaceAllObjects(
   args: InferRequestType<typeof client.replaceAllObjects.$get>,
   options?: {
     query?: UseQueryOptions<
-      InferResponseType<typeof client.replaceAllObjects.$get>,
-      Error,
-      InferResponseType<typeof client.replaceAllObjects.$get>,
-      readonly ['/replaceAllObjects', InferRequestType<typeof client.replaceAllObjects.$get>]
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.replaceAllObjects.$get>>>>
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetReplaceAllObjectsQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.replaceAllObjects.$get(args, clientOptions)),
-    },
-    queryClient,
+  const { queryKey, queryFn, ...baseOptions } = getGetReplaceAllObjectsQueryOptions(
+    args,
+    clientOptions,
   )
-  return { ...query, queryKey }
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /replaceAllObjects
+ * Generates TanStack Query cache key for GET /replaceAllObjectsWithTransformation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetReplaceAllObjectsQueryKey(
-  args: InferRequestType<typeof client.replaceAllObjects.$get>,
+export function getGetReplaceAllObjectsWithTransformationQueryKey(
+  args: InferRequestType<typeof client.replaceAllObjectsWithTransformation.$get>,
 ) {
-  return ['/replaceAllObjects', args] as const
+  return [
+    'replaceAllObjectsWithTransformation',
+    'GET',
+    '/replaceAllObjectsWithTransformation',
+    args,
+  ] as const
 }
+
+/**
+ * Returns TanStack Query query options for GET /replaceAllObjectsWithTransformation
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetReplaceAllObjectsWithTransformationQueryOptions = (
+  args: InferRequestType<typeof client.replaceAllObjectsWithTransformation.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetReplaceAllObjectsWithTransformationQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.replaceAllObjectsWithTransformation.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /replaceAllObjectsWithTransformation
@@ -2879,40 +3866,52 @@ export function useGetReplaceAllObjectsWithTransformation(
   args: InferRequestType<typeof client.replaceAllObjectsWithTransformation.$get>,
   options?: {
     query?: UseQueryOptions<
-      InferResponseType<typeof client.replaceAllObjectsWithTransformation.$get>,
-      Error,
-      InferResponseType<typeof client.replaceAllObjectsWithTransformation.$get>,
-      readonly [
-        '/replaceAllObjectsWithTransformation',
-        InferRequestType<typeof client.replaceAllObjectsWithTransformation.$get>,
-      ]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<typeof client.replaceAllObjectsWithTransformation.$get>>
+          >
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetReplaceAllObjectsWithTransformationQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.replaceAllObjectsWithTransformation.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  const { queryKey, queryFn, ...baseOptions } =
+    getGetReplaceAllObjectsWithTransformationQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /replaceAllObjectsWithTransformation
+ * Generates TanStack Query cache key for GET /chunkedBatch
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetReplaceAllObjectsWithTransformationQueryKey(
-  args: InferRequestType<typeof client.replaceAllObjectsWithTransformation.$get>,
+export function getGetChunkedBatchQueryKey(
+  args: InferRequestType<typeof client.chunkedBatch.$get>,
 ) {
-  return ['/replaceAllObjectsWithTransformation', args] as const
+  return ['chunkedBatch', 'GET', '/chunkedBatch', args] as const
 }
+
+/**
+ * Returns TanStack Query query options for GET /chunkedBatch
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetChunkedBatchQueryOptions = (
+  args: InferRequestType<typeof client.chunkedBatch.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetChunkedBatchQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.chunkedBatch.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /chunkedBatch
@@ -2925,36 +3924,42 @@ export function useGetChunkedBatch(
   args: InferRequestType<typeof client.chunkedBatch.$get>,
   options?: {
     query?: UseQueryOptions<
-      InferResponseType<typeof client.chunkedBatch.$get>,
-      Error,
-      InferResponseType<typeof client.chunkedBatch.$get>,
-      readonly ['/chunkedBatch', InferRequestType<typeof client.chunkedBatch.$get>]
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.chunkedBatch.$get>>>>
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetChunkedBatchQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.chunkedBatch.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  const { queryKey, queryFn, ...baseOptions } = getGetChunkedBatchQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /chunkedBatch
+ * Generates TanStack Query cache key for GET /saveObjects
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetChunkedBatchQueryKey(
-  args: InferRequestType<typeof client.chunkedBatch.$get>,
-) {
-  return ['/chunkedBatch', args] as const
+export function getGetSaveObjectsQueryKey(args: InferRequestType<typeof client.saveObjects.$get>) {
+  return ['saveObjects', 'GET', '/saveObjects', args] as const
 }
+
+/**
+ * Returns TanStack Query query options for GET /saveObjects
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetSaveObjectsQueryOptions = (
+  args: InferRequestType<typeof client.saveObjects.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetSaveObjectsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.saveObjects.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /saveObjects
@@ -2967,34 +3972,47 @@ export function useGetSaveObjects(
   args: InferRequestType<typeof client.saveObjects.$get>,
   options?: {
     query?: UseQueryOptions<
-      InferResponseType<typeof client.saveObjects.$get>,
-      Error,
-      InferResponseType<typeof client.saveObjects.$get>,
-      readonly ['/saveObjects', InferRequestType<typeof client.saveObjects.$get>]
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.saveObjects.$get>>>>
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetSaveObjectsQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.saveObjects.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  const { queryKey, queryFn, ...baseOptions } = getGetSaveObjectsQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /saveObjects
+ * Generates TanStack Query cache key for GET /saveObjectsWithTransformation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetSaveObjectsQueryKey(args: InferRequestType<typeof client.saveObjects.$get>) {
-  return ['/saveObjects', args] as const
+export function getGetSaveObjectsWithTransformationQueryKey(
+  args: InferRequestType<typeof client.saveObjectsWithTransformation.$get>,
+) {
+  return ['saveObjectsWithTransformation', 'GET', '/saveObjectsWithTransformation', args] as const
 }
+
+/**
+ * Returns TanStack Query query options for GET /saveObjectsWithTransformation
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetSaveObjectsWithTransformationQueryOptions = (
+  args: InferRequestType<typeof client.saveObjectsWithTransformation.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetSaveObjectsWithTransformationQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.saveObjectsWithTransformation.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /saveObjectsWithTransformation
@@ -3007,40 +4025,44 @@ export function useGetSaveObjectsWithTransformation(
   args: InferRequestType<typeof client.saveObjectsWithTransformation.$get>,
   options?: {
     query?: UseQueryOptions<
-      InferResponseType<typeof client.saveObjectsWithTransformation.$get>,
-      Error,
-      InferResponseType<typeof client.saveObjectsWithTransformation.$get>,
-      readonly [
-        '/saveObjectsWithTransformation',
-        InferRequestType<typeof client.saveObjectsWithTransformation.$get>,
-      ]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<typeof client.saveObjectsWithTransformation.$get>>
+          >
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetSaveObjectsWithTransformationQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.saveObjectsWithTransformation.$get(args, clientOptions)),
-    },
-    queryClient,
+  const { queryKey, queryFn, ...baseOptions } = getGetSaveObjectsWithTransformationQueryOptions(
+    args,
+    clientOptions,
   )
-  return { ...query, queryKey }
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /saveObjectsWithTransformation
+ * Generates TanStack Query mutation key for POST /deleteObjects
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetSaveObjectsWithTransformationQueryKey(
-  args: InferRequestType<typeof client.saveObjectsWithTransformation.$get>,
-) {
-  return ['/saveObjectsWithTransformation', args] as const
+export function getPostDeleteObjectsMutationKey() {
+  return ['deleteObjects', 'POST', '/deleteObjects'] as const
 }
+
+/**
+ * Returns TanStack Query mutation options for POST /deleteObjects
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostDeleteObjectsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostDeleteObjectsMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.deleteObjects.$post>) =>
+    parseResponse(client.deleteObjects.$post(args, clientOptions)),
+})
 
 /**
  * POST /deleteObjects
@@ -3049,29 +4071,42 @@ export function getGetSaveObjectsWithTransformationQueryKey(
  *
  * Helper: Deletes every records for the given objectIDs. The `chunkedBatch` helper is used under the hood, which creates a `batch` requests with at most 1000 objectIDs in it.
  */
-export function usePostDeleteObjects(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.deleteObjects.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.deleteObjects.$post>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<typeof client.deleteObjects.$post> | undefined,
+export function usePostDeleteObjects(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.deleteObjects.$post>>>>
+    >,
     Error,
     InferRequestType<typeof client.deleteObjects.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.deleteObjects.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostDeleteObjectsMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /partialUpdateObjects
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostPartialUpdateObjectsMutationKey() {
+  return ['partialUpdateObjects', 'POST', '/partialUpdateObjects'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /partialUpdateObjects
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostPartialUpdateObjectsMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostPartialUpdateObjectsMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.partialUpdateObjects.$post>) =>
+    parseResponse(client.partialUpdateObjects.$post(args, clientOptions)),
+})
 
 /**
  * POST /partialUpdateObjects
@@ -3080,30 +4115,49 @@ export function usePostDeleteObjects(
  *
  * Helper: Replaces object content of all the given objects according to their respective `objectID` field. The `chunkedBatch` helper is used under the hood, which creates a `batch` requests with at most 1000 objects in it.
  */
-export function usePostPartialUpdateObjects(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.partialUpdateObjects.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.partialUpdateObjects.$post>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<typeof client.partialUpdateObjects.$post> | undefined,
+export function usePostPartialUpdateObjects(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<typeof client.partialUpdateObjects.$post>>>
+      >
+    >,
     Error,
     InferRequestType<typeof client.partialUpdateObjects.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.partialUpdateObjects.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostPartialUpdateObjectsMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /partialUpdateObjectsWithTransformation
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostPartialUpdateObjectsWithTransformationMutationKey() {
+  return [
+    'partialUpdateObjectsWithTransformation',
+    'POST',
+    '/partialUpdateObjectsWithTransformation',
+  ] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /partialUpdateObjectsWithTransformation
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostPartialUpdateObjectsWithTransformationMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostPartialUpdateObjectsWithTransformationMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<typeof client.partialUpdateObjectsWithTransformation.$post>,
+  ) => parseResponse(client.partialUpdateObjectsWithTransformation.$post(args, clientOptions)),
+})
 
 /**
  * POST /partialUpdateObjectsWithTransformation
@@ -3112,30 +4166,49 @@ export function usePostPartialUpdateObjects(
  *
  * Helper: Similar to the `partialUpdateObjects` method but requires a Push connector (https://www.algolia.com/doc/guides/sending-and-managing-data/send-and-update-your-data/connectors/push) to be created first, in order to transform records before indexing them to Algolia. The `region` must have been passed to the client instantiation method.
  */
-export function usePostPartialUpdateObjectsWithTransformation(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.partialUpdateObjectsWithTransformation.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.partialUpdateObjectsWithTransformation.$post>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<typeof client.partialUpdateObjectsWithTransformation.$post> | undefined,
+export function usePostPartialUpdateObjectsWithTransformation(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<typeof client.partialUpdateObjectsWithTransformation.$post>>
+        >
+      >
+    >,
     Error,
     InferRequestType<typeof client.partialUpdateObjectsWithTransformation.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.partialUpdateObjectsWithTransformation.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostPartialUpdateObjectsWithTransformationMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query cache key for GET /indexExists
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetIndexExistsQueryKey(args: InferRequestType<typeof client.indexExists.$get>) {
+  return ['indexExists', 'GET', '/indexExists', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /indexExists
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetIndexExistsQueryOptions = (
+  args: InferRequestType<typeof client.indexExists.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetIndexExistsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.indexExists.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /indexExists
@@ -3148,34 +4221,47 @@ export function useGetIndexExists(
   args: InferRequestType<typeof client.indexExists.$get>,
   options?: {
     query?: UseQueryOptions<
-      InferResponseType<typeof client.indexExists.$get>,
-      Error,
-      InferResponseType<typeof client.indexExists.$get>,
-      readonly ['/indexExists', InferRequestType<typeof client.indexExists.$get>]
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.indexExists.$get>>>>
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetIndexExistsQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.indexExists.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  const { queryKey, queryFn, ...baseOptions } = getGetIndexExistsQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /indexExists
+ * Generates TanStack Query cache key for GET /setClientApiKey
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetIndexExistsQueryKey(args: InferRequestType<typeof client.indexExists.$get>) {
-  return ['/indexExists', args] as const
+export function getGetSetClientApiKeyQueryKey(
+  args: InferRequestType<typeof client.setClientApiKey.$get>,
+) {
+  return ['setClientApiKey', 'GET', '/setClientApiKey', args] as const
 }
+
+/**
+ * Returns TanStack Query query options for GET /setClientApiKey
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetSetClientApiKeyQueryOptions = (
+  args: InferRequestType<typeof client.setClientApiKey.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetSetClientApiKeyQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.setClientApiKey.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /setClientApiKey
@@ -3188,33 +4274,18 @@ export function useGetSetClientApiKey(
   args: InferRequestType<typeof client.setClientApiKey.$get>,
   options?: {
     query?: UseQueryOptions<
-      InferResponseType<typeof client.setClientApiKey.$get>,
-      Error,
-      InferResponseType<typeof client.setClientApiKey.$get>,
-      readonly ['/setClientApiKey', InferRequestType<typeof client.setClientApiKey.$get>]
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.setClientApiKey.$get>>>>
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetSetClientApiKeyQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.setClientApiKey.$get(args, clientOptions)),
-    },
-    queryClient,
+  const { queryKey, queryFn, ...baseOptions } = getGetSetClientApiKeyQueryOptions(
+    args,
+    clientOptions,
   )
-  return { ...query, queryKey }
-}
-
-/**
- * Generates TanStack Query cache key for GET /setClientApiKey
- */
-export function getGetSetClientApiKeyQueryKey(
-  args: InferRequestType<typeof client.setClientApiKey.$get>,
-) {
-  return ['/setClientApiKey', args] as const
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }

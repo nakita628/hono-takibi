@@ -1,8 +1,29 @@
-import type { QueryClient, UseQueryOptions } from '@tanstack/react-query'
+import type { QueryFunctionContext, UseQueryOptions } from '@tanstack/react-query'
 import { useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferResponseType } from 'hono/client'
+import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/openapi-complex-array'
+
+/**
+ * Generates TanStack Query cache key for GET /array
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGetArrayQueryKey() {
+  return ['array', 'GET', '/array'] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /array
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetArrayQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetArrayQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.array.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /array
@@ -11,34 +32,14 @@ import { client } from '../clients/openapi-complex-array'
  *
  * zod array
  */
-export function useGetArray(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.array.$get>,
-      Error,
-      InferResponseType<typeof client.array.$get>,
-      readonly ['/array']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetArray(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.array.$get>>>>>,
+    Error
+  >
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetArrayQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.array.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
-}
-
-/**
- * Generates TanStack Query cache key for GET /array
- */
-export function getGetArrayQueryKey() {
-  return ['/array'] as const
+  const { queryKey, queryFn, ...baseOptions } = getGetArrayQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }

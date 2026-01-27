@@ -1,104 +1,153 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
+import type {
+  QueryFunctionContext,
+  UseMutationOptions,
+  UseQueryOptions,
+} from '@tanstack/react-query'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/26-extreme-features'
+
+/**
+ * Generates TanStack Query cache key for GET /stream
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGetStreamQueryKey() {
+  return ['stream', 'GET', '/stream'] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /stream
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetStreamQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetStreamQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.stream.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /stream
  *
  * Stream data with Server-Sent Events
  */
-export function useGetStream(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.stream.$get>,
-      Error,
-      InferResponseType<typeof client.stream.$get>,
-      readonly ['/stream']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetStream(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.stream.$get>>>>>,
+    Error
+  >
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetStreamQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.stream.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  const { queryKey, queryFn, ...baseOptions } = getGetStreamQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /stream
+ * Generates TanStack Query mutation key for POST /graphql
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetStreamQueryKey() {
-  return ['/stream'] as const
+export function getPostGraphqlMutationKey() {
+  return ['graphql', 'POST', '/graphql'] as const
 }
+
+/**
+ * Returns TanStack Query mutation options for POST /graphql
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostGraphqlMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostGraphqlMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.graphql.$post>) =>
+    parseResponse(client.graphql.$post(args, clientOptions)),
+})
 
 /**
  * POST /graphql
  *
  * GraphQL endpoint
  */
-export function usePostGraphql(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.graphql.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.graphql.$post>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<typeof client.graphql.$post> | undefined,
+export function usePostGraphql(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.graphql.$post>>>>>,
     Error,
     InferRequestType<typeof client.graphql.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.graphql.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } = getPostGraphqlMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /grpc-gateway
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostGrpcGatewayMutationKey() {
+  return ['grpc-gateway', 'POST', '/grpc-gateway'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /grpc-gateway
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostGrpcGatewayMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostGrpcGatewayMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client)['grpc-gateway']['$post']>) =>
+    parseResponse(client['grpc-gateway'].$post(args, clientOptions)),
+})
 
 /**
  * POST /grpc-gateway
  *
  * gRPC-Gateway endpoint
  */
-export function usePostGrpcGateway(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['grpc-gateway']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['grpc-gateway']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<(typeof client)['grpc-gateway']['$post']> | undefined,
+export function usePostGrpcGateway(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client)['grpc-gateway']['$post']>>>
+      >
+    >,
     Error,
     InferRequestType<(typeof client)['grpc-gateway']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['grpc-gateway'].$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostGrpcGatewayMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query cache key for GET /deprecated-endpoint
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGetDeprecatedEndpointQueryKey() {
+  return ['deprecated-endpoint', 'GET', '/deprecated-endpoint'] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /deprecated-endpoint
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetDeprecatedEndpointQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetDeprecatedEndpointQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['deprecated-endpoint'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /deprecated-endpoint
@@ -109,35 +158,18 @@ export function usePostGrpcGateway(
  *
  * Please use `/new-endpoint` instead.
  */
-export function useGetDeprecatedEndpoint(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client)['deprecated-endpoint']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['deprecated-endpoint']['$get']>,
-      readonly ['/deprecated-endpoint']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetDeprecatedEndpoint(options?: {
+  query?: UseQueryOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client)['deprecated-endpoint']['$get']>>>
+      >
+    >,
+    Error
+  >
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetDeprecatedEndpointQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client['deprecated-endpoint'].$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
-}
-
-/**
- * Generates TanStack Query cache key for GET /deprecated-endpoint
- */
-export function getGetDeprecatedEndpointQueryKey() {
-  return ['/deprecated-endpoint'] as const
+  const { queryKey, queryFn, ...baseOptions } = getGetDeprecatedEndpointQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }

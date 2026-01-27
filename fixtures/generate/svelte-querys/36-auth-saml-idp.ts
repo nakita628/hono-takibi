@@ -1,8 +1,36 @@
-import type { CreateMutationOptions, CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
+import type {
+  CreateMutationOptions,
+  CreateQueryOptions,
+  QueryFunctionContext,
+} from '@tanstack/svelte-query'
 import { createMutation, createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/36-auth-saml-idp'
+
+/**
+ * Generates Svelte Query cache key for GET /saml/sso
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetSamlSsoQueryKey(args: InferRequestType<typeof client.saml.sso.$get>) {
+  return ['saml', 'GET', '/saml/sso', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /saml/sso
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetSamlSsoQueryOptions = (
+  args: InferRequestType<typeof client.saml.sso.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetSamlSsoQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.saml.sso.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /saml/sso
@@ -13,36 +41,39 @@ import { client } from '../clients/36-auth-saml-idp'
  */
 export function createGetSamlSso(
   args: InferRequestType<typeof client.saml.sso.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.saml.sso.$get>,
-      Error,
-      InferResponseType<typeof client.saml.sso.$get>,
-      readonly ['/saml/sso', InferRequestType<typeof client.saml.sso.$get>]
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.saml.sso.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetSamlSsoQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.saml.sso.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetSamlSsoQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /saml/sso
+ * Generates Svelte Query mutation key for POST /saml/sso
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetSamlSsoQueryKey(args: InferRequestType<typeof client.saml.sso.$get>) {
-  return ['/saml/sso', args] as const
+export function getPostSamlSsoMutationKey() {
+  return ['saml', 'POST', '/saml/sso'] as const
 }
+
+/**
+ * Returns Svelte Query mutation options for POST /saml/sso
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostSamlSsoMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostSamlSsoMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.saml.sso.$post>) =>
+    parseResponse(client.saml.sso.$post(args, clientOptions)),
+})
 
 /**
  * POST /saml/sso
@@ -52,28 +83,45 @@ export function getGetSamlSsoQueryKey(args: InferRequestType<typeof client.saml.
  * HTTP-POST バインディングでのSSO処理
  */
 export function createPostSamlSso(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.saml.sso.$post> | undefined,
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.saml.sso.$post>>>>>,
       Error,
       InferRequestType<typeof client.saml.sso.$post>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.saml.sso.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.saml.sso.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.saml.sso.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostSamlSsoMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query cache key for GET /saml/slo
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetSamlSloQueryKey(args: InferRequestType<typeof client.saml.slo.$get>) {
+  return ['saml', 'GET', '/saml/slo', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /saml/slo
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetSamlSloQueryOptions = (
+  args: InferRequestType<typeof client.saml.slo.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetSamlSloQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.saml.slo.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /saml/slo
@@ -84,36 +132,39 @@ export function createPostSamlSso(
  */
 export function createGetSamlSlo(
   args: InferRequestType<typeof client.saml.slo.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.saml.slo.$get>,
-      Error,
-      InferResponseType<typeof client.saml.slo.$get>,
-      readonly ['/saml/slo', InferRequestType<typeof client.saml.slo.$get>]
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.saml.slo.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetSamlSloQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.saml.slo.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetSamlSloQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /saml/slo
+ * Generates Svelte Query mutation key for POST /saml/slo
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetSamlSloQueryKey(args: InferRequestType<typeof client.saml.slo.$get>) {
-  return ['/saml/slo', args] as const
+export function getPostSamlSloMutationKey() {
+  return ['saml', 'POST', '/saml/slo'] as const
 }
+
+/**
+ * Returns Svelte Query mutation options for POST /saml/slo
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostSamlSloMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostSamlSloMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.saml.slo.$post>) =>
+    parseResponse(client.saml.slo.$post(args, clientOptions)),
+})
 
 /**
  * POST /saml/slo
@@ -123,28 +174,40 @@ export function getGetSamlSloQueryKey(args: InferRequestType<typeof client.saml.
  * HTTP-POST バインディングでのシングルログアウト
  */
 export function createPostSamlSlo(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.saml.slo.$post> | undefined,
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.saml.slo.$post>>>>>,
       Error,
       InferRequestType<typeof client.saml.slo.$post>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.saml.slo.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.saml.slo.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.saml.slo.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostSamlSloMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query mutation key for POST /saml/acs
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostSamlAcsMutationKey() {
+  return ['saml', 'POST', '/saml/acs'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /saml/acs
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostSamlAcsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostSamlAcsMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.saml.acs.$post>) =>
+    parseResponse(client.saml.acs.$post(args, clientOptions)),
+})
 
 /**
  * POST /saml/acs
@@ -154,28 +217,45 @@ export function createPostSamlSlo(
  * SPからのSAMLレスポンスを処理（IdP-initiated の場合）
  */
 export function createPostSamlAcs(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.saml.acs.$post> | undefined,
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.saml.acs.$post>>>>>,
       Error,
       InferRequestType<typeof client.saml.acs.$post>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.saml.acs.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.saml.acs.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.saml.acs.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostSamlAcsMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query cache key for GET /saml/metadata
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGetSamlMetadataQueryKey() {
+  return ['saml', 'GET', '/saml/metadata'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /saml/metadata
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetSamlMetadataQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetSamlMetadataQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.saml.metadata.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /saml/metadata
@@ -185,36 +265,51 @@ export function createPostSamlAcs(
  * SAML 2.0 IdPメタデータをXML形式で取得
  */
 export function createGetSamlMetadata(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.saml.metadata.$get>,
-      Error,
-      InferResponseType<typeof client.saml.metadata.$get>,
-      readonly ['/saml/metadata']
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.saml.metadata.$get>>>>
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetSamlMetadataQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.saml.metadata.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetSamlMetadataQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /saml/metadata
+ * Generates Svelte Query cache key for GET /service-providers
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetSamlMetadataQueryKey() {
-  return ['/saml/metadata'] as const
+export function getGetServiceProvidersQueryKey(
+  args: InferRequestType<(typeof client)['service-providers']['$get']>,
+) {
+  return ['service-providers', 'GET', '/service-providers', args] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /service-providers
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetServiceProvidersQueryOptions = (
+  args: InferRequestType<(typeof client)['service-providers']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetServiceProvidersQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['service-providers'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /service-providers
@@ -223,41 +318,46 @@ export function getGetSamlMetadataQueryKey() {
  */
 export function createGetServiceProviders(
   args: InferRequestType<(typeof client)['service-providers']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<(typeof client)['service-providers']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['service-providers']['$get']>,
-      readonly [
-        '/service-providers',
-        InferRequestType<(typeof client)['service-providers']['$get']>,
-      ]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client)['service-providers']['$get']>>>
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetServiceProvidersQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client['service-providers'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetServiceProvidersQueryOptions(
+      args,
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /service-providers
+ * Generates Svelte Query mutation key for POST /service-providers
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetServiceProvidersQueryKey(
-  args: InferRequestType<(typeof client)['service-providers']['$get']>,
-) {
-  return ['/service-providers', args] as const
+export function getPostServiceProvidersMutationKey() {
+  return ['service-providers', 'POST', '/service-providers'] as const
 }
+
+/**
+ * Returns Svelte Query mutation options for POST /service-providers
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostServiceProvidersMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostServiceProvidersMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client)['service-providers']['$post']>) =>
+    parseResponse(client['service-providers'].$post(args, clientOptions)),
+})
 
 /**
  * POST /service-providers
@@ -265,29 +365,56 @@ export function getGetServiceProvidersQueryKey(
  * SP登録
  */
 export function createPostServiceProviders(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<(typeof client)['service-providers']['$post']> | undefined,
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client)['service-providers']['$post']>>>
+        >
+      >,
       Error,
       InferRequestType<(typeof client)['service-providers']['$post']>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<(typeof client)['service-providers']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client)['service-providers']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['service-providers'].$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostServiceProvidersMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query cache key for GET /service-providers/{spId}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetServiceProvidersSpIdQueryKey(
+  args: InferRequestType<(typeof client)['service-providers'][':spId']['$get']>,
+) {
+  return ['service-providers', 'GET', '/service-providers/:spId', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /service-providers/{spId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetServiceProvidersSpIdQueryOptions = (
+  args: InferRequestType<(typeof client)['service-providers'][':spId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetServiceProvidersSpIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['service-providers'][':spId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /service-providers/{spId}
@@ -296,42 +423,51 @@ export function createPostServiceProviders(
  */
 export function createGetServiceProvidersSpId(
   args: InferRequestType<(typeof client)['service-providers'][':spId']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<(typeof client)['service-providers'][':spId']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['service-providers'][':spId']['$get']>,
-      readonly [
-        '/service-providers/:spId',
-        InferRequestType<(typeof client)['service-providers'][':spId']['$get']>,
-      ]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['service-providers'][':spId']['$get']>>
+          >
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetServiceProvidersSpIdQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client['service-providers'][':spId'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetServiceProvidersSpIdQueryOptions(
+      args,
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /service-providers/{spId}
+ * Generates Svelte Query mutation key for PUT /service-providers/{spId}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetServiceProvidersSpIdQueryKey(
-  args: InferRequestType<(typeof client)['service-providers'][':spId']['$get']>,
-) {
-  return ['/service-providers/:spId', args] as const
+export function getPutServiceProvidersSpIdMutationKey() {
+  return ['service-providers', 'PUT', '/service-providers/:spId'] as const
 }
+
+/**
+ * Returns Svelte Query mutation options for PUT /service-providers/{spId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutServiceProvidersSpIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPutServiceProvidersSpIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client)['service-providers'][':spId']['$put']>,
+  ) => parseResponse(client['service-providers'][':spId'].$put(args, clientOptions)),
+})
 
 /**
  * PUT /service-providers/{spId}
@@ -339,29 +475,51 @@ export function getGetServiceProvidersSpIdQueryKey(
  * SP更新
  */
 export function createPutServiceProvidersSpId(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<(typeof client)['service-providers'][':spId']['$put']> | undefined,
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['service-providers'][':spId']['$put']>>
+          >
+        >
+      >,
       Error,
       InferRequestType<(typeof client)['service-providers'][':spId']['$put']>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<(typeof client)['service-providers'][':spId']['$put']> | undefined,
-    Error,
-    InferRequestType<(typeof client)['service-providers'][':spId']['$put']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['service-providers'][':spId'].$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPutServiceProvidersSpIdMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query mutation key for DELETE /service-providers/{spId}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getDeleteServiceProvidersSpIdMutationKey() {
+  return ['service-providers', 'DELETE', '/service-providers/:spId'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /service-providers/{spId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteServiceProvidersSpIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteServiceProvidersSpIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client)['service-providers'][':spId']['$delete']>,
+  ) => parseResponse(client['service-providers'][':spId'].$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /service-providers/{spId}
@@ -369,29 +527,58 @@ export function createPutServiceProvidersSpId(
  * SP削除
  */
 export function createDeleteServiceProvidersSpId(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<(typeof client)['service-providers'][':spId']['$delete']> | undefined,
+      | Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<ReturnType<(typeof client)['service-providers'][':spId']['$delete']>>
+            >
+          >
+        >
+      | undefined,
       Error,
       InferRequestType<(typeof client)['service-providers'][':spId']['$delete']>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<(typeof client)['service-providers'][':spId']['$delete']> | undefined,
-    Error,
-    InferRequestType<(typeof client)['service-providers'][':spId']['$delete']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['service-providers'][':spId'].$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getDeleteServiceProvidersSpIdMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query cache key for GET /service-providers/{spId}/metadata
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetServiceProvidersSpIdMetadataQueryKey(
+  args: InferRequestType<(typeof client)['service-providers'][':spId']['metadata']['$get']>,
+) {
+  return ['service-providers', 'GET', '/service-providers/:spId/metadata', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /service-providers/{spId}/metadata
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetServiceProvidersSpIdMetadataQueryOptions = (
+  args: InferRequestType<(typeof client)['service-providers'][':spId']['metadata']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetServiceProvidersSpIdMetadataQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['service-providers'][':spId'].metadata.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /service-providers/{spId}/metadata
@@ -400,42 +587,51 @@ export function createDeleteServiceProvidersSpId(
  */
 export function createGetServiceProvidersSpIdMetadata(
   args: InferRequestType<(typeof client)['service-providers'][':spId']['metadata']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<(typeof client)['service-providers'][':spId']['metadata']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['service-providers'][':spId']['metadata']['$get']>,
-      readonly [
-        '/service-providers/:spId/metadata',
-        InferRequestType<(typeof client)['service-providers'][':spId']['metadata']['$get']>,
-      ]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['service-providers'][':spId']['metadata']['$get']>>
+          >
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetServiceProvidersSpIdMetadataQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client['service-providers'][':spId'].metadata.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetServiceProvidersSpIdMetadataQueryOptions(
+      args,
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /service-providers/{spId}/metadata
+ * Generates Svelte Query mutation key for PUT /service-providers/{spId}/metadata
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetServiceProvidersSpIdMetadataQueryKey(
-  args: InferRequestType<(typeof client)['service-providers'][':spId']['metadata']['$get']>,
-) {
-  return ['/service-providers/:spId/metadata', args] as const
+export function getPutServiceProvidersSpIdMetadataMutationKey() {
+  return ['service-providers', 'PUT', '/service-providers/:spId/metadata'] as const
 }
+
+/**
+ * Returns Svelte Query mutation options for PUT /service-providers/{spId}/metadata
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutServiceProvidersSpIdMetadataMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPutServiceProvidersSpIdMetadataMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client)['service-providers'][':spId']['metadata']['$put']>,
+  ) => parseResponse(client['service-providers'][':spId'].metadata.$put(args, clientOptions)),
+})
 
 /**
  * PUT /service-providers/{spId}/metadata
@@ -443,31 +639,57 @@ export function getGetServiceProvidersSpIdMetadataQueryKey(
  * SPメタデータ更新
  */
 export function createPutServiceProvidersSpIdMetadata(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      | InferResponseType<(typeof client)['service-providers'][':spId']['metadata']['$put']>
-      | undefined,
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['service-providers'][':spId']['metadata']['$put']>>
+          >
+        >
+      >,
       Error,
       InferRequestType<(typeof client)['service-providers'][':spId']['metadata']['$put']>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<(typeof client)['service-providers'][':spId']['metadata']['$put']>
-    | undefined,
-    Error,
-    InferRequestType<(typeof client)['service-providers'][':spId']['metadata']['$put']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['service-providers'][':spId'].metadata.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPutServiceProvidersSpIdMetadataMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query cache key for GET /service-providers/{spId}/attributes
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetServiceProvidersSpIdAttributesQueryKey(
+  args: InferRequestType<(typeof client)['service-providers'][':spId']['attributes']['$get']>,
+) {
+  return ['service-providers', 'GET', '/service-providers/:spId/attributes', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /service-providers/{spId}/attributes
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetServiceProvidersSpIdAttributesQueryOptions = (
+  args: InferRequestType<(typeof client)['service-providers'][':spId']['attributes']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetServiceProvidersSpIdAttributesQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['service-providers'][':spId'].attributes.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /service-providers/{spId}/attributes
@@ -476,42 +698,51 @@ export function createPutServiceProvidersSpIdMetadata(
  */
 export function createGetServiceProvidersSpIdAttributes(
   args: InferRequestType<(typeof client)['service-providers'][':spId']['attributes']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<(typeof client)['service-providers'][':spId']['attributes']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['service-providers'][':spId']['attributes']['$get']>,
-      readonly [
-        '/service-providers/:spId/attributes',
-        InferRequestType<(typeof client)['service-providers'][':spId']['attributes']['$get']>,
-      ]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['service-providers'][':spId']['attributes']['$get']>>
+          >
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetServiceProvidersSpIdAttributesQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client['service-providers'][':spId'].attributes.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetServiceProvidersSpIdAttributesQueryOptions(
+      args,
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /service-providers/{spId}/attributes
+ * Generates Svelte Query mutation key for PUT /service-providers/{spId}/attributes
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetServiceProvidersSpIdAttributesQueryKey(
-  args: InferRequestType<(typeof client)['service-providers'][':spId']['attributes']['$get']>,
-) {
-  return ['/service-providers/:spId/attributes', args] as const
+export function getPutServiceProvidersSpIdAttributesMutationKey() {
+  return ['service-providers', 'PUT', '/service-providers/:spId/attributes'] as const
 }
+
+/**
+ * Returns Svelte Query mutation options for PUT /service-providers/{spId}/attributes
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutServiceProvidersSpIdAttributesMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPutServiceProvidersSpIdAttributesMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client)['service-providers'][':spId']['attributes']['$put']>,
+  ) => parseResponse(client['service-providers'][':spId'].attributes.$put(args, clientOptions)),
+})
 
 /**
  * PUT /service-providers/{spId}/attributes
@@ -519,31 +750,52 @@ export function getGetServiceProvidersSpIdAttributesQueryKey(
  * SP属性マッピング更新
  */
 export function createPutServiceProvidersSpIdAttributes(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      | InferResponseType<(typeof client)['service-providers'][':spId']['attributes']['$put']>
-      | undefined,
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['service-providers'][':spId']['attributes']['$put']>>
+          >
+        >
+      >,
       Error,
       InferRequestType<(typeof client)['service-providers'][':spId']['attributes']['$put']>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<(typeof client)['service-providers'][':spId']['attributes']['$put']>
-    | undefined,
-    Error,
-    InferRequestType<(typeof client)['service-providers'][':spId']['attributes']['$put']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['service-providers'][':spId'].attributes.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPutServiceProvidersSpIdAttributesMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query cache key for GET /attributes
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGetAttributesQueryKey() {
+  return ['attributes', 'GET', '/attributes'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /attributes
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetAttributesQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetAttributesQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.attributes.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /attributes
@@ -551,36 +803,44 @@ export function createPutServiceProvidersSpIdAttributes(
  * 利用可能な属性一覧
  */
 export function createGetAttributes(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.attributes.$get>,
-      Error,
-      InferResponseType<typeof client.attributes.$get>,
-      readonly ['/attributes']
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.attributes.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetAttributesQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.attributes.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetAttributesQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /attributes
+ * Generates Svelte Query cache key for GET /certificates
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetAttributesQueryKey() {
-  return ['/attributes'] as const
+export function getGetCertificatesQueryKey() {
+  return ['certificates', 'GET', '/certificates'] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /certificates
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetCertificatesQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetCertificatesQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.certificates.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /certificates
@@ -588,36 +848,41 @@ export function getGetAttributesQueryKey() {
  * 証明書一覧取得
  */
 export function createGetCertificates(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.certificates.$get>,
-      Error,
-      InferResponseType<typeof client.certificates.$get>,
-      readonly ['/certificates']
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.certificates.$get>>>>
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetCertificatesQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.certificates.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetCertificatesQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /certificates
+ * Generates Svelte Query mutation key for POST /certificates
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetCertificatesQueryKey() {
-  return ['/certificates'] as const
+export function getPostCertificatesMutationKey() {
+  return ['certificates', 'POST', '/certificates'] as const
 }
+
+/**
+ * Returns Svelte Query mutation options for POST /certificates
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostCertificatesMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostCertificatesMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.certificates.$post>) =>
+    parseResponse(client.certificates.$post(args, clientOptions)),
+})
 
 /**
  * POST /certificates
@@ -625,28 +890,46 @@ export function getGetCertificatesQueryKey() {
  * 証明書アップロード
  */
 export function createPostCertificates(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.certificates.$post> | undefined,
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.certificates.$post>>>>
+      >,
       Error,
       InferRequestType<typeof client.certificates.$post>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.certificates.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.certificates.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.certificates.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostCertificatesMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query mutation key for DELETE /certificates/{certId}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getDeleteCertificatesCertIdMutationKey() {
+  return ['certificates', 'DELETE', '/certificates/:certId'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /certificates/{certId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteCertificatesCertIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteCertificatesCertIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.certificates)[':certId']['$delete']>) =>
+    parseResponse(client.certificates[':certId'].$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /certificates/{certId}
@@ -654,29 +937,52 @@ export function createPostCertificates(
  * 証明書削除
  */
 export function createDeleteCertificatesCertId(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<(typeof client.certificates)[':certId']['$delete']> | undefined,
+      | Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<ReturnType<(typeof client.certificates)[':certId']['$delete']>>
+            >
+          >
+        >
+      | undefined,
       Error,
       InferRequestType<(typeof client.certificates)[':certId']['$delete']>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<(typeof client.certificates)[':certId']['$delete']> | undefined,
-    Error,
-    InferRequestType<(typeof client.certificates)[':certId']['$delete']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.certificates[':certId'].$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getDeleteCertificatesCertIdMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query mutation key for POST /certificates/{certId}/activate
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostCertificatesCertIdActivateMutationKey() {
+  return ['certificates', 'POST', '/certificates/:certId/activate'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /certificates/{certId}/activate
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostCertificatesCertIdActivateMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostCertificatesCertIdActivateMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.certificates)[':certId']['activate']['$post']>,
+  ) => parseResponse(client.certificates[':certId'].activate.$post(args, clientOptions)),
+})
 
 /**
  * POST /certificates/{certId}/activate
@@ -684,29 +990,52 @@ export function createDeleteCertificatesCertId(
  * 証明書有効化
  */
 export function createPostCertificatesCertIdActivate(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<(typeof client.certificates)[':certId']['activate']['$post']> | undefined,
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.certificates)[':certId']['activate']['$post']>>
+          >
+        >
+      >,
       Error,
       InferRequestType<(typeof client.certificates)[':certId']['activate']['$post']>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<(typeof client.certificates)[':certId']['activate']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client.certificates)[':certId']['activate']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.certificates[':certId'].activate.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPostCertificatesCertIdActivateMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query cache key for GET /sessions
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetSessionsQueryKey(args: InferRequestType<typeof client.sessions.$get>) {
+  return ['sessions', 'GET', '/sessions', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /sessions
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetSessionsQueryOptions = (
+  args: InferRequestType<typeof client.sessions.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetSessionsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.sessions.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /sessions
@@ -715,36 +1044,41 @@ export function createPostCertificatesCertIdActivate(
  */
 export function createGetSessions(
   args: InferRequestType<typeof client.sessions.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.sessions.$get>,
-      Error,
-      InferResponseType<typeof client.sessions.$get>,
-      readonly ['/sessions', InferRequestType<typeof client.sessions.$get>]
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.sessions.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetSessionsQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.sessions.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetSessionsQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /sessions
+ * Generates Svelte Query mutation key for DELETE /sessions/{sessionId}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetSessionsQueryKey(args: InferRequestType<typeof client.sessions.$get>) {
-  return ['/sessions', args] as const
+export function getDeleteSessionsSessionIdMutationKey() {
+  return ['sessions', 'DELETE', '/sessions/:sessionId'] as const
 }
+
+/**
+ * Returns Svelte Query mutation options for DELETE /sessions/{sessionId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteSessionsSessionIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteSessionsSessionIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.sessions)[':sessionId']['$delete']>) =>
+    parseResponse(client.sessions[':sessionId'].$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /sessions/{sessionId}
@@ -752,29 +1086,59 @@ export function getGetSessionsQueryKey(args: InferRequestType<typeof client.sess
  * セッション終了
  */
 export function createDeleteSessionsSessionId(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<(typeof client.sessions)[':sessionId']['$delete']> | undefined,
+      | Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<ReturnType<(typeof client.sessions)[':sessionId']['$delete']>>
+            >
+          >
+        >
+      | undefined,
       Error,
       InferRequestType<(typeof client.sessions)[':sessionId']['$delete']>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<(typeof client.sessions)[':sessionId']['$delete']> | undefined,
-    Error,
-    InferRequestType<(typeof client.sessions)[':sessionId']['$delete']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.sessions[':sessionId'].$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getDeleteSessionsSessionIdMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query cache key for GET /audit-logs
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetAuditLogsQueryKey(
+  args: InferRequestType<(typeof client)['audit-logs']['$get']>,
+) {
+  return ['audit-logs', 'GET', '/audit-logs', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /audit-logs
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetAuditLogsQueryOptions = (
+  args: InferRequestType<(typeof client)['audit-logs']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetAuditLogsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['audit-logs'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /audit-logs
@@ -783,35 +1147,19 @@ export function createDeleteSessionsSessionId(
  */
 export function createGetAuditLogs(
   args: InferRequestType<(typeof client)['audit-logs']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<(typeof client)['audit-logs']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['audit-logs']['$get']>,
-      readonly ['/audit-logs', InferRequestType<(typeof client)['audit-logs']['$get']>]
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['audit-logs']['$get']>>>>
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetAuditLogsQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client['audit-logs'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
-}
-
-/**
- * Generates Svelte Query cache key for GET /audit-logs
- */
-export function getGetAuditLogsQueryKey(
-  args: InferRequestType<(typeof client)['audit-logs']['$get']>,
-) {
-  return ['/audit-logs', args] as const
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetAuditLogsQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }

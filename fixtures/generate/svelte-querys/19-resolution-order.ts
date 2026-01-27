@@ -1,129 +1,172 @@
-import type { CreateMutationOptions, CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
+import type {
+  CreateMutationOptions,
+  CreateQueryOptions,
+  QueryFunctionContext,
+} from '@tanstack/svelte-query'
 import { createMutation, createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/19-resolution-order'
+
+/**
+ * Generates Svelte Query cache key for GET /entities
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGetEntitiesQueryKey() {
+  return ['entities', 'GET', '/entities'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /entities
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetEntitiesQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetEntitiesQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.entities.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /entities
  */
 export function createGetEntities(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.entities.$get>,
-      Error,
-      InferResponseType<typeof client.entities.$get>,
-      readonly ['/entities']
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.entities.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetEntitiesQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.entities.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetEntitiesQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /entities
+ * Generates Svelte Query mutation key for POST /process
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetEntitiesQueryKey() {
-  return ['/entities'] as const
+export function getPostProcessMutationKey() {
+  return ['process', 'POST', '/process'] as const
 }
+
+/**
+ * Returns Svelte Query mutation options for POST /process
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostProcessMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostProcessMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.process.$post>) =>
+    parseResponse(client.process.$post(args, clientOptions)),
+})
 
 /**
  * POST /process
  */
 export function createPostProcess(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.process.$post> | undefined,
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.process.$post>>>>>,
       Error,
       InferRequestType<typeof client.process.$post>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.process.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.process.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.process.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostProcessMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query cache key for GET /graph
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGetGraphQueryKey() {
+  return ['graph', 'GET', '/graph'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /graph
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetGraphQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetGraphQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.graph.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /graph
  */
 export function createGetGraph(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.graph.$get>,
-      Error,
-      InferResponseType<typeof client.graph.$get>,
-      readonly ['/graph']
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.graph.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetGraphQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.graph.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetGraphQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /graph
+ * Generates Svelte Query mutation key for POST /transform
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetGraphQueryKey() {
-  return ['/graph'] as const
+export function getPostTransformMutationKey() {
+  return ['transform', 'POST', '/transform'] as const
 }
+
+/**
+ * Returns Svelte Query mutation options for POST /transform
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostTransformMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostTransformMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.transform.$post>) =>
+    parseResponse(client.transform.$post(args, clientOptions)),
+})
 
 /**
  * POST /transform
  */
 export function createPostTransform(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.transform.$post> | undefined,
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.transform.$post>>>>>,
       Error,
       InferRequestType<typeof client.transform.$post>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.transform.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.transform.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.transform.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostTransformMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }

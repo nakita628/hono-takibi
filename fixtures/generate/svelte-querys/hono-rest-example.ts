@@ -1,8 +1,33 @@
-import type { CreateMutationOptions, CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
+import type {
+  CreateMutationOptions,
+  CreateQueryOptions,
+  QueryFunctionContext,
+} from '@tanstack/svelte-query'
 import { createMutation, createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/hono-rest-example'
+
+/**
+ * Generates Svelte Query cache key for GET /
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGetQueryKey() {
+  return ['', 'GET', '/'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.index.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /
@@ -12,36 +37,44 @@ import { client } from '../clients/hono-rest-example'
  * Retrieve a simple welcome message from the Hono API.
  */
 export function createGet(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.index.$get>,
-      Error,
-      InferResponseType<typeof client.index.$get>,
-      readonly ['/']
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.index.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.index.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /
+ * Generates Svelte Query cache key for GET /posts
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetQueryKey() {
-  return ['/'] as const
+export function getGetPostsQueryKey(args: InferRequestType<typeof client.posts.$get>) {
+  return ['posts', 'GET', '/posts', args] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /posts
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetPostsQueryOptions = (
+  args: InferRequestType<typeof client.posts.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetPostsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.posts.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /posts
@@ -52,36 +85,39 @@ export function getGetQueryKey() {
  */
 export function createGetPosts(
   args: InferRequestType<typeof client.posts.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.posts.$get>,
-      Error,
-      InferResponseType<typeof client.posts.$get>,
-      readonly ['/posts', InferRequestType<typeof client.posts.$get>]
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.posts.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetPostsQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.posts.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetPostsQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /posts
+ * Generates Svelte Query mutation key for POST /posts
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetPostsQueryKey(args: InferRequestType<typeof client.posts.$get>) {
-  return ['/posts', args] as const
+export function getPostPostsMutationKey() {
+  return ['posts', 'POST', '/posts'] as const
 }
+
+/**
+ * Returns Svelte Query mutation options for POST /posts
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostPostsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostPostsMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.posts.$post>) =>
+    parseResponse(client.posts.$post(args, clientOptions)),
+})
 
 /**
  * POST /posts
@@ -91,28 +127,40 @@ export function getGetPostsQueryKey(args: InferRequestType<typeof client.posts.$
  * Submit a new post with a maximum length of 140 characters.
  */
 export function createPostPosts(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.posts.$post> | undefined,
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.posts.$post>>>>>,
       Error,
       InferRequestType<typeof client.posts.$post>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.posts.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.posts.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.posts.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostPostsMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query mutation key for PUT /posts/{id}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPutPostsIdMutationKey() {
+  return ['posts', 'PUT', '/posts/:id'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PUT /posts/{id}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutPostsIdMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPutPostsIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.posts)[':id']['$put']>) =>
+    parseResponse(client.posts[':id'].$put(args, clientOptions)),
+})
 
 /**
  * PUT /posts/{id}
@@ -122,28 +170,45 @@ export function createPostPosts(
  * Update the content of an existing post identified by its unique ID.
  */
 export function createPutPostsId(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<(typeof client.posts)[':id']['$put']> | undefined,
+      | Awaited<
+          ReturnType<
+            typeof parseResponse<Awaited<ReturnType<(typeof client.posts)[':id']['$put']>>>
+          >
+        >
+      | undefined,
       Error,
       InferRequestType<(typeof client.posts)[':id']['$put']>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<(typeof client.posts)[':id']['$put']> | undefined,
-    Error,
-    InferRequestType<(typeof client.posts)[':id']['$put']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.posts[':id'].$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPutPostsIdMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query mutation key for DELETE /posts/{id}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getDeletePostsIdMutationKey() {
+  return ['posts', 'DELETE', '/posts/:id'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /posts/{id}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeletePostsIdMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getDeletePostsIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.posts)[':id']['$delete']>) =>
+    parseResponse(client.posts[':id'].$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /posts/{id}
@@ -153,25 +218,25 @@ export function createPutPostsId(
  * Delete an existing post identified by its unique ID.
  */
 export function createDeletePostsId(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<(typeof client.posts)[':id']['$delete']> | undefined,
+      | Awaited<
+          ReturnType<
+            typeof parseResponse<Awaited<ReturnType<(typeof client.posts)[':id']['$delete']>>>
+          >
+        >
+      | undefined,
       Error,
       InferRequestType<(typeof client.posts)[':id']['$delete']>
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<(typeof client.posts)[':id']['$delete']> | undefined,
-    Error,
-    InferRequestType<(typeof client.posts)[':id']['$delete']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.posts[':id'].$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getDeletePostsIdMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }

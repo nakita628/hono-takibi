@@ -1,8 +1,36 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
+import type {
+  QueryFunctionContext,
+  UseMutationOptions,
+  UseQueryOptions,
+} from '@tanstack/react-query'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/36-auth-saml-idp'
+
+/**
+ * Generates TanStack Query cache key for GET /saml/sso
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetSamlSsoQueryKey(args: InferRequestType<typeof client.saml.sso.$get>) {
+  return ['saml', 'GET', '/saml/sso', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /saml/sso
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetSamlSsoQueryOptions = (
+  args: InferRequestType<typeof client.saml.sso.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetSamlSsoQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.saml.sso.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /saml/sso
@@ -15,34 +43,35 @@ export function useGetSamlSso(
   args: InferRequestType<typeof client.saml.sso.$get>,
   options?: {
     query?: UseQueryOptions<
-      InferResponseType<typeof client.saml.sso.$get>,
-      Error,
-      InferResponseType<typeof client.saml.sso.$get>,
-      readonly ['/saml/sso', InferRequestType<typeof client.saml.sso.$get>]
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.saml.sso.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetSamlSsoQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.saml.sso.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  const { queryKey, queryFn, ...baseOptions } = getGetSamlSsoQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /saml/sso
+ * Generates TanStack Query mutation key for POST /saml/sso
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetSamlSsoQueryKey(args: InferRequestType<typeof client.saml.sso.$get>) {
-  return ['/saml/sso', args] as const
+export function getPostSamlSsoMutationKey() {
+  return ['saml', 'POST', '/saml/sso'] as const
 }
+
+/**
+ * Returns TanStack Query mutation options for POST /saml/sso
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostSamlSsoMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostSamlSsoMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.saml.sso.$post>) =>
+    parseResponse(client.saml.sso.$post(args, clientOptions)),
+})
 
 /**
  * POST /saml/sso
@@ -51,29 +80,42 @@ export function getGetSamlSsoQueryKey(args: InferRequestType<typeof client.saml.
  *
  * HTTP-POST バインディングでのSSO処理
  */
-export function usePostSamlSso(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.saml.sso.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.saml.sso.$post>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<typeof client.saml.sso.$post> | undefined,
+export function usePostSamlSso(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.saml.sso.$post>>>>>,
     Error,
     InferRequestType<typeof client.saml.sso.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.saml.sso.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } = getPostSamlSsoMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query cache key for GET /saml/slo
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetSamlSloQueryKey(args: InferRequestType<typeof client.saml.slo.$get>) {
+  return ['saml', 'GET', '/saml/slo', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /saml/slo
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetSamlSloQueryOptions = (
+  args: InferRequestType<typeof client.saml.slo.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetSamlSloQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.saml.slo.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /saml/slo
@@ -86,34 +128,35 @@ export function useGetSamlSlo(
   args: InferRequestType<typeof client.saml.slo.$get>,
   options?: {
     query?: UseQueryOptions<
-      InferResponseType<typeof client.saml.slo.$get>,
-      Error,
-      InferResponseType<typeof client.saml.slo.$get>,
-      readonly ['/saml/slo', InferRequestType<typeof client.saml.slo.$get>]
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.saml.slo.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetSamlSloQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.saml.slo.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  const { queryKey, queryFn, ...baseOptions } = getGetSamlSloQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /saml/slo
+ * Generates TanStack Query mutation key for POST /saml/slo
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetSamlSloQueryKey(args: InferRequestType<typeof client.saml.slo.$get>) {
-  return ['/saml/slo', args] as const
+export function getPostSamlSloMutationKey() {
+  return ['saml', 'POST', '/saml/slo'] as const
 }
+
+/**
+ * Returns TanStack Query mutation options for POST /saml/slo
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostSamlSloMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostSamlSloMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.saml.slo.$post>) =>
+    parseResponse(client.saml.slo.$post(args, clientOptions)),
+})
 
 /**
  * POST /saml/slo
@@ -122,29 +165,37 @@ export function getGetSamlSloQueryKey(args: InferRequestType<typeof client.saml.
  *
  * HTTP-POST バインディングでのシングルログアウト
  */
-export function usePostSamlSlo(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.saml.slo.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.saml.slo.$post>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<typeof client.saml.slo.$post> | undefined,
+export function usePostSamlSlo(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.saml.slo.$post>>>>>,
     Error,
     InferRequestType<typeof client.saml.slo.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.saml.slo.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } = getPostSamlSloMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /saml/acs
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostSamlAcsMutationKey() {
+  return ['saml', 'POST', '/saml/acs'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /saml/acs
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostSamlAcsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostSamlAcsMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.saml.acs.$post>) =>
+    parseResponse(client.saml.acs.$post(args, clientOptions)),
+})
 
 /**
  * POST /saml/acs
@@ -153,29 +204,42 @@ export function usePostSamlSlo(
  *
  * SPからのSAMLレスポンスを処理（IdP-initiated の場合）
  */
-export function usePostSamlAcs(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.saml.acs.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.saml.acs.$post>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<typeof client.saml.acs.$post> | undefined,
+export function usePostSamlAcs(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.saml.acs.$post>>>>>,
     Error,
     InferRequestType<typeof client.saml.acs.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.saml.acs.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } = getPostSamlAcsMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query cache key for GET /saml/metadata
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGetSamlMetadataQueryKey() {
+  return ['saml', 'GET', '/saml/metadata'] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /saml/metadata
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetSamlMetadataQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetSamlMetadataQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.saml.metadata.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /saml/metadata
@@ -184,37 +248,48 @@ export function usePostSamlAcs(
  *
  * SAML 2.0 IdPメタデータをXML形式で取得
  */
-export function useGetSamlMetadata(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.saml.metadata.$get>,
-      Error,
-      InferResponseType<typeof client.saml.metadata.$get>,
-      readonly ['/saml/metadata']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetSamlMetadata(options?: {
+  query?: UseQueryOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.saml.metadata.$get>>>>
+    >,
+    Error
+  >
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetSamlMetadataQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.saml.metadata.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  const { queryKey, queryFn, ...baseOptions } = getGetSamlMetadataQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /saml/metadata
+ * Generates TanStack Query cache key for GET /service-providers
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetSamlMetadataQueryKey() {
-  return ['/saml/metadata'] as const
+export function getGetServiceProvidersQueryKey(
+  args: InferRequestType<(typeof client)['service-providers']['$get']>,
+) {
+  return ['service-providers', 'GET', '/service-providers', args] as const
 }
+
+/**
+ * Returns TanStack Query query options for GET /service-providers
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetServiceProvidersQueryOptions = (
+  args: InferRequestType<(typeof client)['service-providers']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetServiceProvidersQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['service-providers'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /service-providers
@@ -225,69 +300,94 @@ export function useGetServiceProviders(
   args: InferRequestType<(typeof client)['service-providers']['$get']>,
   options?: {
     query?: UseQueryOptions<
-      InferResponseType<(typeof client)['service-providers']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['service-providers']['$get']>,
-      readonly [
-        '/service-providers',
-        InferRequestType<(typeof client)['service-providers']['$get']>,
-      ]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client)['service-providers']['$get']>>>
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetServiceProvidersQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client['service-providers'].$get(args, clientOptions)),
-    },
-    queryClient,
+  const { queryKey, queryFn, ...baseOptions } = getGetServiceProvidersQueryOptions(
+    args,
+    clientOptions,
   )
-  return { ...query, queryKey }
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /service-providers
+ * Generates TanStack Query mutation key for POST /service-providers
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetServiceProvidersQueryKey(
-  args: InferRequestType<(typeof client)['service-providers']['$get']>,
-) {
-  return ['/service-providers', args] as const
+export function getPostServiceProvidersMutationKey() {
+  return ['service-providers', 'POST', '/service-providers'] as const
 }
+
+/**
+ * Returns TanStack Query mutation options for POST /service-providers
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostServiceProvidersMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostServiceProvidersMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client)['service-providers']['$post']>) =>
+    parseResponse(client['service-providers'].$post(args, clientOptions)),
+})
 
 /**
  * POST /service-providers
  *
  * SP登録
  */
-export function usePostServiceProviders(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['service-providers']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['service-providers']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<(typeof client)['service-providers']['$post']> | undefined,
+export function usePostServiceProviders(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client)['service-providers']['$post']>>>
+      >
+    >,
     Error,
     InferRequestType<(typeof client)['service-providers']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['service-providers'].$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostServiceProvidersMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query cache key for GET /service-providers/{spId}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetServiceProvidersSpIdQueryKey(
+  args: InferRequestType<(typeof client)['service-providers'][':spId']['$get']>,
+) {
+  return ['service-providers', 'GET', '/service-providers/:spId', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /service-providers/{spId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetServiceProvidersSpIdQueryOptions = (
+  args: InferRequestType<(typeof client)['service-providers'][':spId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetServiceProvidersSpIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['service-providers'][':spId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /service-providers/{spId}
@@ -298,100 +398,149 @@ export function useGetServiceProvidersSpId(
   args: InferRequestType<(typeof client)['service-providers'][':spId']['$get']>,
   options?: {
     query?: UseQueryOptions<
-      InferResponseType<(typeof client)['service-providers'][':spId']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['service-providers'][':spId']['$get']>,
-      readonly [
-        '/service-providers/:spId',
-        InferRequestType<(typeof client)['service-providers'][':spId']['$get']>,
-      ]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['service-providers'][':spId']['$get']>>
+          >
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetServiceProvidersSpIdQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client['service-providers'][':spId'].$get(args, clientOptions)),
-    },
-    queryClient,
+  const { queryKey, queryFn, ...baseOptions } = getGetServiceProvidersSpIdQueryOptions(
+    args,
+    clientOptions,
   )
-  return { ...query, queryKey }
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /service-providers/{spId}
+ * Generates TanStack Query mutation key for PUT /service-providers/{spId}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetServiceProvidersSpIdQueryKey(
-  args: InferRequestType<(typeof client)['service-providers'][':spId']['$get']>,
-) {
-  return ['/service-providers/:spId', args] as const
+export function getPutServiceProvidersSpIdMutationKey() {
+  return ['service-providers', 'PUT', '/service-providers/:spId'] as const
 }
+
+/**
+ * Returns TanStack Query mutation options for PUT /service-providers/{spId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutServiceProvidersSpIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPutServiceProvidersSpIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client)['service-providers'][':spId']['$put']>,
+  ) => parseResponse(client['service-providers'][':spId'].$put(args, clientOptions)),
+})
 
 /**
  * PUT /service-providers/{spId}
  *
  * SP更新
  */
-export function usePutServiceProvidersSpId(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['service-providers'][':spId']['$put']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['service-providers'][':spId']['$put']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<(typeof client)['service-providers'][':spId']['$put']> | undefined,
+export function usePutServiceProvidersSpId(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['service-providers'][':spId']['$put']>>
+        >
+      >
+    >,
     Error,
     InferRequestType<(typeof client)['service-providers'][':spId']['$put']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['service-providers'][':spId'].$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPutServiceProvidersSpIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for DELETE /service-providers/{spId}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getDeleteServiceProvidersSpIdMutationKey() {
+  return ['service-providers', 'DELETE', '/service-providers/:spId'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for DELETE /service-providers/{spId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteServiceProvidersSpIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteServiceProvidersSpIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client)['service-providers'][':spId']['$delete']>,
+  ) => parseResponse(client['service-providers'][':spId'].$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /service-providers/{spId}
  *
  * SP削除
  */
-export function useDeleteServiceProvidersSpId(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['service-providers'][':spId']['$delete']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['service-providers'][':spId']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<(typeof client)['service-providers'][':spId']['$delete']> | undefined,
+export function useDeleteServiceProvidersSpId(options?: {
+  mutation?: UseMutationOptions<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['service-providers'][':spId']['$delete']>>
+          >
+        >
+      >
+    | undefined,
     Error,
     InferRequestType<(typeof client)['service-providers'][':spId']['$delete']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['service-providers'][':spId'].$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteServiceProvidersSpIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query cache key for GET /service-providers/{spId}/metadata
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetServiceProvidersSpIdMetadataQueryKey(
+  args: InferRequestType<(typeof client)['service-providers'][':spId']['metadata']['$get']>,
+) {
+  return ['service-providers', 'GET', '/service-providers/:spId/metadata', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /service-providers/{spId}/metadata
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetServiceProvidersSpIdMetadataQueryOptions = (
+  args: InferRequestType<(typeof client)['service-providers'][':spId']['metadata']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetServiceProvidersSpIdMetadataQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['service-providers'][':spId'].metadata.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /service-providers/{spId}/metadata
@@ -402,72 +551,101 @@ export function useGetServiceProvidersSpIdMetadata(
   args: InferRequestType<(typeof client)['service-providers'][':spId']['metadata']['$get']>,
   options?: {
     query?: UseQueryOptions<
-      InferResponseType<(typeof client)['service-providers'][':spId']['metadata']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['service-providers'][':spId']['metadata']['$get']>,
-      readonly [
-        '/service-providers/:spId/metadata',
-        InferRequestType<(typeof client)['service-providers'][':spId']['metadata']['$get']>,
-      ]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['service-providers'][':spId']['metadata']['$get']>>
+          >
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetServiceProvidersSpIdMetadataQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client['service-providers'][':spId'].metadata.$get(args, clientOptions)),
-    },
-    queryClient,
+  const { queryKey, queryFn, ...baseOptions } = getGetServiceProvidersSpIdMetadataQueryOptions(
+    args,
+    clientOptions,
   )
-  return { ...query, queryKey }
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /service-providers/{spId}/metadata
+ * Generates TanStack Query mutation key for PUT /service-providers/{spId}/metadata
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetServiceProvidersSpIdMetadataQueryKey(
-  args: InferRequestType<(typeof client)['service-providers'][':spId']['metadata']['$get']>,
-) {
-  return ['/service-providers/:spId/metadata', args] as const
+export function getPutServiceProvidersSpIdMetadataMutationKey() {
+  return ['service-providers', 'PUT', '/service-providers/:spId/metadata'] as const
 }
+
+/**
+ * Returns TanStack Query mutation options for PUT /service-providers/{spId}/metadata
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutServiceProvidersSpIdMetadataMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPutServiceProvidersSpIdMetadataMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client)['service-providers'][':spId']['metadata']['$put']>,
+  ) => parseResponse(client['service-providers'][':spId'].metadata.$put(args, clientOptions)),
+})
 
 /**
  * PUT /service-providers/{spId}/metadata
  *
  * SPメタデータ更新
  */
-export function usePutServiceProvidersSpIdMetadata(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client)['service-providers'][':spId']['metadata']['$put']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client)['service-providers'][':spId']['metadata']['$put']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    | InferResponseType<(typeof client)['service-providers'][':spId']['metadata']['$put']>
-    | undefined,
+export function usePutServiceProvidersSpIdMetadata(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['service-providers'][':spId']['metadata']['$put']>>
+        >
+      >
+    >,
     Error,
     InferRequestType<(typeof client)['service-providers'][':spId']['metadata']['$put']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['service-providers'][':spId'].metadata.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPutServiceProvidersSpIdMetadataMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query cache key for GET /service-providers/{spId}/attributes
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetServiceProvidersSpIdAttributesQueryKey(
+  args: InferRequestType<(typeof client)['service-providers'][':spId']['attributes']['$get']>,
+) {
+  return ['service-providers', 'GET', '/service-providers/:spId/attributes', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /service-providers/{spId}/attributes
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetServiceProvidersSpIdAttributesQueryOptions = (
+  args: InferRequestType<(typeof client)['service-providers'][':spId']['attributes']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetServiceProvidersSpIdAttributesQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['service-providers'][':spId'].attributes.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /service-providers/{spId}/attributes
@@ -478,235 +656,312 @@ export function useGetServiceProvidersSpIdAttributes(
   args: InferRequestType<(typeof client)['service-providers'][':spId']['attributes']['$get']>,
   options?: {
     query?: UseQueryOptions<
-      InferResponseType<(typeof client)['service-providers'][':spId']['attributes']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['service-providers'][':spId']['attributes']['$get']>,
-      readonly [
-        '/service-providers/:spId/attributes',
-        InferRequestType<(typeof client)['service-providers'][':spId']['attributes']['$get']>,
-      ]
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['service-providers'][':spId']['attributes']['$get']>>
+          >
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetServiceProvidersSpIdAttributesQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client['service-providers'][':spId'].attributes.$get(args, clientOptions)),
-    },
-    queryClient,
+  const { queryKey, queryFn, ...baseOptions } = getGetServiceProvidersSpIdAttributesQueryOptions(
+    args,
+    clientOptions,
   )
-  return { ...query, queryKey }
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /service-providers/{spId}/attributes
+ * Generates TanStack Query mutation key for PUT /service-providers/{spId}/attributes
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetServiceProvidersSpIdAttributesQueryKey(
-  args: InferRequestType<(typeof client)['service-providers'][':spId']['attributes']['$get']>,
-) {
-  return ['/service-providers/:spId/attributes', args] as const
+export function getPutServiceProvidersSpIdAttributesMutationKey() {
+  return ['service-providers', 'PUT', '/service-providers/:spId/attributes'] as const
 }
+
+/**
+ * Returns TanStack Query mutation options for PUT /service-providers/{spId}/attributes
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutServiceProvidersSpIdAttributesMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPutServiceProvidersSpIdAttributesMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client)['service-providers'][':spId']['attributes']['$put']>,
+  ) => parseResponse(client['service-providers'][':spId'].attributes.$put(args, clientOptions)),
+})
 
 /**
  * PUT /service-providers/{spId}/attributes
  *
  * SP属性マッピング更新
  */
-export function usePutServiceProvidersSpIdAttributes(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client)['service-providers'][':spId']['attributes']['$put']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client)['service-providers'][':spId']['attributes']['$put']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    | InferResponseType<(typeof client)['service-providers'][':spId']['attributes']['$put']>
-    | undefined,
+export function usePutServiceProvidersSpIdAttributes(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['service-providers'][':spId']['attributes']['$put']>>
+        >
+      >
+    >,
     Error,
     InferRequestType<(typeof client)['service-providers'][':spId']['attributes']['$put']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['service-providers'][':spId'].attributes.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPutServiceProvidersSpIdAttributesMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query cache key for GET /attributes
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGetAttributesQueryKey() {
+  return ['attributes', 'GET', '/attributes'] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /attributes
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetAttributesQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetAttributesQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.attributes.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /attributes
  *
  * 利用可能な属性一覧
  */
-export function useGetAttributes(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.attributes.$get>,
-      Error,
-      InferResponseType<typeof client.attributes.$get>,
-      readonly ['/attributes']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetAttributes(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.attributes.$get>>>>>,
+    Error
+  >
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetAttributesQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.attributes.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  const { queryKey, queryFn, ...baseOptions } = getGetAttributesQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /attributes
+ * Generates TanStack Query cache key for GET /certificates
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetAttributesQueryKey() {
-  return ['/attributes'] as const
+export function getGetCertificatesQueryKey() {
+  return ['certificates', 'GET', '/certificates'] as const
 }
+
+/**
+ * Returns TanStack Query query options for GET /certificates
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetCertificatesQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetCertificatesQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.certificates.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /certificates
  *
  * 証明書一覧取得
  */
-export function useGetCertificates(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.certificates.$get>,
-      Error,
-      InferResponseType<typeof client.certificates.$get>,
-      readonly ['/certificates']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetCertificates(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.certificates.$get>>>>>,
+    Error
+  >
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetCertificatesQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.certificates.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  const { queryKey, queryFn, ...baseOptions } = getGetCertificatesQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /certificates
+ * Generates TanStack Query mutation key for POST /certificates
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetCertificatesQueryKey() {
-  return ['/certificates'] as const
+export function getPostCertificatesMutationKey() {
+  return ['certificates', 'POST', '/certificates'] as const
 }
+
+/**
+ * Returns TanStack Query mutation options for POST /certificates
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostCertificatesMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostCertificatesMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.certificates.$post>) =>
+    parseResponse(client.certificates.$post(args, clientOptions)),
+})
 
 /**
  * POST /certificates
  *
  * 証明書アップロード
  */
-export function usePostCertificates(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.certificates.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.certificates.$post>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<typeof client.certificates.$post> | undefined,
+export function usePostCertificates(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.certificates.$post>>>>
+    >,
     Error,
     InferRequestType<typeof client.certificates.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.certificates.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostCertificatesMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for DELETE /certificates/{certId}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getDeleteCertificatesCertIdMutationKey() {
+  return ['certificates', 'DELETE', '/certificates/:certId'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for DELETE /certificates/{certId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteCertificatesCertIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteCertificatesCertIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.certificates)[':certId']['$delete']>) =>
+    parseResponse(client.certificates[':certId'].$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /certificates/{certId}
  *
  * 証明書削除
  */
-export function useDeleteCertificatesCertId(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.certificates)[':certId']['$delete']> | undefined,
-      Error,
-      InferRequestType<(typeof client.certificates)[':certId']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<(typeof client.certificates)[':certId']['$delete']> | undefined,
+export function useDeleteCertificatesCertId(options?: {
+  mutation?: UseMutationOptions<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.certificates)[':certId']['$delete']>>
+          >
+        >
+      >
+    | undefined,
     Error,
     InferRequestType<(typeof client.certificates)[':certId']['$delete']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.certificates[':certId'].$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteCertificatesCertIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /certificates/{certId}/activate
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostCertificatesCertIdActivateMutationKey() {
+  return ['certificates', 'POST', '/certificates/:certId/activate'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /certificates/{certId}/activate
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostCertificatesCertIdActivateMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostCertificatesCertIdActivateMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.certificates)[':certId']['activate']['$post']>,
+  ) => parseResponse(client.certificates[':certId'].activate.$post(args, clientOptions)),
+})
 
 /**
  * POST /certificates/{certId}/activate
  *
  * 証明書有効化
  */
-export function usePostCertificatesCertIdActivate(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.certificates)[':certId']['activate']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client.certificates)[':certId']['activate']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<(typeof client.certificates)[':certId']['activate']['$post']> | undefined,
+export function usePostCertificatesCertIdActivate(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.certificates)[':certId']['activate']['$post']>>
+        >
+      >
+    >,
     Error,
     InferRequestType<(typeof client.certificates)[':certId']['activate']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.certificates[':certId'].activate.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostCertificatesCertIdActivateMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query cache key for GET /sessions
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetSessionsQueryKey(args: InferRequestType<typeof client.sessions.$get>) {
+  return ['sessions', 'GET', '/sessions', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /sessions
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetSessionsQueryOptions = (
+  args: InferRequestType<typeof client.sessions.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetSessionsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.sessions.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /sessions
@@ -717,64 +972,92 @@ export function useGetSessions(
   args: InferRequestType<typeof client.sessions.$get>,
   options?: {
     query?: UseQueryOptions<
-      InferResponseType<typeof client.sessions.$get>,
-      Error,
-      InferResponseType<typeof client.sessions.$get>,
-      readonly ['/sessions', InferRequestType<typeof client.sessions.$get>]
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.sessions.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetSessionsQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.sessions.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  const { queryKey, queryFn, ...baseOptions } = getGetSessionsQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
- * Generates TanStack Query cache key for GET /sessions
+ * Generates TanStack Query mutation key for DELETE /sessions/{sessionId}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetSessionsQueryKey(args: InferRequestType<typeof client.sessions.$get>) {
-  return ['/sessions', args] as const
+export function getDeleteSessionsSessionIdMutationKey() {
+  return ['sessions', 'DELETE', '/sessions/:sessionId'] as const
 }
+
+/**
+ * Returns TanStack Query mutation options for DELETE /sessions/{sessionId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteSessionsSessionIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteSessionsSessionIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.sessions)[':sessionId']['$delete']>) =>
+    parseResponse(client.sessions[':sessionId'].$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /sessions/{sessionId}
  *
  * セッション終了
  */
-export function useDeleteSessionsSessionId(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.sessions)[':sessionId']['$delete']> | undefined,
-      Error,
-      InferRequestType<(typeof client.sessions)[':sessionId']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<(typeof client.sessions)[':sessionId']['$delete']> | undefined,
+export function useDeleteSessionsSessionId(options?: {
+  mutation?: UseMutationOptions<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.sessions)[':sessionId']['$delete']>>
+          >
+        >
+      >
+    | undefined,
     Error,
     InferRequestType<(typeof client.sessions)[':sessionId']['$delete']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.sessions[':sessionId'].$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteSessionsSessionIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
+
+/**
+ * Generates TanStack Query cache key for GET /audit-logs
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetAuditLogsQueryKey(
+  args: InferRequestType<(typeof client)['audit-logs']['$get']>,
+) {
+  return ['audit-logs', 'GET', '/audit-logs', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /audit-logs
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetAuditLogsQueryOptions = (
+  args: InferRequestType<(typeof client)['audit-logs']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetAuditLogsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['audit-logs'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /audit-logs
@@ -785,33 +1068,15 @@ export function useGetAuditLogs(
   args: InferRequestType<(typeof client)['audit-logs']['$get']>,
   options?: {
     query?: UseQueryOptions<
-      InferResponseType<(typeof client)['audit-logs']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['audit-logs']['$get']>,
-      readonly ['/audit-logs', InferRequestType<(typeof client)['audit-logs']['$get']>]
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['audit-logs']['$get']>>>>
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetAuditLogsQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client['audit-logs'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
-}
-
-/**
- * Generates TanStack Query cache key for GET /audit-logs
- */
-export function getGetAuditLogsQueryKey(
-  args: InferRequestType<(typeof client)['audit-logs']['$get']>,
-) {
-  return ['/audit-logs', args] as const
+  const { queryKey, queryFn, ...baseOptions } = getGetAuditLogsQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }

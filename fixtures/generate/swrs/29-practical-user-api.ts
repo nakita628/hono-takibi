@@ -1,10 +1,18 @@
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/29-practical-user-api'
+
+/**
+ * Generates SWR mutation key for POST /auth/register
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostAuthRegisterMutationKey() {
+  return ['auth', 'POST', '/auth/register'] as const
+}
 
 /**
  * POST /auth/register
@@ -14,24 +22,36 @@ import { client } from '../clients/29-practical-user-api'
  * メールアドレスとパスワードで新規ユーザーを登録します
  */
 export function usePostAuthRegister(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.auth.register.$post>,
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.auth.register.$post>>>>
+    >,
     Error,
-    string,
+    Key,
     InferRequestType<typeof client.auth.register.$post>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<typeof client.auth.register.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.auth.register.$post>
-  >(
-    'POST /auth/register',
-    async (_, { arg }) => parseResponse(client.auth.register.$post(arg, options?.client)),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostAuthRegisterMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (_: Key, { arg }: { arg: InferRequestType<typeof client.auth.register.$post> }) =>
+        parseResponse(client.auth.register.$post(arg, clientOptions)),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /auth/login
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostAuthLoginMutationKey() {
+  return ['auth', 'POST', '/auth/login'] as const
 }
 
 /**
@@ -42,24 +62,34 @@ export function usePostAuthRegister(options?: {
  * メールアドレスとパスワードで認証し、JWTトークンを取得します
  */
 export function usePostAuthLogin(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.auth.login.$post>,
+  mutation?: SWRMutationConfiguration<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.auth.login.$post>>>>>,
     Error,
-    string,
+    Key,
     InferRequestType<typeof client.auth.login.$post>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<typeof client.auth.login.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.auth.login.$post>
-  >(
-    'POST /auth/login',
-    async (_, { arg }) => parseResponse(client.auth.login.$post(arg, options?.client)),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostAuthLoginMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (_: Key, { arg }: { arg: InferRequestType<typeof client.auth.login.$post> }) =>
+        parseResponse(client.auth.login.$post(arg, clientOptions)),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /auth/refresh
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostAuthRefreshMutationKey() {
+  return ['auth', 'POST', '/auth/refresh'] as const
 }
 
 /**
@@ -70,24 +100,36 @@ export function usePostAuthLogin(options?: {
  * リフレッシュトークンを使用して新しいアクセストークンを取得します
  */
 export function usePostAuthRefresh(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.auth.refresh.$post>,
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.auth.refresh.$post>>>>
+    >,
     Error,
-    string,
+    Key,
     InferRequestType<typeof client.auth.refresh.$post>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<typeof client.auth.refresh.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.auth.refresh.$post>
-  >(
-    'POST /auth/refresh',
-    async (_, { arg }) => parseResponse(client.auth.refresh.$post(arg, options?.client)),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostAuthRefreshMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (_: Key, { arg }: { arg: InferRequestType<typeof client.auth.refresh.$post> }) =>
+        parseResponse(client.auth.refresh.$post(arg, clientOptions)),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /auth/logout
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostAuthLogoutMutationKey() {
+  return ['auth', 'POST', '/auth/logout'] as const
 }
 
 /**
@@ -96,19 +138,36 @@ export function usePostAuthRefresh(options?: {
  * ログアウト
  */
 export function usePostAuthLogout(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.auth.logout.$post>,
+  mutation?: SWRMutationConfiguration<
+    | Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.auth.logout.$post>>>>
+      >
+    | undefined,
     Error,
-    string,
-    void
-  >
+    Key,
+    undefined
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<InferResponseType<typeof client.auth.logout.$post>, Error, string, void>(
-    'POST /auth/logout',
-    async () => parseResponse(client.auth.logout.$post(undefined, options?.client)),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostAuthLogoutMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async () => parseResponse(client.auth.logout.$post(undefined, clientOptions)),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /auth/password/forgot
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostAuthPasswordForgotMutationKey() {
+  return ['auth', 'POST', '/auth/password/forgot'] as const
 }
 
 /**
@@ -119,24 +178,40 @@ export function usePostAuthLogout(options?: {
  * パスワードリセット用のメールを送信します
  */
 export function usePostAuthPasswordForgot(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.auth.password.forgot.$post>,
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<typeof client.auth.password.forgot.$post>>>
+      >
+    >,
     Error,
-    string,
+    Key,
     InferRequestType<typeof client.auth.password.forgot.$post>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<typeof client.auth.password.forgot.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.auth.password.forgot.$post>
-  >(
-    'POST /auth/password/forgot',
-    async (_, { arg }) => parseResponse(client.auth.password.forgot.$post(arg, options?.client)),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostAuthPasswordForgotMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        { arg }: { arg: InferRequestType<typeof client.auth.password.forgot.$post> },
+      ) => parseResponse(client.auth.password.forgot.$post(arg, clientOptions)),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /auth/password/reset
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostAuthPasswordResetMutationKey() {
+  return ['auth', 'POST', '/auth/password/reset'] as const
 }
 
 /**
@@ -145,24 +220,36 @@ export function usePostAuthPasswordForgot(options?: {
  * パスワードリセット実行
  */
 export function usePostAuthPasswordReset(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.auth.password.reset.$post>,
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.auth.password.reset.$post>>>>
+    >,
     Error,
-    string,
+    Key,
     InferRequestType<typeof client.auth.password.reset.$post>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<typeof client.auth.password.reset.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.auth.password.reset.$post>
-  >(
-    'POST /auth/password/reset',
-    async (_, { arg }) => parseResponse(client.auth.password.reset.$post(arg, options?.client)),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostAuthPasswordResetMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (_: Key, { arg }: { arg: InferRequestType<typeof client.auth.password.reset.$post> }) =>
+        parseResponse(client.auth.password.reset.$post(arg, clientOptions)),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /users
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetUsersKey(args: InferRequestType<typeof client.users.$get>) {
+  return ['users', 'GET', '/users', args] as const
 }
 
 /**
@@ -175,29 +262,32 @@ export function usePostAuthPasswordReset(options?: {
 export function useGetUsers(
   args: InferRequestType<typeof client.users.$get>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<typeof client.users.$get>, Error> & {
-      swrKey?: Key
-      enabled?: boolean
-    }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetUsersKey(args) : null)
-  const query = useSWR<InferResponseType<typeof client.users.$get>, Error>(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetUsersKey(args)) : null
+  return {
     swrKey,
-    async () => parseResponse(client.users.$get(args, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.users.$get(args, clientOptions)),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /users
+ * Generates SWR cache key for GET /users/{userId}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetUsersKey(args?: InferRequestType<typeof client.users.$get>) {
-  return ['/users', ...(args ? [args] : [])] as const
+export function getGetUsersUserIdKey(
+  args: InferRequestType<(typeof client.users)[':userId']['$get']>,
+) {
+  return ['users', 'GET', '/users/:userId', args] as const
 }
 
 /**
@@ -208,31 +298,30 @@ export function getGetUsersKey(args?: InferRequestType<typeof client.users.$get>
 export function useGetUsersUserId(
   args: InferRequestType<(typeof client.users)[':userId']['$get']>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<(typeof client.users)[':userId']['$get']>, Error> & {
-      swrKey?: Key
-      enabled?: boolean
-    }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetUsersUserIdKey(args) : null)
-  const query = useSWR<InferResponseType<(typeof client.users)[':userId']['$get']>, Error>(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetUsersUserIdKey(args)) : null
+  return {
     swrKey,
-    async () => parseResponse(client.users[':userId'].$get(args, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.users[':userId'].$get(args, clientOptions)),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /users/{userId}
+ * Generates SWR mutation key for DELETE /users/{userId}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetUsersUserIdKey(
-  args?: InferRequestType<(typeof client.users)[':userId']['$get']>,
-) {
-  return ['/users/:userId', ...(args ? [args] : [])] as const
+export function getDeleteUsersUserIdMutationKey() {
+  return ['users', 'DELETE', '/users/:userId'] as const
 }
 
 /**
@@ -241,24 +330,41 @@ export function getGetUsersUserIdKey(
  * ユーザー削除
  */
 export function useDeleteUsersUserId(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.users)[':userId']['$delete']>,
+  mutation?: SWRMutationConfiguration<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':userId']['$delete']>>>
+        >
+      >
+    | undefined,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client.users)[':userId']['$delete']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<(typeof client.users)[':userId']['$delete']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.users)[':userId']['$delete']>
-  >(
-    'DELETE /users/:userId',
-    async (_, { arg }) => parseResponse(client.users[':userId'].$delete(arg, options?.client)),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDeleteUsersUserIdMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        { arg }: { arg: InferRequestType<(typeof client.users)[':userId']['$delete']> },
+      ) => parseResponse(client.users[':userId'].$delete(arg, clientOptions)),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for PATCH /users/{userId}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPatchUsersUserIdMutationKey() {
+  return ['users', 'PATCH', '/users/:userId'] as const
 }
 
 /**
@@ -267,24 +373,40 @@ export function useDeleteUsersUserId(options?: {
  * ユーザー情報更新
  */
 export function usePatchUsersUserId(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.users)[':userId']['$patch']>,
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':userId']['$patch']>>>
+      >
+    >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client.users)[':userId']['$patch']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<(typeof client.users)[':userId']['$patch']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.users)[':userId']['$patch']>
-  >(
-    'PATCH /users/:userId',
-    async (_, { arg }) => parseResponse(client.users[':userId'].$patch(arg, options?.client)),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPatchUsersUserIdMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        { arg }: { arg: InferRequestType<(typeof client.users)[':userId']['$patch']> },
+      ) => parseResponse(client.users[':userId'].$patch(arg, clientOptions)),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /users/me
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGetUsersMeKey() {
+  return ['users', 'GET', '/users/me'] as const
 }
 
 /**
@@ -293,28 +415,29 @@ export function usePatchUsersUserId(options?: {
  * 現在のユーザー情報取得
  */
 export function useGetUsersMe(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.users.me.$get>, Error> & {
-    swrKey?: Key
-    enabled?: boolean
-  }
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetUsersMeKey() : null)
-  const query = useSWR<InferResponseType<typeof client.users.me.$get>, Error>(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetUsersMeKey()) : null
+  return {
     swrKey,
-    async () => parseResponse(client.users.me.$get(undefined, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.users.me.$get(undefined, clientOptions)),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /users/me
+ * Generates SWR mutation key for PATCH /users/me
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetUsersMeKey() {
-  return ['/users/me'] as const
+export function getPatchUsersMeMutationKey() {
+  return ['users', 'PATCH', '/users/me'] as const
 }
 
 /**
@@ -323,24 +446,34 @@ export function getGetUsersMeKey() {
  * 現在のユーザー情報更新
  */
 export function usePatchUsersMe(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.users.me.$patch>,
+  mutation?: SWRMutationConfiguration<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.me.$patch>>>>>,
     Error,
-    string,
+    Key,
     InferRequestType<typeof client.users.me.$patch>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<typeof client.users.me.$patch>,
-    Error,
-    string,
-    InferRequestType<typeof client.users.me.$patch>
-  >(
-    'PATCH /users/me',
-    async (_, { arg }) => parseResponse(client.users.me.$patch(arg, options?.client)),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPatchUsersMeMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (_: Key, { arg }: { arg: InferRequestType<typeof client.users.me.$patch> }) =>
+        parseResponse(client.users.me.$patch(arg, clientOptions)),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for PUT /users/me/password
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPutUsersMePasswordMutationKey() {
+  return ['users', 'PUT', '/users/me/password'] as const
 }
 
 /**
@@ -349,24 +482,36 @@ export function usePatchUsersMe(options?: {
  * パスワード変更
  */
 export function usePutUsersMePassword(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.users.me.password.$put>,
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.me.password.$put>>>>
+    >,
     Error,
-    string,
+    Key,
     InferRequestType<typeof client.users.me.password.$put>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<typeof client.users.me.password.$put>,
-    Error,
-    string,
-    InferRequestType<typeof client.users.me.password.$put>
-  >(
-    'PUT /users/me/password',
-    async (_, { arg }) => parseResponse(client.users.me.password.$put(arg, options?.client)),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPutUsersMePasswordMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (_: Key, { arg }: { arg: InferRequestType<typeof client.users.me.password.$put> }) =>
+        parseResponse(client.users.me.password.$put(arg, clientOptions)),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for PUT /users/me/avatar
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPutUsersMeAvatarMutationKey() {
+  return ['users', 'PUT', '/users/me/avatar'] as const
 }
 
 /**
@@ -375,24 +520,36 @@ export function usePutUsersMePassword(options?: {
  * アバター画像アップロード
  */
 export function usePutUsersMeAvatar(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.users.me.avatar.$put>,
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.me.avatar.$put>>>>
+    >,
     Error,
-    string,
+    Key,
     InferRequestType<typeof client.users.me.avatar.$put>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<typeof client.users.me.avatar.$put>,
-    Error,
-    string,
-    InferRequestType<typeof client.users.me.avatar.$put>
-  >(
-    'PUT /users/me/avatar',
-    async (_, { arg }) => parseResponse(client.users.me.avatar.$put(arg, options?.client)),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPutUsersMeAvatarMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (_: Key, { arg }: { arg: InferRequestType<typeof client.users.me.avatar.$put> }) =>
+        parseResponse(client.users.me.avatar.$put(arg, clientOptions)),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for DELETE /users/me/avatar
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getDeleteUsersMeAvatarMutationKey() {
+  return ['users', 'DELETE', '/users/me/avatar'] as const
 }
 
 /**
@@ -401,22 +558,26 @@ export function usePutUsersMeAvatar(options?: {
  * アバター画像削除
  */
 export function useDeleteUsersMeAvatar(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.users.me.avatar.$delete>,
+  mutation?: SWRMutationConfiguration<
+    | Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.me.avatar.$delete>>>>
+      >
+    | undefined,
     Error,
-    string,
-    void
-  >
+    Key,
+    undefined
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<typeof client.users.me.avatar.$delete>,
-    Error,
-    string,
-    void
-  >(
-    'DELETE /users/me/avatar',
-    async () => parseResponse(client.users.me.avatar.$delete(undefined, options?.client)),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDeleteUsersMeAvatarMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async () => parseResponse(client.users.me.avatar.$delete(undefined, clientOptions)),
+      restMutationOptions,
+    ),
+  }
 }

@@ -1,8 +1,32 @@
-import type { CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
+import type { CreateQueryOptions, QueryFunctionContext } from '@tanstack/svelte-query'
 import { createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferResponseType } from 'hono/client'
+import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/openapi-nullable'
+
+/**
+ * Generates Svelte Query cache key for GET /nullable
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGetNullableQueryKey() {
+  return ['nullable', 'GET', '/nullable'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /nullable
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetNullableQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetNullableQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.nullable.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /nullable
@@ -12,33 +36,17 @@ import { client } from '../clients/openapi-nullable'
  * zod nullable
  */
 export function createGetNullable(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.nullable.$get>,
-      Error,
-      InferResponseType<typeof client.nullable.$get>,
-      readonly ['/nullable']
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.nullable.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetNullableQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.nullable.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
-}
-
-/**
- * Generates Svelte Query cache key for GET /nullable
- */
-export function getGetNullableQueryKey() {
-  return ['/nullable'] as const
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetNullableQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }

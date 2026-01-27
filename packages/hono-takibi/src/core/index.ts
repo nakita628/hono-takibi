@@ -5,13 +5,7 @@
  */
 
 // Shared query module
-export {
-  makeQueryHooks,
-  type QueryFrameworkConfig,
-  SVELTE_QUERY_CONFIG,
-  TANSTACK_QUERY_CONFIG,
-  VUE_QUERY_CONFIG,
-} from '../helper/query.js'
+export { makeQueryHooks } from '../helper/query.js'
 export * from './components/index.js'
 // Generation functions
 export { route } from './route/index.js'

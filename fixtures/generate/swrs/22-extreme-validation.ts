@@ -1,29 +1,40 @@
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key } from 'swr'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/22-extreme-validation'
 
 /**
+ * Generates SWR mutation key for POST /validate
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostValidateMutationKey() {
+  return ['validate', 'POST', '/validate'] as const
+}
+
+/**
  * POST /validate
  */
 export function usePostValidate(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.validate.$post>,
+  mutation?: SWRMutationConfiguration<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.validate.$post>>>>>,
     Error,
-    string,
+    Key,
     InferRequestType<typeof client.validate.$post>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<typeof client.validate.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.validate.$post>
-  >(
-    'POST /validate',
-    async (_, { arg }) => parseResponse(client.validate.$post(arg, options?.client)),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostValidateMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (_: Key, { arg }: { arg: InferRequestType<typeof client.validate.$post> }) =>
+        parseResponse(client.validate.$post(arg, clientOptions)),
+      restMutationOptions,
+    ),
+  }
 }

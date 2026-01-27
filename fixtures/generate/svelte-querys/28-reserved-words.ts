@@ -1,1754 +1,2099 @@
-import type { CreateMutationOptions, CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
+import type {
+  CreateMutationOptions,
+  CreateQueryOptions,
+  QueryFunctionContext,
+} from '@tanstack/svelte-query'
 import { createMutation, createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferResponseType } from 'hono/client'
+import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/28-reserved-words'
+
+/**
+ * Generates Svelte Query cache key for GET /class
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGetClassQueryKey() {
+  return ['class', 'GET', '/class'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /class
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetClassQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetClassQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.class.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /class
  */
 export function createGetClass(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.class.$get>,
-      Error,
-      InferResponseType<typeof client.class.$get>,
-      readonly ['/class']
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.class.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetClassQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.class.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetClassQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /class
+ * Generates Svelte Query cache key for GET /interface
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetClassQueryKey() {
-  return ['/class'] as const
+export function getGetInterfaceQueryKey() {
+  return ['interface', 'GET', '/interface'] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /interface
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetInterfaceQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetInterfaceQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.interface.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /interface
  */
 export function createGetInterface(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.interface.$get>,
-      Error,
-      InferResponseType<typeof client.interface.$get>,
-      readonly ['/interface']
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.interface.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetInterfaceQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.interface.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetInterfaceQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /interface
+ * Generates Svelte Query cache key for GET /type
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetInterfaceQueryKey() {
-  return ['/interface'] as const
+export function getGetTypeQueryKey() {
+  return ['type', 'GET', '/type'] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /type
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetTypeQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetTypeQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.type.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /type
  */
 export function createGetType(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.type.$get>,
-      Error,
-      InferResponseType<typeof client.type.$get>,
-      readonly ['/type']
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.type.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetTypeQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.type.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetTypeQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /type
+ * Generates Svelte Query mutation key for POST /function
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetTypeQueryKey() {
-  return ['/type'] as const
+export function getPostFunctionMutationKey() {
+  return ['function', 'POST', '/function'] as const
 }
+
+/**
+ * Returns Svelte Query mutation options for POST /function
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostFunctionMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostFunctionMutationKey(),
+  mutationFn: async () => parseResponse(client.function.$post(undefined, clientOptions)),
+})
 
 /**
  * POST /function
  */
 export function createPostFunction(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.function.$post> | undefined,
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.function.$post>>>>>,
       Error,
       void
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<InferResponseType<typeof client.function.$post> | undefined, Error, void>(
-    {
-      ...options?.mutation,
-      mutationFn: async () => parseResponse(client.function.$post(undefined, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostFunctionMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query cache key for GET /return
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGetReturnQueryKey() {
+  return ['return', 'GET', '/return'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /return
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetReturnQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetReturnQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.return.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /return
  */
 export function createGetReturn(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.return.$get>,
-      Error,
-      InferResponseType<typeof client.return.$get>,
-      readonly ['/return']
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.return.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetReturnQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.return.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetReturnQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /return
+ * Generates Svelte Query cache key for GET /import
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetReturnQueryKey() {
-  return ['/return'] as const
+export function getGetImportQueryKey() {
+  return ['import', 'GET', '/import'] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /import
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetImportQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetImportQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.import.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /import
  */
 export function createGetImport(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.import.$get>,
-      Error,
-      InferResponseType<typeof client.import.$get>,
-      readonly ['/import']
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.import.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetImportQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.import.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetImportQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /import
+ * Generates Svelte Query cache key for GET /export
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetImportQueryKey() {
-  return ['/import'] as const
+export function getGetExportQueryKey() {
+  return ['export', 'GET', '/export'] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /export
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetExportQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetExportQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.export.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /export
  */
 export function createGetExport(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.export.$get>,
-      Error,
-      InferResponseType<typeof client.export.$get>,
-      readonly ['/export']
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.export.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetExportQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.export.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetExportQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /export
+ * Generates Svelte Query cache key for GET /default
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetExportQueryKey() {
-  return ['/export'] as const
+export function getGetDefaultQueryKey() {
+  return ['default', 'GET', '/default'] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /default
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetDefaultQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetDefaultQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.default.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /default
  */
 export function createGetDefault(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.default.$get>,
-      Error,
-      InferResponseType<typeof client.default.$get>,
-      readonly ['/default']
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.default.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetDefaultQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.default.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetDefaultQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /default
+ * Generates Svelte Query mutation key for POST /new
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetDefaultQueryKey() {
-  return ['/default'] as const
+export function getPostNewMutationKey() {
+  return ['new', 'POST', '/new'] as const
 }
+
+/**
+ * Returns Svelte Query mutation options for POST /new
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostNewMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostNewMutationKey(),
+  mutationFn: async () => parseResponse(client.new.$post(undefined, clientOptions)),
+})
 
 /**
  * POST /new
  */
 export function createPostNew(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.new.$post> | undefined,
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.new.$post>>>>>,
       Error,
       void
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<InferResponseType<typeof client.new.$post> | undefined, Error, void>(
-    {
-      ...options?.mutation,
-      mutationFn: async () => parseResponse(client.new.$post(undefined, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostNewMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query mutation key for DELETE /delete
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getDeleteDeleteMutationKey() {
+  return ['delete', 'DELETE', '/delete'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /delete
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteDeleteMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getDeleteDeleteMutationKey(),
+  mutationFn: async () => parseResponse(client.delete.$delete(undefined, clientOptions)),
+})
 
 /**
  * DELETE /delete
  */
 export function createDeleteDelete(
-  options?: {
+  options?: () => {
     mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.delete.$delete> | undefined,
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.delete.$delete>>>>>,
       Error,
       void
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  return createMutation<InferResponseType<typeof client.delete.$delete> | undefined, Error, void>(
-    {
-      ...options?.mutation,
-      mutationFn: async () => parseResponse(client.delete.$delete(undefined, options?.client)),
-    },
-    queryClient,
-  )
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getDeleteDeleteMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
+
+/**
+ * Generates Svelte Query cache key for GET /void
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGetVoidQueryKey() {
+  return ['void', 'GET', '/void'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /void
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetVoidQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetVoidQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.void.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /void
  */
 export function createGetVoid(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.void.$get>,
-      Error,
-      InferResponseType<typeof client.void.$get>,
-      readonly ['/void']
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.void.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetVoidQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.void.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetVoidQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /void
+ * Generates Svelte Query cache key for GET /null
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetVoidQueryKey() {
-  return ['/void'] as const
+export function getGetNullQueryKey() {
+  return ['null', 'GET', '/null'] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /null
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetNullQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetNullQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.null.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /null
  */
 export function createGetNull(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.null.$get>,
-      Error,
-      InferResponseType<typeof client.null.$get>,
-      readonly ['/null']
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.null.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetNullQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.null.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetNullQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /null
+ * Generates Svelte Query cache key for GET /true
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetNullQueryKey() {
-  return ['/null'] as const
+export function getGetTrueQueryKey() {
+  return ['true', 'GET', '/true'] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /true
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetTrueQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetTrueQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.true.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /true
  */
 export function createGetTrue(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.true.$get>,
-      Error,
-      InferResponseType<typeof client.true.$get>,
-      readonly ['/true']
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.true.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetTrueQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.true.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetTrueQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /true
+ * Generates Svelte Query cache key for GET /false
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetTrueQueryKey() {
-  return ['/true'] as const
+export function getGetFalseQueryKey() {
+  return ['false', 'GET', '/false'] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /false
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetFalseQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetFalseQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.false.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /false
  */
 export function createGetFalse(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.false.$get>,
-      Error,
-      InferResponseType<typeof client.false.$get>,
-      readonly ['/false']
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.false.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetFalseQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.false.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetFalseQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /false
+ * Generates Svelte Query cache key for GET /if
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetFalseQueryKey() {
-  return ['/false'] as const
+export function getGetIfQueryKey() {
+  return ['if', 'GET', '/if'] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /if
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetIfQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetIfQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.if.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /if
  */
 export function createGetIf(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.if.$get>,
-      Error,
-      InferResponseType<typeof client.if.$get>,
-      readonly ['/if']
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.if.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetIfQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.if.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetIfQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /if
+ * Generates Svelte Query cache key for GET /else
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetIfQueryKey() {
-  return ['/if'] as const
+export function getGetElseQueryKey() {
+  return ['else', 'GET', '/else'] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /else
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetElseQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetElseQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.else.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /else
  */
 export function createGetElse(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.else.$get>,
-      Error,
-      InferResponseType<typeof client.else.$get>,
-      readonly ['/else']
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.else.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetElseQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.else.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetElseQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /else
+ * Generates Svelte Query cache key for GET /for
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetElseQueryKey() {
-  return ['/else'] as const
+export function getGetForQueryKey() {
+  return ['for', 'GET', '/for'] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /for
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetForQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetForQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.for.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /for
  */
 export function createGetFor(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.for.$get>,
-      Error,
-      InferResponseType<typeof client.for.$get>,
-      readonly ['/for']
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.for.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetForQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.for.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetForQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /for
+ * Generates Svelte Query cache key for GET /while
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetForQueryKey() {
-  return ['/for'] as const
+export function getGetWhileQueryKey() {
+  return ['while', 'GET', '/while'] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /while
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetWhileQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetWhileQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.while.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /while
  */
 export function createGetWhile(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.while.$get>,
-      Error,
-      InferResponseType<typeof client.while.$get>,
-      readonly ['/while']
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.while.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetWhileQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.while.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetWhileQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /while
+ * Generates Svelte Query cache key for GET /switch
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetWhileQueryKey() {
-  return ['/while'] as const
+export function getGetSwitchQueryKey() {
+  return ['switch', 'GET', '/switch'] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /switch
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetSwitchQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetSwitchQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.switch.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /switch
  */
 export function createGetSwitch(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.switch.$get>,
-      Error,
-      InferResponseType<typeof client.switch.$get>,
-      readonly ['/switch']
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.switch.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetSwitchQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.switch.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetSwitchQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /switch
+ * Generates Svelte Query cache key for GET /case
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetSwitchQueryKey() {
-  return ['/switch'] as const
+export function getGetCaseQueryKey() {
+  return ['case', 'GET', '/case'] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /case
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetCaseQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetCaseQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.case.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /case
  */
 export function createGetCase(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.case.$get>,
-      Error,
-      InferResponseType<typeof client.case.$get>,
-      readonly ['/case']
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.case.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetCaseQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.case.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetCaseQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /case
+ * Generates Svelte Query cache key for GET /break
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetCaseQueryKey() {
-  return ['/case'] as const
+export function getGetBreakQueryKey() {
+  return ['break', 'GET', '/break'] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /break
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetBreakQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetBreakQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.break.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /break
  */
 export function createGetBreak(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.break.$get>,
-      Error,
-      InferResponseType<typeof client.break.$get>,
-      readonly ['/break']
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.break.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetBreakQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.break.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetBreakQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /break
+ * Generates Svelte Query cache key for GET /continue
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetBreakQueryKey() {
-  return ['/break'] as const
+export function getGetContinueQueryKey() {
+  return ['continue', 'GET', '/continue'] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /continue
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetContinueQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetContinueQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.continue.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /continue
  */
 export function createGetContinue(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.continue.$get>,
-      Error,
-      InferResponseType<typeof client.continue.$get>,
-      readonly ['/continue']
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.continue.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetContinueQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.continue.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetContinueQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /continue
+ * Generates Svelte Query cache key for GET /try
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetContinueQueryKey() {
-  return ['/continue'] as const
+export function getGetTryQueryKey() {
+  return ['try', 'GET', '/try'] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /try
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetTryQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetTryQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.try.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /try
  */
 export function createGetTry(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.try.$get>,
-      Error,
-      InferResponseType<typeof client.try.$get>,
-      readonly ['/try']
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.try.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetTryQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.try.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetTryQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /try
+ * Generates Svelte Query cache key for GET /catch
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetTryQueryKey() {
-  return ['/try'] as const
+export function getGetCatchQueryKey() {
+  return ['catch', 'GET', '/catch'] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /catch
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetCatchQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetCatchQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.catch.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /catch
  */
 export function createGetCatch(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.catch.$get>,
-      Error,
-      InferResponseType<typeof client.catch.$get>,
-      readonly ['/catch']
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.catch.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetCatchQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.catch.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetCatchQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /catch
+ * Generates Svelte Query cache key for GET /finally
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetCatchQueryKey() {
-  return ['/catch'] as const
+export function getGetFinallyQueryKey() {
+  return ['finally', 'GET', '/finally'] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /finally
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetFinallyQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetFinallyQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.finally.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /finally
  */
 export function createGetFinally(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.finally.$get>,
-      Error,
-      InferResponseType<typeof client.finally.$get>,
-      readonly ['/finally']
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.finally.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetFinallyQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.finally.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetFinallyQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /finally
+ * Generates Svelte Query cache key for GET /throw
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetFinallyQueryKey() {
-  return ['/finally'] as const
+export function getGetThrowQueryKey() {
+  return ['throw', 'GET', '/throw'] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /throw
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetThrowQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetThrowQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.throw.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /throw
  */
 export function createGetThrow(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.throw.$get>,
-      Error,
-      InferResponseType<typeof client.throw.$get>,
-      readonly ['/throw']
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.throw.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetThrowQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.throw.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetThrowQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /throw
+ * Generates Svelte Query cache key for GET /async
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetThrowQueryKey() {
-  return ['/throw'] as const
+export function getGetAsyncQueryKey() {
+  return ['async', 'GET', '/async'] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /async
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetAsyncQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetAsyncQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.async.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /async
  */
 export function createGetAsync(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.async.$get>,
-      Error,
-      InferResponseType<typeof client.async.$get>,
-      readonly ['/async']
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.async.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetAsyncQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.async.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetAsyncQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /async
+ * Generates Svelte Query cache key for GET /await
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetAsyncQueryKey() {
-  return ['/async'] as const
+export function getGetAwaitQueryKey() {
+  return ['await', 'GET', '/await'] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /await
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetAwaitQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetAwaitQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.await.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /await
  */
 export function createGetAwait(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.await.$get>,
-      Error,
-      InferResponseType<typeof client.await.$get>,
-      readonly ['/await']
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.await.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetAwaitQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.await.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetAwaitQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /await
+ * Generates Svelte Query cache key for GET /yield
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetAwaitQueryKey() {
-  return ['/await'] as const
+export function getGetYieldQueryKey() {
+  return ['yield', 'GET', '/yield'] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /yield
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetYieldQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetYieldQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.yield.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /yield
  */
 export function createGetYield(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.yield.$get>,
-      Error,
-      InferResponseType<typeof client.yield.$get>,
-      readonly ['/yield']
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.yield.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetYieldQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.yield.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetYieldQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /yield
+ * Generates Svelte Query cache key for GET /static
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetYieldQueryKey() {
-  return ['/yield'] as const
+export function getGetStaticQueryKey() {
+  return ['static', 'GET', '/static'] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /static
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetStaticQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetStaticQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.static.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /static
  */
 export function createGetStatic(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.static.$get>,
-      Error,
-      InferResponseType<typeof client.static.$get>,
-      readonly ['/static']
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.static.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetStaticQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.static.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetStaticQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /static
+ * Generates Svelte Query cache key for GET /public
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetStaticQueryKey() {
-  return ['/static'] as const
+export function getGetPublicQueryKey() {
+  return ['public', 'GET', '/public'] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /public
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetPublicQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetPublicQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.public.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /public
  */
 export function createGetPublic(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.public.$get>,
-      Error,
-      InferResponseType<typeof client.public.$get>,
-      readonly ['/public']
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.public.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetPublicQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.public.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetPublicQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /public
+ * Generates Svelte Query cache key for GET /private
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetPublicQueryKey() {
-  return ['/public'] as const
+export function getGetPrivateQueryKey() {
+  return ['private', 'GET', '/private'] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /private
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetPrivateQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetPrivateQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.private.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /private
  */
 export function createGetPrivate(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.private.$get>,
-      Error,
-      InferResponseType<typeof client.private.$get>,
-      readonly ['/private']
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.private.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetPrivateQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.private.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetPrivateQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /private
+ * Generates Svelte Query cache key for GET /protected
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetPrivateQueryKey() {
-  return ['/private'] as const
+export function getGetProtectedQueryKey() {
+  return ['protected', 'GET', '/protected'] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /protected
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetProtectedQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetProtectedQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.protected.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /protected
  */
 export function createGetProtected(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.protected.$get>,
-      Error,
-      InferResponseType<typeof client.protected.$get>,
-      readonly ['/protected']
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.protected.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetProtectedQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.protected.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetProtectedQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /protected
+ * Generates Svelte Query cache key for GET /abstract
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetProtectedQueryKey() {
-  return ['/protected'] as const
+export function getGetAbstractQueryKey() {
+  return ['abstract', 'GET', '/abstract'] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /abstract
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetAbstractQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetAbstractQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.abstract.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /abstract
  */
 export function createGetAbstract(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.abstract.$get>,
-      Error,
-      InferResponseType<typeof client.abstract.$get>,
-      readonly ['/abstract']
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.abstract.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetAbstractQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.abstract.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetAbstractQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /abstract
+ * Generates Svelte Query cache key for GET /final
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetAbstractQueryKey() {
-  return ['/abstract'] as const
+export function getGetFinalQueryKey() {
+  return ['final', 'GET', '/final'] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /final
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetFinalQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetFinalQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.final.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /final
  */
 export function createGetFinal(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.final.$get>,
-      Error,
-      InferResponseType<typeof client.final.$get>,
-      readonly ['/final']
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.final.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetFinalQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.final.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetFinalQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /final
+ * Generates Svelte Query cache key for GET /extends
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetFinalQueryKey() {
-  return ['/final'] as const
+export function getGetExtendsQueryKey() {
+  return ['extends', 'GET', '/extends'] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /extends
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetExtendsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetExtendsQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.extends.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /extends
  */
 export function createGetExtends(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.extends.$get>,
-      Error,
-      InferResponseType<typeof client.extends.$get>,
-      readonly ['/extends']
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.extends.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetExtendsQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.extends.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetExtendsQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /extends
+ * Generates Svelte Query cache key for GET /implements
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetExtendsQueryKey() {
-  return ['/extends'] as const
+export function getGetImplementsQueryKey() {
+  return ['implements', 'GET', '/implements'] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /implements
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetImplementsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetImplementsQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.implements.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /implements
  */
 export function createGetImplements(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.implements.$get>,
-      Error,
-      InferResponseType<typeof client.implements.$get>,
-      readonly ['/implements']
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.implements.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetImplementsQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.implements.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetImplementsQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /implements
+ * Generates Svelte Query cache key for GET /package
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetImplementsQueryKey() {
-  return ['/implements'] as const
+export function getGetPackageQueryKey() {
+  return ['package', 'GET', '/package'] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /package
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetPackageQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetPackageQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.package.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /package
  */
 export function createGetPackage(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.package.$get>,
-      Error,
-      InferResponseType<typeof client.package.$get>,
-      readonly ['/package']
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.package.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetPackageQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.package.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetPackageQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /package
+ * Generates Svelte Query cache key for GET /enum
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetPackageQueryKey() {
-  return ['/package'] as const
+export function getGetEnumQueryKey() {
+  return ['enum', 'GET', '/enum'] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /enum
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetEnumQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetEnumQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.enum.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /enum
  */
 export function createGetEnum(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.enum.$get>,
-      Error,
-      InferResponseType<typeof client.enum.$get>,
-      readonly ['/enum']
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.enum.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetEnumQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.enum.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetEnumQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /enum
+ * Generates Svelte Query cache key for GET /const
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetEnumQueryKey() {
-  return ['/enum'] as const
+export function getGetConstQueryKey() {
+  return ['const', 'GET', '/const'] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /const
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetConstQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetConstQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.const.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /const
  */
 export function createGetConst(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.const.$get>,
-      Error,
-      InferResponseType<typeof client.const.$get>,
-      readonly ['/const']
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.const.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetConstQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.const.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetConstQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /const
+ * Generates Svelte Query cache key for GET /let
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetConstQueryKey() {
-  return ['/const'] as const
+export function getGetLetQueryKey() {
+  return ['let', 'GET', '/let'] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /let
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetLetQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetLetQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.let.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /let
  */
 export function createGetLet(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.let.$get>,
-      Error,
-      InferResponseType<typeof client.let.$get>,
-      readonly ['/let']
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.let.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetLetQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.let.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetLetQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /let
+ * Generates Svelte Query cache key for GET /var
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetLetQueryKey() {
-  return ['/let'] as const
+export function getGetVarQueryKey() {
+  return ['var', 'GET', '/var'] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /var
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetVarQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetVarQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.var.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /var
  */
 export function createGetVar(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.var.$get>,
-      Error,
-      InferResponseType<typeof client.var.$get>,
-      readonly ['/var']
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.var.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetVarQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.var.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetVarQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /var
+ * Generates Svelte Query cache key for GET /this
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetVarQueryKey() {
-  return ['/var'] as const
+export function getGetThisQueryKey() {
+  return ['this', 'GET', '/this'] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /this
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetThisQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetThisQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.this.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /this
  */
 export function createGetThis(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.this.$get>,
-      Error,
-      InferResponseType<typeof client.this.$get>,
-      readonly ['/this']
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.this.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetThisQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.this.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetThisQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /this
+ * Generates Svelte Query cache key for GET /super
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetThisQueryKey() {
-  return ['/this'] as const
+export function getGetSuperQueryKey() {
+  return ['super', 'GET', '/super'] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /super
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetSuperQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetSuperQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.super.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /super
  */
 export function createGetSuper(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.super.$get>,
-      Error,
-      InferResponseType<typeof client.super.$get>,
-      readonly ['/super']
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.super.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetSuperQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.super.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetSuperQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /super
+ * Generates Svelte Query cache key for GET /self
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetSuperQueryKey() {
-  return ['/super'] as const
+export function getGetSelfQueryKey() {
+  return ['self', 'GET', '/self'] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /self
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetSelfQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetSelfQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.self.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /self
  */
 export function createGetSelf(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.self.$get>,
-      Error,
-      InferResponseType<typeof client.self.$get>,
-      readonly ['/self']
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.self.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetSelfQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.self.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetSelfQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /self
+ * Generates Svelte Query cache key for GET /constructor
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetSelfQueryKey() {
-  return ['/self'] as const
+export function getGetConstructorQueryKey() {
+  return ['constructor', 'GET', '/constructor'] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /constructor
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetConstructorQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetConstructorQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.constructor.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /constructor
  */
 export function createGetConstructor(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.constructor.$get>,
-      Error,
-      InferResponseType<typeof client.constructor.$get>,
-      readonly ['/constructor']
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.constructor.$get>>>>
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetConstructorQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.constructor.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetConstructorQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /constructor
+ * Generates Svelte Query cache key for GET /prototype
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetConstructorQueryKey() {
-  return ['/constructor'] as const
+export function getGetPrototypeQueryKey() {
+  return ['prototype', 'GET', '/prototype'] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /prototype
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetPrototypeQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetPrototypeQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.prototype.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /prototype
  */
 export function createGetPrototype(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.prototype.$get>,
-      Error,
-      InferResponseType<typeof client.prototype.$get>,
-      readonly ['/prototype']
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.prototype.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetPrototypeQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.prototype.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetPrototypeQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /prototype
+ * Generates Svelte Query cache key for GET /toString
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetPrototypeQueryKey() {
-  return ['/prototype'] as const
+export function getGetToStringQueryKey() {
+  return ['toString', 'GET', '/toString'] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /toString
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetToStringQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetToStringQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.toString.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /toString
  */
 export function createGetToString(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.toString.$get>,
-      Error,
-      InferResponseType<typeof client.toString.$get>,
-      readonly ['/toString']
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.toString.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetToStringQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.toString.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetToStringQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /toString
+ * Generates Svelte Query cache key for GET /valueOf
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetToStringQueryKey() {
-  return ['/toString'] as const
+export function getGetValueOfQueryKey() {
+  return ['valueOf', 'GET', '/valueOf'] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /valueOf
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetValueOfQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetValueOfQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.valueOf.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /valueOf
  */
 export function createGetValueOf(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.valueOf.$get>,
-      Error,
-      InferResponseType<typeof client.valueOf.$get>,
-      readonly ['/valueOf']
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.valueOf.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetValueOfQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.valueOf.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetValueOfQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /valueOf
+ * Generates Svelte Query cache key for GET /hasOwnProperty
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetValueOfQueryKey() {
-  return ['/valueOf'] as const
+export function getGetHasOwnPropertyQueryKey() {
+  return ['hasOwnProperty', 'GET', '/hasOwnProperty'] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /hasOwnProperty
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetHasOwnPropertyQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetHasOwnPropertyQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.hasOwnProperty.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /hasOwnProperty
  */
 export function createGetHasOwnProperty(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.hasOwnProperty.$get>,
-      Error,
-      InferResponseType<typeof client.hasOwnProperty.$get>,
-      readonly ['/hasOwnProperty']
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hasOwnProperty.$get>>>>
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetHasOwnPropertyQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.hasOwnProperty.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetHasOwnPropertyQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /hasOwnProperty
+ * Generates Svelte Query cache key for GET /name-collisions
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetHasOwnPropertyQueryKey() {
-  return ['/hasOwnProperty'] as const
+export function getGetNameCollisionsQueryKey() {
+  return ['name-collisions', 'GET', '/name-collisions'] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /name-collisions
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetNameCollisionsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetNameCollisionsQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['name-collisions'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /name-collisions
  */
 export function createGetNameCollisions(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<(typeof client)['name-collisions']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['name-collisions']['$get']>,
-      readonly ['/name-collisions']
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client)['name-collisions']['$get']>>>
+        >
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetNameCollisionsQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client['name-collisions'].$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
-}
-
-/**
- * Generates Svelte Query cache key for GET /name-collisions
- */
-export function getGetNameCollisionsQueryKey() {
-  return ['/name-collisions'] as const
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetNameCollisionsQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }

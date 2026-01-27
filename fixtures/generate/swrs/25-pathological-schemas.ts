@@ -1,29 +1,42 @@
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key } from 'swr'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/25-pathological-schemas'
 
 /**
+ * Generates SWR mutation key for POST /pathological
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostPathologicalMutationKey() {
+  return ['pathological', 'POST', '/pathological'] as const
+}
+
+/**
  * POST /pathological
  */
 export function usePostPathological(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.pathological.$post>,
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.pathological.$post>>>>
+    >,
     Error,
-    string,
+    Key,
     InferRequestType<typeof client.pathological.$post>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<typeof client.pathological.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.pathological.$post>
-  >(
-    'POST /pathological',
-    async (_, { arg }) => parseResponse(client.pathological.$post(arg, options?.client)),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostPathologicalMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (_: Key, { arg }: { arg: InferRequestType<typeof client.pathological.$post> }) =>
+        parseResponse(client.pathological.$post(arg, clientOptions)),
+      restMutationOptions,
+    ),
+  }
 }

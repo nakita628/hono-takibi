@@ -1,8 +1,29 @@
-import type { CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
+import type { CreateQueryOptions, QueryFunctionContext } from '@tanstack/svelte-query'
 import { createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferResponseType } from 'hono/client'
+import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/example'
+
+/**
+ * Generates Svelte Query cache key for GET /sample
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGetSampleQueryKey() {
+  return ['sample', 'GET', '/sample'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /sample
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetSampleQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetSampleQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.sample.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /sample
@@ -10,33 +31,17 @@ import { client } from '../clients/example'
  * Returns a payload exercising every custom format, constraint, and nullable case
  */
 export function createGetSample(
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
-      InferResponseType<typeof client.sample.$get>,
-      Error,
-      InferResponseType<typeof client.sample.$get>,
-      readonly ['/sample']
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.sample.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetSampleQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.sample.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
-}
-
-/**
- * Generates Svelte Query cache key for GET /sample
- */
-export function getGetSampleQueryKey() {
-  return ['/sample'] as const
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetSampleQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
 }

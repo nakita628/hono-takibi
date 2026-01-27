@@ -1,145 +1,150 @@
-import type { ClientRequestOptions, InferResponseType } from 'hono/client'
+import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
 import { client } from '../clients/04-security-schemes'
 
 /**
- * GET /public
+ * Generates SWR cache key for GET /public
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function useGetPublic(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.public.$get>, Error> & {
-    swrKey?: Key
-    enabled?: boolean
-  }
-  client?: ClientRequestOptions
-}) {
-  const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetPublicKey() : null)
-  const query = useSWR<InferResponseType<typeof client.public.$get>, Error>(
-    swrKey,
-    async () => parseResponse(client.public.$get(undefined, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+export function getGetPublicKey() {
+  return ['public', 'GET', '/public'] as const
 }
 
 /**
- * Generates SWR cache key for GET /public
+ * GET /public
  */
-export function getGetPublicKey() {
-  return ['/public'] as const
+export function useGetPublic(options?: {
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
+  client?: ClientRequestOptions
+}) {
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetPublicKey()) : null
+  return {
+    swrKey,
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.public.$get(undefined, clientOptions)),
+      restSwrOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /protected
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGetProtectedKey() {
+  return ['protected', 'GET', '/protected'] as const
 }
 
 /**
  * GET /protected
  */
 export function useGetProtected(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.protected.$get>, Error> & {
-    swrKey?: Key
-    enabled?: boolean
-  }
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetProtectedKey() : null)
-  const query = useSWR<InferResponseType<typeof client.protected.$get>, Error>(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetProtectedKey()) : null
+  return {
     swrKey,
-    async () => parseResponse(client.protected.$get(undefined, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.protected.$get(undefined, clientOptions)),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /protected
+ * Generates SWR cache key for GET /admin
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetProtectedKey() {
-  return ['/protected'] as const
+export function getGetAdminKey() {
+  return ['admin', 'GET', '/admin'] as const
 }
 
 /**
  * GET /admin
  */
 export function useGetAdmin(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.admin.$get>, Error> & {
-    swrKey?: Key
-    enabled?: boolean
-  }
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetAdminKey() : null)
-  const query = useSWR<InferResponseType<typeof client.admin.$get>, Error>(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetAdminKey()) : null
+  return {
     swrKey,
-    async () => parseResponse(client.admin.$get(undefined, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.admin.$get(undefined, clientOptions)),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /admin
+ * Generates SWR cache key for GET /oauth-resource
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetAdminKey() {
-  return ['/admin'] as const
+export function getGetOauthResourceKey() {
+  return ['oauth-resource', 'GET', '/oauth-resource'] as const
 }
 
 /**
  * GET /oauth-resource
  */
 export function useGetOauthResource(options?: {
-  swr?: SWRConfiguration<InferResponseType<(typeof client)['oauth-resource']['$get']>, Error> & {
-    swrKey?: Key
-    enabled?: boolean
-  }
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetOauthResourceKey() : null)
-  const query = useSWR<InferResponseType<(typeof client)['oauth-resource']['$get']>, Error>(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetOauthResourceKey()) : null
+  return {
     swrKey,
-    async () => parseResponse(client['oauth-resource'].$get(undefined, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client['oauth-resource'].$get(undefined, clientOptions)),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /oauth-resource
+ * Generates SWR cache key for GET /multi-auth
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function getGetOauthResourceKey() {
-  return ['/oauth-resource'] as const
+export function getGetMultiAuthKey() {
+  return ['multi-auth', 'GET', '/multi-auth'] as const
 }
 
 /**
  * GET /multi-auth
  */
 export function useGetMultiAuth(options?: {
-  swr?: SWRConfiguration<InferResponseType<(typeof client)['multi-auth']['$get']>, Error> & {
-    swrKey?: Key
-    enabled?: boolean
-  }
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetMultiAuthKey() : null)
-  const query = useSWR<InferResponseType<(typeof client)['multi-auth']['$get']>, Error>(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetMultiAuthKey()) : null
+  return {
     swrKey,
-    async () => parseResponse(client['multi-auth'].$get(undefined, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
-}
-
-/**
- * Generates SWR cache key for GET /multi-auth
- */
-export function getGetMultiAuthKey() {
-  return ['/multi-auth'] as const
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client['multi-auth'].$get(undefined, clientOptions)),
+      restSwrOptions,
+    ),
+  }
 }

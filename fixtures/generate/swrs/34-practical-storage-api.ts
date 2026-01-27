@@ -1,10 +1,18 @@
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/34-practical-storage-api'
+
+/**
+ * Generates SWR cache key for GET /files
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetFilesKey(args: InferRequestType<typeof client.files.$get>) {
+  return ['files', 'GET', '/files', args] as const
+}
 
 /**
  * GET /files
@@ -14,29 +22,30 @@ import { client } from '../clients/34-practical-storage-api'
 export function useGetFiles(
   args: InferRequestType<typeof client.files.$get>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<typeof client.files.$get>, Error> & {
-      swrKey?: Key
-      enabled?: boolean
-    }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetFilesKey(args) : null)
-  const query = useSWR<InferResponseType<typeof client.files.$get>, Error>(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetFilesKey(args)) : null
+  return {
     swrKey,
-    async () => parseResponse(client.files.$get(args, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.files.$get(args, clientOptions)),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /files
+ * Generates SWR mutation key for POST /files/upload
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetFilesKey(args?: InferRequestType<typeof client.files.$get>) {
-  return ['/files', ...(args ? [args] : [])] as const
+export function getPostFilesUploadMutationKey() {
+  return ['files', 'POST', '/files/upload'] as const
 }
 
 /**
@@ -45,24 +54,36 @@ export function getGetFilesKey(args?: InferRequestType<typeof client.files.$get>
  * ファイルアップロード
  */
 export function usePostFilesUpload(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.files.upload.$post>,
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.files.upload.$post>>>>
+    >,
     Error,
-    string,
+    Key,
     InferRequestType<typeof client.files.upload.$post>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<typeof client.files.upload.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.files.upload.$post>
-  >(
-    'POST /files/upload',
-    async (_, { arg }) => parseResponse(client.files.upload.$post(arg, options?.client)),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostFilesUploadMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (_: Key, { arg }: { arg: InferRequestType<typeof client.files.upload.$post> }) =>
+        parseResponse(client.files.upload.$post(arg, clientOptions)),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /files/upload/multipart/init
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostFilesUploadMultipartInitMutationKey() {
+  return ['files', 'POST', '/files/upload/multipart/init'] as const
 }
 
 /**
@@ -73,25 +94,40 @@ export function usePostFilesUpload(options?: {
  * 大容量ファイルの分割アップロードを開始します
  */
 export function usePostFilesUploadMultipartInit(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.files.upload.multipart.init.$post>,
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<typeof client.files.upload.multipart.init.$post>>>
+      >
+    >,
     Error,
-    string,
+    Key,
     InferRequestType<typeof client.files.upload.multipart.init.$post>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<typeof client.files.upload.multipart.init.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.files.upload.multipart.init.$post>
-  >(
-    'POST /files/upload/multipart/init',
-    async (_, { arg }) =>
-      parseResponse(client.files.upload.multipart.init.$post(arg, options?.client)),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostFilesUploadMultipartInitMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        { arg }: { arg: InferRequestType<typeof client.files.upload.multipart.init.$post> },
+      ) => parseResponse(client.files.upload.multipart.init.$post(arg, clientOptions)),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /files/upload/multipart/{uploadId}/part
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostFilesUploadMultipartUploadIdPartMutationKey() {
+  return ['files', 'POST', '/files/upload/multipart/:uploadId/part'] as const
 }
 
 /**
@@ -100,25 +136,48 @@ export function usePostFilesUploadMultipartInit(options?: {
  * パートアップロード
  */
 export function usePostFilesUploadMultipartUploadIdPart(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.files.upload.multipart)[':uploadId']['part']['$post']>,
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.files.upload.multipart)[':uploadId']['part']['$post']>>
+        >
+      >
+    >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client.files.upload.multipart)[':uploadId']['part']['$post']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<(typeof client.files.upload.multipart)[':uploadId']['part']['$post']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.files.upload.multipart)[':uploadId']['part']['$post']>
-  >(
-    'POST /files/upload/multipart/:uploadId/part',
-    async (_, { arg }) =>
-      parseResponse(client.files.upload.multipart[':uploadId'].part.$post(arg, options?.client)),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostFilesUploadMultipartUploadIdPartMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<
+            (typeof client.files.upload.multipart)[':uploadId']['part']['$post']
+          >
+        },
+      ) => parseResponse(client.files.upload.multipart[':uploadId'].part.$post(arg, clientOptions)),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /files/upload/multipart/{uploadId}/complete
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostFilesUploadMultipartUploadIdCompleteMutationKey() {
+  return ['files', 'POST', '/files/upload/multipart/:uploadId/complete'] as const
 }
 
 /**
@@ -127,27 +186,55 @@ export function usePostFilesUploadMultipartUploadIdPart(options?: {
  * マルチパートアップロード完了
  */
 export function usePostFilesUploadMultipartUploadIdComplete(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.files.upload.multipart)[':uploadId']['complete']['$post']>,
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<(typeof client.files.upload.multipart)[':uploadId']['complete']['$post']>
+          >
+        >
+      >
+    >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client.files.upload.multipart)[':uploadId']['complete']['$post']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<(typeof client.files.upload.multipart)[':uploadId']['complete']['$post']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.files.upload.multipart)[':uploadId']['complete']['$post']>
-  >(
-    'POST /files/upload/multipart/:uploadId/complete',
-    async (_, { arg }) =>
-      parseResponse(
-        client.files.upload.multipart[':uploadId'].complete.$post(arg, options?.client),
-      ),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostFilesUploadMultipartUploadIdCompleteMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<
+            (typeof client.files.upload.multipart)[':uploadId']['complete']['$post']
+          >
+        },
+      ) =>
+        parseResponse(
+          client.files.upload.multipart[':uploadId'].complete.$post(arg, clientOptions),
+        ),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /files/{fileId}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetFilesFileIdKey(
+  args: InferRequestType<(typeof client.files)[':fileId']['$get']>,
+) {
+  return ['files', 'GET', '/files/:fileId', args] as const
 }
 
 /**
@@ -158,31 +245,30 @@ export function usePostFilesUploadMultipartUploadIdComplete(options?: {
 export function useGetFilesFileId(
   args: InferRequestType<(typeof client.files)[':fileId']['$get']>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<(typeof client.files)[':fileId']['$get']>, Error> & {
-      swrKey?: Key
-      enabled?: boolean
-    }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetFilesFileIdKey(args) : null)
-  const query = useSWR<InferResponseType<(typeof client.files)[':fileId']['$get']>, Error>(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetFilesFileIdKey(args)) : null
+  return {
     swrKey,
-    async () => parseResponse(client.files[':fileId'].$get(args, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.files[':fileId'].$get(args, clientOptions)),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /files/{fileId}
+ * Generates SWR mutation key for DELETE /files/{fileId}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetFilesFileIdKey(
-  args?: InferRequestType<(typeof client.files)[':fileId']['$get']>,
-) {
-  return ['/files/:fileId', ...(args ? [args] : [])] as const
+export function getDeleteFilesFileIdMutationKey() {
+  return ['files', 'DELETE', '/files/:fileId'] as const
 }
 
 /**
@@ -191,24 +277,41 @@ export function getGetFilesFileIdKey(
  * ファイル削除（ゴミ箱へ移動）
  */
 export function useDeleteFilesFileId(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.files)[':fileId']['$delete']>,
+  mutation?: SWRMutationConfiguration<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.files)[':fileId']['$delete']>>>
+        >
+      >
+    | undefined,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client.files)[':fileId']['$delete']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<(typeof client.files)[':fileId']['$delete']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.files)[':fileId']['$delete']>
-  >(
-    'DELETE /files/:fileId',
-    async (_, { arg }) => parseResponse(client.files[':fileId'].$delete(arg, options?.client)),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDeleteFilesFileIdMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        { arg }: { arg: InferRequestType<(typeof client.files)[':fileId']['$delete']> },
+      ) => parseResponse(client.files[':fileId'].$delete(arg, clientOptions)),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for PATCH /files/{fileId}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPatchFilesFileIdMutationKey() {
+  return ['files', 'PATCH', '/files/:fileId'] as const
 }
 
 /**
@@ -217,24 +320,42 @@ export function useDeleteFilesFileId(options?: {
  * ファイル情報更新
  */
 export function usePatchFilesFileId(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.files)[':fileId']['$patch']>,
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client.files)[':fileId']['$patch']>>>
+      >
+    >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client.files)[':fileId']['$patch']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<(typeof client.files)[':fileId']['$patch']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.files)[':fileId']['$patch']>
-  >(
-    'PATCH /files/:fileId',
-    async (_, { arg }) => parseResponse(client.files[':fileId'].$patch(arg, options?.client)),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPatchFilesFileIdMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        { arg }: { arg: InferRequestType<(typeof client.files)[':fileId']['$patch']> },
+      ) => parseResponse(client.files[':fileId'].$patch(arg, clientOptions)),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /files/{fileId}/download
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetFilesFileIdDownloadKey(
+  args: InferRequestType<(typeof client.files)[':fileId']['download']['$get']>,
+) {
+  return ['files', 'GET', '/files/:fileId/download', args] as const
 }
 
 /**
@@ -245,34 +366,32 @@ export function usePatchFilesFileId(options?: {
 export function useGetFilesFileIdDownload(
   args: InferRequestType<(typeof client.files)[':fileId']['download']['$get']>,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<(typeof client.files)[':fileId']['download']['$get']>,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetFilesFileIdDownloadKey(args) : null)
-  const query = useSWR<
-    InferResponseType<(typeof client.files)[':fileId']['download']['$get']>,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetFilesFileIdDownloadKey(args)) : null
+  return {
     swrKey,
-    async () => parseResponse(client.files[':fileId'].download.$get(args, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.files[':fileId'].download.$get(args, clientOptions)),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /files/{fileId}/download
+ * Generates SWR cache key for GET /files/{fileId}/download-url
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetFilesFileIdDownloadKey(
-  args?: InferRequestType<(typeof client.files)[':fileId']['download']['$get']>,
+export function getGetFilesFileIdDownloadUrlKey(
+  args: InferRequestType<(typeof client.files)[':fileId']['download-url']['$get']>,
 ) {
-  return ['/files/:fileId/download', ...(args ? [args] : [])] as const
+  return ['files', 'GET', '/files/:fileId/download-url', args] as const
 }
 
 /**
@@ -283,34 +402,30 @@ export function getGetFilesFileIdDownloadKey(
 export function useGetFilesFileIdDownloadUrl(
   args: InferRequestType<(typeof client.files)[':fileId']['download-url']['$get']>,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<(typeof client.files)[':fileId']['download-url']['$get']>,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetFilesFileIdDownloadUrlKey(args) : null)
-  const query = useSWR<
-    InferResponseType<(typeof client.files)[':fileId']['download-url']['$get']>,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetFilesFileIdDownloadUrlKey(args)) : null
+  return {
     swrKey,
-    async () => parseResponse(client.files[':fileId']['download-url'].$get(args, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.files[':fileId']['download-url'].$get(args, clientOptions)),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /files/{fileId}/download-url
+ * Generates SWR mutation key for POST /files/{fileId}/copy
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetFilesFileIdDownloadUrlKey(
-  args?: InferRequestType<(typeof client.files)[':fileId']['download-url']['$get']>,
-) {
-  return ['/files/:fileId/download-url', ...(args ? [args] : [])] as const
+export function getPostFilesFileIdCopyMutationKey() {
+  return ['files', 'POST', '/files/:fileId/copy'] as const
 }
 
 /**
@@ -319,24 +434,40 @@ export function getGetFilesFileIdDownloadUrlKey(
  * ファイルコピー
  */
 export function usePostFilesFileIdCopy(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.files)[':fileId']['copy']['$post']>,
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client.files)[':fileId']['copy']['$post']>>>
+      >
+    >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client.files)[':fileId']['copy']['$post']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<(typeof client.files)[':fileId']['copy']['$post']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.files)[':fileId']['copy']['$post']>
-  >(
-    'POST /files/:fileId/copy',
-    async (_, { arg }) => parseResponse(client.files[':fileId'].copy.$post(arg, options?.client)),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostFilesFileIdCopyMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        { arg }: { arg: InferRequestType<(typeof client.files)[':fileId']['copy']['$post']> },
+      ) => parseResponse(client.files[':fileId'].copy.$post(arg, clientOptions)),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /files/{fileId}/move
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostFilesFileIdMoveMutationKey() {
+  return ['files', 'POST', '/files/:fileId/move'] as const
 }
 
 /**
@@ -345,24 +476,42 @@ export function usePostFilesFileIdCopy(options?: {
  * ファイル移動
  */
 export function usePostFilesFileIdMove(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.files)[':fileId']['move']['$post']>,
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client.files)[':fileId']['move']['$post']>>>
+      >
+    >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client.files)[':fileId']['move']['$post']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<(typeof client.files)[':fileId']['move']['$post']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.files)[':fileId']['move']['$post']>
-  >(
-    'POST /files/:fileId/move',
-    async (_, { arg }) => parseResponse(client.files[':fileId'].move.$post(arg, options?.client)),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostFilesFileIdMoveMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        { arg }: { arg: InferRequestType<(typeof client.files)[':fileId']['move']['$post']> },
+      ) => parseResponse(client.files[':fileId'].move.$post(arg, clientOptions)),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /files/{fileId}/thumbnail
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetFilesFileIdThumbnailKey(
+  args: InferRequestType<(typeof client.files)[':fileId']['thumbnail']['$get']>,
+) {
+  return ['files', 'GET', '/files/:fileId/thumbnail', args] as const
 }
 
 /**
@@ -373,34 +522,30 @@ export function usePostFilesFileIdMove(options?: {
 export function useGetFilesFileIdThumbnail(
   args: InferRequestType<(typeof client.files)[':fileId']['thumbnail']['$get']>,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<(typeof client.files)[':fileId']['thumbnail']['$get']>,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetFilesFileIdThumbnailKey(args) : null)
-  const query = useSWR<
-    InferResponseType<(typeof client.files)[':fileId']['thumbnail']['$get']>,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetFilesFileIdThumbnailKey(args)) : null
+  return {
     swrKey,
-    async () => parseResponse(client.files[':fileId'].thumbnail.$get(args, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.files[':fileId'].thumbnail.$get(args, clientOptions)),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /files/{fileId}/thumbnail
+ * Generates SWR mutation key for POST /folders
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetFilesFileIdThumbnailKey(
-  args?: InferRequestType<(typeof client.files)[':fileId']['thumbnail']['$get']>,
-) {
-  return ['/files/:fileId/thumbnail', ...(args ? [args] : [])] as const
+export function getPostFoldersMutationKey() {
+  return ['folders', 'POST', '/folders'] as const
 }
 
 /**
@@ -409,24 +554,36 @@ export function getGetFilesFileIdThumbnailKey(
  * フォルダ作成
  */
 export function usePostFolders(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.folders.$post>,
+  mutation?: SWRMutationConfiguration<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.folders.$post>>>>>,
     Error,
-    string,
+    Key,
     InferRequestType<typeof client.folders.$post>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<typeof client.folders.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.folders.$post>
-  >(
-    'POST /folders',
-    async (_, { arg }) => parseResponse(client.folders.$post(arg, options?.client)),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostFoldersMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (_: Key, { arg }: { arg: InferRequestType<typeof client.folders.$post> }) =>
+        parseResponse(client.folders.$post(arg, clientOptions)),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /folders/{folderId}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetFoldersFolderIdKey(
+  args: InferRequestType<(typeof client.folders)[':folderId']['$get']>,
+) {
+  return ['folders', 'GET', '/folders/:folderId', args] as const
 }
 
 /**
@@ -437,31 +594,30 @@ export function usePostFolders(options?: {
 export function useGetFoldersFolderId(
   args: InferRequestType<(typeof client.folders)[':folderId']['$get']>,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<(typeof client.folders)[':folderId']['$get']>,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetFoldersFolderIdKey(args) : null)
-  const query = useSWR<InferResponseType<(typeof client.folders)[':folderId']['$get']>, Error>(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetFoldersFolderIdKey(args)) : null
+  return {
     swrKey,
-    async () => parseResponse(client.folders[':folderId'].$get(args, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.folders[':folderId'].$get(args, clientOptions)),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /folders/{folderId}
+ * Generates SWR mutation key for DELETE /folders/{folderId}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetFoldersFolderIdKey(
-  args?: InferRequestType<(typeof client.folders)[':folderId']['$get']>,
-) {
-  return ['/folders/:folderId', ...(args ? [args] : [])] as const
+export function getDeleteFoldersFolderIdMutationKey() {
+  return ['folders', 'DELETE', '/folders/:folderId'] as const
 }
 
 /**
@@ -470,24 +626,41 @@ export function getGetFoldersFolderIdKey(
  * フォルダ削除
  */
 export function useDeleteFoldersFolderId(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.folders)[':folderId']['$delete']>,
+  mutation?: SWRMutationConfiguration<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.folders)[':folderId']['$delete']>>>
+        >
+      >
+    | undefined,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client.folders)[':folderId']['$delete']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<(typeof client.folders)[':folderId']['$delete']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.folders)[':folderId']['$delete']>
-  >(
-    'DELETE /folders/:folderId',
-    async (_, { arg }) => parseResponse(client.folders[':folderId'].$delete(arg, options?.client)),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDeleteFoldersFolderIdMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        { arg }: { arg: InferRequestType<(typeof client.folders)[':folderId']['$delete']> },
+      ) => parseResponse(client.folders[':folderId'].$delete(arg, clientOptions)),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for PATCH /folders/{folderId}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPatchFoldersFolderIdMutationKey() {
+  return ['folders', 'PATCH', '/folders/:folderId'] as const
 }
 
 /**
@@ -496,24 +669,42 @@ export function useDeleteFoldersFolderId(options?: {
  * フォルダ情報更新
  */
 export function usePatchFoldersFolderId(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.folders)[':folderId']['$patch']>,
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client.folders)[':folderId']['$patch']>>>
+      >
+    >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client.folders)[':folderId']['$patch']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<(typeof client.folders)[':folderId']['$patch']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.folders)[':folderId']['$patch']>
-  >(
-    'PATCH /folders/:folderId',
-    async (_, { arg }) => parseResponse(client.folders[':folderId'].$patch(arg, options?.client)),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPatchFoldersFolderIdMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        { arg }: { arg: InferRequestType<(typeof client.folders)[':folderId']['$patch']> },
+      ) => parseResponse(client.folders[':folderId'].$patch(arg, clientOptions)),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /files/{fileId}/share
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetFilesFileIdShareKey(
+  args: InferRequestType<(typeof client.files)[':fileId']['share']['$get']>,
+) {
+  return ['files', 'GET', '/files/:fileId/share', args] as const
 }
 
 /**
@@ -524,31 +715,30 @@ export function usePatchFoldersFolderId(options?: {
 export function useGetFilesFileIdShare(
   args: InferRequestType<(typeof client.files)[':fileId']['share']['$get']>,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<(typeof client.files)[':fileId']['share']['$get']>,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetFilesFileIdShareKey(args) : null)
-  const query = useSWR<InferResponseType<(typeof client.files)[':fileId']['share']['$get']>, Error>(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetFilesFileIdShareKey(args)) : null
+  return {
     swrKey,
-    async () => parseResponse(client.files[':fileId'].share.$get(args, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.files[':fileId'].share.$get(args, clientOptions)),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /files/{fileId}/share
+ * Generates SWR mutation key for POST /files/{fileId}/share
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetFilesFileIdShareKey(
-  args?: InferRequestType<(typeof client.files)[':fileId']['share']['$get']>,
-) {
-  return ['/files/:fileId/share', ...(args ? [args] : [])] as const
+export function getPostFilesFileIdShareMutationKey() {
+  return ['files', 'POST', '/files/:fileId/share'] as const
 }
 
 /**
@@ -557,24 +747,42 @@ export function getGetFilesFileIdShareKey(
  * ファイル共有
  */
 export function usePostFilesFileIdShare(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.files)[':fileId']['share']['$post']>,
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.files)[':fileId']['share']['$post']>>
+        >
+      >
+    >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client.files)[':fileId']['share']['$post']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<(typeof client.files)[':fileId']['share']['$post']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.files)[':fileId']['share']['$post']>
-  >(
-    'POST /files/:fileId/share',
-    async (_, { arg }) => parseResponse(client.files[':fileId'].share.$post(arg, options?.client)),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostFilesFileIdShareMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        { arg }: { arg: InferRequestType<(typeof client.files)[':fileId']['share']['$post']> },
+      ) => parseResponse(client.files[':fileId'].share.$post(arg, clientOptions)),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for DELETE /files/{fileId}/share
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getDeleteFilesFileIdShareMutationKey() {
+  return ['files', 'DELETE', '/files/:fileId/share'] as const
 }
 
 /**
@@ -583,25 +791,43 @@ export function usePostFilesFileIdShare(options?: {
  * 共有解除
  */
 export function useDeleteFilesFileIdShare(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.files)[':fileId']['share']['$delete']>,
+  mutation?: SWRMutationConfiguration<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.files)[':fileId']['share']['$delete']>>
+          >
+        >
+      >
+    | undefined,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client.files)[':fileId']['share']['$delete']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<(typeof client.files)[':fileId']['share']['$delete']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.files)[':fileId']['share']['$delete']>
-  >(
-    'DELETE /files/:fileId/share',
-    async (_, { arg }) =>
-      parseResponse(client.files[':fileId'].share.$delete(arg, options?.client)),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDeleteFilesFileIdShareMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        { arg }: { arg: InferRequestType<(typeof client.files)[':fileId']['share']['$delete']> },
+      ) => parseResponse(client.files[':fileId'].share.$delete(arg, clientOptions)),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /files/{fileId}/share/link
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostFilesFileIdShareLinkMutationKey() {
+  return ['files', 'POST', '/files/:fileId/share/link'] as const
 }
 
 /**
@@ -610,25 +836,46 @@ export function useDeleteFilesFileIdShare(options?: {
  * 共有リンク作成
  */
 export function usePostFilesFileIdShareLink(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.files)[':fileId']['share']['link']['$post']>,
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.files)[':fileId']['share']['link']['$post']>>
+        >
+      >
+    >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client.files)[':fileId']['share']['link']['$post']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<(typeof client.files)[':fileId']['share']['link']['$post']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.files)[':fileId']['share']['link']['$post']>
-  >(
-    'POST /files/:fileId/share/link',
-    async (_, { arg }) =>
-      parseResponse(client.files[':fileId'].share.link.$post(arg, options?.client)),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostFilesFileIdShareLinkMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: { arg: InferRequestType<(typeof client.files)[':fileId']['share']['link']['$post']> },
+      ) => parseResponse(client.files[':fileId'].share.link.$post(arg, clientOptions)),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /files/{fileId}/versions
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetFilesFileIdVersionsKey(
+  args: InferRequestType<(typeof client.files)[':fileId']['versions']['$get']>,
+) {
+  return ['files', 'GET', '/files/:fileId/versions', args] as const
 }
 
 /**
@@ -639,34 +886,30 @@ export function usePostFilesFileIdShareLink(options?: {
 export function useGetFilesFileIdVersions(
   args: InferRequestType<(typeof client.files)[':fileId']['versions']['$get']>,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<(typeof client.files)[':fileId']['versions']['$get']>,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetFilesFileIdVersionsKey(args) : null)
-  const query = useSWR<
-    InferResponseType<(typeof client.files)[':fileId']['versions']['$get']>,
-    Error
-  >(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetFilesFileIdVersionsKey(args)) : null
+  return {
     swrKey,
-    async () => parseResponse(client.files[':fileId'].versions.$get(args, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.files[':fileId'].versions.$get(args, clientOptions)),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /files/{fileId}/versions
+ * Generates SWR mutation key for POST /files/{fileId}/versions/{versionId}/restore
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetFilesFileIdVersionsKey(
-  args?: InferRequestType<(typeof client.files)[':fileId']['versions']['$get']>,
-) {
-  return ['/files/:fileId/versions', ...(args ? [args] : [])] as const
+export function getPostFilesFileIdVersionsVersionIdRestoreMutationKey() {
+  return ['files', 'POST', '/files/:fileId/versions/:versionId/restore'] as const
 }
 
 /**
@@ -675,31 +918,55 @@ export function getGetFilesFileIdVersionsKey(
  * バージョン復元
  */
 export function usePostFilesFileIdVersionsVersionIdRestore(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client.files)[':fileId']['versions'][':versionId']['restore']['$post']
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client.files)[':fileId']['versions'][':versionId']['restore']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client.files)[':fileId']['versions'][':versionId']['restore']['$post']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<
-      (typeof client.files)[':fileId']['versions'][':versionId']['restore']['$post']
-    >,
-    Error,
-    string,
-    InferRequestType<(typeof client.files)[':fileId']['versions'][':versionId']['restore']['$post']>
-  >(
-    'POST /files/:fileId/versions/:versionId/restore',
-    async (_, { arg }) =>
-      parseResponse(
-        client.files[':fileId'].versions[':versionId'].restore.$post(arg, options?.client),
-      ),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostFilesFileIdVersionsVersionIdRestoreMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<
+            (typeof client.files)[':fileId']['versions'][':versionId']['restore']['$post']
+          >
+        },
+      ) =>
+        parseResponse(
+          client.files[':fileId'].versions[':versionId'].restore.$post(arg, clientOptions),
+        ),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /trash
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetTrashKey(args: InferRequestType<typeof client.trash.$get>) {
+  return ['trash', 'GET', '/trash', args] as const
 }
 
 /**
@@ -710,29 +977,30 @@ export function usePostFilesFileIdVersionsVersionIdRestore(options?: {
 export function useGetTrash(
   args: InferRequestType<typeof client.trash.$get>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<typeof client.trash.$get>, Error> & {
-      swrKey?: Key
-      enabled?: boolean
-    }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetTrashKey(args) : null)
-  const query = useSWR<InferResponseType<typeof client.trash.$get>, Error>(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetTrashKey(args)) : null
+  return {
     swrKey,
-    async () => parseResponse(client.trash.$get(args, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.trash.$get(args, clientOptions)),
+      restSwrOptions,
+    ),
+  }
 }
 
 /**
- * Generates SWR cache key for GET /trash
+ * Generates SWR mutation key for DELETE /trash
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetTrashKey(args?: InferRequestType<typeof client.trash.$get>) {
-  return ['/trash', ...(args ? [args] : [])] as const
+export function getDeleteTrashMutationKey() {
+  return ['trash', 'DELETE', '/trash'] as const
 }
 
 /**
@@ -741,19 +1009,34 @@ export function getGetTrashKey(args?: InferRequestType<typeof client.trash.$get>
  * ゴミ箱を空にする
  */
 export function useDeleteTrash(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.trash.$delete>,
+  mutation?: SWRMutationConfiguration<
+    | Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.trash.$delete>>>>>
+    | undefined,
     Error,
-    string,
-    void
-  >
+    Key,
+    undefined
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<InferResponseType<typeof client.trash.$delete>, Error, string, void>(
-    'DELETE /trash',
-    async () => parseResponse(client.trash.$delete(undefined, options?.client)),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDeleteTrashMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async () => parseResponse(client.trash.$delete(undefined, clientOptions)),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /trash/{fileId}/restore
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostTrashFileIdRestoreMutationKey() {
+  return ['trash', 'POST', '/trash/:fileId/restore'] as const
 }
 
 /**
@@ -762,25 +1045,42 @@ export function useDeleteTrash(options?: {
  * ゴミ箱から復元
  */
 export function usePostTrashFileIdRestore(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.trash)[':fileId']['restore']['$post']>,
+  mutation?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.trash)[':fileId']['restore']['$post']>>
+        >
+      >
+    >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client.trash)[':fileId']['restore']['$post']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<(typeof client.trash)[':fileId']['restore']['$post']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.trash)[':fileId']['restore']['$post']>
-  >(
-    'POST /trash/:fileId/restore',
-    async (_, { arg }) =>
-      parseResponse(client.trash[':fileId'].restore.$post(arg, options?.client)),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostTrashFileIdRestoreMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        { arg }: { arg: InferRequestType<(typeof client.trash)[':fileId']['restore']['$post']> },
+      ) => parseResponse(client.trash[':fileId'].restore.$post(arg, clientOptions)),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /storage/usage
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGetStorageUsageKey() {
+  return ['storage', 'GET', '/storage/usage'] as const
 }
 
 /**
@@ -789,26 +1089,19 @@ export function usePostTrashFileIdRestore(options?: {
  * ストレージ使用量取得
  */
 export function useGetStorageUsage(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.storage.usage.$get>, Error> & {
-    swrKey?: Key
-    enabled?: boolean
-  }
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetStorageUsageKey() : null)
-  const query = useSWR<InferResponseType<typeof client.storage.usage.$get>, Error>(
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetStorageUsageKey()) : null
+  return {
     swrKey,
-    async () => parseResponse(client.storage.usage.$get(undefined, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
-}
-
-/**
- * Generates SWR cache key for GET /storage/usage
- */
-export function getGetStorageUsageKey() {
-  return ['/storage/usage'] as const
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.storage.usage.$get(undefined, clientOptions)),
+      restSwrOptions,
+    ),
+  }
 }
