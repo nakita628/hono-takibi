@@ -34,13 +34,12 @@ export function useGetUsersUserId(
 
 /**
  * Generates SWR cache key for GET /users/{userId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetUsersUserIdKey(
   args: InferRequestType<(typeof client.users)[':userId']['$get']>,
 ) {
-  const u = client.users[':userId'].$url(args)
-  return u.pathname + u.search
+  return ['/users/:userId', args] as const
 }
 
 /**
@@ -71,13 +70,12 @@ export function useGetUsersByUsernameUsername(
 
 /**
  * Generates SWR cache key for GET /users/by/username/{username}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetUsersByUsernameUsernameKey(
   args: InferRequestType<(typeof client.users.by.username)[':username']['$get']>,
 ) {
-  const u = client.users.by.username[':username'].$url(args)
-  return u.pathname + u.search
+  return ['/users/by/username/:username', args] as const
 }
 
 /**
@@ -108,11 +106,10 @@ export function useGetUsersSearch(
 
 /**
  * Generates SWR cache key for GET /users/search
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetUsersSearchKey(args: InferRequestType<typeof client.users.search.$get>) {
-  const u = client.users.search.$url(args)
-  return u.pathname + u.search
+  return ['/users/search', args] as const
 }
 
 /**
@@ -143,11 +140,10 @@ export function useGetUsersLookup(
 
 /**
  * Generates SWR cache key for GET /users/lookup
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetUsersLookupKey(args: InferRequestType<typeof client.users.lookup.$get>) {
-  const u = client.users.lookup.$url(args)
-  return u.pathname + u.search
+  return ['/users/lookup', args] as const
 }
 
 /**
@@ -175,10 +171,10 @@ export function useGetMe(options?: {
 
 /**
  * Generates SWR cache key for GET /me
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetMeKey() {
-  return client.me.$url().pathname
+  return ['/me'] as const
 }
 
 /**
@@ -215,7 +211,7 @@ export function usePatchMe(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPatchMeMutationKey() {
-  return `PATCH ${client.me.$url().pathname}`
+  return 'PATCH /me'
 }
 
 /**
@@ -252,7 +248,7 @@ export function usePostMeAvatar(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostMeAvatarMutationKey() {
-  return `POST ${client.me.avatar.$url().pathname}`
+  return 'POST /me/avatar'
 }
 
 /**
@@ -291,7 +287,7 @@ export function useDeleteMeAvatar(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteMeAvatarMutationKey() {
-  return `DELETE ${client.me.avatar.$url().pathname}`
+  return 'DELETE /me/avatar'
 }
 
 /**
@@ -328,7 +324,7 @@ export function usePostMeBanner(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostMeBannerMutationKey() {
-  return `POST ${client.me.banner.$url().pathname}`
+  return 'POST /me/banner'
 }
 
 /**
@@ -367,7 +363,7 @@ export function useDeleteMeBanner(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteMeBannerMutationKey() {
-  return `DELETE ${client.me.banner.$url().pathname}`
+  return 'DELETE /me/banner'
 }
 
 /**
@@ -412,7 +408,7 @@ export function usePostUsersUserIdFollow(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostUsersUserIdFollowMutationKey() {
-  return `POST ${client.users[':userId'].follow.$url().pathname}`
+  return 'POST /users/:userId/follow'
 }
 
 /**
@@ -457,7 +453,7 @@ export function useDeleteUsersUserIdFollow(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteUsersUserIdFollowMutationKey() {
-  return `DELETE ${client.users[':userId'].follow.$url().pathname}`
+  return 'DELETE /users/:userId/follow'
 }
 
 /**
@@ -488,13 +484,12 @@ export function useGetUsersUserIdFollowers(
 
 /**
  * Generates SWR cache key for GET /users/{userId}/followers
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetUsersUserIdFollowersKey(
   args: InferRequestType<(typeof client.users)[':userId']['followers']['$get']>,
 ) {
-  const u = client.users[':userId'].followers.$url(args)
-  return u.pathname + u.search
+  return ['/users/:userId/followers', args] as const
 }
 
 /**
@@ -525,13 +520,12 @@ export function useGetUsersUserIdFollowing(
 
 /**
  * Generates SWR cache key for GET /users/{userId}/following
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetUsersUserIdFollowingKey(
   args: InferRequestType<(typeof client.users)[':userId']['following']['$get']>,
 ) {
-  const u = client.users[':userId'].following.$url(args)
-  return u.pathname + u.search
+  return ['/users/:userId/following', args] as const
 }
 
 /**
@@ -582,7 +576,7 @@ export function usePostUsersUserIdFollowersRemove(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostUsersUserIdFollowersRemoveMutationKey() {
-  return `POST ${client.users[':userId'].followers.remove.$url().pathname}`
+  return 'POST /users/:userId/followers/remove'
 }
 
 /**
@@ -613,11 +607,10 @@ export function useGetRelationships(
 
 /**
  * Generates SWR cache key for GET /relationships
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetRelationshipsKey(args: InferRequestType<typeof client.relationships.$get>) {
-  const u = client.relationships.$url(args)
-  return u.pathname + u.search
+  return ['/relationships', args] as const
 }
 
 /**
@@ -650,13 +643,12 @@ export function useGetFollowRequests(
 
 /**
  * Generates SWR cache key for GET /follow-requests
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetFollowRequestsKey(
   args: InferRequestType<(typeof client)['follow-requests']['$get']>,
 ) {
-  const u = client['follow-requests'].$url(args)
-  return u.pathname + u.search
+  return ['/follow-requests', args] as const
 }
 
 /**
@@ -705,7 +697,7 @@ export function usePostFollowRequestsUserIdAccept(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostFollowRequestsUserIdAcceptMutationKey() {
-  return `POST ${client['follow-requests'][':userId'].accept.$url().pathname}`
+  return 'POST /follow-requests/:userId/accept'
 }
 
 /**
@@ -754,7 +746,7 @@ export function usePostFollowRequestsUserIdReject(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostFollowRequestsUserIdRejectMutationKey() {
-  return `POST ${client['follow-requests'][':userId'].reject.$url().pathname}`
+  return 'POST /follow-requests/:userId/reject'
 }
 
 /**
@@ -799,7 +791,7 @@ export function usePostUsersUserIdBlock(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostUsersUserIdBlockMutationKey() {
-  return `POST ${client.users[':userId'].block.$url().pathname}`
+  return 'POST /users/:userId/block'
 }
 
 /**
@@ -844,7 +836,7 @@ export function useDeleteUsersUserIdBlock(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteUsersUserIdBlockMutationKey() {
-  return `DELETE ${client.users[':userId'].block.$url().pathname}`
+  return 'DELETE /users/:userId/block'
 }
 
 /**
@@ -887,7 +879,7 @@ export function usePostUsersUserIdMute(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostUsersUserIdMuteMutationKey() {
-  return `POST ${client.users[':userId'].mute.$url().pathname}`
+  return 'POST /users/:userId/mute'
 }
 
 /**
@@ -932,7 +924,7 @@ export function useDeleteUsersUserIdMute(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteUsersUserIdMuteMutationKey() {
-  return `DELETE ${client.users[':userId'].mute.$url().pathname}`
+  return 'DELETE /users/:userId/mute'
 }
 
 /**
@@ -963,11 +955,10 @@ export function useGetBlocks(
 
 /**
  * Generates SWR cache key for GET /blocks
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetBlocksKey(args: InferRequestType<typeof client.blocks.$get>) {
-  const u = client.blocks.$url(args)
-  return u.pathname + u.search
+  return ['/blocks', args] as const
 }
 
 /**
@@ -998,11 +989,10 @@ export function useGetMutes(
 
 /**
  * Generates SWR cache key for GET /mutes
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetMutesKey(args: InferRequestType<typeof client.mutes.$get>) {
-  const u = client.mutes.$url(args)
-  return u.pathname + u.search
+  return ['/mutes', args] as const
 }
 
 /**
@@ -1030,10 +1020,10 @@ export function useGetLists(options?: {
 
 /**
  * Generates SWR cache key for GET /lists
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetListsKey() {
-  return client.lists.$url().pathname
+  return ['/lists'] as const
 }
 
 /**
@@ -1070,7 +1060,7 @@ export function usePostLists(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostListsMutationKey() {
-  return `POST ${client.lists.$url().pathname}`
+  return 'POST /lists'
 }
 
 /**
@@ -1101,13 +1091,12 @@ export function useGetListsListId(
 
 /**
  * Generates SWR cache key for GET /lists/{listId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetListsListIdKey(
   args: InferRequestType<(typeof client.lists)[':listId']['$get']>,
 ) {
-  const u = client.lists[':listId'].$url(args)
-  return u.pathname + u.search
+  return ['/lists/:listId', args] as const
 }
 
 /**
@@ -1150,7 +1139,7 @@ export function usePutListsListId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPutListsListIdMutationKey() {
-  return `PUT ${client.lists[':listId'].$url().pathname}`
+  return 'PUT /lists/:listId'
 }
 
 /**
@@ -1194,7 +1183,7 @@ export function useDeleteListsListId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteListsListIdMutationKey() {
-  return `DELETE ${client.lists[':listId'].$url().pathname}`
+  return 'DELETE /lists/:listId'
 }
 
 /**
@@ -1225,13 +1214,12 @@ export function useGetListsListIdMembers(
 
 /**
  * Generates SWR cache key for GET /lists/{listId}/members
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetListsListIdMembersKey(
   args: InferRequestType<(typeof client.lists)[':listId']['members']['$get']>,
 ) {
-  const u = client.lists[':listId'].members.$url(args)
-  return u.pathname + u.search
+  return ['/lists/:listId/members', args] as const
 }
 
 /**
@@ -1276,7 +1264,7 @@ export function usePostListsListIdMembers(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostListsListIdMembersMutationKey() {
-  return `POST ${client.lists[':listId'].members.$url().pathname}`
+  return 'POST /lists/:listId/members'
 }
 
 /**
@@ -1326,7 +1314,7 @@ export function useDeleteListsListIdMembersUserId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteListsListIdMembersUserIdMutationKey() {
-  return `DELETE ${client.lists[':listId'].members[':userId'].$url().pathname}`
+  return 'DELETE /lists/:listId/members/:userId'
 }
 
 /**
@@ -1357,13 +1345,12 @@ export function useGetListsListIdTimeline(
 
 /**
  * Generates SWR cache key for GET /lists/{listId}/timeline
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetListsListIdTimelineKey(
   args: InferRequestType<(typeof client.lists)[':listId']['timeline']['$get']>,
 ) {
-  const u = client.lists[':listId'].timeline.$url(args)
-  return u.pathname + u.search
+  return ['/lists/:listId/timeline', args] as const
 }
 
 /**
@@ -1394,11 +1381,10 @@ export function useGetUsersUserIdLists(
 
 /**
  * Generates SWR cache key for GET /users/{userId}/lists
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetUsersUserIdListsKey(
   args: InferRequestType<(typeof client.users)[':userId']['lists']['$get']>,
 ) {
-  const u = client.users[':userId'].lists.$url(args)
-  return u.pathname + u.search
+  return ['/users/:userId/lists', args] as const
 }

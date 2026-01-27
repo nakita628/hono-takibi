@@ -37,7 +37,7 @@ export function usePostUsers(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostUsersMutationKey() {
-  return `POST ${client.users.$url().pathname}`
+  return 'POST /users'
 }
 
 /**
@@ -78,7 +78,7 @@ export function usePutUsersUserId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPutUsersUserIdMutationKey() {
-  return `PUT ${client.users[':userId'].$url().pathname}`
+  return 'PUT /users/:userId'
 }
 
 /**
@@ -119,7 +119,7 @@ export function usePatchUsersUserId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPatchUsersUserIdMutationKey() {
-  return `PATCH ${client.users[':userId'].$url().pathname}`
+  return 'PATCH /users/:userId'
 }
 
 /**
@@ -162,7 +162,7 @@ export function usePostUsersUserIdAvatar(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostUsersUserIdAvatarMutationKey() {
-  return `POST ${client.users[':userId'].avatar.$url().pathname}`
+  return 'POST /users/:userId/avatar'
 }
 
 /**
@@ -197,5 +197,5 @@ export function usePostBulkUsers(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostBulkUsersMutationKey() {
-  return `POST ${client.bulk.users.$url().pathname}`
+  return 'POST /bulk/users'
 }

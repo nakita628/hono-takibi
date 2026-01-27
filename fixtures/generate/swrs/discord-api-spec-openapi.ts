@@ -29,10 +29,10 @@ export function useGetApplicationsMe(options?: {
 
 /**
  * Generates SWR cache key for GET /applications/@me
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetApplicationsMeKey() {
-  return client.applications['@me'].$url().pathname
+  return ['/applications/@me'] as const
 }
 
 /**
@@ -73,7 +73,7 @@ export function usePatchApplicationsMe(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPatchApplicationsMeMutationKey() {
-  return `PATCH ${client.applications['@me'].$url().pathname}`
+  return 'PATCH /applications/@me'
 }
 
 /**
@@ -102,13 +102,12 @@ export function useGetApplicationsApplicationId(
 
 /**
  * Generates SWR cache key for GET /applications/{application_id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetApplicationsApplicationIdKey(
   args: InferRequestType<(typeof client.applications)[':application_id']['$get']>,
 ) {
-  const u = client.applications[':application_id'].$url(args)
-  return u.pathname + u.search
+  return ['/applications/:application_id', args] as const
 }
 
 /**
@@ -153,7 +152,7 @@ export function usePatchApplicationsApplicationId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPatchApplicationsApplicationIdMutationKey() {
-  return `PATCH ${client.applications[':application_id'].$url().pathname}`
+  return 'PATCH /applications/:application_id'
 }
 
 /**
@@ -192,15 +191,14 @@ export function useGetApplicationsApplicationIdActivityInstancesInstanceId(
 
 /**
  * Generates SWR cache key for GET /applications/{application_id}/activity-instances/{instance_id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetApplicationsApplicationIdActivityInstancesInstanceIdKey(
   args: InferRequestType<
     (typeof client.applications)[':application_id']['activity-instances'][':instance_id']['$get']
   >,
 ) {
-  const u = client.applications[':application_id']['activity-instances'][':instance_id'].$url(args)
-  return u.pathname + u.search
+  return ['/applications/:application_id/activity-instances/:instance_id', args] as const
 }
 
 /**
@@ -252,7 +250,7 @@ export function usePostApplicationsApplicationIdAttachment(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostApplicationsApplicationIdAttachmentMutationKey() {
-  return `POST ${client.applications[':application_id'].attachment.$url().pathname}`
+  return 'POST /applications/:application_id/attachment'
 }
 
 /**
@@ -282,13 +280,12 @@ export function useGetApplicationsApplicationIdCommands(
 
 /**
  * Generates SWR cache key for GET /applications/{application_id}/commands
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetApplicationsApplicationIdCommandsKey(
   args: InferRequestType<(typeof client.applications)[':application_id']['commands']['$get']>,
 ) {
-  const u = client.applications[':application_id'].commands.$url(args)
-  return u.pathname + u.search
+  return ['/applications/:application_id/commands', args] as const
 }
 
 /**
@@ -335,7 +332,7 @@ export function usePutApplicationsApplicationIdCommands(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPutApplicationsApplicationIdCommandsMutationKey() {
-  return `PUT ${client.applications[':application_id'].commands.$url().pathname}`
+  return 'PUT /applications/:application_id/commands'
 }
 
 /**
@@ -384,7 +381,7 @@ export function usePostApplicationsApplicationIdCommands(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostApplicationsApplicationIdCommandsMutationKey() {
-  return `POST ${client.applications[':application_id'].commands.$url().pathname}`
+  return 'POST /applications/:application_id/commands'
 }
 
 /**
@@ -419,15 +416,14 @@ export function useGetApplicationsApplicationIdCommandsCommandId(
 
 /**
  * Generates SWR cache key for GET /applications/{application_id}/commands/{command_id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetApplicationsApplicationIdCommandsCommandIdKey(
   args: InferRequestType<
     (typeof client.applications)[':application_id']['commands'][':command_id']['$get']
   >,
 ) {
-  const u = client.applications[':application_id'].commands[':command_id'].$url(args)
-  return u.pathname + u.search
+  return ['/applications/:application_id/commands/:command_id', args] as const
 }
 
 /**
@@ -489,7 +485,7 @@ export function useDeleteApplicationsApplicationIdCommandsCommandId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteApplicationsApplicationIdCommandsCommandIdMutationKey() {
-  return `DELETE ${client.applications[':application_id'].commands[':command_id'].$url().pathname}`
+  return 'DELETE /applications/:application_id/commands/:command_id'
 }
 
 /**
@@ -547,7 +543,7 @@ export function usePatchApplicationsApplicationIdCommandsCommandId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPatchApplicationsApplicationIdCommandsCommandIdMutationKey() {
-  return `PATCH ${client.applications[':application_id'].commands[':command_id'].$url().pathname}`
+  return 'PATCH /applications/:application_id/commands/:command_id'
 }
 
 /**
@@ -577,13 +573,12 @@ export function useGetApplicationsApplicationIdEmojis(
 
 /**
  * Generates SWR cache key for GET /applications/{application_id}/emojis
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetApplicationsApplicationIdEmojisKey(
   args: InferRequestType<(typeof client.applications)[':application_id']['emojis']['$get']>,
 ) {
-  const u = client.applications[':application_id'].emojis.$url(args)
-  return u.pathname + u.search
+  return ['/applications/:application_id/emojis', args] as const
 }
 
 /**
@@ -630,7 +625,7 @@ export function usePostApplicationsApplicationIdEmojis(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostApplicationsApplicationIdEmojisMutationKey() {
-  return `POST ${client.applications[':application_id'].emojis.$url().pathname}`
+  return 'POST /applications/:application_id/emojis'
 }
 
 /**
@@ -665,15 +660,14 @@ export function useGetApplicationsApplicationIdEmojisEmojiId(
 
 /**
  * Generates SWR cache key for GET /applications/{application_id}/emojis/{emoji_id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetApplicationsApplicationIdEmojisEmojiIdKey(
   args: InferRequestType<
     (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$get']
   >,
 ) {
-  const u = client.applications[':application_id'].emojis[':emoji_id'].$url(args)
-  return u.pathname + u.search
+  return ['/applications/:application_id/emojis/:emoji_id', args] as const
 }
 
 /**
@@ -732,7 +726,7 @@ export function useDeleteApplicationsApplicationIdEmojisEmojiId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteApplicationsApplicationIdEmojisEmojiIdMutationKey() {
-  return `DELETE ${client.applications[':application_id'].emojis[':emoji_id'].$url().pathname}`
+  return 'DELETE /applications/:application_id/emojis/:emoji_id'
 }
 
 /**
@@ -790,7 +784,7 @@ export function usePatchApplicationsApplicationIdEmojisEmojiId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPatchApplicationsApplicationIdEmojisEmojiIdMutationKey() {
-  return `PATCH ${client.applications[':application_id'].emojis[':emoji_id'].$url().pathname}`
+  return 'PATCH /applications/:application_id/emojis/:emoji_id'
 }
 
 /**
@@ -823,13 +817,12 @@ export function useGetApplicationsApplicationIdEntitlements(
 
 /**
  * Generates SWR cache key for GET /applications/{application_id}/entitlements
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetApplicationsApplicationIdEntitlementsKey(
   args: InferRequestType<(typeof client.applications)[':application_id']['entitlements']['$get']>,
 ) {
-  const u = client.applications[':application_id'].entitlements.$url(args)
-  return u.pathname + u.search
+  return ['/applications/:application_id/entitlements', args] as const
 }
 
 /**
@@ -883,7 +876,7 @@ export function usePostApplicationsApplicationIdEntitlements(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostApplicationsApplicationIdEntitlementsMutationKey() {
-  return `POST ${client.applications[':application_id'].entitlements.$url().pathname}`
+  return 'POST /applications/:application_id/entitlements'
 }
 
 /**
@@ -922,15 +915,14 @@ export function useGetApplicationsApplicationIdEntitlementsEntitlementId(
 
 /**
  * Generates SWR cache key for GET /applications/{application_id}/entitlements/{entitlement_id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetApplicationsApplicationIdEntitlementsEntitlementIdKey(
   args: InferRequestType<
     (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['$get']
   >,
 ) {
-  const u = client.applications[':application_id'].entitlements[':entitlement_id'].$url(args)
-  return u.pathname + u.search
+  return ['/applications/:application_id/entitlements/:entitlement_id', args] as const
 }
 
 /**
@@ -993,7 +985,7 @@ export function useDeleteApplicationsApplicationIdEntitlementsEntitlementId(opti
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteApplicationsApplicationIdEntitlementsEntitlementIdMutationKey() {
-  return `DELETE ${client.applications[':application_id'].entitlements[':entitlement_id'].$url().pathname}`
+  return 'DELETE /applications/:application_id/entitlements/:entitlement_id'
 }
 
 /**
@@ -1056,7 +1048,7 @@ export function usePostApplicationsApplicationIdEntitlementsEntitlementIdConsume
  * All args should be passed via trigger's { arg } object
  */
 export function getPostApplicationsApplicationIdEntitlementsEntitlementIdConsumeMutationKey() {
-  return `POST ${client.applications[':application_id'].entitlements[':entitlement_id'].consume.$url().pathname}`
+  return 'POST /applications/:application_id/entitlements/:entitlement_id/consume'
 }
 
 /**
@@ -1094,15 +1086,14 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommands(
 
 /**
  * Generates SWR cache key for GET /applications/{application_id}/guilds/{guild_id}/commands
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetApplicationsApplicationIdGuildsGuildIdCommandsKey(
   args: InferRequestType<
     (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$get']
   >,
 ) {
-  const u = client.applications[':application_id'].guilds[':guild_id'].commands.$url(args)
-  return u.pathname + u.search
+  return ['/applications/:application_id/guilds/:guild_id/commands', args] as const
 }
 
 /**
@@ -1163,7 +1154,7 @@ export function usePutApplicationsApplicationIdGuildsGuildIdCommands(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPutApplicationsApplicationIdGuildsGuildIdCommandsMutationKey() {
-  return `PUT ${client.applications[':application_id'].guilds[':guild_id'].commands.$url().pathname}`
+  return 'PUT /applications/:application_id/guilds/:guild_id/commands'
 }
 
 /**
@@ -1224,7 +1215,7 @@ export function usePostApplicationsApplicationIdGuildsGuildIdCommands(options?: 
  * All args should be passed via trigger's { arg } object
  */
 export function getPostApplicationsApplicationIdGuildsGuildIdCommandsMutationKey() {
-  return `POST ${client.applications[':application_id'].guilds[':guild_id'].commands.$url().pathname}`
+  return 'POST /applications/:application_id/guilds/:guild_id/commands'
 }
 
 /**
@@ -1263,16 +1254,14 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommandsPermissions(
 
 /**
  * Generates SWR cache key for GET /applications/{application_id}/guilds/{guild_id}/commands/permissions
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetApplicationsApplicationIdGuildsGuildIdCommandsPermissionsKey(
   args: InferRequestType<
     (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['permissions']['$get']
   >,
 ) {
-  const u =
-    client.applications[':application_id'].guilds[':guild_id'].commands.permissions.$url(args)
-  return u.pathname + u.search
+  return ['/applications/:application_id/guilds/:guild_id/commands/permissions', args] as const
 }
 
 /**
@@ -1311,16 +1300,14 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommandsCommandId(
 
 /**
  * Generates SWR cache key for GET /applications/{application_id}/guilds/{guild_id}/commands/{command_id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdKey(
   args: InferRequestType<
     (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$get']
   >,
 ) {
-  const u =
-    client.applications[':application_id'].guilds[':guild_id'].commands[':command_id'].$url(args)
-  return u.pathname + u.search
+  return ['/applications/:application_id/guilds/:guild_id/commands/:command_id', args] as const
 }
 
 /**
@@ -1382,7 +1369,7 @@ export function useDeleteApplicationsApplicationIdGuildsGuildIdCommandsCommandId
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteApplicationsApplicationIdGuildsGuildIdCommandsCommandIdMutationKey() {
-  return `DELETE ${client.applications[':application_id'].guilds[':guild_id'].commands[':command_id'].$url().pathname}`
+  return 'DELETE /applications/:application_id/guilds/:guild_id/commands/:command_id'
 }
 
 /**
@@ -1444,7 +1431,7 @@ export function usePatchApplicationsApplicationIdGuildsGuildIdCommandsCommandId(
  * All args should be passed via trigger's { arg } object
  */
 export function getPatchApplicationsApplicationIdGuildsGuildIdCommandsCommandIdMutationKey() {
-  return `PATCH ${client.applications[':application_id'].guilds[':guild_id'].commands[':command_id'].$url().pathname}`
+  return 'PATCH /applications/:application_id/guilds/:guild_id/commands/:command_id'
 }
 
 /**
@@ -1484,18 +1471,17 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPer
 
 /**
  * Generates SWR cache key for GET /applications/{application_id}/guilds/{guild_id}/commands/{command_id}/permissions
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPermissionsKey(
   args: InferRequestType<
     (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['permissions']['$get']
   >,
 ) {
-  const u =
-    client.applications[':application_id'].guilds[':guild_id'].commands[
-      ':command_id'
-    ].permissions.$url(args)
-  return u.pathname + u.search
+  return [
+    '/applications/:application_id/guilds/:guild_id/commands/:command_id/permissions',
+    args,
+  ] as const
 }
 
 /**
@@ -1557,7 +1543,7 @@ export function usePutApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPer
  * All args should be passed via trigger's { arg } object
  */
 export function getPutApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPermissionsMutationKey() {
-  return `PUT ${client.applications[':application_id'].guilds[':guild_id'].commands[':command_id'].permissions.$url().pathname}`
+  return 'PUT /applications/:application_id/guilds/:guild_id/commands/:command_id/permissions'
 }
 
 /**
@@ -1596,15 +1582,14 @@ export function useGetApplicationsApplicationIdRoleConnectionsMetadata(
 
 /**
  * Generates SWR cache key for GET /applications/{application_id}/role-connections/metadata
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetApplicationsApplicationIdRoleConnectionsMetadataKey(
   args: InferRequestType<
     (typeof client.applications)[':application_id']['role-connections']['metadata']['$get']
   >,
 ) {
-  const u = client.applications[':application_id']['role-connections'].metadata.$url(args)
-  return u.pathname + u.search
+  return ['/applications/:application_id/role-connections/metadata', args] as const
 }
 
 /**
@@ -1665,7 +1650,7 @@ export function usePutApplicationsApplicationIdRoleConnectionsMetadata(options?:
  * All args should be passed via trigger's { arg } object
  */
 export function getPutApplicationsApplicationIdRoleConnectionsMetadataMutationKey() {
-  return `PUT ${client.applications[':application_id']['role-connections'].metadata.$url().pathname}`
+  return 'PUT /applications/:application_id/role-connections/metadata'
 }
 
 /**
@@ -1694,13 +1679,12 @@ export function useGetChannelsChannelId(
 
 /**
  * Generates SWR cache key for GET /channels/{channel_id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetChannelsChannelIdKey(
   args: InferRequestType<(typeof client.channels)[':channel_id']['$get']>,
 ) {
-  const u = client.channels[':channel_id'].$url(args)
-  return u.pathname + u.search
+  return ['/channels/:channel_id', args] as const
 }
 
 /**
@@ -1743,7 +1727,7 @@ export function useDeleteChannelsChannelId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteChannelsChannelIdMutationKey() {
-  return `DELETE ${client.channels[':channel_id'].$url().pathname}`
+  return 'DELETE /channels/:channel_id'
 }
 
 /**
@@ -1784,7 +1768,7 @@ export function usePatchChannelsChannelId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPatchChannelsChannelIdMutationKey() {
-  return `PATCH ${client.channels[':channel_id'].$url().pathname}`
+  return 'PATCH /channels/:channel_id'
 }
 
 /**
@@ -1829,7 +1813,7 @@ export function usePostChannelsChannelIdFollowers(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostChannelsChannelIdFollowersMutationKey() {
-  return `POST ${client.channels[':channel_id'].followers.$url().pathname}`
+  return 'POST /channels/:channel_id/followers'
 }
 
 /**
@@ -1858,13 +1842,12 @@ export function useGetChannelsChannelIdInvites(
 
 /**
  * Generates SWR cache key for GET /channels/{channel_id}/invites
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetChannelsChannelIdInvitesKey(
   args: InferRequestType<(typeof client.channels)[':channel_id']['invites']['$get']>,
 ) {
-  const u = client.channels[':channel_id'].invites.$url(args)
-  return u.pathname + u.search
+  return ['/channels/:channel_id/invites', args] as const
 }
 
 /**
@@ -1910,7 +1893,7 @@ export function usePostChannelsChannelIdInvites(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostChannelsChannelIdInvitesMutationKey() {
-  return `POST ${client.channels[':channel_id'].invites.$url().pathname}`
+  return 'POST /channels/:channel_id/invites'
 }
 
 /**
@@ -1939,13 +1922,12 @@ export function useGetChannelsChannelIdMessages(
 
 /**
  * Generates SWR cache key for GET /channels/{channel_id}/messages
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetChannelsChannelIdMessagesKey(
   args: InferRequestType<(typeof client.channels)[':channel_id']['messages']['$get']>,
 ) {
-  const u = client.channels[':channel_id'].messages.$url(args)
-  return u.pathname + u.search
+  return ['/channels/:channel_id/messages', args] as const
 }
 
 /**
@@ -1990,7 +1972,7 @@ export function usePostChannelsChannelIdMessages(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostChannelsChannelIdMessagesMutationKey() {
-  return `POST ${client.channels[':channel_id'].messages.$url().pathname}`
+  return 'POST /channels/:channel_id/messages'
 }
 
 /**
@@ -2047,7 +2029,7 @@ export function usePostChannelsChannelIdMessagesBulkDelete(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostChannelsChannelIdMessagesBulkDeleteMutationKey() {
-  return `POST ${client.channels[':channel_id'].messages['bulk-delete'].$url().pathname}`
+  return 'POST /channels/:channel_id/messages/bulk-delete'
 }
 
 /**
@@ -2077,13 +2059,12 @@ export function useGetChannelsChannelIdMessagesPins(
 
 /**
  * Generates SWR cache key for GET /channels/{channel_id}/messages/pins
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetChannelsChannelIdMessagesPinsKey(
   args: InferRequestType<(typeof client.channels)[':channel_id']['messages']['pins']['$get']>,
 ) {
-  const u = client.channels[':channel_id'].messages.pins.$url(args)
-  return u.pathname + u.search
+  return ['/channels/:channel_id/messages/pins', args] as const
 }
 
 /**
@@ -2142,7 +2123,7 @@ export function usePutChannelsChannelIdMessagesPinsMessageId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPutChannelsChannelIdMessagesPinsMessageIdMutationKey() {
-  return `PUT ${client.channels[':channel_id'].messages.pins[':message_id'].$url().pathname}`
+  return 'PUT /channels/:channel_id/messages/pins/:message_id'
 }
 
 /**
@@ -2201,7 +2182,7 @@ export function useDeleteChannelsChannelIdMessagesPinsMessageId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteChannelsChannelIdMessagesPinsMessageIdMutationKey() {
-  return `DELETE ${client.channels[':channel_id'].messages.pins[':message_id'].$url().pathname}`
+  return 'DELETE /channels/:channel_id/messages/pins/:message_id'
 }
 
 /**
@@ -2235,15 +2216,14 @@ export function useGetChannelsChannelIdMessagesMessageId(
 
 /**
  * Generates SWR cache key for GET /channels/{channel_id}/messages/{message_id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetChannelsChannelIdMessagesMessageIdKey(
   args: InferRequestType<
     (typeof client.channels)[':channel_id']['messages'][':message_id']['$get']
   >,
 ) {
-  const u = client.channels[':channel_id'].messages[':message_id'].$url(args)
-  return u.pathname + u.search
+  return ['/channels/:channel_id/messages/:message_id', args] as const
 }
 
 /**
@@ -2300,7 +2280,7 @@ export function useDeleteChannelsChannelIdMessagesMessageId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteChannelsChannelIdMessagesMessageIdMutationKey() {
-  return `DELETE ${client.channels[':channel_id'].messages[':message_id'].$url().pathname}`
+  return 'DELETE /channels/:channel_id/messages/:message_id'
 }
 
 /**
@@ -2354,7 +2334,7 @@ export function usePatchChannelsChannelIdMessagesMessageId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPatchChannelsChannelIdMessagesMessageIdMutationKey() {
-  return `PATCH ${client.channels[':channel_id'].messages[':message_id'].$url().pathname}`
+  return 'PATCH /channels/:channel_id/messages/:message_id'
 }
 
 /**
@@ -2415,7 +2395,7 @@ export function usePostChannelsChannelIdMessagesMessageIdCrosspost(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostChannelsChannelIdMessagesMessageIdCrosspostMutationKey() {
-  return `POST ${client.channels[':channel_id'].messages[':message_id'].crosspost.$url().pathname}`
+  return 'POST /channels/:channel_id/messages/:message_id/crosspost'
 }
 
 /**
@@ -2477,7 +2457,7 @@ export function useDeleteChannelsChannelIdMessagesMessageIdReactions(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteChannelsChannelIdMessagesMessageIdReactionsMutationKey() {
-  return `DELETE ${client.channels[':channel_id'].messages[':message_id'].reactions.$url().pathname}`
+  return 'DELETE /channels/:channel_id/messages/:message_id/reactions'
 }
 
 /**
@@ -2516,16 +2496,14 @@ export function useGetChannelsChannelIdMessagesMessageIdReactionsEmojiName(
 
 /**
  * Generates SWR cache key for GET /channels/{channel_id}/messages/{message_id}/reactions/{emoji_name}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetChannelsChannelIdMessagesMessageIdReactionsEmojiNameKey(
   args: InferRequestType<
     (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['$get']
   >,
 ) {
-  const u =
-    client.channels[':channel_id'].messages[':message_id'].reactions[':emoji_name'].$url(args)
-  return u.pathname + u.search
+  return ['/channels/:channel_id/messages/:message_id/reactions/:emoji_name', args] as const
 }
 
 /**
@@ -2588,7 +2566,7 @@ export function useDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiName(op
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameMutationKey() {
-  return `DELETE ${client.channels[':channel_id'].messages[':message_id'].reactions[':emoji_name'].$url().pathname}`
+  return 'DELETE /channels/:channel_id/messages/:message_id/reactions/:emoji_name'
 }
 
 /**
@@ -2650,7 +2628,7 @@ export function usePutChannelsChannelIdMessagesMessageIdReactionsEmojiNameMe(opt
  * All args should be passed via trigger's { arg } object
  */
 export function getPutChannelsChannelIdMessagesMessageIdReactionsEmojiNameMeMutationKey() {
-  return `PUT ${client.channels[':channel_id'].messages[':message_id'].reactions[':emoji_name']['@me'].$url().pathname}`
+  return 'PUT /channels/:channel_id/messages/:message_id/reactions/:emoji_name/@me'
 }
 
 /**
@@ -2712,7 +2690,7 @@ export function useDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameMe(
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameMeMutationKey() {
-  return `DELETE ${client.channels[':channel_id'].messages[':message_id'].reactions[':emoji_name']['@me'].$url().pathname}`
+  return 'DELETE /channels/:channel_id/messages/:message_id/reactions/:emoji_name/@me'
 }
 
 /**
@@ -2774,7 +2752,7 @@ export function useDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameUse
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameUserIdMutationKey() {
-  return `DELETE ${client.channels[':channel_id'].messages[':message_id'].reactions[':emoji_name'][':user_id'].$url().pathname}`
+  return 'DELETE /channels/:channel_id/messages/:message_id/reactions/:emoji_name/:user_id'
 }
 
 /**
@@ -2832,7 +2810,7 @@ export function usePostChannelsChannelIdMessagesMessageIdThreads(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostChannelsChannelIdMessagesMessageIdThreadsMutationKey() {
-  return `POST ${client.channels[':channel_id'].messages[':message_id'].threads.$url().pathname}`
+  return 'POST /channels/:channel_id/messages/:message_id/threads'
 }
 
 /**
@@ -2891,7 +2869,7 @@ export function usePutChannelsChannelIdPermissionsOverwriteId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPutChannelsChannelIdPermissionsOverwriteIdMutationKey() {
-  return `PUT ${client.channels[':channel_id'].permissions[':overwrite_id'].$url().pathname}`
+  return 'PUT /channels/:channel_id/permissions/:overwrite_id'
 }
 
 /**
@@ -2950,7 +2928,7 @@ export function useDeleteChannelsChannelIdPermissionsOverwriteId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteChannelsChannelIdPermissionsOverwriteIdMutationKey() {
-  return `DELETE ${client.channels[':channel_id'].permissions[':overwrite_id'].$url().pathname}`
+  return 'DELETE /channels/:channel_id/permissions/:overwrite_id'
 }
 
 /**
@@ -2979,13 +2957,12 @@ export function useGetChannelsChannelIdPins(
 
 /**
  * Generates SWR cache key for GET /channels/{channel_id}/pins
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetChannelsChannelIdPinsKey(
   args: InferRequestType<(typeof client.channels)[':channel_id']['pins']['$get']>,
 ) {
-  const u = client.channels[':channel_id'].pins.$url(args)
-  return u.pathname + u.search
+  return ['/channels/:channel_id/pins', args] as const
 }
 
 /**
@@ -3038,7 +3015,7 @@ export function usePutChannelsChannelIdPinsMessageId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPutChannelsChannelIdPinsMessageIdMutationKey() {
-  return `PUT ${client.channels[':channel_id'].pins[':message_id'].$url().pathname}`
+  return 'PUT /channels/:channel_id/pins/:message_id'
 }
 
 /**
@@ -3093,7 +3070,7 @@ export function useDeleteChannelsChannelIdPinsMessageId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteChannelsChannelIdPinsMessageIdMutationKey() {
-  return `DELETE ${client.channels[':channel_id'].pins[':message_id'].$url().pathname}`
+  return 'DELETE /channels/:channel_id/pins/:message_id'
 }
 
 /**
@@ -3131,15 +3108,14 @@ export function useGetChannelsChannelIdPollsMessageIdAnswersAnswerId(
 
 /**
  * Generates SWR cache key for GET /channels/{channel_id}/polls/{message_id}/answers/{answer_id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetChannelsChannelIdPollsMessageIdAnswersAnswerIdKey(
   args: InferRequestType<
     (typeof client.channels)[':channel_id']['polls'][':message_id']['answers'][':answer_id']['$get']
   >,
 ) {
-  const u = client.channels[':channel_id'].polls[':message_id'].answers[':answer_id'].$url(args)
-  return u.pathname + u.search
+  return ['/channels/:channel_id/polls/:message_id/answers/:answer_id', args] as const
 }
 
 /**
@@ -3197,7 +3173,7 @@ export function usePostChannelsChannelIdPollsMessageIdExpire(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostChannelsChannelIdPollsMessageIdExpireMutationKey() {
-  return `POST ${client.channels[':channel_id'].polls[':message_id'].expire.$url().pathname}`
+  return 'POST /channels/:channel_id/polls/:message_id/expire'
 }
 
 /**
@@ -3252,7 +3228,7 @@ export function usePutChannelsChannelIdRecipientsUserId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPutChannelsChannelIdRecipientsUserIdMutationKey() {
-  return `PUT ${client.channels[':channel_id'].recipients[':user_id'].$url().pathname}`
+  return 'PUT /channels/:channel_id/recipients/:user_id'
 }
 
 /**
@@ -3309,7 +3285,7 @@ export function useDeleteChannelsChannelIdRecipientsUserId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteChannelsChannelIdRecipientsUserIdMutationKey() {
-  return `DELETE ${client.channels[':channel_id'].recipients[':user_id'].$url().pathname}`
+  return 'DELETE /channels/:channel_id/recipients/:user_id'
 }
 
 /**
@@ -3364,7 +3340,7 @@ export function usePostChannelsChannelIdSendSoundboardSound(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostChannelsChannelIdSendSoundboardSoundMutationKey() {
-  return `POST ${client.channels[':channel_id']['send-soundboard-sound'].$url().pathname}`
+  return 'POST /channels/:channel_id/send-soundboard-sound'
 }
 
 /**
@@ -3394,13 +3370,12 @@ export function useGetChannelsChannelIdThreadMembers(
 
 /**
  * Generates SWR cache key for GET /channels/{channel_id}/thread-members
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetChannelsChannelIdThreadMembersKey(
   args: InferRequestType<(typeof client.channels)[':channel_id']['thread-members']['$get']>,
 ) {
-  const u = client.channels[':channel_id']['thread-members'].$url(args)
-  return u.pathname + u.search
+  return ['/channels/:channel_id/thread-members', args] as const
 }
 
 /**
@@ -3455,7 +3430,7 @@ export function usePutChannelsChannelIdThreadMembersMe(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPutChannelsChannelIdThreadMembersMeMutationKey() {
-  return `PUT ${client.channels[':channel_id']['thread-members']['@me'].$url().pathname}`
+  return 'PUT /channels/:channel_id/thread-members/@me'
 }
 
 /**
@@ -3512,7 +3487,7 @@ export function useDeleteChannelsChannelIdThreadMembersMe(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteChannelsChannelIdThreadMembersMeMutationKey() {
-  return `DELETE ${client.channels[':channel_id']['thread-members']['@me'].$url().pathname}`
+  return 'DELETE /channels/:channel_id/thread-members/@me'
 }
 
 /**
@@ -3547,15 +3522,14 @@ export function useGetChannelsChannelIdThreadMembersUserId(
 
 /**
  * Generates SWR cache key for GET /channels/{channel_id}/thread-members/{user_id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetChannelsChannelIdThreadMembersUserIdKey(
   args: InferRequestType<
     (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$get']
   >,
 ) {
-  const u = client.channels[':channel_id']['thread-members'][':user_id'].$url(args)
-  return u.pathname + u.search
+  return ['/channels/:channel_id/thread-members/:user_id', args] as const
 }
 
 /**
@@ -3612,7 +3586,7 @@ export function usePutChannelsChannelIdThreadMembersUserId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPutChannelsChannelIdThreadMembersUserIdMutationKey() {
-  return `PUT ${client.channels[':channel_id']['thread-members'][':user_id'].$url().pathname}`
+  return 'PUT /channels/:channel_id/thread-members/:user_id'
 }
 
 /**
@@ -3671,7 +3645,7 @@ export function useDeleteChannelsChannelIdThreadMembersUserId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteChannelsChannelIdThreadMembersUserIdMutationKey() {
-  return `DELETE ${client.channels[':channel_id']['thread-members'][':user_id'].$url().pathname}`
+  return 'DELETE /channels/:channel_id/thread-members/:user_id'
 }
 
 /**
@@ -3716,7 +3690,7 @@ export function usePostChannelsChannelIdThreads(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostChannelsChannelIdThreadsMutationKey() {
-  return `POST ${client.channels[':channel_id'].threads.$url().pathname}`
+  return 'POST /channels/:channel_id/threads'
 }
 
 /**
@@ -3751,15 +3725,14 @@ export function useGetChannelsChannelIdThreadsArchivedPrivate(
 
 /**
  * Generates SWR cache key for GET /channels/{channel_id}/threads/archived/private
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetChannelsChannelIdThreadsArchivedPrivateKey(
   args: InferRequestType<
     (typeof client.channels)[':channel_id']['threads']['archived']['private']['$get']
   >,
 ) {
-  const u = client.channels[':channel_id'].threads.archived.private.$url(args)
-  return u.pathname + u.search
+  return ['/channels/:channel_id/threads/archived/private', args] as const
 }
 
 /**
@@ -3794,15 +3767,14 @@ export function useGetChannelsChannelIdThreadsArchivedPublic(
 
 /**
  * Generates SWR cache key for GET /channels/{channel_id}/threads/archived/public
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetChannelsChannelIdThreadsArchivedPublicKey(
   args: InferRequestType<
     (typeof client.channels)[':channel_id']['threads']['archived']['public']['$get']
   >,
 ) {
-  const u = client.channels[':channel_id'].threads.archived.public.$url(args)
-  return u.pathname + u.search
+  return ['/channels/:channel_id/threads/archived/public', args] as const
 }
 
 /**
@@ -3832,13 +3804,12 @@ export function useGetChannelsChannelIdThreadsSearch(
 
 /**
  * Generates SWR cache key for GET /channels/{channel_id}/threads/search
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetChannelsChannelIdThreadsSearchKey(
   args: InferRequestType<(typeof client.channels)[':channel_id']['threads']['search']['$get']>,
 ) {
-  const u = client.channels[':channel_id'].threads.search.$url(args)
-  return u.pathname + u.search
+  return ['/channels/:channel_id/threads/search', args] as const
 }
 
 /**
@@ -3884,7 +3855,7 @@ export function usePostChannelsChannelIdTyping(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostChannelsChannelIdTypingMutationKey() {
-  return `POST ${client.channels[':channel_id'].typing.$url().pathname}`
+  return 'POST /channels/:channel_id/typing'
 }
 
 /**
@@ -3922,15 +3893,14 @@ export function useGetChannelsChannelIdUsersMeThreadsArchivedPrivate(
 
 /**
  * Generates SWR cache key for GET /channels/{channel_id}/users/@me/threads/archived/private
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetChannelsChannelIdUsersMeThreadsArchivedPrivateKey(
   args: InferRequestType<
     (typeof client.channels)[':channel_id']['users']['@me']['threads']['archived']['private']['$get']
   >,
 ) {
-  const u = client.channels[':channel_id'].users['@me'].threads.archived.private.$url(args)
-  return u.pathname + u.search
+  return ['/channels/:channel_id/users/@me/threads/archived/private', args] as const
 }
 
 /**
@@ -3959,13 +3929,12 @@ export function useGetChannelsChannelIdWebhooks(
 
 /**
  * Generates SWR cache key for GET /channels/{channel_id}/webhooks
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetChannelsChannelIdWebhooksKey(
   args: InferRequestType<(typeof client.channels)[':channel_id']['webhooks']['$get']>,
 ) {
-  const u = client.channels[':channel_id'].webhooks.$url(args)
-  return u.pathname + u.search
+  return ['/channels/:channel_id/webhooks', args] as const
 }
 
 /**
@@ -4010,7 +3979,7 @@ export function usePostChannelsChannelIdWebhooks(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostChannelsChannelIdWebhooksMutationKey() {
-  return `POST ${client.channels[':channel_id'].webhooks.$url().pathname}`
+  return 'POST /channels/:channel_id/webhooks'
 }
 
 /**
@@ -4036,10 +4005,10 @@ export function useGetGateway(options?: {
 
 /**
  * Generates SWR cache key for GET /gateway
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetGatewayKey() {
-  return client.gateway.$url().pathname
+  return ['/gateway'] as const
 }
 
 /**
@@ -4065,10 +4034,10 @@ export function useGetGatewayBot(options?: {
 
 /**
  * Generates SWR cache key for GET /gateway/bot
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetGatewayBotKey() {
-  return client.gateway.bot.$url().pathname
+  return ['/gateway/bot'] as const
 }
 
 /**
@@ -4097,13 +4066,12 @@ export function useGetGuildsTemplatesCode(
 
 /**
  * Generates SWR cache key for GET /guilds/templates/{code}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetGuildsTemplatesCodeKey(
   args: InferRequestType<(typeof client.guilds.templates)[':code']['$get']>,
 ) {
-  const u = client.guilds.templates[':code'].$url(args)
-  return u.pathname + u.search
+  return ['/guilds/templates/:code', args] as const
 }
 
 /**
@@ -4132,13 +4100,12 @@ export function useGetGuildsGuildId(
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetGuildsGuildIdKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['$get']>,
 ) {
-  const u = client.guilds[':guild_id'].$url(args)
-  return u.pathname + u.search
+  return ['/guilds/:guild_id', args] as const
 }
 
 /**
@@ -4179,7 +4146,7 @@ export function usePatchGuildsGuildId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPatchGuildsGuildIdMutationKey() {
-  return `PATCH ${client.guilds[':guild_id'].$url().pathname}`
+  return 'PATCH /guilds/:guild_id'
 }
 
 /**
@@ -4208,13 +4175,12 @@ export function useGetGuildsGuildIdAuditLogs(
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/audit-logs
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetGuildsGuildIdAuditLogsKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['audit-logs']['$get']>,
 ) {
-  const u = client.guilds[':guild_id']['audit-logs'].$url(args)
-  return u.pathname + u.search
+  return ['/guilds/:guild_id/audit-logs', args] as const
 }
 
 /**
@@ -4246,13 +4212,12 @@ export function useGetGuildsGuildIdAutoModerationRules(
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/auto-moderation/rules
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetGuildsGuildIdAutoModerationRulesKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$get']>,
 ) {
-  const u = client.guilds[':guild_id']['auto-moderation'].rules.$url(args)
-  return u.pathname + u.search
+  return ['/guilds/:guild_id/auto-moderation/rules', args] as const
 }
 
 /**
@@ -4306,7 +4271,7 @@ export function usePostGuildsGuildIdAutoModerationRules(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostGuildsGuildIdAutoModerationRulesMutationKey() {
-  return `POST ${client.guilds[':guild_id']['auto-moderation'].rules.$url().pathname}`
+  return 'POST /guilds/:guild_id/auto-moderation/rules'
 }
 
 /**
@@ -4341,15 +4306,14 @@ export function useGetGuildsGuildIdAutoModerationRulesRuleId(
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/auto-moderation/rules/{rule_id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetGuildsGuildIdAutoModerationRulesRuleIdKey(
   args: InferRequestType<
     (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$get']
   >,
 ) {
-  const u = client.guilds[':guild_id']['auto-moderation'].rules[':rule_id'].$url(args)
-  return u.pathname + u.search
+  return ['/guilds/:guild_id/auto-moderation/rules/:rule_id', args] as const
 }
 
 /**
@@ -4411,7 +4375,7 @@ export function useDeleteGuildsGuildIdAutoModerationRulesRuleId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteGuildsGuildIdAutoModerationRulesRuleIdMutationKey() {
-  return `DELETE ${client.guilds[':guild_id']['auto-moderation'].rules[':rule_id'].$url().pathname}`
+  return 'DELETE /guilds/:guild_id/auto-moderation/rules/:rule_id'
 }
 
 /**
@@ -4472,7 +4436,7 @@ export function usePatchGuildsGuildIdAutoModerationRulesRuleId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPatchGuildsGuildIdAutoModerationRulesRuleIdMutationKey() {
-  return `PATCH ${client.guilds[':guild_id']['auto-moderation'].rules[':rule_id'].$url().pathname}`
+  return 'PATCH /guilds/:guild_id/auto-moderation/rules/:rule_id'
 }
 
 /**
@@ -4501,13 +4465,12 @@ export function useGetGuildsGuildIdBans(
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/bans
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetGuildsGuildIdBansKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['bans']['$get']>,
 ) {
-  const u = client.guilds[':guild_id'].bans.$url(args)
-  return u.pathname + u.search
+  return ['/guilds/:guild_id/bans', args] as const
 }
 
 /**
@@ -4537,13 +4500,12 @@ export function useGetGuildsGuildIdBansUserId(
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/bans/{user_id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetGuildsGuildIdBansUserIdKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$get']>,
 ) {
-  const u = client.guilds[':guild_id'].bans[':user_id'].$url(args)
-  return u.pathname + u.search
+  return ['/guilds/:guild_id/bans/:user_id', args] as const
 }
 
 /**
@@ -4591,7 +4553,7 @@ export function usePutGuildsGuildIdBansUserId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPutGuildsGuildIdBansUserIdMutationKey() {
-  return `PUT ${client.guilds[':guild_id'].bans[':user_id'].$url().pathname}`
+  return 'PUT /guilds/:guild_id/bans/:user_id'
 }
 
 /**
@@ -4639,7 +4601,7 @@ export function useDeleteGuildsGuildIdBansUserId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteGuildsGuildIdBansUserIdMutationKey() {
-  return `DELETE ${client.guilds[':guild_id'].bans[':user_id'].$url().pathname}`
+  return 'DELETE /guilds/:guild_id/bans/:user_id'
 }
 
 /**
@@ -4684,7 +4646,7 @@ export function usePostGuildsGuildIdBulkBan(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostGuildsGuildIdBulkBanMutationKey() {
-  return `POST ${client.guilds[':guild_id']['bulk-ban'].$url().pathname}`
+  return 'POST /guilds/:guild_id/bulk-ban'
 }
 
 /**
@@ -4713,13 +4675,12 @@ export function useGetGuildsGuildIdChannels(
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/channels
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetGuildsGuildIdChannelsKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['channels']['$get']>,
 ) {
-  const u = client.guilds[':guild_id'].channels.$url(args)
-  return u.pathname + u.search
+  return ['/guilds/:guild_id/channels', args] as const
 }
 
 /**
@@ -4764,7 +4725,7 @@ export function usePostGuildsGuildIdChannels(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostGuildsGuildIdChannelsMutationKey() {
-  return `POST ${client.guilds[':guild_id'].channels.$url().pathname}`
+  return 'POST /guilds/:guild_id/channels'
 }
 
 /**
@@ -4810,7 +4771,7 @@ export function usePatchGuildsGuildIdChannels(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPatchGuildsGuildIdChannelsMutationKey() {
-  return `PATCH ${client.guilds[':guild_id'].channels.$url().pathname}`
+  return 'PATCH /guilds/:guild_id/channels'
 }
 
 /**
@@ -4839,13 +4800,12 @@ export function useGetGuildsGuildIdEmojis(
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/emojis
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetGuildsGuildIdEmojisKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['emojis']['$get']>,
 ) {
-  const u = client.guilds[':guild_id'].emojis.$url(args)
-  return u.pathname + u.search
+  return ['/guilds/:guild_id/emojis', args] as const
 }
 
 /**
@@ -4888,7 +4848,7 @@ export function usePostGuildsGuildIdEmojis(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostGuildsGuildIdEmojisMutationKey() {
-  return `POST ${client.guilds[':guild_id'].emojis.$url().pathname}`
+  return 'POST /guilds/:guild_id/emojis'
 }
 
 /**
@@ -4918,13 +4878,12 @@ export function useGetGuildsGuildIdEmojisEmojiId(
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/emojis/{emoji_id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetGuildsGuildIdEmojisEmojiIdKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$get']>,
 ) {
-  const u = client.guilds[':guild_id'].emojis[':emoji_id'].$url(args)
-  return u.pathname + u.search
+  return ['/guilds/:guild_id/emojis/:emoji_id', args] as const
 }
 
 /**
@@ -4977,7 +4936,7 @@ export function useDeleteGuildsGuildIdEmojisEmojiId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteGuildsGuildIdEmojisEmojiIdMutationKey() {
-  return `DELETE ${client.guilds[':guild_id'].emojis[':emoji_id'].$url().pathname}`
+  return 'DELETE /guilds/:guild_id/emojis/:emoji_id'
 }
 
 /**
@@ -5026,7 +4985,7 @@ export function usePatchGuildsGuildIdEmojisEmojiId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPatchGuildsGuildIdEmojisEmojiIdMutationKey() {
-  return `PATCH ${client.guilds[':guild_id'].emojis[':emoji_id'].$url().pathname}`
+  return 'PATCH /guilds/:guild_id/emojis/:emoji_id'
 }
 
 /**
@@ -5055,13 +5014,12 @@ export function useGetGuildsGuildIdIntegrations(
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/integrations
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetGuildsGuildIdIntegrationsKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['integrations']['$get']>,
 ) {
-  const u = client.guilds[':guild_id'].integrations.$url(args)
-  return u.pathname + u.search
+  return ['/guilds/:guild_id/integrations', args] as const
 }
 
 /**
@@ -5120,7 +5078,7 @@ export function useDeleteGuildsGuildIdIntegrationsIntegrationId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteGuildsGuildIdIntegrationsIntegrationIdMutationKey() {
-  return `DELETE ${client.guilds[':guild_id'].integrations[':integration_id'].$url().pathname}`
+  return 'DELETE /guilds/:guild_id/integrations/:integration_id'
 }
 
 /**
@@ -5149,13 +5107,12 @@ export function useGetGuildsGuildIdInvites(
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/invites
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetGuildsGuildIdInvitesKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['invites']['$get']>,
 ) {
-  const u = client.guilds[':guild_id'].invites.$url(args)
-  return u.pathname + u.search
+  return ['/guilds/:guild_id/invites', args] as const
 }
 
 /**
@@ -5184,13 +5141,12 @@ export function useGetGuildsGuildIdMembers(
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/members
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetGuildsGuildIdMembersKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['members']['$get']>,
 ) {
-  const u = client.guilds[':guild_id'].members.$url(args)
-  return u.pathname + u.search
+  return ['/guilds/:guild_id/members', args] as const
 }
 
 /**
@@ -5237,7 +5193,7 @@ export function usePatchGuildsGuildIdMembersMe(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPatchGuildsGuildIdMembersMeMutationKey() {
-  return `PATCH ${client.guilds[':guild_id'].members['@me'].$url().pathname}`
+  return 'PATCH /guilds/:guild_id/members/@me'
 }
 
 /**
@@ -5267,13 +5223,12 @@ export function useGetGuildsGuildIdMembersSearch(
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/members/search
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetGuildsGuildIdMembersSearchKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['members']['search']['$get']>,
 ) {
-  const u = client.guilds[':guild_id'].members.search.$url(args)
-  return u.pathname + u.search
+  return ['/guilds/:guild_id/members/search', args] as const
 }
 
 /**
@@ -5303,13 +5258,12 @@ export function useGetGuildsGuildIdMembersUserId(
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/members/{user_id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetGuildsGuildIdMembersUserIdKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$get']>,
 ) {
-  const u = client.guilds[':guild_id'].members[':user_id'].$url(args)
-  return u.pathname + u.search
+  return ['/guilds/:guild_id/members/:user_id', args] as const
 }
 
 /**
@@ -5357,7 +5311,7 @@ export function usePutGuildsGuildIdMembersUserId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPutGuildsGuildIdMembersUserIdMutationKey() {
-  return `PUT ${client.guilds[':guild_id'].members[':user_id'].$url().pathname}`
+  return 'PUT /guilds/:guild_id/members/:user_id'
 }
 
 /**
@@ -5410,7 +5364,7 @@ export function useDeleteGuildsGuildIdMembersUserId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteGuildsGuildIdMembersUserIdMutationKey() {
-  return `DELETE ${client.guilds[':guild_id'].members[':user_id'].$url().pathname}`
+  return 'DELETE /guilds/:guild_id/members/:user_id'
 }
 
 /**
@@ -5462,7 +5416,7 @@ export function usePatchGuildsGuildIdMembersUserId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPatchGuildsGuildIdMembersUserIdMutationKey() {
-  return `PATCH ${client.guilds[':guild_id'].members[':user_id'].$url().pathname}`
+  return 'PATCH /guilds/:guild_id/members/:user_id'
 }
 
 /**
@@ -5521,7 +5475,7 @@ export function usePutGuildsGuildIdMembersUserIdRolesRoleId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPutGuildsGuildIdMembersUserIdRolesRoleIdMutationKey() {
-  return `PUT ${client.guilds[':guild_id'].members[':user_id'].roles[':role_id'].$url().pathname}`
+  return 'PUT /guilds/:guild_id/members/:user_id/roles/:role_id'
 }
 
 /**
@@ -5583,7 +5537,7 @@ export function useDeleteGuildsGuildIdMembersUserIdRolesRoleId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteGuildsGuildIdMembersUserIdRolesRoleIdMutationKey() {
-  return `DELETE ${client.guilds[':guild_id'].members[':user_id'].roles[':role_id'].$url().pathname}`
+  return 'DELETE /guilds/:guild_id/members/:user_id/roles/:role_id'
 }
 
 /**
@@ -5613,13 +5567,12 @@ export function useGetGuildsGuildIdNewMemberWelcome(
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/new-member-welcome
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetGuildsGuildIdNewMemberWelcomeKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['new-member-welcome']['$get']>,
 ) {
-  const u = client.guilds[':guild_id']['new-member-welcome'].$url(args)
-  return u.pathname + u.search
+  return ['/guilds/:guild_id/new-member-welcome', args] as const
 }
 
 /**
@@ -5648,13 +5601,12 @@ export function useGetGuildsGuildIdOnboarding(
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/onboarding
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetGuildsGuildIdOnboardingKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['onboarding']['$get']>,
 ) {
-  const u = client.guilds[':guild_id'].onboarding.$url(args)
-  return u.pathname + u.search
+  return ['/guilds/:guild_id/onboarding', args] as const
 }
 
 /**
@@ -5699,7 +5651,7 @@ export function usePutGuildsGuildIdOnboarding(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPutGuildsGuildIdOnboardingMutationKey() {
-  return `PUT ${client.guilds[':guild_id'].onboarding.$url().pathname}`
+  return 'PUT /guilds/:guild_id/onboarding'
 }
 
 /**
@@ -5728,13 +5680,12 @@ export function useGetGuildsGuildIdPreview(
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/preview
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetGuildsGuildIdPreviewKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['preview']['$get']>,
 ) {
-  const u = client.guilds[':guild_id'].preview.$url(args)
-  return u.pathname + u.search
+  return ['/guilds/:guild_id/preview', args] as const
 }
 
 /**
@@ -5763,13 +5714,12 @@ export function useGetGuildsGuildIdPrune(
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/prune
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetGuildsGuildIdPruneKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['prune']['$get']>,
 ) {
-  const u = client.guilds[':guild_id'].prune.$url(args)
-  return u.pathname + u.search
+  return ['/guilds/:guild_id/prune', args] as const
 }
 
 /**
@@ -5812,7 +5762,7 @@ export function usePostGuildsGuildIdPrune(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostGuildsGuildIdPruneMutationKey() {
-  return `POST ${client.guilds[':guild_id'].prune.$url().pathname}`
+  return 'POST /guilds/:guild_id/prune'
 }
 
 /**
@@ -5841,13 +5791,12 @@ export function useGetGuildsGuildIdRegions(
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/regions
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetGuildsGuildIdRegionsKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['regions']['$get']>,
 ) {
-  const u = client.guilds[':guild_id'].regions.$url(args)
-  return u.pathname + u.search
+  return ['/guilds/:guild_id/regions', args] as const
 }
 
 /**
@@ -5876,13 +5825,12 @@ export function useGetGuildsGuildIdRoles(
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/roles
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetGuildsGuildIdRolesKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['roles']['$get']>,
 ) {
-  const u = client.guilds[':guild_id'].roles.$url(args)
-  return u.pathname + u.search
+  return ['/guilds/:guild_id/roles', args] as const
 }
 
 /**
@@ -5925,7 +5873,7 @@ export function usePostGuildsGuildIdRoles(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostGuildsGuildIdRolesMutationKey() {
-  return `POST ${client.guilds[':guild_id'].roles.$url().pathname}`
+  return 'POST /guilds/:guild_id/roles'
 }
 
 /**
@@ -5968,7 +5916,7 @@ export function usePatchGuildsGuildIdRoles(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPatchGuildsGuildIdRolesMutationKey() {
-  return `PATCH ${client.guilds[':guild_id'].roles.$url().pathname}`
+  return 'PATCH /guilds/:guild_id/roles'
 }
 
 /**
@@ -5998,13 +5946,12 @@ export function useGetGuildsGuildIdRolesRoleId(
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/roles/{role_id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetGuildsGuildIdRolesRoleIdKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$get']>,
 ) {
-  const u = client.guilds[':guild_id'].roles[':role_id'].$url(args)
-  return u.pathname + u.search
+  return ['/guilds/:guild_id/roles/:role_id', args] as const
 }
 
 /**
@@ -6052,7 +5999,7 @@ export function useDeleteGuildsGuildIdRolesRoleId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteGuildsGuildIdRolesRoleIdMutationKey() {
-  return `DELETE ${client.guilds[':guild_id'].roles[':role_id'].$url().pathname}`
+  return 'DELETE /guilds/:guild_id/roles/:role_id'
 }
 
 /**
@@ -6099,7 +6046,7 @@ export function usePatchGuildsGuildIdRolesRoleId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPatchGuildsGuildIdRolesRoleIdMutationKey() {
-  return `PATCH ${client.guilds[':guild_id'].roles[':role_id'].$url().pathname}`
+  return 'PATCH /guilds/:guild_id/roles/:role_id'
 }
 
 /**
@@ -6129,13 +6076,12 @@ export function useGetGuildsGuildIdScheduledEvents(
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/scheduled-events
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetGuildsGuildIdScheduledEventsKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['scheduled-events']['$get']>,
 ) {
-  const u = client.guilds[':guild_id']['scheduled-events'].$url(args)
-  return u.pathname + u.search
+  return ['/guilds/:guild_id/scheduled-events', args] as const
 }
 
 /**
@@ -6182,7 +6128,7 @@ export function usePostGuildsGuildIdScheduledEvents(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostGuildsGuildIdScheduledEventsMutationKey() {
-  return `POST ${client.guilds[':guild_id']['scheduled-events'].$url().pathname}`
+  return 'POST /guilds/:guild_id/scheduled-events'
 }
 
 /**
@@ -6221,15 +6167,14 @@ export function useGetGuildsGuildIdScheduledEventsGuildScheduledEventId(
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/scheduled-events/{guild_scheduled_event_id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetGuildsGuildIdScheduledEventsGuildScheduledEventIdKey(
   args: InferRequestType<
     (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$get']
   >,
 ) {
-  const u = client.guilds[':guild_id']['scheduled-events'][':guild_scheduled_event_id'].$url(args)
-  return u.pathname + u.search
+  return ['/guilds/:guild_id/scheduled-events/:guild_scheduled_event_id', args] as const
 }
 
 /**
@@ -6292,7 +6237,7 @@ export function useDeleteGuildsGuildIdScheduledEventsGuildScheduledEventId(optio
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteGuildsGuildIdScheduledEventsGuildScheduledEventIdMutationKey() {
-  return `DELETE ${client.guilds[':guild_id']['scheduled-events'][':guild_scheduled_event_id'].$url().pathname}`
+  return 'DELETE /guilds/:guild_id/scheduled-events/:guild_scheduled_event_id'
 }
 
 /**
@@ -6353,7 +6298,7 @@ export function usePatchGuildsGuildIdScheduledEventsGuildScheduledEventId(option
  * All args should be passed via trigger's { arg } object
  */
 export function getPatchGuildsGuildIdScheduledEventsGuildScheduledEventIdMutationKey() {
-  return `PATCH ${client.guilds[':guild_id']['scheduled-events'][':guild_scheduled_event_id'].$url().pathname}`
+  return 'PATCH /guilds/:guild_id/scheduled-events/:guild_scheduled_event_id'
 }
 
 /**
@@ -6392,16 +6337,14 @@ export function useGetGuildsGuildIdScheduledEventsGuildScheduledEventIdUsers(
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/scheduled-events/{guild_scheduled_event_id}/users
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetGuildsGuildIdScheduledEventsGuildScheduledEventIdUsersKey(
   args: InferRequestType<
     (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['users']['$get']
   >,
 ) {
-  const u =
-    client.guilds[':guild_id']['scheduled-events'][':guild_scheduled_event_id'].users.$url(args)
-  return u.pathname + u.search
+  return ['/guilds/:guild_id/scheduled-events/:guild_scheduled_event_id/users', args] as const
 }
 
 /**
@@ -6431,13 +6374,12 @@ export function useGetGuildsGuildIdSoundboardSounds(
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/soundboard-sounds
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetGuildsGuildIdSoundboardSoundsKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['soundboard-sounds']['$get']>,
 ) {
-  const u = client.guilds[':guild_id']['soundboard-sounds'].$url(args)
-  return u.pathname + u.search
+  return ['/guilds/:guild_id/soundboard-sounds', args] as const
 }
 
 /**
@@ -6484,7 +6426,7 @@ export function usePostGuildsGuildIdSoundboardSounds(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostGuildsGuildIdSoundboardSoundsMutationKey() {
-  return `POST ${client.guilds[':guild_id']['soundboard-sounds'].$url().pathname}`
+  return 'POST /guilds/:guild_id/soundboard-sounds'
 }
 
 /**
@@ -6519,15 +6461,14 @@ export function useGetGuildsGuildIdSoundboardSoundsSoundId(
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/soundboard-sounds/{sound_id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetGuildsGuildIdSoundboardSoundsSoundIdKey(
   args: InferRequestType<
     (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$get']
   >,
 ) {
-  const u = client.guilds[':guild_id']['soundboard-sounds'][':sound_id'].$url(args)
-  return u.pathname + u.search
+  return ['/guilds/:guild_id/soundboard-sounds/:sound_id', args] as const
 }
 
 /**
@@ -6586,7 +6527,7 @@ export function useDeleteGuildsGuildIdSoundboardSoundsSoundId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteGuildsGuildIdSoundboardSoundsSoundIdMutationKey() {
-  return `DELETE ${client.guilds[':guild_id']['soundboard-sounds'][':sound_id'].$url().pathname}`
+  return 'DELETE /guilds/:guild_id/soundboard-sounds/:sound_id'
 }
 
 /**
@@ -6644,7 +6585,7 @@ export function usePatchGuildsGuildIdSoundboardSoundsSoundId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPatchGuildsGuildIdSoundboardSoundsSoundIdMutationKey() {
-  return `PATCH ${client.guilds[':guild_id']['soundboard-sounds'][':sound_id'].$url().pathname}`
+  return 'PATCH /guilds/:guild_id/soundboard-sounds/:sound_id'
 }
 
 /**
@@ -6673,13 +6614,12 @@ export function useGetGuildsGuildIdStickers(
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/stickers
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetGuildsGuildIdStickersKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['stickers']['$get']>,
 ) {
-  const u = client.guilds[':guild_id'].stickers.$url(args)
-  return u.pathname + u.search
+  return ['/guilds/:guild_id/stickers', args] as const
 }
 
 /**
@@ -6724,7 +6664,7 @@ export function usePostGuildsGuildIdStickers(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostGuildsGuildIdStickersMutationKey() {
-  return `POST ${client.guilds[':guild_id'].stickers.$url().pathname}`
+  return 'POST /guilds/:guild_id/stickers'
 }
 
 /**
@@ -6754,13 +6694,12 @@ export function useGetGuildsGuildIdStickersStickerId(
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/stickers/{sticker_id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetGuildsGuildIdStickersStickerIdKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$get']>,
 ) {
-  const u = client.guilds[':guild_id'].stickers[':sticker_id'].$url(args)
-  return u.pathname + u.search
+  return ['/guilds/:guild_id/stickers/:sticker_id', args] as const
 }
 
 /**
@@ -6815,7 +6754,7 @@ export function useDeleteGuildsGuildIdStickersStickerId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteGuildsGuildIdStickersStickerIdMutationKey() {
-  return `DELETE ${client.guilds[':guild_id'].stickers[':sticker_id'].$url().pathname}`
+  return 'DELETE /guilds/:guild_id/stickers/:sticker_id'
 }
 
 /**
@@ -6869,7 +6808,7 @@ export function usePatchGuildsGuildIdStickersStickerId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPatchGuildsGuildIdStickersStickerIdMutationKey() {
-  return `PATCH ${client.guilds[':guild_id'].stickers[':sticker_id'].$url().pathname}`
+  return 'PATCH /guilds/:guild_id/stickers/:sticker_id'
 }
 
 /**
@@ -6898,13 +6837,12 @@ export function useGetGuildsGuildIdTemplates(
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/templates
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetGuildsGuildIdTemplatesKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['templates']['$get']>,
 ) {
-  const u = client.guilds[':guild_id'].templates.$url(args)
-  return u.pathname + u.search
+  return ['/guilds/:guild_id/templates', args] as const
 }
 
 /**
@@ -6949,7 +6887,7 @@ export function usePostGuildsGuildIdTemplates(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostGuildsGuildIdTemplatesMutationKey() {
-  return `POST ${client.guilds[':guild_id'].templates.$url().pathname}`
+  return 'POST /guilds/:guild_id/templates'
 }
 
 /**
@@ -6996,7 +6934,7 @@ export function usePutGuildsGuildIdTemplatesCode(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPutGuildsGuildIdTemplatesCodeMutationKey() {
-  return `PUT ${client.guilds[':guild_id'].templates[':code'].$url().pathname}`
+  return 'PUT /guilds/:guild_id/templates/:code'
 }
 
 /**
@@ -7045,7 +6983,7 @@ export function useDeleteGuildsGuildIdTemplatesCode(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteGuildsGuildIdTemplatesCodeMutationKey() {
-  return `DELETE ${client.guilds[':guild_id'].templates[':code'].$url().pathname}`
+  return 'DELETE /guilds/:guild_id/templates/:code'
 }
 
 /**
@@ -7092,7 +7030,7 @@ export function usePatchGuildsGuildIdTemplatesCode(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPatchGuildsGuildIdTemplatesCodeMutationKey() {
-  return `PATCH ${client.guilds[':guild_id'].templates[':code'].$url().pathname}`
+  return 'PATCH /guilds/:guild_id/templates/:code'
 }
 
 /**
@@ -7122,13 +7060,12 @@ export function useGetGuildsGuildIdThreadsActive(
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/threads/active
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetGuildsGuildIdThreadsActiveKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['threads']['active']['$get']>,
 ) {
-  const u = client.guilds[':guild_id'].threads.active.$url(args)
-  return u.pathname + u.search
+  return ['/guilds/:guild_id/threads/active', args] as const
 }
 
 /**
@@ -7157,13 +7094,12 @@ export function useGetGuildsGuildIdVanityUrl(
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/vanity-url
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetGuildsGuildIdVanityUrlKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['vanity-url']['$get']>,
 ) {
-  const u = client.guilds[':guild_id']['vanity-url'].$url(args)
-  return u.pathname + u.search
+  return ['/guilds/:guild_id/vanity-url', args] as const
 }
 
 /**
@@ -7193,13 +7129,12 @@ export function useGetGuildsGuildIdVoiceStatesMe(
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/voice-states/@me
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetGuildsGuildIdVoiceStatesMeKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['voice-states']['@me']['$get']>,
 ) {
-  const u = client.guilds[':guild_id']['voice-states']['@me'].$url(args)
-  return u.pathname + u.search
+  return ['/guilds/:guild_id/voice-states/@me', args] as const
 }
 
 /**
@@ -7252,7 +7187,7 @@ export function usePatchGuildsGuildIdVoiceStatesMe(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPatchGuildsGuildIdVoiceStatesMeMutationKey() {
-  return `PATCH ${client.guilds[':guild_id']['voice-states']['@me'].$url().pathname}`
+  return 'PATCH /guilds/:guild_id/voice-states/@me'
 }
 
 /**
@@ -7284,13 +7219,12 @@ export function useGetGuildsGuildIdVoiceStatesUserId(
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/voice-states/{user_id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetGuildsGuildIdVoiceStatesUserIdKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$get']>,
 ) {
-  const u = client.guilds[':guild_id']['voice-states'][':user_id'].$url(args)
-  return u.pathname + u.search
+  return ['/guilds/:guild_id/voice-states/:user_id', args] as const
 }
 
 /**
@@ -7345,7 +7279,7 @@ export function usePatchGuildsGuildIdVoiceStatesUserId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPatchGuildsGuildIdVoiceStatesUserIdMutationKey() {
-  return `PATCH ${client.guilds[':guild_id']['voice-states'][':user_id'].$url().pathname}`
+  return 'PATCH /guilds/:guild_id/voice-states/:user_id'
 }
 
 /**
@@ -7374,13 +7308,12 @@ export function useGetGuildsGuildIdWebhooks(
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/webhooks
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetGuildsGuildIdWebhooksKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['webhooks']['$get']>,
 ) {
-  const u = client.guilds[':guild_id'].webhooks.$url(args)
-  return u.pathname + u.search
+  return ['/guilds/:guild_id/webhooks', args] as const
 }
 
 /**
@@ -7410,13 +7343,12 @@ export function useGetGuildsGuildIdWelcomeScreen(
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/welcome-screen
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetGuildsGuildIdWelcomeScreenKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['welcome-screen']['$get']>,
 ) {
-  const u = client.guilds[':guild_id']['welcome-screen'].$url(args)
-  return u.pathname + u.search
+  return ['/guilds/:guild_id/welcome-screen', args] as const
 }
 
 /**
@@ -7463,7 +7395,7 @@ export function usePatchGuildsGuildIdWelcomeScreen(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPatchGuildsGuildIdWelcomeScreenMutationKey() {
-  return `PATCH ${client.guilds[':guild_id']['welcome-screen'].$url().pathname}`
+  return 'PATCH /guilds/:guild_id/welcome-screen'
 }
 
 /**
@@ -7492,13 +7424,12 @@ export function useGetGuildsGuildIdWidget(
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/widget
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetGuildsGuildIdWidgetKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['widget']['$get']>,
 ) {
-  const u = client.guilds[':guild_id'].widget.$url(args)
-  return u.pathname + u.search
+  return ['/guilds/:guild_id/widget', args] as const
 }
 
 /**
@@ -7541,7 +7472,7 @@ export function usePatchGuildsGuildIdWidget(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPatchGuildsGuildIdWidgetMutationKey() {
-  return `PATCH ${client.guilds[':guild_id'].widget.$url().pathname}`
+  return 'PATCH /guilds/:guild_id/widget'
 }
 
 /**
@@ -7571,13 +7502,12 @@ export function useGetGuildsGuildIdWidgetJson(
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/widget.json
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetGuildsGuildIdWidgetJsonKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['widget.json']['$get']>,
 ) {
-  const u = client.guilds[':guild_id']['widget.json'].$url(args)
-  return u.pathname + u.search
+  return ['/guilds/:guild_id/widget.json', args] as const
 }
 
 /**
@@ -7606,13 +7536,12 @@ export function useGetGuildsGuildIdWidgetPng(
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/widget.png
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetGuildsGuildIdWidgetPngKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['widget.png']['$get']>,
 ) {
-  const u = client.guilds[':guild_id']['widget.png'].$url(args)
-  return u.pathname + u.search
+  return ['/guilds/:guild_id/widget.png', args] as const
 }
 
 /**
@@ -7674,7 +7603,7 @@ export function usePostInteractionsInteractionIdInteractionTokenCallback(options
  * All args should be passed via trigger's { arg } object
  */
 export function getPostInteractionsInteractionIdInteractionTokenCallbackMutationKey() {
-  return `POST ${client.interactions[':interaction_id'][':interaction_token'].callback.$url().pathname}`
+  return 'POST /interactions/:interaction_id/:interaction_token/callback'
 }
 
 /**
@@ -7703,13 +7632,12 @@ export function useGetInvitesCode(
 
 /**
  * Generates SWR cache key for GET /invites/{code}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetInvitesCodeKey(
   args: InferRequestType<(typeof client.invites)[':code']['$get']>,
 ) {
-  const u = client.invites[':code'].$url(args)
-  return u.pathname + u.search
+  return ['/invites/:code', args] as const
 }
 
 /**
@@ -7750,7 +7678,7 @@ export function useDeleteInvitesCode(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteInvitesCodeMutationKey() {
-  return `DELETE ${client.invites[':code'].$url().pathname}`
+  return 'DELETE /invites/:code'
 }
 
 /**
@@ -7785,7 +7713,7 @@ export function usePutLobbies(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPutLobbiesMutationKey() {
-  return `PUT ${client.lobbies.$url().pathname}`
+  return 'PUT /lobbies'
 }
 
 /**
@@ -7820,7 +7748,7 @@ export function usePostLobbies(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostLobbiesMutationKey() {
-  return `POST ${client.lobbies.$url().pathname}`
+  return 'POST /lobbies'
 }
 
 /**
@@ -7849,13 +7777,12 @@ export function useGetLobbiesLobbyId(
 
 /**
  * Generates SWR cache key for GET /lobbies/{lobby_id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetLobbiesLobbyIdKey(
   args: InferRequestType<(typeof client.lobbies)[':lobby_id']['$get']>,
 ) {
-  const u = client.lobbies[':lobby_id'].$url(args)
-  return u.pathname + u.search
+  return ['/lobbies/:lobby_id', args] as const
 }
 
 /**
@@ -7896,7 +7823,7 @@ export function usePatchLobbiesLobbyId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPatchLobbiesLobbyIdMutationKey() {
-  return `PATCH ${client.lobbies[':lobby_id'].$url().pathname}`
+  return 'PATCH /lobbies/:lobby_id'
 }
 
 /**
@@ -7943,7 +7870,7 @@ export function usePatchLobbiesLobbyIdChannelLinking(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPatchLobbiesLobbyIdChannelLinkingMutationKey() {
-  return `PATCH ${client.lobbies[':lobby_id']['channel-linking'].$url().pathname}`
+  return 'PATCH /lobbies/:lobby_id/channel-linking'
 }
 
 /**
@@ -7991,7 +7918,7 @@ export function useDeleteLobbiesLobbyIdMembersMe(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteLobbiesLobbyIdMembersMeMutationKey() {
-  return `DELETE ${client.lobbies[':lobby_id'].members['@me'].$url().pathname}`
+  return 'DELETE /lobbies/:lobby_id/members/@me'
 }
 
 /**
@@ -8043,7 +7970,7 @@ export function usePostLobbiesLobbyIdMembersMeInvites(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostLobbiesLobbyIdMembersMeInvitesMutationKey() {
-  return `POST ${client.lobbies[':lobby_id'].members['@me'].invites.$url().pathname}`
+  return 'POST /lobbies/:lobby_id/members/@me/invites'
 }
 
 /**
@@ -8090,7 +8017,7 @@ export function usePostLobbiesLobbyIdMembersBulk(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostLobbiesLobbyIdMembersBulkMutationKey() {
-  return `POST ${client.lobbies[':lobby_id'].members.bulk.$url().pathname}`
+  return 'POST /lobbies/:lobby_id/members/bulk'
 }
 
 /**
@@ -8137,7 +8064,7 @@ export function usePutLobbiesLobbyIdMembersUserId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPutLobbiesLobbyIdMembersUserIdMutationKey() {
-  return `PUT ${client.lobbies[':lobby_id'].members[':user_id'].$url().pathname}`
+  return 'PUT /lobbies/:lobby_id/members/:user_id'
 }
 
 /**
@@ -8190,7 +8117,7 @@ export function useDeleteLobbiesLobbyIdMembersUserId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteLobbiesLobbyIdMembersUserIdMutationKey() {
-  return `DELETE ${client.lobbies[':lobby_id'].members[':user_id'].$url().pathname}`
+  return 'DELETE /lobbies/:lobby_id/members/:user_id'
 }
 
 /**
@@ -8248,7 +8175,7 @@ export function usePostLobbiesLobbyIdMembersUserIdInvites(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostLobbiesLobbyIdMembersUserIdInvitesMutationKey() {
-  return `POST ${client.lobbies[':lobby_id'].members[':user_id'].invites.$url().pathname}`
+  return 'POST /lobbies/:lobby_id/members/:user_id/invites'
 }
 
 /**
@@ -8277,13 +8204,12 @@ export function useGetLobbiesLobbyIdMessages(
 
 /**
  * Generates SWR cache key for GET /lobbies/{lobby_id}/messages
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetLobbiesLobbyIdMessagesKey(
   args: InferRequestType<(typeof client.lobbies)[':lobby_id']['messages']['$get']>,
 ) {
-  const u = client.lobbies[':lobby_id'].messages.$url(args)
-  return u.pathname + u.search
+  return ['/lobbies/:lobby_id/messages', args] as const
 }
 
 /**
@@ -8328,7 +8254,7 @@ export function usePostLobbiesLobbyIdMessages(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostLobbiesLobbyIdMessagesMutationKey() {
-  return `POST ${client.lobbies[':lobby_id'].messages.$url().pathname}`
+  return 'POST /lobbies/:lobby_id/messages'
 }
 
 /**
@@ -8354,10 +8280,10 @@ export function useGetOauth2Me(options?: {
 
 /**
  * Generates SWR cache key for GET /oauth2/@me
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetOauth2MeKey() {
-  return client.oauth2['@me'].$url().pathname
+  return ['/oauth2/@me'] as const
 }
 
 /**
@@ -8383,10 +8309,10 @@ export function useGetOauth2ApplicationsMe(options?: {
 
 /**
  * Generates SWR cache key for GET /oauth2/applications/@me
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetOauth2ApplicationsMeKey() {
-  return client.oauth2.applications['@me'].$url().pathname
+  return ['/oauth2/applications/@me'] as const
 }
 
 /**
@@ -8412,10 +8338,10 @@ export function useGetOauth2Keys(options?: {
 
 /**
  * Generates SWR cache key for GET /oauth2/keys
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetOauth2KeysKey() {
-  return client.oauth2.keys.$url().pathname
+  return ['/oauth2/keys'] as const
 }
 
 /**
@@ -8441,10 +8367,10 @@ export function useGetOauth2Userinfo(options?: {
 
 /**
  * Generates SWR cache key for GET /oauth2/userinfo
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetOauth2UserinfoKey() {
-  return client.oauth2.userinfo.$url().pathname
+  return ['/oauth2/userinfo'] as const
 }
 
 /**
@@ -8499,7 +8425,7 @@ export function usePostPartnerSdkProvisionalAccountsUnmerge(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostPartnerSdkProvisionalAccountsUnmergeMutationKey() {
-  return `POST ${client['partner-sdk']['provisional-accounts'].unmerge.$url().pathname}`
+  return 'POST /partner-sdk/provisional-accounts/unmerge'
 }
 
 /**
@@ -8558,7 +8484,7 @@ export function usePostPartnerSdkProvisionalAccountsUnmergeBot(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostPartnerSdkProvisionalAccountsUnmergeBotMutationKey() {
-  return `POST ${client['partner-sdk']['provisional-accounts'].unmerge.bot.$url().pathname}`
+  return 'POST /partner-sdk/provisional-accounts/unmerge/bot'
 }
 
 /**
@@ -8599,7 +8525,7 @@ export function usePostPartnerSdkToken(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostPartnerSdkTokenMutationKey() {
-  return `POST ${client['partner-sdk'].token.$url().pathname}`
+  return 'POST /partner-sdk/token'
 }
 
 /**
@@ -8642,7 +8568,7 @@ export function usePostPartnerSdkTokenBot(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostPartnerSdkTokenBotMutationKey() {
-  return `POST ${client['partner-sdk'].token.bot.$url().pathname}`
+  return 'POST /partner-sdk/token/bot'
 }
 
 /**
@@ -8668,10 +8594,10 @@ export function useGetSoundboardDefaultSounds(options?: {
 
 /**
  * Generates SWR cache key for GET /soundboard-default-sounds
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetSoundboardDefaultSoundsKey() {
-  return client['soundboard-default-sounds'].$url().pathname
+  return ['/soundboard-default-sounds'] as const
 }
 
 /**
@@ -8712,7 +8638,7 @@ export function usePostStageInstances(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostStageInstancesMutationKey() {
-  return `POST ${client['stage-instances'].$url().pathname}`
+  return 'POST /stage-instances'
 }
 
 /**
@@ -8741,13 +8667,12 @@ export function useGetStageInstancesChannelId(
 
 /**
  * Generates SWR cache key for GET /stage-instances/{channel_id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetStageInstancesChannelIdKey(
   args: InferRequestType<(typeof client)['stage-instances'][':channel_id']['$get']>,
 ) {
-  const u = client['stage-instances'][':channel_id'].$url(args)
-  return u.pathname + u.search
+  return ['/stage-instances/:channel_id', args] as const
 }
 
 /**
@@ -8793,7 +8718,7 @@ export function useDeleteStageInstancesChannelId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteStageInstancesChannelIdMutationKey() {
-  return `DELETE ${client['stage-instances'][':channel_id'].$url().pathname}`
+  return 'DELETE /stage-instances/:channel_id'
 }
 
 /**
@@ -8838,7 +8763,7 @@ export function usePatchStageInstancesChannelId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPatchStageInstancesChannelIdMutationKey() {
-  return `PATCH ${client['stage-instances'][':channel_id'].$url().pathname}`
+  return 'PATCH /stage-instances/:channel_id'
 }
 
 /**
@@ -8864,10 +8789,10 @@ export function useGetStickerPacks(options?: {
 
 /**
  * Generates SWR cache key for GET /sticker-packs
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetStickerPacksKey() {
-  return client['sticker-packs'].$url().pathname
+  return ['/sticker-packs'] as const
 }
 
 /**
@@ -8896,13 +8821,12 @@ export function useGetStickerPacksPackId(
 
 /**
  * Generates SWR cache key for GET /sticker-packs/{pack_id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetStickerPacksPackIdKey(
   args: InferRequestType<(typeof client)['sticker-packs'][':pack_id']['$get']>,
 ) {
-  const u = client['sticker-packs'][':pack_id'].$url(args)
-  return u.pathname + u.search
+  return ['/sticker-packs/:pack_id', args] as const
 }
 
 /**
@@ -8931,13 +8855,12 @@ export function useGetStickersStickerId(
 
 /**
  * Generates SWR cache key for GET /stickers/{sticker_id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetStickersStickerIdKey(
   args: InferRequestType<(typeof client.stickers)[':sticker_id']['$get']>,
 ) {
-  const u = client.stickers[':sticker_id'].$url(args)
-  return u.pathname + u.search
+  return ['/stickers/:sticker_id', args] as const
 }
 
 /**
@@ -8963,10 +8886,10 @@ export function useGetUsersMe(options?: {
 
 /**
  * Generates SWR cache key for GET /users/@me
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetUsersMeKey() {
-  return client.users['@me'].$url().pathname
+  return ['/users/@me'] as const
 }
 
 /**
@@ -9003,7 +8926,7 @@ export function usePatchUsersMe(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPatchUsersMeMutationKey() {
-  return `PATCH ${client.users['@me'].$url().pathname}`
+  return 'PATCH /users/@me'
 }
 
 /**
@@ -9041,15 +8964,14 @@ export function useGetUsersMeApplicationsApplicationIdEntitlements(
 
 /**
  * Generates SWR cache key for GET /users/@me/applications/{application_id}/entitlements
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetUsersMeApplicationsApplicationIdEntitlementsKey(
   args: InferRequestType<
     (typeof client.users)['@me']['applications'][':application_id']['entitlements']['$get']
   >,
 ) {
-  const u = client.users['@me'].applications[':application_id'].entitlements.$url(args)
-  return u.pathname + u.search
+  return ['/users/@me/applications/:application_id/entitlements', args] as const
 }
 
 /**
@@ -9087,15 +9009,14 @@ export function useGetUsersMeApplicationsApplicationIdRoleConnection(
 
 /**
  * Generates SWR cache key for GET /users/@me/applications/{application_id}/role-connection
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetUsersMeApplicationsApplicationIdRoleConnectionKey(
   args: InferRequestType<
     (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$get']
   >,
 ) {
-  const u = client.users['@me'].applications[':application_id']['role-connection'].$url(args)
-  return u.pathname + u.search
+  return ['/users/@me/applications/:application_id/role-connection', args] as const
 }
 
 /**
@@ -9156,7 +9077,7 @@ export function usePutUsersMeApplicationsApplicationIdRoleConnection(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPutUsersMeApplicationsApplicationIdRoleConnectionMutationKey() {
-  return `PUT ${client.users['@me'].applications[':application_id']['role-connection'].$url().pathname}`
+  return 'PUT /users/@me/applications/:application_id/role-connection'
 }
 
 /**
@@ -9218,7 +9139,7 @@ export function useDeleteUsersMeApplicationsApplicationIdRoleConnection(options?
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteUsersMeApplicationsApplicationIdRoleConnectionMutationKey() {
-  return `DELETE ${client.users['@me'].applications[':application_id']['role-connection'].$url().pathname}`
+  return 'DELETE /users/@me/applications/:application_id/role-connection'
 }
 
 /**
@@ -9259,7 +9180,7 @@ export function usePostUsersMeChannels(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostUsersMeChannelsMutationKey() {
-  return `POST ${client.users['@me'].channels.$url().pathname}`
+  return 'POST /users/@me/channels'
 }
 
 /**
@@ -9285,10 +9206,10 @@ export function useGetUsersMeConnections(options?: {
 
 /**
  * Generates SWR cache key for GET /users/@me/connections
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetUsersMeConnectionsKey() {
-  return client.users['@me'].connections.$url().pathname
+  return ['/users/@me/connections'] as const
 }
 
 /**
@@ -9317,13 +9238,12 @@ export function useGetUsersMeGuilds(
 
 /**
  * Generates SWR cache key for GET /users/@me/guilds
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetUsersMeGuildsKey(
   args: InferRequestType<(typeof client.users)['@me']['guilds']['$get']>,
 ) {
-  const u = client.users['@me'].guilds.$url(args)
-  return u.pathname + u.search
+  return ['/users/@me/guilds', args] as const
 }
 
 /**
@@ -9371,7 +9291,7 @@ export function useDeleteUsersMeGuildsGuildId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteUsersMeGuildsGuildIdMutationKey() {
-  return `DELETE ${client.users['@me'].guilds[':guild_id'].$url().pathname}`
+  return 'DELETE /users/@me/guilds/:guild_id'
 }
 
 /**
@@ -9401,13 +9321,12 @@ export function useGetUsersMeGuildsGuildIdMember(
 
 /**
  * Generates SWR cache key for GET /users/@me/guilds/{guild_id}/member
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetUsersMeGuildsGuildIdMemberKey(
   args: InferRequestType<(typeof client.users)['@me']['guilds'][':guild_id']['member']['$get']>,
 ) {
-  const u = client.users['@me'].guilds[':guild_id'].member.$url(args)
-  return u.pathname + u.search
+  return ['/users/@me/guilds/:guild_id/member', args] as const
 }
 
 /**
@@ -9436,13 +9355,12 @@ export function useGetUsersUserId(
 
 /**
  * Generates SWR cache key for GET /users/{user_id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetUsersUserIdKey(
   args: InferRequestType<(typeof client.users)[':user_id']['$get']>,
 ) {
-  const u = client.users[':user_id'].$url(args)
-  return u.pathname + u.search
+  return ['/users/:user_id', args] as const
 }
 
 /**
@@ -9468,10 +9386,10 @@ export function useGetVoiceRegions(options?: {
 
 /**
  * Generates SWR cache key for GET /voice/regions
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetVoiceRegionsKey() {
-  return client.voice.regions.$url().pathname
+  return ['/voice/regions'] as const
 }
 
 /**
@@ -9500,13 +9418,12 @@ export function useGetWebhooksWebhookId(
 
 /**
  * Generates SWR cache key for GET /webhooks/{webhook_id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetWebhooksWebhookIdKey(
   args: InferRequestType<(typeof client.webhooks)[':webhook_id']['$get']>,
 ) {
-  const u = client.webhooks[':webhook_id'].$url(args)
-  return u.pathname + u.search
+  return ['/webhooks/:webhook_id', args] as const
 }
 
 /**
@@ -9550,7 +9467,7 @@ export function useDeleteWebhooksWebhookId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteWebhooksWebhookIdMutationKey() {
-  return `DELETE ${client.webhooks[':webhook_id'].$url().pathname}`
+  return 'DELETE /webhooks/:webhook_id'
 }
 
 /**
@@ -9591,7 +9508,7 @@ export function usePatchWebhooksWebhookId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPatchWebhooksWebhookIdMutationKey() {
-  return `PATCH ${client.webhooks[':webhook_id'].$url().pathname}`
+  return 'PATCH /webhooks/:webhook_id'
 }
 
 /**
@@ -9621,13 +9538,12 @@ export function useGetWebhooksWebhookIdWebhookToken(
 
 /**
  * Generates SWR cache key for GET /webhooks/{webhook_id}/{webhook_token}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetWebhooksWebhookIdWebhookTokenKey(
   args: InferRequestType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$get']>,
 ) {
-  const u = client.webhooks[':webhook_id'][':webhook_token'].$url(args)
-  return u.pathname + u.search
+  return ['/webhooks/:webhook_id/:webhook_token', args] as const
 }
 
 /**
@@ -9676,7 +9592,7 @@ export function usePostWebhooksWebhookIdWebhookToken(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostWebhooksWebhookIdWebhookTokenMutationKey() {
-  return `POST ${client.webhooks[':webhook_id'][':webhook_token'].$url().pathname}`
+  return 'POST /webhooks/:webhook_id/:webhook_token'
 }
 
 /**
@@ -9729,7 +9645,7 @@ export function useDeleteWebhooksWebhookIdWebhookToken(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteWebhooksWebhookIdWebhookTokenMutationKey() {
-  return `DELETE ${client.webhooks[':webhook_id'][':webhook_token'].$url().pathname}`
+  return 'DELETE /webhooks/:webhook_id/:webhook_token'
 }
 
 /**
@@ -9777,7 +9693,7 @@ export function usePatchWebhooksWebhookIdWebhookToken(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPatchWebhooksWebhookIdWebhookTokenMutationKey() {
-  return `PATCH ${client.webhooks[':webhook_id'][':webhook_token'].$url().pathname}`
+  return 'PATCH /webhooks/:webhook_id/:webhook_token'
 }
 
 /**
@@ -9834,7 +9750,7 @@ export function usePostWebhooksWebhookIdWebhookTokenGithub(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostWebhooksWebhookIdWebhookTokenGithubMutationKey() {
-  return `POST ${client.webhooks[':webhook_id'][':webhook_token'].github.$url().pathname}`
+  return 'POST /webhooks/:webhook_id/:webhook_token/github'
 }
 
 /**
@@ -9872,15 +9788,14 @@ export function useGetWebhooksWebhookIdWebhookTokenMessagesOriginal(
 
 /**
  * Generates SWR cache key for GET /webhooks/{webhook_id}/{webhook_token}/messages/@original
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetWebhooksWebhookIdWebhookTokenMessagesOriginalKey(
   args: InferRequestType<
     (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$get']
   >,
 ) {
-  const u = client.webhooks[':webhook_id'][':webhook_token'].messages['@original'].$url(args)
-  return u.pathname + u.search
+  return ['/webhooks/:webhook_id/:webhook_token/messages/@original', args] as const
 }
 
 /**
@@ -9942,7 +9857,7 @@ export function useDeleteWebhooksWebhookIdWebhookTokenMessagesOriginal(options?:
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteWebhooksWebhookIdWebhookTokenMessagesOriginalMutationKey() {
-  return `DELETE ${client.webhooks[':webhook_id'][':webhook_token'].messages['@original'].$url().pathname}`
+  return 'DELETE /webhooks/:webhook_id/:webhook_token/messages/@original'
 }
 
 /**
@@ -10003,7 +9918,7 @@ export function usePatchWebhooksWebhookIdWebhookTokenMessagesOriginal(options?: 
  * All args should be passed via trigger's { arg } object
  */
 export function getPatchWebhooksWebhookIdWebhookTokenMessagesOriginalMutationKey() {
-  return `PATCH ${client.webhooks[':webhook_id'][':webhook_token'].messages['@original'].$url().pathname}`
+  return 'PATCH /webhooks/:webhook_id/:webhook_token/messages/@original'
 }
 
 /**
@@ -10041,15 +9956,14 @@ export function useGetWebhooksWebhookIdWebhookTokenMessagesMessageId(
 
 /**
  * Generates SWR cache key for GET /webhooks/{webhook_id}/{webhook_token}/messages/{message_id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetWebhooksWebhookIdWebhookTokenMessagesMessageIdKey(
   args: InferRequestType<
     (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$get']
   >,
 ) {
-  const u = client.webhooks[':webhook_id'][':webhook_token'].messages[':message_id'].$url(args)
-  return u.pathname + u.search
+  return ['/webhooks/:webhook_id/:webhook_token/messages/:message_id', args] as const
 }
 
 /**
@@ -10111,7 +10025,7 @@ export function useDeleteWebhooksWebhookIdWebhookTokenMessagesMessageId(options?
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteWebhooksWebhookIdWebhookTokenMessagesMessageIdMutationKey() {
-  return `DELETE ${client.webhooks[':webhook_id'][':webhook_token'].messages[':message_id'].$url().pathname}`
+  return 'DELETE /webhooks/:webhook_id/:webhook_token/messages/:message_id'
 }
 
 /**
@@ -10172,7 +10086,7 @@ export function usePatchWebhooksWebhookIdWebhookTokenMessagesMessageId(options?:
  * All args should be passed via trigger's { arg } object
  */
 export function getPatchWebhooksWebhookIdWebhookTokenMessagesMessageIdMutationKey() {
-  return `PATCH ${client.webhooks[':webhook_id'][':webhook_token'].messages[':message_id'].$url().pathname}`
+  return 'PATCH /webhooks/:webhook_id/:webhook_token/messages/:message_id'
 }
 
 /**
@@ -10226,5 +10140,5 @@ export function usePostWebhooksWebhookIdWebhookTokenSlack(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostWebhooksWebhookIdWebhookTokenSlackMutationKey() {
-  return `POST ${client.webhooks[':webhook_id'][':webhook_token'].slack.$url().pathname}`
+  return 'POST /webhooks/:webhook_id/:webhook_token/slack'
 }

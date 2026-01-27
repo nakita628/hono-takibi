@@ -34,9 +34,8 @@ export function useGetFizzbuzz(
 
 /**
  * Generates SWR cache key for GET /fizzbuzz
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetFizzbuzzKey(args: InferRequestType<typeof client.fizzbuzz.$get>) {
-  const u = client.fizzbuzz.$url(args)
-  return u.pathname + u.search
+  return ['/fizzbuzz', args] as const
 }

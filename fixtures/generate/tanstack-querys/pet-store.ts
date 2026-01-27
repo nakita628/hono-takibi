@@ -1,5 +1,5 @@
 import { useQuery, useMutation } from '@tanstack/react-query'
-import type { UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
+import type { UseQueryOptions, UseMutationOptions, QueryFunctionContext } from '@tanstack/react-query'
 import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/pet-store'
@@ -407,7 +407,7 @@ export const getGetStoreOrderOrderIdQueryOptions = (
   clientOptions?: ClientRequestOptions,
 ) => ({
   queryKey: getGetStoreOrderOrderIdQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
       client.store.order[':orderId'].$get(args, {
         ...clientOptions,

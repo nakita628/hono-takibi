@@ -40,7 +40,7 @@ export function usePostAuthToken(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostAuthTokenMutationKey() {
-  return `POST ${client.auth.token.$url().pathname}`
+  return 'POST /auth/token'
 }
 
 /**
@@ -71,11 +71,10 @@ export function useGetUsers(
 
 /**
  * Generates SWR cache key for GET /users
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetUsersKey(args: InferRequestType<typeof client.users.$get>) {
-  const u = client.users.$url(args)
-  return u.pathname + u.search
+  return ['/users', args] as const
 }
 
 /**
@@ -112,7 +111,7 @@ export function usePostUsers(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostUsersMutationKey() {
-  return `POST ${client.users.$url().pathname}`
+  return 'POST /users'
 }
 
 /**
@@ -143,13 +142,12 @@ export function useGetUsersUserId(
 
 /**
  * Generates SWR cache key for GET /users/{userId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetUsersUserIdKey(
   args: InferRequestType<(typeof client.users)[':userId']['$get']>,
 ) {
-  const u = client.users[':userId'].$url(args)
-  return u.pathname + u.search
+  return ['/users/:userId', args] as const
 }
 
 /**
@@ -192,7 +190,7 @@ export function usePatchUsersUserId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPatchUsersUserIdMutationKey() {
-  return `PATCH ${client.users[':userId'].$url().pathname}`
+  return 'PATCH /users/:userId'
 }
 
 /**
@@ -223,13 +221,12 @@ export function useGetCompaniesCompanyId(
 
 /**
  * Generates SWR cache key for GET /companies/{companyId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetCompaniesCompanyIdKey(
   args: InferRequestType<(typeof client.companies)[':companyId']['$get']>,
 ) {
-  const u = client.companies[':companyId'].$url(args)
-  return u.pathname + u.search
+  return ['/companies/:companyId', args] as const
 }
 
 /**
@@ -260,11 +257,10 @@ export function useGetOrders(
 
 /**
  * Generates SWR cache key for GET /orders
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetOrdersKey(args: InferRequestType<typeof client.orders.$get>) {
-  const u = client.orders.$url(args)
-  return u.pathname + u.search
+  return ['/orders', args] as const
 }
 
 /**
@@ -301,7 +297,7 @@ export function usePostOrders(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostOrdersMutationKey() {
-  return `POST ${client.orders.$url().pathname}`
+  return 'POST /orders'
 }
 
 /**
@@ -332,13 +328,12 @@ export function useGetOrdersOrderId(
 
 /**
  * Generates SWR cache key for GET /orders/{orderId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetOrdersOrderIdKey(
   args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
 ) {
-  const u = client.orders[':orderId'].$url(args)
-  return u.pathname + u.search
+  return ['/orders/:orderId', args] as const
 }
 
 /**
@@ -369,13 +364,12 @@ export function useGetFilesFileId(
 
 /**
  * Generates SWR cache key for GET /files/{fileId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetFilesFileIdKey(
   args: InferRequestType<(typeof client.files)[':fileId']['$get']>,
 ) {
-  const u = client.files[':fileId'].$url(args)
-  return u.pathname + u.search
+  return ['/files/:fileId', args] as const
 }
 
 /**
@@ -414,5 +408,5 @@ export function usePostSubscriptions(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostSubscriptionsMutationKey() {
-  return `POST ${client.subscriptions.$url().pathname}`
+  return 'POST /subscriptions'
 }

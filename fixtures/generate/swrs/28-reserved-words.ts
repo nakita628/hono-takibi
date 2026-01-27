@@ -29,10 +29,10 @@ export function useGetClass(options?: {
 
 /**
  * Generates SWR cache key for GET /class
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetClassKey() {
-  return client.class.$url().pathname
+  return ['/class'] as const
 }
 
 /**
@@ -58,10 +58,10 @@ export function useGetInterface(options?: {
 
 /**
  * Generates SWR cache key for GET /interface
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetInterfaceKey() {
-  return client.interface.$url().pathname
+  return ['/interface'] as const
 }
 
 /**
@@ -87,10 +87,10 @@ export function useGetType(options?: {
 
 /**
  * Generates SWR cache key for GET /type
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetTypeKey() {
-  return client.type.$url().pathname
+  return ['/type'] as const
 }
 
 /**
@@ -124,7 +124,7 @@ export function usePostFunction(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostFunctionMutationKey() {
-  return `POST ${client.function.$url().pathname}`
+  return 'POST /function'
 }
 
 /**
@@ -150,10 +150,10 @@ export function useGetReturn(options?: {
 
 /**
  * Generates SWR cache key for GET /return
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetReturnKey() {
-  return client.return.$url().pathname
+  return ['/return'] as const
 }
 
 /**
@@ -179,10 +179,10 @@ export function useGetImport(options?: {
 
 /**
  * Generates SWR cache key for GET /import
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetImportKey() {
-  return client.import.$url().pathname
+  return ['/import'] as const
 }
 
 /**
@@ -208,10 +208,10 @@ export function useGetExport(options?: {
 
 /**
  * Generates SWR cache key for GET /export
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetExportKey() {
-  return client.export.$url().pathname
+  return ['/export'] as const
 }
 
 /**
@@ -237,10 +237,10 @@ export function useGetDefault(options?: {
 
 /**
  * Generates SWR cache key for GET /default
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetDefaultKey() {
-  return client.default.$url().pathname
+  return ['/default'] as const
 }
 
 /**
@@ -274,7 +274,7 @@ export function usePostNew(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostNewMutationKey() {
-  return `POST ${client.new.$url().pathname}`
+  return 'POST /new'
 }
 
 /**
@@ -308,7 +308,7 @@ export function useDeleteDelete(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteDeleteMutationKey() {
-  return `DELETE ${client.delete.$url().pathname}`
+  return 'DELETE /delete'
 }
 
 /**
@@ -334,10 +334,10 @@ export function useGetVoid(options?: {
 
 /**
  * Generates SWR cache key for GET /void
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetVoidKey() {
-  return client.void.$url().pathname
+  return ['/void'] as const
 }
 
 /**
@@ -363,10 +363,10 @@ export function useGetNull(options?: {
 
 /**
  * Generates SWR cache key for GET /null
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetNullKey() {
-  return client.null.$url().pathname
+  return ['/null'] as const
 }
 
 /**
@@ -392,10 +392,10 @@ export function useGetTrue(options?: {
 
 /**
  * Generates SWR cache key for GET /true
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetTrueKey() {
-  return client.true.$url().pathname
+  return ['/true'] as const
 }
 
 /**
@@ -421,10 +421,10 @@ export function useGetFalse(options?: {
 
 /**
  * Generates SWR cache key for GET /false
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetFalseKey() {
-  return client.false.$url().pathname
+  return ['/false'] as const
 }
 
 /**
@@ -450,10 +450,10 @@ export function useGetIf(options?: {
 
 /**
  * Generates SWR cache key for GET /if
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetIfKey() {
-  return client.if.$url().pathname
+  return ['/if'] as const
 }
 
 /**
@@ -479,10 +479,10 @@ export function useGetElse(options?: {
 
 /**
  * Generates SWR cache key for GET /else
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetElseKey() {
-  return client.else.$url().pathname
+  return ['/else'] as const
 }
 
 /**
@@ -508,10 +508,10 @@ export function useGetFor(options?: {
 
 /**
  * Generates SWR cache key for GET /for
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetForKey() {
-  return client.for.$url().pathname
+  return ['/for'] as const
 }
 
 /**
@@ -537,10 +537,10 @@ export function useGetWhile(options?: {
 
 /**
  * Generates SWR cache key for GET /while
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetWhileKey() {
-  return client.while.$url().pathname
+  return ['/while'] as const
 }
 
 /**
@@ -566,10 +566,10 @@ export function useGetSwitch(options?: {
 
 /**
  * Generates SWR cache key for GET /switch
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetSwitchKey() {
-  return client.switch.$url().pathname
+  return ['/switch'] as const
 }
 
 /**
@@ -595,10 +595,10 @@ export function useGetCase(options?: {
 
 /**
  * Generates SWR cache key for GET /case
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetCaseKey() {
-  return client.case.$url().pathname
+  return ['/case'] as const
 }
 
 /**
@@ -624,10 +624,10 @@ export function useGetBreak(options?: {
 
 /**
  * Generates SWR cache key for GET /break
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetBreakKey() {
-  return client.break.$url().pathname
+  return ['/break'] as const
 }
 
 /**
@@ -653,10 +653,10 @@ export function useGetContinue(options?: {
 
 /**
  * Generates SWR cache key for GET /continue
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetContinueKey() {
-  return client.continue.$url().pathname
+  return ['/continue'] as const
 }
 
 /**
@@ -682,10 +682,10 @@ export function useGetTry(options?: {
 
 /**
  * Generates SWR cache key for GET /try
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetTryKey() {
-  return client.try.$url().pathname
+  return ['/try'] as const
 }
 
 /**
@@ -711,10 +711,10 @@ export function useGetCatch(options?: {
 
 /**
  * Generates SWR cache key for GET /catch
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetCatchKey() {
-  return client.catch.$url().pathname
+  return ['/catch'] as const
 }
 
 /**
@@ -740,10 +740,10 @@ export function useGetFinally(options?: {
 
 /**
  * Generates SWR cache key for GET /finally
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetFinallyKey() {
-  return client.finally.$url().pathname
+  return ['/finally'] as const
 }
 
 /**
@@ -769,10 +769,10 @@ export function useGetThrow(options?: {
 
 /**
  * Generates SWR cache key for GET /throw
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetThrowKey() {
-  return client.throw.$url().pathname
+  return ['/throw'] as const
 }
 
 /**
@@ -798,10 +798,10 @@ export function useGetAsync(options?: {
 
 /**
  * Generates SWR cache key for GET /async
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetAsyncKey() {
-  return client.async.$url().pathname
+  return ['/async'] as const
 }
 
 /**
@@ -827,10 +827,10 @@ export function useGetAwait(options?: {
 
 /**
  * Generates SWR cache key for GET /await
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetAwaitKey() {
-  return client.await.$url().pathname
+  return ['/await'] as const
 }
 
 /**
@@ -856,10 +856,10 @@ export function useGetYield(options?: {
 
 /**
  * Generates SWR cache key for GET /yield
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetYieldKey() {
-  return client.yield.$url().pathname
+  return ['/yield'] as const
 }
 
 /**
@@ -885,10 +885,10 @@ export function useGetStatic(options?: {
 
 /**
  * Generates SWR cache key for GET /static
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetStaticKey() {
-  return client.static.$url().pathname
+  return ['/static'] as const
 }
 
 /**
@@ -914,10 +914,10 @@ export function useGetPublic(options?: {
 
 /**
  * Generates SWR cache key for GET /public
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetPublicKey() {
-  return client.public.$url().pathname
+  return ['/public'] as const
 }
 
 /**
@@ -943,10 +943,10 @@ export function useGetPrivate(options?: {
 
 /**
  * Generates SWR cache key for GET /private
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetPrivateKey() {
-  return client.private.$url().pathname
+  return ['/private'] as const
 }
 
 /**
@@ -972,10 +972,10 @@ export function useGetProtected(options?: {
 
 /**
  * Generates SWR cache key for GET /protected
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetProtectedKey() {
-  return client.protected.$url().pathname
+  return ['/protected'] as const
 }
 
 /**
@@ -1001,10 +1001,10 @@ export function useGetAbstract(options?: {
 
 /**
  * Generates SWR cache key for GET /abstract
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetAbstractKey() {
-  return client.abstract.$url().pathname
+  return ['/abstract'] as const
 }
 
 /**
@@ -1030,10 +1030,10 @@ export function useGetFinal(options?: {
 
 /**
  * Generates SWR cache key for GET /final
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetFinalKey() {
-  return client.final.$url().pathname
+  return ['/final'] as const
 }
 
 /**
@@ -1059,10 +1059,10 @@ export function useGetExtends(options?: {
 
 /**
  * Generates SWR cache key for GET /extends
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetExtendsKey() {
-  return client.extends.$url().pathname
+  return ['/extends'] as const
 }
 
 /**
@@ -1088,10 +1088,10 @@ export function useGetImplements(options?: {
 
 /**
  * Generates SWR cache key for GET /implements
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetImplementsKey() {
-  return client.implements.$url().pathname
+  return ['/implements'] as const
 }
 
 /**
@@ -1117,10 +1117,10 @@ export function useGetPackage(options?: {
 
 /**
  * Generates SWR cache key for GET /package
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetPackageKey() {
-  return client.package.$url().pathname
+  return ['/package'] as const
 }
 
 /**
@@ -1146,10 +1146,10 @@ export function useGetEnum(options?: {
 
 /**
  * Generates SWR cache key for GET /enum
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetEnumKey() {
-  return client.enum.$url().pathname
+  return ['/enum'] as const
 }
 
 /**
@@ -1175,10 +1175,10 @@ export function useGetConst(options?: {
 
 /**
  * Generates SWR cache key for GET /const
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetConstKey() {
-  return client.const.$url().pathname
+  return ['/const'] as const
 }
 
 /**
@@ -1204,10 +1204,10 @@ export function useGetLet(options?: {
 
 /**
  * Generates SWR cache key for GET /let
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetLetKey() {
-  return client.let.$url().pathname
+  return ['/let'] as const
 }
 
 /**
@@ -1233,10 +1233,10 @@ export function useGetVar(options?: {
 
 /**
  * Generates SWR cache key for GET /var
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetVarKey() {
-  return client.var.$url().pathname
+  return ['/var'] as const
 }
 
 /**
@@ -1262,10 +1262,10 @@ export function useGetThis(options?: {
 
 /**
  * Generates SWR cache key for GET /this
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetThisKey() {
-  return client.this.$url().pathname
+  return ['/this'] as const
 }
 
 /**
@@ -1291,10 +1291,10 @@ export function useGetSuper(options?: {
 
 /**
  * Generates SWR cache key for GET /super
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetSuperKey() {
-  return client.super.$url().pathname
+  return ['/super'] as const
 }
 
 /**
@@ -1320,10 +1320,10 @@ export function useGetSelf(options?: {
 
 /**
  * Generates SWR cache key for GET /self
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetSelfKey() {
-  return client.self.$url().pathname
+  return ['/self'] as const
 }
 
 /**
@@ -1349,10 +1349,10 @@ export function useGetConstructor(options?: {
 
 /**
  * Generates SWR cache key for GET /constructor
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetConstructorKey() {
-  return client.constructor.$url().pathname
+  return ['/constructor'] as const
 }
 
 /**
@@ -1378,10 +1378,10 @@ export function useGetPrototype(options?: {
 
 /**
  * Generates SWR cache key for GET /prototype
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetPrototypeKey() {
-  return client.prototype.$url().pathname
+  return ['/prototype'] as const
 }
 
 /**
@@ -1407,10 +1407,10 @@ export function useGetToString(options?: {
 
 /**
  * Generates SWR cache key for GET /toString
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetToStringKey() {
-  return client.toString.$url().pathname
+  return ['/toString'] as const
 }
 
 /**
@@ -1436,10 +1436,10 @@ export function useGetValueOf(options?: {
 
 /**
  * Generates SWR cache key for GET /valueOf
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetValueOfKey() {
-  return client.valueOf.$url().pathname
+  return ['/valueOf'] as const
 }
 
 /**
@@ -1465,10 +1465,10 @@ export function useGetHasOwnProperty(options?: {
 
 /**
  * Generates SWR cache key for GET /hasOwnProperty
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetHasOwnPropertyKey() {
-  return client.hasOwnProperty.$url().pathname
+  return ['/hasOwnProperty'] as const
 }
 
 /**
@@ -1494,8 +1494,8 @@ export function useGetNameCollisions(options?: {
 
 /**
  * Generates SWR cache key for GET /name-collisions
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetNameCollisionsKey() {
-  return client['name-collisions'].$url().pathname
+  return ['/name-collisions'] as const
 }

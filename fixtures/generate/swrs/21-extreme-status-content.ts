@@ -29,10 +29,10 @@ export function useGetExtremeResponses(options?: {
 
 /**
  * Generates SWR cache key for GET /extreme-responses
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetExtremeResponsesKey() {
-  return client['extreme-responses'].$url().pathname
+  return ['/extreme-responses'] as const
 }
 
 /**
@@ -73,7 +73,7 @@ export function usePostMultipartVariations(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostMultipartVariationsMutationKey() {
-  return `POST ${client['multipart-variations'].$url().pathname}`
+  return 'POST /multipart-variations'
 }
 
 /**
@@ -114,5 +114,5 @@ export function usePostCharsetVariations(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostCharsetVariationsMutationKey() {
-  return `POST ${client['charset-variations'].$url().pathname}`
+  return 'POST /charset-variations'
 }

@@ -38,7 +38,7 @@ export function usePostMessages(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostMessagesMutationKey() {
-  return `POST ${client.messages.$url().pathname}`
+  return 'POST /messages'
 }
 
 /**
@@ -73,7 +73,7 @@ export function usePostEvents(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostEventsMutationKey() {
-  return `POST ${client.events.$url().pathname}`
+  return 'POST /events'
 }
 
 /**
@@ -99,10 +99,10 @@ export function useGetConfigs(options?: {
 
 /**
  * Generates SWR cache key for GET /configs
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetConfigsKey() {
-  return client.configs.$url().pathname
+  return ['/configs'] as const
 }
 
 /**
@@ -137,7 +137,7 @@ export function usePutConfigs(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPutConfigsMutationKey() {
-  return `PUT ${client.configs.$url().pathname}`
+  return 'PUT /configs'
 }
 
 /**
@@ -172,7 +172,7 @@ export function usePostResources(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostResourcesMutationKey() {
-  return `POST ${client.resources.$url().pathname}`
+  return 'POST /resources'
 }
 
 /**
@@ -207,5 +207,5 @@ export function usePostValidations(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostValidationsMutationKey() {
-  return `POST ${client.validations.$url().pathname}`
+  return 'POST /validations'
 }

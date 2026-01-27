@@ -31,8 +31,8 @@ export function useGetPassthrough(options?: {
 
 /**
  * Generates SWR cache key for GET /passthrough
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetPassthroughKey() {
-  return client.passthrough.$url().pathname
+  return ['/passthrough'] as const
 }

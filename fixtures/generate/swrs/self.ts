@@ -27,8 +27,8 @@ export function useGetCategories(options?: {
 
 /**
  * Generates SWR cache key for GET /categories
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetCategoriesKey() {
-  return client.categories.$url().pathname
+  return ['/categories'] as const
 }

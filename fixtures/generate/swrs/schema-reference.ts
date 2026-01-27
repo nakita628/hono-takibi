@@ -29,8 +29,8 @@ export function useGetExample(options?: {
 
 /**
  * Generates SWR cache key for GET /example
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetExampleKey() {
-  return client.example.$url().pathname
+  return ['/example'] as const
 }

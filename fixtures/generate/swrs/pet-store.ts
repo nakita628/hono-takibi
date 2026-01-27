@@ -42,7 +42,7 @@ export function usePutPet(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPutPetMutationKey() {
-  return `PUT ${client.pet.$url().pathname}`
+  return 'PUT /pet'
 }
 
 /**
@@ -81,7 +81,7 @@ export function usePostPet(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostPetMutationKey() {
-  return `POST ${client.pet.$url().pathname}`
+  return 'POST /pet'
 }
 
 /**
@@ -114,13 +114,12 @@ export function useGetPetFindByStatus(
 
 /**
  * Generates SWR cache key for GET /pet/findByStatus
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetPetFindByStatusKey(
   args: InferRequestType<typeof client.pet.findByStatus.$get>,
 ) {
-  const u = client.pet.findByStatus.$url(args)
-  return u.pathname + u.search
+  return ['/pet/findByStatus', args] as const
 }
 
 /**
@@ -153,11 +152,10 @@ export function useGetPetFindByTags(
 
 /**
  * Generates SWR cache key for GET /pet/findByTags
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetPetFindByTagsKey(args: InferRequestType<typeof client.pet.findByTags.$get>) {
-  const u = client.pet.findByTags.$url(args)
-  return u.pathname + u.search
+  return ['/pet/findByTags', args] as const
 }
 
 /**
@@ -190,11 +188,10 @@ export function useGetPetPetId(
 
 /**
  * Generates SWR cache key for GET /pet/{petId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetPetPetIdKey(args: InferRequestType<(typeof client.pet)[':petId']['$get']>) {
-  const u = client.pet[':petId'].$url(args)
-  return u.pathname + u.search
+  return ['/pet/:petId', args] as const
 }
 
 /**
@@ -233,7 +230,7 @@ export function usePostPetPetId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostPetPetIdMutationKey() {
-  return `POST ${client.pet[':petId'].$url().pathname}`
+  return 'POST /pet/:petId'
 }
 
 /**
@@ -278,7 +275,7 @@ export function useDeletePetPetId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeletePetPetIdMutationKey() {
-  return `DELETE ${client.pet[':petId'].$url().pathname}`
+  return 'DELETE /pet/:petId'
 }
 
 /**
@@ -323,7 +320,7 @@ export function usePostPetPetIdUploadImage(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostPetPetIdUploadImageMutationKey() {
-  return `POST ${client.pet[':petId'].uploadImage.$url().pathname}`
+  return 'POST /pet/:petId/uploadImage'
 }
 
 /**
@@ -353,10 +350,10 @@ export function useGetStoreInventory(options?: {
 
 /**
  * Generates SWR cache key for GET /store/inventory
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetStoreInventoryKey() {
-  return client.store.inventory.$url().pathname
+  return ['/store/inventory'] as const
 }
 
 /**
@@ -395,7 +392,7 @@ export function usePostStoreOrder(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostStoreOrderMutationKey() {
-  return `POST ${client.store.order.$url().pathname}`
+  return 'POST /store/order'
 }
 
 /**
@@ -428,13 +425,12 @@ export function useGetStoreOrderOrderId(
 
 /**
  * Generates SWR cache key for GET /store/order/{orderId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetStoreOrderOrderIdKey(
   args: InferRequestType<(typeof client.store.order)[':orderId']['$get']>,
 ) {
-  const u = client.store.order[':orderId'].$url(args)
-  return u.pathname + u.search
+  return ['/store/order/:orderId', args] as const
 }
 
 /**
@@ -481,7 +477,7 @@ export function useDeleteStoreOrderOrderId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteStoreOrderOrderIdMutationKey() {
-  return `DELETE ${client.store.order[':orderId'].$url().pathname}`
+  return 'DELETE /store/order/:orderId'
 }
 
 /**
@@ -520,7 +516,7 @@ export function usePostUser(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostUserMutationKey() {
-  return `POST ${client.user.$url().pathname}`
+  return 'POST /user'
 }
 
 /**
@@ -561,7 +557,7 @@ export function usePostUserCreateWithList(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostUserCreateWithListMutationKey() {
-  return `POST ${client.user.createWithList.$url().pathname}`
+  return 'POST /user/createWithList'
 }
 
 /**
@@ -592,11 +588,10 @@ export function useGetUserLogin(
 
 /**
  * Generates SWR cache key for GET /user/login
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetUserLoginKey(args: InferRequestType<typeof client.user.login.$get>) {
-  const u = client.user.login.$url(args)
-  return u.pathname + u.search
+  return ['/user/login', args] as const
 }
 
 /**
@@ -624,10 +619,10 @@ export function useGetUserLogout(options?: {
 
 /**
  * Generates SWR cache key for GET /user/logout
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetUserLogoutKey() {
-  return client.user.logout.$url().pathname
+  return ['/user/logout'] as const
 }
 
 /**
@@ -658,13 +653,12 @@ export function useGetUserUsername(
 
 /**
  * Generates SWR cache key for GET /user/{username}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetUserUsernameKey(
   args: InferRequestType<(typeof client.user)[':username']['$get']>,
 ) {
-  const u = client.user[':username'].$url(args)
-  return u.pathname + u.search
+  return ['/user/:username', args] as const
 }
 
 /**
@@ -709,7 +703,7 @@ export function usePutUserUsername(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPutUserUsernameMutationKey() {
-  return `PUT ${client.user[':username'].$url().pathname}`
+  return 'PUT /user/:username'
 }
 
 /**
@@ -754,5 +748,5 @@ export function useDeleteUserUsername(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteUserUsernameMutationKey() {
-  return `DELETE ${client.user[':username'].$url().pathname}`
+  return 'DELETE /user/:username'
 }

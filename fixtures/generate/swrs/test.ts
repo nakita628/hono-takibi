@@ -31,10 +31,10 @@ export function useGetHono(options?: {
 
 /**
  * Generates SWR cache key for GET /hono
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetHonoKey() {
-  return client.hono.$url().pathname
+  return ['/hono'] as const
 }
 
 /**
@@ -64,10 +64,10 @@ export function useGetHonoX(options?: {
 
 /**
  * Generates SWR cache key for GET /hono-x
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetHonoXKey() {
-  return client['hono-x'].$url().pathname
+  return ['/hono-x'] as const
 }
 
 /**
@@ -97,8 +97,8 @@ export function useGetZodOpenapiHono(options?: {
 
 /**
  * Generates SWR cache key for GET /zod-openapi-hono
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetZodOpenapiHonoKey() {
-  return client['zod-openapi-hono'].$url().pathname
+  return ['/zod-openapi-hono'] as const
 }

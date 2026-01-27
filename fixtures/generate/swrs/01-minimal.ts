@@ -27,8 +27,8 @@ export function useGetHealth(options?: {
 
 /**
  * Generates SWR cache key for GET /health
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetHealthKey() {
-  return client.health.$url().pathname
+  return ['/health'] as const
 }

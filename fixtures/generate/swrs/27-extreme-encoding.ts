@@ -44,7 +44,7 @@ export function usePostEncodingTest(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostEncodingTestMutationKey() {
-  return `POST ${client['encoding-test'].$url().pathname}`
+  return 'POST /encoding-test'
 }
 
 /**
@@ -73,13 +73,12 @@ export function useGetContentNegotiation(
 
 /**
  * Generates SWR cache key for GET /content-negotiation
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetContentNegotiationKey(
   args: InferRequestType<(typeof client)['content-negotiation']['$get']>,
 ) {
-  const u = client['content-negotiation'].$url(args)
-  return u.pathname + u.search
+  return ['/content-negotiation', args] as const
 }
 
 /**
@@ -120,7 +119,7 @@ export function usePostBinaryVariations(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostBinaryVariationsMutationKey() {
-  return `POST ${client['binary-variations'].$url().pathname}`
+  return 'POST /binary-variations'
 }
 
 /**
@@ -146,10 +145,10 @@ export function useGetStreaming(options?: {
 
 /**
  * Generates SWR cache key for GET /streaming
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetStreamingKey() {
-  return client.streaming.$url().pathname
+  return ['/streaming'] as const
 }
 
 /**
@@ -184,7 +183,7 @@ export function usePostStreaming(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostStreamingMutationKey() {
-  return `POST ${client.streaming.$url().pathname}`
+  return 'POST /streaming'
 }
 
 /**
@@ -225,7 +224,7 @@ export function usePostUrlEncodedComplex(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostUrlEncodedComplexMutationKey() {
-  return `POST ${client['url-encoded-complex'].$url().pathname}`
+  return 'POST /url-encoded-complex'
 }
 
 /**
@@ -251,10 +250,10 @@ export function useGetResponseEncoding(options?: {
 
 /**
  * Generates SWR cache key for GET /response-encoding
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetResponseEncodingKey() {
-  return client['response-encoding'].$url().pathname
+  return ['/response-encoding'] as const
 }
 
 /**
@@ -295,5 +294,5 @@ export function usePostSchemaEncoding(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostSchemaEncodingMutationKey() {
-  return `POST ${client['schema-encoding'].$url().pathname}`
+  return 'POST /schema-encoding'
 }

@@ -44,7 +44,7 @@ export function usePostAuthRegister(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostAuthRegisterMutationKey() {
-  return `POST ${client.auth.register.$url().pathname}`
+  return 'POST /auth/register'
 }
 
 /**
@@ -83,7 +83,7 @@ export function usePostAuthLogin(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostAuthLoginMutationKey() {
-  return `POST ${client.auth.login.$url().pathname}`
+  return 'POST /auth/login'
 }
 
 /**
@@ -124,7 +124,7 @@ export function usePostAuthRefresh(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostAuthRefreshMutationKey() {
-  return `POST ${client.auth.refresh.$url().pathname}`
+  return 'POST /auth/refresh'
 }
 
 /**
@@ -163,7 +163,7 @@ export function usePostAuthLogout(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostAuthLogoutMutationKey() {
-  return `POST ${client.auth.logout.$url().pathname}`
+  return 'POST /auth/logout'
 }
 
 /**
@@ -208,7 +208,7 @@ export function usePostAuthPasswordForgot(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostAuthPasswordForgotMutationKey() {
-  return `POST ${client.auth.password.forgot.$url().pathname}`
+  return 'POST /auth/password/forgot'
 }
 
 /**
@@ -247,7 +247,7 @@ export function usePostAuthPasswordReset(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostAuthPasswordResetMutationKey() {
-  return `POST ${client.auth.password.reset.$url().pathname}`
+  return 'POST /auth/password/reset'
 }
 
 /**
@@ -280,11 +280,10 @@ export function useGetUsers(
 
 /**
  * Generates SWR cache key for GET /users
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetUsersKey(args: InferRequestType<typeof client.users.$get>) {
-  const u = client.users.$url(args)
-  return u.pathname + u.search
+  return ['/users', args] as const
 }
 
 /**
@@ -315,13 +314,12 @@ export function useGetUsersUserId(
 
 /**
  * Generates SWR cache key for GET /users/{userId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetUsersUserIdKey(
   args: InferRequestType<(typeof client.users)[':userId']['$get']>,
 ) {
-  const u = client.users[':userId'].$url(args)
-  return u.pathname + u.search
+  return ['/users/:userId', args] as const
 }
 
 /**
@@ -365,7 +363,7 @@ export function useDeleteUsersUserId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteUsersUserIdMutationKey() {
-  return `DELETE ${client.users[':userId'].$url().pathname}`
+  return 'DELETE /users/:userId'
 }
 
 /**
@@ -408,7 +406,7 @@ export function usePatchUsersUserId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPatchUsersUserIdMutationKey() {
-  return `PATCH ${client.users[':userId'].$url().pathname}`
+  return 'PATCH /users/:userId'
 }
 
 /**
@@ -436,10 +434,10 @@ export function useGetUsersMe(options?: {
 
 /**
  * Generates SWR cache key for GET /users/me
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetUsersMeKey() {
-  return client.users.me.$url().pathname
+  return ['/users/me'] as const
 }
 
 /**
@@ -476,7 +474,7 @@ export function usePatchUsersMe(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPatchUsersMeMutationKey() {
-  return `PATCH ${client.users.me.$url().pathname}`
+  return 'PATCH /users/me'
 }
 
 /**
@@ -515,7 +513,7 @@ export function usePutUsersMePassword(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPutUsersMePasswordMutationKey() {
-  return `PUT ${client.users.me.password.$url().pathname}`
+  return 'PUT /users/me/password'
 }
 
 /**
@@ -554,7 +552,7 @@ export function usePutUsersMeAvatar(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPutUsersMeAvatarMutationKey() {
-  return `PUT ${client.users.me.avatar.$url().pathname}`
+  return 'PUT /users/me/avatar'
 }
 
 /**
@@ -593,5 +591,5 @@ export function useDeleteUsersMeAvatar(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteUsersMeAvatarMutationKey() {
-  return `DELETE ${client.users.me.avatar.$url().pathname}`
+  return 'DELETE /users/me/avatar'
 }

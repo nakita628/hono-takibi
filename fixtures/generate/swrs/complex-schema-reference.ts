@@ -29,8 +29,8 @@ export function useGetTest(options?: {
 
 /**
  * Generates SWR cache key for GET /test
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetTestKey() {
-  return client.test.$url().pathname
+  return ['/test'] as const
 }

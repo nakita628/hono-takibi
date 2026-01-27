@@ -29,10 +29,10 @@ export function useGetEntities(options?: {
 
 /**
  * Generates SWR cache key for GET /entities
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetEntitiesKey() {
-  return client.entities.$url().pathname
+  return ['/entities'] as const
 }
 
 /**
@@ -67,7 +67,7 @@ export function usePostProcess(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostProcessMutationKey() {
-  return `POST ${client.process.$url().pathname}`
+  return 'POST /process'
 }
 
 /**
@@ -93,10 +93,10 @@ export function useGetGraph(options?: {
 
 /**
  * Generates SWR cache key for GET /graph
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetGraphKey() {
-  return client.graph.$url().pathname
+  return ['/graph'] as const
 }
 
 /**
@@ -131,5 +131,5 @@ export function usePostTransform(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostTransformMutationKey() {
-  return `POST ${client.transform.$url().pathname}`
+  return 'POST /transform'
 }

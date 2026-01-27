@@ -34,11 +34,10 @@ export function useGetProjects(
 
 /**
  * Generates SWR cache key for GET /projects
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetProjectsKey(args: InferRequestType<typeof client.projects.$get>) {
-  const u = client.projects.$url(args)
-  return u.pathname + u.search
+  return ['/projects', args] as const
 }
 
 /**
@@ -75,7 +74,7 @@ export function usePostProjects(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostProjectsMutationKey() {
-  return `POST ${client.projects.$url().pathname}`
+  return 'POST /projects'
 }
 
 /**
@@ -106,13 +105,12 @@ export function useGetProjectsProjectId(
 
 /**
  * Generates SWR cache key for GET /projects/{projectId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetProjectsProjectIdKey(
   args: InferRequestType<(typeof client.projects)[':projectId']['$get']>,
 ) {
-  const u = client.projects[':projectId'].$url(args)
-  return u.pathname + u.search
+  return ['/projects/:projectId', args] as const
 }
 
 /**
@@ -155,7 +153,7 @@ export function usePutProjectsProjectId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPutProjectsProjectIdMutationKey() {
-  return `PUT ${client.projects[':projectId'].$url().pathname}`
+  return 'PUT /projects/:projectId'
 }
 
 /**
@@ -201,7 +199,7 @@ export function useDeleteProjectsProjectId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteProjectsProjectIdMutationKey() {
-  return `DELETE ${client.projects[':projectId'].$url().pathname}`
+  return 'DELETE /projects/:projectId'
 }
 
 /**
@@ -232,13 +230,12 @@ export function useGetProjectsProjectIdMembers(
 
 /**
  * Generates SWR cache key for GET /projects/{projectId}/members
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetProjectsProjectIdMembersKey(
   args: InferRequestType<(typeof client.projects)[':projectId']['members']['$get']>,
 ) {
-  const u = client.projects[':projectId'].members.$url(args)
-  return u.pathname + u.search
+  return ['/projects/:projectId/members', args] as const
 }
 
 /**
@@ -285,7 +282,7 @@ export function usePostProjectsProjectIdMembers(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostProjectsProjectIdMembersMutationKey() {
-  return `POST ${client.projects[':projectId'].members.$url().pathname}`
+  return 'POST /projects/:projectId/members'
 }
 
 /**
@@ -316,13 +313,12 @@ export function useGetProjectsProjectIdTasks(
 
 /**
  * Generates SWR cache key for GET /projects/{projectId}/tasks
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetProjectsProjectIdTasksKey(
   args: InferRequestType<(typeof client.projects)[':projectId']['tasks']['$get']>,
 ) {
-  const u = client.projects[':projectId'].tasks.$url(args)
-  return u.pathname + u.search
+  return ['/projects/:projectId/tasks', args] as const
 }
 
 /**
@@ -369,7 +365,7 @@ export function usePostProjectsProjectIdTasks(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostProjectsProjectIdTasksMutationKey() {
-  return `POST ${client.projects[':projectId'].tasks.$url().pathname}`
+  return 'POST /projects/:projectId/tasks'
 }
 
 /**
@@ -400,13 +396,12 @@ export function useGetTasksTaskId(
 
 /**
  * Generates SWR cache key for GET /tasks/{taskId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetTasksTaskIdKey(
   args: InferRequestType<(typeof client.tasks)[':taskId']['$get']>,
 ) {
-  const u = client.tasks[':taskId'].$url(args)
-  return u.pathname + u.search
+  return ['/tasks/:taskId', args] as const
 }
 
 /**
@@ -449,7 +444,7 @@ export function usePutTasksTaskId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPutTasksTaskIdMutationKey() {
-  return `PUT ${client.tasks[':taskId'].$url().pathname}`
+  return 'PUT /tasks/:taskId'
 }
 
 /**
@@ -493,7 +488,7 @@ export function useDeleteTasksTaskId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteTasksTaskIdMutationKey() {
-  return `DELETE ${client.tasks[':taskId'].$url().pathname}`
+  return 'DELETE /tasks/:taskId'
 }
 
 /**
@@ -538,7 +533,7 @@ export function usePatchTasksTaskIdStatus(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPatchTasksTaskIdStatusMutationKey() {
-  return `PATCH ${client.tasks[':taskId'].status.$url().pathname}`
+  return 'PATCH /tasks/:taskId/status'
 }
 
 /**
@@ -569,13 +564,12 @@ export function useGetTasksTaskIdComments(
 
 /**
  * Generates SWR cache key for GET /tasks/{taskId}/comments
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetTasksTaskIdCommentsKey(
   args: InferRequestType<(typeof client.tasks)[':taskId']['comments']['$get']>,
 ) {
-  const u = client.tasks[':taskId'].comments.$url(args)
-  return u.pathname + u.search
+  return ['/tasks/:taskId/comments', args] as const
 }
 
 /**
@@ -620,7 +614,7 @@ export function usePostTasksTaskIdComments(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostTasksTaskIdCommentsMutationKey() {
-  return `POST ${client.tasks[':taskId'].comments.$url().pathname}`
+  return 'POST /tasks/:taskId/comments'
 }
 
 /**
@@ -651,13 +645,12 @@ export function useGetTasksTaskIdTimeEntries(
 
 /**
  * Generates SWR cache key for GET /tasks/{taskId}/time-entries
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetTasksTaskIdTimeEntriesKey(
   args: InferRequestType<(typeof client.tasks)[':taskId']['time-entries']['$get']>,
 ) {
-  const u = client.tasks[':taskId']['time-entries'].$url(args)
-  return u.pathname + u.search
+  return ['/tasks/:taskId/time-entries', args] as const
 }
 
 /**
@@ -704,7 +697,7 @@ export function usePostTasksTaskIdTimeEntries(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostTasksTaskIdTimeEntriesMutationKey() {
-  return `POST ${client.tasks[':taskId']['time-entries'].$url().pathname}`
+  return 'POST /tasks/:taskId/time-entries'
 }
 
 /**
@@ -735,13 +728,12 @@ export function useGetProjectsProjectIdMilestones(
 
 /**
  * Generates SWR cache key for GET /projects/{projectId}/milestones
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetProjectsProjectIdMilestonesKey(
   args: InferRequestType<(typeof client.projects)[':projectId']['milestones']['$get']>,
 ) {
-  const u = client.projects[':projectId'].milestones.$url(args)
-  return u.pathname + u.search
+  return ['/projects/:projectId/milestones', args] as const
 }
 
 /**
@@ -788,7 +780,7 @@ export function usePostProjectsProjectIdMilestones(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostProjectsProjectIdMilestonesMutationKey() {
-  return `POST ${client.projects[':projectId'].milestones.$url().pathname}`
+  return 'POST /projects/:projectId/milestones'
 }
 
 /**
@@ -816,10 +808,10 @@ export function useGetTeams(options?: {
 
 /**
  * Generates SWR cache key for GET /teams
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetTeamsKey() {
-  return client.teams.$url().pathname
+  return ['/teams'] as const
 }
 
 /**
@@ -856,5 +848,5 @@ export function usePostTeams(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostTeamsMutationKey() {
-  return `POST ${client.teams.$url().pathname}`
+  return 'POST /teams'
 }

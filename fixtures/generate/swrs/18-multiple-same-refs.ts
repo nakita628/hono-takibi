@@ -32,11 +32,10 @@ export function useGetDocuments(
 
 /**
  * Generates SWR cache key for GET /documents
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetDocumentsKey(args: InferRequestType<typeof client.documents.$get>) {
-  const u = client.documents.$url(args)
-  return u.pathname + u.search
+  return ['/documents', args] as const
 }
 
 /**
@@ -71,7 +70,7 @@ export function usePostDocuments(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostDocumentsMutationKey() {
-  return `POST ${client.documents.$url().pathname}`
+  return 'POST /documents'
 }
 
 /**
@@ -100,13 +99,12 @@ export function useGetDocumentsDocumentId(
 
 /**
  * Generates SWR cache key for GET /documents/{documentId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetDocumentsDocumentIdKey(
   args: InferRequestType<(typeof client.documents)[':documentId']['$get']>,
 ) {
-  const u = client.documents[':documentId'].$url(args)
-  return u.pathname + u.search
+  return ['/documents/:documentId', args] as const
 }
 
 /**
@@ -147,7 +145,7 @@ export function usePutDocumentsDocumentId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPutDocumentsDocumentIdMutationKey() {
-  return `PUT ${client.documents[':documentId'].$url().pathname}`
+  return 'PUT /documents/:documentId'
 }
 
 /**
@@ -176,13 +174,12 @@ export function useGetDocumentsDocumentIdVersions(
 
 /**
  * Generates SWR cache key for GET /documents/{documentId}/versions
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetDocumentsDocumentIdVersionsKey(
   args: InferRequestType<(typeof client.documents)[':documentId']['versions']['$get']>,
 ) {
-  const u = client.documents[':documentId'].versions.$url(args)
-  return u.pathname + u.search
+  return ['/documents/:documentId/versions', args] as const
 }
 
 /**
@@ -227,7 +224,7 @@ export function usePostDocumentsDocumentIdShare(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostDocumentsDocumentIdShareMutationKey() {
-  return `POST ${client.documents[':documentId'].share.$url().pathname}`
+  return 'POST /documents/:documentId/share'
 }
 
 /**
@@ -256,13 +253,12 @@ export function useGetUsersUserIdDocuments(
 
 /**
  * Generates SWR cache key for GET /users/{userId}/documents
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetUsersUserIdDocumentsKey(
   args: InferRequestType<(typeof client.users)[':userId']['documents']['$get']>,
 ) {
-  const u = client.users[':userId'].documents.$url(args)
-  return u.pathname + u.search
+  return ['/users/:userId/documents', args] as const
 }
 
 /**
@@ -297,7 +293,7 @@ export function usePostCompare(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostCompareMutationKey() {
-  return `POST ${client.compare.$url().pathname}`
+  return 'POST /compare'
 }
 
 /**
@@ -323,10 +319,10 @@ export function useGetTemplates(options?: {
 
 /**
  * Generates SWR cache key for GET /templates
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetTemplatesKey() {
-  return client.templates.$url().pathname
+  return ['/templates'] as const
 }
 
 /**
@@ -361,7 +357,7 @@ export function usePostTemplates(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostTemplatesMutationKey() {
-  return `POST ${client.templates.$url().pathname}`
+  return 'POST /templates'
 }
 
 /**
@@ -396,5 +392,5 @@ export function usePostWorkflows(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostWorkflowsMutationKey() {
-  return `POST ${client.workflows.$url().pathname}`
+  return 'POST /workflows'
 }

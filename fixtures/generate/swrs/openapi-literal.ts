@@ -31,8 +31,8 @@ export function useGetPrimitive(options?: {
 
 /**
  * Generates SWR cache key for GET /primitive
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetPrimitiveKey() {
-  return client.primitive.$url().pathname
+  return ['/primitive'] as const
 }

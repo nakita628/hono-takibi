@@ -31,8 +31,8 @@ export function useGetNumber(options?: {
 
 /**
  * Generates SWR cache key for GET /number
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetNumberKey() {
-  return client.number.$url().pathname
+  return ['/number'] as const
 }

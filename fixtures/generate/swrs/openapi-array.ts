@@ -31,8 +31,8 @@ export function useGetArray(options?: {
 
 /**
  * Generates SWR cache key for GET /array
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetArrayKey() {
-  return client.array.$url().pathname
+  return ['/array'] as const
 }

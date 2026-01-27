@@ -31,10 +31,10 @@ export function useGetPublic(options?: {
 
 /**
  * Generates SWR cache key for GET /public
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetPublicKey() {
-  return client.public.$url().pathname
+  return ['/public'] as const
 }
 
 /**
@@ -62,10 +62,10 @@ export function useGetSingleAuth(options?: {
 
 /**
  * Generates SWR cache key for GET /single-auth
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetSingleAuthKey() {
-  return client['single-auth'].$url().pathname
+  return ['/single-auth'] as const
 }
 
 /**
@@ -93,10 +93,10 @@ export function useGetAnyAuth(options?: {
 
 /**
  * Generates SWR cache key for GET /any-auth
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetAnyAuthKey() {
-  return client['any-auth'].$url().pathname
+  return ['/any-auth'] as const
 }
 
 /**
@@ -124,10 +124,10 @@ export function useGetAllAuth(options?: {
 
 /**
  * Generates SWR cache key for GET /all-auth
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetAllAuthKey() {
-  return client['all-auth'].$url().pathname
+  return ['/all-auth'] as const
 }
 
 /**
@@ -155,10 +155,10 @@ export function useGetComplexAuth(options?: {
 
 /**
  * Generates SWR cache key for GET /complex-auth
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetComplexAuthKey() {
-  return client['complex-auth'].$url().pathname
+  return ['/complex-auth'] as const
 }
 
 /**
@@ -186,10 +186,10 @@ export function useGetScopedOauth(options?: {
 
 /**
  * Generates SWR cache key for GET /scoped-oauth
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetScopedOauthKey() {
-  return client['scoped-oauth'].$url().pathname
+  return ['/scoped-oauth'] as const
 }
 
 /**
@@ -217,10 +217,10 @@ export function useGetMixedLevelSecurity(options?: {
 
 /**
  * Generates SWR cache key for GET /mixed-level-security
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetMixedLevelSecurityKey() {
-  return client['mixed-level-security'].$url().pathname
+  return ['/mixed-level-security'] as const
 }
 
 /**
@@ -260,7 +260,7 @@ export function usePutMixedLevelSecurity(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPutMixedLevelSecurityMutationKey() {
-  return `PUT ${client['mixed-level-security'].$url().pathname}`
+  return 'PUT /mixed-level-security'
 }
 
 /**
@@ -300,7 +300,7 @@ export function usePostMixedLevelSecurity(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostMixedLevelSecurityMutationKey() {
-  return `POST ${client['mixed-level-security'].$url().pathname}`
+  return 'POST /mixed-level-security'
 }
 
 /**
@@ -343,7 +343,7 @@ export function useDeleteMixedLevelSecurity(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteMixedLevelSecurityMutationKey() {
-  return `DELETE ${client['mixed-level-security'].$url().pathname}`
+  return 'DELETE /mixed-level-security'
 }
 
 /**
@@ -371,10 +371,10 @@ export function useGetOverrideGlobal(options?: {
 
 /**
  * Generates SWR cache key for GET /override-global
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetOverrideGlobalKey() {
-  return client['override-global'].$url().pathname
+  return ['/override-global'] as const
 }
 
 /**
@@ -402,10 +402,10 @@ export function useGetOptionalEnhanced(options?: {
 
 /**
  * Generates SWR cache key for GET /optional-enhanced
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetOptionalEnhancedKey() {
-  return client['optional-enhanced'].$url().pathname
+  return ['/optional-enhanced'] as const
 }
 
 /**
@@ -433,8 +433,8 @@ export function useGetMultiTenant(options?: {
 
 /**
  * Generates SWR cache key for GET /multi-tenant
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetMultiTenantKey() {
-  return client['multi-tenant'].$url().pathname
+  return ['/multi-tenant'] as const
 }

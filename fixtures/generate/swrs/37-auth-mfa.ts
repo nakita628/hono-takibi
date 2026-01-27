@@ -31,10 +31,10 @@ export function useGetMfaStatus(options?: {
 
 /**
  * Generates SWR cache key for GET /mfa/status
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetMfaStatusKey() {
-  return client.mfa.status.$url().pathname
+  return ['/mfa/status'] as const
 }
 
 /**
@@ -62,10 +62,10 @@ export function useGetMfaMethods(options?: {
 
 /**
  * Generates SWR cache key for GET /mfa/methods
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetMfaMethodsKey() {
-  return client.mfa.methods.$url().pathname
+  return ['/mfa/methods'] as const
 }
 
 /**
@@ -104,7 +104,7 @@ export function usePutMfaPreferred(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPutMfaPreferredMutationKey() {
-  return `PUT ${client.mfa.preferred.$url().pathname}`
+  return 'PUT /mfa/preferred'
 }
 
 /**
@@ -145,7 +145,7 @@ export function usePostMfaTotpSetup(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostMfaTotpSetupMutationKey() {
-  return `POST ${client.mfa.totp.setup.$url().pathname}`
+  return 'POST /mfa/totp/setup'
 }
 
 /**
@@ -186,7 +186,7 @@ export function usePostMfaTotpVerify(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostMfaTotpVerifyMutationKey() {
-  return `POST ${client.mfa.totp.verify.$url().pathname}`
+  return 'POST /mfa/totp/verify'
 }
 
 /**
@@ -224,7 +224,7 @@ export function useDeleteMfaTotp(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteMfaTotpMutationKey() {
-  return `DELETE ${client.mfa.totp.$url().pathname}`
+  return 'DELETE /mfa/totp'
 }
 
 /**
@@ -265,7 +265,7 @@ export function usePostMfaSmsSetup(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostMfaSmsSetupMutationKey() {
-  return `POST ${client.mfa.sms.setup.$url().pathname}`
+  return 'POST /mfa/sms/setup'
 }
 
 /**
@@ -304,7 +304,7 @@ export function usePostMfaSmsVerify(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostMfaSmsVerifyMutationKey() {
-  return `POST ${client.mfa.sms.verify.$url().pathname}`
+  return 'POST /mfa/sms/verify'
 }
 
 /**
@@ -348,7 +348,7 @@ export function useDeleteMfaSmsMethodId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteMfaSmsMethodIdMutationKey() {
-  return `DELETE ${client.mfa.sms[':methodId'].$url().pathname}`
+  return 'DELETE /mfa/sms/:methodId'
 }
 
 /**
@@ -387,7 +387,7 @@ export function usePostMfaEmailSetup(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostMfaEmailSetupMutationKey() {
-  return `POST ${client.mfa.email.setup.$url().pathname}`
+  return 'POST /mfa/email/setup'
 }
 
 /**
@@ -426,7 +426,7 @@ export function usePostMfaEmailVerify(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostMfaEmailVerifyMutationKey() {
-  return `POST ${client.mfa.email.verify.$url().pathname}`
+  return 'POST /mfa/email/verify'
 }
 
 /**
@@ -471,7 +471,7 @@ export function usePostMfaWebauthnRegisterOptions(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostMfaWebauthnRegisterOptionsMutationKey() {
-  return `POST ${client.mfa.webauthn.register.options.$url().pathname}`
+  return 'POST /mfa/webauthn/register/options'
 }
 
 /**
@@ -514,7 +514,7 @@ export function usePostMfaWebauthnRegisterVerify(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostMfaWebauthnRegisterVerifyMutationKey() {
-  return `POST ${client.mfa.webauthn.register.verify.$url().pathname}`
+  return 'POST /mfa/webauthn/register/verify'
 }
 
 /**
@@ -542,10 +542,10 @@ export function useGetMfaWebauthnCredentials(options?: {
 
 /**
  * Generates SWR cache key for GET /mfa/webauthn/credentials
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetMfaWebauthnCredentialsKey() {
-  return client.mfa.webauthn.credentials.$url().pathname
+  return ['/mfa/webauthn/credentials'] as const
 }
 
 /**
@@ -600,7 +600,7 @@ export function useDeleteMfaWebauthnCredentialsCredentialId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteMfaWebauthnCredentialsCredentialIdMutationKey() {
-  return `DELETE ${client.mfa.webauthn.credentials[':credentialId'].$url().pathname}`
+  return 'DELETE /mfa/webauthn/credentials/:credentialId'
 }
 
 /**
@@ -650,7 +650,7 @@ export function usePatchMfaWebauthnCredentialsCredentialId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPatchMfaWebauthnCredentialsCredentialIdMutationKey() {
-  return `PATCH ${client.mfa.webauthn.credentials[':credentialId'].$url().pathname}`
+  return 'PATCH /mfa/webauthn/credentials/:credentialId'
 }
 
 /**
@@ -699,7 +699,7 @@ export function usePostMfaBackupCodesGenerate(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostMfaBackupCodesGenerateMutationKey() {
-  return `POST ${client.mfa['backup-codes'].generate.$url().pathname}`
+  return 'POST /mfa/backup-codes/generate'
 }
 
 /**
@@ -727,10 +727,10 @@ export function useGetMfaBackupCodesStatus(options?: {
 
 /**
  * Generates SWR cache key for GET /mfa/backup-codes/status
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetMfaBackupCodesStatusKey() {
-  return client.mfa['backup-codes'].status.$url().pathname
+  return ['/mfa/backup-codes/status'] as const
 }
 
 /**
@@ -771,7 +771,7 @@ export function usePostMfaChallenge(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostMfaChallengeMutationKey() {
-  return `POST ${client.mfa.challenge.$url().pathname}`
+  return 'POST /mfa/challenge'
 }
 
 /**
@@ -812,7 +812,7 @@ export function usePostMfaChallengeSend(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostMfaChallengeSendMutationKey() {
-  return `POST ${client.mfa.challenge.send.$url().pathname}`
+  return 'POST /mfa/challenge/send'
 }
 
 /**
@@ -851,7 +851,7 @@ export function usePostMfaVerify(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostMfaVerifyMutationKey() {
-  return `POST ${client.mfa.verify.$url().pathname}`
+  return 'POST /mfa/verify'
 }
 
 /**
@@ -896,7 +896,7 @@ export function usePostMfaWebauthnAuthenticateOptions(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostMfaWebauthnAuthenticateOptionsMutationKey() {
-  return `POST ${client.mfa.webauthn.authenticate.options.$url().pathname}`
+  return 'POST /mfa/webauthn/authenticate/options'
 }
 
 /**
@@ -937,7 +937,7 @@ export function usePostMfaRecovery(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostMfaRecoveryMutationKey() {
-  return `POST ${client.mfa.recovery.$url().pathname}`
+  return 'POST /mfa/recovery'
 }
 
 /**
@@ -976,5 +976,5 @@ export function usePostMfaRecoveryVerify(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostMfaRecoveryVerifyMutationKey() {
-  return `POST ${client.mfa.recovery.verify.$url().pathname}`
+  return 'POST /mfa/recovery/verify'
 }

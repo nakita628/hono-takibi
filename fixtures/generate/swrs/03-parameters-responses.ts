@@ -32,11 +32,10 @@ export function useGetItems(
 
 /**
  * Generates SWR cache key for GET /items
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetItemsKey(args: InferRequestType<typeof client.items.$get>) {
-  const u = client.items.$url(args)
-  return u.pathname + u.search
+  return ['/items', args] as const
 }
 
 /**
@@ -65,13 +64,12 @@ export function useGetItemsItemId(
 
 /**
  * Generates SWR cache key for GET /items/{itemId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetItemsItemIdKey(
   args: InferRequestType<(typeof client.items)[':itemId']['$get']>,
 ) {
-  const u = client.items[':itemId'].$url(args)
-  return u.pathname + u.search
+  return ['/items/:itemId', args] as const
 }
 
 /**
@@ -113,5 +111,5 @@ export function useDeleteItemsItemId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteItemsItemIdMutationKey() {
-  return `DELETE ${client.items[':itemId'].$url().pathname}`
+  return 'DELETE /items/:itemId'
 }

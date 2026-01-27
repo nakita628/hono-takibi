@@ -162,7 +162,7 @@ const makeHookCode = (
   const clientPath = `${deps.client}${pathResult.runtimePath}`
 
   if (isQuery) {
-    // useSWR hook for GET - use key getter function with $url()
+    // useSWR hook for GET - use key getter function with structured key
     const keyGetterName = toKeyGetterName(method, pathStr)
     const keyGetterCode = makeKeyGetterCode(keyGetterName, hasArgs, inferRequestType, honoPath, clientPath)
 

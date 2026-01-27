@@ -36,11 +36,10 @@ export function useGetSessions(
 
 /**
  * Generates SWR cache key for GET /sessions
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetSessionsKey(args: InferRequestType<typeof client.sessions.$get>) {
-  const u = client.sessions.$url(args)
-  return u.pathname + u.search
+  return ['/sessions', args] as const
 }
 
 /**
@@ -79,7 +78,7 @@ export function usePostSessions(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostSessionsMutationKey() {
-  return `POST ${client.sessions.$url().pathname}`
+  return 'POST /sessions'
 }
 
 /**
@@ -107,10 +106,10 @@ export function useGetSessionsCurrent(options?: {
 
 /**
  * Generates SWR cache key for GET /sessions/current
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetSessionsCurrentKey() {
-  return client.sessions.current.$url().pathname
+  return ['/sessions/current'] as const
 }
 
 /**
@@ -151,7 +150,7 @@ export function useDeleteSessionsCurrent(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteSessionsCurrentMutationKey() {
-  return `DELETE ${client.sessions.current.$url().pathname}`
+  return 'DELETE /sessions/current'
 }
 
 /**
@@ -196,7 +195,7 @@ export function usePostSessionsCurrentRefresh(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostSessionsCurrentRefreshMutationKey() {
-  return `POST ${client.sessions.current.refresh.$url().pathname}`
+  return 'POST /sessions/current/refresh'
 }
 
 /**
@@ -241,7 +240,7 @@ export function usePostSessionsCurrentExtend(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostSessionsCurrentExtendMutationKey() {
-  return `POST ${client.sessions.current.extend.$url().pathname}`
+  return 'POST /sessions/current/extend'
 }
 
 /**
@@ -283,7 +282,7 @@ export function usePostSessionsCurrentActivity(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostSessionsCurrentActivityMutationKey() {
-  return `POST ${client.sessions.current.activity.$url().pathname}`
+  return 'POST /sessions/current/activity'
 }
 
 /**
@@ -314,13 +313,12 @@ export function useGetSessionsSessionId(
 
 /**
  * Generates SWR cache key for GET /sessions/{sessionId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetSessionsSessionIdKey(
   args: InferRequestType<(typeof client.sessions)[':sessionId']['$get']>,
 ) {
-  const u = client.sessions[':sessionId'].$url(args)
-  return u.pathname + u.search
+  return ['/sessions/:sessionId', args] as const
 }
 
 /**
@@ -368,7 +366,7 @@ export function useDeleteSessionsSessionId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteSessionsSessionIdMutationKey() {
-  return `DELETE ${client.sessions[':sessionId'].$url().pathname}`
+  return 'DELETE /sessions/:sessionId'
 }
 
 /**
@@ -413,7 +411,7 @@ export function usePostSessionsRevokeAll(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostSessionsRevokeAllMutationKey() {
-  return `POST ${client.sessions['revoke-all'].$url().pathname}`
+  return 'POST /sessions/revoke-all'
 }
 
 /**
@@ -454,7 +452,7 @@ export function usePostSessionsValidate(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostSessionsValidateMutationKey() {
-  return `POST ${client.sessions.validate.$url().pathname}`
+  return 'POST /sessions/validate'
 }
 
 /**
@@ -485,13 +483,12 @@ export function useGetSessionsHistory(
 
 /**
  * Generates SWR cache key for GET /sessions/history
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetSessionsHistoryKey(
   args: InferRequestType<typeof client.sessions.history.$get>,
 ) {
-  const u = client.sessions.history.$url(args)
-  return u.pathname + u.search
+  return ['/sessions/history', args] as const
 }
 
 /**
@@ -524,13 +521,12 @@ export function useGetSessionsSecurityEvents(
 
 /**
  * Generates SWR cache key for GET /sessions/security-events
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetSessionsSecurityEventsKey(
   args: InferRequestType<(typeof client.sessions)['security-events']['$get']>,
 ) {
-  const u = client.sessions['security-events'].$url(args)
-  return u.pathname + u.search
+  return ['/sessions/security-events', args] as const
 }
 
 /**
@@ -558,10 +554,10 @@ export function useGetSessionsPolicies(options?: {
 
 /**
  * Generates SWR cache key for GET /sessions/policies
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetSessionsPoliciesKey() {
-  return client.sessions.policies.$url().pathname
+  return ['/sessions/policies'] as const
 }
 
 /**
@@ -600,7 +596,7 @@ export function usePutSessionsPolicies(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPutSessionsPoliciesMutationKey() {
-  return `PUT ${client.sessions.policies.$url().pathname}`
+  return 'PUT /sessions/policies'
 }
 
 /**
@@ -628,10 +624,10 @@ export function useGetSessionsTrustedDevices(options?: {
 
 /**
  * Generates SWR cache key for GET /sessions/trusted-devices
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetSessionsTrustedDevicesKey() {
-  return client.sessions['trusted-devices'].$url().pathname
+  return ['/sessions/trusted-devices'] as const
 }
 
 /**
@@ -676,7 +672,7 @@ export function usePostSessionsTrustedDevices(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostSessionsTrustedDevicesMutationKey() {
-  return `POST ${client.sessions['trusted-devices'].$url().pathname}`
+  return 'POST /sessions/trusted-devices'
 }
 
 /**
@@ -727,5 +723,5 @@ export function useDeleteSessionsTrustedDevicesDeviceId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteSessionsTrustedDevicesDeviceIdMutationKey() {
-  return `DELETE ${client.sessions['trusted-devices'][':deviceId'].$url().pathname}`
+  return 'DELETE /sessions/trusted-devices/:deviceId'
 }

@@ -39,7 +39,7 @@ export function usePostWebhooks(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostWebhooksMutationKey() {
-  return `POST ${client.webhooks.$url().pathname}`
+  return 'POST /webhooks'
 }
 
 /**
@@ -78,7 +78,7 @@ export function usePostSubscriptions(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostSubscriptionsMutationKey() {
-  return `POST ${client.subscriptions.$url().pathname}`
+  return 'POST /subscriptions'
 }
 
 /**
@@ -115,7 +115,7 @@ export function usePostJobs(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostJobsMutationKey() {
-  return `POST ${client.jobs.$url().pathname}`
+  return 'POST /jobs'
 }
 
 /**
@@ -164,5 +164,5 @@ export function usePostIntegrationsIntegrationIdSync(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostIntegrationsIntegrationIdSyncMutationKey() {
-  return `POST ${client.integrations[':integrationId'].sync.$url().pathname}`
+  return 'POST /integrations/:integrationId/sync'
 }

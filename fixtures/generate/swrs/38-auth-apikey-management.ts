@@ -34,11 +34,10 @@ export function useGetApiKeys(
 
 /**
  * Generates SWR cache key for GET /api-keys
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetApiKeysKey(args: InferRequestType<(typeof client)['api-keys']['$get']>) {
-  const u = client['api-keys'].$url(args)
-  return u.pathname + u.search
+  return ['/api-keys', args] as const
 }
 
 /**
@@ -77,7 +76,7 @@ export function usePostApiKeys(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostApiKeysMutationKey() {
-  return `POST ${client['api-keys'].$url().pathname}`
+  return 'POST /api-keys'
 }
 
 /**
@@ -108,13 +107,12 @@ export function useGetApiKeysKeyId(
 
 /**
  * Generates SWR cache key for GET /api-keys/{keyId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetApiKeysKeyIdKey(
   args: InferRequestType<(typeof client)['api-keys'][':keyId']['$get']>,
 ) {
-  const u = client['api-keys'][':keyId'].$url(args)
-  return u.pathname + u.search
+  return ['/api-keys/:keyId', args] as const
 }
 
 /**
@@ -160,7 +158,7 @@ export function useDeleteApiKeysKeyId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteApiKeysKeyIdMutationKey() {
-  return `DELETE ${client['api-keys'][':keyId'].$url().pathname}`
+  return 'DELETE /api-keys/:keyId'
 }
 
 /**
@@ -203,7 +201,7 @@ export function usePatchApiKeysKeyId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPatchApiKeysKeyIdMutationKey() {
-  return `PATCH ${client['api-keys'][':keyId'].$url().pathname}`
+  return 'PATCH /api-keys/:keyId'
 }
 
 /**
@@ -250,7 +248,7 @@ export function usePostApiKeysKeyIdRevoke(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostApiKeysKeyIdRevokeMutationKey() {
-  return `POST ${client['api-keys'][':keyId'].revoke.$url().pathname}`
+  return 'POST /api-keys/:keyId/revoke'
 }
 
 /**
@@ -297,7 +295,7 @@ export function usePostApiKeysKeyIdRotate(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostApiKeysKeyIdRotateMutationKey() {
-  return `POST ${client['api-keys'][':keyId'].rotate.$url().pathname}`
+  return 'POST /api-keys/:keyId/rotate'
 }
 
 /**
@@ -328,13 +326,12 @@ export function useGetApiKeysKeyIdUsage(
 
 /**
  * Generates SWR cache key for GET /api-keys/{keyId}/usage
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetApiKeysKeyIdUsageKey(
   args: InferRequestType<(typeof client)['api-keys'][':keyId']['usage']['$get']>,
 ) {
-  const u = client['api-keys'][':keyId'].usage.$url(args)
-  return u.pathname + u.search
+  return ['/api-keys/:keyId/usage', args] as const
 }
 
 /**
@@ -366,13 +363,12 @@ export function useGetApiKeysKeyIdRateLimitCurrent(
 
 /**
  * Generates SWR cache key for GET /api-keys/{keyId}/rate-limit/current
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetApiKeysKeyIdRateLimitCurrentKey(
   args: InferRequestType<(typeof client)['api-keys'][':keyId']['rate-limit']['current']['$get']>,
 ) {
-  const u = client['api-keys'][':keyId']['rate-limit'].current.$url(args)
-  return u.pathname + u.search
+  return ['/api-keys/:keyId/rate-limit/current', args] as const
 }
 
 /**
@@ -415,7 +411,7 @@ export function usePostApiKeysVerify(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostApiKeysVerifyMutationKey() {
-  return `POST ${client['api-keys'].verify.$url().pathname}`
+  return 'POST /api-keys/verify'
 }
 
 /**
@@ -443,8 +439,8 @@ export function useGetScopes(options?: {
 
 /**
  * Generates SWR cache key for GET /scopes
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetScopesKey() {
-  return client.scopes.$url().pathname
+  return ['/scopes'] as const
 }

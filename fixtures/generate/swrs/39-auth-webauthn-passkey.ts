@@ -48,7 +48,7 @@ export function usePostWebauthnRegisterOptions(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostWebauthnRegisterOptionsMutationKey() {
-  return `POST ${client.webauthn.register.options.$url().pathname}`
+  return 'POST /webauthn/register/options'
 }
 
 /**
@@ -93,7 +93,7 @@ export function usePostWebauthnRegisterVerify(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostWebauthnRegisterVerifyMutationKey() {
-  return `POST ${client.webauthn.register.verify.$url().pathname}`
+  return 'POST /webauthn/register/verify'
 }
 
 /**
@@ -138,7 +138,7 @@ export function usePostWebauthnAuthenticateOptions(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostWebauthnAuthenticateOptionsMutationKey() {
-  return `POST ${client.webauthn.authenticate.options.$url().pathname}`
+  return 'POST /webauthn/authenticate/options'
 }
 
 /**
@@ -183,7 +183,7 @@ export function usePostWebauthnAuthenticateVerify(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostWebauthnAuthenticateVerifyMutationKey() {
-  return `POST ${client.webauthn.authenticate.verify.$url().pathname}`
+  return 'POST /webauthn/authenticate/verify'
 }
 
 /**
@@ -213,10 +213,10 @@ export function useGetWebauthnCredentials(options?: {
 
 /**
  * Generates SWR cache key for GET /webauthn/credentials
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetWebauthnCredentialsKey() {
-  return client.webauthn.credentials.$url().pathname
+  return ['/webauthn/credentials'] as const
 }
 
 /**
@@ -248,13 +248,12 @@ export function useGetWebauthnCredentialsCredentialId(
 
 /**
  * Generates SWR cache key for GET /webauthn/credentials/{credentialId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetWebauthnCredentialsCredentialIdKey(
   args: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$get']>,
 ) {
-  const u = client.webauthn.credentials[':credentialId'].$url(args)
-  return u.pathname + u.search
+  return ['/webauthn/credentials/:credentialId', args] as const
 }
 
 /**
@@ -306,7 +305,7 @@ export function useDeleteWebauthnCredentialsCredentialId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteWebauthnCredentialsCredentialIdMutationKey() {
-  return `DELETE ${client.webauthn.credentials[':credentialId'].$url().pathname}`
+  return 'DELETE /webauthn/credentials/:credentialId'
 }
 
 /**
@@ -357,7 +356,7 @@ export function usePatchWebauthnCredentialsCredentialId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPatchWebauthnCredentialsCredentialIdMutationKey() {
-  return `PATCH ${client.webauthn.credentials[':credentialId'].$url().pathname}`
+  return 'PATCH /webauthn/credentials/:credentialId'
 }
 
 /**
@@ -387,10 +386,10 @@ export function useGetWebauthnSettings(options?: {
 
 /**
  * Generates SWR cache key for GET /webauthn/settings
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetWebauthnSettingsKey() {
-  return client.webauthn.settings.$url().pathname
+  return ['/webauthn/settings'] as const
 }
 
 /**
@@ -418,10 +417,10 @@ export function useGetWebauthnSettingsRp(options?: {
 
 /**
  * Generates SWR cache key for GET /webauthn/settings/rp
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetWebauthnSettingsRpKey() {
-  return client.webauthn.settings.rp.$url().pathname
+  return ['/webauthn/settings/rp'] as const
 }
 
 /**
@@ -460,7 +459,7 @@ export function usePutWebauthnSettingsRp(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPutWebauthnSettingsRpMutationKey() {
-  return `PUT ${client.webauthn.settings.rp.$url().pathname}`
+  return 'PUT /webauthn/settings/rp'
 }
 
 /**
@@ -490,8 +489,8 @@ export function useGetWebauthnAuthenticators(options?: {
 
 /**
  * Generates SWR cache key for GET /webauthn/authenticators
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetWebauthnAuthenticatorsKey() {
-  return client.webauthn.authenticators.$url().pathname
+  return ['/webauthn/authenticators'] as const
 }

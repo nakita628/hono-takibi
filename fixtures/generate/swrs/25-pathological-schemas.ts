@@ -39,5 +39,5 @@ export function usePostPathological(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostPathologicalMutationKey() {
-  return `POST ${client.pathological.$url().pathname}`
+  return 'POST /pathological'
 }

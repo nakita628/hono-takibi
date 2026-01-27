@@ -33,10 +33,10 @@ export function useGet(options?: {
 
 /**
  * Generates SWR cache key for GET /
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetKey() {
-  return client.index.$url().pathname
+  return ['/'] as const
 }
 
 /**
@@ -69,11 +69,10 @@ export function useGetPosts(
 
 /**
  * Generates SWR cache key for GET /posts
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetPostsKey(args: InferRequestType<typeof client.posts.$get>) {
-  const u = client.posts.$url(args)
-  return u.pathname + u.search
+  return ['/posts', args] as const
 }
 
 /**
@@ -112,7 +111,7 @@ export function usePostPosts(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostPostsMutationKey() {
-  return `POST ${client.posts.$url().pathname}`
+  return 'POST /posts'
 }
 
 /**
@@ -154,7 +153,7 @@ export function usePutPostsId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPutPostsIdMutationKey() {
-  return `PUT ${client.posts[':id'].$url().pathname}`
+  return 'PUT /posts/:id'
 }
 
 /**
@@ -198,5 +197,5 @@ export function useDeletePostsId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeletePostsIdMutationKey() {
-  return `DELETE ${client.posts[':id'].$url().pathname}`
+  return 'DELETE /posts/:id'
 }

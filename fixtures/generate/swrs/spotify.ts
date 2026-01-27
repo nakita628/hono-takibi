@@ -36,11 +36,10 @@ export function useGetAlbums(
 
 /**
  * Generates SWR cache key for GET /albums
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetAlbumsKey(args: InferRequestType<typeof client.albums.$get>) {
-  const u = client.albums.$url(args)
-  return u.pathname + u.search
+  return ['/albums', args] as const
 }
 
 /**
@@ -73,11 +72,10 @@ export function useGetAlbumsId(
 
 /**
  * Generates SWR cache key for GET /albums/{id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetAlbumsIdKey(args: InferRequestType<(typeof client.albums)[':id']['$get']>) {
-  const u = client.albums[':id'].$url(args)
-  return u.pathname + u.search
+  return ['/albums/:id', args] as const
 }
 
 /**
@@ -111,13 +109,12 @@ export function useGetAlbumsIdTracks(
 
 /**
  * Generates SWR cache key for GET /albums/{id}/tracks
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetAlbumsIdTracksKey(
   args: InferRequestType<(typeof client.albums)[':id']['tracks']['$get']>,
 ) {
-  const u = client.albums[':id'].tracks.$url(args)
-  return u.pathname + u.search
+  return ['/albums/:id/tracks', args] as const
 }
 
 /**
@@ -150,11 +147,10 @@ export function useGetArtists(
 
 /**
  * Generates SWR cache key for GET /artists
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetArtistsKey(args: InferRequestType<typeof client.artists.$get>) {
-  const u = client.artists.$url(args)
-  return u.pathname + u.search
+  return ['/artists', args] as const
 }
 
 /**
@@ -187,11 +183,10 @@ export function useGetArtistsId(
 
 /**
  * Generates SWR cache key for GET /artists/{id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetArtistsIdKey(args: InferRequestType<(typeof client.artists)[':id']['$get']>) {
-  const u = client.artists[':id'].$url(args)
-  return u.pathname + u.search
+  return ['/artists/:id', args] as const
 }
 
 /**
@@ -224,13 +219,12 @@ export function useGetArtistsIdAlbums(
 
 /**
  * Generates SWR cache key for GET /artists/{id}/albums
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetArtistsIdAlbumsKey(
   args: InferRequestType<(typeof client.artists)[':id']['albums']['$get']>,
 ) {
-  const u = client.artists[':id'].albums.$url(args)
-  return u.pathname + u.search
+  return ['/artists/:id/albums', args] as const
 }
 
 /**
@@ -263,13 +257,12 @@ export function useGetArtistsIdRelatedArtists(
 
 /**
  * Generates SWR cache key for GET /artists/{id}/related-artists
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetArtistsIdRelatedArtistsKey(
   args: InferRequestType<(typeof client.artists)[':id']['related-artists']['$get']>,
 ) {
-  const u = client.artists[':id']['related-artists'].$url(args)
-  return u.pathname + u.search
+  return ['/artists/:id/related-artists', args] as const
 }
 
 /**
@@ -302,13 +295,12 @@ export function useGetArtistsIdTopTracks(
 
 /**
  * Generates SWR cache key for GET /artists/{id}/top-tracks
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetArtistsIdTopTracksKey(
   args: InferRequestType<(typeof client.artists)[':id']['top-tracks']['$get']>,
 ) {
-  const u = client.artists[':id']['top-tracks'].$url(args)
-  return u.pathname + u.search
+  return ['/artists/:id/top-tracks', args] as const
 }
 
 /**
@@ -341,13 +333,12 @@ export function useGetAudioAnalysisId(
 
 /**
  * Generates SWR cache key for GET /audio-analysis/{id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetAudioAnalysisIdKey(
   args: InferRequestType<(typeof client)['audio-analysis'][':id']['$get']>,
 ) {
-  const u = client['audio-analysis'][':id'].$url(args)
-  return u.pathname + u.search
+  return ['/audio-analysis/:id', args] as const
 }
 
 /**
@@ -380,13 +371,12 @@ export function useGetAudioFeatures(
 
 /**
  * Generates SWR cache key for GET /audio-features
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetAudioFeaturesKey(
   args: InferRequestType<(typeof client)['audio-features']['$get']>,
 ) {
-  const u = client['audio-features'].$url(args)
-  return u.pathname + u.search
+  return ['/audio-features', args] as const
 }
 
 /**
@@ -420,13 +410,12 @@ export function useGetAudioFeaturesId(
 
 /**
  * Generates SWR cache key for GET /audio-features/{id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetAudioFeaturesIdKey(
   args: InferRequestType<(typeof client)['audio-features'][':id']['$get']>,
 ) {
-  const u = client['audio-features'][':id'].$url(args)
-  return u.pathname + u.search
+  return ['/audio-features/:id', args] as const
 }
 
 /**
@@ -460,11 +449,10 @@ export function useGetAudiobooks(
 
 /**
  * Generates SWR cache key for GET /audiobooks
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetAudiobooksKey(args: InferRequestType<typeof client.audiobooks.$get>) {
-  const u = client.audiobooks.$url(args)
-  return u.pathname + u.search
+  return ['/audiobooks', args] as const
 }
 
 /**
@@ -498,13 +486,12 @@ export function useGetAudiobooksId(
 
 /**
  * Generates SWR cache key for GET /audiobooks/{id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetAudiobooksIdKey(
   args: InferRequestType<(typeof client.audiobooks)[':id']['$get']>,
 ) {
-  const u = client.audiobooks[':id'].$url(args)
-  return u.pathname + u.search
+  return ['/audiobooks/:id', args] as const
 }
 
 /**
@@ -538,13 +525,12 @@ export function useGetAudiobooksIdChapters(
 
 /**
  * Generates SWR cache key for GET /audiobooks/{id}/chapters
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetAudiobooksIdChaptersKey(
   args: InferRequestType<(typeof client.audiobooks)[':id']['chapters']['$get']>,
 ) {
-  const u = client.audiobooks[':id'].chapters.$url(args)
-  return u.pathname + u.search
+  return ['/audiobooks/:id/chapters', args] as const
 }
 
 /**
@@ -577,13 +563,12 @@ export function useGetBrowseCategories(
 
 /**
  * Generates SWR cache key for GET /browse/categories
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetBrowseCategoriesKey(
   args: InferRequestType<typeof client.browse.categories.$get>,
 ) {
-  const u = client.browse.categories.$url(args)
-  return u.pathname + u.search
+  return ['/browse/categories', args] as const
 }
 
 /**
@@ -616,13 +601,12 @@ export function useGetBrowseCategoriesCategoryId(
 
 /**
  * Generates SWR cache key for GET /browse/categories/{category_id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetBrowseCategoriesCategoryIdKey(
   args: InferRequestType<(typeof client.browse.categories)[':category_id']['$get']>,
 ) {
-  const u = client.browse.categories[':category_id'].$url(args)
-  return u.pathname + u.search
+  return ['/browse/categories/:category_id', args] as const
 }
 
 /**
@@ -657,13 +641,12 @@ export function useGetBrowseCategoriesCategoryIdPlaylists(
 
 /**
  * Generates SWR cache key for GET /browse/categories/{category_id}/playlists
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetBrowseCategoriesCategoryIdPlaylistsKey(
   args: InferRequestType<(typeof client.browse.categories)[':category_id']['playlists']['$get']>,
 ) {
-  const u = client.browse.categories[':category_id'].playlists.$url(args)
-  return u.pathname + u.search
+  return ['/browse/categories/:category_id/playlists', args] as const
 }
 
 /**
@@ -696,13 +679,12 @@ export function useGetBrowseFeaturedPlaylists(
 
 /**
  * Generates SWR cache key for GET /browse/featured-playlists
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetBrowseFeaturedPlaylistsKey(
   args: InferRequestType<(typeof client.browse)['featured-playlists']['$get']>,
 ) {
-  const u = client.browse['featured-playlists'].$url(args)
-  return u.pathname + u.search
+  return ['/browse/featured-playlists', args] as const
 }
 
 /**
@@ -735,13 +717,12 @@ export function useGetBrowseNewReleases(
 
 /**
  * Generates SWR cache key for GET /browse/new-releases
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetBrowseNewReleasesKey(
   args: InferRequestType<(typeof client.browse)['new-releases']['$get']>,
 ) {
-  const u = client.browse['new-releases'].$url(args)
-  return u.pathname + u.search
+  return ['/browse/new-releases', args] as const
 }
 
 /**
@@ -775,11 +756,10 @@ export function useGetChapters(
 
 /**
  * Generates SWR cache key for GET /chapters
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetChaptersKey(args: InferRequestType<typeof client.chapters.$get>) {
-  const u = client.chapters.$url(args)
-  return u.pathname + u.search
+  return ['/chapters', args] as const
 }
 
 /**
@@ -813,13 +793,12 @@ export function useGetChaptersId(
 
 /**
  * Generates SWR cache key for GET /chapters/{id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetChaptersIdKey(
   args: InferRequestType<(typeof client.chapters)[':id']['$get']>,
 ) {
-  const u = client.chapters[':id'].$url(args)
-  return u.pathname + u.search
+  return ['/chapters/:id', args] as const
 }
 
 /**
@@ -852,11 +831,10 @@ export function useGetEpisodes(
 
 /**
  * Generates SWR cache key for GET /episodes
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetEpisodesKey(args: InferRequestType<typeof client.episodes.$get>) {
-  const u = client.episodes.$url(args)
-  return u.pathname + u.search
+  return ['/episodes', args] as const
 }
 
 /**
@@ -890,13 +868,12 @@ export function useGetEpisodesId(
 
 /**
  * Generates SWR cache key for GET /episodes/{id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetEpisodesIdKey(
   args: InferRequestType<(typeof client.episodes)[':id']['$get']>,
 ) {
-  const u = client.episodes[':id'].$url(args)
-  return u.pathname + u.search
+  return ['/episodes/:id', args] as const
 }
 
 /**
@@ -926,10 +903,10 @@ export function useGetMarkets(options?: {
 
 /**
  * Generates SWR cache key for GET /markets
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetMarketsKey() {
-  return client.markets.$url().pathname
+  return ['/markets'] as const
 }
 
 /**
@@ -960,10 +937,10 @@ export function useGetMe(options?: {
 
 /**
  * Generates SWR cache key for GET /me
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetMeKey() {
-  return client.me.$url().pathname
+  return ['/me'] as const
 }
 
 /**
@@ -996,11 +973,10 @@ export function useGetMeAlbums(
 
 /**
  * Generates SWR cache key for GET /me/albums
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetMeAlbumsKey(args: InferRequestType<typeof client.me.albums.$get>) {
-  const u = client.me.albums.$url(args)
-  return u.pathname + u.search
+  return ['/me/albums', args] as const
 }
 
 /**
@@ -1039,7 +1015,7 @@ export function usePutMeAlbums(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPutMeAlbumsMutationKey() {
-  return `PUT ${client.me.albums.$url().pathname}`
+  return 'PUT /me/albums'
 }
 
 /**
@@ -1078,7 +1054,7 @@ export function useDeleteMeAlbums(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteMeAlbumsMutationKey() {
-  return `DELETE ${client.me.albums.$url().pathname}`
+  return 'DELETE /me/albums'
 }
 
 /**
@@ -1111,13 +1087,12 @@ export function useGetMeAlbumsContains(
 
 /**
  * Generates SWR cache key for GET /me/albums/contains
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetMeAlbumsContainsKey(
   args: InferRequestType<typeof client.me.albums.contains.$get>,
 ) {
-  const u = client.me.albums.contains.$url(args)
-  return u.pathname + u.search
+  return ['/me/albums/contains', args] as const
 }
 
 /**
@@ -1150,11 +1125,10 @@ export function useGetMeAudiobooks(
 
 /**
  * Generates SWR cache key for GET /me/audiobooks
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetMeAudiobooksKey(args: InferRequestType<typeof client.me.audiobooks.$get>) {
-  const u = client.me.audiobooks.$url(args)
-  return u.pathname + u.search
+  return ['/me/audiobooks', args] as const
 }
 
 /**
@@ -1195,7 +1169,7 @@ export function usePutMeAudiobooks(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPutMeAudiobooksMutationKey() {
-  return `PUT ${client.me.audiobooks.$url().pathname}`
+  return 'PUT /me/audiobooks'
 }
 
 /**
@@ -1236,7 +1210,7 @@ export function useDeleteMeAudiobooks(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteMeAudiobooksMutationKey() {
-  return `DELETE ${client.me.audiobooks.$url().pathname}`
+  return 'DELETE /me/audiobooks'
 }
 
 /**
@@ -1269,13 +1243,12 @@ export function useGetMeAudiobooksContains(
 
 /**
  * Generates SWR cache key for GET /me/audiobooks/contains
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetMeAudiobooksContainsKey(
   args: InferRequestType<typeof client.me.audiobooks.contains.$get>,
 ) {
-  const u = client.me.audiobooks.contains.$url(args)
-  return u.pathname + u.search
+  return ['/me/audiobooks/contains', args] as const
 }
 
 /**
@@ -1309,11 +1282,10 @@ export function useGetMeEpisodes(
 
 /**
  * Generates SWR cache key for GET /me/episodes
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetMeEpisodesKey(args: InferRequestType<typeof client.me.episodes.$get>) {
-  const u = client.me.episodes.$url(args)
-  return u.pathname + u.search
+  return ['/me/episodes', args] as const
 }
 
 /**
@@ -1353,7 +1325,7 @@ export function usePutMeEpisodes(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPutMeEpisodesMutationKey() {
-  return `PUT ${client.me.episodes.$url().pathname}`
+  return 'PUT /me/episodes'
 }
 
 /**
@@ -1395,7 +1367,7 @@ export function useDeleteMeEpisodes(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteMeEpisodesMutationKey() {
-  return `DELETE ${client.me.episodes.$url().pathname}`
+  return 'DELETE /me/episodes'
 }
 
 /**
@@ -1429,13 +1401,12 @@ export function useGetMeEpisodesContains(
 
 /**
  * Generates SWR cache key for GET /me/episodes/contains
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetMeEpisodesContainsKey(
   args: InferRequestType<typeof client.me.episodes.contains.$get>,
 ) {
-  const u = client.me.episodes.contains.$url(args)
-  return u.pathname + u.search
+  return ['/me/episodes/contains', args] as const
 }
 
 /**
@@ -1468,11 +1439,10 @@ export function useGetMeFollowing(
 
 /**
  * Generates SWR cache key for GET /me/following
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetMeFollowingKey(args: InferRequestType<typeof client.me.following.$get>) {
-  const u = client.me.following.$url(args)
-  return u.pathname + u.search
+  return ['/me/following', args] as const
 }
 
 /**
@@ -1514,7 +1484,7 @@ export function usePutMeFollowing(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPutMeFollowingMutationKey() {
-  return `PUT ${client.me.following.$url().pathname}`
+  return 'PUT /me/following'
 }
 
 /**
@@ -1555,7 +1525,7 @@ export function useDeleteMeFollowing(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteMeFollowingMutationKey() {
-  return `DELETE ${client.me.following.$url().pathname}`
+  return 'DELETE /me/following'
 }
 
 /**
@@ -1588,13 +1558,12 @@ export function useGetMeFollowingContains(
 
 /**
  * Generates SWR cache key for GET /me/following/contains
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetMeFollowingContainsKey(
   args: InferRequestType<typeof client.me.following.contains.$get>,
 ) {
-  const u = client.me.following.contains.$url(args)
-  return u.pathname + u.search
+  return ['/me/following/contains', args] as const
 }
 
 /**
@@ -1627,11 +1596,10 @@ export function useGetMePlayer(
 
 /**
  * Generates SWR cache key for GET /me/player
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetMePlayerKey(args: InferRequestType<typeof client.me.player.$get>) {
-  const u = client.me.player.$url(args)
-  return u.pathname + u.search
+  return ['/me/player', args] as const
 }
 
 /**
@@ -1671,7 +1639,7 @@ export function usePutMePlayer(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPutMePlayerMutationKey() {
-  return `PUT ${client.me.player.$url().pathname}`
+  return 'PUT /me/player'
 }
 
 /**
@@ -1704,13 +1672,12 @@ export function useGetMePlayerCurrentlyPlaying(
 
 /**
  * Generates SWR cache key for GET /me/player/currently-playing
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetMePlayerCurrentlyPlayingKey(
   args: InferRequestType<(typeof client.me.player)['currently-playing']['$get']>,
 ) {
-  const u = client.me.player['currently-playing'].$url(args)
-  return u.pathname + u.search
+  return ['/me/player/currently-playing', args] as const
 }
 
 /**
@@ -1740,10 +1707,10 @@ export function useGetMePlayerDevices(options?: {
 
 /**
  * Generates SWR cache key for GET /me/player/devices
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetMePlayerDevicesKey() {
-  return client.me.player.devices.$url().pathname
+  return ['/me/player/devices'] as const
 }
 
 /**
@@ -1785,7 +1752,7 @@ export function usePostMePlayerNext(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostMePlayerNextMutationKey() {
-  return `POST ${client.me.player.next.$url().pathname}`
+  return 'POST /me/player/next'
 }
 
 /**
@@ -1827,7 +1794,7 @@ export function usePutMePlayerPause(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPutMePlayerPauseMutationKey() {
-  return `PUT ${client.me.player.pause.$url().pathname}`
+  return 'PUT /me/player/pause'
 }
 
 /**
@@ -1869,7 +1836,7 @@ export function usePutMePlayerPlay(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPutMePlayerPlayMutationKey() {
-  return `PUT ${client.me.player.play.$url().pathname}`
+  return 'PUT /me/player/play'
 }
 
 /**
@@ -1913,7 +1880,7 @@ export function usePostMePlayerPrevious(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostMePlayerPreviousMutationKey() {
-  return `POST ${client.me.player.previous.$url().pathname}`
+  return 'POST /me/player/previous'
 }
 
 /**
@@ -1943,10 +1910,10 @@ export function useGetMePlayerQueue(options?: {
 
 /**
  * Generates SWR cache key for GET /me/player/queue
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetMePlayerQueueKey() {
-  return client.me.player.queue.$url().pathname
+  return ['/me/player/queue'] as const
 }
 
 /**
@@ -1988,7 +1955,7 @@ export function usePostMePlayerQueue(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostMePlayerQueueMutationKey() {
-  return `POST ${client.me.player.queue.$url().pathname}`
+  return 'POST /me/player/queue'
 }
 
 /**
@@ -2022,13 +1989,12 @@ export function useGetMePlayerRecentlyPlayed(
 
 /**
  * Generates SWR cache key for GET /me/player/recently-played
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetMePlayerRecentlyPlayedKey(
   args: InferRequestType<(typeof client.me.player)['recently-played']['$get']>,
 ) {
-  const u = client.me.player['recently-played'].$url(args)
-  return u.pathname + u.search
+  return ['/me/player/recently-played', args] as const
 }
 
 /**
@@ -2071,7 +2037,7 @@ export function usePutMePlayerRepeat(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPutMePlayerRepeatMutationKey() {
-  return `PUT ${client.me.player.repeat.$url().pathname}`
+  return 'PUT /me/player/repeat'
 }
 
 /**
@@ -2113,7 +2079,7 @@ export function usePutMePlayerSeek(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPutMePlayerSeekMutationKey() {
-  return `PUT ${client.me.player.seek.$url().pathname}`
+  return 'PUT /me/player/seek'
 }
 
 /**
@@ -2155,7 +2121,7 @@ export function usePutMePlayerShuffle(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPutMePlayerShuffleMutationKey() {
-  return `PUT ${client.me.player.shuffle.$url().pathname}`
+  return 'PUT /me/player/shuffle'
 }
 
 /**
@@ -2197,7 +2163,7 @@ export function usePutMePlayerVolume(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPutMePlayerVolumeMutationKey() {
-  return `PUT ${client.me.player.volume.$url().pathname}`
+  return 'PUT /me/player/volume'
 }
 
 /**
@@ -2231,11 +2197,10 @@ export function useGetMePlaylists(
 
 /**
  * Generates SWR cache key for GET /me/playlists
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetMePlaylistsKey(args: InferRequestType<typeof client.me.playlists.$get>) {
-  const u = client.me.playlists.$url(args)
-  return u.pathname + u.search
+  return ['/me/playlists', args] as const
 }
 
 /**
@@ -2268,11 +2233,10 @@ export function useGetMeShows(
 
 /**
  * Generates SWR cache key for GET /me/shows
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetMeShowsKey(args: InferRequestType<typeof client.me.shows.$get>) {
-  const u = client.me.shows.$url(args)
-  return u.pathname + u.search
+  return ['/me/shows', args] as const
 }
 
 /**
@@ -2311,7 +2275,7 @@ export function usePutMeShows(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPutMeShowsMutationKey() {
-  return `PUT ${client.me.shows.$url().pathname}`
+  return 'PUT /me/shows'
 }
 
 /**
@@ -2350,7 +2314,7 @@ export function useDeleteMeShows(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteMeShowsMutationKey() {
-  return `DELETE ${client.me.shows.$url().pathname}`
+  return 'DELETE /me/shows'
 }
 
 /**
@@ -2383,13 +2347,12 @@ export function useGetMeShowsContains(
 
 /**
  * Generates SWR cache key for GET /me/shows/contains
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetMeShowsContainsKey(
   args: InferRequestType<typeof client.me.shows.contains.$get>,
 ) {
-  const u = client.me.shows.contains.$url(args)
-  return u.pathname + u.search
+  return ['/me/shows/contains', args] as const
 }
 
 /**
@@ -2422,13 +2385,12 @@ export function useGetMeTopType(
 
 /**
  * Generates SWR cache key for GET /me/top/{type}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetMeTopTypeKey(
   args: InferRequestType<(typeof client.me.top)[':type']['$get']>,
 ) {
-  const u = client.me.top[':type'].$url(args)
-  return u.pathname + u.search
+  return ['/me/top/:type', args] as const
 }
 
 /**
@@ -2461,11 +2423,10 @@ export function useGetMeTracks(
 
 /**
  * Generates SWR cache key for GET /me/tracks
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetMeTracksKey(args: InferRequestType<typeof client.me.tracks.$get>) {
-  const u = client.me.tracks.$url(args)
-  return u.pathname + u.search
+  return ['/me/tracks', args] as const
 }
 
 /**
@@ -2504,7 +2465,7 @@ export function usePutMeTracks(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPutMeTracksMutationKey() {
-  return `PUT ${client.me.tracks.$url().pathname}`
+  return 'PUT /me/tracks'
 }
 
 /**
@@ -2543,7 +2504,7 @@ export function useDeleteMeTracks(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteMeTracksMutationKey() {
-  return `DELETE ${client.me.tracks.$url().pathname}`
+  return 'DELETE /me/tracks'
 }
 
 /**
@@ -2576,13 +2537,12 @@ export function useGetMeTracksContains(
 
 /**
  * Generates SWR cache key for GET /me/tracks/contains
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetMeTracksContainsKey(
   args: InferRequestType<typeof client.me.tracks.contains.$get>,
 ) {
-  const u = client.me.tracks.contains.$url(args)
-  return u.pathname + u.search
+  return ['/me/tracks/contains', args] as const
 }
 
 /**
@@ -2615,13 +2575,12 @@ export function useGetPlaylistsPlaylistId(
 
 /**
  * Generates SWR cache key for GET /playlists/{playlist_id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetPlaylistsPlaylistIdKey(
   args: InferRequestType<(typeof client.playlists)[':playlist_id']['$get']>,
 ) {
-  const u = client.playlists[':playlist_id'].$url(args)
-  return u.pathname + u.search
+  return ['/playlists/:playlist_id', args] as const
 }
 
 /**
@@ -2667,7 +2626,7 @@ export function usePutPlaylistsPlaylistId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPutPlaylistsPlaylistIdMutationKey() {
-  return `PUT ${client.playlists[':playlist_id'].$url().pathname}`
+  return 'PUT /playlists/:playlist_id'
 }
 
 /**
@@ -2718,7 +2677,7 @@ export function usePutPlaylistsPlaylistIdFollowers(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPutPlaylistsPlaylistIdFollowersMutationKey() {
-  return `PUT ${client.playlists[':playlist_id'].followers.$url().pathname}`
+  return 'PUT /playlists/:playlist_id/followers'
 }
 
 /**
@@ -2769,7 +2728,7 @@ export function useDeletePlaylistsPlaylistIdFollowers(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeletePlaylistsPlaylistIdFollowersMutationKey() {
-  return `DELETE ${client.playlists[':playlist_id'].followers.$url().pathname}`
+  return 'DELETE /playlists/:playlist_id/followers'
 }
 
 /**
@@ -2808,15 +2767,14 @@ export function useGetPlaylistsPlaylistIdFollowersContains(
 
 /**
  * Generates SWR cache key for GET /playlists/{playlist_id}/followers/contains
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetPlaylistsPlaylistIdFollowersContainsKey(
   args: InferRequestType<
     (typeof client.playlists)[':playlist_id']['followers']['contains']['$get']
   >,
 ) {
-  const u = client.playlists[':playlist_id'].followers.contains.$url(args)
-  return u.pathname + u.search
+  return ['/playlists/:playlist_id/followers/contains', args] as const
 }
 
 /**
@@ -2849,13 +2807,12 @@ export function useGetPlaylistsPlaylistIdImages(
 
 /**
  * Generates SWR cache key for GET /playlists/{playlist_id}/images
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetPlaylistsPlaylistIdImagesKey(
   args: InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$get']>,
 ) {
-  const u = client.playlists[':playlist_id'].images.$url(args)
-  return u.pathname + u.search
+  return ['/playlists/:playlist_id/images', args] as const
 }
 
 /**
@@ -2904,7 +2861,7 @@ export function usePutPlaylistsPlaylistIdImages(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPutPlaylistsPlaylistIdImagesMutationKey() {
-  return `PUT ${client.playlists[':playlist_id'].images.$url().pathname}`
+  return 'PUT /playlists/:playlist_id/images'
 }
 
 /**
@@ -2937,13 +2894,12 @@ export function useGetPlaylistsPlaylistIdTracks(
 
 /**
  * Generates SWR cache key for GET /playlists/{playlist_id}/tracks
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetPlaylistsPlaylistIdTracksKey(
   args: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$get']>,
 ) {
-  const u = client.playlists[':playlist_id'].tracks.$url(args)
-  return u.pathname + u.search
+  return ['/playlists/:playlist_id/tracks', args] as const
 }
 
 /**
@@ -2998,7 +2954,7 @@ export function usePutPlaylistsPlaylistIdTracks(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPutPlaylistsPlaylistIdTracksMutationKey() {
-  return `PUT ${client.playlists[':playlist_id'].tracks.$url().pathname}`
+  return 'PUT /playlists/:playlist_id/tracks'
 }
 
 /**
@@ -3047,7 +3003,7 @@ export function usePostPlaylistsPlaylistIdTracks(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostPlaylistsPlaylistIdTracksMutationKey() {
-  return `POST ${client.playlists[':playlist_id'].tracks.$url().pathname}`
+  return 'POST /playlists/:playlist_id/tracks'
 }
 
 /**
@@ -3098,7 +3054,7 @@ export function useDeletePlaylistsPlaylistIdTracks(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeletePlaylistsPlaylistIdTracksMutationKey() {
-  return `DELETE ${client.playlists[':playlist_id'].tracks.$url().pathname}`
+  return 'DELETE /playlists/:playlist_id/tracks'
 }
 
 /**
@@ -3133,13 +3089,12 @@ export function useGetRecommendations(
 
 /**
  * Generates SWR cache key for GET /recommendations
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetRecommendationsKey(
   args: InferRequestType<typeof client.recommendations.$get>,
 ) {
-  const u = client.recommendations.$url(args)
-  return u.pathname + u.search
+  return ['/recommendations', args] as const
 }
 
 /**
@@ -3172,10 +3127,10 @@ export function useGetRecommendationsAvailableGenreSeeds(options?: {
 
 /**
  * Generates SWR cache key for GET /recommendations/available-genre-seeds
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetRecommendationsAvailableGenreSeedsKey() {
-  return client.recommendations['available-genre-seeds'].$url().pathname
+  return ['/recommendations/available-genre-seeds'] as const
 }
 
 /**
@@ -3210,11 +3165,10 @@ export function useGetSearch(
 
 /**
  * Generates SWR cache key for GET /search
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetSearchKey(args: InferRequestType<typeof client.search.$get>) {
-  const u = client.search.$url(args)
-  return u.pathname + u.search
+  return ['/search', args] as const
 }
 
 /**
@@ -3247,11 +3201,10 @@ export function useGetShows(
 
 /**
  * Generates SWR cache key for GET /shows
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetShowsKey(args: InferRequestType<typeof client.shows.$get>) {
-  const u = client.shows.$url(args)
-  return u.pathname + u.search
+  return ['/shows', args] as const
 }
 
 /**
@@ -3285,11 +3238,10 @@ export function useGetShowsId(
 
 /**
  * Generates SWR cache key for GET /shows/{id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetShowsIdKey(args: InferRequestType<(typeof client.shows)[':id']['$get']>) {
-  const u = client.shows[':id'].$url(args)
-  return u.pathname + u.search
+  return ['/shows/:id', args] as const
 }
 
 /**
@@ -3322,13 +3274,12 @@ export function useGetShowsIdEpisodes(
 
 /**
  * Generates SWR cache key for GET /shows/{id}/episodes
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetShowsIdEpisodesKey(
   args: InferRequestType<(typeof client.shows)[':id']['episodes']['$get']>,
 ) {
-  const u = client.shows[':id'].episodes.$url(args)
-  return u.pathname + u.search
+  return ['/shows/:id/episodes', args] as const
 }
 
 /**
@@ -3361,11 +3312,10 @@ export function useGetTracks(
 
 /**
  * Generates SWR cache key for GET /tracks
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetTracksKey(args: InferRequestType<typeof client.tracks.$get>) {
-  const u = client.tracks.$url(args)
-  return u.pathname + u.search
+  return ['/tracks', args] as const
 }
 
 /**
@@ -3399,11 +3349,10 @@ export function useGetTracksId(
 
 /**
  * Generates SWR cache key for GET /tracks/{id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetTracksIdKey(args: InferRequestType<(typeof client.tracks)[':id']['$get']>) {
-  const u = client.tracks[':id'].$url(args)
-  return u.pathname + u.search
+  return ['/tracks/:id', args] as const
 }
 
 /**
@@ -3436,13 +3385,12 @@ export function useGetUsersUserId(
 
 /**
  * Generates SWR cache key for GET /users/{user_id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetUsersUserIdKey(
   args: InferRequestType<(typeof client.users)[':user_id']['$get']>,
 ) {
-  const u = client.users[':user_id'].$url(args)
-  return u.pathname + u.search
+  return ['/users/:user_id', args] as const
 }
 
 /**
@@ -3475,13 +3423,12 @@ export function useGetUsersUserIdPlaylists(
 
 /**
  * Generates SWR cache key for GET /users/{user_id}/playlists
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetUsersUserIdPlaylistsKey(
   args: InferRequestType<(typeof client.users)[':user_id']['playlists']['$get']>,
 ) {
-  const u = client.users[':user_id'].playlists.$url(args)
-  return u.pathname + u.search
+  return ['/users/:user_id/playlists', args] as const
 }
 
 /**
@@ -3529,5 +3476,5 @@ export function usePostUsersUserIdPlaylists(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostUsersUserIdPlaylistsMutationKey() {
-  return `POST ${client.users[':user_id'].playlists.$url().pathname}`
+  return 'POST /users/:user_id/playlists'
 }

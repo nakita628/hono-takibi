@@ -31,10 +31,10 @@ export function useGetStream(options?: {
 
 /**
  * Generates SWR cache key for GET /stream
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetStreamKey() {
-  return client.stream.$url().pathname
+  return ['/stream'] as const
 }
 
 /**
@@ -71,7 +71,7 @@ export function usePostGraphql(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostGraphqlMutationKey() {
-  return `POST ${client.graphql.$url().pathname}`
+  return 'POST /graphql'
 }
 
 /**
@@ -114,7 +114,7 @@ export function usePostGrpcGateway(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostGrpcGatewayMutationKey() {
-  return `POST ${client['grpc-gateway'].$url().pathname}`
+  return 'POST /grpc-gateway'
 }
 
 /**
@@ -146,8 +146,8 @@ export function useGetDeprecatedEndpoint(options?: {
 
 /**
  * Generates SWR cache key for GET /deprecated-endpoint
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetDeprecatedEndpointKey() {
-  return client['deprecated-endpoint'].$url().pathname
+  return ['/deprecated-endpoint'] as const
 }

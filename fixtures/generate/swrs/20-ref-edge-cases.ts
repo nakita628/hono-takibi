@@ -30,11 +30,10 @@ export function useGetTest(
 
 /**
  * Generates SWR cache key for GET /test
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetTestKey(args: InferRequestType<typeof client.test.$get>) {
-  const u = client.test.$url(args)
-  return u.pathname + u.search
+  return ['/test', args] as const
 }
 
 /**
@@ -60,10 +59,10 @@ export function useGetEmptyRefs(options?: {
 
 /**
  * Generates SWR cache key for GET /empty-refs
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetEmptyRefsKey() {
-  return client['empty-refs'].$url().pathname
+  return ['/empty-refs'] as const
 }
 
 /**
@@ -89,10 +88,10 @@ export function useGetUnicodeRefs(options?: {
 
 /**
  * Generates SWR cache key for GET /unicode-refs
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetUnicodeRefsKey() {
-  return client['unicode-refs'].$url().pathname
+  return ['/unicode-refs'] as const
 }
 
 /**
@@ -118,10 +117,10 @@ export function useGetSpecialChars(options?: {
 
 /**
  * Generates SWR cache key for GET /special-chars
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetSpecialCharsKey() {
-  return client['special-chars'].$url().pathname
+  return ['/special-chars'] as const
 }
 
 /**
@@ -147,10 +146,10 @@ export function useGetNumericStart(options?: {
 
 /**
  * Generates SWR cache key for GET /numeric-start
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetNumericStartKey() {
-  return client['numeric-start'].$url().pathname
+  return ['/numeric-start'] as const
 }
 
 /**
@@ -176,10 +175,10 @@ export function useGetRefInAllof(options?: {
 
 /**
  * Generates SWR cache key for GET /ref-in-allof
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetRefInAllofKey() {
-  return client['ref-in-allof'].$url().pathname
+  return ['/ref-in-allof'] as const
 }
 
 /**
@@ -205,10 +204,10 @@ export function useGetDeeplyNested(options?: {
 
 /**
  * Generates SWR cache key for GET /deeply-nested
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetDeeplyNestedKey() {
-  return client['deeply-nested'].$url().pathname
+  return ['/deeply-nested'] as const
 }
 
 /**
@@ -234,8 +233,8 @@ export function useGetSameNameDiffContext(options?: {
 
 /**
  * Generates SWR cache key for GET /same-name-diff-context
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetSameNameDiffContextKey() {
-  return client['same-name-diff-context'].$url().pathname
+  return ['/same-name-diff-context'] as const
 }

@@ -31,8 +31,8 @@ export function useGetNullable(options?: {
 
 /**
  * Generates SWR cache key for GET /nullable
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetNullableKey() {
-  return client.nullable.$url().pathname
+  return ['/nullable'] as const
 }

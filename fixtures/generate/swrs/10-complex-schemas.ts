@@ -37,7 +37,7 @@ export function usePostEvents(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostEventsMutationKey() {
-  return `POST ${client.events.$url().pathname}`
+  return 'POST /events'
 }
 
 /**
@@ -74,7 +74,7 @@ export function usePostNotifications(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostNotificationsMutationKey() {
-  return `POST ${client.notifications.$url().pathname}`
+  return 'POST /notifications'
 }
 
 /**
@@ -109,7 +109,7 @@ export function usePostShapes(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostShapesMutationKey() {
-  return `POST ${client.shapes.$url().pathname}`
+  return 'POST /shapes'
 }
 
 /**
@@ -144,7 +144,7 @@ export function usePostDocuments(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostDocumentsMutationKey() {
-  return `POST ${client.documents.$url().pathname}`
+  return 'POST /documents'
 }
 
 /**
@@ -179,5 +179,5 @@ export function usePostMixed(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostMixedMutationKey() {
-  return `POST ${client.mixed.$url().pathname}`
+  return 'POST /mixed'
 }

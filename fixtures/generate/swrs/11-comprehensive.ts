@@ -36,11 +36,10 @@ export function useGetProducts(
 
 /**
  * Generates SWR cache key for GET /products
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetProductsKey(args: InferRequestType<typeof client.products.$get>) {
-  const u = client.products.$url(args)
-  return u.pathname + u.search
+  return ['/products', args] as const
 }
 
 /**
@@ -77,7 +76,7 @@ export function usePostProducts(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostProductsMutationKey() {
-  return `POST ${client.products.$url().pathname}`
+  return 'POST /products'
 }
 
 /**
@@ -108,13 +107,12 @@ export function useGetProductsProductId(
 
 /**
  * Generates SWR cache key for GET /products/{productId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetProductsProductIdKey(
   args: InferRequestType<(typeof client.products)[':productId']['$get']>,
 ) {
-  const u = client.products[':productId'].$url(args)
-  return u.pathname + u.search
+  return ['/products/:productId', args] as const
 }
 
 /**
@@ -157,7 +155,7 @@ export function usePutProductsProductId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPutProductsProductIdMutationKey() {
-  return `PUT ${client.products[':productId'].$url().pathname}`
+  return 'PUT /products/:productId'
 }
 
 /**
@@ -203,7 +201,7 @@ export function useDeleteProductsProductId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteProductsProductIdMutationKey() {
-  return `DELETE ${client.products[':productId'].$url().pathname}`
+  return 'DELETE /products/:productId'
 }
 
 /**
@@ -240,7 +238,7 @@ export function usePostOrders(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostOrdersMutationKey() {
-  return `POST ${client.orders.$url().pathname}`
+  return 'POST /orders'
 }
 
 /**
@@ -277,5 +275,5 @@ export function usePostWebhooks(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostWebhooksMutationKey() {
-  return `POST ${client.webhooks.$url().pathname}`
+  return 'POST /webhooks'
 }

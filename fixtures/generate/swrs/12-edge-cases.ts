@@ -29,10 +29,10 @@ export function useGetAllMethods(options?: {
 
 /**
  * Generates SWR cache key for GET /all-methods
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetAllMethodsKey() {
-  return client['all-methods'].$url().pathname
+  return ['/all-methods'] as const
 }
 
 /**
@@ -68,7 +68,7 @@ export function usePutAllMethods(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPutAllMethodsMutationKey() {
-  return `PUT ${client['all-methods'].$url().pathname}`
+  return 'PUT /all-methods'
 }
 
 /**
@@ -104,7 +104,7 @@ export function usePostAllMethods(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostAllMethodsMutationKey() {
-  return `POST ${client['all-methods'].$url().pathname}`
+  return 'POST /all-methods'
 }
 
 /**
@@ -142,7 +142,7 @@ export function useDeleteAllMethods(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteAllMethodsMutationKey() {
-  return `DELETE ${client['all-methods'].$url().pathname}`
+  return 'DELETE /all-methods'
 }
 
 /**
@@ -180,7 +180,7 @@ export function useOptionsAllMethods(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getOptionsAllMethodsMutationKey() {
-  return `OPTIONS ${client['all-methods'].$url().pathname}`
+  return 'OPTIONS /all-methods'
 }
 
 /**
@@ -216,7 +216,7 @@ export function useHeadAllMethods(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getHeadAllMethodsMutationKey() {
-  return `HEAD ${client['all-methods'].$url().pathname}`
+  return 'HEAD /all-methods'
 }
 
 /**
@@ -254,7 +254,7 @@ export function usePatchAllMethods(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPatchAllMethodsMutationKey() {
-  return `PATCH ${client['all-methods'].$url().pathname}`
+  return 'PATCH /all-methods'
 }
 
 /**
@@ -292,7 +292,7 @@ export function useTraceAllMethods(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getTraceAllMethodsMutationKey() {
-  return `TRACE ${client['all-methods'].$url().pathname}`
+  return 'TRACE /all-methods'
 }
 
 /**
@@ -327,15 +327,14 @@ export function useGetUsersUserIdPostsPostIdCommentsCommentId(
 
 /**
  * Generates SWR cache key for GET /users/{userId}/posts/{postId}/comments/{commentId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetUsersUserIdPostsPostIdCommentsCommentIdKey(
   args: InferRequestType<
     (typeof client.users)[':userId']['posts'][':postId']['comments'][':commentId']['$get']
   >,
 ) {
-  const u = client.users[':userId'].posts[':postId'].comments[':commentId'].$url(args)
-  return u.pathname + u.search
+  return ['/users/:userId/posts/:postId/comments/:commentId', args] as const
 }
 
 /**
@@ -364,13 +363,12 @@ export function useGetParamsTestPathParam(
 
 /**
  * Generates SWR cache key for GET /params-test/{pathParam}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetParamsTestPathParamKey(
   args: InferRequestType<(typeof client)['params-test'][':pathParam']['$get']>,
 ) {
-  const u = client['params-test'][':pathParam'].$url(args)
-  return u.pathname + u.search
+  return ['/params-test/:pathParam', args] as const
 }
 
 /**
@@ -409,7 +407,7 @@ export function usePostNoContent(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostNoContentMutationKey() {
-  return `POST ${client['no-content'].$url().pathname}`
+  return 'POST /no-content'
 }
 
 /**
@@ -435,10 +433,10 @@ export function useGetMultiContent(options?: {
 
 /**
  * Generates SWR cache key for GET /multi-content
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetMultiContentKey() {
-  return client['multi-content'].$url().pathname
+  return ['/multi-content'] as const
 }
 
 /**
@@ -479,7 +477,7 @@ export function usePostMultiContent(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostMultiContentMutationKey() {
-  return `POST ${client['multi-content'].$url().pathname}`
+  return 'POST /multi-content'
 }
 
 /**
@@ -505,10 +503,10 @@ export function useGetResponseRanges(options?: {
 
 /**
  * Generates SWR cache key for GET /response-ranges
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetResponseRangesKey() {
-  return client['response-ranges'].$url().pathname
+  return ['/response-ranges'] as const
 }
 
 /**
@@ -536,10 +534,10 @@ export function useGetDeprecated(options?: {
 
 /**
  * Generates SWR cache key for GET /deprecated
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetDeprecatedKey() {
-  return client.deprecated.$url().pathname
+  return ['/deprecated'] as const
 }
 
 /**
@@ -567,10 +565,10 @@ export function useGetNoOperationId(options?: {
 
 /**
  * Generates SWR cache key for GET /no-operation-id
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetNoOperationIdKey() {
-  return client['no-operation-id'].$url().pathname
+  return ['/no-operation-id'] as const
 }
 
 /**
@@ -607,7 +605,7 @@ export function usePostEmptyBody(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostEmptyBodyMutationKey() {
-  return `POST ${client['empty-body'].$url().pathname}`
+  return 'POST /empty-body'
 }
 
 /**
@@ -633,10 +631,10 @@ export function useGetCircular(options?: {
 
 /**
  * Generates SWR cache key for GET /circular
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetCircularKey() {
-  return client.circular.$url().pathname
+  return ['/circular'] as const
 }
 
 /**
@@ -662,10 +660,10 @@ export function useGetDeepNesting(options?: {
 
 /**
  * Generates SWR cache key for GET /deep-nesting
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetDeepNestingKey() {
-  return client['deep-nesting'].$url().pathname
+  return ['/deep-nesting'] as const
 }
 
 /**
@@ -694,13 +692,12 @@ export function useGetArrayParams(
 
 /**
  * Generates SWR cache key for GET /array-params
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetArrayParamsKey(
   args: InferRequestType<(typeof client)['array-params']['$get']>,
 ) {
-  const u = client['array-params'].$url(args)
-  return u.pathname + u.search
+  return ['/array-params', args] as const
 }
 
 /**
@@ -729,11 +726,10 @@ export function useGetObjectParam(
 
 /**
  * Generates SWR cache key for GET /object-param
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetObjectParamKey(
   args: InferRequestType<(typeof client)['object-param']['$get']>,
 ) {
-  const u = client['object-param'].$url(args)
-  return u.pathname + u.search
+  return ['/object-param', args] as const
 }

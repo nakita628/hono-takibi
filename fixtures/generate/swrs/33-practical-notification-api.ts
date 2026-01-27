@@ -34,11 +34,10 @@ export function useGetNotifications(
 
 /**
  * Generates SWR cache key for GET /notifications
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetNotificationsKey(args: InferRequestType<typeof client.notifications.$get>) {
-  const u = client.notifications.$url(args)
-  return u.pathname + u.search
+  return ['/notifications', args] as const
 }
 
 /**
@@ -69,13 +68,12 @@ export function useGetNotificationsNotificationId(
 
 /**
  * Generates SWR cache key for GET /notifications/{notificationId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetNotificationsNotificationIdKey(
   args: InferRequestType<(typeof client.notifications)[':notificationId']['$get']>,
 ) {
-  const u = client.notifications[':notificationId'].$url(args)
-  return u.pathname + u.search
+  return ['/notifications/:notificationId', args] as const
 }
 
 /**
@@ -123,7 +121,7 @@ export function useDeleteNotificationsNotificationId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteNotificationsNotificationIdMutationKey() {
-  return `DELETE ${client.notifications[':notificationId'].$url().pathname}`
+  return 'DELETE /notifications/:notificationId'
 }
 
 /**
@@ -172,7 +170,7 @@ export function usePostNotificationsNotificationIdRead(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostNotificationsNotificationIdReadMutationKey() {
-  return `POST ${client.notifications[':notificationId'].read.$url().pathname}`
+  return 'POST /notifications/:notificationId/read'
 }
 
 /**
@@ -214,7 +212,7 @@ export function usePostNotificationsReadAll(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostNotificationsReadAllMutationKey() {
-  return `POST ${client.notifications['read-all'].$url().pathname}`
+  return 'POST /notifications/read-all'
 }
 
 /**
@@ -243,10 +241,10 @@ export function useGetNotificationsUnreadCount(options?: {
 
 /**
  * Generates SWR cache key for GET /notifications/unread-count
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetNotificationsUnreadCountKey() {
-  return client.notifications['unread-count'].$url().pathname
+  return ['/notifications/unread-count'] as const
 }
 
 /**
@@ -287,7 +285,7 @@ export function usePostMessagesSend(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostMessagesSendMutationKey() {
-  return `POST ${client.messages.send.$url().pathname}`
+  return 'POST /messages/send'
 }
 
 /**
@@ -330,7 +328,7 @@ export function usePostMessagesSendBatch(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostMessagesSendBatchMutationKey() {
-  return `POST ${client.messages['send-batch'].$url().pathname}`
+  return 'POST /messages/send-batch'
 }
 
 /**
@@ -361,13 +359,12 @@ export function useGetMessagesMessageId(
 
 /**
  * Generates SWR cache key for GET /messages/{messageId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetMessagesMessageIdKey(
   args: InferRequestType<(typeof client.messages)[':messageId']['$get']>,
 ) {
-  const u = client.messages[':messageId'].$url(args)
-  return u.pathname + u.search
+  return ['/messages/:messageId', args] as const
 }
 
 /**
@@ -398,11 +395,10 @@ export function useGetTemplates(
 
 /**
  * Generates SWR cache key for GET /templates
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetTemplatesKey(args: InferRequestType<typeof client.templates.$get>) {
-  const u = client.templates.$url(args)
-  return u.pathname + u.search
+  return ['/templates', args] as const
 }
 
 /**
@@ -439,7 +435,7 @@ export function usePostTemplates(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostTemplatesMutationKey() {
-  return `POST ${client.templates.$url().pathname}`
+  return 'POST /templates'
 }
 
 /**
@@ -470,13 +466,12 @@ export function useGetTemplatesTemplateId(
 
 /**
  * Generates SWR cache key for GET /templates/{templateId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetTemplatesTemplateIdKey(
   args: InferRequestType<(typeof client.templates)[':templateId']['$get']>,
 ) {
-  const u = client.templates[':templateId'].$url(args)
-  return u.pathname + u.search
+  return ['/templates/:templateId', args] as const
 }
 
 /**
@@ -519,7 +514,7 @@ export function usePutTemplatesTemplateId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPutTemplatesTemplateIdMutationKey() {
-  return `PUT ${client.templates[':templateId'].$url().pathname}`
+  return 'PUT /templates/:templateId'
 }
 
 /**
@@ -565,7 +560,7 @@ export function useDeleteTemplatesTemplateId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteTemplatesTemplateIdMutationKey() {
-  return `DELETE ${client.templates[':templateId'].$url().pathname}`
+  return 'DELETE /templates/:templateId'
 }
 
 /**
@@ -612,7 +607,7 @@ export function usePostTemplatesTemplateIdPreview(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostTemplatesTemplateIdPreviewMutationKey() {
-  return `POST ${client.templates[':templateId'].preview.$url().pathname}`
+  return 'POST /templates/:templateId/preview'
 }
 
 /**
@@ -640,10 +635,10 @@ export function useGetChannelsPreferences(options?: {
 
 /**
  * Generates SWR cache key for GET /channels/preferences
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetChannelsPreferencesKey() {
-  return client.channels.preferences.$url().pathname
+  return ['/channels/preferences'] as const
 }
 
 /**
@@ -682,7 +677,7 @@ export function usePutChannelsPreferences(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPutChannelsPreferencesMutationKey() {
-  return `PUT ${client.channels.preferences.$url().pathname}`
+  return 'PUT /channels/preferences'
 }
 
 /**
@@ -710,10 +705,10 @@ export function useGetChannelsDevices(options?: {
 
 /**
  * Generates SWR cache key for GET /channels/devices
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetChannelsDevicesKey() {
-  return client.channels.devices.$url().pathname
+  return ['/channels/devices'] as const
 }
 
 /**
@@ -752,7 +747,7 @@ export function usePostChannelsDevices(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostChannelsDevicesMutationKey() {
-  return `POST ${client.channels.devices.$url().pathname}`
+  return 'POST /channels/devices'
 }
 
 /**
@@ -800,7 +795,7 @@ export function useDeleteChannelsDevicesDeviceId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteChannelsDevicesDeviceIdMutationKey() {
-  return `DELETE ${client.channels.devices[':deviceId'].$url().pathname}`
+  return 'DELETE /channels/devices/:deviceId'
 }
 
 /**
@@ -828,10 +823,10 @@ export function useGetWebhooks(options?: {
 
 /**
  * Generates SWR cache key for GET /webhooks
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetWebhooksKey() {
-  return client.webhooks.$url().pathname
+  return ['/webhooks'] as const
 }
 
 /**
@@ -868,7 +863,7 @@ export function usePostWebhooks(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostWebhooksMutationKey() {
-  return `POST ${client.webhooks.$url().pathname}`
+  return 'POST /webhooks'
 }
 
 /**
@@ -899,13 +894,12 @@ export function useGetWebhooksWebhookId(
 
 /**
  * Generates SWR cache key for GET /webhooks/{webhookId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetWebhooksWebhookIdKey(
   args: InferRequestType<(typeof client.webhooks)[':webhookId']['$get']>,
 ) {
-  const u = client.webhooks[':webhookId'].$url(args)
-  return u.pathname + u.search
+  return ['/webhooks/:webhookId', args] as const
 }
 
 /**
@@ -948,7 +942,7 @@ export function usePutWebhooksWebhookId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPutWebhooksWebhookIdMutationKey() {
-  return `PUT ${client.webhooks[':webhookId'].$url().pathname}`
+  return 'PUT /webhooks/:webhookId'
 }
 
 /**
@@ -994,7 +988,7 @@ export function useDeleteWebhooksWebhookId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteWebhooksWebhookIdMutationKey() {
-  return `DELETE ${client.webhooks[':webhookId'].$url().pathname}`
+  return 'DELETE /webhooks/:webhookId'
 }
 
 /**
@@ -1039,5 +1033,5 @@ export function usePostWebhooksWebhookIdTest(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostWebhooksWebhookIdTestMutationKey() {
-  return `POST ${client.webhooks[':webhookId'].test.$url().pathname}`
+  return 'POST /webhooks/:webhookId/test'
 }

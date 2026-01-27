@@ -36,11 +36,10 @@ export function useGetPosts(
 
 /**
  * Generates SWR cache key for GET /posts
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetPostsKey(args: InferRequestType<typeof client.posts.$get>) {
-  const u = client.posts.$url(args)
-  return u.pathname + u.search
+  return ['/posts', args] as const
 }
 
 /**
@@ -77,7 +76,7 @@ export function usePostPosts(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostPostsMutationKey() {
-  return `POST ${client.posts.$url().pathname}`
+  return 'POST /posts'
 }
 
 /**
@@ -108,13 +107,12 @@ export function useGetPostsPostId(
 
 /**
  * Generates SWR cache key for GET /posts/{postId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetPostsPostIdKey(
   args: InferRequestType<(typeof client.posts)[':postId']['$get']>,
 ) {
-  const u = client.posts[':postId'].$url(args)
-  return u.pathname + u.search
+  return ['/posts/:postId', args] as const
 }
 
 /**
@@ -158,7 +156,7 @@ export function useDeletePostsPostId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeletePostsPostIdMutationKey() {
-  return `DELETE ${client.posts[':postId'].$url().pathname}`
+  return 'DELETE /posts/:postId'
 }
 
 /**
@@ -191,13 +189,12 @@ export function useGetPostsPostIdThread(
 
 /**
  * Generates SWR cache key for GET /posts/{postId}/thread
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetPostsPostIdThreadKey(
   args: InferRequestType<(typeof client.posts)[':postId']['thread']['$get']>,
 ) {
-  const u = client.posts[':postId'].thread.$url(args)
-  return u.pathname + u.search
+  return ['/posts/:postId/thread', args] as const
 }
 
 /**
@@ -230,13 +227,12 @@ export function useGetPostsPostIdContext(
 
 /**
  * Generates SWR cache key for GET /posts/{postId}/context
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetPostsPostIdContextKey(
   args: InferRequestType<(typeof client.posts)[':postId']['context']['$get']>,
 ) {
-  const u = client.posts[':postId'].context.$url(args)
-  return u.pathname + u.search
+  return ['/posts/:postId/context', args] as const
 }
 
 /**
@@ -269,11 +265,10 @@ export function useGetTimelineHome(
 
 /**
  * Generates SWR cache key for GET /timeline/home
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetTimelineHomeKey(args: InferRequestType<typeof client.timeline.home.$get>) {
-  const u = client.timeline.home.$url(args)
-  return u.pathname + u.search
+  return ['/timeline/home', args] as const
 }
 
 /**
@@ -306,13 +301,12 @@ export function useGetTimelineForYou(
 
 /**
  * Generates SWR cache key for GET /timeline/for-you
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetTimelineForYouKey(
   args: InferRequestType<(typeof client.timeline)['for-you']['$get']>,
 ) {
-  const u = client.timeline['for-you'].$url(args)
-  return u.pathname + u.search
+  return ['/timeline/for-you', args] as const
 }
 
 /**
@@ -343,13 +337,12 @@ export function useGetTimelineUserUserId(
 
 /**
  * Generates SWR cache key for GET /timeline/user/{userId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetTimelineUserUserIdKey(
   args: InferRequestType<(typeof client.timeline.user)[':userId']['$get']>,
 ) {
-  const u = client.timeline.user[':userId'].$url(args)
-  return u.pathname + u.search
+  return ['/timeline/user/:userId', args] as const
 }
 
 /**
@@ -380,13 +373,12 @@ export function useGetTimelineHashtagHashtag(
 
 /**
  * Generates SWR cache key for GET /timeline/hashtag/{hashtag}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetTimelineHashtagHashtagKey(
   args: InferRequestType<(typeof client.timeline.hashtag)[':hashtag']['$get']>,
 ) {
-  const u = client.timeline.hashtag[':hashtag'].$url(args)
-  return u.pathname + u.search
+  return ['/timeline/hashtag/:hashtag', args] as const
 }
 
 /**
@@ -429,7 +421,7 @@ export function usePostPostsPostIdLike(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostPostsPostIdLikeMutationKey() {
-  return `POST ${client.posts[':postId'].like.$url().pathname}`
+  return 'POST /posts/:postId/like'
 }
 
 /**
@@ -474,7 +466,7 @@ export function useDeletePostsPostIdLike(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeletePostsPostIdLikeMutationKey() {
-  return `DELETE ${client.posts[':postId'].like.$url().pathname}`
+  return 'DELETE /posts/:postId/like'
 }
 
 /**
@@ -519,7 +511,7 @@ export function usePostPostsPostIdRepost(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostPostsPostIdRepostMutationKey() {
-  return `POST ${client.posts[':postId'].repost.$url().pathname}`
+  return 'POST /posts/:postId/repost'
 }
 
 /**
@@ -564,7 +556,7 @@ export function useDeletePostsPostIdRepost(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeletePostsPostIdRepostMutationKey() {
-  return `DELETE ${client.posts[':postId'].repost.$url().pathname}`
+  return 'DELETE /posts/:postId/repost'
 }
 
 /**
@@ -609,7 +601,7 @@ export function usePostPostsPostIdQuote(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostPostsPostIdQuoteMutationKey() {
-  return `POST ${client.posts[':postId'].quote.$url().pathname}`
+  return 'POST /posts/:postId/quote'
 }
 
 /**
@@ -654,7 +646,7 @@ export function usePostPostsPostIdBookmark(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostPostsPostIdBookmarkMutationKey() {
-  return `POST ${client.posts[':postId'].bookmark.$url().pathname}`
+  return 'POST /posts/:postId/bookmark'
 }
 
 /**
@@ -699,7 +691,7 @@ export function useDeletePostsPostIdBookmark(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeletePostsPostIdBookmarkMutationKey() {
-  return `DELETE ${client.posts[':postId'].bookmark.$url().pathname}`
+  return 'DELETE /posts/:postId/bookmark'
 }
 
 /**
@@ -730,11 +722,10 @@ export function useGetBookmarks(
 
 /**
  * Generates SWR cache key for GET /bookmarks
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetBookmarksKey(args: InferRequestType<typeof client.bookmarks.$get>) {
-  const u = client.bookmarks.$url(args)
-  return u.pathname + u.search
+  return ['/bookmarks', args] as const
 }
 
 /**
@@ -765,13 +756,12 @@ export function useGetPostsPostIdLikes(
 
 /**
  * Generates SWR cache key for GET /posts/{postId}/likes
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetPostsPostIdLikesKey(
   args: InferRequestType<(typeof client.posts)[':postId']['likes']['$get']>,
 ) {
-  const u = client.posts[':postId'].likes.$url(args)
-  return u.pathname + u.search
+  return ['/posts/:postId/likes', args] as const
 }
 
 /**
@@ -802,13 +792,12 @@ export function useGetPostsPostIdReposts(
 
 /**
  * Generates SWR cache key for GET /posts/{postId}/reposts
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetPostsPostIdRepostsKey(
   args: InferRequestType<(typeof client.posts)[':postId']['reposts']['$get']>,
 ) {
-  const u = client.posts[':postId'].reposts.$url(args)
-  return u.pathname + u.search
+  return ['/posts/:postId/reposts', args] as const
 }
 
 /**
@@ -839,13 +828,12 @@ export function useGetPostsPostIdQuotes(
 
 /**
  * Generates SWR cache key for GET /posts/{postId}/quotes
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetPostsPostIdQuotesKey(
   args: InferRequestType<(typeof client.posts)[':postId']['quotes']['$get']>,
 ) {
-  const u = client.posts[':postId'].quotes.$url(args)
-  return u.pathname + u.search
+  return ['/posts/:postId/quotes', args] as const
 }
 
 /**
@@ -876,13 +864,12 @@ export function useGetPostsPostIdReplies(
 
 /**
  * Generates SWR cache key for GET /posts/{postId}/replies
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetPostsPostIdRepliesKey(
   args: InferRequestType<(typeof client.posts)[':postId']['replies']['$get']>,
 ) {
-  const u = client.posts[':postId'].replies.$url(args)
-  return u.pathname + u.search
+  return ['/posts/:postId/replies', args] as const
 }
 
 /**
@@ -927,7 +914,7 @@ export function usePostPostsPostIdReplies(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostPostsPostIdRepliesMutationKey() {
-  return `POST ${client.posts[':postId'].replies.$url().pathname}`
+  return 'POST /posts/:postId/replies'
 }
 
 /**
@@ -966,7 +953,7 @@ export function usePostMediaUpload(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostMediaUploadMutationKey() {
-  return `POST ${client.media.upload.$url().pathname}`
+  return 'POST /media/upload'
 }
 
 /**
@@ -997,13 +984,12 @@ export function useGetMediaMediaId(
 
 /**
  * Generates SWR cache key for GET /media/{mediaId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetMediaMediaIdKey(
   args: InferRequestType<(typeof client.media)[':mediaId']['$get']>,
 ) {
-  const u = client.media[':mediaId'].$url(args)
-  return u.pathname + u.search
+  return ['/media/:mediaId', args] as const
 }
 
 /**
@@ -1046,5 +1032,5 @@ export function usePatchMediaMediaId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPatchMediaMediaIdMutationKey() {
-  return `PATCH ${client.media[':mediaId'].$url().pathname}`
+  return 'PATCH /media/:mediaId'
 }

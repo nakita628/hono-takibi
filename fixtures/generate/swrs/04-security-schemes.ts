@@ -27,10 +27,10 @@ export function useGetPublic(options?: {
 
 /**
  * Generates SWR cache key for GET /public
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetPublicKey() {
-  return client.public.$url().pathname
+  return ['/public'] as const
 }
 
 /**
@@ -56,10 +56,10 @@ export function useGetProtected(options?: {
 
 /**
  * Generates SWR cache key for GET /protected
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetProtectedKey() {
-  return client.protected.$url().pathname
+  return ['/protected'] as const
 }
 
 /**
@@ -85,10 +85,10 @@ export function useGetAdmin(options?: {
 
 /**
  * Generates SWR cache key for GET /admin
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetAdminKey() {
-  return client.admin.$url().pathname
+  return ['/admin'] as const
 }
 
 /**
@@ -114,10 +114,10 @@ export function useGetOauthResource(options?: {
 
 /**
  * Generates SWR cache key for GET /oauth-resource
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetOauthResourceKey() {
-  return client['oauth-resource'].$url().pathname
+  return ['/oauth-resource'] as const
 }
 
 /**
@@ -143,8 +143,8 @@ export function useGetMultiAuth(options?: {
 
 /**
  * Generates SWR cache key for GET /multi-auth
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetMultiAuthKey() {
-  return client['multi-auth'].$url().pathname
+  return ['/multi-auth'] as const
 }

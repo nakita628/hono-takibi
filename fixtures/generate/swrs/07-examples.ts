@@ -29,10 +29,10 @@ export function useGetProducts(options?: {
 
 /**
  * Generates SWR cache key for GET /products
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetProductsKey() {
-  return client.products.$url().pathname
+  return ['/products'] as const
 }
 
 /**
@@ -67,7 +67,7 @@ export function usePostProducts(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostProductsMutationKey() {
-  return `POST ${client.products.$url().pathname}`
+  return 'POST /products'
 }
 
 /**
@@ -96,11 +96,10 @@ export function useGetProductsProductId(
 
 /**
  * Generates SWR cache key for GET /products/{productId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetProductsProductIdKey(
   args: InferRequestType<(typeof client.products)[':productId']['$get']>,
 ) {
-  const u = client.products[':productId'].$url(args)
-  return u.pathname + u.search
+  return ['/products/:productId', args] as const
 }

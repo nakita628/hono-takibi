@@ -29,10 +29,10 @@ export function useGetTrees(options?: {
 
 /**
  * Generates SWR cache key for GET /trees
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetTreesKey() {
-  return client.trees.$url().pathname
+  return ['/trees'] as const
 }
 
 /**
@@ -67,7 +67,7 @@ export function usePostTrees(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostTreesMutationKey() {
-  return `POST ${client.trees.$url().pathname}`
+  return 'POST /trees'
 }
 
 /**
@@ -93,10 +93,10 @@ export function useGetGraphs(options?: {
 
 /**
  * Generates SWR cache key for GET /graphs
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetGraphsKey() {
-  return client.graphs.$url().pathname
+  return ['/graphs'] as const
 }
 
 /**
@@ -122,10 +122,10 @@ export function useGetLinkedLists(options?: {
 
 /**
  * Generates SWR cache key for GET /linked-lists
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetLinkedListsKey() {
-  return client['linked-lists'].$url().pathname
+  return ['/linked-lists'] as const
 }
 
 /**
@@ -151,10 +151,10 @@ export function useGetSocialNetwork(options?: {
 
 /**
  * Generates SWR cache key for GET /social-network
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetSocialNetworkKey() {
-  return client['social-network'].$url().pathname
+  return ['/social-network'] as const
 }
 
 /**
@@ -180,10 +180,10 @@ export function useGetFileSystem(options?: {
 
 /**
  * Generates SWR cache key for GET /file-system
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetFileSystemKey() {
-  return client['file-system'].$url().pathname
+  return ['/file-system'] as const
 }
 
 /**
@@ -209,10 +209,10 @@ export function useGetComments(options?: {
 
 /**
  * Generates SWR cache key for GET /comments
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetCommentsKey() {
-  return client.comments.$url().pathname
+  return ['/comments'] as const
 }
 
 /**
@@ -238,10 +238,10 @@ export function useGetPolymorphic(options?: {
 
 /**
  * Generates SWR cache key for GET /polymorphic
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetPolymorphicKey() {
-  return client.polymorphic.$url().pathname
+  return ['/polymorphic'] as const
 }
 
 /**
@@ -267,10 +267,10 @@ export function useGetCategories(options?: {
 
 /**
  * Generates SWR cache key for GET /categories
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetCategoriesKey() {
-  return client.categories.$url().pathname
+  return ['/categories'] as const
 }
 
 /**
@@ -296,8 +296,8 @@ export function useGetWorkflow(options?: {
 
 /**
  * Generates SWR cache key for GET /workflow
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetWorkflowKey() {
-  return client.workflow.$url().pathname
+  return ['/workflow'] as const
 }

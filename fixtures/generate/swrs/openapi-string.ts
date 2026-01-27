@@ -31,8 +31,8 @@ export function useGetString(options?: {
 
 /**
  * Generates SWR cache key for GET /string
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetStringKey() {
-  return client.string.$url().pathname
+  return ['/string'] as const
 }

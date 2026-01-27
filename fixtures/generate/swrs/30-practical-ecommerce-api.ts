@@ -34,11 +34,10 @@ export function useGetProducts(
 
 /**
  * Generates SWR cache key for GET /products
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetProductsKey(args: InferRequestType<typeof client.products.$get>) {
-  const u = client.products.$url(args)
-  return u.pathname + u.search
+  return ['/products', args] as const
 }
 
 /**
@@ -75,7 +74,7 @@ export function usePostProducts(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostProductsMutationKey() {
-  return `POST ${client.products.$url().pathname}`
+  return 'POST /products'
 }
 
 /**
@@ -106,13 +105,12 @@ export function useGetProductsProductId(
 
 /**
  * Generates SWR cache key for GET /products/{productId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetProductsProductIdKey(
   args: InferRequestType<(typeof client.products)[':productId']['$get']>,
 ) {
-  const u = client.products[':productId'].$url(args)
-  return u.pathname + u.search
+  return ['/products/:productId', args] as const
 }
 
 /**
@@ -155,7 +153,7 @@ export function usePutProductsProductId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPutProductsProductIdMutationKey() {
-  return `PUT ${client.products[':productId'].$url().pathname}`
+  return 'PUT /products/:productId'
 }
 
 /**
@@ -201,7 +199,7 @@ export function useDeleteProductsProductId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteProductsProductIdMutationKey() {
-  return `DELETE ${client.products[':productId'].$url().pathname}`
+  return 'DELETE /products/:productId'
 }
 
 /**
@@ -248,7 +246,7 @@ export function usePostProductsProductIdImages(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostProductsProductIdImagesMutationKey() {
-  return `POST ${client.products[':productId'].images.$url().pathname}`
+  return 'POST /products/:productId/images'
 }
 
 /**
@@ -276,10 +274,10 @@ export function useGetCategories(options?: {
 
 /**
  * Generates SWR cache key for GET /categories
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetCategoriesKey() {
-  return client.categories.$url().pathname
+  return ['/categories'] as const
 }
 
 /**
@@ -316,7 +314,7 @@ export function usePostCategories(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostCategoriesMutationKey() {
-  return `POST ${client.categories.$url().pathname}`
+  return 'POST /categories'
 }
 
 /**
@@ -344,10 +342,10 @@ export function useGetCart(options?: {
 
 /**
  * Generates SWR cache key for GET /cart
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetCartKey() {
-  return client.cart.$url().pathname
+  return ['/cart'] as const
 }
 
 /**
@@ -384,7 +382,7 @@ export function useDeleteCart(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteCartMutationKey() {
-  return `DELETE ${client.cart.$url().pathname}`
+  return 'DELETE /cart'
 }
 
 /**
@@ -421,7 +419,7 @@ export function usePostCartItems(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostCartItemsMutationKey() {
-  return `POST ${client.cart.items.$url().pathname}`
+  return 'POST /cart/items'
 }
 
 /**
@@ -464,7 +462,7 @@ export function usePutCartItemsItemId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPutCartItemsItemIdMutationKey() {
-  return `PUT ${client.cart.items[':itemId'].$url().pathname}`
+  return 'PUT /cart/items/:itemId'
 }
 
 /**
@@ -507,7 +505,7 @@ export function useDeleteCartItemsItemId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteCartItemsItemIdMutationKey() {
-  return `DELETE ${client.cart.items[':itemId'].$url().pathname}`
+  return 'DELETE /cart/items/:itemId'
 }
 
 /**
@@ -538,11 +536,10 @@ export function useGetOrders(
 
 /**
  * Generates SWR cache key for GET /orders
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetOrdersKey(args: InferRequestType<typeof client.orders.$get>) {
-  const u = client.orders.$url(args)
-  return u.pathname + u.search
+  return ['/orders', args] as const
 }
 
 /**
@@ -581,7 +578,7 @@ export function usePostOrders(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostOrdersMutationKey() {
-  return `POST ${client.orders.$url().pathname}`
+  return 'POST /orders'
 }
 
 /**
@@ -612,13 +609,12 @@ export function useGetOrdersOrderId(
 
 /**
  * Generates SWR cache key for GET /orders/{orderId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetOrdersOrderIdKey(
   args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
 ) {
-  const u = client.orders[':orderId'].$url(args)
-  return u.pathname + u.search
+  return ['/orders/:orderId', args] as const
 }
 
 /**
@@ -663,7 +659,7 @@ export function usePostOrdersOrderIdCancel(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostOrdersOrderIdCancelMutationKey() {
-  return `POST ${client.orders[':orderId'].cancel.$url().pathname}`
+  return 'POST /orders/:orderId/cancel'
 }
 
 /**
@@ -694,13 +690,12 @@ export function useGetInventoryProductId(
 
 /**
  * Generates SWR cache key for GET /inventory/{productId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetInventoryProductIdKey(
   args: InferRequestType<(typeof client.inventory)[':productId']['$get']>,
 ) {
-  const u = client.inventory[':productId'].$url(args)
-  return u.pathname + u.search
+  return ['/inventory/:productId', args] as const
 }
 
 /**
@@ -743,5 +738,5 @@ export function usePutInventoryProductId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPutInventoryProductIdMutationKey() {
-  return `PUT ${client.inventory[':productId'].$url().pathname}`
+  return 'PUT /inventory/:productId'
 }

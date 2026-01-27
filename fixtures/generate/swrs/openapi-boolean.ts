@@ -31,8 +31,8 @@ export function useGetBoolean(options?: {
 
 /**
  * Generates SWR cache key for GET /boolean
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetBooleanKey() {
-  return client.boolean.$url().pathname
+  return ['/boolean'] as const
 }

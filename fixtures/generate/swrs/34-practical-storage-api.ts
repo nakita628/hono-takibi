@@ -34,11 +34,10 @@ export function useGetFiles(
 
 /**
  * Generates SWR cache key for GET /files
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetFilesKey(args: InferRequestType<typeof client.files.$get>) {
-  const u = client.files.$url(args)
-  return u.pathname + u.search
+  return ['/files', args] as const
 }
 
 /**
@@ -77,7 +76,7 @@ export function usePostFilesUpload(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostFilesUploadMutationKey() {
-  return `POST ${client.files.upload.$url().pathname}`
+  return 'POST /files/upload'
 }
 
 /**
@@ -122,7 +121,7 @@ export function usePostFilesUploadMultipartInit(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostFilesUploadMultipartInitMutationKey() {
-  return `POST ${client.files.upload.multipart.init.$url().pathname}`
+  return 'POST /files/upload/multipart/init'
 }
 
 /**
@@ -173,7 +172,7 @@ export function usePostFilesUploadMultipartUploadIdPart(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostFilesUploadMultipartUploadIdPartMutationKey() {
-  return `POST ${client.files.upload.multipart[':uploadId'].part.$url().pathname}`
+  return 'POST /files/upload/multipart/:uploadId/part'
 }
 
 /**
@@ -229,7 +228,7 @@ export function usePostFilesUploadMultipartUploadIdComplete(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostFilesUploadMultipartUploadIdCompleteMutationKey() {
-  return `POST ${client.files.upload.multipart[':uploadId'].complete.$url().pathname}`
+  return 'POST /files/upload/multipart/:uploadId/complete'
 }
 
 /**
@@ -260,13 +259,12 @@ export function useGetFilesFileId(
 
 /**
  * Generates SWR cache key for GET /files/{fileId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetFilesFileIdKey(
   args: InferRequestType<(typeof client.files)[':fileId']['$get']>,
 ) {
-  const u = client.files[':fileId'].$url(args)
-  return u.pathname + u.search
+  return ['/files/:fileId', args] as const
 }
 
 /**
@@ -310,7 +308,7 @@ export function useDeleteFilesFileId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteFilesFileIdMutationKey() {
-  return `DELETE ${client.files[':fileId'].$url().pathname}`
+  return 'DELETE /files/:fileId'
 }
 
 /**
@@ -353,7 +351,7 @@ export function usePatchFilesFileId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPatchFilesFileIdMutationKey() {
-  return `PATCH ${client.files[':fileId'].$url().pathname}`
+  return 'PATCH /files/:fileId'
 }
 
 /**
@@ -384,13 +382,12 @@ export function useGetFilesFileIdDownload(
 
 /**
  * Generates SWR cache key for GET /files/{fileId}/download
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetFilesFileIdDownloadKey(
   args: InferRequestType<(typeof client.files)[':fileId']['download']['$get']>,
 ) {
-  const u = client.files[':fileId'].download.$url(args)
-  return u.pathname + u.search
+  return ['/files/:fileId/download', args] as const
 }
 
 /**
@@ -421,13 +418,12 @@ export function useGetFilesFileIdDownloadUrl(
 
 /**
  * Generates SWR cache key for GET /files/{fileId}/download-url
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetFilesFileIdDownloadUrlKey(
   args: InferRequestType<(typeof client.files)[':fileId']['download-url']['$get']>,
 ) {
-  const u = client.files[':fileId']['download-url'].$url(args)
-  return u.pathname + u.search
+  return ['/files/:fileId/download-url', args] as const
 }
 
 /**
@@ -470,7 +466,7 @@ export function usePostFilesFileIdCopy(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostFilesFileIdCopyMutationKey() {
-  return `POST ${client.files[':fileId'].copy.$url().pathname}`
+  return 'POST /files/:fileId/copy'
 }
 
 /**
@@ -513,7 +509,7 @@ export function usePostFilesFileIdMove(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostFilesFileIdMoveMutationKey() {
-  return `POST ${client.files[':fileId'].move.$url().pathname}`
+  return 'POST /files/:fileId/move'
 }
 
 /**
@@ -544,13 +540,12 @@ export function useGetFilesFileIdThumbnail(
 
 /**
  * Generates SWR cache key for GET /files/{fileId}/thumbnail
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetFilesFileIdThumbnailKey(
   args: InferRequestType<(typeof client.files)[':fileId']['thumbnail']['$get']>,
 ) {
-  const u = client.files[':fileId'].thumbnail.$url(args)
-  return u.pathname + u.search
+  return ['/files/:fileId/thumbnail', args] as const
 }
 
 /**
@@ -587,7 +582,7 @@ export function usePostFolders(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostFoldersMutationKey() {
-  return `POST ${client.folders.$url().pathname}`
+  return 'POST /folders'
 }
 
 /**
@@ -618,13 +613,12 @@ export function useGetFoldersFolderId(
 
 /**
  * Generates SWR cache key for GET /folders/{folderId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetFoldersFolderIdKey(
   args: InferRequestType<(typeof client.folders)[':folderId']['$get']>,
 ) {
-  const u = client.folders[':folderId'].$url(args)
-  return u.pathname + u.search
+  return ['/folders/:folderId', args] as const
 }
 
 /**
@@ -668,7 +662,7 @@ export function useDeleteFoldersFolderId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteFoldersFolderIdMutationKey() {
-  return `DELETE ${client.folders[':folderId'].$url().pathname}`
+  return 'DELETE /folders/:folderId'
 }
 
 /**
@@ -711,7 +705,7 @@ export function usePatchFoldersFolderId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPatchFoldersFolderIdMutationKey() {
-  return `PATCH ${client.folders[':folderId'].$url().pathname}`
+  return 'PATCH /folders/:folderId'
 }
 
 /**
@@ -742,13 +736,12 @@ export function useGetFilesFileIdShare(
 
 /**
  * Generates SWR cache key for GET /files/{fileId}/share
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetFilesFileIdShareKey(
   args: InferRequestType<(typeof client.files)[':fileId']['share']['$get']>,
 ) {
-  const u = client.files[':fileId'].share.$url(args)
-  return u.pathname + u.search
+  return ['/files/:fileId/share', args] as const
 }
 
 /**
@@ -793,7 +786,7 @@ export function usePostFilesFileIdShare(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostFilesFileIdShareMutationKey() {
-  return `POST ${client.files[':fileId'].share.$url().pathname}`
+  return 'POST /files/:fileId/share'
 }
 
 /**
@@ -839,7 +832,7 @@ export function useDeleteFilesFileIdShare(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteFilesFileIdShareMutationKey() {
-  return `DELETE ${client.files[':fileId'].share.$url().pathname}`
+  return 'DELETE /files/:fileId/share'
 }
 
 /**
@@ -886,7 +879,7 @@ export function usePostFilesFileIdShareLink(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostFilesFileIdShareLinkMutationKey() {
-  return `POST ${client.files[':fileId'].share.link.$url().pathname}`
+  return 'POST /files/:fileId/share/link'
 }
 
 /**
@@ -917,13 +910,12 @@ export function useGetFilesFileIdVersions(
 
 /**
  * Generates SWR cache key for GET /files/{fileId}/versions
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetFilesFileIdVersionsKey(
   args: InferRequestType<(typeof client.files)[':fileId']['versions']['$get']>,
 ) {
-  const u = client.files[':fileId'].versions.$url(args)
-  return u.pathname + u.search
+  return ['/files/:fileId/versions', args] as const
 }
 
 /**
@@ -981,7 +973,7 @@ export function usePostFilesFileIdVersionsVersionIdRestore(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostFilesFileIdVersionsVersionIdRestoreMutationKey() {
-  return `POST ${client.files[':fileId'].versions[':versionId'].restore.$url().pathname}`
+  return 'POST /files/:fileId/versions/:versionId/restore'
 }
 
 /**
@@ -1012,11 +1004,10 @@ export function useGetTrash(
 
 /**
  * Generates SWR cache key for GET /trash
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetTrashKey(args: InferRequestType<typeof client.trash.$get>) {
-  const u = client.trash.$url(args)
-  return u.pathname + u.search
+  return ['/trash', args] as const
 }
 
 /**
@@ -1053,7 +1044,7 @@ export function useDeleteTrash(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteTrashMutationKey() {
-  return `DELETE ${client.trash.$url().pathname}`
+  return 'DELETE /trash'
 }
 
 /**
@@ -1098,7 +1089,7 @@ export function usePostTrashFileIdRestore(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostTrashFileIdRestoreMutationKey() {
-  return `POST ${client.trash[':fileId'].restore.$url().pathname}`
+  return 'POST /trash/:fileId/restore'
 }
 
 /**
@@ -1126,8 +1117,8 @@ export function useGetStorageUsage(options?: {
 
 /**
  * Generates SWR cache key for GET /storage/usage
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetStorageUsageKey() {
-  return client.storage.usage.$url().pathname
+  return ['/storage/usage'] as const
 }

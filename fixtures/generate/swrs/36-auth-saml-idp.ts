@@ -36,11 +36,10 @@ export function useGetSamlSso(
 
 /**
  * Generates SWR cache key for GET /saml/sso
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetSamlSsoKey(args: InferRequestType<typeof client.saml.sso.$get>) {
-  const u = client.saml.sso.$url(args)
-  return u.pathname + u.search
+  return ['/saml/sso', args] as const
 }
 
 /**
@@ -79,7 +78,7 @@ export function usePostSamlSso(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostSamlSsoMutationKey() {
-  return `POST ${client.saml.sso.$url().pathname}`
+  return 'POST /saml/sso'
 }
 
 /**
@@ -112,11 +111,10 @@ export function useGetSamlSlo(
 
 /**
  * Generates SWR cache key for GET /saml/slo
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetSamlSloKey(args: InferRequestType<typeof client.saml.slo.$get>) {
-  const u = client.saml.slo.$url(args)
-  return u.pathname + u.search
+  return ['/saml/slo', args] as const
 }
 
 /**
@@ -155,7 +153,7 @@ export function usePostSamlSlo(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostSamlSloMutationKey() {
-  return `POST ${client.saml.slo.$url().pathname}`
+  return 'POST /saml/slo'
 }
 
 /**
@@ -194,7 +192,7 @@ export function usePostSamlAcs(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostSamlAcsMutationKey() {
-  return `POST ${client.saml.acs.$url().pathname}`
+  return 'POST /saml/acs'
 }
 
 /**
@@ -224,10 +222,10 @@ export function useGetSamlMetadata(options?: {
 
 /**
  * Generates SWR cache key for GET /saml/metadata
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetSamlMetadataKey() {
-  return client.saml.metadata.$url().pathname
+  return ['/saml/metadata'] as const
 }
 
 /**
@@ -258,13 +256,12 @@ export function useGetServiceProviders(
 
 /**
  * Generates SWR cache key for GET /service-providers
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetServiceProvidersKey(
   args: InferRequestType<(typeof client)['service-providers']['$get']>,
 ) {
-  const u = client['service-providers'].$url(args)
-  return u.pathname + u.search
+  return ['/service-providers', args] as const
 }
 
 /**
@@ -307,7 +304,7 @@ export function usePostServiceProviders(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostServiceProvidersMutationKey() {
-  return `POST ${client['service-providers'].$url().pathname}`
+  return 'POST /service-providers'
 }
 
 /**
@@ -338,13 +335,12 @@ export function useGetServiceProvidersSpId(
 
 /**
  * Generates SWR cache key for GET /service-providers/{spId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetServiceProvidersSpIdKey(
   args: InferRequestType<(typeof client)['service-providers'][':spId']['$get']>,
 ) {
-  const u = client['service-providers'][':spId'].$url(args)
-  return u.pathname + u.search
+  return ['/service-providers/:spId', args] as const
 }
 
 /**
@@ -389,7 +385,7 @@ export function usePutServiceProvidersSpId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPutServiceProvidersSpIdMutationKey() {
-  return `PUT ${client['service-providers'][':spId'].$url().pathname}`
+  return 'PUT /service-providers/:spId'
 }
 
 /**
@@ -437,7 +433,7 @@ export function useDeleteServiceProvidersSpId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteServiceProvidersSpIdMutationKey() {
-  return `DELETE ${client['service-providers'][':spId'].$url().pathname}`
+  return 'DELETE /service-providers/:spId'
 }
 
 /**
@@ -469,13 +465,12 @@ export function useGetServiceProvidersSpIdMetadata(
 
 /**
  * Generates SWR cache key for GET /service-providers/{spId}/metadata
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetServiceProvidersSpIdMetadataKey(
   args: InferRequestType<(typeof client)['service-providers'][':spId']['metadata']['$get']>,
 ) {
-  const u = client['service-providers'][':spId'].metadata.$url(args)
-  return u.pathname + u.search
+  return ['/service-providers/:spId/metadata', args] as const
 }
 
 /**
@@ -524,7 +519,7 @@ export function usePutServiceProvidersSpIdMetadata(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPutServiceProvidersSpIdMetadataMutationKey() {
-  return `PUT ${client['service-providers'][':spId'].metadata.$url().pathname}`
+  return 'PUT /service-providers/:spId/metadata'
 }
 
 /**
@@ -556,13 +551,12 @@ export function useGetServiceProvidersSpIdAttributes(
 
 /**
  * Generates SWR cache key for GET /service-providers/{spId}/attributes
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetServiceProvidersSpIdAttributesKey(
   args: InferRequestType<(typeof client)['service-providers'][':spId']['attributes']['$get']>,
 ) {
-  const u = client['service-providers'][':spId'].attributes.$url(args)
-  return u.pathname + u.search
+  return ['/service-providers/:spId/attributes', args] as const
 }
 
 /**
@@ -611,7 +605,7 @@ export function usePutServiceProvidersSpIdAttributes(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPutServiceProvidersSpIdAttributesMutationKey() {
-  return `PUT ${client['service-providers'][':spId'].attributes.$url().pathname}`
+  return 'PUT /service-providers/:spId/attributes'
 }
 
 /**
@@ -639,10 +633,10 @@ export function useGetAttributes(options?: {
 
 /**
  * Generates SWR cache key for GET /attributes
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetAttributesKey() {
-  return client.attributes.$url().pathname
+  return ['/attributes'] as const
 }
 
 /**
@@ -670,10 +664,10 @@ export function useGetCertificates(options?: {
 
 /**
  * Generates SWR cache key for GET /certificates
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetCertificatesKey() {
-  return client.certificates.$url().pathname
+  return ['/certificates'] as const
 }
 
 /**
@@ -712,7 +706,7 @@ export function usePostCertificates(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostCertificatesMutationKey() {
-  return `POST ${client.certificates.$url().pathname}`
+  return 'POST /certificates'
 }
 
 /**
@@ -758,7 +752,7 @@ export function useDeleteCertificatesCertId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteCertificatesCertIdMutationKey() {
-  return `DELETE ${client.certificates[':certId'].$url().pathname}`
+  return 'DELETE /certificates/:certId'
 }
 
 /**
@@ -805,7 +799,7 @@ export function usePostCertificatesCertIdActivate(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostCertificatesCertIdActivateMutationKey() {
-  return `POST ${client.certificates[':certId'].activate.$url().pathname}`
+  return 'POST /certificates/:certId/activate'
 }
 
 /**
@@ -836,11 +830,10 @@ export function useGetSessions(
 
 /**
  * Generates SWR cache key for GET /sessions
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetSessionsKey(args: InferRequestType<typeof client.sessions.$get>) {
-  const u = client.sessions.$url(args)
-  return u.pathname + u.search
+  return ['/sessions', args] as const
 }
 
 /**
@@ -886,7 +879,7 @@ export function useDeleteSessionsSessionId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteSessionsSessionIdMutationKey() {
-  return `DELETE ${client.sessions[':sessionId'].$url().pathname}`
+  return 'DELETE /sessions/:sessionId'
 }
 
 /**
@@ -917,9 +910,8 @@ export function useGetAuditLogs(
 
 /**
  * Generates SWR cache key for GET /audit-logs
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetAuditLogsKey(args: InferRequestType<(typeof client)['audit-logs']['$get']>) {
-  const u = client['audit-logs'].$url(args)
-  return u.pathname + u.search
+  return ['/audit-logs', args] as const
 }

@@ -29,8 +29,8 @@ export function useGetSample(options?: {
 
 /**
  * Generates SWR cache key for GET /sample
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetSampleKey() {
-  return client.sample.$url().pathname
+  return ['/sample'] as const
 }

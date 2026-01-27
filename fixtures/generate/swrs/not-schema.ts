@@ -37,5 +37,5 @@ export function usePostValidate(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostValidateMutationKey() {
-  return `POST ${client.validate.$url().pathname}`
+  return 'POST /validate'
 }

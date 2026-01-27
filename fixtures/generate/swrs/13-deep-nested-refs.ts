@@ -42,16 +42,14 @@ export function useGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(
 
 /**
  * Generates SWR cache key for GET /organizations/{orgId}/departments/{deptId}/teams/{teamId}/members
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersKey(
   args: InferRequestType<
     (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$get']
   >,
 ) {
-  const u =
-    client.organizations[':orgId'].departments[':deptId'].teams[':teamId'].members.$url(args)
-  return u.pathname + u.search
+  return ['/organizations/:orgId/departments/:deptId/teams/:teamId/members', args] as const
 }
 
 /**
@@ -113,7 +111,7 @@ export function usePostOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(opt
  * All args should be passed via trigger's { arg } object
  */
 export function getPostOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersMutationKey() {
-  return `POST ${client.organizations[':orgId'].departments[':deptId'].teams[':teamId'].members.$url().pathname}`
+  return 'POST /organizations/:orgId/departments/:deptId/teams/:teamId/members'
 }
 
 /**
@@ -140,8 +138,8 @@ export function useGetReportsOrganizationSummary(options?: {
 
 /**
  * Generates SWR cache key for GET /reports/organization-summary
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetReportsOrganizationSummaryKey() {
-  return client.reports['organization-summary'].$url().pathname
+  return ['/reports/organization-summary'] as const
 }

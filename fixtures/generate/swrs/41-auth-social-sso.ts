@@ -36,13 +36,12 @@ export function useGetSocialAuthorizeProvider(
 
 /**
  * Generates SWR cache key for GET /social/authorize/{provider}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetSocialAuthorizeProviderKey(
   args: InferRequestType<(typeof client.social.authorize)[':provider']['$get']>,
 ) {
-  const u = client.social.authorize[':provider'].$url(args)
-  return u.pathname + u.search
+  return ['/social/authorize/:provider', args] as const
 }
 
 /**
@@ -75,13 +74,12 @@ export function useGetSocialCallbackProvider(
 
 /**
  * Generates SWR cache key for GET /social/callback/{provider}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetSocialCallbackProviderKey(
   args: InferRequestType<(typeof client.social.callback)[':provider']['$get']>,
 ) {
-  const u = client.social.callback[':provider'].$url(args)
-  return u.pathname + u.search
+  return ['/social/callback/:provider', args] as const
 }
 
 /**
@@ -122,7 +120,7 @@ export function usePostSocialToken(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostSocialTokenMutationKey() {
-  return `POST ${client.social.token.$url().pathname}`
+  return 'POST /social/token'
 }
 
 /**
@@ -163,7 +161,7 @@ export function usePostSocialTokenNative(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostSocialTokenNativeMutationKey() {
-  return `POST ${client.social.token.native.$url().pathname}`
+  return 'POST /social/token/native'
 }
 
 /**
@@ -191,10 +189,10 @@ export function useGetProviders(options?: {
 
 /**
  * Generates SWR cache key for GET /providers
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetProvidersKey() {
-  return client.providers.$url().pathname
+  return ['/providers'] as const
 }
 
 /**
@@ -222,10 +220,10 @@ export function useGetProvidersAdmin(options?: {
 
 /**
  * Generates SWR cache key for GET /providers/admin
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetProvidersAdminKey() {
-  return client.providers.admin.$url().pathname
+  return ['/providers/admin'] as const
 }
 
 /**
@@ -264,7 +262,7 @@ export function usePostProvidersAdmin(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostProvidersAdminMutationKey() {
-  return `POST ${client.providers.admin.$url().pathname}`
+  return 'POST /providers/admin'
 }
 
 /**
@@ -295,13 +293,12 @@ export function useGetProvidersProviderId(
 
 /**
  * Generates SWR cache key for GET /providers/{providerId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetProvidersProviderIdKey(
   args: InferRequestType<(typeof client.providers)[':providerId']['$get']>,
 ) {
-  const u = client.providers[':providerId'].$url(args)
-  return u.pathname + u.search
+  return ['/providers/:providerId', args] as const
 }
 
 /**
@@ -344,7 +341,7 @@ export function usePutProvidersProviderId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPutProvidersProviderIdMutationKey() {
-  return `PUT ${client.providers[':providerId'].$url().pathname}`
+  return 'PUT /providers/:providerId'
 }
 
 /**
@@ -390,7 +387,7 @@ export function useDeleteProvidersProviderId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteProvidersProviderIdMutationKey() {
-  return `DELETE ${client.providers[':providerId'].$url().pathname}`
+  return 'DELETE /providers/:providerId'
 }
 
 /**
@@ -437,7 +434,7 @@ export function usePostProvidersProviderIdTest(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostProvidersProviderIdTestMutationKey() {
-  return `POST ${client.providers[':providerId'].test.$url().pathname}`
+  return 'POST /providers/:providerId/test'
 }
 
 /**
@@ -465,10 +462,10 @@ export function useGetAccountLinked(options?: {
 
 /**
  * Generates SWR cache key for GET /account/linked
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetAccountLinkedKey() {
-  return client.account.linked.$url().pathname
+  return ['/account/linked'] as const
 }
 
 /**
@@ -515,7 +512,7 @@ export function usePostAccountLinkProvider(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostAccountLinkProviderMutationKey() {
-  return `POST ${client.account.link[':provider'].$url().pathname}`
+  return 'POST /account/link/:provider'
 }
 
 /**
@@ -561,7 +558,7 @@ export function useDeleteAccountLinkProvider(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteAccountLinkProviderMutationKey() {
-  return `DELETE ${client.account.link[':provider'].$url().pathname}`
+  return 'DELETE /account/link/:provider'
 }
 
 /**
@@ -589,10 +586,10 @@ export function useGetEnterpriseSso(options?: {
 
 /**
  * Generates SWR cache key for GET /enterprise/sso
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetEnterpriseSsoKey() {
-  return client.enterprise.sso.$url().pathname
+  return ['/enterprise/sso'] as const
 }
 
 /**
@@ -631,7 +628,7 @@ export function usePostEnterpriseSso(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostEnterpriseSsoMutationKey() {
-  return `POST ${client.enterprise.sso.$url().pathname}`
+  return 'POST /enterprise/sso'
 }
 
 /**
@@ -662,13 +659,12 @@ export function useGetEnterpriseSsoConfigId(
 
 /**
  * Generates SWR cache key for GET /enterprise/sso/{configId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetEnterpriseSsoConfigIdKey(
   args: InferRequestType<(typeof client.enterprise.sso)[':configId']['$get']>,
 ) {
-  const u = client.enterprise.sso[':configId'].$url(args)
-  return u.pathname + u.search
+  return ['/enterprise/sso/:configId', args] as const
 }
 
 /**
@@ -713,7 +709,7 @@ export function usePutEnterpriseSsoConfigId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPutEnterpriseSsoConfigIdMutationKey() {
-  return `PUT ${client.enterprise.sso[':configId'].$url().pathname}`
+  return 'PUT /enterprise/sso/:configId'
 }
 
 /**
@@ -759,7 +755,7 @@ export function useDeleteEnterpriseSsoConfigId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteEnterpriseSsoConfigIdMutationKey() {
-  return `DELETE ${client.enterprise.sso[':configId'].$url().pathname}`
+  return 'DELETE /enterprise/sso/:configId'
 }
 
 /**
@@ -790,13 +786,12 @@ export function useGetEnterpriseSsoDomainLookup(
 
 /**
  * Generates SWR cache key for GET /enterprise/sso/domain-lookup
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetEnterpriseSsoDomainLookupKey(
   args: InferRequestType<(typeof client.enterprise.sso)['domain-lookup']['$get']>,
 ) {
-  const u = client.enterprise.sso['domain-lookup'].$url(args)
-  return u.pathname + u.search
+  return ['/enterprise/sso/domain-lookup', args] as const
 }
 
 /**
@@ -830,11 +825,10 @@ export function useGetEnterpriseSsoConfigIdMetadata(
 
 /**
  * Generates SWR cache key for GET /enterprise/sso/{configId}/metadata
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetEnterpriseSsoConfigIdMetadataKey(
   args: InferRequestType<(typeof client.enterprise.sso)[':configId']['metadata']['$get']>,
 ) {
-  const u = client.enterprise.sso[':configId'].metadata.$url(args)
-  return u.pathname + u.search
+  return ['/enterprise/sso/:configId/metadata', args] as const
 }

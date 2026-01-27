@@ -37,5 +37,5 @@ export function usePostMessages(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostMessagesMutationKey() {
-  return `POST ${client.messages.$url().pathname}`
+  return 'POST /messages'
 }

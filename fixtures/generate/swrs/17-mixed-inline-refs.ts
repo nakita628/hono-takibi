@@ -32,11 +32,10 @@ export function useGetUsers(
 
 /**
  * Generates SWR cache key for GET /users
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetUsersKey(args: InferRequestType<typeof client.users.$get>) {
-  const u = client.users.$url(args)
-  return u.pathname + u.search
+  return ['/users', args] as const
 }
 
 /**
@@ -71,7 +70,7 @@ export function usePostUsers(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostUsersMutationKey() {
-  return `POST ${client.users.$url().pathname}`
+  return 'POST /users'
 }
 
 /**
@@ -100,13 +99,12 @@ export function useGetUsersUserId(
 
 /**
  * Generates SWR cache key for GET /users/{userId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetUsersUserIdKey(
   args: InferRequestType<(typeof client.users)[':userId']['$get']>,
 ) {
-  const u = client.users[':userId'].$url(args)
-  return u.pathname + u.search
+  return ['/users/:userId', args] as const
 }
 
 /**
@@ -141,7 +139,7 @@ export function usePostOrders(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostOrdersMutationKey() {
-  return `POST ${client.orders.$url().pathname}`
+  return 'POST /orders'
 }
 
 /**
@@ -170,13 +168,12 @@ export function useGetProductsProductIdVariants(
 
 /**
  * Generates SWR cache key for GET /products/{productId}/variants
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetProductsProductIdVariantsKey(
   args: InferRequestType<(typeof client.products)[':productId']['variants']['$get']>,
 ) {
-  const u = client.products[':productId'].variants.$url(args)
-  return u.pathname + u.search
+  return ['/products/:productId/variants', args] as const
 }
 
 /**
@@ -213,7 +210,7 @@ export function usePostReportsGenerate(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostReportsGenerateMutationKey() {
-  return `POST ${client.reports.generate.$url().pathname}`
+  return 'POST /reports/generate'
 }
 
 /**
@@ -250,5 +247,5 @@ export function usePostWebhooksTest(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostWebhooksTestMutationKey() {
-  return `POST ${client.webhooks.test.$url().pathname}`
+  return 'POST /webhooks/test'
 }

@@ -31,10 +31,10 @@ export function useGet(options?: {
 
 /**
  * Generates SWR cache key for GET /
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetKey() {
-  return client.index.$url().pathname
+  return ['/'] as const
 }
 
 /**
@@ -67,9 +67,8 @@ export function useGetProjects(
 
 /**
  * Generates SWR cache key for GET /projects
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetProjectsKey(args: InferRequestType<typeof client.projects.$get>) {
-  const u = client.projects.$url(args)
-  return u.pathname + u.search
+  return ['/projects', args] as const
 }

@@ -38,7 +38,7 @@ export function usePostOrders(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostOrdersMutationKey() {
-  return `POST ${client.orders.$url().pathname}`
+  return 'POST /orders'
 }
 
 /**
@@ -67,13 +67,12 @@ export function useGetOrdersOrderId(
 
 /**
  * Generates SWR cache key for GET /orders/{orderId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetOrdersOrderIdKey(
   args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
 ) {
-  const u = client.orders[':orderId'].$url(args)
-  return u.pathname + u.search
+  return ['/orders/:orderId', args] as const
 }
 
 /**
@@ -114,7 +113,7 @@ export function useDeleteOrdersOrderId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteOrdersOrderIdMutationKey() {
-  return `DELETE ${client.orders[':orderId'].$url().pathname}`
+  return 'DELETE /orders/:orderId'
 }
 
 /**
@@ -143,13 +142,12 @@ export function useGetOrdersOrderIdItems(
 
 /**
  * Generates SWR cache key for GET /orders/{orderId}/items
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetOrdersOrderIdItemsKey(
   args: InferRequestType<(typeof client.orders)[':orderId']['items']['$get']>,
 ) {
-  const u = client.orders[':orderId'].items.$url(args)
-  return u.pathname + u.search
+  return ['/orders/:orderId/items', args] as const
 }
 
 /**
@@ -178,13 +176,12 @@ export function useGetCustomersCustomerId(
 
 /**
  * Generates SWR cache key for GET /customers/{customerId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetCustomersCustomerIdKey(
   args: InferRequestType<(typeof client.customers)[':customerId']['$get']>,
 ) {
-  const u = client.customers[':customerId'].$url(args)
-  return u.pathname + u.search
+  return ['/customers/:customerId', args] as const
 }
 
 /**
@@ -213,13 +210,12 @@ export function useGetCustomersCustomerIdOrders(
 
 /**
  * Generates SWR cache key for GET /customers/{customerId}/orders
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetCustomersCustomerIdOrdersKey(
   args: InferRequestType<(typeof client.customers)[':customerId']['orders']['$get']>,
 ) {
-  const u = client.customers[':customerId'].orders.$url(args)
-  return u.pathname + u.search
+  return ['/customers/:customerId/orders', args] as const
 }
 
 /**
@@ -248,11 +244,10 @@ export function useGetPaymentsPaymentId(
 
 /**
  * Generates SWR cache key for GET /payments/{paymentId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetPaymentsPaymentIdKey(
   args: InferRequestType<(typeof client.payments)[':paymentId']['$get']>,
 ) {
-  const u = client.payments[':paymentId'].$url(args)
-  return u.pathname + u.search
+  return ['/payments/:paymentId', args] as const
 }

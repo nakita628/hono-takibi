@@ -32,11 +32,10 @@ export function useGetResources(
 
 /**
  * Generates SWR cache key for GET /resources
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetResourcesKey(args: InferRequestType<typeof client.resources.$get>) {
-  const u = client.resources.$url(args)
-  return u.pathname + u.search
+  return ['/resources', args] as const
 }
 
 /**
@@ -65,13 +64,12 @@ export function useGetResourcesId(
 
 /**
  * Generates SWR cache key for GET /resources/{id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetResourcesIdKey(
   args: InferRequestType<(typeof client.resources)[':id']['$get']>,
 ) {
-  const u = client.resources[':id'].$url(args)
-  return u.pathname + u.search
+  return ['/resources/:id', args] as const
 }
 
 /**
@@ -112,7 +110,7 @@ export function usePutResourcesId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPutResourcesIdMutationKey() {
-  return `PUT ${client.resources[':id'].$url().pathname}`
+  return 'PUT /resources/:id'
 }
 
 /**
@@ -141,11 +139,10 @@ export function useGetDownloadId(
 
 /**
  * Generates SWR cache key for GET /download/{id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetDownloadIdKey(
   args: InferRequestType<(typeof client.download)[':id']['$get']>,
 ) {
-  const u = client.download[':id'].$url(args)
-  return u.pathname + u.search
+  return ['/download/:id', args] as const
 }

@@ -31,10 +31,10 @@ export function useGetUsers(options?: {
 
 /**
  * Generates SWR cache key for GET /users
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetUsersKey() {
-  return client.users.$url().pathname
+  return ['/users'] as const
 }
 
 /**
@@ -71,7 +71,7 @@ export function usePostUsers(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostUsersMutationKey() {
-  return `POST ${client.users.$url().pathname}`
+  return 'POST /users'
 }
 
 /**
@@ -102,13 +102,12 @@ export function useGetUsersUserId(
 
 /**
  * Generates SWR cache key for GET /users/{userId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetUsersUserIdKey(
   args: InferRequestType<(typeof client.users)[':userId']['$get']>,
 ) {
-  const u = client.users[':userId'].$url(args)
-  return u.pathname + u.search
+  return ['/users/:userId', args] as const
 }
 
 /**
@@ -151,7 +150,7 @@ export function usePutUsersUserId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPutUsersUserIdMutationKey() {
-  return `PUT ${client.users[':userId'].$url().pathname}`
+  return 'PUT /users/:userId'
 }
 
 /**
@@ -195,7 +194,7 @@ export function useDeleteUsersUserId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteUsersUserIdMutationKey() {
-  return `DELETE ${client.users[':userId'].$url().pathname}`
+  return 'DELETE /users/:userId'
 }
 
 /**
@@ -223,10 +222,10 @@ export function useGetOrders(options?: {
 
 /**
  * Generates SWR cache key for GET /orders
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetOrdersKey() {
-  return client.orders.$url().pathname
+  return ['/orders'] as const
 }
 
 /**
@@ -263,5 +262,5 @@ export function usePostOrders(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostOrdersMutationKey() {
-  return `POST ${client.orders.$url().pathname}`
+  return 'POST /orders'
 }

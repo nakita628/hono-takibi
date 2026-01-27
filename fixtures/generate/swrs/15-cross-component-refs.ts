@@ -32,11 +32,10 @@ export function useGetEntities(
 
 /**
  * Generates SWR cache key for GET /entities
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetEntitiesKey(args: InferRequestType<typeof client.entities.$get>) {
-  const u = client.entities.$url(args)
-  return u.pathname + u.search
+  return ['/entities', args] as const
 }
 
 /**
@@ -71,7 +70,7 @@ export function usePostEntities(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostEntitiesMutationKey() {
-  return `POST ${client.entities.$url().pathname}`
+  return 'POST /entities'
 }
 
 /**
@@ -100,13 +99,12 @@ export function useGetEntitiesEntityId(
 
 /**
  * Generates SWR cache key for GET /entities/{entityId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetEntitiesEntityIdKey(
   args: InferRequestType<(typeof client.entities)[':entityId']['$get']>,
 ) {
-  const u = client.entities[':entityId'].$url(args)
-  return u.pathname + u.search
+  return ['/entities/:entityId', args] as const
 }
 
 /**
@@ -147,7 +145,7 @@ export function usePutEntitiesEntityId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPutEntitiesEntityIdMutationKey() {
-  return `PUT ${client.entities[':entityId'].$url().pathname}`
+  return 'PUT /entities/:entityId'
 }
 
 /**
@@ -191,7 +189,7 @@ export function useDeleteEntitiesEntityId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteEntitiesEntityIdMutationKey() {
-  return `DELETE ${client.entities[':entityId'].$url().pathname}`
+  return 'DELETE /entities/:entityId'
 }
 
 /**
@@ -221,13 +219,12 @@ export function useGetEntitiesEntityIdRelationships(
 
 /**
  * Generates SWR cache key for GET /entities/{entityId}/relationships
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetEntitiesEntityIdRelationshipsKey(
   args: InferRequestType<(typeof client.entities)[':entityId']['relationships']['$get']>,
 ) {
-  const u = client.entities[':entityId'].relationships.$url(args)
-  return u.pathname + u.search
+  return ['/entities/:entityId/relationships', args] as const
 }
 
 /**
@@ -274,7 +271,7 @@ export function usePostEntitiesEntityIdRelationships(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostEntitiesEntityIdRelationshipsMutationKey() {
-  return `POST ${client.entities[':entityId'].relationships.$url().pathname}`
+  return 'POST /entities/:entityId/relationships'
 }
 
 /**
@@ -309,5 +306,5 @@ export function usePostBatch(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostBatchMutationKey() {
-  return `POST ${client.batch.$url().pathname}`
+  return 'POST /batch'
 }

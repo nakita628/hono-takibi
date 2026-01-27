@@ -40,7 +40,7 @@ export function usePostPolymorphic(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostPolymorphicMutationKey() {
-  return `POST ${client.polymorphic.$url().pathname}`
+  return 'POST /polymorphic'
 }
 
 /**
@@ -71,11 +71,10 @@ export function useGetSearch(
 
 /**
  * Generates SWR cache key for GET /search
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetSearchKey(args: InferRequestType<typeof client.search.$get>) {
-  const u = client.search.$url(args)
-  return u.pathname + u.search
+  return ['/search', args] as const
 }
 
 /**
@@ -115,5 +114,5 @@ export function usePutMultiStep(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPutMultiStepMutationKey() {
-  return `PUT ${client['multi-step'].$url().pathname}`
+  return 'PUT /multi-step'
 }

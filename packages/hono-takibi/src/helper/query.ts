@@ -196,14 +196,14 @@ function makeQueryOptionsGetterCode(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const ${optionsGetterName}=(args:${inferRequestType},clientOptions?:ClientRequestOptions)=>({queryKey:${queryKeyCall},queryFn:({signal}:{signal:AbortSignal})=>${fetcherBody}})`
+export const ${optionsGetterName}=(args:${inferRequestType},clientOptions?:ClientRequestOptions)=>({queryKey:${queryKeyCall},queryFn:({signal}:QueryFunctionContext)=>${fetcherBody}})`
   }
   return `/**
  * Returns ${config.frameworkName} query options for GET ${commentPath}
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const ${optionsGetterName}=(clientOptions?:ClientRequestOptions)=>({queryKey:${queryKeyCall},queryFn:({signal}:{signal:AbortSignal})=>${fetcherBody}})`
+export const ${optionsGetterName}=(clientOptions?:ClientRequestOptions)=>({queryKey:${queryKeyCall},queryFn:({signal}:QueryFunctionContext)=>${fetcherBody}})`
 }
 
 /* ─────────────────────────────── Query Hook Code ─────────────────────────────── */
@@ -457,9 +457,9 @@ function makeHeader(
     ...(hasMutation ? [config.mutationFn] : []),
   ]
 
-  // Type imports for options - UseQueryOptions, UseMutationOptions
+  // Type imports for options - UseQueryOptions, UseMutationOptions, QueryFunctionContext
   const typeImports = [
-    ...(hasQuery ? [config.useQueryOptionsType] : []),
+    ...(hasQuery ? [config.useQueryOptionsType, 'QueryFunctionContext'] : []),
     ...(hasMutation ? [config.useMutationOptionsType] : []),
   ]
 

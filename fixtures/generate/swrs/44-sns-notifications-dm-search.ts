@@ -34,11 +34,10 @@ export function useGetNotifications(
 
 /**
  * Generates SWR cache key for GET /notifications
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetNotificationsKey(args: InferRequestType<typeof client.notifications.$get>) {
-  const u = client.notifications.$url(args)
-  return u.pathname + u.search
+  return ['/notifications', args] as const
 }
 
 /**
@@ -67,10 +66,10 @@ export function useGetNotificationsUnreadCount(options?: {
 
 /**
  * Generates SWR cache key for GET /notifications/unread-count
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetNotificationsUnreadCountKey() {
-  return client.notifications['unread-count'].$url().pathname
+  return ['/notifications/unread-count'] as const
 }
 
 /**
@@ -115,7 +114,7 @@ export function usePostNotificationsMarkRead(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostNotificationsMarkReadMutationKey() {
-  return `POST ${client.notifications['mark-read'].$url().pathname}`
+  return 'POST /notifications/mark-read'
 }
 
 /**
@@ -143,10 +142,10 @@ export function useGetNotificationsSettings(options?: {
 
 /**
  * Generates SWR cache key for GET /notifications/settings
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetNotificationsSettingsKey() {
-  return client.notifications.settings.$url().pathname
+  return ['/notifications/settings'] as const
 }
 
 /**
@@ -189,7 +188,7 @@ export function usePutNotificationsSettings(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPutNotificationsSettingsMutationKey() {
-  return `PUT ${client.notifications.settings.$url().pathname}`
+  return 'PUT /notifications/settings'
 }
 
 /**
@@ -220,13 +219,12 @@ export function useGetDmConversations(
 
 /**
  * Generates SWR cache key for GET /dm/conversations
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetDmConversationsKey(
   args: InferRequestType<typeof client.dm.conversations.$get>,
 ) {
-  const u = client.dm.conversations.$url(args)
-  return u.pathname + u.search
+  return ['/dm/conversations', args] as const
 }
 
 /**
@@ -265,7 +263,7 @@ export function usePostDmConversations(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostDmConversationsMutationKey() {
-  return `POST ${client.dm.conversations.$url().pathname}`
+  return 'POST /dm/conversations'
 }
 
 /**
@@ -297,13 +295,12 @@ export function useGetDmConversationsConversationId(
 
 /**
  * Generates SWR cache key for GET /dm/conversations/{conversationId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetDmConversationsConversationIdKey(
   args: InferRequestType<(typeof client.dm.conversations)[':conversationId']['$get']>,
 ) {
-  const u = client.dm.conversations[':conversationId'].$url(args)
-  return u.pathname + u.search
+  return ['/dm/conversations/:conversationId', args] as const
 }
 
 /**
@@ -353,7 +350,7 @@ export function useDeleteDmConversationsConversationId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteDmConversationsConversationIdMutationKey() {
-  return `DELETE ${client.dm.conversations[':conversationId'].$url().pathname}`
+  return 'DELETE /dm/conversations/:conversationId'
 }
 
 /**
@@ -388,13 +385,12 @@ export function useGetDmConversationsConversationIdMessages(
 
 /**
  * Generates SWR cache key for GET /dm/conversations/{conversationId}/messages
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetDmConversationsConversationIdMessagesKey(
   args: InferRequestType<(typeof client.dm.conversations)[':conversationId']['messages']['$get']>,
 ) {
-  const u = client.dm.conversations[':conversationId'].messages.$url(args)
-  return u.pathname + u.search
+  return ['/dm/conversations/:conversationId/messages', args] as const
 }
 
 /**
@@ -450,7 +446,7 @@ export function usePostDmConversationsConversationIdMessages(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostDmConversationsConversationIdMessagesMutationKey() {
-  return `POST ${client.dm.conversations[':conversationId'].messages.$url().pathname}`
+  return 'POST /dm/conversations/:conversationId/messages'
 }
 
 /**
@@ -501,7 +497,7 @@ export function usePostDmConversationsConversationIdRead(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostDmConversationsConversationIdReadMutationKey() {
-  return `POST ${client.dm.conversations[':conversationId'].read.$url().pathname}`
+  return 'POST /dm/conversations/:conversationId/read'
 }
 
 /**
@@ -555,7 +551,7 @@ export function usePostDmConversationsConversationIdTyping(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostDmConversationsConversationIdTypingMutationKey() {
-  return `POST ${client.dm.conversations[':conversationId'].typing.$url().pathname}`
+  return 'POST /dm/conversations/:conversationId/typing'
 }
 
 /**
@@ -601,7 +597,7 @@ export function useDeleteDmMessagesMessageId(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteDmMessagesMessageIdMutationKey() {
-  return `DELETE ${client.dm.messages[':messageId'].$url().pathname}`
+  return 'DELETE /dm/messages/:messageId'
 }
 
 /**
@@ -650,7 +646,7 @@ export function usePostDmMessagesMessageIdReactions(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostDmMessagesMessageIdReactionsMutationKey() {
-  return `POST ${client.dm.messages[':messageId'].reactions.$url().pathname}`
+  return 'POST /dm/messages/:messageId/reactions'
 }
 
 /**
@@ -699,7 +695,7 @@ export function useDeleteDmMessagesMessageIdReactions(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteDmMessagesMessageIdReactionsMutationKey() {
-  return `DELETE ${client.dm.messages[':messageId'].reactions.$url().pathname}`
+  return 'DELETE /dm/messages/:messageId/reactions'
 }
 
 /**
@@ -727,10 +723,10 @@ export function useGetDmUnreadCount(options?: {
 
 /**
  * Generates SWR cache key for GET /dm/unread-count
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetDmUnreadCountKey() {
-  return client.dm['unread-count'].$url().pathname
+  return ['/dm/unread-count'] as const
 }
 
 /**
@@ -761,11 +757,10 @@ export function useGetSearchPosts(
 
 /**
  * Generates SWR cache key for GET /search/posts
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetSearchPostsKey(args: InferRequestType<typeof client.search.posts.$get>) {
-  const u = client.search.posts.$url(args)
-  return u.pathname + u.search
+  return ['/search/posts', args] as const
 }
 
 /**
@@ -796,11 +791,10 @@ export function useGetSearchUsers(
 
 /**
  * Generates SWR cache key for GET /search/users
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetSearchUsersKey(args: InferRequestType<typeof client.search.users.$get>) {
-  const u = client.search.users.$url(args)
-  return u.pathname + u.search
+  return ['/search/users', args] as const
 }
 
 /**
@@ -831,13 +825,12 @@ export function useGetSearchHashtags(
 
 /**
  * Generates SWR cache key for GET /search/hashtags
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetSearchHashtagsKey(
   args: InferRequestType<typeof client.search.hashtags.$get>,
 ) {
-  const u = client.search.hashtags.$url(args)
-  return u.pathname + u.search
+  return ['/search/hashtags', args] as const
 }
 
 /**
@@ -865,10 +858,10 @@ export function useGetSearchRecent(options?: {
 
 /**
  * Generates SWR cache key for GET /search/recent
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetSearchRecentKey() {
-  return client.search.recent.$url().pathname
+  return ['/search/recent'] as const
 }
 
 /**
@@ -907,7 +900,7 @@ export function useDeleteSearchRecent(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteSearchRecentMutationKey() {
-  return `DELETE ${client.search.recent.$url().pathname}`
+  return 'DELETE /search/recent'
 }
 
 /**
@@ -938,11 +931,10 @@ export function useGetTrends(
 
 /**
  * Generates SWR cache key for GET /trends
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetTrendsKey(args: InferRequestType<typeof client.trends.$get>) {
-  const u = client.trends.$url(args)
-  return u.pathname + u.search
+  return ['/trends', args] as const
 }
 
 /**
@@ -970,10 +962,10 @@ export function useGetTrendsLocations(options?: {
 
 /**
  * Generates SWR cache key for GET /trends/locations
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetTrendsLocationsKey() {
-  return client.trends.locations.$url().pathname
+  return ['/trends/locations'] as const
 }
 
 /**
@@ -1004,13 +996,12 @@ export function useGetSuggestionsUsers(
 
 /**
  * Generates SWR cache key for GET /suggestions/users
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
 export function getGetSuggestionsUsersKey(
   args: InferRequestType<typeof client.suggestions.users.$get>,
 ) {
-  const u = client.suggestions.users.$url(args)
-  return u.pathname + u.search
+  return ['/suggestions/users', args] as const
 }
 
 /**
@@ -1057,7 +1048,7 @@ export function usePostSuggestionsUsersUserIdHide(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostSuggestionsUsersUserIdHideMutationKey() {
-  return `POST ${client.suggestions.users[':userId'].hide.$url().pathname}`
+  return 'POST /suggestions/users/:userId/hide'
 }
 
 /**
@@ -1085,10 +1076,10 @@ export function useGetSuggestionsTopics(options?: {
 
 /**
  * Generates SWR cache key for GET /suggestions/topics
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
 export function getGetSuggestionsTopicsKey() {
-  return client.suggestions.topics.$url().pathname
+  return ['/suggestions/topics'] as const
 }
 
 /**
@@ -1133,7 +1124,7 @@ export function usePostTopicsTopicIdFollow(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getPostTopicsTopicIdFollowMutationKey() {
-  return `POST ${client.topics[':topicId'].follow.$url().pathname}`
+  return 'POST /topics/:topicId/follow'
 }
 
 /**
@@ -1178,5 +1169,5 @@ export function useDeleteTopicsTopicIdFollow(options?: {
  * All args should be passed via trigger's { arg } object
  */
 export function getDeleteTopicsTopicIdFollowMutationKey() {
-  return `DELETE ${client.topics[':topicId'].follow.$url().pathname}`
+  return 'DELETE /topics/:topicId/follow'
 }
