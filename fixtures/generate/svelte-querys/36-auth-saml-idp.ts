@@ -1,8 +1,36 @@
 import { createQuery, createMutation } from '@tanstack/svelte-query'
-import type { CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
+import type {
+  CreateQueryOptions,
+  QueryFunctionContext,
+  CreateMutationOptions,
+} from '@tanstack/svelte-query'
 import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/36-auth-saml-idp'
+
+/**
+ * Generates Svelte Query cache key for GET /saml/sso
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetSamlSsoQueryKey(args: InferRequestType<typeof client.saml.sso.$get>) {
+  return ['saml', '/saml/sso', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /saml/sso
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetSamlSsoQueryOptions = (
+  args: InferRequestType<typeof client.saml.sso.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetSamlSsoQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.saml.sso.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /saml/sso
@@ -29,30 +57,6 @@ export function createGetSamlSso(
 }
 
 /**
- * Generates Svelte Query cache key for GET /saml/sso
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetSamlSsoQueryKey(args: InferRequestType<typeof client.saml.sso.$get>) {
-  return ['/saml/sso', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /saml/sso
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetSamlSsoQueryOptions = (
-  args: InferRequestType<typeof client.saml.sso.$get>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetSamlSsoQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.saml.sso.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-    ),
-})
-
-/**
  * POST /saml/sso
  *
  * SSO (HTTP-POST binding)
@@ -74,6 +78,30 @@ export function createPostSamlSso(options?: {
       parseResponse(client.saml.sso.$post(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query cache key for GET /saml/slo
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetSamlSloQueryKey(args: InferRequestType<typeof client.saml.slo.$get>) {
+  return ['saml', '/saml/slo', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /saml/slo
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetSamlSloQueryOptions = (
+  args: InferRequestType<typeof client.saml.slo.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetSamlSloQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.saml.slo.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /saml/slo
@@ -98,30 +126,6 @@ export function createGetSamlSlo(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /saml/slo
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetSamlSloQueryKey(args: InferRequestType<typeof client.saml.slo.$get>) {
-  return ['/saml/slo', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /saml/slo
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetSamlSloQueryOptions = (
-  args: InferRequestType<typeof client.saml.slo.$get>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetSamlSloQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.saml.slo.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-    ),
-})
 
 /**
  * POST /saml/slo
@@ -170,6 +174,30 @@ export function createPostSamlAcs(options?: {
 }
 
 /**
+ * Generates Svelte Query cache key for GET /saml/metadata
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGetSamlMetadataQueryKey() {
+  return ['saml', '/saml/metadata'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /saml/metadata
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetSamlMetadataQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetSamlMetadataQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.saml.metadata.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /saml/metadata
  *
  * IdPメタデータ取得
@@ -195,23 +223,28 @@ export function createGetSamlMetadata(
 }
 
 /**
- * Generates Svelte Query cache key for GET /saml/metadata
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates Svelte Query cache key for GET /service-providers
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetSamlMetadataQueryKey() {
-  return ['/saml/metadata'] as const
+export function getGetServiceProvidersQueryKey(
+  args: InferRequestType<(typeof client)['service-providers']['$get']>,
+) {
+  return ['service-providers', '/service-providers', args] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /saml/metadata
+ * Returns Svelte Query query options for GET /service-providers
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetSamlMetadataQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetSamlMetadataQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetServiceProvidersQueryOptions = (
+  args: InferRequestType<(typeof client)['service-providers']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetServiceProvidersQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.saml.metadata.$get(undefined, {
+      client['service-providers'].$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -248,35 +281,6 @@ export function createGetServiceProviders(
 }
 
 /**
- * Generates Svelte Query cache key for GET /service-providers
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetServiceProvidersQueryKey(
-  args: InferRequestType<(typeof client)['service-providers']['$get']>,
-) {
-  return ['/service-providers', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /service-providers
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetServiceProvidersQueryOptions = (
-  args: InferRequestType<(typeof client)['service-providers']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetServiceProvidersQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['service-providers'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
-
-/**
  * POST /service-providers
  *
  * SP登録
@@ -300,6 +304,35 @@ export function createPostServiceProviders(options?: {
       parseResponse(client['service-providers'].$post(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query cache key for GET /service-providers/{spId}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetServiceProvidersSpIdQueryKey(
+  args: InferRequestType<(typeof client)['service-providers'][':spId']['$get']>,
+) {
+  return ['service-providers', '/service-providers/:spId', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /service-providers/{spId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetServiceProvidersSpIdQueryOptions = (
+  args: InferRequestType<(typeof client)['service-providers'][':spId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetServiceProvidersSpIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['service-providers'][':spId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /service-providers/{spId}
@@ -331,35 +364,6 @@ export function createGetServiceProvidersSpId(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /service-providers/{spId}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetServiceProvidersSpIdQueryKey(
-  args: InferRequestType<(typeof client)['service-providers'][':spId']['$get']>,
-) {
-  return ['/service-providers/:spId', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /service-providers/{spId}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetServiceProvidersSpIdQueryOptions = (
-  args: InferRequestType<(typeof client)['service-providers'][':spId']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetServiceProvidersSpIdQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['service-providers'][':spId'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * PUT /service-providers/{spId}
@@ -419,6 +423,35 @@ export function createDeleteServiceProvidersSpId(options?: {
 }
 
 /**
+ * Generates Svelte Query cache key for GET /service-providers/{spId}/metadata
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetServiceProvidersSpIdMetadataQueryKey(
+  args: InferRequestType<(typeof client)['service-providers'][':spId']['metadata']['$get']>,
+) {
+  return ['service-providers', '/service-providers/:spId/metadata', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /service-providers/{spId}/metadata
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetServiceProvidersSpIdMetadataQueryOptions = (
+  args: InferRequestType<(typeof client)['service-providers'][':spId']['metadata']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetServiceProvidersSpIdMetadataQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['service-providers'][':spId'].metadata.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /service-providers/{spId}/metadata
  *
  * SPメタデータ取得
@@ -450,35 +483,6 @@ export function createGetServiceProvidersSpIdMetadata(
 }
 
 /**
- * Generates Svelte Query cache key for GET /service-providers/{spId}/metadata
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetServiceProvidersSpIdMetadataQueryKey(
-  args: InferRequestType<(typeof client)['service-providers'][':spId']['metadata']['$get']>,
-) {
-  return ['/service-providers/:spId/metadata', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /service-providers/{spId}/metadata
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetServiceProvidersSpIdMetadataQueryOptions = (
-  args: InferRequestType<(typeof client)['service-providers'][':spId']['metadata']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetServiceProvidersSpIdMetadataQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['service-providers'][':spId'].metadata.$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
-
-/**
  * PUT /service-providers/{spId}/metadata
  *
  * SPメタデータ更新
@@ -505,6 +509,35 @@ export function createPutServiceProvidersSpIdMetadata(options?: {
     ) => parseResponse(client['service-providers'][':spId'].metadata.$put(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query cache key for GET /service-providers/{spId}/attributes
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetServiceProvidersSpIdAttributesQueryKey(
+  args: InferRequestType<(typeof client)['service-providers'][':spId']['attributes']['$get']>,
+) {
+  return ['service-providers', '/service-providers/:spId/attributes', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /service-providers/{spId}/attributes
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetServiceProvidersSpIdAttributesQueryOptions = (
+  args: InferRequestType<(typeof client)['service-providers'][':spId']['attributes']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetServiceProvidersSpIdAttributesQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['service-providers'][':spId'].attributes.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /service-providers/{spId}/attributes
@@ -538,35 +571,6 @@ export function createGetServiceProvidersSpIdAttributes(
 }
 
 /**
- * Generates Svelte Query cache key for GET /service-providers/{spId}/attributes
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetServiceProvidersSpIdAttributesQueryKey(
-  args: InferRequestType<(typeof client)['service-providers'][':spId']['attributes']['$get']>,
-) {
-  return ['/service-providers/:spId/attributes', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /service-providers/{spId}/attributes
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetServiceProvidersSpIdAttributesQueryOptions = (
-  args: InferRequestType<(typeof client)['service-providers'][':spId']['attributes']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetServiceProvidersSpIdAttributesQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['service-providers'][':spId'].attributes.$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
-
-/**
  * PUT /service-providers/{spId}/attributes
  *
  * SP属性マッピング更新
@@ -595,6 +599,30 @@ export function createPutServiceProvidersSpIdAttributes(options?: {
 }
 
 /**
+ * Generates Svelte Query cache key for GET /attributes
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGetAttributesQueryKey() {
+  return ['attributes', '/attributes'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /attributes
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetAttributesQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetAttributesQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.attributes.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /attributes
  *
  * 利用可能な属性一覧
@@ -616,23 +644,23 @@ export function createGetAttributes(
 }
 
 /**
- * Generates Svelte Query cache key for GET /attributes
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates Svelte Query cache key for GET /certificates
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetAttributesQueryKey() {
-  return ['/attributes'] as const
+export function getGetCertificatesQueryKey() {
+  return ['certificates', '/certificates'] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /attributes
+ * Returns Svelte Query query options for GET /certificates
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetAttributesQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetAttributesQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetCertificatesQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetCertificatesQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.attributes.$get(undefined, {
+      client.certificates.$get(undefined, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -661,30 +689,6 @@ export function createGetCertificates(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /certificates
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGetCertificatesQueryKey() {
-  return ['/certificates'] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /certificates
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetCertificatesQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetCertificatesQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.certificates.$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /certificates
@@ -767,6 +771,30 @@ export function createPostCertificatesCertIdActivate(options?: {
 }
 
 /**
+ * Generates Svelte Query cache key for GET /sessions
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetSessionsQueryKey(args: InferRequestType<typeof client.sessions.$get>) {
+  return ['sessions', '/sessions', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /sessions
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetSessionsQueryOptions = (
+  args: InferRequestType<typeof client.sessions.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetSessionsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.sessions.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
+
+/**
  * GET /sessions
  *
  * アクティブセッション一覧
@@ -787,30 +815,6 @@ export function createGetSessions(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /sessions
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetSessionsQueryKey(args: InferRequestType<typeof client.sessions.$get>) {
-  return ['/sessions', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /sessions
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetSessionsQueryOptions = (
-  args: InferRequestType<typeof client.sessions.$get>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetSessionsQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.sessions.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-    ),
-})
 
 /**
  * DELETE /sessions/{sessionId}
@@ -841,6 +845,35 @@ export function createDeleteSessionsSessionId(options?: {
 }
 
 /**
+ * Generates Svelte Query cache key for GET /audit-logs
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetAuditLogsQueryKey(
+  args: InferRequestType<(typeof client)['audit-logs']['$get']>,
+) {
+  return ['audit-logs', '/audit-logs', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /audit-logs
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetAuditLogsQueryOptions = (
+  args: InferRequestType<(typeof client)['audit-logs']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetAuditLogsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['audit-logs'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /audit-logs
  *
  * SAML監査ログ取得
@@ -863,32 +896,3 @@ export function createGetAuditLogs(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /audit-logs
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetAuditLogsQueryKey(
-  args: InferRequestType<(typeof client)['audit-logs']['$get']>,
-) {
-  return ['/audit-logs', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /audit-logs
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetAuditLogsQueryOptions = (
-  args: InferRequestType<(typeof client)['audit-logs']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetAuditLogsQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['audit-logs'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})

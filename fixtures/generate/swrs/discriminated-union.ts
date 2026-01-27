@@ -6,6 +6,14 @@ import { parseResponse } from 'hono/client'
 import { client } from '../clients/discriminated-union'
 
 /**
+ * Generates SWR mutation key for POST /messages
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ */
+export function getPostMessagesMutationKey() {
+  return ['/messages'] as const
+}
+
+/**
  * POST /messages
  */
 export function usePostMessages(options?: {
@@ -29,13 +37,4 @@ export function usePostMessages(options?: {
       restMutationOptions,
     ),
   }
-}
-
-/**
- * Generates SWR mutation key for POST /messages
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
- */
-export function getPostMessagesMutationKey() {
-  return 'POST /messages'
 }

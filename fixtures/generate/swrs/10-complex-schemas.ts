@@ -6,6 +6,14 @@ import { parseResponse } from 'hono/client'
 import { client } from '../clients/10-complex-schemas'
 
 /**
+ * Generates SWR mutation key for POST /events
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ */
+export function getPostEventsMutationKey() {
+  return ['/events'] as const
+}
+
+/**
  * POST /events
  */
 export function usePostEvents(options?: {
@@ -32,12 +40,11 @@ export function usePostEvents(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /events
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /notifications
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostEventsMutationKey() {
-  return 'POST /events'
+export function getPostNotificationsMutationKey() {
+  return ['/notifications'] as const
 }
 
 /**
@@ -69,12 +76,11 @@ export function usePostNotifications(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /notifications
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /shapes
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostNotificationsMutationKey() {
-  return 'POST /notifications'
+export function getPostShapesMutationKey() {
+  return ['/shapes'] as const
 }
 
 /**
@@ -104,12 +110,11 @@ export function usePostShapes(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /shapes
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /documents
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostShapesMutationKey() {
-  return 'POST /shapes'
+export function getPostDocumentsMutationKey() {
+  return ['/documents'] as const
 }
 
 /**
@@ -139,12 +144,11 @@ export function usePostDocuments(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /documents
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /mixed
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostDocumentsMutationKey() {
-  return 'POST /documents'
+export function getPostMixedMutationKey() {
+  return ['/mixed'] as const
 }
 
 /**
@@ -171,13 +175,4 @@ export function usePostMixed(options?: {
       restMutationOptions,
     ),
   }
-}
-
-/**
- * Generates SWR mutation key for POST /mixed
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
- */
-export function getPostMixedMutationKey() {
-  return 'POST /mixed'
 }

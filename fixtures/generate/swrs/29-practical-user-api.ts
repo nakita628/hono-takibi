@@ -7,6 +7,14 @@ import { parseResponse } from 'hono/client'
 import { client } from '../clients/29-practical-user-api'
 
 /**
+ * Generates SWR mutation key for POST /auth/register
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ */
+export function getPostAuthRegisterMutationKey() {
+  return ['/auth/register'] as const
+}
+
+/**
  * POST /auth/register
  *
  * 新規ユーザー登録
@@ -39,12 +47,11 @@ export function usePostAuthRegister(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /auth/register
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /auth/login
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostAuthRegisterMutationKey() {
-  return 'POST /auth/register'
+export function getPostAuthLoginMutationKey() {
+  return ['/auth/login'] as const
 }
 
 /**
@@ -78,12 +85,11 @@ export function usePostAuthLogin(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /auth/login
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /auth/refresh
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostAuthLoginMutationKey() {
-  return 'POST /auth/login'
+export function getPostAuthRefreshMutationKey() {
+  return ['/auth/refresh'] as const
 }
 
 /**
@@ -119,12 +125,11 @@ export function usePostAuthRefresh(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /auth/refresh
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /auth/logout
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostAuthRefreshMutationKey() {
-  return 'POST /auth/refresh'
+export function getPostAuthLogoutMutationKey() {
+  return ['/auth/logout'] as const
 }
 
 /**
@@ -158,12 +163,11 @@ export function usePostAuthLogout(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /auth/logout
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /auth/password/forgot
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostAuthLogoutMutationKey() {
-  return 'POST /auth/logout'
+export function getPostAuthPasswordForgotMutationKey() {
+  return ['/auth/password/forgot'] as const
 }
 
 /**
@@ -203,12 +207,11 @@ export function usePostAuthPasswordForgot(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /auth/password/forgot
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /auth/password/reset
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostAuthPasswordForgotMutationKey() {
-  return 'POST /auth/password/forgot'
+export function getPostAuthPasswordResetMutationKey() {
+  return ['/auth/password/reset'] as const
 }
 
 /**
@@ -242,12 +245,11 @@ export function usePostAuthPasswordReset(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /auth/password/reset
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /users
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPostAuthPasswordResetMutationKey() {
-  return 'POST /auth/password/reset'
+export function getGetUsersKey(args: InferRequestType<typeof client.users.$get>) {
+  return ['/users', args] as const
 }
 
 /**
@@ -279,11 +281,13 @@ export function useGetUsers(
 }
 
 /**
- * Generates SWR cache key for GET /users
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR cache key for GET /users/{userId}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getGetUsersKey(args: InferRequestType<typeof client.users.$get>) {
-  return ['/users', args] as const
+export function getGetUsersUserIdKey(
+  args: InferRequestType<(typeof client.users)[':userId']['$get']>,
+) {
+  return [`/users/${args.param.userId}`, args] as const
 }
 
 /**
@@ -313,13 +317,11 @@ export function useGetUsersUserId(
 }
 
 /**
- * Generates SWR cache key for GET /users/{userId}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for DELETE /users/{userId}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetUsersUserIdKey(
-  args: InferRequestType<(typeof client.users)[':userId']['$get']>,
-) {
-  return ['/users/:userId', args] as const
+export function getDeleteUsersUserIdMutationKey() {
+  return ['/users/:userId'] as const
 }
 
 /**
@@ -358,12 +360,11 @@ export function useDeleteUsersUserId(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /users/{userId}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for PATCH /users/{userId}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getDeleteUsersUserIdMutationKey() {
-  return 'DELETE /users/:userId'
+export function getPatchUsersUserIdMutationKey() {
+  return ['/users/:userId'] as const
 }
 
 /**
@@ -401,12 +402,11 @@ export function usePatchUsersUserId(options?: {
 }
 
 /**
- * Generates SWR mutation key for PATCH /users/{userId}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /users/me
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getPatchUsersUserIdMutationKey() {
-  return 'PATCH /users/:userId'
+export function getGetUsersMeKey() {
+  return ['/users/me'] as const
 }
 
 /**
@@ -433,10 +433,10 @@ export function useGetUsersMe(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /users/me
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR mutation key for PATCH /users/me
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetUsersMeKey() {
+export function getPatchUsersMeMutationKey() {
   return ['/users/me'] as const
 }
 
@@ -469,12 +469,11 @@ export function usePatchUsersMe(options?: {
 }
 
 /**
- * Generates SWR mutation key for PATCH /users/me
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for PUT /users/me/password
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPatchUsersMeMutationKey() {
-  return 'PATCH /users/me'
+export function getPutUsersMePasswordMutationKey() {
+  return ['/users/me/password'] as const
 }
 
 /**
@@ -508,12 +507,11 @@ export function usePutUsersMePassword(options?: {
 }
 
 /**
- * Generates SWR mutation key for PUT /users/me/password
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for PUT /users/me/avatar
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPutUsersMePasswordMutationKey() {
-  return 'PUT /users/me/password'
+export function getPutUsersMeAvatarMutationKey() {
+  return ['/users/me/avatar'] as const
 }
 
 /**
@@ -547,12 +545,11 @@ export function usePutUsersMeAvatar(options?: {
 }
 
 /**
- * Generates SWR mutation key for PUT /users/me/avatar
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for DELETE /users/me/avatar
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPutUsersMeAvatarMutationKey() {
-  return 'PUT /users/me/avatar'
+export function getDeleteUsersMeAvatarMutationKey() {
+  return ['/users/me/avatar'] as const
 }
 
 /**
@@ -583,13 +580,4 @@ export function useDeleteUsersMeAvatar(options?: {
       restMutationOptions,
     ),
   }
-}
-
-/**
- * Generates SWR mutation key for DELETE /users/me/avatar
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
- */
-export function getDeleteUsersMeAvatarMutationKey() {
-  return 'DELETE /users/me/avatar'
 }

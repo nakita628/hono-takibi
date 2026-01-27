@@ -1,8 +1,33 @@
 import { createQuery, createMutation } from '@tanstack/svelte-query'
-import type { CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
+import type {
+  CreateQueryOptions,
+  QueryFunctionContext,
+  CreateMutationOptions,
+} from '@tanstack/svelte-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/24-extreme-security'
+
+/**
+ * Generates Svelte Query cache key for GET /public
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGetPublicQueryKey() {
+  return ['public', '/public'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /public
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetPublicQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetPublicQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.public.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /public
@@ -26,23 +51,26 @@ export function createGetPublic(
 }
 
 /**
- * Generates Svelte Query cache key for GET /public
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates Svelte Query cache key for GET /single-auth
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetPublicQueryKey() {
-  return ['/public'] as const
+export function getGetSingleAuthQueryKey() {
+  return ['single-auth', '/single-auth'] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /public
+ * Returns Svelte Query query options for GET /single-auth
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetPublicQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetPublicQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetSingleAuthQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetSingleAuthQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.public.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      client['single-auth'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
     ),
 })
 
@@ -72,23 +100,23 @@ export function createGetSingleAuth(
 }
 
 /**
- * Generates Svelte Query cache key for GET /single-auth
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates Svelte Query cache key for GET /any-auth
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetSingleAuthQueryKey() {
-  return ['/single-auth'] as const
+export function getGetAnyAuthQueryKey() {
+  return ['any-auth', '/any-auth'] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /single-auth
+ * Returns Svelte Query query options for GET /any-auth
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetSingleAuthQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetSingleAuthQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetAnyAuthQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetAnyAuthQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client['single-auth'].$get(undefined, {
+      client['any-auth'].$get(undefined, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -119,23 +147,23 @@ export function createGetAnyAuth(
 }
 
 /**
- * Generates Svelte Query cache key for GET /any-auth
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates Svelte Query cache key for GET /all-auth
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetAnyAuthQueryKey() {
-  return ['/any-auth'] as const
+export function getGetAllAuthQueryKey() {
+  return ['all-auth', '/all-auth'] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /any-auth
+ * Returns Svelte Query query options for GET /all-auth
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetAnyAuthQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetAnyAuthQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetAllAuthQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetAllAuthQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client['any-auth'].$get(undefined, {
+      client['all-auth'].$get(undefined, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -166,23 +194,23 @@ export function createGetAllAuth(
 }
 
 /**
- * Generates Svelte Query cache key for GET /all-auth
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates Svelte Query cache key for GET /complex-auth
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetAllAuthQueryKey() {
-  return ['/all-auth'] as const
+export function getGetComplexAuthQueryKey() {
+  return ['complex-auth', '/complex-auth'] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /all-auth
+ * Returns Svelte Query query options for GET /complex-auth
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetAllAuthQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetAllAuthQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetComplexAuthQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetComplexAuthQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client['all-auth'].$get(undefined, {
+      client['complex-auth'].$get(undefined, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -215,23 +243,23 @@ export function createGetComplexAuth(
 }
 
 /**
- * Generates Svelte Query cache key for GET /complex-auth
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates Svelte Query cache key for GET /scoped-oauth
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetComplexAuthQueryKey() {
-  return ['/complex-auth'] as const
+export function getGetScopedOauthQueryKey() {
+  return ['scoped-oauth', '/scoped-oauth'] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /complex-auth
+ * Returns Svelte Query query options for GET /scoped-oauth
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetComplexAuthQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetComplexAuthQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetScopedOauthQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetScopedOauthQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client['complex-auth'].$get(undefined, {
+      client['scoped-oauth'].$get(undefined, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -264,23 +292,23 @@ export function createGetScopedOauth(
 }
 
 /**
- * Generates Svelte Query cache key for GET /scoped-oauth
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates Svelte Query cache key for GET /mixed-level-security
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetScopedOauthQueryKey() {
-  return ['/scoped-oauth'] as const
+export function getGetMixedLevelSecurityQueryKey() {
+  return ['mixed-level-security', '/mixed-level-security'] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /scoped-oauth
+ * Returns Svelte Query query options for GET /mixed-level-security
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetScopedOauthQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetScopedOauthQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetMixedLevelSecurityQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetMixedLevelSecurityQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client['scoped-oauth'].$get(undefined, {
+      client['mixed-level-security'].$get(undefined, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -311,30 +339,6 @@ export function createGetMixedLevelSecurity(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /mixed-level-security
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGetMixedLevelSecurityQueryKey() {
-  return ['/mixed-level-security'] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /mixed-level-security
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetMixedLevelSecurityQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetMixedLevelSecurityQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['mixed-level-security'].$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * PUT /mixed-level-security
@@ -415,6 +419,30 @@ export function createDeleteMixedLevelSecurity(options?: {
 }
 
 /**
+ * Generates Svelte Query cache key for GET /override-global
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGetOverrideGlobalQueryKey() {
+  return ['override-global', '/override-global'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /override-global
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetOverrideGlobalQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetOverrideGlobalQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['override-global'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /override-global
  *
  * Override global security with public
@@ -440,23 +468,23 @@ export function createGetOverrideGlobal(
 }
 
 /**
- * Generates Svelte Query cache key for GET /override-global
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates Svelte Query cache key for GET /optional-enhanced
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetOverrideGlobalQueryKey() {
-  return ['/override-global'] as const
+export function getGetOptionalEnhancedQueryKey() {
+  return ['optional-enhanced', '/optional-enhanced'] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /override-global
+ * Returns Svelte Query query options for GET /optional-enhanced
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetOverrideGlobalQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetOverrideGlobalQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetOptionalEnhancedQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetOptionalEnhancedQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client['override-global'].$get(undefined, {
+      client['optional-enhanced'].$get(undefined, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -489,23 +517,23 @@ export function createGetOptionalEnhanced(
 }
 
 /**
- * Generates Svelte Query cache key for GET /optional-enhanced
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates Svelte Query cache key for GET /multi-tenant
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetOptionalEnhancedQueryKey() {
-  return ['/optional-enhanced'] as const
+export function getGetMultiTenantQueryKey() {
+  return ['multi-tenant', '/multi-tenant'] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /optional-enhanced
+ * Returns Svelte Query query options for GET /multi-tenant
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetOptionalEnhancedQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetOptionalEnhancedQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetMultiTenantQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetMultiTenantQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client['optional-enhanced'].$get(undefined, {
+      client['multi-tenant'].$get(undefined, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -536,27 +564,3 @@ export function createGetMultiTenant(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /multi-tenant
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGetMultiTenantQueryKey() {
-  return ['/multi-tenant'] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /multi-tenant
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetMultiTenantQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetMultiTenantQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['multi-tenant'].$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})

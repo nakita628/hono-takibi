@@ -1,5 +1,9 @@
 import { createQuery, createMutation } from '@tanstack/svelte-query'
-import type { CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
+import type {
+  CreateQueryOptions,
+  QueryFunctionContext,
+  CreateMutationOptions,
+} from '@tanstack/svelte-query'
 import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/pet-store'
@@ -51,6 +55,35 @@ export function createPostPet(options?: {
 }
 
 /**
+ * Generates Svelte Query cache key for GET /pet/findByStatus
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetPetFindByStatusQueryKey(
+  args: InferRequestType<typeof client.pet.findByStatus.$get>,
+) {
+  return ['pet', '/pet/findByStatus', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /pet/findByStatus
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetPetFindByStatusQueryOptions = (
+  args: InferRequestType<typeof client.pet.findByStatus.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetPetFindByStatusQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.pet.findByStatus.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /pet/findByStatus
  *
  * Finds Pets by status
@@ -80,28 +113,28 @@ export function createGetPetFindByStatus(
 }
 
 /**
- * Generates Svelte Query cache key for GET /pet/findByStatus
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Svelte Query cache key for GET /pet/findByTags
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetPetFindByStatusQueryKey(
-  args: InferRequestType<typeof client.pet.findByStatus.$get>,
+export function getGetPetFindByTagsQueryKey(
+  args: InferRequestType<typeof client.pet.findByTags.$get>,
 ) {
-  return ['/pet/findByStatus', args] as const
+  return ['pet', '/pet/findByTags', args] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /pet/findByStatus
+ * Returns Svelte Query query options for GET /pet/findByTags
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetPetFindByStatusQueryOptions = (
-  args: InferRequestType<typeof client.pet.findByStatus.$get>,
+export const getGetPetFindByTagsQueryOptions = (
+  args: InferRequestType<typeof client.pet.findByTags.$get>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetPetFindByStatusQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetPetFindByTagsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.pet.findByStatus.$get(args, {
+      client.pet.findByTags.$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -138,28 +171,28 @@ export function createGetPetFindByTags(
 }
 
 /**
- * Generates Svelte Query cache key for GET /pet/findByTags
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Svelte Query cache key for GET /pet/{petId}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetPetFindByTagsQueryKey(
-  args: InferRequestType<typeof client.pet.findByTags.$get>,
+export function getGetPetPetIdQueryKey(
+  args: InferRequestType<(typeof client.pet)[':petId']['$get']>,
 ) {
-  return ['/pet/findByTags', args] as const
+  return ['pet', '/pet/:petId', args] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /pet/findByTags
+ * Returns Svelte Query query options for GET /pet/{petId}
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetPetFindByTagsQueryOptions = (
-  args: InferRequestType<typeof client.pet.findByTags.$get>,
+export const getGetPetPetIdQueryOptions = (
+  args: InferRequestType<(typeof client.pet)[':petId']['$get']>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetPetFindByTagsQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetPetPetIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.pet.findByTags.$get(args, {
+      client.pet[':petId'].$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -191,35 +224,6 @@ export function createGetPetPetId(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /pet/{petId}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetPetPetIdQueryKey(
-  args: InferRequestType<(typeof client.pet)[':petId']['$get']>,
-) {
-  return ['/pet/:petId', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /pet/{petId}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetPetPetIdQueryOptions = (
-  args: InferRequestType<(typeof client.pet)[':petId']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetPetPetIdQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.pet[':petId'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /pet/{petId}
@@ -300,6 +304,30 @@ export function createPostPetPetIdUploadImage(options?: {
 }
 
 /**
+ * Generates Svelte Query cache key for GET /store/inventory
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGetStoreInventoryQueryKey() {
+  return ['store', '/store/inventory'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /store/inventory
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetStoreInventoryQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetStoreInventoryQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.store.inventory.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /store/inventory
  *
  * Returns pet inventories by status
@@ -325,30 +353,6 @@ export function createGetStoreInventory(
 }
 
 /**
- * Generates Svelte Query cache key for GET /store/inventory
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGetStoreInventoryQueryKey() {
-  return ['/store/inventory'] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /store/inventory
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetStoreInventoryQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetStoreInventoryQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.store.inventory.$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
-
-/**
  * POST /store/order
  *
  * Place an order for a pet
@@ -370,6 +374,35 @@ export function createPostStoreOrder(options?: {
       parseResponse(client.store.order.$post(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query cache key for GET /store/order/{orderId}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetStoreOrderOrderIdQueryKey(
+  args: InferRequestType<(typeof client.store.order)[':orderId']['$get']>,
+) {
+  return ['store', '/store/order/:orderId', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /store/order/{orderId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetStoreOrderOrderIdQueryOptions = (
+  args: InferRequestType<(typeof client.store.order)[':orderId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetStoreOrderOrderIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.store.order[':orderId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /store/order/{orderId}
@@ -401,35 +434,6 @@ export function createGetStoreOrderOrderId(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /store/order/{orderId}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetStoreOrderOrderIdQueryKey(
-  args: InferRequestType<(typeof client.store.order)[':orderId']['$get']>,
-) {
-  return ['/store/order/:orderId', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /store/order/{orderId}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetStoreOrderOrderIdQueryOptions = (
-  args: InferRequestType<(typeof client.store.order)[':orderId']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetStoreOrderOrderIdQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.store.order[':orderId'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * DELETE /store/order/{orderId}
@@ -510,6 +514,30 @@ export function createPostUserCreateWithList(options?: {
 }
 
 /**
+ * Generates Svelte Query cache key for GET /user/login
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetUserLoginQueryKey(args: InferRequestType<typeof client.user.login.$get>) {
+  return ['user', '/user/login', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /user/login
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetUserLoginQueryOptions = (
+  args: InferRequestType<typeof client.user.login.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetUserLoginQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.user.login.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
+
+/**
  * GET /user/login
  *
  * Logs user into the system
@@ -532,26 +560,26 @@ export function createGetUserLogin(
 }
 
 /**
- * Generates Svelte Query cache key for GET /user/login
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Svelte Query cache key for GET /user/logout
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetUserLoginQueryKey(args: InferRequestType<typeof client.user.login.$get>) {
-  return ['/user/login', args] as const
+export function getGetUserLogoutQueryKey() {
+  return ['user', '/user/logout'] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /user/login
+ * Returns Svelte Query query options for GET /user/logout
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetUserLoginQueryOptions = (
-  args: InferRequestType<typeof client.user.login.$get>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetUserLoginQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetUserLogoutQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetUserLogoutQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.user.login.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      client.user.logout.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
     ),
 })
 
@@ -579,23 +607,28 @@ export function createGetUserLogout(
 }
 
 /**
- * Generates Svelte Query cache key for GET /user/logout
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates Svelte Query cache key for GET /user/{username}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetUserLogoutQueryKey() {
-  return ['/user/logout'] as const
+export function getGetUserUsernameQueryKey(
+  args: InferRequestType<(typeof client.user)[':username']['$get']>,
+) {
+  return ['user', '/user/:username', args] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /user/logout
+ * Returns Svelte Query query options for GET /user/{username}
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetUserLogoutQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetUserLogoutQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetUserUsernameQueryOptions = (
+  args: InferRequestType<(typeof client.user)[':username']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetUserUsernameQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.user.logout.$get(undefined, {
+      client.user[':username'].$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -627,35 +660,6 @@ export function createGetUserUsername(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /user/{username}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetUserUsernameQueryKey(
-  args: InferRequestType<(typeof client.user)[':username']['$get']>,
-) {
-  return ['/user/:username', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /user/{username}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetUserUsernameQueryOptions = (
-  args: InferRequestType<(typeof client.user)[':username']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetUserUsernameQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.user[':username'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * PUT /user/{username}

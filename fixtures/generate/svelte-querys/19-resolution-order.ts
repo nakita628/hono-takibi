@@ -1,8 +1,36 @@
 import { createQuery, createMutation } from '@tanstack/svelte-query'
-import type { CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
+import type {
+  CreateQueryOptions,
+  QueryFunctionContext,
+  CreateMutationOptions,
+} from '@tanstack/svelte-query'
 import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/19-resolution-order'
+
+/**
+ * Generates Svelte Query cache key for GET /entities
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGetEntitiesQueryKey() {
+  return ['entities', '/entities'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /entities
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetEntitiesQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetEntitiesQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.entities.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /entities
@@ -24,30 +52,6 @@ export function createGetEntities(
 }
 
 /**
- * Generates Svelte Query cache key for GET /entities
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGetEntitiesQueryKey() {
-  return ['/entities'] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /entities
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetEntitiesQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetEntitiesQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.entities.$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
-
-/**
  * POST /process
  */
 export function createPostProcess(options?: {
@@ -67,6 +71,27 @@ export function createPostProcess(options?: {
 }
 
 /**
+ * Generates Svelte Query cache key for GET /graph
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGetGraphQueryKey() {
+  return ['graph', '/graph'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /graph
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetGraphQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetGraphQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.graph.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
+
+/**
  * GET /graph
  */
 export function createGetGraph(
@@ -84,27 +109,6 @@ export function createGetGraph(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /graph
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGetGraphQueryKey() {
-  return ['/graph'] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /graph
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetGraphQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetGraphQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.graph.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-    ),
-})
 
 /**
  * POST /transform

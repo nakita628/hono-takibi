@@ -7,6 +7,14 @@ import { parseResponse } from 'hono/client'
 import { client } from '../clients/30-practical-ecommerce-api'
 
 /**
+ * Generates SWR cache key for GET /products
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
+ */
+export function getGetProductsKey(args: InferRequestType<typeof client.products.$get>) {
+  return ['/products', args] as const
+}
+
+/**
  * GET /products
  *
  * 商品一覧取得
@@ -33,11 +41,11 @@ export function useGetProducts(
 }
 
 /**
- * Generates SWR cache key for GET /products
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for POST /products
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetProductsKey(args: InferRequestType<typeof client.products.$get>) {
-  return ['/products', args] as const
+export function getPostProductsMutationKey() {
+  return ['/products'] as const
 }
 
 /**
@@ -69,12 +77,13 @@ export function usePostProducts(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /products
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /products/{productId}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPostProductsMutationKey() {
-  return 'POST /products'
+export function getGetProductsProductIdKey(
+  args: InferRequestType<(typeof client.products)[':productId']['$get']>,
+) {
+  return [`/products/${args.param.productId}`, args] as const
 }
 
 /**
@@ -104,13 +113,11 @@ export function useGetProductsProductId(
 }
 
 /**
- * Generates SWR cache key for GET /products/{productId}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for PUT /products/{productId}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetProductsProductIdKey(
-  args: InferRequestType<(typeof client.products)[':productId']['$get']>,
-) {
-  return ['/products/:productId', args] as const
+export function getPutProductsProductIdMutationKey() {
+  return ['/products/:productId'] as const
 }
 
 /**
@@ -148,12 +155,11 @@ export function usePutProductsProductId(options?: {
 }
 
 /**
- * Generates SWR mutation key for PUT /products/{productId}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for DELETE /products/{productId}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPutProductsProductIdMutationKey() {
-  return 'PUT /products/:productId'
+export function getDeleteProductsProductIdMutationKey() {
+  return ['/products/:productId'] as const
 }
 
 /**
@@ -194,12 +200,11 @@ export function useDeleteProductsProductId(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /products/{productId}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /products/{productId}/images
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getDeleteProductsProductIdMutationKey() {
-  return 'DELETE /products/:productId'
+export function getPostProductsProductIdImagesMutationKey() {
+  return ['/products/:productId/images'] as const
 }
 
 /**
@@ -241,12 +246,11 @@ export function usePostProductsProductIdImages(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /products/{productId}/images
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /categories
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getPostProductsProductIdImagesMutationKey() {
-  return 'POST /products/:productId/images'
+export function getGetCategoriesKey() {
+  return ['/categories'] as const
 }
 
 /**
@@ -273,10 +277,10 @@ export function useGetCategories(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /categories
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR mutation key for POST /categories
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetCategoriesKey() {
+export function getPostCategoriesMutationKey() {
   return ['/categories'] as const
 }
 
@@ -309,12 +313,11 @@ export function usePostCategories(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /categories
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /cart
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getPostCategoriesMutationKey() {
-  return 'POST /categories'
+export function getGetCartKey() {
+  return ['/cart'] as const
 }
 
 /**
@@ -341,10 +344,10 @@ export function useGetCart(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /cart
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR mutation key for DELETE /cart
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetCartKey() {
+export function getDeleteCartMutationKey() {
   return ['/cart'] as const
 }
 
@@ -377,12 +380,11 @@ export function useDeleteCart(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /cart
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /cart/items
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getDeleteCartMutationKey() {
-  return 'DELETE /cart'
+export function getPostCartItemsMutationKey() {
+  return ['/cart/items'] as const
 }
 
 /**
@@ -414,12 +416,11 @@ export function usePostCartItems(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /cart/items
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for PUT /cart/items/{itemId}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostCartItemsMutationKey() {
-  return 'POST /cart/items'
+export function getPutCartItemsItemIdMutationKey() {
+  return ['/cart/items/:itemId'] as const
 }
 
 /**
@@ -457,12 +458,11 @@ export function usePutCartItemsItemId(options?: {
 }
 
 /**
- * Generates SWR mutation key for PUT /cart/items/{itemId}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for DELETE /cart/items/{itemId}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPutCartItemsItemIdMutationKey() {
-  return 'PUT /cart/items/:itemId'
+export function getDeleteCartItemsItemIdMutationKey() {
+  return ['/cart/items/:itemId'] as const
 }
 
 /**
@@ -500,12 +500,11 @@ export function useDeleteCartItemsItemId(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /cart/items/{itemId}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /orders
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getDeleteCartItemsItemIdMutationKey() {
-  return 'DELETE /cart/items/:itemId'
+export function getGetOrdersKey(args: InferRequestType<typeof client.orders.$get>) {
+  return ['/orders', args] as const
 }
 
 /**
@@ -535,11 +534,11 @@ export function useGetOrders(
 }
 
 /**
- * Generates SWR cache key for GET /orders
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for POST /orders
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetOrdersKey(args: InferRequestType<typeof client.orders.$get>) {
-  return ['/orders', args] as const
+export function getPostOrdersMutationKey() {
+  return ['/orders'] as const
 }
 
 /**
@@ -573,12 +572,13 @@ export function usePostOrders(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /orders
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /orders/{orderId}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPostOrdersMutationKey() {
-  return 'POST /orders'
+export function getGetOrdersOrderIdKey(
+  args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
+) {
+  return [`/orders/${args.param.orderId}`, args] as const
 }
 
 /**
@@ -608,13 +608,11 @@ export function useGetOrdersOrderId(
 }
 
 /**
- * Generates SWR cache key for GET /orders/{orderId}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for POST /orders/{orderId}/cancel
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetOrdersOrderIdKey(
-  args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
-) {
-  return ['/orders/:orderId', args] as const
+export function getPostOrdersOrderIdCancelMutationKey() {
+  return ['/orders/:orderId/cancel'] as const
 }
 
 /**
@@ -654,12 +652,13 @@ export function usePostOrdersOrderIdCancel(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /orders/{orderId}/cancel
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /inventory/{productId}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPostOrdersOrderIdCancelMutationKey() {
-  return 'POST /orders/:orderId/cancel'
+export function getGetInventoryProductIdKey(
+  args: InferRequestType<(typeof client.inventory)[':productId']['$get']>,
+) {
+  return [`/inventory/${args.param.productId}`, args] as const
 }
 
 /**
@@ -689,13 +688,11 @@ export function useGetInventoryProductId(
 }
 
 /**
- * Generates SWR cache key for GET /inventory/{productId}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for PUT /inventory/{productId}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetInventoryProductIdKey(
-  args: InferRequestType<(typeof client.inventory)[':productId']['$get']>,
-) {
-  return ['/inventory/:productId', args] as const
+export function getPutInventoryProductIdMutationKey() {
+  return ['/inventory/:productId'] as const
 }
 
 /**
@@ -730,13 +727,4 @@ export function usePutInventoryProductId(options?: {
       restMutationOptions,
     ),
   }
-}
-
-/**
- * Generates SWR mutation key for PUT /inventory/{productId}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
- */
-export function getPutInventoryProductIdMutationKey() {
-  return 'PUT /inventory/:productId'
 }

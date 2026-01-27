@@ -7,6 +7,16 @@ import { parseResponse } from 'hono/client'
 import { client } from '../clients/35-auth-oauth2-server'
 
 /**
+ * Generates SWR cache key for GET /oauth/authorize
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
+ */
+export function getGetOauthAuthorizeKey(
+  args: InferRequestType<typeof client.oauth.authorize.$get>,
+) {
+  return ['/oauth/authorize', args] as const
+}
+
+/**
  * GET /oauth/authorize
  *
  * 認可エンドポイント
@@ -36,13 +46,11 @@ export function useGetOauthAuthorize(
 }
 
 /**
- * Generates SWR cache key for GET /oauth/authorize
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for POST /oauth/token
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetOauthAuthorizeKey(
-  args: InferRequestType<typeof client.oauth.authorize.$get>,
-) {
-  return ['/oauth/authorize', args] as const
+export function getPostOauthTokenMutationKey() {
+  return ['/oauth/token'] as const
 }
 
 /**
@@ -77,12 +85,11 @@ export function usePostOauthToken(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /oauth/token
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /oauth/revoke
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostOauthTokenMutationKey() {
-  return 'POST /oauth/token'
+export function getPostOauthRevokeMutationKey() {
+  return ['/oauth/revoke'] as const
 }
 
 /**
@@ -118,12 +125,11 @@ export function usePostOauthRevoke(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /oauth/revoke
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /oauth/introspect
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostOauthRevokeMutationKey() {
-  return 'POST /oauth/revoke'
+export function getPostOauthIntrospectMutationKey() {
+  return ['/oauth/introspect'] as const
 }
 
 /**
@@ -159,12 +165,11 @@ export function usePostOauthIntrospect(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /oauth/introspect
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /oauth/device/code
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostOauthIntrospectMutationKey() {
-  return 'POST /oauth/introspect'
+export function getPostOauthDeviceCodeMutationKey() {
+  return ['/oauth/device/code'] as const
 }
 
 /**
@@ -200,12 +205,11 @@ export function usePostOauthDeviceCode(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /oauth/device/code
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /oauth/userinfo
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getPostOauthDeviceCodeMutationKey() {
-  return 'POST /oauth/device/code'
+export function getGetOauthUserinfoKey() {
+  return ['/oauth/userinfo'] as const
 }
 
 /**
@@ -234,11 +238,11 @@ export function useGetOauthUserinfo(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /oauth/userinfo
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /.well-known/openid-configuration
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetOauthUserinfoKey() {
-  return ['/oauth/userinfo'] as const
+export function getGetWellKnownOpenidConfigurationKey() {
+  return ['/.well-known/openid-configuration'] as const
 }
 
 /**
@@ -268,11 +272,11 @@ export function useGetWellKnownOpenidConfiguration(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /.well-known/openid-configuration
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /.well-known/jwks.json
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetWellKnownOpenidConfigurationKey() {
-  return ['/.well-known/openid-configuration'] as const
+export function getGetWellKnownJwksJsonKey() {
+  return ['/.well-known/jwks.json'] as const
 }
 
 /**
@@ -301,11 +305,11 @@ export function useGetWellKnownJwksJson(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /.well-known/jwks.json
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /oauth/clients
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetWellKnownJwksJsonKey() {
-  return ['/.well-known/jwks.json'] as const
+export function getGetOauthClientsKey() {
+  return ['/oauth/clients'] as const
 }
 
 /**
@@ -332,10 +336,10 @@ export function useGetOauthClients(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /oauth/clients
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR mutation key for POST /oauth/clients
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetOauthClientsKey() {
+export function getPostOauthClientsMutationKey() {
   return ['/oauth/clients'] as const
 }
 
@@ -370,12 +374,13 @@ export function usePostOauthClients(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /oauth/clients
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /oauth/clients/{clientId}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPostOauthClientsMutationKey() {
-  return 'POST /oauth/clients'
+export function getGetOauthClientsClientIdKey(
+  args: InferRequestType<(typeof client.oauth.clients)[':clientId']['$get']>,
+) {
+  return [`/oauth/clients/${args.param.clientId}`, args] as const
 }
 
 /**
@@ -405,13 +410,11 @@ export function useGetOauthClientsClientId(
 }
 
 /**
- * Generates SWR cache key for GET /oauth/clients/{clientId}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for PUT /oauth/clients/{clientId}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetOauthClientsClientIdKey(
-  args: InferRequestType<(typeof client.oauth.clients)[':clientId']['$get']>,
-) {
-  return ['/oauth/clients/:clientId', args] as const
+export function getPutOauthClientsClientIdMutationKey() {
+  return ['/oauth/clients/:clientId'] as const
 }
 
 /**
@@ -451,12 +454,11 @@ export function usePutOauthClientsClientId(options?: {
 }
 
 /**
- * Generates SWR mutation key for PUT /oauth/clients/{clientId}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for DELETE /oauth/clients/{clientId}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPutOauthClientsClientIdMutationKey() {
-  return 'PUT /oauth/clients/:clientId'
+export function getDeleteOauthClientsClientIdMutationKey() {
+  return ['/oauth/clients/:clientId'] as const
 }
 
 /**
@@ -497,12 +499,11 @@ export function useDeleteOauthClientsClientId(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /oauth/clients/{clientId}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /oauth/clients/{clientId}/secret
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getDeleteOauthClientsClientIdMutationKey() {
-  return 'DELETE /oauth/clients/:clientId'
+export function getPostOauthClientsClientIdSecretMutationKey() {
+  return ['/oauth/clients/:clientId/secret'] as const
 }
 
 /**
@@ -544,12 +545,11 @@ export function usePostOauthClientsClientIdSecret(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /oauth/clients/{clientId}/secret
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /oauth/consents
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getPostOauthClientsClientIdSecretMutationKey() {
-  return 'POST /oauth/clients/:clientId/secret'
+export function getGetOauthConsentsKey() {
+  return ['/oauth/consents'] as const
 }
 
 /**
@@ -578,11 +578,11 @@ export function useGetOauthConsents(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /oauth/consents
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR mutation key for DELETE /oauth/consents/{clientId}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetOauthConsentsKey() {
-  return ['/oauth/consents'] as const
+export function getDeleteOauthConsentsClientIdMutationKey() {
+  return ['/oauth/consents/:clientId'] as const
 }
 
 /**
@@ -622,13 +622,4 @@ export function useDeleteOauthConsentsClientId(options?: {
       restMutationOptions,
     ),
   }
-}
-
-/**
- * Generates SWR mutation key for DELETE /oauth/consents/{clientId}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
- */
-export function getDeleteOauthConsentsClientIdMutationKey() {
-  return 'DELETE /oauth/consents/:clientId'
 }

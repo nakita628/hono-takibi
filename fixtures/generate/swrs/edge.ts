@@ -7,6 +7,14 @@ import { parseResponse } from 'hono/client'
 import { client } from '../clients/edge'
 
 /**
+ * Generates SWR mutation key for POST /polymorphic
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ */
+export function getPostPolymorphicMutationKey() {
+  return ['/polymorphic'] as const
+}
+
+/**
  * POST /polymorphic
  *
  * Polymorphic object with discriminator
@@ -35,12 +43,11 @@ export function usePostPolymorphic(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /polymorphic
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /search
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPostPolymorphicMutationKey() {
-  return 'POST /polymorphic'
+export function getGetSearchKey(args: InferRequestType<typeof client.search.$get>) {
+  return ['/search', args] as const
 }
 
 /**
@@ -70,11 +77,11 @@ export function useGetSearch(
 }
 
 /**
- * Generates SWR cache key for GET /search
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for PUT /multi-step
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetSearchKey(args: InferRequestType<typeof client.search.$get>) {
-  return ['/search', args] as const
+export function getPutMultiStepMutationKey() {
+  return ['/multi-step'] as const
 }
 
 /**
@@ -106,13 +113,4 @@ export function usePutMultiStep(options?: {
       restMutationOptions,
     ),
   }
-}
-
-/**
- * Generates SWR mutation key for PUT /multi-step
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
- */
-export function getPutMultiStepMutationKey() {
-  return 'PUT /multi-step'
 }

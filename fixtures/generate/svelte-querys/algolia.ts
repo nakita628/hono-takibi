@@ -1,8 +1,36 @@
 import { createQuery, createMutation } from '@tanstack/svelte-query'
-import type { CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
+import type {
+  CreateQueryOptions,
+  QueryFunctionContext,
+  CreateMutationOptions,
+} from '@tanstack/svelte-query'
 import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/algolia'
+
+/**
+ * Generates Svelte Query cache key for GET /{path}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetPathQueryKey(args: InferRequestType<(typeof client)[':path']['$get']>) {
+  return [':path', '/:path', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /{path}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetPathQueryOptions = (
+  args: InferRequestType<(typeof client)[':path']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetPathQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client[':path'].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /{path}
@@ -29,30 +57,6 @@ export function createGetPath(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /{path}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetPathQueryKey(args: InferRequestType<(typeof client)[':path']['$get']>) {
-  return ['/:path', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /{path}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetPathQueryOptions = (
-  args: InferRequestType<(typeof client)[':path']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetPathQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client[':path'].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-    ),
-})
 
 /**
  * PUT /{path}
@@ -375,6 +379,35 @@ export function createDelete1IndexesIndexName(options?: {
 }
 
 /**
+ * Generates Svelte Query cache key for GET /1/indexes/{indexName}/{objectID}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet1IndexesIndexNameObjectIDQueryKey(
+  args: InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$get']>,
+) {
+  return ['1', '/1/indexes/:indexName/:objectID', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /1/indexes/{indexName}/{objectID}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet1IndexesIndexNameObjectIDQueryOptions = (
+  args: InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet1IndexesIndexNameObjectIDQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['1'].indexes[':indexName'][':objectID'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /1/indexes/{indexName}/{objectID}
  *
  * Retrieve a record
@@ -408,35 +441,6 @@ export function createGet1IndexesIndexNameObjectID(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /1/indexes/{indexName}/{objectID}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet1IndexesIndexNameObjectIDQueryKey(
-  args: InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$get']>,
-) {
-  return ['/1/indexes/:indexName/:objectID', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /1/indexes/{indexName}/{objectID}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet1IndexesIndexNameObjectIDQueryOptions = (
-  args: InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGet1IndexesIndexNameObjectIDQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['1'].indexes[':indexName'][':objectID'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * PUT /1/indexes/{indexName}/{objectID}
@@ -748,6 +752,35 @@ export function createPost1IndexesObjects(options?: {
 }
 
 /**
+ * Generates Svelte Query cache key for GET /1/indexes/{indexName}/settings
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet1IndexesIndexNameSettingsQueryKey(
+  args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['settings']['$get']>,
+) {
+  return ['1', '/1/indexes/:indexName/settings', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /1/indexes/{indexName}/settings
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet1IndexesIndexNameSettingsQueryOptions = (
+  args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['settings']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet1IndexesIndexNameSettingsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['1'].indexes[':indexName'].settings.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /1/indexes/{indexName}/settings
  *
  * Retrieve index settings
@@ -779,35 +812,6 @@ export function createGet1IndexesIndexNameSettings(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /1/indexes/{indexName}/settings
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet1IndexesIndexNameSettingsQueryKey(
-  args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['settings']['$get']>,
-) {
-  return ['/1/indexes/:indexName/settings', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /1/indexes/{indexName}/settings
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet1IndexesIndexNameSettingsQueryOptions = (
-  args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['settings']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGet1IndexesIndexNameSettingsQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['1'].indexes[':indexName'].settings.$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * PUT /1/indexes/{indexName}/settings
@@ -843,6 +847,39 @@ export function createPut1IndexesIndexNameSettings(options?: {
     ) => parseResponse(client['1'].indexes[':indexName'].settings.$put(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query cache key for GET /1/indexes/{indexName}/synonyms/{objectID}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet1IndexesIndexNameSynonymsObjectIDQueryKey(
+  args: InferRequestType<
+    (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$get']
+  >,
+) {
+  return ['1', '/1/indexes/:indexName/synonyms/:objectID', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /1/indexes/{indexName}/synonyms/{objectID}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet1IndexesIndexNameSynonymsObjectIDQueryOptions = (
+  args: InferRequestType<
+    (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$get']
+  >,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet1IndexesIndexNameSynonymsObjectIDQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['1'].indexes[':indexName'].synonyms[':objectID'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /1/indexes/{indexName}/synonyms/{objectID}
@@ -882,39 +919,6 @@ export function createGet1IndexesIndexNameSynonymsObjectID(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /1/indexes/{indexName}/synonyms/{objectID}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet1IndexesIndexNameSynonymsObjectIDQueryKey(
-  args: InferRequestType<
-    (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$get']
-  >,
-) {
-  return ['/1/indexes/:indexName/synonyms/:objectID', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /1/indexes/{indexName}/synonyms/{objectID}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet1IndexesIndexNameSynonymsObjectIDQueryOptions = (
-  args: InferRequestType<
-    (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGet1IndexesIndexNameSynonymsObjectIDQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['1'].indexes[':indexName'].synonyms[':objectID'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * PUT /1/indexes/{indexName}/synonyms/{objectID}
@@ -1106,6 +1110,30 @@ export function createPost1IndexesIndexNameSynonymsSearch(options?: {
 }
 
 /**
+ * Generates Svelte Query cache key for GET /1/keys
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGet1KeysQueryKey() {
+  return ['1', '/1/keys'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /1/keys
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet1KeysQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGet1KeysQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['1'].keys.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /1/keys
  *
  * List API keys
@@ -1131,30 +1159,6 @@ export function createGet1Keys(
 }
 
 /**
- * Generates Svelte Query cache key for GET /1/keys
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGet1KeysQueryKey() {
-  return ['/1/keys'] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /1/keys
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet1KeysQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGet1KeysQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['1'].keys.$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
-
-/**
  * POST /1/keys
  *
  * Create an API key
@@ -1178,6 +1182,35 @@ export function createPost1Keys(options?: {
       parseResponse(client['1'].keys.$post(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query cache key for GET /1/keys/{key}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet1KeysKeyQueryKey(
+  args: InferRequestType<(typeof client)['1']['keys'][':key']['$get']>,
+) {
+  return ['1', '/1/keys/:key', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /1/keys/{key}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet1KeysKeyQueryOptions = (
+  args: InferRequestType<(typeof client)['1']['keys'][':key']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet1KeysKeyQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['1'].keys[':key'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /1/keys/{key}
@@ -1210,35 +1243,6 @@ export function createGet1KeysKey(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /1/keys/{key}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet1KeysKeyQueryKey(
-  args: InferRequestType<(typeof client)['1']['keys'][':key']['$get']>,
-) {
-  return ['/1/keys/:key', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /1/keys/{key}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet1KeysKeyQueryOptions = (
-  args: InferRequestType<(typeof client)['1']['keys'][':key']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGet1KeysKeyQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['1'].keys[':key'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * PUT /1/keys/{key}
@@ -1332,6 +1336,39 @@ export function createPost1KeysKeyRestore(options?: {
 }
 
 /**
+ * Generates Svelte Query cache key for GET /1/indexes/{indexName}/rules/{objectID}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet1IndexesIndexNameRulesObjectIDQueryKey(
+  args: InferRequestType<
+    (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$get']
+  >,
+) {
+  return ['1', '/1/indexes/:indexName/rules/:objectID', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /1/indexes/{indexName}/rules/{objectID}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet1IndexesIndexNameRulesObjectIDQueryOptions = (
+  args: InferRequestType<
+    (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$get']
+  >,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet1IndexesIndexNameRulesObjectIDQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['1'].indexes[':indexName'].rules[':objectID'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /1/indexes/{indexName}/rules/{objectID}
  *
  * Retrieve a rule
@@ -1370,39 +1407,6 @@ export function createGet1IndexesIndexNameRulesObjectID(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /1/indexes/{indexName}/rules/{objectID}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet1IndexesIndexNameRulesObjectIDQueryKey(
-  args: InferRequestType<
-    (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$get']
-  >,
-) {
-  return ['/1/indexes/:indexName/rules/:objectID', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /1/indexes/{indexName}/rules/{objectID}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet1IndexesIndexNameRulesObjectIDQueryOptions = (
-  args: InferRequestType<
-    (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGet1IndexesIndexNameRulesObjectIDQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['1'].indexes[':indexName'].rules[':objectID'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * PUT /1/indexes/{indexName}/rules/{objectID}
@@ -1661,6 +1665,30 @@ export function createPost1DictionariesDictionaryNameSearch(options?: {
 }
 
 /**
+ * Generates Svelte Query cache key for GET /1/dictionaries/* /settings
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGet1DictionariesSettingsQueryKey() {
+  return ['1', '/1/dictionaries/*/settings'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /1/dictionaries/* /settings
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet1DictionariesSettingsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGet1DictionariesSettingsQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['1'].dictionaries['*'].settings.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /1/dictionaries/[*]/settings
  *
  * Retrieve dictionary settings
@@ -1692,30 +1720,6 @@ export function createGet1DictionariesSettings(
 }
 
 /**
- * Generates Svelte Query cache key for GET /1/dictionaries/* /settings
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGet1DictionariesSettingsQueryKey() {
-  return ['/1/dictionaries/*/settings'] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /1/dictionaries/* /settings
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet1DictionariesSettingsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGet1DictionariesSettingsQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['1'].dictionaries['*'].settings.$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
-
-/**
  * PUT /1/dictionaries/[*]/settings
  *
  * Update dictionary settings
@@ -1744,6 +1748,30 @@ export function createPut1DictionariesSettings(options?: {
     ) => parseResponse(client['1'].dictionaries['*'].settings.$put(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query cache key for GET /1/dictionaries/* /languages
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGet1DictionariesLanguagesQueryKey() {
+  return ['1', '/1/dictionaries/*/languages'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /1/dictionaries/* /languages
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet1DictionariesLanguagesQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGet1DictionariesLanguagesQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['1'].dictionaries['*'].languages.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /1/dictionaries/[*]/languages
@@ -1777,23 +1805,28 @@ export function createGet1DictionariesLanguages(
 }
 
 /**
- * Generates Svelte Query cache key for GET /1/dictionaries/* /languages
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates Svelte Query cache key for GET /1/clusters/mapping
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGet1DictionariesLanguagesQueryKey() {
-  return ['/1/dictionaries/*/languages'] as const
+export function getGet1ClustersMappingQueryKey(
+  args: InferRequestType<(typeof client)['1']['clusters']['mapping']['$get']>,
+) {
+  return ['1', '/1/clusters/mapping', args] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /1/dictionaries/* /languages
+ * Returns Svelte Query query options for GET /1/clusters/mapping
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGet1DictionariesLanguagesQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGet1DictionariesLanguagesQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGet1ClustersMappingQueryOptions = (
+  args: InferRequestType<(typeof client)['1']['clusters']['mapping']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet1ClustersMappingQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client['1'].dictionaries['*'].languages.$get(undefined, {
+      client['1'].clusters.mapping.$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -1835,35 +1868,6 @@ export function createGet1ClustersMapping(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /1/clusters/mapping
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet1ClustersMappingQueryKey(
-  args: InferRequestType<(typeof client)['1']['clusters']['mapping']['$get']>,
-) {
-  return ['/1/clusters/mapping', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /1/clusters/mapping
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet1ClustersMappingQueryOptions = (
-  args: InferRequestType<(typeof client)['1']['clusters']['mapping']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGet1ClustersMappingQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['1'].clusters.mapping.$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /1/clusters/mapping
@@ -1930,6 +1934,30 @@ export function createPost1ClustersMappingBatch(options?: {
 }
 
 /**
+ * Generates Svelte Query cache key for GET /1/clusters/mapping/top
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGet1ClustersMappingTopQueryKey() {
+  return ['1', '/1/clusters/mapping/top'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /1/clusters/mapping/top
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet1ClustersMappingTopQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGet1ClustersMappingTopQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['1'].clusters.mapping.top.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /1/clusters/mapping/top
  *
  * Get top user IDs
@@ -1964,23 +1992,28 @@ export function createGet1ClustersMappingTop(
 }
 
 /**
- * Generates Svelte Query cache key for GET /1/clusters/mapping/top
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates Svelte Query cache key for GET /1/clusters/mapping/{userID}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGet1ClustersMappingTopQueryKey() {
-  return ['/1/clusters/mapping/top'] as const
+export function getGet1ClustersMappingUserIDQueryKey(
+  args: InferRequestType<(typeof client)['1']['clusters']['mapping'][':userID']['$get']>,
+) {
+  return ['1', '/1/clusters/mapping/:userID', args] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /1/clusters/mapping/top
+ * Returns Svelte Query query options for GET /1/clusters/mapping/{userID}
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGet1ClustersMappingTopQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGet1ClustersMappingTopQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGet1ClustersMappingUserIDQueryOptions = (
+  args: InferRequestType<(typeof client)['1']['clusters']['mapping'][':userID']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet1ClustersMappingUserIDQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client['1'].clusters.mapping.top.$get(undefined, {
+      client['1'].clusters.mapping[':userID'].$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -2024,35 +2057,6 @@ export function createGet1ClustersMappingUserID(
 }
 
 /**
- * Generates Svelte Query cache key for GET /1/clusters/mapping/{userID}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet1ClustersMappingUserIDQueryKey(
-  args: InferRequestType<(typeof client)['1']['clusters']['mapping'][':userID']['$get']>,
-) {
-  return ['/1/clusters/mapping/:userID', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /1/clusters/mapping/{userID}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet1ClustersMappingUserIDQueryOptions = (
-  args: InferRequestType<(typeof client)['1']['clusters']['mapping'][':userID']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGet1ClustersMappingUserIDQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['1'].clusters.mapping[':userID'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
-
-/**
  * DELETE /1/clusters/mapping/{userID}
  *
  * Delete user ID
@@ -2083,6 +2087,30 @@ export function createDelete1ClustersMappingUserID(options?: {
 }
 
 /**
+ * Generates Svelte Query cache key for GET /1/clusters
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGet1ClustersQueryKey() {
+  return ['1', '/1/clusters'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /1/clusters
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet1ClustersQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGet1ClustersQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['1'].clusters.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /1/clusters
  *
  * List clusters
@@ -2108,30 +2136,6 @@ export function createGet1Clusters(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /1/clusters
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGet1ClustersQueryKey() {
-  return ['/1/clusters'] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /1/clusters
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet1ClustersQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGet1ClustersQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['1'].clusters.$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /1/clusters/mapping/search
@@ -2167,6 +2171,35 @@ export function createPost1ClustersMappingSearch(options?: {
 }
 
 /**
+ * Generates Svelte Query cache key for GET /1/clusters/mapping/pending
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet1ClustersMappingPendingQueryKey(
+  args: InferRequestType<(typeof client)['1']['clusters']['mapping']['pending']['$get']>,
+) {
+  return ['1', '/1/clusters/mapping/pending', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /1/clusters/mapping/pending
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet1ClustersMappingPendingQueryOptions = (
+  args: InferRequestType<(typeof client)['1']['clusters']['mapping']['pending']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet1ClustersMappingPendingQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['1'].clusters.mapping.pending.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /1/clusters/mapping/pending
  *
  * Get migration and user mapping status
@@ -2200,28 +2233,23 @@ export function createGet1ClustersMappingPending(
 }
 
 /**
- * Generates Svelte Query cache key for GET /1/clusters/mapping/pending
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Svelte Query cache key for GET /1/security/sources
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGet1ClustersMappingPendingQueryKey(
-  args: InferRequestType<(typeof client)['1']['clusters']['mapping']['pending']['$get']>,
-) {
-  return ['/1/clusters/mapping/pending', args] as const
+export function getGet1SecuritySourcesQueryKey() {
+  return ['1', '/1/security/sources'] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /1/clusters/mapping/pending
+ * Returns Svelte Query query options for GET /1/security/sources
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGet1ClustersMappingPendingQueryOptions = (
-  args: InferRequestType<(typeof client)['1']['clusters']['mapping']['pending']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGet1ClustersMappingPendingQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGet1SecuritySourcesQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGet1SecuritySourcesQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client['1'].clusters.mapping.pending.$get(args, {
+      client['1'].security.sources.$get(undefined, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -2256,30 +2284,6 @@ export function createGet1SecuritySources(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /1/security/sources
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGet1SecuritySourcesQueryKey() {
-  return ['/1/security/sources'] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /1/security/sources
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet1SecuritySourcesQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGet1SecuritySourcesQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['1'].security.sources.$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * PUT /1/security/sources
@@ -2372,6 +2376,30 @@ export function createDelete1SecuritySourcesSource(options?: {
 }
 
 /**
+ * Generates Svelte Query cache key for GET /1/logs
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet1LogsQueryKey(args: InferRequestType<(typeof client)['1']['logs']['$get']>) {
+  return ['1', '/1/logs', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /1/logs
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet1LogsQueryOptions = (
+  args: InferRequestType<(typeof client)['1']['logs']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet1LogsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['1'].logs.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
+
+/**
  * GET /1/logs
  *
  * Retrieve log entries
@@ -2402,26 +2430,31 @@ export function createGet1Logs(
 }
 
 /**
- * Generates Svelte Query cache key for GET /1/logs
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Svelte Query cache key for GET /1/task/{taskID}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGet1LogsQueryKey(args: InferRequestType<(typeof client)['1']['logs']['$get']>) {
-  return ['/1/logs', args] as const
+export function getGet1TaskTaskIDQueryKey(
+  args: InferRequestType<(typeof client)['1']['task'][':taskID']['$get']>,
+) {
+  return ['1', '/1/task/:taskID', args] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /1/logs
+ * Returns Svelte Query query options for GET /1/task/{taskID}
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGet1LogsQueryOptions = (
-  args: InferRequestType<(typeof client)['1']['logs']['$get']>,
+export const getGet1TaskTaskIDQueryOptions = (
+  args: InferRequestType<(typeof client)['1']['task'][':taskID']['$get']>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGet1LogsQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGet1TaskTaskIDQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client['1'].logs.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      client['1'].task[':taskID'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
     ),
 })
 
@@ -2454,28 +2487,28 @@ export function createGet1TaskTaskID(
 }
 
 /**
- * Generates Svelte Query cache key for GET /1/task/{taskID}
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Svelte Query cache key for GET /1/indexes/{indexName}/task/{taskID}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGet1TaskTaskIDQueryKey(
-  args: InferRequestType<(typeof client)['1']['task'][':taskID']['$get']>,
+export function getGet1IndexesIndexNameTaskTaskIDQueryKey(
+  args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['task'][':taskID']['$get']>,
 ) {
-  return ['/1/task/:taskID', args] as const
+  return ['1', '/1/indexes/:indexName/task/:taskID', args] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /1/task/{taskID}
+ * Returns Svelte Query query options for GET /1/indexes/{indexName}/task/{taskID}
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGet1TaskTaskIDQueryOptions = (
-  args: InferRequestType<(typeof client)['1']['task'][':taskID']['$get']>,
+export const getGet1IndexesIndexNameTaskTaskIDQueryOptions = (
+  args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['task'][':taskID']['$get']>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGet1TaskTaskIDQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGet1IndexesIndexNameTaskTaskIDQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client['1'].task[':taskID'].$get(args, {
+      client['1'].indexes[':indexName'].task[':taskID'].$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -2522,35 +2555,6 @@ export function createGet1IndexesIndexNameTaskTaskID(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /1/indexes/{indexName}/task/{taskID}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet1IndexesIndexNameTaskTaskIDQueryKey(
-  args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['task'][':taskID']['$get']>,
-) {
-  return ['/1/indexes/:indexName/task/:taskID', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /1/indexes/{indexName}/task/{taskID}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet1IndexesIndexNameTaskTaskIDQueryOptions = (
-  args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['task'][':taskID']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGet1IndexesIndexNameTaskTaskIDQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['1'].indexes[':indexName'].task[':taskID'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /1/indexes/{indexName}/operation
@@ -2606,6 +2610,35 @@ export function createPost1IndexesIndexNameOperation(options?: {
 }
 
 /**
+ * Generates Svelte Query cache key for GET /1/indexes
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet1IndexesQueryKey(
+  args: InferRequestType<(typeof client)['1']['indexes']['$get']>,
+) {
+  return ['1', '/1/indexes', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /1/indexes
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet1IndexesQueryOptions = (
+  args: InferRequestType<(typeof client)['1']['indexes']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet1IndexesQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['1'].indexes.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /1/indexes
  *
  * List indices
@@ -2636,28 +2669,28 @@ export function createGet1Indexes(
 }
 
 /**
- * Generates Svelte Query cache key for GET /1/indexes
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Svelte Query cache key for GET /waitForApiKey
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGet1IndexesQueryKey(
-  args: InferRequestType<(typeof client)['1']['indexes']['$get']>,
+export function getGetWaitForApiKeyQueryKey(
+  args: InferRequestType<typeof client.waitForApiKey.$get>,
 ) {
-  return ['/1/indexes', args] as const
+  return ['waitForApiKey', '/waitForApiKey', args] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /1/indexes
+ * Returns Svelte Query query options for GET /waitForApiKey
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGet1IndexesQueryOptions = (
-  args: InferRequestType<(typeof client)['1']['indexes']['$get']>,
+export const getGetWaitForApiKeyQueryOptions = (
+  args: InferRequestType<typeof client.waitForApiKey.$get>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGet1IndexesQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetWaitForApiKeyQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client['1'].indexes.$get(args, {
+      client.waitForApiKey.$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -2694,31 +2727,26 @@ export function createGetWaitForApiKey(
 }
 
 /**
- * Generates Svelte Query cache key for GET /waitForApiKey
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Svelte Query cache key for GET /waitForTask
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetWaitForApiKeyQueryKey(
-  args: InferRequestType<typeof client.waitForApiKey.$get>,
-) {
-  return ['/waitForApiKey', args] as const
+export function getGetWaitForTaskQueryKey(args: InferRequestType<typeof client.waitForTask.$get>) {
+  return ['waitForTask', '/waitForTask', args] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /waitForApiKey
+ * Returns Svelte Query query options for GET /waitForTask
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetWaitForApiKeyQueryOptions = (
-  args: InferRequestType<typeof client.waitForApiKey.$get>,
+export const getGetWaitForTaskQueryOptions = (
+  args: InferRequestType<typeof client.waitForTask.$get>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetWaitForApiKeyQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetWaitForTaskQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.waitForApiKey.$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
+      client.waitForTask.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
     ),
 })
 
@@ -2751,26 +2779,31 @@ export function createGetWaitForTask(
 }
 
 /**
- * Generates Svelte Query cache key for GET /waitForTask
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Svelte Query cache key for GET /waitForAppTask
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetWaitForTaskQueryKey(args: InferRequestType<typeof client.waitForTask.$get>) {
-  return ['/waitForTask', args] as const
+export function getGetWaitForAppTaskQueryKey(
+  args: InferRequestType<typeof client.waitForAppTask.$get>,
+) {
+  return ['waitForAppTask', '/waitForAppTask', args] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /waitForTask
+ * Returns Svelte Query query options for GET /waitForAppTask
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetWaitForTaskQueryOptions = (
-  args: InferRequestType<typeof client.waitForTask.$get>,
+export const getGetWaitForAppTaskQueryOptions = (
+  args: InferRequestType<typeof client.waitForAppTask.$get>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetWaitForTaskQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetWaitForAppTaskQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.waitForTask.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      client.waitForAppTask.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
     ),
 })
 
@@ -2804,28 +2837,28 @@ export function createGetWaitForAppTask(
 }
 
 /**
- * Generates Svelte Query cache key for GET /waitForAppTask
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Svelte Query cache key for GET /browseObjects
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetWaitForAppTaskQueryKey(
-  args: InferRequestType<typeof client.waitForAppTask.$get>,
+export function getGetBrowseObjectsQueryKey(
+  args: InferRequestType<typeof client.browseObjects.$get>,
 ) {
-  return ['/waitForAppTask', args] as const
+  return ['browseObjects', '/browseObjects', args] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /waitForAppTask
+ * Returns Svelte Query query options for GET /browseObjects
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetWaitForAppTaskQueryOptions = (
-  args: InferRequestType<typeof client.waitForAppTask.$get>,
+export const getGetBrowseObjectsQueryOptions = (
+  args: InferRequestType<typeof client.browseObjects.$get>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetWaitForAppTaskQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetBrowseObjectsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.waitForAppTask.$get(args, {
+      client.browseObjects.$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -2866,28 +2899,28 @@ export function createGetBrowseObjects(
 }
 
 /**
- * Generates Svelte Query cache key for GET /browseObjects
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Svelte Query cache key for GET /generateSecuredApiKey
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetBrowseObjectsQueryKey(
-  args: InferRequestType<typeof client.browseObjects.$get>,
+export function getGetGenerateSecuredApiKeyQueryKey(
+  args: InferRequestType<typeof client.generateSecuredApiKey.$get>,
 ) {
-  return ['/browseObjects', args] as const
+  return ['generateSecuredApiKey', '/generateSecuredApiKey', args] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /browseObjects
+ * Returns Svelte Query query options for GET /generateSecuredApiKey
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetBrowseObjectsQueryOptions = (
-  args: InferRequestType<typeof client.browseObjects.$get>,
+export const getGetGenerateSecuredApiKeyQueryOptions = (
+  args: InferRequestType<typeof client.generateSecuredApiKey.$get>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetBrowseObjectsQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetGenerateSecuredApiKeyQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.browseObjects.$get(args, {
+      client.generateSecuredApiKey.$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -2938,28 +2971,28 @@ export function createGetGenerateSecuredApiKey(
 }
 
 /**
- * Generates Svelte Query cache key for GET /generateSecuredApiKey
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Svelte Query cache key for GET /accountCopyIndex
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetGenerateSecuredApiKeyQueryKey(
-  args: InferRequestType<typeof client.generateSecuredApiKey.$get>,
+export function getGetAccountCopyIndexQueryKey(
+  args: InferRequestType<typeof client.accountCopyIndex.$get>,
 ) {
-  return ['/generateSecuredApiKey', args] as const
+  return ['accountCopyIndex', '/accountCopyIndex', args] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /generateSecuredApiKey
+ * Returns Svelte Query query options for GET /accountCopyIndex
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetGenerateSecuredApiKeyQueryOptions = (
-  args: InferRequestType<typeof client.generateSecuredApiKey.$get>,
+export const getGetAccountCopyIndexQueryOptions = (
+  args: InferRequestType<typeof client.accountCopyIndex.$get>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetGenerateSecuredApiKeyQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetAccountCopyIndexQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.generateSecuredApiKey.$get(args, {
+      client.accountCopyIndex.$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -2996,28 +3029,28 @@ export function createGetAccountCopyIndex(
 }
 
 /**
- * Generates Svelte Query cache key for GET /accountCopyIndex
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Svelte Query cache key for GET /replaceAllObjects
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetAccountCopyIndexQueryKey(
-  args: InferRequestType<typeof client.accountCopyIndex.$get>,
+export function getGetReplaceAllObjectsQueryKey(
+  args: InferRequestType<typeof client.replaceAllObjects.$get>,
 ) {
-  return ['/accountCopyIndex', args] as const
+  return ['replaceAllObjects', '/replaceAllObjects', args] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /accountCopyIndex
+ * Returns Svelte Query query options for GET /replaceAllObjects
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetAccountCopyIndexQueryOptions = (
-  args: InferRequestType<typeof client.accountCopyIndex.$get>,
+export const getGetReplaceAllObjectsQueryOptions = (
+  args: InferRequestType<typeof client.replaceAllObjects.$get>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetAccountCopyIndexQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetReplaceAllObjectsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.accountCopyIndex.$get(args, {
+      client.replaceAllObjects.$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -3069,28 +3102,32 @@ export function createGetReplaceAllObjects(
 }
 
 /**
- * Generates Svelte Query cache key for GET /replaceAllObjects
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Svelte Query cache key for GET /replaceAllObjectsWithTransformation
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetReplaceAllObjectsQueryKey(
-  args: InferRequestType<typeof client.replaceAllObjects.$get>,
+export function getGetReplaceAllObjectsWithTransformationQueryKey(
+  args: InferRequestType<typeof client.replaceAllObjectsWithTransformation.$get>,
 ) {
-  return ['/replaceAllObjects', args] as const
+  return [
+    'replaceAllObjectsWithTransformation',
+    '/replaceAllObjectsWithTransformation',
+    args,
+  ] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /replaceAllObjects
+ * Returns Svelte Query query options for GET /replaceAllObjectsWithTransformation
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetReplaceAllObjectsQueryOptions = (
-  args: InferRequestType<typeof client.replaceAllObjects.$get>,
+export const getGetReplaceAllObjectsWithTransformationQueryOptions = (
+  args: InferRequestType<typeof client.replaceAllObjectsWithTransformation.$get>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetReplaceAllObjectsQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetReplaceAllObjectsWithTransformationQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.replaceAllObjects.$get(args, {
+      client.replaceAllObjectsWithTransformation.$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -3141,28 +3178,28 @@ export function createGetReplaceAllObjectsWithTransformation(
 }
 
 /**
- * Generates Svelte Query cache key for GET /replaceAllObjectsWithTransformation
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Svelte Query cache key for GET /chunkedBatch
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetReplaceAllObjectsWithTransformationQueryKey(
-  args: InferRequestType<typeof client.replaceAllObjectsWithTransformation.$get>,
+export function getGetChunkedBatchQueryKey(
+  args: InferRequestType<typeof client.chunkedBatch.$get>,
 ) {
-  return ['/replaceAllObjectsWithTransformation', args] as const
+  return ['chunkedBatch', '/chunkedBatch', args] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /replaceAllObjectsWithTransformation
+ * Returns Svelte Query query options for GET /chunkedBatch
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetReplaceAllObjectsWithTransformationQueryOptions = (
-  args: InferRequestType<typeof client.replaceAllObjectsWithTransformation.$get>,
+export const getGetChunkedBatchQueryOptions = (
+  args: InferRequestType<typeof client.chunkedBatch.$get>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetReplaceAllObjectsWithTransformationQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetChunkedBatchQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.replaceAllObjectsWithTransformation.$get(args, {
+      client.chunkedBatch.$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -3196,31 +3233,26 @@ export function createGetChunkedBatch(
 }
 
 /**
- * Generates Svelte Query cache key for GET /chunkedBatch
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Svelte Query cache key for GET /saveObjects
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetChunkedBatchQueryKey(
-  args: InferRequestType<typeof client.chunkedBatch.$get>,
-) {
-  return ['/chunkedBatch', args] as const
+export function getGetSaveObjectsQueryKey(args: InferRequestType<typeof client.saveObjects.$get>) {
+  return ['saveObjects', '/saveObjects', args] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /chunkedBatch
+ * Returns Svelte Query query options for GET /saveObjects
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetChunkedBatchQueryOptions = (
-  args: InferRequestType<typeof client.chunkedBatch.$get>,
+export const getGetSaveObjectsQueryOptions = (
+  args: InferRequestType<typeof client.saveObjects.$get>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetChunkedBatchQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetSaveObjectsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.chunkedBatch.$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
+      client.saveObjects.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
     ),
 })
 
@@ -3251,26 +3283,31 @@ export function createGetSaveObjects(
 }
 
 /**
- * Generates Svelte Query cache key for GET /saveObjects
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Svelte Query cache key for GET /saveObjectsWithTransformation
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetSaveObjectsQueryKey(args: InferRequestType<typeof client.saveObjects.$get>) {
-  return ['/saveObjects', args] as const
+export function getGetSaveObjectsWithTransformationQueryKey(
+  args: InferRequestType<typeof client.saveObjectsWithTransformation.$get>,
+) {
+  return ['saveObjectsWithTransformation', '/saveObjectsWithTransformation', args] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /saveObjects
+ * Returns Svelte Query query options for GET /saveObjectsWithTransformation
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetSaveObjectsQueryOptions = (
-  args: InferRequestType<typeof client.saveObjects.$get>,
+export const getGetSaveObjectsWithTransformationQueryOptions = (
+  args: InferRequestType<typeof client.saveObjectsWithTransformation.$get>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetSaveObjectsQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetSaveObjectsWithTransformationQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.saveObjects.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      client.saveObjectsWithTransformation.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
     ),
 })
 
@@ -3306,35 +3343,6 @@ export function createGetSaveObjectsWithTransformation(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /saveObjectsWithTransformation
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetSaveObjectsWithTransformationQueryKey(
-  args: InferRequestType<typeof client.saveObjectsWithTransformation.$get>,
-) {
-  return ['/saveObjectsWithTransformation', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /saveObjectsWithTransformation
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetSaveObjectsWithTransformationQueryOptions = (
-  args: InferRequestType<typeof client.saveObjectsWithTransformation.$get>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetSaveObjectsWithTransformationQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.saveObjectsWithTransformation.$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /deleteObjects
@@ -3419,6 +3427,30 @@ export function createPostPartialUpdateObjectsWithTransformation(options?: {
 }
 
 /**
+ * Generates Svelte Query cache key for GET /indexExists
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetIndexExistsQueryKey(args: InferRequestType<typeof client.indexExists.$get>) {
+  return ['indexExists', '/indexExists', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /indexExists
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetIndexExistsQueryOptions = (
+  args: InferRequestType<typeof client.indexExists.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetIndexExistsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.indexExists.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
+
+/**
  * GET /indexExists
  *
  * Check if an index exists or not
@@ -3445,26 +3477,31 @@ export function createGetIndexExists(
 }
 
 /**
- * Generates Svelte Query cache key for GET /indexExists
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Svelte Query cache key for GET /setClientApiKey
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetIndexExistsQueryKey(args: InferRequestType<typeof client.indexExists.$get>) {
-  return ['/indexExists', args] as const
+export function getGetSetClientApiKeyQueryKey(
+  args: InferRequestType<typeof client.setClientApiKey.$get>,
+) {
+  return ['setClientApiKey', '/setClientApiKey', args] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /indexExists
+ * Returns Svelte Query query options for GET /setClientApiKey
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetIndexExistsQueryOptions = (
-  args: InferRequestType<typeof client.indexExists.$get>,
+export const getGetSetClientApiKeyQueryOptions = (
+  args: InferRequestType<typeof client.setClientApiKey.$get>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetIndexExistsQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetSetClientApiKeyQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.indexExists.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      client.setClientApiKey.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
     ),
 })
 
@@ -3496,32 +3533,3 @@ export function createGetSetClientApiKey(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /setClientApiKey
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetSetClientApiKeyQueryKey(
-  args: InferRequestType<typeof client.setClientApiKey.$get>,
-) {
-  return ['/setClientApiKey', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /setClientApiKey
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetSetClientApiKeyQueryOptions = (
-  args: InferRequestType<typeof client.setClientApiKey.$get>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetSetClientApiKeyQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.setClientApiKey.$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})

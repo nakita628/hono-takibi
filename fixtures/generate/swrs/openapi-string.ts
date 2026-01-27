@@ -5,6 +5,14 @@ import { parseResponse } from 'hono/client'
 import { client } from '../clients/openapi-string'
 
 /**
+ * Generates SWR cache key for GET /string
+ * Returns structured key [path] for filter-based invalidation
+ */
+export function getGetStringKey() {
+  return ['/string'] as const
+}
+
+/**
  * GET /string
  *
  * zod string
@@ -27,12 +35,4 @@ export function useGetString(options?: {
       restSwrOptions,
     ),
   }
-}
-
-/**
- * Generates SWR cache key for GET /string
- * Returns structured key [templatePath] for filter-based invalidation
- */
-export function getGetStringKey() {
-  return ['/string'] as const
 }

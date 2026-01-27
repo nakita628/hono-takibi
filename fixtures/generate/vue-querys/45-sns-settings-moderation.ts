@@ -1,8 +1,34 @@
 import { useQuery, useMutation } from '@tanstack/vue-query'
-import type { UseQueryOptions, UseMutationOptions } from '@tanstack/vue-query'
+import type { UseQueryOptions, QueryFunctionContext, UseMutationOptions } from '@tanstack/vue-query'
+import { unref } from 'vue'
+import type { MaybeRef } from 'vue'
 import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/45-sns-settings-moderation'
+
+/**
+ * Generates Vue Query cache key for GET /settings/account
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGetSettingsAccountQueryKey() {
+  return ['settings', '/settings/account'] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /settings/account
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetSettingsAccountQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetSettingsAccountQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.settings.account.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /settings/account
@@ -27,30 +53,6 @@ export function useGetSettingsAccount(options?: {
   const { queryKey, queryFn, ...baseOptions } = getGetSettingsAccountQueryOptions(clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates Vue Query cache key for GET /settings/account
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGetSettingsAccountQueryKey() {
-  return ['/settings/account'] as const
-}
-
-/**
- * Returns Vue Query query options for GET /settings/account
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetSettingsAccountQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetSettingsAccountQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.settings.account.$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * PUT /settings/account
@@ -79,6 +81,35 @@ export function usePutSettingsAccount(options?: {
       parseResponse(client.settings.account.$put(args, clientOptions)),
   })
 }
+
+/**
+ * Generates Vue Query cache key for GET /settings/username/check
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetSettingsUsernameCheckQueryKey(
+  args: MaybeRef<InferRequestType<typeof client.settings.username.check.$get>>,
+) {
+  return ['settings', '/settings/username/check', unref(args)] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /settings/username/check
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetSettingsUsernameCheckQueryOptions = (
+  args: InferRequestType<typeof client.settings.username.check.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetSettingsUsernameCheckQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.settings.username.check.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /settings/username/check
@@ -113,28 +144,23 @@ export function useGetSettingsUsernameCheck(
 }
 
 /**
- * Generates Vue Query cache key for GET /settings/username/check
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Vue Query cache key for GET /settings/privacy
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetSettingsUsernameCheckQueryKey(
-  args: InferRequestType<typeof client.settings.username.check.$get>,
-) {
-  return ['/settings/username/check', args] as const
+export function getGetSettingsPrivacyQueryKey() {
+  return ['settings', '/settings/privacy'] as const
 }
 
 /**
- * Returns Vue Query query options for GET /settings/username/check
+ * Returns Vue Query query options for GET /settings/privacy
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetSettingsUsernameCheckQueryOptions = (
-  args: InferRequestType<typeof client.settings.username.check.$get>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetSettingsUsernameCheckQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetSettingsPrivacyQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetSettingsPrivacyQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.settings.username.check.$get(args, {
+      client.settings.privacy.$get(undefined, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -166,30 +192,6 @@ export function useGetSettingsPrivacy(options?: {
 }
 
 /**
- * Generates Vue Query cache key for GET /settings/privacy
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGetSettingsPrivacyQueryKey() {
-  return ['/settings/privacy'] as const
-}
-
-/**
- * Returns Vue Query query options for GET /settings/privacy
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetSettingsPrivacyQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetSettingsPrivacyQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.settings.privacy.$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
-
-/**
  * PUT /settings/privacy
  *
  * プライバシー設定更新
@@ -216,6 +218,32 @@ export function usePutSettingsPrivacy(options?: {
       parseResponse(client.settings.privacy.$put(args, clientOptions)),
   })
 }
+
+/**
+ * Generates Vue Query cache key for GET /settings/content-preferences
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGetSettingsContentPreferencesQueryKey() {
+  return ['settings', '/settings/content-preferences'] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /settings/content-preferences
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetSettingsContentPreferencesQueryOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetSettingsContentPreferencesQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.settings['content-preferences'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /settings/content-preferences
@@ -245,32 +273,6 @@ export function useGetSettingsContentPreferences(options?: {
     getGetSettingsContentPreferencesQueryOptions(clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates Vue Query cache key for GET /settings/content-preferences
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGetSettingsContentPreferencesQueryKey() {
-  return ['/settings/content-preferences'] as const
-}
-
-/**
- * Returns Vue Query query options for GET /settings/content-preferences
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetSettingsContentPreferencesQueryOptions = (
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetSettingsContentPreferencesQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.settings['content-preferences'].$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * PUT /settings/content-preferences
@@ -306,6 +308,30 @@ export function usePutSettingsContentPreferences(options?: {
 }
 
 /**
+ * Generates Vue Query cache key for GET /settings/muted-words
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGetSettingsMutedWordsQueryKey() {
+  return ['settings', '/settings/muted-words'] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /settings/muted-words
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetSettingsMutedWordsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetSettingsMutedWordsQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.settings['muted-words'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /settings/muted-words
  *
  * ミュートワード一覧取得
@@ -332,30 +358,6 @@ export function useGetSettingsMutedWords(options?: {
   const { queryKey, queryFn, ...baseOptions } = getGetSettingsMutedWordsQueryOptions(clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates Vue Query cache key for GET /settings/muted-words
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGetSettingsMutedWordsQueryKey() {
-  return ['/settings/muted-words'] as const
-}
-
-/**
- * Returns Vue Query query options for GET /settings/muted-words
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetSettingsMutedWordsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetSettingsMutedWordsQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.settings['muted-words'].$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /settings/muted-words
@@ -424,6 +426,30 @@ export function useDeleteSettingsMutedWordsWordId(options?: {
 }
 
 /**
+ * Generates Vue Query cache key for GET /settings/sessions
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGetSettingsSessionsQueryKey() {
+  return ['settings', '/settings/sessions'] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /settings/sessions
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetSettingsSessionsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetSettingsSessionsQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.settings.sessions.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /settings/sessions
  *
  * ログインセッション一覧
@@ -448,30 +474,6 @@ export function useGetSettingsSessions(options?: {
   const { queryKey, queryFn, ...baseOptions } = getGetSettingsSessionsQueryOptions(clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates Vue Query cache key for GET /settings/sessions
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGetSettingsSessionsQueryKey() {
-  return ['/settings/sessions'] as const
-}
-
-/**
- * Returns Vue Query query options for GET /settings/sessions
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetSettingsSessionsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetSettingsSessionsQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.settings.sessions.$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * DELETE /settings/sessions/{sessionId}
@@ -508,6 +510,30 @@ export function useDeleteSettingsSessionsSessionId(options?: {
 }
 
 /**
+ * Generates Vue Query cache key for GET /settings/connected-apps
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGetSettingsConnectedAppsQueryKey() {
+  return ['settings', '/settings/connected-apps'] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /settings/connected-apps
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetSettingsConnectedAppsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetSettingsConnectedAppsQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.settings['connected-apps'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /settings/connected-apps
  *
  * 連携アプリ一覧
@@ -535,30 +561,6 @@ export function useGetSettingsConnectedApps(options?: {
     getGetSettingsConnectedAppsQueryOptions(clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates Vue Query cache key for GET /settings/connected-apps
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGetSettingsConnectedAppsQueryKey() {
-  return ['/settings/connected-apps'] as const
-}
-
-/**
- * Returns Vue Query query options for GET /settings/connected-apps
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetSettingsConnectedAppsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetSettingsConnectedAppsQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.settings['connected-apps'].$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * DELETE /settings/connected-apps/{appId}
@@ -627,6 +629,35 @@ export function usePostSettingsDataExport(options?: {
 }
 
 /**
+ * Generates Vue Query cache key for GET /settings/data-export/{requestId}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetSettingsDataExportRequestIdQueryKey(
+  args: MaybeRef<InferRequestType<(typeof client.settings)['data-export'][':requestId']['$get']>>,
+) {
+  return ['settings', '/settings/data-export/:requestId', unref(args)] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /settings/data-export/{requestId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetSettingsDataExportRequestIdQueryOptions = (
+  args: InferRequestType<(typeof client.settings)['data-export'][':requestId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetSettingsDataExportRequestIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.settings['data-export'][':requestId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /settings/data-export/{requestId}
  *
  * データエクスポート状況確認
@@ -659,35 +690,6 @@ export function useGetSettingsDataExportRequestId(
   )
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates Vue Query cache key for GET /settings/data-export/{requestId}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetSettingsDataExportRequestIdQueryKey(
-  args: InferRequestType<(typeof client.settings)['data-export'][':requestId']['$get']>,
-) {
-  return ['/settings/data-export/:requestId', args] as const
-}
-
-/**
- * Returns Vue Query query options for GET /settings/data-export/{requestId}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetSettingsDataExportRequestIdQueryOptions = (
-  args: InferRequestType<(typeof client.settings)['data-export'][':requestId']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetSettingsDataExportRequestIdQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.settings['data-export'][':requestId'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /settings/deactivate
@@ -746,6 +748,35 @@ export function usePostReports(options?: {
 }
 
 /**
+ * Generates Vue Query cache key for GET /reports/{reportId}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetReportsReportIdQueryKey(
+  args: MaybeRef<InferRequestType<(typeof client.reports)[':reportId']['$get']>>,
+) {
+  return ['reports', '/reports/:reportId', unref(args)] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /reports/{reportId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetReportsReportIdQueryOptions = (
+  args: InferRequestType<(typeof client.reports)[':reportId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetReportsReportIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.reports[':reportId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /reports/{reportId}
  *
  * 通報詳細取得
@@ -780,28 +811,28 @@ export function useGetReportsReportId(
 }
 
 /**
- * Generates Vue Query cache key for GET /reports/{reportId}
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Vue Query cache key for GET /moderation/queue
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetReportsReportIdQueryKey(
-  args: InferRequestType<(typeof client.reports)[':reportId']['$get']>,
+export function getGetModerationQueueQueryKey(
+  args: MaybeRef<InferRequestType<typeof client.moderation.queue.$get>>,
 ) {
-  return ['/reports/:reportId', args] as const
+  return ['moderation', '/moderation/queue', unref(args)] as const
 }
 
 /**
- * Returns Vue Query query options for GET /reports/{reportId}
+ * Returns Vue Query query options for GET /moderation/queue
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetReportsReportIdQueryOptions = (
-  args: InferRequestType<(typeof client.reports)[':reportId']['$get']>,
+export const getGetModerationQueueQueryOptions = (
+  args: InferRequestType<typeof client.moderation.queue.$get>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetReportsReportIdQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetModerationQueueQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.reports[':reportId'].$get(args, {
+      client.moderation.queue.$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -843,28 +874,28 @@ export function useGetModerationQueue(
 }
 
 /**
- * Generates Vue Query cache key for GET /moderation/queue
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Vue Query cache key for GET /moderation/items/{itemId}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetModerationQueueQueryKey(
-  args: InferRequestType<typeof client.moderation.queue.$get>,
+export function getGetModerationItemsItemIdQueryKey(
+  args: MaybeRef<InferRequestType<(typeof client.moderation.items)[':itemId']['$get']>>,
 ) {
-  return ['/moderation/queue', args] as const
+  return ['moderation', '/moderation/items/:itemId', unref(args)] as const
 }
 
 /**
- * Returns Vue Query query options for GET /moderation/queue
+ * Returns Vue Query query options for GET /moderation/items/{itemId}
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetModerationQueueQueryOptions = (
-  args: InferRequestType<typeof client.moderation.queue.$get>,
+export const getGetModerationItemsItemIdQueryOptions = (
+  args: InferRequestType<(typeof client.moderation.items)[':itemId']['$get']>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetModerationQueueQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetModerationItemsItemIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.moderation.queue.$get(args, {
+      client.moderation.items[':itemId'].$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -906,35 +937,6 @@ export function useGetModerationItemsItemId(
 }
 
 /**
- * Generates Vue Query cache key for GET /moderation/items/{itemId}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetModerationItemsItemIdQueryKey(
-  args: InferRequestType<(typeof client.moderation.items)[':itemId']['$get']>,
-) {
-  return ['/moderation/items/:itemId', args] as const
-}
-
-/**
- * Returns Vue Query query options for GET /moderation/items/{itemId}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetModerationItemsItemIdQueryOptions = (
-  args: InferRequestType<(typeof client.moderation.items)[':itemId']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetModerationItemsItemIdQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.moderation.items[':itemId'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
-
-/**
  * POST /moderation/items/{itemId}/action
  *
  * モデレーションアクション実行
@@ -966,6 +968,35 @@ export function usePostModerationItemsItemIdAction(options?: {
     ) => parseResponse(client.moderation.items[':itemId'].action.$post(args, clientOptions)),
   })
 }
+
+/**
+ * Generates Vue Query cache key for GET /moderation/users/{userId}/history
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetModerationUsersUserIdHistoryQueryKey(
+  args: MaybeRef<InferRequestType<(typeof client.moderation.users)[':userId']['history']['$get']>>,
+) {
+  return ['moderation', '/moderation/users/:userId/history', unref(args)] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /moderation/users/{userId}/history
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetModerationUsersUserIdHistoryQueryOptions = (
+  args: InferRequestType<(typeof client.moderation.users)[':userId']['history']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetModerationUsersUserIdHistoryQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.moderation.users[':userId'].history.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /moderation/users/{userId}/history
@@ -1000,35 +1031,6 @@ export function useGetModerationUsersUserIdHistory(
   )
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates Vue Query cache key for GET /moderation/users/{userId}/history
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetModerationUsersUserIdHistoryQueryKey(
-  args: InferRequestType<(typeof client.moderation.users)[':userId']['history']['$get']>,
-) {
-  return ['/moderation/users/:userId/history', args] as const
-}
-
-/**
- * Returns Vue Query query options for GET /moderation/users/{userId}/history
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetModerationUsersUserIdHistoryQueryOptions = (
-  args: InferRequestType<(typeof client.moderation.users)[':userId']['history']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetModerationUsersUserIdHistoryQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.moderation.users[':userId'].history.$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /moderation/users/{userId}/suspend
@@ -1097,6 +1099,35 @@ export function usePostModerationUsersUserIdUnsuspend(options?: {
 }
 
 /**
+ * Generates Vue Query cache key for GET /analytics/posts/{postId}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetAnalyticsPostsPostIdQueryKey(
+  args: MaybeRef<InferRequestType<(typeof client.analytics.posts)[':postId']['$get']>>,
+) {
+  return ['analytics', '/analytics/posts/:postId', unref(args)] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /analytics/posts/{postId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetAnalyticsPostsPostIdQueryOptions = (
+  args: InferRequestType<(typeof client.analytics.posts)[':postId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetAnalyticsPostsPostIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.analytics.posts[':postId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /analytics/posts/{postId}
  *
  * 投稿分析取得
@@ -1131,28 +1162,28 @@ export function useGetAnalyticsPostsPostId(
 }
 
 /**
- * Generates Vue Query cache key for GET /analytics/posts/{postId}
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Vue Query cache key for GET /analytics/account
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetAnalyticsPostsPostIdQueryKey(
-  args: InferRequestType<(typeof client.analytics.posts)[':postId']['$get']>,
+export function getGetAnalyticsAccountQueryKey(
+  args: MaybeRef<InferRequestType<typeof client.analytics.account.$get>>,
 ) {
-  return ['/analytics/posts/:postId', args] as const
+  return ['analytics', '/analytics/account', unref(args)] as const
 }
 
 /**
- * Returns Vue Query query options for GET /analytics/posts/{postId}
+ * Returns Vue Query query options for GET /analytics/account
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetAnalyticsPostsPostIdQueryOptions = (
-  args: InferRequestType<(typeof client.analytics.posts)[':postId']['$get']>,
+export const getGetAnalyticsAccountQueryOptions = (
+  args: InferRequestType<typeof client.analytics.account.$get>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetAnalyticsPostsPostIdQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetAnalyticsAccountQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.analytics.posts[':postId'].$get(args, {
+      client.analytics.account.$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -1192,28 +1223,28 @@ export function useGetAnalyticsAccount(
 }
 
 /**
- * Generates Vue Query cache key for GET /analytics/account
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Vue Query cache key for GET /analytics/followers
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetAnalyticsAccountQueryKey(
-  args: InferRequestType<typeof client.analytics.account.$get>,
+export function getGetAnalyticsFollowersQueryKey(
+  args: MaybeRef<InferRequestType<typeof client.analytics.followers.$get>>,
 ) {
-  return ['/analytics/account', args] as const
+  return ['analytics', '/analytics/followers', unref(args)] as const
 }
 
 /**
- * Returns Vue Query query options for GET /analytics/account
+ * Returns Vue Query query options for GET /analytics/followers
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetAnalyticsAccountQueryOptions = (
-  args: InferRequestType<typeof client.analytics.account.$get>,
+export const getGetAnalyticsFollowersQueryOptions = (
+  args: InferRequestType<typeof client.analytics.followers.$get>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetAnalyticsAccountQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetAnalyticsFollowersQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.analytics.account.$get(args, {
+      client.analytics.followers.$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -1253,28 +1284,28 @@ export function useGetAnalyticsFollowers(
 }
 
 /**
- * Generates Vue Query cache key for GET /analytics/followers
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Vue Query cache key for GET /analytics/top-posts
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetAnalyticsFollowersQueryKey(
-  args: InferRequestType<typeof client.analytics.followers.$get>,
+export function getGetAnalyticsTopPostsQueryKey(
+  args: MaybeRef<InferRequestType<(typeof client.analytics)['top-posts']['$get']>>,
 ) {
-  return ['/analytics/followers', args] as const
+  return ['analytics', '/analytics/top-posts', unref(args)] as const
 }
 
 /**
- * Returns Vue Query query options for GET /analytics/followers
+ * Returns Vue Query query options for GET /analytics/top-posts
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetAnalyticsFollowersQueryOptions = (
-  args: InferRequestType<typeof client.analytics.followers.$get>,
+export const getGetAnalyticsTopPostsQueryOptions = (
+  args: InferRequestType<(typeof client.analytics)['top-posts']['$get']>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetAnalyticsFollowersQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetAnalyticsTopPostsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.analytics.followers.$get(args, {
+      client.analytics['top-posts'].$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -1314,32 +1345,3 @@ export function useGetAnalyticsTopPosts(
   )
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates Vue Query cache key for GET /analytics/top-posts
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetAnalyticsTopPostsQueryKey(
-  args: InferRequestType<(typeof client.analytics)['top-posts']['$get']>,
-) {
-  return ['/analytics/top-posts', args] as const
-}
-
-/**
- * Returns Vue Query query options for GET /analytics/top-posts
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetAnalyticsTopPostsQueryOptions = (
-  args: InferRequestType<(typeof client.analytics)['top-posts']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetAnalyticsTopPostsQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.analytics['top-posts'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})

@@ -1,8 +1,33 @@
 import { useQuery, useMutation } from '@tanstack/react-query'
-import type { UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
+import type {
+  UseQueryOptions,
+  QueryFunctionContext,
+  UseMutationOptions,
+} from '@tanstack/react-query'
 import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/14-circular-refs'
+
+/**
+ * Generates TanStack Query cache key for GET /trees
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGetTreesQueryKey() {
+  return ['trees', '/trees'] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /trees
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetTreesQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetTreesQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.trees.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /trees
@@ -18,27 +43,6 @@ export function useGetTrees(options?: {
   const { queryKey, queryFn, ...baseOptions } = getGetTreesQueryOptions(clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates TanStack Query cache key for GET /trees
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGetTreesQueryKey() {
-  return ['/trees'] as const
-}
-
-/**
- * Returns TanStack Query query options for GET /trees
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetTreesQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetTreesQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.trees.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-    ),
-})
 
 /**
  * POST /trees
@@ -60,6 +64,27 @@ export function usePostTrees(options?: {
 }
 
 /**
+ * Generates TanStack Query cache key for GET /graphs
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGetGraphsQueryKey() {
+  return ['graphs', '/graphs'] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /graphs
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetGraphsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetGraphsQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.graphs.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
+
+/**
  * GET /graphs
  */
 export function useGetGraphs(options?: {
@@ -75,23 +100,26 @@ export function useGetGraphs(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /graphs
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates TanStack Query cache key for GET /linked-lists
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetGraphsQueryKey() {
-  return ['/graphs'] as const
+export function getGetLinkedListsQueryKey() {
+  return ['linked-lists', '/linked-lists'] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /graphs
+ * Returns TanStack Query query options for GET /linked-lists
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetGraphsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetGraphsQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetLinkedListsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetLinkedListsQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.graphs.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      client['linked-lists'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
     ),
 })
 
@@ -113,23 +141,23 @@ export function useGetLinkedLists(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /linked-lists
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates TanStack Query cache key for GET /social-network
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetLinkedListsQueryKey() {
-  return ['/linked-lists'] as const
+export function getGetSocialNetworkQueryKey() {
+  return ['social-network', '/social-network'] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /linked-lists
+ * Returns TanStack Query query options for GET /social-network
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetLinkedListsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetLinkedListsQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetSocialNetworkQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetSocialNetworkQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client['linked-lists'].$get(undefined, {
+      client['social-network'].$get(undefined, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -156,23 +184,23 @@ export function useGetSocialNetwork(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /social-network
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates TanStack Query cache key for GET /file-system
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetSocialNetworkQueryKey() {
-  return ['/social-network'] as const
+export function getGetFileSystemQueryKey() {
+  return ['file-system', '/file-system'] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /social-network
+ * Returns TanStack Query query options for GET /file-system
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetSocialNetworkQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetSocialNetworkQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetFileSystemQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetFileSystemQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client['social-network'].$get(undefined, {
+      client['file-system'].$get(undefined, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -197,23 +225,23 @@ export function useGetFileSystem(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /file-system
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates TanStack Query cache key for GET /comments
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetFileSystemQueryKey() {
-  return ['/file-system'] as const
+export function getGetCommentsQueryKey() {
+  return ['comments', '/comments'] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /file-system
+ * Returns TanStack Query query options for GET /comments
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetFileSystemQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetFileSystemQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetCommentsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetCommentsQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client['file-system'].$get(undefined, {
+      client.comments.$get(undefined, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -236,23 +264,23 @@ export function useGetComments(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /comments
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates TanStack Query cache key for GET /polymorphic
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetCommentsQueryKey() {
-  return ['/comments'] as const
+export function getGetPolymorphicQueryKey() {
+  return ['polymorphic', '/polymorphic'] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /comments
+ * Returns TanStack Query query options for GET /polymorphic
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetCommentsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetCommentsQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetPolymorphicQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetPolymorphicQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.comments.$get(undefined, {
+      client.polymorphic.$get(undefined, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -275,23 +303,23 @@ export function useGetPolymorphic(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /polymorphic
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates TanStack Query cache key for GET /categories
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetPolymorphicQueryKey() {
-  return ['/polymorphic'] as const
+export function getGetCategoriesQueryKey() {
+  return ['categories', '/categories'] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /polymorphic
+ * Returns TanStack Query query options for GET /categories
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetPolymorphicQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetPolymorphicQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetCategoriesQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetCategoriesQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.polymorphic.$get(undefined, {
+      client.categories.$get(undefined, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -314,23 +342,23 @@ export function useGetCategories(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /categories
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates TanStack Query cache key for GET /workflow
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetCategoriesQueryKey() {
-  return ['/categories'] as const
+export function getGetWorkflowQueryKey() {
+  return ['workflow', '/workflow'] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /categories
+ * Returns TanStack Query query options for GET /workflow
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetCategoriesQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetCategoriesQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetWorkflowQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetWorkflowQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.categories.$get(undefined, {
+      client.workflow.$get(undefined, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -351,27 +379,3 @@ export function useGetWorkflow(options?: {
   const { queryKey, queryFn, ...baseOptions } = getGetWorkflowQueryOptions(clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates TanStack Query cache key for GET /workflow
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGetWorkflowQueryKey() {
-  return ['/workflow'] as const
-}
-
-/**
- * Returns TanStack Query query options for GET /workflow
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetWorkflowQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetWorkflowQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.workflow.$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})

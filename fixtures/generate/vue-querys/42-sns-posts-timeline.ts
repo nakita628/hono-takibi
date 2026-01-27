@@ -1,8 +1,34 @@
 import { useQuery, useMutation } from '@tanstack/vue-query'
-import type { UseQueryOptions, UseMutationOptions } from '@tanstack/vue-query'
+import type { UseQueryOptions, QueryFunctionContext, UseMutationOptions } from '@tanstack/vue-query'
+import { unref } from 'vue'
+import type { MaybeRef } from 'vue'
 import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/42-sns-posts-timeline'
+
+/**
+ * Generates Vue Query cache key for GET /posts
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetPostsQueryKey(args: MaybeRef<InferRequestType<typeof client.posts.$get>>) {
+  return ['posts', '/posts', unref(args)] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /posts
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetPostsQueryOptions = (
+  args: InferRequestType<typeof client.posts.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetPostsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.posts.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /posts
@@ -32,30 +58,6 @@ export function useGetPosts(
 }
 
 /**
- * Generates Vue Query cache key for GET /posts
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetPostsQueryKey(args: InferRequestType<typeof client.posts.$get>) {
-  return ['/posts', args] as const
-}
-
-/**
- * Returns Vue Query query options for GET /posts
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetPostsQueryOptions = (
-  args: InferRequestType<typeof client.posts.$get>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetPostsQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.posts.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-    ),
-})
-
-/**
  * POST /posts
  *
  * 投稿作成
@@ -80,6 +82,35 @@ export function usePostPosts(options?: {
       parseResponse(client.posts.$post(args, clientOptions)),
   })
 }
+
+/**
+ * Generates Vue Query cache key for GET /posts/{postId}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetPostsPostIdQueryKey(
+  args: MaybeRef<InferRequestType<(typeof client.posts)[':postId']['$get']>>,
+) {
+  return ['posts', '/posts/:postId', unref(args)] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /posts/{postId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetPostsPostIdQueryOptions = (
+  args: InferRequestType<(typeof client.posts)[':postId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetPostsPostIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.posts[':postId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /posts/{postId}
@@ -111,35 +142,6 @@ export function useGetPostsPostId(
 }
 
 /**
- * Generates Vue Query cache key for GET /posts/{postId}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetPostsPostIdQueryKey(
-  args: InferRequestType<(typeof client.posts)[':postId']['$get']>,
-) {
-  return ['/posts/:postId', args] as const
-}
-
-/**
- * Returns Vue Query query options for GET /posts/{postId}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetPostsPostIdQueryOptions = (
-  args: InferRequestType<(typeof client.posts)[':postId']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetPostsPostIdQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.posts[':postId'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
-
-/**
  * DELETE /posts/{postId}
  *
  * 投稿削除
@@ -169,6 +171,35 @@ export function useDeletePostsPostId(options?: {
       parseResponse(client.posts[':postId'].$delete(args, clientOptions)),
   })
 }
+
+/**
+ * Generates Vue Query cache key for GET /posts/{postId}/thread
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetPostsPostIdThreadQueryKey(
+  args: MaybeRef<InferRequestType<(typeof client.posts)[':postId']['thread']['$get']>>,
+) {
+  return ['posts', '/posts/:postId/thread', unref(args)] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /posts/{postId}/thread
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetPostsPostIdThreadQueryOptions = (
+  args: InferRequestType<(typeof client.posts)[':postId']['thread']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetPostsPostIdThreadQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.posts[':postId'].thread.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /posts/{postId}/thread
@@ -207,28 +238,28 @@ export function useGetPostsPostIdThread(
 }
 
 /**
- * Generates Vue Query cache key for GET /posts/{postId}/thread
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Vue Query cache key for GET /posts/{postId}/context
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetPostsPostIdThreadQueryKey(
-  args: InferRequestType<(typeof client.posts)[':postId']['thread']['$get']>,
+export function getGetPostsPostIdContextQueryKey(
+  args: MaybeRef<InferRequestType<(typeof client.posts)[':postId']['context']['$get']>>,
 ) {
-  return ['/posts/:postId/thread', args] as const
+  return ['posts', '/posts/:postId/context', unref(args)] as const
 }
 
 /**
- * Returns Vue Query query options for GET /posts/{postId}/thread
+ * Returns Vue Query query options for GET /posts/{postId}/context
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetPostsPostIdThreadQueryOptions = (
-  args: InferRequestType<(typeof client.posts)[':postId']['thread']['$get']>,
+export const getGetPostsPostIdContextQueryOptions = (
+  args: InferRequestType<(typeof client.posts)[':postId']['context']['$get']>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetPostsPostIdThreadQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetPostsPostIdContextQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.posts[':postId'].thread.$get(args, {
+      client.posts[':postId'].context.$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -272,28 +303,28 @@ export function useGetPostsPostIdContext(
 }
 
 /**
- * Generates Vue Query cache key for GET /posts/{postId}/context
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Vue Query cache key for GET /timeline/home
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetPostsPostIdContextQueryKey(
-  args: InferRequestType<(typeof client.posts)[':postId']['context']['$get']>,
+export function getGetTimelineHomeQueryKey(
+  args: MaybeRef<InferRequestType<typeof client.timeline.home.$get>>,
 ) {
-  return ['/posts/:postId/context', args] as const
+  return ['timeline', '/timeline/home', unref(args)] as const
 }
 
 /**
- * Returns Vue Query query options for GET /posts/{postId}/context
+ * Returns Vue Query query options for GET /timeline/home
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetPostsPostIdContextQueryOptions = (
-  args: InferRequestType<(typeof client.posts)[':postId']['context']['$get']>,
+export const getGetTimelineHomeQueryOptions = (
+  args: InferRequestType<typeof client.timeline.home.$get>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetPostsPostIdContextQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetTimelineHomeQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.posts[':postId'].context.$get(args, {
+      client.timeline.home.$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -330,28 +361,28 @@ export function useGetTimelineHome(
 }
 
 /**
- * Generates Vue Query cache key for GET /timeline/home
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Vue Query cache key for GET /timeline/for-you
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetTimelineHomeQueryKey(
-  args: InferRequestType<typeof client.timeline.home.$get>,
+export function getGetTimelineForYouQueryKey(
+  args: MaybeRef<InferRequestType<(typeof client.timeline)['for-you']['$get']>>,
 ) {
-  return ['/timeline/home', args] as const
+  return ['timeline', '/timeline/for-you', unref(args)] as const
 }
 
 /**
- * Returns Vue Query query options for GET /timeline/home
+ * Returns Vue Query query options for GET /timeline/for-you
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetTimelineHomeQueryOptions = (
-  args: InferRequestType<typeof client.timeline.home.$get>,
+export const getGetTimelineForYouQueryOptions = (
+  args: InferRequestType<(typeof client.timeline)['for-you']['$get']>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetTimelineHomeQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetTimelineForYouQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.timeline.home.$get(args, {
+      client.timeline['for-you'].$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -393,28 +424,28 @@ export function useGetTimelineForYou(
 }
 
 /**
- * Generates Vue Query cache key for GET /timeline/for-you
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Vue Query cache key for GET /timeline/user/{userId}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetTimelineForYouQueryKey(
-  args: InferRequestType<(typeof client.timeline)['for-you']['$get']>,
+export function getGetTimelineUserUserIdQueryKey(
+  args: MaybeRef<InferRequestType<(typeof client.timeline.user)[':userId']['$get']>>,
 ) {
-  return ['/timeline/for-you', args] as const
+  return ['timeline', '/timeline/user/:userId', unref(args)] as const
 }
 
 /**
- * Returns Vue Query query options for GET /timeline/for-you
+ * Returns Vue Query query options for GET /timeline/user/{userId}
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetTimelineForYouQueryOptions = (
-  args: InferRequestType<(typeof client.timeline)['for-you']['$get']>,
+export const getGetTimelineUserUserIdQueryOptions = (
+  args: InferRequestType<(typeof client.timeline.user)[':userId']['$get']>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetTimelineForYouQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetTimelineUserUserIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.timeline['for-you'].$get(args, {
+      client.timeline.user[':userId'].$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -456,28 +487,28 @@ export function useGetTimelineUserUserId(
 }
 
 /**
- * Generates Vue Query cache key for GET /timeline/user/{userId}
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Vue Query cache key for GET /timeline/hashtag/{hashtag}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetTimelineUserUserIdQueryKey(
-  args: InferRequestType<(typeof client.timeline.user)[':userId']['$get']>,
+export function getGetTimelineHashtagHashtagQueryKey(
+  args: MaybeRef<InferRequestType<(typeof client.timeline.hashtag)[':hashtag']['$get']>>,
 ) {
-  return ['/timeline/user/:userId', args] as const
+  return ['timeline', '/timeline/hashtag/:hashtag', unref(args)] as const
 }
 
 /**
- * Returns Vue Query query options for GET /timeline/user/{userId}
+ * Returns Vue Query query options for GET /timeline/hashtag/{hashtag}
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetTimelineUserUserIdQueryOptions = (
-  args: InferRequestType<(typeof client.timeline.user)[':userId']['$get']>,
+export const getGetTimelineHashtagHashtagQueryOptions = (
+  args: InferRequestType<(typeof client.timeline.hashtag)[':hashtag']['$get']>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetTimelineUserUserIdQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetTimelineHashtagHashtagQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.timeline.user[':userId'].$get(args, {
+      client.timeline.hashtag[':hashtag'].$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -517,35 +548,6 @@ export function useGetTimelineHashtagHashtag(
   )
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates Vue Query cache key for GET /timeline/hashtag/{hashtag}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetTimelineHashtagHashtagQueryKey(
-  args: InferRequestType<(typeof client.timeline.hashtag)[':hashtag']['$get']>,
-) {
-  return ['/timeline/hashtag/:hashtag', args] as const
-}
-
-/**
- * Returns Vue Query query options for GET /timeline/hashtag/{hashtag}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetTimelineHashtagHashtagQueryOptions = (
-  args: InferRequestType<(typeof client.timeline.hashtag)[':hashtag']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetTimelineHashtagHashtagQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.timeline.hashtag[':hashtag'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /posts/{postId}/like
@@ -778,6 +780,32 @@ export function useDeletePostsPostIdBookmark(options?: {
 }
 
 /**
+ * Generates Vue Query cache key for GET /bookmarks
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetBookmarksQueryKey(
+  args: MaybeRef<InferRequestType<typeof client.bookmarks.$get>>,
+) {
+  return ['bookmarks', '/bookmarks', unref(args)] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /bookmarks
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetBookmarksQueryOptions = (
+  args: InferRequestType<typeof client.bookmarks.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetBookmarksQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.bookmarks.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
+
+/**
  * GET /bookmarks
  *
  * ブックマーク一覧取得
@@ -805,26 +833,31 @@ export function useGetBookmarks(
 }
 
 /**
- * Generates Vue Query cache key for GET /bookmarks
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Vue Query cache key for GET /posts/{postId}/likes
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetBookmarksQueryKey(args: InferRequestType<typeof client.bookmarks.$get>) {
-  return ['/bookmarks', args] as const
+export function getGetPostsPostIdLikesQueryKey(
+  args: MaybeRef<InferRequestType<(typeof client.posts)[':postId']['likes']['$get']>>,
+) {
+  return ['posts', '/posts/:postId/likes', unref(args)] as const
 }
 
 /**
- * Returns Vue Query query options for GET /bookmarks
+ * Returns Vue Query query options for GET /posts/{postId}/likes
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetBookmarksQueryOptions = (
-  args: InferRequestType<typeof client.bookmarks.$get>,
+export const getGetPostsPostIdLikesQueryOptions = (
+  args: InferRequestType<(typeof client.posts)[':postId']['likes']['$get']>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetBookmarksQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetPostsPostIdLikesQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.bookmarks.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      client.posts[':postId'].likes.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
     ),
 })
 
@@ -863,28 +896,28 @@ export function useGetPostsPostIdLikes(
 }
 
 /**
- * Generates Vue Query cache key for GET /posts/{postId}/likes
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Vue Query cache key for GET /posts/{postId}/reposts
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetPostsPostIdLikesQueryKey(
-  args: InferRequestType<(typeof client.posts)[':postId']['likes']['$get']>,
+export function getGetPostsPostIdRepostsQueryKey(
+  args: MaybeRef<InferRequestType<(typeof client.posts)[':postId']['reposts']['$get']>>,
 ) {
-  return ['/posts/:postId/likes', args] as const
+  return ['posts', '/posts/:postId/reposts', unref(args)] as const
 }
 
 /**
- * Returns Vue Query query options for GET /posts/{postId}/likes
+ * Returns Vue Query query options for GET /posts/{postId}/reposts
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetPostsPostIdLikesQueryOptions = (
-  args: InferRequestType<(typeof client.posts)[':postId']['likes']['$get']>,
+export const getGetPostsPostIdRepostsQueryOptions = (
+  args: InferRequestType<(typeof client.posts)[':postId']['reposts']['$get']>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetPostsPostIdLikesQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetPostsPostIdRepostsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.posts[':postId'].likes.$get(args, {
+      client.posts[':postId'].reposts.$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -926,28 +959,28 @@ export function useGetPostsPostIdReposts(
 }
 
 /**
- * Generates Vue Query cache key for GET /posts/{postId}/reposts
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Vue Query cache key for GET /posts/{postId}/quotes
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetPostsPostIdRepostsQueryKey(
-  args: InferRequestType<(typeof client.posts)[':postId']['reposts']['$get']>,
+export function getGetPostsPostIdQuotesQueryKey(
+  args: MaybeRef<InferRequestType<(typeof client.posts)[':postId']['quotes']['$get']>>,
 ) {
-  return ['/posts/:postId/reposts', args] as const
+  return ['posts', '/posts/:postId/quotes', unref(args)] as const
 }
 
 /**
- * Returns Vue Query query options for GET /posts/{postId}/reposts
+ * Returns Vue Query query options for GET /posts/{postId}/quotes
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetPostsPostIdRepostsQueryOptions = (
-  args: InferRequestType<(typeof client.posts)[':postId']['reposts']['$get']>,
+export const getGetPostsPostIdQuotesQueryOptions = (
+  args: InferRequestType<(typeof client.posts)[':postId']['quotes']['$get']>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetPostsPostIdRepostsQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetPostsPostIdQuotesQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.posts[':postId'].reposts.$get(args, {
+      client.posts[':postId'].quotes.$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -989,28 +1022,28 @@ export function useGetPostsPostIdQuotes(
 }
 
 /**
- * Generates Vue Query cache key for GET /posts/{postId}/quotes
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Vue Query cache key for GET /posts/{postId}/replies
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetPostsPostIdQuotesQueryKey(
-  args: InferRequestType<(typeof client.posts)[':postId']['quotes']['$get']>,
+export function getGetPostsPostIdRepliesQueryKey(
+  args: MaybeRef<InferRequestType<(typeof client.posts)[':postId']['replies']['$get']>>,
 ) {
-  return ['/posts/:postId/quotes', args] as const
+  return ['posts', '/posts/:postId/replies', unref(args)] as const
 }
 
 /**
- * Returns Vue Query query options for GET /posts/{postId}/quotes
+ * Returns Vue Query query options for GET /posts/{postId}/replies
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetPostsPostIdQuotesQueryOptions = (
-  args: InferRequestType<(typeof client.posts)[':postId']['quotes']['$get']>,
+export const getGetPostsPostIdRepliesQueryOptions = (
+  args: InferRequestType<(typeof client.posts)[':postId']['replies']['$get']>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetPostsPostIdQuotesQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetPostsPostIdRepliesQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.posts[':postId'].quotes.$get(args, {
+      client.posts[':postId'].replies.$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -1050,35 +1083,6 @@ export function useGetPostsPostIdReplies(
   )
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates Vue Query cache key for GET /posts/{postId}/replies
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetPostsPostIdRepliesQueryKey(
-  args: InferRequestType<(typeof client.posts)[':postId']['replies']['$get']>,
-) {
-  return ['/posts/:postId/replies', args] as const
-}
-
-/**
- * Returns Vue Query query options for GET /posts/{postId}/replies
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetPostsPostIdRepliesQueryOptions = (
-  args: InferRequestType<(typeof client.posts)[':postId']['replies']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetPostsPostIdRepliesQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.posts[':postId'].replies.$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /posts/{postId}/replies
@@ -1142,6 +1146,35 @@ export function usePostMediaUpload(options?: {
 }
 
 /**
+ * Generates Vue Query cache key for GET /media/{mediaId}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetMediaMediaIdQueryKey(
+  args: MaybeRef<InferRequestType<(typeof client.media)[':mediaId']['$get']>>,
+) {
+  return ['media', '/media/:mediaId', unref(args)] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /media/{mediaId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetMediaMediaIdQueryOptions = (
+  args: InferRequestType<(typeof client.media)[':mediaId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetMediaMediaIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.media[':mediaId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /media/{mediaId}
  *
  * メディア情報取得
@@ -1169,35 +1202,6 @@ export function useGetMediaMediaId(
   const { queryKey, queryFn, ...baseOptions } = getGetMediaMediaIdQueryOptions(args, clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates Vue Query cache key for GET /media/{mediaId}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetMediaMediaIdQueryKey(
-  args: InferRequestType<(typeof client.media)[':mediaId']['$get']>,
-) {
-  return ['/media/:mediaId', args] as const
-}
-
-/**
- * Returns Vue Query query options for GET /media/{mediaId}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetMediaMediaIdQueryOptions = (
-  args: InferRequestType<(typeof client.media)[':mediaId']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetMediaMediaIdQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.media[':mediaId'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * PATCH /media/{mediaId}

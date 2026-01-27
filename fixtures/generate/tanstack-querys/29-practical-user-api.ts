@@ -1,5 +1,9 @@
 import { useQuery, useMutation } from '@tanstack/react-query'
-import type { UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
+import type {
+  UseQueryOptions,
+  QueryFunctionContext,
+  UseMutationOptions,
+} from '@tanstack/react-query'
 import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/29-practical-user-api'
@@ -151,6 +155,30 @@ export function usePostAuthPasswordReset(options?: {
 }
 
 /**
+ * Generates TanStack Query cache key for GET /users
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetUsersQueryKey(args: InferRequestType<typeof client.users.$get>) {
+  return ['users', '/users', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /users
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetUsersQueryOptions = (
+  args: InferRequestType<typeof client.users.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetUsersQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.users.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
+
+/**
  * GET /users
  *
  * ユーザー一覧取得
@@ -173,26 +201,31 @@ export function useGetUsers(
 }
 
 /**
- * Generates TanStack Query cache key for GET /users
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates TanStack Query cache key for GET /users/{userId}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetUsersQueryKey(args: InferRequestType<typeof client.users.$get>) {
-  return ['/users', args] as const
+export function getGetUsersUserIdQueryKey(
+  args: InferRequestType<(typeof client.users)[':userId']['$get']>,
+) {
+  return ['users', '/users/:userId', args] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /users
+ * Returns TanStack Query query options for GET /users/{userId}
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetUsersQueryOptions = (
-  args: InferRequestType<typeof client.users.$get>,
+export const getGetUsersUserIdQueryOptions = (
+  args: InferRequestType<(typeof client.users)[':userId']['$get']>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetUsersQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetUsersUserIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.users.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      client.users[':userId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
     ),
 })
 
@@ -219,35 +252,6 @@ export function useGetUsersUserId(
   const { queryKey, queryFn, ...baseOptions } = getGetUsersUserIdQueryOptions(args, clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates TanStack Query cache key for GET /users/{userId}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetUsersUserIdQueryKey(
-  args: InferRequestType<(typeof client.users)[':userId']['$get']>,
-) {
-  return ['/users/:userId', args] as const
-}
-
-/**
- * Returns TanStack Query query options for GET /users/{userId}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetUsersUserIdQueryOptions = (
-  args: InferRequestType<(typeof client.users)[':userId']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetUsersUserIdQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.users[':userId'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * DELETE /users/{userId}
@@ -301,6 +305,30 @@ export function usePatchUsersUserId(options?: {
 }
 
 /**
+ * Generates TanStack Query cache key for GET /users/me
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGetUsersMeQueryKey() {
+  return ['users', '/users/me'] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /users/me
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetUsersMeQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetUsersMeQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.users.me.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /users/me
  *
  * 現在のユーザー情報取得
@@ -316,30 +344,6 @@ export function useGetUsersMe(options?: {
   const { queryKey, queryFn, ...baseOptions } = getGetUsersMeQueryOptions(clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates TanStack Query cache key for GET /users/me
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGetUsersMeQueryKey() {
-  return ['/users/me'] as const
-}
-
-/**
- * Returns TanStack Query query options for GET /users/me
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetUsersMeQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetUsersMeQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.users.me.$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * PATCH /users/me

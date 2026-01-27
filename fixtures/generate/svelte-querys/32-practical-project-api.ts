@@ -1,8 +1,36 @@
 import { createQuery, createMutation } from '@tanstack/svelte-query'
-import type { CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
+import type {
+  CreateQueryOptions,
+  QueryFunctionContext,
+  CreateMutationOptions,
+} from '@tanstack/svelte-query'
 import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/32-practical-project-api'
+
+/**
+ * Generates Svelte Query cache key for GET /projects
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetProjectsQueryKey(args: InferRequestType<typeof client.projects.$get>) {
+  return ['projects', '/projects', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /projects
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetProjectsQueryOptions = (
+  args: InferRequestType<typeof client.projects.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetProjectsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.projects.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /projects
@@ -27,30 +55,6 @@ export function createGetProjects(
 }
 
 /**
- * Generates Svelte Query cache key for GET /projects
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetProjectsQueryKey(args: InferRequestType<typeof client.projects.$get>) {
-  return ['/projects', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /projects
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetProjectsQueryOptions = (
-  args: InferRequestType<typeof client.projects.$get>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetProjectsQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.projects.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-    ),
-})
-
-/**
  * POST /projects
  *
  * プロジェクト作成
@@ -70,6 +74,35 @@ export function createPostProjects(options?: {
       parseResponse(client.projects.$post(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query cache key for GET /projects/{projectId}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetProjectsProjectIdQueryKey(
+  args: InferRequestType<(typeof client.projects)[':projectId']['$get']>,
+) {
+  return ['projects', '/projects/:projectId', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /projects/{projectId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetProjectsProjectIdQueryOptions = (
+  args: InferRequestType<(typeof client.projects)[':projectId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetProjectsProjectIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.projects[':projectId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /projects/{projectId}
@@ -99,35 +132,6 @@ export function createGetProjectsProjectId(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /projects/{projectId}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetProjectsProjectIdQueryKey(
-  args: InferRequestType<(typeof client.projects)[':projectId']['$get']>,
-) {
-  return ['/projects/:projectId', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /projects/{projectId}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetProjectsProjectIdQueryOptions = (
-  args: InferRequestType<(typeof client.projects)[':projectId']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetProjectsProjectIdQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.projects[':projectId'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * PUT /projects/{projectId}
@@ -183,6 +187,35 @@ export function createDeleteProjectsProjectId(options?: {
 }
 
 /**
+ * Generates Svelte Query cache key for GET /projects/{projectId}/members
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetProjectsProjectIdMembersQueryKey(
+  args: InferRequestType<(typeof client.projects)[':projectId']['members']['$get']>,
+) {
+  return ['projects', '/projects/:projectId/members', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /projects/{projectId}/members
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetProjectsProjectIdMembersQueryOptions = (
+  args: InferRequestType<(typeof client.projects)[':projectId']['members']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetProjectsProjectIdMembersQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.projects[':projectId'].members.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /projects/{projectId}/members
  *
  * プロジェクトメンバー一覧
@@ -214,35 +247,6 @@ export function createGetProjectsProjectIdMembers(
 }
 
 /**
- * Generates Svelte Query cache key for GET /projects/{projectId}/members
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetProjectsProjectIdMembersQueryKey(
-  args: InferRequestType<(typeof client.projects)[':projectId']['members']['$get']>,
-) {
-  return ['/projects/:projectId/members', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /projects/{projectId}/members
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetProjectsProjectIdMembersQueryOptions = (
-  args: InferRequestType<(typeof client.projects)[':projectId']['members']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetProjectsProjectIdMembersQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.projects[':projectId'].members.$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
-
-/**
  * POST /projects/{projectId}/members
  *
  * メンバー追加
@@ -269,6 +273,35 @@ export function createPostProjectsProjectIdMembers(options?: {
     ) => parseResponse(client.projects[':projectId'].members.$post(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query cache key for GET /projects/{projectId}/tasks
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetProjectsProjectIdTasksQueryKey(
+  args: InferRequestType<(typeof client.projects)[':projectId']['tasks']['$get']>,
+) {
+  return ['projects', '/projects/:projectId/tasks', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /projects/{projectId}/tasks
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetProjectsProjectIdTasksQueryOptions = (
+  args: InferRequestType<(typeof client.projects)[':projectId']['tasks']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetProjectsProjectIdTasksQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.projects[':projectId'].tasks.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /projects/{projectId}/tasks
@@ -302,35 +335,6 @@ export function createGetProjectsProjectIdTasks(
 }
 
 /**
- * Generates Svelte Query cache key for GET /projects/{projectId}/tasks
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetProjectsProjectIdTasksQueryKey(
-  args: InferRequestType<(typeof client.projects)[':projectId']['tasks']['$get']>,
-) {
-  return ['/projects/:projectId/tasks', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /projects/{projectId}/tasks
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetProjectsProjectIdTasksQueryOptions = (
-  args: InferRequestType<(typeof client.projects)[':projectId']['tasks']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetProjectsProjectIdTasksQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.projects[':projectId'].tasks.$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
-
-/**
  * POST /projects/{projectId}/tasks
  *
  * タスク作成
@@ -359,6 +363,35 @@ export function createPostProjectsProjectIdTasks(options?: {
 }
 
 /**
+ * Generates Svelte Query cache key for GET /tasks/{taskId}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetTasksTaskIdQueryKey(
+  args: InferRequestType<(typeof client.tasks)[':taskId']['$get']>,
+) {
+  return ['tasks', '/tasks/:taskId', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /tasks/{taskId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetTasksTaskIdQueryOptions = (
+  args: InferRequestType<(typeof client.tasks)[':taskId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetTasksTaskIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.tasks[':taskId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /tasks/{taskId}
  *
  * タスク詳細取得
@@ -383,35 +416,6 @@ export function createGetTasksTaskId(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /tasks/{taskId}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetTasksTaskIdQueryKey(
-  args: InferRequestType<(typeof client.tasks)[':taskId']['$get']>,
-) {
-  return ['/tasks/:taskId', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /tasks/{taskId}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetTasksTaskIdQueryOptions = (
-  args: InferRequestType<(typeof client.tasks)[':taskId']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetTasksTaskIdQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.tasks[':taskId'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * PUT /tasks/{taskId}
@@ -493,6 +497,35 @@ export function createPatchTasksTaskIdStatus(options?: {
 }
 
 /**
+ * Generates Svelte Query cache key for GET /tasks/{taskId}/comments
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetTasksTaskIdCommentsQueryKey(
+  args: InferRequestType<(typeof client.tasks)[':taskId']['comments']['$get']>,
+) {
+  return ['tasks', '/tasks/:taskId/comments', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /tasks/{taskId}/comments
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetTasksTaskIdCommentsQueryOptions = (
+  args: InferRequestType<(typeof client.tasks)[':taskId']['comments']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetTasksTaskIdCommentsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.tasks[':taskId'].comments.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /tasks/{taskId}/comments
  *
  * タスクコメント一覧
@@ -524,35 +557,6 @@ export function createGetTasksTaskIdComments(
 }
 
 /**
- * Generates Svelte Query cache key for GET /tasks/{taskId}/comments
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetTasksTaskIdCommentsQueryKey(
-  args: InferRequestType<(typeof client.tasks)[':taskId']['comments']['$get']>,
-) {
-  return ['/tasks/:taskId/comments', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /tasks/{taskId}/comments
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetTasksTaskIdCommentsQueryOptions = (
-  args: InferRequestType<(typeof client.tasks)[':taskId']['comments']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetTasksTaskIdCommentsQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.tasks[':taskId'].comments.$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
-
-/**
  * POST /tasks/{taskId}/comments
  *
  * コメント追加
@@ -579,6 +583,35 @@ export function createPostTasksTaskIdComments(options?: {
     ) => parseResponse(client.tasks[':taskId'].comments.$post(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query cache key for GET /tasks/{taskId}/time-entries
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetTasksTaskIdTimeEntriesQueryKey(
+  args: InferRequestType<(typeof client.tasks)[':taskId']['time-entries']['$get']>,
+) {
+  return ['tasks', '/tasks/:taskId/time-entries', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /tasks/{taskId}/time-entries
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetTasksTaskIdTimeEntriesQueryOptions = (
+  args: InferRequestType<(typeof client.tasks)[':taskId']['time-entries']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetTasksTaskIdTimeEntriesQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.tasks[':taskId']['time-entries'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /tasks/{taskId}/time-entries
@@ -612,35 +645,6 @@ export function createGetTasksTaskIdTimeEntries(
 }
 
 /**
- * Generates Svelte Query cache key for GET /tasks/{taskId}/time-entries
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetTasksTaskIdTimeEntriesQueryKey(
-  args: InferRequestType<(typeof client.tasks)[':taskId']['time-entries']['$get']>,
-) {
-  return ['/tasks/:taskId/time-entries', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /tasks/{taskId}/time-entries
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetTasksTaskIdTimeEntriesQueryOptions = (
-  args: InferRequestType<(typeof client.tasks)[':taskId']['time-entries']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetTasksTaskIdTimeEntriesQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.tasks[':taskId']['time-entries'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
-
-/**
  * POST /tasks/{taskId}/time-entries
  *
  * 時間記録作成
@@ -667,6 +671,35 @@ export function createPostTasksTaskIdTimeEntries(options?: {
     ) => parseResponse(client.tasks[':taskId']['time-entries'].$post(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query cache key for GET /projects/{projectId}/milestones
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetProjectsProjectIdMilestonesQueryKey(
+  args: InferRequestType<(typeof client.projects)[':projectId']['milestones']['$get']>,
+) {
+  return ['projects', '/projects/:projectId/milestones', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /projects/{projectId}/milestones
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetProjectsProjectIdMilestonesQueryOptions = (
+  args: InferRequestType<(typeof client.projects)[':projectId']['milestones']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetProjectsProjectIdMilestonesQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.projects[':projectId'].milestones.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /projects/{projectId}/milestones
@@ -700,35 +733,6 @@ export function createGetProjectsProjectIdMilestones(
 }
 
 /**
- * Generates Svelte Query cache key for GET /projects/{projectId}/milestones
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetProjectsProjectIdMilestonesQueryKey(
-  args: InferRequestType<(typeof client.projects)[':projectId']['milestones']['$get']>,
-) {
-  return ['/projects/:projectId/milestones', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /projects/{projectId}/milestones
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetProjectsProjectIdMilestonesQueryOptions = (
-  args: InferRequestType<(typeof client.projects)[':projectId']['milestones']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetProjectsProjectIdMilestonesQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.projects[':projectId'].milestones.$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
-
-/**
  * POST /projects/{projectId}/milestones
  *
  * マイルストーン作成
@@ -757,6 +761,27 @@ export function createPostProjectsProjectIdMilestones(options?: {
 }
 
 /**
+ * Generates Svelte Query cache key for GET /teams
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGetTeamsQueryKey() {
+  return ['teams', '/teams'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /teams
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetTeamsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetTeamsQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.teams.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
+
+/**
  * GET /teams
  *
  * チーム一覧取得
@@ -776,27 +801,6 @@ export function createGetTeams(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /teams
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGetTeamsQueryKey() {
-  return ['/teams'] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /teams
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetTeamsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetTeamsQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.teams.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-    ),
-})
 
 /**
  * POST /teams

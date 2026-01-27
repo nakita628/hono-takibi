@@ -5,6 +5,14 @@ import { parseResponse } from 'hono/client'
 import { client } from '../clients/example'
 
 /**
+ * Generates SWR cache key for GET /sample
+ * Returns structured key [path] for filter-based invalidation
+ */
+export function getGetSampleKey() {
+  return ['/sample'] as const
+}
+
+/**
  * GET /sample
  *
  * Returns a payload exercising every custom format, constraint, and nullable case
@@ -25,12 +33,4 @@ export function useGetSample(options?: {
       restSwrOptions,
     ),
   }
-}
-
-/**
- * Generates SWR cache key for GET /sample
- * Returns structured key [templatePath] for filter-based invalidation
- */
-export function getGetSampleKey() {
-  return ['/sample'] as const
 }

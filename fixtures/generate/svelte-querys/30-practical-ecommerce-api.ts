@@ -1,8 +1,36 @@
 import { createQuery, createMutation } from '@tanstack/svelte-query'
-import type { CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
+import type {
+  CreateQueryOptions,
+  QueryFunctionContext,
+  CreateMutationOptions,
+} from '@tanstack/svelte-query'
 import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/30-practical-ecommerce-api'
+
+/**
+ * Generates Svelte Query cache key for GET /products
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetProductsQueryKey(args: InferRequestType<typeof client.products.$get>) {
+  return ['products', '/products', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /products
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetProductsQueryOptions = (
+  args: InferRequestType<typeof client.products.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetProductsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.products.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /products
@@ -27,30 +55,6 @@ export function createGetProducts(
 }
 
 /**
- * Generates Svelte Query cache key for GET /products
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetProductsQueryKey(args: InferRequestType<typeof client.products.$get>) {
-  return ['/products', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /products
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetProductsQueryOptions = (
-  args: InferRequestType<typeof client.products.$get>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetProductsQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.products.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-    ),
-})
-
-/**
  * POST /products
  *
  * 商品作成
@@ -70,6 +74,35 @@ export function createPostProducts(options?: {
       parseResponse(client.products.$post(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query cache key for GET /products/{productId}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetProductsProductIdQueryKey(
+  args: InferRequestType<(typeof client.products)[':productId']['$get']>,
+) {
+  return ['products', '/products/:productId', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /products/{productId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetProductsProductIdQueryOptions = (
+  args: InferRequestType<(typeof client.products)[':productId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetProductsProductIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.products[':productId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /products/{productId}
@@ -99,35 +132,6 @@ export function createGetProductsProductId(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /products/{productId}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetProductsProductIdQueryKey(
-  args: InferRequestType<(typeof client.products)[':productId']['$get']>,
-) {
-  return ['/products/:productId', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /products/{productId}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetProductsProductIdQueryOptions = (
-  args: InferRequestType<(typeof client.products)[':productId']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetProductsProductIdQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.products[':productId'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * PUT /products/{productId}
@@ -211,6 +215,30 @@ export function createPostProductsProductIdImages(options?: {
 }
 
 /**
+ * Generates Svelte Query cache key for GET /categories
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGetCategoriesQueryKey() {
+  return ['categories', '/categories'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /categories
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetCategoriesQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetCategoriesQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.categories.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /categories
  *
  * カテゴリ一覧取得
@@ -230,30 +258,6 @@ export function createGetCategories(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /categories
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGetCategoriesQueryKey() {
-  return ['/categories'] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /categories
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetCategoriesQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetCategoriesQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.categories.$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /categories
@@ -277,6 +281,27 @@ export function createPostCategories(options?: {
 }
 
 /**
+ * Generates Svelte Query cache key for GET /cart
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGetCartQueryKey() {
+  return ['cart', '/cart'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /cart
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetCartQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetCartQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.cart.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
+
+/**
  * GET /cart
  *
  * カート取得
@@ -296,27 +321,6 @@ export function createGetCart(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /cart
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGetCartQueryKey() {
-  return ['/cart'] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /cart
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetCartQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetCartQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.cart.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-    ),
-})
 
 /**
  * DELETE /cart
@@ -411,6 +415,30 @@ export function createDeleteCartItemsItemId(options?: {
 }
 
 /**
+ * Generates Svelte Query cache key for GET /orders
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetOrdersQueryKey(args: InferRequestType<typeof client.orders.$get>) {
+  return ['orders', '/orders', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /orders
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetOrdersQueryOptions = (
+  args: InferRequestType<typeof client.orders.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetOrdersQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.orders.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
+
+/**
  * GET /orders
  *
  * 注文一覧取得
@@ -431,30 +459,6 @@ export function createGetOrders(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /orders
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetOrdersQueryKey(args: InferRequestType<typeof client.orders.$get>) {
-  return ['/orders', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /orders
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetOrdersQueryOptions = (
-  args: InferRequestType<typeof client.orders.$get>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetOrdersQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.orders.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-    ),
-})
 
 /**
  * POST /orders
@@ -478,6 +482,35 @@ export function createPostOrders(options?: {
       parseResponse(client.orders.$post(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query cache key for GET /orders/{orderId}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetOrdersOrderIdQueryKey(
+  args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
+) {
+  return ['orders', '/orders/:orderId', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /orders/{orderId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetOrdersOrderIdQueryOptions = (
+  args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetOrdersOrderIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.orders[':orderId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /orders/{orderId}
@@ -509,35 +542,6 @@ export function createGetOrdersOrderId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /orders/{orderId}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetOrdersOrderIdQueryKey(
-  args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
-) {
-  return ['/orders/:orderId', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /orders/{orderId}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetOrdersOrderIdQueryOptions = (
-  args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetOrdersOrderIdQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.orders[':orderId'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
-
-/**
  * POST /orders/{orderId}/cancel
  *
  * 注文キャンセル
@@ -564,6 +568,35 @@ export function createPostOrdersOrderIdCancel(options?: {
     ) => parseResponse(client.orders[':orderId'].cancel.$post(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query cache key for GET /inventory/{productId}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetInventoryProductIdQueryKey(
+  args: InferRequestType<(typeof client.inventory)[':productId']['$get']>,
+) {
+  return ['inventory', '/inventory/:productId', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /inventory/{productId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetInventoryProductIdQueryOptions = (
+  args: InferRequestType<(typeof client.inventory)[':productId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetInventoryProductIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.inventory[':productId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /inventory/{productId}
@@ -593,35 +626,6 @@ export function createGetInventoryProductId(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /inventory/{productId}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetInventoryProductIdQueryKey(
-  args: InferRequestType<(typeof client.inventory)[':productId']['$get']>,
-) {
-  return ['/inventory/:productId', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /inventory/{productId}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetInventoryProductIdQueryOptions = (
-  args: InferRequestType<(typeof client.inventory)[':productId']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetInventoryProductIdQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.inventory[':productId'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * PUT /inventory/{productId}

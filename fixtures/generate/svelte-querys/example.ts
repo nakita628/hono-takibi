@@ -1,8 +1,29 @@
 import { createQuery } from '@tanstack/svelte-query'
-import type { CreateQueryOptions } from '@tanstack/svelte-query'
+import type { CreateQueryOptions, QueryFunctionContext } from '@tanstack/svelte-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/example'
+
+/**
+ * Generates Svelte Query cache key for GET /sample
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGetSampleQueryKey() {
+  return ['sample', '/sample'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /sample
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetSampleQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetSampleQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.sample.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /sample
@@ -24,24 +45,3 @@ export function createGetSample(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /sample
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGetSampleQueryKey() {
-  return ['/sample'] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /sample
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetSampleQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetSampleQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.sample.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-    ),
-})

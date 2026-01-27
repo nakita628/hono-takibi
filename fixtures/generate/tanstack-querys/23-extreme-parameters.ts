@@ -1,8 +1,40 @@
 import { useQuery } from '@tanstack/react-query'
-import type { UseQueryOptions } from '@tanstack/react-query'
+import type { UseQueryOptions, QueryFunctionContext } from '@tanstack/react-query'
 import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/23-extreme-parameters'
+
+/**
+ * Generates TanStack Query cache key for GET /a/{p1}/b/{p2}/c/{p3}/d/{p4}/e/{p5}/f/{p6}/g/{p7}/h/{p8}/i/{p9}/j/{p10}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetAP1BP2CP3DP4EP5FP6GP7HP8IP9JP10QueryKey(
+  args: InferRequestType<
+    (typeof client.a)[':p1']['b'][':p2']['c'][':p3']['d'][':p4']['e'][':p5']['f'][':p6']['g'][':p7']['h'][':p8']['i'][':p9']['j'][':p10']['$get']
+  >,
+) {
+  return ['a', '/a/:p1/b/:p2/c/:p3/d/:p4/e/:p5/f/:p6/g/:p7/h/:p8/i/:p9/j/:p10', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /a/{p1}/b/{p2}/c/{p3}/d/{p4}/e/{p5}/f/{p6}/g/{p7}/h/{p8}/i/{p9}/j/{p10}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetAP1BP2CP3DP4EP5FP6GP7HP8IP9JP10QueryOptions = (
+  args: InferRequestType<
+    (typeof client.a)[':p1']['b'][':p2']['c'][':p3']['d'][':p4']['e'][':p5']['f'][':p6']['g'][':p7']['h'][':p8']['i'][':p9']['j'][':p10']['$get']
+  >,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetAP1BP2CP3DP4EP5FP6GP7HP8IP9JP10QueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.a[':p1'].b[':p2'].c[':p3'].d[':p4'].e[':p5'].f[':p6'].g[':p7'].h[':p8'].i[':p9'].j[
+        ':p10'
+      ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /a/{p1}/b/{p2}/c/{p3}/d/{p4}/e/{p5}/f/{p6}/g/{p7}/h/{p8}/i/{p9}/j/{p10}
@@ -38,34 +70,31 @@ export function useGetAP1BP2CP3DP4EP5FP6GP7HP8IP9JP10(
 }
 
 /**
- * Generates TanStack Query cache key for GET /a/{p1}/b/{p2}/c/{p3}/d/{p4}/e/{p5}/f/{p6}/g/{p7}/h/{p8}/i/{p9}/j/{p10}
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates TanStack Query cache key for GET /query-styles
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetAP1BP2CP3DP4EP5FP6GP7HP8IP9JP10QueryKey(
-  args: InferRequestType<
-    (typeof client.a)[':p1']['b'][':p2']['c'][':p3']['d'][':p4']['e'][':p5']['f'][':p6']['g'][':p7']['h'][':p8']['i'][':p9']['j'][':p10']['$get']
-  >,
+export function getGetQueryStylesQueryKey(
+  args: InferRequestType<(typeof client)['query-styles']['$get']>,
 ) {
-  return ['/a/:p1/b/:p2/c/:p3/d/:p4/e/:p5/f/:p6/g/:p7/h/:p8/i/:p9/j/:p10', args] as const
+  return ['query-styles', '/query-styles', args] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /a/{p1}/b/{p2}/c/{p3}/d/{p4}/e/{p5}/f/{p6}/g/{p7}/h/{p8}/i/{p9}/j/{p10}
+ * Returns TanStack Query query options for GET /query-styles
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetAP1BP2CP3DP4EP5FP6GP7HP8IP9JP10QueryOptions = (
-  args: InferRequestType<
-    (typeof client.a)[':p1']['b'][':p2']['c'][':p3']['d'][':p4']['e'][':p5']['f'][':p6']['g'][':p7']['h'][':p8']['i'][':p9']['j'][':p10']['$get']
-  >,
+export const getGetQueryStylesQueryOptions = (
+  args: InferRequestType<(typeof client)['query-styles']['$get']>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetAP1BP2CP3DP4EP5FP6GP7HP8IP9JP10QueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetQueryStylesQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.a[':p1'].b[':p2'].c[':p3'].d[':p4'].e[':p5'].f[':p6'].g[':p7'].h[':p8'].i[':p9'].j[
-        ':p10'
-      ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      client['query-styles'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
     ),
 })
 
@@ -92,28 +121,28 @@ export function useGetQueryStyles(
 }
 
 /**
- * Generates TanStack Query cache key for GET /query-styles
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates TanStack Query cache key for GET /path-styles/{simple}/{label}/{matrix}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetQueryStylesQueryKey(
-  args: InferRequestType<(typeof client)['query-styles']['$get']>,
+export function getGetPathStylesSimpleLabelMatrixQueryKey(
+  args: InferRequestType<(typeof client)['path-styles'][':simple'][':label'][':matrix']['$get']>,
 ) {
-  return ['/query-styles', args] as const
+  return ['path-styles', '/path-styles/:simple/:label/:matrix', args] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /query-styles
+ * Returns TanStack Query query options for GET /path-styles/{simple}/{label}/{matrix}
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetQueryStylesQueryOptions = (
-  args: InferRequestType<(typeof client)['query-styles']['$get']>,
+export const getGetPathStylesSimpleLabelMatrixQueryOptions = (
+  args: InferRequestType<(typeof client)['path-styles'][':simple'][':label'][':matrix']['$get']>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetQueryStylesQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetPathStylesSimpleLabelMatrixQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client['query-styles'].$get(args, {
+      client['path-styles'][':simple'][':label'][':matrix'].$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -150,28 +179,28 @@ export function useGetPathStylesSimpleLabelMatrix(
 }
 
 /**
- * Generates TanStack Query cache key for GET /path-styles/{simple}/{label}/{matrix}
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates TanStack Query cache key for GET /header-styles
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetPathStylesSimpleLabelMatrixQueryKey(
-  args: InferRequestType<(typeof client)['path-styles'][':simple'][':label'][':matrix']['$get']>,
+export function getGetHeaderStylesQueryKey(
+  args: InferRequestType<(typeof client)['header-styles']['$get']>,
 ) {
-  return ['/path-styles/:simple/:label/:matrix', args] as const
+  return ['header-styles', '/header-styles', args] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /path-styles/{simple}/{label}/{matrix}
+ * Returns TanStack Query query options for GET /header-styles
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetPathStylesSimpleLabelMatrixQueryOptions = (
-  args: InferRequestType<(typeof client)['path-styles'][':simple'][':label'][':matrix']['$get']>,
+export const getGetHeaderStylesQueryOptions = (
+  args: InferRequestType<(typeof client)['header-styles']['$get']>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetPathStylesSimpleLabelMatrixQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetHeaderStylesQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client['path-styles'][':simple'][':label'][':matrix'].$get(args, {
+      client['header-styles'].$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -201,28 +230,28 @@ export function useGetHeaderStyles(
 }
 
 /**
- * Generates TanStack Query cache key for GET /header-styles
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates TanStack Query cache key for GET /cookie-styles
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetHeaderStylesQueryKey(
-  args: InferRequestType<(typeof client)['header-styles']['$get']>,
+export function getGetCookieStylesQueryKey(
+  args: InferRequestType<(typeof client)['cookie-styles']['$get']>,
 ) {
-  return ['/header-styles', args] as const
+  return ['cookie-styles', '/cookie-styles', args] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /header-styles
+ * Returns TanStack Query query options for GET /cookie-styles
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetHeaderStylesQueryOptions = (
-  args: InferRequestType<(typeof client)['header-styles']['$get']>,
+export const getGetCookieStylesQueryOptions = (
+  args: InferRequestType<(typeof client)['cookie-styles']['$get']>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetHeaderStylesQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetCookieStylesQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client['header-styles'].$get(args, {
+      client['cookie-styles'].$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -252,28 +281,28 @@ export function useGetCookieStyles(
 }
 
 /**
- * Generates TanStack Query cache key for GET /cookie-styles
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates TanStack Query cache key for GET /many-query-params
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetCookieStylesQueryKey(
-  args: InferRequestType<(typeof client)['cookie-styles']['$get']>,
+export function getGetManyQueryParamsQueryKey(
+  args: InferRequestType<(typeof client)['many-query-params']['$get']>,
 ) {
-  return ['/cookie-styles', args] as const
+  return ['many-query-params', '/many-query-params', args] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /cookie-styles
+ * Returns TanStack Query query options for GET /many-query-params
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetCookieStylesQueryOptions = (
-  args: InferRequestType<(typeof client)['cookie-styles']['$get']>,
+export const getGetManyQueryParamsQueryOptions = (
+  args: InferRequestType<(typeof client)['many-query-params']['$get']>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetCookieStylesQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetManyQueryParamsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client['cookie-styles'].$get(args, {
+      client['many-query-params'].$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -306,28 +335,28 @@ export function useGetManyQueryParams(
 }
 
 /**
- * Generates TanStack Query cache key for GET /many-query-params
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates TanStack Query cache key for GET /parameter-content
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetManyQueryParamsQueryKey(
-  args: InferRequestType<(typeof client)['many-query-params']['$get']>,
+export function getGetParameterContentQueryKey(
+  args: InferRequestType<(typeof client)['parameter-content']['$get']>,
 ) {
-  return ['/many-query-params', args] as const
+  return ['parameter-content', '/parameter-content', args] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /many-query-params
+ * Returns TanStack Query query options for GET /parameter-content
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetManyQueryParamsQueryOptions = (
-  args: InferRequestType<(typeof client)['many-query-params']['$get']>,
+export const getGetParameterContentQueryOptions = (
+  args: InferRequestType<(typeof client)['parameter-content']['$get']>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetManyQueryParamsQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetParameterContentQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client['many-query-params'].$get(args, {
+      client['parameter-content'].$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -360,28 +389,28 @@ export function useGetParameterContent(
 }
 
 /**
- * Generates TanStack Query cache key for GET /parameter-content
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates TanStack Query cache key for GET /deprecated-params
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetParameterContentQueryKey(
-  args: InferRequestType<(typeof client)['parameter-content']['$get']>,
+export function getGetDeprecatedParamsQueryKey(
+  args: InferRequestType<(typeof client)['deprecated-params']['$get']>,
 ) {
-  return ['/parameter-content', args] as const
+  return ['deprecated-params', '/deprecated-params', args] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /parameter-content
+ * Returns TanStack Query query options for GET /deprecated-params
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetParameterContentQueryOptions = (
-  args: InferRequestType<(typeof client)['parameter-content']['$get']>,
+export const getGetDeprecatedParamsQueryOptions = (
+  args: InferRequestType<(typeof client)['deprecated-params']['$get']>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetParameterContentQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetDeprecatedParamsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client['parameter-content'].$get(args, {
+      client['deprecated-params'].$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -414,28 +443,28 @@ export function useGetDeprecatedParams(
 }
 
 /**
- * Generates TanStack Query cache key for GET /deprecated-params
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates TanStack Query cache key for GET /examples-params
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetDeprecatedParamsQueryKey(
-  args: InferRequestType<(typeof client)['deprecated-params']['$get']>,
+export function getGetExamplesParamsQueryKey(
+  args: InferRequestType<(typeof client)['examples-params']['$get']>,
 ) {
-  return ['/deprecated-params', args] as const
+  return ['examples-params', '/examples-params', args] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /deprecated-params
+ * Returns TanStack Query query options for GET /examples-params
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetDeprecatedParamsQueryOptions = (
-  args: InferRequestType<(typeof client)['deprecated-params']['$get']>,
+export const getGetExamplesParamsQueryOptions = (
+  args: InferRequestType<(typeof client)['examples-params']['$get']>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetDeprecatedParamsQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetExamplesParamsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client['deprecated-params'].$get(args, {
+      client['examples-params'].$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -466,32 +495,3 @@ export function useGetExamplesParams(
   )
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates TanStack Query cache key for GET /examples-params
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetExamplesParamsQueryKey(
-  args: InferRequestType<(typeof client)['examples-params']['$get']>,
-) {
-  return ['/examples-params', args] as const
-}
-
-/**
- * Returns TanStack Query query options for GET /examples-params
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetExamplesParamsQueryOptions = (
-  args: InferRequestType<(typeof client)['examples-params']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetExamplesParamsQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['examples-params'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})

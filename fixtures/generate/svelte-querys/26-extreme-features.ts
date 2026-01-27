@@ -1,8 +1,33 @@
 import { createQuery, createMutation } from '@tanstack/svelte-query'
-import type { CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
+import type {
+  CreateQueryOptions,
+  QueryFunctionContext,
+  CreateMutationOptions,
+} from '@tanstack/svelte-query'
 import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/26-extreme-features'
+
+/**
+ * Generates Svelte Query cache key for GET /stream
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGetStreamQueryKey() {
+  return ['stream', '/stream'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /stream
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetStreamQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetStreamQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.stream.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /stream
@@ -24,27 +49,6 @@ export function createGetStream(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /stream
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGetStreamQueryKey() {
-  return ['/stream'] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /stream
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetStreamQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetStreamQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.stream.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-    ),
-})
 
 /**
  * POST /graphql
@@ -93,6 +97,30 @@ export function createPostGrpcGateway(options?: {
 }
 
 /**
+ * Generates Svelte Query cache key for GET /deprecated-endpoint
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGetDeprecatedEndpointQueryKey() {
+  return ['deprecated-endpoint', '/deprecated-endpoint'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /deprecated-endpoint
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetDeprecatedEndpointQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetDeprecatedEndpointQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['deprecated-endpoint'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /deprecated-endpoint
  *
  * This endpoint is deprecated
@@ -120,27 +148,3 @@ export function createGetDeprecatedEndpoint(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /deprecated-endpoint
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGetDeprecatedEndpointQueryKey() {
-  return ['/deprecated-endpoint'] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /deprecated-endpoint
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetDeprecatedEndpointQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetDeprecatedEndpointQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['deprecated-endpoint'].$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})

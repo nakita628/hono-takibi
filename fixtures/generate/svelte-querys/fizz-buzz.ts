@@ -1,8 +1,32 @@
 import { createQuery } from '@tanstack/svelte-query'
-import type { CreateQueryOptions } from '@tanstack/svelte-query'
+import type { CreateQueryOptions, QueryFunctionContext } from '@tanstack/svelte-query'
 import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/fizz-buzz'
+
+/**
+ * Generates Svelte Query cache key for GET /fizzbuzz
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetFizzbuzzQueryKey(args: InferRequestType<typeof client.fizzbuzz.$get>) {
+  return ['fizzbuzz', '/fizzbuzz', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /fizzbuzz
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetFizzbuzzQueryOptions = (
+  args: InferRequestType<typeof client.fizzbuzz.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetFizzbuzzQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.fizzbuzz.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /fizzbuzz
@@ -27,27 +51,3 @@ export function createGetFizzbuzz(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /fizzbuzz
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetFizzbuzzQueryKey(args: InferRequestType<typeof client.fizzbuzz.$get>) {
-  return ['/fizzbuzz', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /fizzbuzz
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetFizzbuzzQueryOptions = (
-  args: InferRequestType<typeof client.fizzbuzz.$get>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetFizzbuzzQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.fizzbuzz.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-    ),
-})

@@ -1,8 +1,41 @@
 import { createQuery, createMutation } from '@tanstack/svelte-query'
-import type { CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
+import type {
+  CreateQueryOptions,
+  QueryFunctionContext,
+  CreateMutationOptions,
+} from '@tanstack/svelte-query'
 import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/44-sns-notifications-dm-search'
+
+/**
+ * Generates Svelte Query cache key for GET /notifications
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetNotificationsQueryKey(
+  args: InferRequestType<typeof client.notifications.$get>,
+) {
+  return ['notifications', '/notifications', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /notifications
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetNotificationsQueryOptions = (
+  args: InferRequestType<typeof client.notifications.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetNotificationsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.notifications.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /notifications
@@ -32,28 +65,25 @@ export function createGetNotifications(
 }
 
 /**
- * Generates Svelte Query cache key for GET /notifications
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Svelte Query cache key for GET /notifications/unread-count
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetNotificationsQueryKey(
-  args: InferRequestType<typeof client.notifications.$get>,
-) {
-  return ['/notifications', args] as const
+export function getGetNotificationsUnreadCountQueryKey() {
+  return ['notifications', '/notifications/unread-count'] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /notifications
+ * Returns Svelte Query query options for GET /notifications/unread-count
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetNotificationsQueryOptions = (
-  args: InferRequestType<typeof client.notifications.$get>,
+export const getGetNotificationsUnreadCountQueryOptions = (
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetNotificationsQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetNotificationsUnreadCountQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.notifications.$get(args, {
+      client.notifications['unread-count'].$get(undefined, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -90,32 +120,6 @@ export function createGetNotificationsUnreadCount(
 }
 
 /**
- * Generates Svelte Query cache key for GET /notifications/unread-count
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGetNotificationsUnreadCountQueryKey() {
-  return ['/notifications/unread-count'] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /notifications/unread-count
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetNotificationsUnreadCountQueryOptions = (
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetNotificationsUnreadCountQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.notifications['unread-count'].$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
-
-/**
  * POST /notifications/mark-read
  *
  * 通知を既読にする
@@ -142,6 +146,30 @@ export function createPostNotificationsMarkRead(options?: {
     ) => parseResponse(client.notifications['mark-read'].$post(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query cache key for GET /notifications/settings
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGetNotificationsSettingsQueryKey() {
+  return ['notifications', '/notifications/settings'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /notifications/settings
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetNotificationsSettingsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetNotificationsSettingsQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.notifications.settings.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /notifications/settings
@@ -171,30 +199,6 @@ export function createGetNotificationsSettings(
 }
 
 /**
- * Generates Svelte Query cache key for GET /notifications/settings
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGetNotificationsSettingsQueryKey() {
-  return ['/notifications/settings'] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /notifications/settings
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetNotificationsSettingsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetNotificationsSettingsQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.notifications.settings.$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
-
-/**
  * PUT /notifications/settings
  *
  * 通知設定更新
@@ -218,6 +222,35 @@ export function createPutNotificationsSettings(options?: {
       parseResponse(client.notifications.settings.$put(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query cache key for GET /dm/conversations
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetDmConversationsQueryKey(
+  args: InferRequestType<typeof client.dm.conversations.$get>,
+) {
+  return ['dm', '/dm/conversations', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /dm/conversations
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetDmConversationsQueryOptions = (
+  args: InferRequestType<typeof client.dm.conversations.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetDmConversationsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.dm.conversations.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /dm/conversations
@@ -247,35 +280,6 @@ export function createGetDmConversations(
 }
 
 /**
- * Generates Svelte Query cache key for GET /dm/conversations
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetDmConversationsQueryKey(
-  args: InferRequestType<typeof client.dm.conversations.$get>,
-) {
-  return ['/dm/conversations', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /dm/conversations
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetDmConversationsQueryOptions = (
-  args: InferRequestType<typeof client.dm.conversations.$get>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetDmConversationsQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.dm.conversations.$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
-
-/**
  * POST /dm/conversations
  *
  * 会話作成
@@ -297,6 +301,35 @@ export function createPostDmConversations(options?: {
       parseResponse(client.dm.conversations.$post(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query cache key for GET /dm/conversations/{conversationId}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetDmConversationsConversationIdQueryKey(
+  args: InferRequestType<(typeof client.dm.conversations)[':conversationId']['$get']>,
+) {
+  return ['dm', '/dm/conversations/:conversationId', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /dm/conversations/{conversationId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetDmConversationsConversationIdQueryOptions = (
+  args: InferRequestType<(typeof client.dm.conversations)[':conversationId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetDmConversationsConversationIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.dm.conversations[':conversationId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /dm/conversations/{conversationId}
@@ -330,35 +363,6 @@ export function createGetDmConversationsConversationId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /dm/conversations/{conversationId}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetDmConversationsConversationIdQueryKey(
-  args: InferRequestType<(typeof client.dm.conversations)[':conversationId']['$get']>,
-) {
-  return ['/dm/conversations/:conversationId', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /dm/conversations/{conversationId}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetDmConversationsConversationIdQueryOptions = (
-  args: InferRequestType<(typeof client.dm.conversations)[':conversationId']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetDmConversationsConversationIdQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.dm.conversations[':conversationId'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
-
-/**
  * DELETE /dm/conversations/{conversationId}
  *
  * 会話を退出
@@ -386,6 +390,35 @@ export function createDeleteDmConversationsConversationId(options?: {
     ) => parseResponse(client.dm.conversations[':conversationId'].$delete(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query cache key for GET /dm/conversations/{conversationId}/messages
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetDmConversationsConversationIdMessagesQueryKey(
+  args: InferRequestType<(typeof client.dm.conversations)[':conversationId']['messages']['$get']>,
+) {
+  return ['dm', '/dm/conversations/:conversationId/messages', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /dm/conversations/{conversationId}/messages
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetDmConversationsConversationIdMessagesQueryOptions = (
+  args: InferRequestType<(typeof client.dm.conversations)[':conversationId']['messages']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetDmConversationsConversationIdMessagesQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.dm.conversations[':conversationId'].messages.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /dm/conversations/{conversationId}/messages
@@ -417,35 +450,6 @@ export function createGetDmConversationsConversationIdMessages(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /dm/conversations/{conversationId}/messages
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetDmConversationsConversationIdMessagesQueryKey(
-  args: InferRequestType<(typeof client.dm.conversations)[':conversationId']['messages']['$get']>,
-) {
-  return ['/dm/conversations/:conversationId/messages', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /dm/conversations/{conversationId}/messages
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetDmConversationsConversationIdMessagesQueryOptions = (
-  args: InferRequestType<(typeof client.dm.conversations)[':conversationId']['messages']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetDmConversationsConversationIdMessagesQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.dm.conversations[':conversationId'].messages.$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /dm/conversations/{conversationId}/messages
@@ -627,6 +631,30 @@ export function createDeleteDmMessagesMessageIdReactions(options?: {
 }
 
 /**
+ * Generates Svelte Query cache key for GET /dm/unread-count
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGetDmUnreadCountQueryKey() {
+  return ['dm', '/dm/unread-count'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /dm/unread-count
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetDmUnreadCountQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetDmUnreadCountQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.dm['unread-count'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /dm/unread-count
  *
  * 未読メッセージ数取得
@@ -652,23 +680,26 @@ export function createGetDmUnreadCount(
 }
 
 /**
- * Generates Svelte Query cache key for GET /dm/unread-count
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates Svelte Query cache key for GET /search/posts
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetDmUnreadCountQueryKey() {
-  return ['/dm/unread-count'] as const
+export function getGetSearchPostsQueryKey(args: InferRequestType<typeof client.search.posts.$get>) {
+  return ['search', '/search/posts', args] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /dm/unread-count
+ * Returns Svelte Query query options for GET /search/posts
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetDmUnreadCountQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetDmUnreadCountQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetSearchPostsQueryOptions = (
+  args: InferRequestType<typeof client.search.posts.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetSearchPostsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.dm['unread-count'].$get(undefined, {
+      client.search.posts.$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -700,26 +731,26 @@ export function createGetSearchPosts(
 }
 
 /**
- * Generates Svelte Query cache key for GET /search/posts
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Svelte Query cache key for GET /search/users
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetSearchPostsQueryKey(args: InferRequestType<typeof client.search.posts.$get>) {
-  return ['/search/posts', args] as const
+export function getGetSearchUsersQueryKey(args: InferRequestType<typeof client.search.users.$get>) {
+  return ['search', '/search/users', args] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /search/posts
+ * Returns Svelte Query query options for GET /search/users
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetSearchPostsQueryOptions = (
-  args: InferRequestType<typeof client.search.posts.$get>,
+export const getGetSearchUsersQueryOptions = (
+  args: InferRequestType<typeof client.search.users.$get>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetSearchPostsQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetSearchUsersQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.search.posts.$get(args, {
+      client.search.users.$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -751,26 +782,28 @@ export function createGetSearchUsers(
 }
 
 /**
- * Generates Svelte Query cache key for GET /search/users
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Svelte Query cache key for GET /search/hashtags
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetSearchUsersQueryKey(args: InferRequestType<typeof client.search.users.$get>) {
-  return ['/search/users', args] as const
+export function getGetSearchHashtagsQueryKey(
+  args: InferRequestType<typeof client.search.hashtags.$get>,
+) {
+  return ['search', '/search/hashtags', args] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /search/users
+ * Returns Svelte Query query options for GET /search/hashtags
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetSearchUsersQueryOptions = (
-  args: InferRequestType<typeof client.search.users.$get>,
+export const getGetSearchHashtagsQueryOptions = (
+  args: InferRequestType<typeof client.search.hashtags.$get>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetSearchUsersQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetSearchHashtagsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.search.users.$get(args, {
+      client.search.hashtags.$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -805,28 +838,23 @@ export function createGetSearchHashtags(
 }
 
 /**
- * Generates Svelte Query cache key for GET /search/hashtags
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Svelte Query cache key for GET /search/recent
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetSearchHashtagsQueryKey(
-  args: InferRequestType<typeof client.search.hashtags.$get>,
-) {
-  return ['/search/hashtags', args] as const
+export function getGetSearchRecentQueryKey() {
+  return ['search', '/search/recent'] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /search/hashtags
+ * Returns Svelte Query query options for GET /search/recent
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetSearchHashtagsQueryOptions = (
-  args: InferRequestType<typeof client.search.hashtags.$get>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetSearchHashtagsQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetSearchRecentQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetSearchRecentQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.search.hashtags.$get(args, {
+      client.search.recent.$get(undefined, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -857,30 +885,6 @@ export function createGetSearchRecent(
 }
 
 /**
- * Generates Svelte Query cache key for GET /search/recent
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGetSearchRecentQueryKey() {
-  return ['/search/recent'] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /search/recent
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetSearchRecentQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetSearchRecentQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.search.recent.$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
-
-/**
  * DELETE /search/recent
  *
  * 検索履歴クリア
@@ -902,6 +906,30 @@ export function createDeleteSearchRecent(options?: {
     mutationFn: async () => parseResponse(client.search.recent.$delete(undefined, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query cache key for GET /trends
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetTrendsQueryKey(args: InferRequestType<typeof client.trends.$get>) {
+  return ['trends', '/trends', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /trends
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetTrendsQueryOptions = (
+  args: InferRequestType<typeof client.trends.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetTrendsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.trends.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /trends
@@ -926,26 +954,26 @@ export function createGetTrends(
 }
 
 /**
- * Generates Svelte Query cache key for GET /trends
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Svelte Query cache key for GET /trends/locations
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetTrendsQueryKey(args: InferRequestType<typeof client.trends.$get>) {
-  return ['/trends', args] as const
+export function getGetTrendsLocationsQueryKey() {
+  return ['trends', '/trends/locations'] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /trends
+ * Returns Svelte Query query options for GET /trends/locations
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetTrendsQueryOptions = (
-  args: InferRequestType<typeof client.trends.$get>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetTrendsQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetTrendsLocationsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetTrendsLocationsQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.trends.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      client.trends.locations.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
     ),
 })
 
@@ -973,23 +1001,28 @@ export function createGetTrendsLocations(
 }
 
 /**
- * Generates Svelte Query cache key for GET /trends/locations
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates Svelte Query cache key for GET /suggestions/users
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetTrendsLocationsQueryKey() {
-  return ['/trends/locations'] as const
+export function getGetSuggestionsUsersQueryKey(
+  args: InferRequestType<typeof client.suggestions.users.$get>,
+) {
+  return ['suggestions', '/suggestions/users', args] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /trends/locations
+ * Returns Svelte Query query options for GET /suggestions/users
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetTrendsLocationsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetTrendsLocationsQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetSuggestionsUsersQueryOptions = (
+  args: InferRequestType<typeof client.suggestions.users.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetSuggestionsUsersQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.trends.locations.$get(undefined, {
+      client.suggestions.users.$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -1024,35 +1057,6 @@ export function createGetSuggestionsUsers(
 }
 
 /**
- * Generates Svelte Query cache key for GET /suggestions/users
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetSuggestionsUsersQueryKey(
-  args: InferRequestType<typeof client.suggestions.users.$get>,
-) {
-  return ['/suggestions/users', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /suggestions/users
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetSuggestionsUsersQueryOptions = (
-  args: InferRequestType<typeof client.suggestions.users.$get>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetSuggestionsUsersQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.suggestions.users.$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
-
-/**
  * POST /suggestions/users/{userId}/hide
  *
  * おすすめユーザーを非表示
@@ -1081,6 +1085,30 @@ export function createPostSuggestionsUsersUserIdHide(options?: {
 }
 
 /**
+ * Generates Svelte Query cache key for GET /suggestions/topics
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGetSuggestionsTopicsQueryKey() {
+  return ['suggestions', '/suggestions/topics'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /suggestions/topics
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetSuggestionsTopicsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetSuggestionsTopicsQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.suggestions.topics.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /suggestions/topics
  *
  * おすすめトピック取得
@@ -1102,30 +1130,6 @@ export function createGetSuggestionsTopics(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /suggestions/topics
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGetSuggestionsTopicsQueryKey() {
-  return ['/suggestions/topics'] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /suggestions/topics
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetSuggestionsTopicsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetSuggestionsTopicsQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.suggestions.topics.$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /topics/{topicId}/follow

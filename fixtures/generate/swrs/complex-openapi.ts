@@ -7,6 +7,14 @@ import { parseResponse } from 'hono/client'
 import { client } from '../clients/complex-openapi'
 
 /**
+ * Generates SWR cache key for GET /users
+ * Returns structured key [path] for filter-based invalidation
+ */
+export function getGetUsersKey() {
+  return ['/users'] as const
+}
+
+/**
  * GET /users
  *
  * List all users
@@ -30,10 +38,10 @@ export function useGetUsers(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /users
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR mutation key for POST /users
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetUsersKey() {
+export function getPostUsersMutationKey() {
   return ['/users'] as const
 }
 
@@ -66,12 +74,13 @@ export function usePostUsers(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /users
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /users/{userId}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPostUsersMutationKey() {
-  return 'POST /users'
+export function getGetUsersUserIdKey(
+  args: InferRequestType<(typeof client.users)[':userId']['$get']>,
+) {
+  return [`/users/${args.param.userId}`, args] as const
 }
 
 /**
@@ -101,13 +110,11 @@ export function useGetUsersUserId(
 }
 
 /**
- * Generates SWR cache key for GET /users/{userId}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for PUT /users/{userId}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetUsersUserIdKey(
-  args: InferRequestType<(typeof client.users)[':userId']['$get']>,
-) {
-  return ['/users/:userId', args] as const
+export function getPutUsersUserIdMutationKey() {
+  return ['/users/:userId'] as const
 }
 
 /**
@@ -145,12 +152,11 @@ export function usePutUsersUserId(options?: {
 }
 
 /**
- * Generates SWR mutation key for PUT /users/{userId}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for DELETE /users/{userId}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPutUsersUserIdMutationKey() {
-  return 'PUT /users/:userId'
+export function getDeleteUsersUserIdMutationKey() {
+  return ['/users/:userId'] as const
 }
 
 /**
@@ -189,12 +195,11 @@ export function useDeleteUsersUserId(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /users/{userId}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /orders
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getDeleteUsersUserIdMutationKey() {
-  return 'DELETE /users/:userId'
+export function getGetOrdersKey() {
+  return ['/orders'] as const
 }
 
 /**
@@ -221,10 +226,10 @@ export function useGetOrders(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /orders
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR mutation key for POST /orders
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetOrdersKey() {
+export function getPostOrdersMutationKey() {
   return ['/orders'] as const
 }
 
@@ -254,13 +259,4 @@ export function usePostOrders(options?: {
       restMutationOptions,
     ),
   }
-}
-
-/**
- * Generates SWR mutation key for POST /orders
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
- */
-export function getPostOrdersMutationKey() {
-  return 'POST /orders'
 }

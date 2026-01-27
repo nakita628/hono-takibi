@@ -1,8 +1,29 @@
 import { createQuery } from '@tanstack/svelte-query'
-import type { CreateQueryOptions } from '@tanstack/svelte-query'
+import type { CreateQueryOptions, QueryFunctionContext } from '@tanstack/svelte-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/openapi-number'
+
+/**
+ * Generates Svelte Query cache key for GET /number
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGetNumberQueryKey() {
+  return ['number', '/number'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /number
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetNumberQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetNumberQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.number.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /number
@@ -26,24 +47,3 @@ export function createGetNumber(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /number
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGetNumberQueryKey() {
-  return ['/number'] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /number
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetNumberQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetNumberQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.number.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-    ),
-})

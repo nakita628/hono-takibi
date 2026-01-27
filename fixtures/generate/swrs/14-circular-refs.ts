@@ -7,6 +7,14 @@ import { parseResponse } from 'hono/client'
 import { client } from '../clients/14-circular-refs'
 
 /**
+ * Generates SWR cache key for GET /trees
+ * Returns structured key [path] for filter-based invalidation
+ */
+export function getGetTreesKey() {
+  return ['/trees'] as const
+}
+
+/**
  * GET /trees
  */
 export function useGetTrees(options?: {
@@ -28,10 +36,10 @@ export function useGetTrees(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /trees
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR mutation key for POST /trees
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetTreesKey() {
+export function getPostTreesMutationKey() {
   return ['/trees'] as const
 }
 
@@ -62,12 +70,11 @@ export function usePostTrees(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /trees
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /graphs
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getPostTreesMutationKey() {
-  return 'POST /trees'
+export function getGetGraphsKey() {
+  return ['/graphs'] as const
 }
 
 /**
@@ -92,11 +99,11 @@ export function useGetGraphs(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /graphs
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /linked-lists
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetGraphsKey() {
-  return ['/graphs'] as const
+export function getGetLinkedListsKey() {
+  return ['/linked-lists'] as const
 }
 
 /**
@@ -121,11 +128,11 @@ export function useGetLinkedLists(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /linked-lists
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /social-network
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetLinkedListsKey() {
-  return ['/linked-lists'] as const
+export function getGetSocialNetworkKey() {
+  return ['/social-network'] as const
 }
 
 /**
@@ -150,11 +157,11 @@ export function useGetSocialNetwork(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /social-network
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /file-system
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetSocialNetworkKey() {
-  return ['/social-network'] as const
+export function getGetFileSystemKey() {
+  return ['/file-system'] as const
 }
 
 /**
@@ -179,11 +186,11 @@ export function useGetFileSystem(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /file-system
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /comments
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetFileSystemKey() {
-  return ['/file-system'] as const
+export function getGetCommentsKey() {
+  return ['/comments'] as const
 }
 
 /**
@@ -208,11 +215,11 @@ export function useGetComments(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /comments
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /polymorphic
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetCommentsKey() {
-  return ['/comments'] as const
+export function getGetPolymorphicKey() {
+  return ['/polymorphic'] as const
 }
 
 /**
@@ -237,11 +244,11 @@ export function useGetPolymorphic(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /polymorphic
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /categories
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetPolymorphicKey() {
-  return ['/polymorphic'] as const
+export function getGetCategoriesKey() {
+  return ['/categories'] as const
 }
 
 /**
@@ -266,11 +273,11 @@ export function useGetCategories(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /categories
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /workflow
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetCategoriesKey() {
-  return ['/categories'] as const
+export function getGetWorkflowKey() {
+  return ['/workflow'] as const
 }
 
 /**
@@ -292,12 +299,4 @@ export function useGetWorkflow(options?: {
       restSwrOptions,
     ),
   }
-}
-
-/**
- * Generates SWR cache key for GET /workflow
- * Returns structured key [templatePath] for filter-based invalidation
- */
-export function getGetWorkflowKey() {
-  return ['/workflow'] as const
 }

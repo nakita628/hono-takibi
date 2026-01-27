@@ -1,8 +1,36 @@
 import { useQuery, useMutation } from '@tanstack/react-query'
-import type { UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
+import type {
+  UseQueryOptions,
+  QueryFunctionContext,
+  UseMutationOptions,
+} from '@tanstack/react-query'
 import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/03-parameters-responses'
+
+/**
+ * Generates TanStack Query cache key for GET /items
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetItemsQueryKey(args: InferRequestType<typeof client.items.$get>) {
+  return ['items', '/items', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /items
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetItemsQueryOptions = (
+  args: InferRequestType<typeof client.items.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetItemsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.items.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /items
@@ -23,26 +51,31 @@ export function useGetItems(
 }
 
 /**
- * Generates TanStack Query cache key for GET /items
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates TanStack Query cache key for GET /items/{itemId}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetItemsQueryKey(args: InferRequestType<typeof client.items.$get>) {
-  return ['/items', args] as const
+export function getGetItemsItemIdQueryKey(
+  args: InferRequestType<(typeof client.items)[':itemId']['$get']>,
+) {
+  return ['items', '/items/:itemId', args] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /items
+ * Returns TanStack Query query options for GET /items/{itemId}
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetItemsQueryOptions = (
-  args: InferRequestType<typeof client.items.$get>,
+export const getGetItemsItemIdQueryOptions = (
+  args: InferRequestType<(typeof client.items)[':itemId']['$get']>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetItemsQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetItemsItemIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.items.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      client.items[':itemId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
     ),
 })
 
@@ -67,35 +100,6 @@ export function useGetItemsItemId(
   const { queryKey, queryFn, ...baseOptions } = getGetItemsItemIdQueryOptions(args, clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates TanStack Query cache key for GET /items/{itemId}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetItemsItemIdQueryKey(
-  args: InferRequestType<(typeof client.items)[':itemId']['$get']>,
-) {
-  return ['/items/:itemId', args] as const
-}
-
-/**
- * Returns TanStack Query query options for GET /items/{itemId}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetItemsItemIdQueryOptions = (
-  args: InferRequestType<(typeof client.items)[':itemId']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetItemsItemIdQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.items[':itemId'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * DELETE /items/{itemId}

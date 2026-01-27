@@ -5,6 +5,14 @@ import { parseResponse } from 'hono/client'
 import { client } from '../clients/test'
 
 /**
+ * Generates SWR cache key for GET /hono
+ * Returns structured key [path] for filter-based invalidation
+ */
+export function getGetHonoKey() {
+  return ['/hono'] as const
+}
+
+/**
  * GET /hono
  *
  * Hono
@@ -30,11 +38,11 @@ export function useGetHono(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /hono
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /hono-x
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetHonoKey() {
-  return ['/hono'] as const
+export function getGetHonoXKey() {
+  return ['/hono-x'] as const
 }
 
 /**
@@ -63,11 +71,11 @@ export function useGetHonoX(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /hono-x
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /zod-openapi-hono
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetHonoXKey() {
-  return ['/hono-x'] as const
+export function getGetZodOpenapiHonoKey() {
+  return ['/zod-openapi-hono'] as const
 }
 
 /**
@@ -93,12 +101,4 @@ export function useGetZodOpenapiHono(options?: {
       restSwrOptions,
     ),
   }
-}
-
-/**
- * Generates SWR cache key for GET /zod-openapi-hono
- * Returns structured key [templatePath] for filter-based invalidation
- */
-export function getGetZodOpenapiHonoKey() {
-  return ['/zod-openapi-hono'] as const
 }

@@ -5,6 +5,14 @@ import { parseResponse } from 'hono/client'
 import { client } from '../clients/04-security-schemes'
 
 /**
+ * Generates SWR cache key for GET /public
+ * Returns structured key [path] for filter-based invalidation
+ */
+export function getGetPublicKey() {
+  return ['/public'] as const
+}
+
+/**
  * GET /public
  */
 export function useGetPublic(options?: {
@@ -26,11 +34,11 @@ export function useGetPublic(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /public
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /protected
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetPublicKey() {
-  return ['/public'] as const
+export function getGetProtectedKey() {
+  return ['/protected'] as const
 }
 
 /**
@@ -55,11 +63,11 @@ export function useGetProtected(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /protected
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /admin
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetProtectedKey() {
-  return ['/protected'] as const
+export function getGetAdminKey() {
+  return ['/admin'] as const
 }
 
 /**
@@ -84,11 +92,11 @@ export function useGetAdmin(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /admin
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /oauth-resource
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetAdminKey() {
-  return ['/admin'] as const
+export function getGetOauthResourceKey() {
+  return ['/oauth-resource'] as const
 }
 
 /**
@@ -113,11 +121,11 @@ export function useGetOauthResource(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /oauth-resource
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /multi-auth
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetOauthResourceKey() {
-  return ['/oauth-resource'] as const
+export function getGetMultiAuthKey() {
+  return ['/multi-auth'] as const
 }
 
 /**
@@ -139,12 +147,4 @@ export function useGetMultiAuth(options?: {
       restSwrOptions,
     ),
   }
-}
-
-/**
- * Generates SWR cache key for GET /multi-auth
- * Returns structured key [templatePath] for filter-based invalidation
- */
-export function getGetMultiAuthKey() {
-  return ['/multi-auth'] as const
 }

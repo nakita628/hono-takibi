@@ -7,6 +7,14 @@ import { parseResponse } from 'hono/client'
 import { client } from '../clients/27-extreme-encoding'
 
 /**
+ * Generates SWR mutation key for POST /encoding-test
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ */
+export function getPostEncodingTestMutationKey() {
+  return ['/encoding-test'] as const
+}
+
+/**
  * POST /encoding-test
  */
 export function usePostEncodingTest(options?: {
@@ -39,12 +47,13 @@ export function usePostEncodingTest(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /encoding-test
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /content-negotiation
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPostEncodingTestMutationKey() {
-  return 'POST /encoding-test'
+export function getGetContentNegotiationKey(
+  args: InferRequestType<(typeof client)['content-negotiation']['$get']>,
+) {
+  return ['/content-negotiation', args] as const
 }
 
 /**
@@ -72,13 +81,11 @@ export function useGetContentNegotiation(
 }
 
 /**
- * Generates SWR cache key for GET /content-negotiation
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for POST /binary-variations
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetContentNegotiationKey(
-  args: InferRequestType<(typeof client)['content-negotiation']['$get']>,
-) {
-  return ['/content-negotiation', args] as const
+export function getPostBinaryVariationsMutationKey() {
+  return ['/binary-variations'] as const
 }
 
 /**
@@ -114,12 +121,11 @@ export function usePostBinaryVariations(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /binary-variations
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /streaming
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getPostBinaryVariationsMutationKey() {
-  return 'POST /binary-variations'
+export function getGetStreamingKey() {
+  return ['/streaming'] as const
 }
 
 /**
@@ -144,10 +150,10 @@ export function useGetStreaming(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /streaming
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR mutation key for POST /streaming
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetStreamingKey() {
+export function getPostStreamingMutationKey() {
   return ['/streaming'] as const
 }
 
@@ -178,12 +184,11 @@ export function usePostStreaming(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /streaming
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /url-encoded-complex
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostStreamingMutationKey() {
-  return 'POST /streaming'
+export function getPostUrlEncodedComplexMutationKey() {
+  return ['/url-encoded-complex'] as const
 }
 
 /**
@@ -219,12 +224,11 @@ export function usePostUrlEncodedComplex(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /url-encoded-complex
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /response-encoding
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getPostUrlEncodedComplexMutationKey() {
-  return 'POST /url-encoded-complex'
+export function getGetResponseEncodingKey() {
+  return ['/response-encoding'] as const
 }
 
 /**
@@ -249,11 +253,11 @@ export function useGetResponseEncoding(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /response-encoding
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR mutation key for POST /schema-encoding
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetResponseEncodingKey() {
-  return ['/response-encoding'] as const
+export function getPostSchemaEncodingMutationKey() {
+  return ['/schema-encoding'] as const
 }
 
 /**
@@ -286,13 +290,4 @@ export function usePostSchemaEncoding(options?: {
       restMutationOptions,
     ),
   }
-}
-
-/**
- * Generates SWR mutation key for POST /schema-encoding
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
- */
-export function getPostSchemaEncodingMutationKey() {
-  return 'POST /schema-encoding'
 }

@@ -7,6 +7,14 @@ import { parseResponse } from 'hono/client'
 import { client } from '../clients/algolia'
 
 /**
+ * Generates SWR cache key for GET /{path}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
+ */
+export function getGetPathKey(args: InferRequestType<(typeof client)[':path']['$get']>) {
+  return [`/${args.param.path}`, args] as const
+}
+
+/**
  * GET /{path}
  *
  * Send requests to the Algolia REST API
@@ -35,11 +43,11 @@ export function useGetPath(
 }
 
 /**
- * Generates SWR cache key for GET /{path}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for PUT /{path}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetPathKey(args: InferRequestType<(typeof client)[':path']['$get']>) {
-  return ['/:path', args] as const
+export function getPutPathMutationKey() {
+  return ['/:path'] as const
 }
 
 /**
@@ -75,12 +83,11 @@ export function usePutPath(options?: {
 }
 
 /**
- * Generates SWR mutation key for PUT /{path}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /{path}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPutPathMutationKey() {
-  return 'PUT /:path'
+export function getPostPathMutationKey() {
+  return ['/:path'] as const
 }
 
 /**
@@ -116,12 +123,11 @@ export function usePostPath(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /{path}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for DELETE /{path}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostPathMutationKey() {
-  return 'POST /:path'
+export function getDeletePathMutationKey() {
+  return ['/:path'] as const
 }
 
 /**
@@ -157,12 +163,11 @@ export function useDeletePath(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /{path}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /1/indexes/{indexName}/query
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getDeletePathMutationKey() {
-  return 'DELETE /:path'
+export function getPost1IndexesIndexNameQueryMutationKey() {
+  return ['/1/indexes/:indexName/query'] as const
 }
 
 /**
@@ -211,12 +216,11 @@ export function usePost1IndexesIndexNameQuery(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /1/indexes/{indexName}/query
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /1/indexes/* /queries
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPost1IndexesIndexNameQueryMutationKey() {
-  return 'POST /1/indexes/:indexName/query'
+export function getPost1IndexesQueriesMutationKey() {
+  return ['/1/indexes/*/queries'] as const
 }
 
 /**
@@ -267,12 +271,11 @@ export function usePost1IndexesQueries(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /1/indexes/* /queries
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /1/indexes/{indexName}/facets/{facetName}/query
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPost1IndexesQueriesMutationKey() {
-  return 'POST /1/indexes/*/queries'
+export function getPost1IndexesIndexNameFacetsFacetNameQueryMutationKey() {
+  return ['/1/indexes/:indexName/facets/:facetName/query'] as const
 }
 
 /**
@@ -333,12 +336,11 @@ export function usePost1IndexesIndexNameFacetsFacetNameQuery(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /1/indexes/{indexName}/facets/{facetName}/query
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /1/indexes/{indexName}/browse
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPost1IndexesIndexNameFacetsFacetNameQueryMutationKey() {
-  return 'POST /1/indexes/:indexName/facets/:facetName/query'
+export function getPost1IndexesIndexNameBrowseMutationKey() {
+  return ['/1/indexes/:indexName/browse'] as const
 }
 
 /**
@@ -408,12 +410,11 @@ export function usePost1IndexesIndexNameBrowse(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /1/indexes/{indexName}/browse
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /1/indexes/{indexName}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPost1IndexesIndexNameBrowseMutationKey() {
-  return 'POST /1/indexes/:indexName/browse'
+export function getPost1IndexesIndexNameMutationKey() {
+  return ['/1/indexes/:indexName'] as const
 }
 
 /**
@@ -465,12 +466,11 @@ export function usePost1IndexesIndexName(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /1/indexes/{indexName}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for DELETE /1/indexes/{indexName}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPost1IndexesIndexNameMutationKey() {
-  return 'POST /1/indexes/:indexName'
+export function getDelete1IndexesIndexNameMutationKey() {
+  return ['/1/indexes/:indexName'] as const
 }
 
 /**
@@ -520,12 +520,13 @@ export function useDelete1IndexesIndexName(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /1/indexes/{indexName}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /1/indexes/{indexName}/{objectID}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getDelete1IndexesIndexNameMutationKey() {
-  return 'DELETE /1/indexes/:indexName'
+export function getGet1IndexesIndexNameObjectIDKey(
+  args: InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$get']>,
+) {
+  return [`/1/indexes/${args.param.indexName}/${args.param.objectID}`, args] as const
 }
 
 /**
@@ -560,13 +561,11 @@ export function useGet1IndexesIndexNameObjectID(
 }
 
 /**
- * Generates SWR cache key for GET /1/indexes/{indexName}/{objectID}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for PUT /1/indexes/{indexName}/{objectID}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGet1IndexesIndexNameObjectIDKey(
-  args: InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$get']>,
-) {
-  return ['/1/indexes/:indexName/:objectID', args] as const
+export function getPut1IndexesIndexNameObjectIDMutationKey() {
+  return ['/1/indexes/:indexName/:objectID'] as const
 }
 
 /**
@@ -617,12 +616,11 @@ export function usePut1IndexesIndexNameObjectID(options?: {
 }
 
 /**
- * Generates SWR mutation key for PUT /1/indexes/{indexName}/{objectID}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for DELETE /1/indexes/{indexName}/{objectID}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPut1IndexesIndexNameObjectIDMutationKey() {
-  return 'PUT /1/indexes/:indexName/:objectID'
+export function getDelete1IndexesIndexNameObjectIDMutationKey() {
+  return ['/1/indexes/:indexName/:objectID'] as const
 }
 
 /**
@@ -674,12 +672,11 @@ export function useDelete1IndexesIndexNameObjectID(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /1/indexes/{indexName}/{objectID}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /1/indexes/{indexName}/deleteByQuery
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getDelete1IndexesIndexNameObjectIDMutationKey() {
-  return 'DELETE /1/indexes/:indexName/:objectID'
+export function getPost1IndexesIndexNameDeleteByQueryMutationKey() {
+  return ['/1/indexes/:indexName/deleteByQuery'] as const
 }
 
 /**
@@ -736,12 +733,11 @@ export function usePost1IndexesIndexNameDeleteByQuery(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /1/indexes/{indexName}/deleteByQuery
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /1/indexes/{indexName}/clear
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPost1IndexesIndexNameDeleteByQueryMutationKey() {
-  return 'POST /1/indexes/:indexName/deleteByQuery'
+export function getPost1IndexesIndexNameClearMutationKey() {
+  return ['/1/indexes/:indexName/clear'] as const
 }
 
 /**
@@ -788,12 +784,11 @@ export function usePost1IndexesIndexNameClear(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /1/indexes/{indexName}/clear
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /1/indexes/{indexName}/{objectID}/partial
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPost1IndexesIndexNameClearMutationKey() {
-  return 'POST /1/indexes/:indexName/clear'
+export function getPost1IndexesIndexNameObjectIDPartialMutationKey() {
+  return ['/1/indexes/:indexName/:objectID/partial'] as const
 }
 
 /**
@@ -874,12 +869,11 @@ export function usePost1IndexesIndexNameObjectIDPartial(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /1/indexes/{indexName}/{objectID}/partial
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /1/indexes/{indexName}/batch
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPost1IndexesIndexNameObjectIDPartialMutationKey() {
-  return 'POST /1/indexes/:indexName/:objectID/partial'
+export function getPost1IndexesIndexNameBatchMutationKey() {
+  return ['/1/indexes/:indexName/batch'] as const
 }
 
 /**
@@ -932,12 +926,11 @@ export function usePost1IndexesIndexNameBatch(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /1/indexes/{indexName}/batch
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /1/indexes/* /batch
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPost1IndexesIndexNameBatchMutationKey() {
-  return 'POST /1/indexes/:indexName/batch'
+export function getPost1IndexesBatchMutationKey() {
+  return ['/1/indexes/*/batch'] as const
 }
 
 /**
@@ -984,12 +977,11 @@ export function usePost1IndexesBatch(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /1/indexes/* /batch
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /1/indexes/* /objects
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPost1IndexesBatchMutationKey() {
-  return 'POST /1/indexes/*/batch'
+export function getPost1IndexesObjectsMutationKey() {
+  return ['/1/indexes/*/objects'] as const
 }
 
 /**
@@ -1035,12 +1027,13 @@ export function usePost1IndexesObjects(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /1/indexes/* /objects
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /1/indexes/{indexName}/settings
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPost1IndexesObjectsMutationKey() {
-  return 'POST /1/indexes/*/objects'
+export function getGet1IndexesIndexNameSettingsKey(
+  args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['settings']['$get']>,
+) {
+  return [`/1/indexes/${args.param.indexName}/settings`, args] as const
 }
 
 /**
@@ -1073,13 +1066,11 @@ export function useGet1IndexesIndexNameSettings(
 }
 
 /**
- * Generates SWR cache key for GET /1/indexes/{indexName}/settings
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for PUT /1/indexes/{indexName}/settings
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGet1IndexesIndexNameSettingsKey(
-  args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['settings']['$get']>,
-) {
-  return ['/1/indexes/:indexName/settings', args] as const
+export function getPut1IndexesIndexNameSettingsMutationKey() {
+  return ['/1/indexes/:indexName/settings'] as const
 }
 
 /**
@@ -1130,12 +1121,15 @@ export function usePut1IndexesIndexNameSettings(options?: {
 }
 
 /**
- * Generates SWR mutation key for PUT /1/indexes/{indexName}/settings
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /1/indexes/{indexName}/synonyms/{objectID}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPut1IndexesIndexNameSettingsMutationKey() {
-  return 'PUT /1/indexes/:indexName/settings'
+export function getGet1IndexesIndexNameSynonymsObjectIDKey(
+  args: InferRequestType<
+    (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$get']
+  >,
+) {
+  return [`/1/indexes/${args.param.indexName}/synonyms/${args.param.objectID}`, args] as const
 }
 
 /**
@@ -1174,15 +1168,11 @@ export function useGet1IndexesIndexNameSynonymsObjectID(
 }
 
 /**
- * Generates SWR cache key for GET /1/indexes/{indexName}/synonyms/{objectID}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for PUT /1/indexes/{indexName}/synonyms/{objectID}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGet1IndexesIndexNameSynonymsObjectIDKey(
-  args: InferRequestType<
-    (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$get']
-  >,
-) {
-  return ['/1/indexes/:indexName/synonyms/:objectID', args] as const
+export function getPut1IndexesIndexNameSynonymsObjectIDMutationKey() {
+  return ['/1/indexes/:indexName/synonyms/:objectID'] as const
 }
 
 /**
@@ -1239,12 +1229,11 @@ export function usePut1IndexesIndexNameSynonymsObjectID(options?: {
 }
 
 /**
- * Generates SWR mutation key for PUT /1/indexes/{indexName}/synonyms/{objectID}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for DELETE /1/indexes/{indexName}/synonyms/{objectID}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPut1IndexesIndexNameSynonymsObjectIDMutationKey() {
-  return 'PUT /1/indexes/:indexName/synonyms/:objectID'
+export function getDelete1IndexesIndexNameSynonymsObjectIDMutationKey() {
+  return ['/1/indexes/:indexName/synonyms/:objectID'] as const
 }
 
 /**
@@ -1302,12 +1291,11 @@ export function useDelete1IndexesIndexNameSynonymsObjectID(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /1/indexes/{indexName}/synonyms/{objectID}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /1/indexes/{indexName}/synonyms/batch
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getDelete1IndexesIndexNameSynonymsObjectIDMutationKey() {
-  return 'DELETE /1/indexes/:indexName/synonyms/:objectID'
+export function getPost1IndexesIndexNameSynonymsBatchMutationKey() {
+  return ['/1/indexes/:indexName/synonyms/batch'] as const
 }
 
 /**
@@ -1361,12 +1349,11 @@ export function usePost1IndexesIndexNameSynonymsBatch(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /1/indexes/{indexName}/synonyms/batch
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /1/indexes/{indexName}/synonyms/clear
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPost1IndexesIndexNameSynonymsBatchMutationKey() {
-  return 'POST /1/indexes/:indexName/synonyms/batch'
+export function getPost1IndexesIndexNameSynonymsClearMutationKey() {
+  return ['/1/indexes/:indexName/synonyms/clear'] as const
 }
 
 /**
@@ -1417,12 +1404,11 @@ export function usePost1IndexesIndexNameSynonymsClear(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /1/indexes/{indexName}/synonyms/clear
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /1/indexes/{indexName}/synonyms/search
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPost1IndexesIndexNameSynonymsClearMutationKey() {
-  return 'POST /1/indexes/:indexName/synonyms/clear'
+export function getPost1IndexesIndexNameSynonymsSearchMutationKey() {
+  return ['/1/indexes/:indexName/synonyms/search'] as const
 }
 
 /**
@@ -1473,12 +1459,11 @@ export function usePost1IndexesIndexNameSynonymsSearch(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /1/indexes/{indexName}/synonyms/search
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /1/keys
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getPost1IndexesIndexNameSynonymsSearchMutationKey() {
-  return 'POST /1/indexes/:indexName/synonyms/search'
+export function getGet1KeysKey() {
+  return ['/1/keys'] as const
 }
 
 /**
@@ -1507,10 +1492,10 @@ export function useGet1Keys(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /1/keys
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR mutation key for POST /1/keys
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGet1KeysKey() {
+export function getPost1KeysMutationKey() {
   return ['/1/keys'] as const
 }
 
@@ -1547,12 +1532,13 @@ export function usePost1Keys(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /1/keys
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /1/keys/{key}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPost1KeysMutationKey() {
-  return 'POST /1/keys'
+export function getGet1KeysKeyKey(
+  args: InferRequestType<(typeof client)['1']['keys'][':key']['$get']>,
+) {
+  return [`/1/keys/${args.param.key}`, args] as const
 }
 
 /**
@@ -1588,13 +1574,11 @@ export function useGet1KeysKey(
 }
 
 /**
- * Generates SWR cache key for GET /1/keys/{key}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for PUT /1/keys/{key}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGet1KeysKeyKey(
-  args: InferRequestType<(typeof client)['1']['keys'][':key']['$get']>,
-) {
-  return ['/1/keys/:key', args] as const
+export function getPut1KeysKeyMutationKey() {
+  return ['/1/keys/:key'] as const
 }
 
 /**
@@ -1636,12 +1620,11 @@ export function usePut1KeysKey(options?: {
 }
 
 /**
- * Generates SWR mutation key for PUT /1/keys/{key}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for DELETE /1/keys/{key}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPut1KeysKeyMutationKey() {
-  return 'PUT /1/keys/:key'
+export function getDelete1KeysKeyMutationKey() {
+  return ['/1/keys/:key'] as const
 }
 
 /**
@@ -1681,12 +1664,11 @@ export function useDelete1KeysKey(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /1/keys/{key}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /1/keys/{key}/restore
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getDelete1KeysKeyMutationKey() {
-  return 'DELETE /1/keys/:key'
+export function getPost1KeysKeyRestoreMutationKey() {
+  return ['/1/keys/:key/restore'] as const
 }
 
 /**
@@ -1735,12 +1717,15 @@ export function usePost1KeysKeyRestore(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /1/keys/{key}/restore
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /1/indexes/{indexName}/rules/{objectID}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPost1KeysKeyRestoreMutationKey() {
-  return 'POST /1/keys/:key/restore'
+export function getGet1IndexesIndexNameRulesObjectIDKey(
+  args: InferRequestType<
+    (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$get']
+  >,
+) {
+  return [`/1/indexes/${args.param.indexName}/rules/${args.param.objectID}`, args] as const
 }
 
 /**
@@ -1778,15 +1763,11 @@ export function useGet1IndexesIndexNameRulesObjectID(
 }
 
 /**
- * Generates SWR cache key for GET /1/indexes/{indexName}/rules/{objectID}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for PUT /1/indexes/{indexName}/rules/{objectID}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGet1IndexesIndexNameRulesObjectIDKey(
-  args: InferRequestType<
-    (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$get']
-  >,
-) {
-  return ['/1/indexes/:indexName/rules/:objectID', args] as const
+export function getPut1IndexesIndexNameRulesObjectIDMutationKey() {
+  return ['/1/indexes/:indexName/rules/:objectID'] as const
 }
 
 /**
@@ -1842,12 +1823,11 @@ export function usePut1IndexesIndexNameRulesObjectID(options?: {
 }
 
 /**
- * Generates SWR mutation key for PUT /1/indexes/{indexName}/rules/{objectID}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for DELETE /1/indexes/{indexName}/rules/{objectID}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPut1IndexesIndexNameRulesObjectIDMutationKey() {
-  return 'PUT /1/indexes/:indexName/rules/:objectID'
+export function getDelete1IndexesIndexNameRulesObjectIDMutationKey() {
+  return ['/1/indexes/:indexName/rules/:objectID'] as const
 }
 
 /**
@@ -1904,12 +1884,11 @@ export function useDelete1IndexesIndexNameRulesObjectID(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /1/indexes/{indexName}/rules/{objectID}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /1/indexes/{indexName}/rules/batch
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getDelete1IndexesIndexNameRulesObjectIDMutationKey() {
-  return 'DELETE /1/indexes/:indexName/rules/:objectID'
+export function getPost1IndexesIndexNameRulesBatchMutationKey() {
+  return ['/1/indexes/:indexName/rules/batch'] as const
 }
 
 /**
@@ -1964,12 +1943,11 @@ export function usePost1IndexesIndexNameRulesBatch(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /1/indexes/{indexName}/rules/batch
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /1/indexes/{indexName}/rules/clear
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPost1IndexesIndexNameRulesBatchMutationKey() {
-  return 'POST /1/indexes/:indexName/rules/batch'
+export function getPost1IndexesIndexNameRulesClearMutationKey() {
+  return ['/1/indexes/:indexName/rules/clear'] as const
 }
 
 /**
@@ -2019,12 +1997,11 @@ export function usePost1IndexesIndexNameRulesClear(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /1/indexes/{indexName}/rules/clear
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /1/indexes/{indexName}/rules/search
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPost1IndexesIndexNameRulesClearMutationKey() {
-  return 'POST /1/indexes/:indexName/rules/clear'
+export function getPost1IndexesIndexNameRulesSearchMutationKey() {
+  return ['/1/indexes/:indexName/rules/search'] as const
 }
 
 /**
@@ -2074,12 +2051,11 @@ export function usePost1IndexesIndexNameRulesSearch(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /1/indexes/{indexName}/rules/search
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /1/dictionaries/{dictionaryName}/batch
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPost1IndexesIndexNameRulesSearchMutationKey() {
-  return 'POST /1/indexes/:indexName/rules/search'
+export function getPost1DictionariesDictionaryNameBatchMutationKey() {
+  return ['/1/dictionaries/:dictionaryName/batch'] as const
 }
 
 /**
@@ -2130,12 +2106,11 @@ export function usePost1DictionariesDictionaryNameBatch(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /1/dictionaries/{dictionaryName}/batch
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /1/dictionaries/{dictionaryName}/search
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPost1DictionariesDictionaryNameBatchMutationKey() {
-  return 'POST /1/dictionaries/:dictionaryName/batch'
+export function getPost1DictionariesDictionaryNameSearchMutationKey() {
+  return ['/1/dictionaries/:dictionaryName/search'] as const
 }
 
 /**
@@ -2186,12 +2161,11 @@ export function usePost1DictionariesDictionaryNameSearch(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /1/dictionaries/{dictionaryName}/search
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /1/dictionaries/* /settings
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getPost1DictionariesDictionaryNameSearchMutationKey() {
-  return 'POST /1/dictionaries/:dictionaryName/search'
+export function getGet1DictionariesSettingsKey() {
+  return ['/1/dictionaries/*/settings'] as const
 }
 
 /**
@@ -2221,10 +2195,10 @@ export function useGet1DictionariesSettings(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /1/dictionaries/* /settings
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR mutation key for PUT /1/dictionaries/* /settings
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGet1DictionariesSettingsKey() {
+export function getPut1DictionariesSettingsMutationKey() {
   return ['/1/dictionaries/*/settings'] as const
 }
 
@@ -2269,12 +2243,11 @@ export function usePut1DictionariesSettings(options?: {
 }
 
 /**
- * Generates SWR mutation key for PUT /1/dictionaries/* /settings
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /1/dictionaries/* /languages
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getPut1DictionariesSettingsMutationKey() {
-  return 'PUT /1/dictionaries/*/settings'
+export function getGet1DictionariesLanguagesKey() {
+  return ['/1/dictionaries/*/languages'] as const
 }
 
 /**
@@ -2304,11 +2277,13 @@ export function useGet1DictionariesLanguages(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /1/dictionaries/* /languages
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /1/clusters/mapping
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getGet1DictionariesLanguagesKey() {
-  return ['/1/dictionaries/*/languages'] as const
+export function getGet1ClustersMappingKey(
+  args: InferRequestType<(typeof client)['1']['clusters']['mapping']['$get']>,
+) {
+  return ['/1/clusters/mapping', args] as const
 }
 
 /**
@@ -2343,13 +2318,11 @@ export function useGet1ClustersMapping(
 }
 
 /**
- * Generates SWR cache key for GET /1/clusters/mapping
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for POST /1/clusters/mapping
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGet1ClustersMappingKey(
-  args: InferRequestType<(typeof client)['1']['clusters']['mapping']['$get']>,
-) {
-  return ['/1/clusters/mapping', args] as const
+export function getPost1ClustersMappingMutationKey() {
+  return ['/1/clusters/mapping'] as const
 }
 
 /**
@@ -2393,12 +2366,11 @@ export function usePost1ClustersMapping(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /1/clusters/mapping
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /1/clusters/mapping/batch
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPost1ClustersMappingMutationKey() {
-  return 'POST /1/clusters/mapping'
+export function getPost1ClustersMappingBatchMutationKey() {
+  return ['/1/clusters/mapping/batch'] as const
 }
 
 /**
@@ -2444,12 +2416,11 @@ export function usePost1ClustersMappingBatch(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /1/clusters/mapping/batch
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /1/clusters/mapping/top
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getPost1ClustersMappingBatchMutationKey() {
-  return 'POST /1/clusters/mapping/batch'
+export function getGet1ClustersMappingTopKey() {
+  return ['/1/clusters/mapping/top'] as const
 }
 
 /**
@@ -2481,11 +2452,13 @@ export function useGet1ClustersMappingTop(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /1/clusters/mapping/top
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /1/clusters/mapping/{userID}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getGet1ClustersMappingTopKey() {
-  return ['/1/clusters/mapping/top'] as const
+export function getGet1ClustersMappingUserIDKey(
+  args: InferRequestType<(typeof client)['1']['clusters']['mapping'][':userID']['$get']>,
+) {
+  return [`/1/clusters/mapping/${args.param.userID}`, args] as const
 }
 
 /**
@@ -2520,13 +2493,11 @@ export function useGet1ClustersMappingUserID(
 }
 
 /**
- * Generates SWR cache key for GET /1/clusters/mapping/{userID}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for DELETE /1/clusters/mapping/{userID}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGet1ClustersMappingUserIDKey(
-  args: InferRequestType<(typeof client)['1']['clusters']['mapping'][':userID']['$get']>,
-) {
-  return ['/1/clusters/mapping/:userID', args] as const
+export function getDelete1ClustersMappingUserIDMutationKey() {
+  return ['/1/clusters/mapping/:userID'] as const
 }
 
 /**
@@ -2572,12 +2543,11 @@ export function useDelete1ClustersMappingUserID(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /1/clusters/mapping/{userID}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /1/clusters
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getDelete1ClustersMappingUserIDMutationKey() {
-  return 'DELETE /1/clusters/mapping/:userID'
+export function getGet1ClustersKey() {
+  return ['/1/clusters'] as const
 }
 
 /**
@@ -2606,11 +2576,11 @@ export function useGet1Clusters(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /1/clusters
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR mutation key for POST /1/clusters/mapping/search
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGet1ClustersKey() {
-  return ['/1/clusters'] as const
+export function getPost1ClustersMappingSearchMutationKey() {
+  return ['/1/clusters/mapping/search'] as const
 }
 
 /**
@@ -2659,12 +2629,13 @@ export function usePost1ClustersMappingSearch(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /1/clusters/mapping/search
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /1/clusters/mapping/pending
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPost1ClustersMappingSearchMutationKey() {
-  return 'POST /1/clusters/mapping/search'
+export function getGet1ClustersMappingPendingKey(
+  args: InferRequestType<(typeof client)['1']['clusters']['mapping']['pending']['$get']>,
+) {
+  return ['/1/clusters/mapping/pending', args] as const
 }
 
 /**
@@ -2696,13 +2667,11 @@ export function useGet1ClustersMappingPending(
 }
 
 /**
- * Generates SWR cache key for GET /1/clusters/mapping/pending
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR cache key for GET /1/security/sources
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGet1ClustersMappingPendingKey(
-  args: InferRequestType<(typeof client)['1']['clusters']['mapping']['pending']['$get']>,
-) {
-  return ['/1/clusters/mapping/pending', args] as const
+export function getGet1SecuritySourcesKey() {
+  return ['/1/security/sources'] as const
 }
 
 /**
@@ -2731,10 +2700,10 @@ export function useGet1SecuritySources(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /1/security/sources
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR mutation key for PUT /1/security/sources
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGet1SecuritySourcesKey() {
+export function getPut1SecuritySourcesMutationKey() {
   return ['/1/security/sources'] as const
 }
 
@@ -2777,12 +2746,11 @@ export function usePut1SecuritySources(options?: {
 }
 
 /**
- * Generates SWR mutation key for PUT /1/security/sources
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /1/security/sources/append
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPut1SecuritySourcesMutationKey() {
-  return 'PUT /1/security/sources'
+export function getPost1SecuritySourcesAppendMutationKey() {
+  return ['/1/security/sources/append'] as const
 }
 
 /**
@@ -2828,12 +2796,11 @@ export function usePost1SecuritySourcesAppend(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /1/security/sources/append
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for DELETE /1/security/sources/{source}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPost1SecuritySourcesAppendMutationKey() {
-  return 'POST /1/security/sources/append'
+export function getDelete1SecuritySourcesSourceMutationKey() {
+  return ['/1/security/sources/:source'] as const
 }
 
 /**
@@ -2879,12 +2846,11 @@ export function useDelete1SecuritySourcesSource(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /1/security/sources/{source}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /1/logs
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getDelete1SecuritySourcesSourceMutationKey() {
-  return 'DELETE /1/security/sources/:source'
+export function getGet1LogsKey(args: InferRequestType<(typeof client)['1']['logs']['$get']>) {
+  return ['/1/logs', args] as const
 }
 
 /**
@@ -2920,11 +2886,13 @@ export function useGet1Logs(
 }
 
 /**
- * Generates SWR cache key for GET /1/logs
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR cache key for GET /1/task/{taskID}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getGet1LogsKey(args: InferRequestType<(typeof client)['1']['logs']['$get']>) {
-  return ['/1/logs', args] as const
+export function getGet1TaskTaskIDKey(
+  args: InferRequestType<(typeof client)['1']['task'][':taskID']['$get']>,
+) {
+  return [`/1/task/${args.param.taskID}`, args] as const
 }
 
 /**
@@ -2956,13 +2924,13 @@ export function useGet1TaskTaskID(
 }
 
 /**
- * Generates SWR cache key for GET /1/task/{taskID}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR cache key for GET /1/indexes/{indexName}/task/{taskID}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getGet1TaskTaskIDKey(
-  args: InferRequestType<(typeof client)['1']['task'][':taskID']['$get']>,
+export function getGet1IndexesIndexNameTaskTaskIDKey(
+  args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['task'][':taskID']['$get']>,
 ) {
-  return ['/1/task/:taskID', args] as const
+  return [`/1/indexes/${args.param.indexName}/task/${args.param.taskID}`, args] as const
 }
 
 /**
@@ -3001,13 +2969,11 @@ export function useGet1IndexesIndexNameTaskTaskID(
 }
 
 /**
- * Generates SWR cache key for GET /1/indexes/{indexName}/task/{taskID}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for POST /1/indexes/{indexName}/operation
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGet1IndexesIndexNameTaskTaskIDKey(
-  args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['task'][':taskID']['$get']>,
-) {
-  return ['/1/indexes/:indexName/task/:taskID', args] as const
+export function getPost1IndexesIndexNameOperationMutationKey() {
+  return ['/1/indexes/:indexName/operation'] as const
 }
 
 /**
@@ -3076,12 +3042,11 @@ export function usePost1IndexesIndexNameOperation(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /1/indexes/{indexName}/operation
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /1/indexes
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPost1IndexesIndexNameOperationMutationKey() {
-  return 'POST /1/indexes/:indexName/operation'
+export function getGet1IndexesKey(args: InferRequestType<(typeof client)['1']['indexes']['$get']>) {
+  return ['/1/indexes', args] as const
 }
 
 /**
@@ -3115,11 +3080,11 @@ export function useGet1Indexes(
 }
 
 /**
- * Generates SWR cache key for GET /1/indexes
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR cache key for GET /waitForApiKey
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getGet1IndexesKey(args: InferRequestType<(typeof client)['1']['indexes']['$get']>) {
-  return ['/1/indexes', args] as const
+export function getGetWaitForApiKeyKey(args: InferRequestType<typeof client.waitForApiKey.$get>) {
+  return ['/waitForApiKey', args] as const
 }
 
 /**
@@ -3151,11 +3116,11 @@ export function useGetWaitForApiKey(
 }
 
 /**
- * Generates SWR cache key for GET /waitForApiKey
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR cache key for GET /waitForTask
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getGetWaitForApiKeyKey(args: InferRequestType<typeof client.waitForApiKey.$get>) {
-  return ['/waitForApiKey', args] as const
+export function getGetWaitForTaskKey(args: InferRequestType<typeof client.waitForTask.$get>) {
+  return ['/waitForTask', args] as const
 }
 
 /**
@@ -3189,11 +3154,11 @@ export function useGetWaitForTask(
 }
 
 /**
- * Generates SWR cache key for GET /waitForTask
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR cache key for GET /waitForAppTask
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getGetWaitForTaskKey(args: InferRequestType<typeof client.waitForTask.$get>) {
-  return ['/waitForTask', args] as const
+export function getGetWaitForAppTaskKey(args: InferRequestType<typeof client.waitForAppTask.$get>) {
+  return ['/waitForAppTask', args] as const
 }
 
 /**
@@ -3225,11 +3190,11 @@ export function useGetWaitForAppTask(
 }
 
 /**
- * Generates SWR cache key for GET /waitForAppTask
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR cache key for GET /browseObjects
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getGetWaitForAppTaskKey(args: InferRequestType<typeof client.waitForAppTask.$get>) {
-  return ['/waitForAppTask', args] as const
+export function getGetBrowseObjectsKey(args: InferRequestType<typeof client.browseObjects.$get>) {
+  return ['/browseObjects', args] as const
 }
 
 /**
@@ -3265,11 +3230,13 @@ export function useGetBrowseObjects(
 }
 
 /**
- * Generates SWR cache key for GET /browseObjects
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR cache key for GET /generateSecuredApiKey
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getGetBrowseObjectsKey(args: InferRequestType<typeof client.browseObjects.$get>) {
-  return ['/browseObjects', args] as const
+export function getGetGenerateSecuredApiKeyKey(
+  args: InferRequestType<typeof client.generateSecuredApiKey.$get>,
+) {
+  return ['/generateSecuredApiKey', args] as const
 }
 
 /**
@@ -3313,13 +3280,13 @@ export function useGetGenerateSecuredApiKey(
 }
 
 /**
- * Generates SWR cache key for GET /generateSecuredApiKey
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR cache key for GET /accountCopyIndex
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getGetGenerateSecuredApiKeyKey(
-  args: InferRequestType<typeof client.generateSecuredApiKey.$get>,
+export function getGetAccountCopyIndexKey(
+  args: InferRequestType<typeof client.accountCopyIndex.$get>,
 ) {
-  return ['/generateSecuredApiKey', args] as const
+  return ['/accountCopyIndex', args] as const
 }
 
 /**
@@ -3351,13 +3318,13 @@ export function useGetAccountCopyIndex(
 }
 
 /**
- * Generates SWR cache key for GET /accountCopyIndex
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR cache key for GET /replaceAllObjects
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getGetAccountCopyIndexKey(
-  args: InferRequestType<typeof client.accountCopyIndex.$get>,
+export function getGetReplaceAllObjectsKey(
+  args: InferRequestType<typeof client.replaceAllObjects.$get>,
 ) {
-  return ['/accountCopyIndex', args] as const
+  return ['/replaceAllObjects', args] as const
 }
 
 /**
@@ -3404,13 +3371,13 @@ export function useGetReplaceAllObjects(
 }
 
 /**
- * Generates SWR cache key for GET /replaceAllObjects
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR cache key for GET /replaceAllObjectsWithTransformation
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getGetReplaceAllObjectsKey(
-  args: InferRequestType<typeof client.replaceAllObjects.$get>,
+export function getGetReplaceAllObjectsWithTransformationKey(
+  args: InferRequestType<typeof client.replaceAllObjectsWithTransformation.$get>,
 ) {
-  return ['/replaceAllObjects', args] as const
+  return ['/replaceAllObjectsWithTransformation', args] as const
 }
 
 /**
@@ -3456,13 +3423,11 @@ export function useGetReplaceAllObjectsWithTransformation(
 }
 
 /**
- * Generates SWR cache key for GET /replaceAllObjectsWithTransformation
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR cache key for GET /chunkedBatch
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getGetReplaceAllObjectsWithTransformationKey(
-  args: InferRequestType<typeof client.replaceAllObjectsWithTransformation.$get>,
-) {
-  return ['/replaceAllObjectsWithTransformation', args] as const
+export function getGetChunkedBatchKey(args: InferRequestType<typeof client.chunkedBatch.$get>) {
+  return ['/chunkedBatch', args] as const
 }
 
 /**
@@ -3494,11 +3459,11 @@ export function useGetChunkedBatch(
 }
 
 /**
- * Generates SWR cache key for GET /chunkedBatch
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR cache key for GET /saveObjects
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getGetChunkedBatchKey(args: InferRequestType<typeof client.chunkedBatch.$get>) {
-  return ['/chunkedBatch', args] as const
+export function getGetSaveObjectsKey(args: InferRequestType<typeof client.saveObjects.$get>) {
+  return ['/saveObjects', args] as const
 }
 
 /**
@@ -3530,11 +3495,13 @@ export function useGetSaveObjects(
 }
 
 /**
- * Generates SWR cache key for GET /saveObjects
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR cache key for GET /saveObjectsWithTransformation
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getGetSaveObjectsKey(args: InferRequestType<typeof client.saveObjects.$get>) {
-  return ['/saveObjects', args] as const
+export function getGetSaveObjectsWithTransformationKey(
+  args: InferRequestType<typeof client.saveObjectsWithTransformation.$get>,
+) {
+  return ['/saveObjectsWithTransformation', args] as const
 }
 
 /**
@@ -3566,13 +3533,11 @@ export function useGetSaveObjectsWithTransformation(
 }
 
 /**
- * Generates SWR cache key for GET /saveObjectsWithTransformation
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for POST /deleteObjects
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetSaveObjectsWithTransformationKey(
-  args: InferRequestType<typeof client.saveObjectsWithTransformation.$get>,
-) {
-  return ['/saveObjectsWithTransformation', args] as const
+export function getPostDeleteObjectsMutationKey() {
+  return ['/deleteObjects'] as const
 }
 
 /**
@@ -3608,12 +3573,11 @@ export function usePostDeleteObjects(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /deleteObjects
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /partialUpdateObjects
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostDeleteObjectsMutationKey() {
-  return 'POST /deleteObjects'
+export function getPostPartialUpdateObjectsMutationKey() {
+  return ['/partialUpdateObjects'] as const
 }
 
 /**
@@ -3653,12 +3617,11 @@ export function usePostPartialUpdateObjects(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /partialUpdateObjects
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /partialUpdateObjectsWithTransformation
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostPartialUpdateObjectsMutationKey() {
-  return 'POST /partialUpdateObjects'
+export function getPostPartialUpdateObjectsWithTransformationMutationKey() {
+  return ['/partialUpdateObjectsWithTransformation'] as const
 }
 
 /**
@@ -3702,12 +3665,11 @@ export function usePostPartialUpdateObjectsWithTransformation(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /partialUpdateObjectsWithTransformation
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /indexExists
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPostPartialUpdateObjectsWithTransformationMutationKey() {
-  return 'POST /partialUpdateObjectsWithTransformation'
+export function getGetIndexExistsKey(args: InferRequestType<typeof client.indexExists.$get>) {
+  return ['/indexExists', args] as const
 }
 
 /**
@@ -3739,11 +3701,13 @@ export function useGetIndexExists(
 }
 
 /**
- * Generates SWR cache key for GET /indexExists
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR cache key for GET /setClientApiKey
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getGetIndexExistsKey(args: InferRequestType<typeof client.indexExists.$get>) {
-  return ['/indexExists', args] as const
+export function getGetSetClientApiKeyKey(
+  args: InferRequestType<typeof client.setClientApiKey.$get>,
+) {
+  return ['/setClientApiKey', args] as const
 }
 
 /**
@@ -3772,14 +3736,4 @@ export function useGetSetClientApiKey(
       restSwrOptions,
     ),
   }
-}
-
-/**
- * Generates SWR cache key for GET /setClientApiKey
- * Returns structured key [templatePath, args] for filter-based invalidation
- */
-export function getGetSetClientApiKeyKey(
-  args: InferRequestType<typeof client.setClientApiKey.$get>,
-) {
-  return ['/setClientApiKey', args] as const
 }

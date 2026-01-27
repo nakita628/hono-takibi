@@ -1,8 +1,31 @@
 import { useQuery } from '@tanstack/vue-query'
-import type { UseQueryOptions } from '@tanstack/vue-query'
+import type { UseQueryOptions, QueryFunctionContext } from '@tanstack/vue-query'
+import { unref } from 'vue'
+import type { MaybeRef } from 'vue'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/test'
+
+/**
+ * Generates Vue Query cache key for GET /hono
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGetHonoQueryKey() {
+  return ['hono', '/hono'] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /hono
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetHonoQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetHonoQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.hono.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /hono
@@ -29,23 +52,26 @@ export function useGetHono(options?: {
 }
 
 /**
- * Generates Vue Query cache key for GET /hono
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates Vue Query cache key for GET /hono-x
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetHonoQueryKey() {
-  return ['/hono'] as const
+export function getGetHonoXQueryKey() {
+  return ['hono-x', '/hono-x'] as const
 }
 
 /**
- * Returns Vue Query query options for GET /hono
+ * Returns Vue Query query options for GET /hono-x
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetHonoQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetHonoQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetHonoXQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetHonoXQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.hono.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      client['hono-x'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
     ),
 })
 
@@ -76,23 +102,23 @@ export function useGetHonoX(options?: {
 }
 
 /**
- * Generates Vue Query cache key for GET /hono-x
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates Vue Query cache key for GET /zod-openapi-hono
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetHonoXQueryKey() {
-  return ['/hono-x'] as const
+export function getGetZodOpenapiHonoQueryKey() {
+  return ['zod-openapi-hono', '/zod-openapi-hono'] as const
 }
 
 /**
- * Returns Vue Query query options for GET /hono-x
+ * Returns Vue Query query options for GET /zod-openapi-hono
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetHonoXQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetHonoXQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetZodOpenapiHonoQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetZodOpenapiHonoQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client['hono-x'].$get(undefined, {
+      client['zod-openapi-hono'].$get(undefined, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -126,27 +152,3 @@ export function useGetZodOpenapiHono(options?: {
   const { queryKey, queryFn, ...baseOptions } = getGetZodOpenapiHonoQueryOptions(clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates Vue Query cache key for GET /zod-openapi-hono
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGetZodOpenapiHonoQueryKey() {
-  return ['/zod-openapi-hono'] as const
-}
-
-/**
- * Returns Vue Query query options for GET /zod-openapi-hono
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetZodOpenapiHonoQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetZodOpenapiHonoQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['zod-openapi-hono'].$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})

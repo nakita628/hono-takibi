@@ -1,8 +1,29 @@
 import { createQuery } from '@tanstack/svelte-query'
-import type { CreateQueryOptions } from '@tanstack/svelte-query'
+import type { CreateQueryOptions, QueryFunctionContext } from '@tanstack/svelte-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/openapi-string'
+
+/**
+ * Generates Svelte Query cache key for GET /string
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGetStringQueryKey() {
+  return ['string', '/string'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /string
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetStringQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetStringQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.string.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /string
@@ -26,24 +47,3 @@ export function createGetString(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /string
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGetStringQueryKey() {
-  return ['/string'] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /string
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetStringQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetStringQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.string.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-    ),
-})

@@ -5,6 +5,14 @@ import { parseResponse } from 'hono/client'
 import { client } from '../clients/complex-schema-reference-random'
 
 /**
+ * Generates SWR cache key for GET /test
+ * Returns structured key [path] for filter-based invalidation
+ */
+export function getGetTestKey() {
+  return ['/test'] as const
+}
+
+/**
  * GET /test
  *
  * Test endpoint for comprehensive schema references
@@ -25,12 +33,4 @@ export function useGetTest(options?: {
       restSwrOptions,
     ),
   }
-}
-
-/**
- * Generates SWR cache key for GET /test
- * Returns structured key [templatePath] for filter-based invalidation
- */
-export function getGetTestKey() {
-  return ['/test'] as const
 }

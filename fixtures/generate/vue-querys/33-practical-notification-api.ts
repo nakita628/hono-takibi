@@ -1,8 +1,39 @@
 import { useQuery, useMutation } from '@tanstack/vue-query'
-import type { UseQueryOptions, UseMutationOptions } from '@tanstack/vue-query'
+import type { UseQueryOptions, QueryFunctionContext, UseMutationOptions } from '@tanstack/vue-query'
+import { unref } from 'vue'
+import type { MaybeRef } from 'vue'
 import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/33-practical-notification-api'
+
+/**
+ * Generates Vue Query cache key for GET /notifications
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetNotificationsQueryKey(
+  args: MaybeRef<InferRequestType<typeof client.notifications.$get>>,
+) {
+  return ['notifications', '/notifications', unref(args)] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /notifications
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetNotificationsQueryOptions = (
+  args: InferRequestType<typeof client.notifications.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetNotificationsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.notifications.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /notifications
@@ -32,28 +63,28 @@ export function useGetNotifications(
 }
 
 /**
- * Generates Vue Query cache key for GET /notifications
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Vue Query cache key for GET /notifications/{notificationId}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetNotificationsQueryKey(
-  args: InferRequestType<typeof client.notifications.$get>,
+export function getGetNotificationsNotificationIdQueryKey(
+  args: MaybeRef<InferRequestType<(typeof client.notifications)[':notificationId']['$get']>>,
 ) {
-  return ['/notifications', args] as const
+  return ['notifications', '/notifications/:notificationId', unref(args)] as const
 }
 
 /**
- * Returns Vue Query query options for GET /notifications
+ * Returns Vue Query query options for GET /notifications/{notificationId}
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetNotificationsQueryOptions = (
-  args: InferRequestType<typeof client.notifications.$get>,
+export const getGetNotificationsNotificationIdQueryOptions = (
+  args: InferRequestType<(typeof client.notifications)[':notificationId']['$get']>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetNotificationsQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetNotificationsNotificationIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.notifications.$get(args, {
+      client.notifications[':notificationId'].$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -93,35 +124,6 @@ export function useGetNotificationsNotificationId(
   )
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates Vue Query cache key for GET /notifications/{notificationId}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetNotificationsNotificationIdQueryKey(
-  args: InferRequestType<(typeof client.notifications)[':notificationId']['$get']>,
-) {
-  return ['/notifications/:notificationId', args] as const
-}
-
-/**
- * Returns Vue Query query options for GET /notifications/{notificationId}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetNotificationsNotificationIdQueryOptions = (
-  args: InferRequestType<(typeof client.notifications)[':notificationId']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetNotificationsNotificationIdQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.notifications[':notificationId'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * DELETE /notifications/{notificationId}
@@ -223,6 +225,32 @@ export function usePostNotificationsReadAll(options?: {
 }
 
 /**
+ * Generates Vue Query cache key for GET /notifications/unread-count
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGetNotificationsUnreadCountQueryKey() {
+  return ['notifications', '/notifications/unread-count'] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /notifications/unread-count
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetNotificationsUnreadCountQueryOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetNotificationsUnreadCountQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.notifications['unread-count'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /notifications/unread-count
  *
  * 未読件数取得
@@ -250,32 +278,6 @@ export function useGetNotificationsUnreadCount(options?: {
     getGetNotificationsUnreadCountQueryOptions(clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates Vue Query cache key for GET /notifications/unread-count
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGetNotificationsUnreadCountQueryKey() {
-  return ['/notifications/unread-count'] as const
-}
-
-/**
- * Returns Vue Query query options for GET /notifications/unread-count
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetNotificationsUnreadCountQueryOptions = (
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetNotificationsUnreadCountQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.notifications['unread-count'].$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /messages/send
@@ -340,6 +342,35 @@ export function usePostMessagesSendBatch(options?: {
 }
 
 /**
+ * Generates Vue Query cache key for GET /messages/{messageId}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetMessagesMessageIdQueryKey(
+  args: MaybeRef<InferRequestType<(typeof client.messages)[':messageId']['$get']>>,
+) {
+  return ['messages', '/messages/:messageId', unref(args)] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /messages/{messageId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetMessagesMessageIdQueryOptions = (
+  args: InferRequestType<(typeof client.messages)[':messageId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetMessagesMessageIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.messages[':messageId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /messages/{messageId}
  *
  * メッセージ送信状況取得
@@ -374,31 +405,28 @@ export function useGetMessagesMessageId(
 }
 
 /**
- * Generates Vue Query cache key for GET /messages/{messageId}
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Vue Query cache key for GET /templates
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetMessagesMessageIdQueryKey(
-  args: InferRequestType<(typeof client.messages)[':messageId']['$get']>,
+export function getGetTemplatesQueryKey(
+  args: MaybeRef<InferRequestType<typeof client.templates.$get>>,
 ) {
-  return ['/messages/:messageId', args] as const
+  return ['templates', '/templates', unref(args)] as const
 }
 
 /**
- * Returns Vue Query query options for GET /messages/{messageId}
+ * Returns Vue Query query options for GET /templates
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetMessagesMessageIdQueryOptions = (
-  args: InferRequestType<(typeof client.messages)[':messageId']['$get']>,
+export const getGetTemplatesQueryOptions = (
+  args: InferRequestType<typeof client.templates.$get>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetMessagesMessageIdQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetTemplatesQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.messages[':messageId'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
+      client.templates.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
     ),
 })
 
@@ -430,30 +458,6 @@ export function useGetTemplates(
 }
 
 /**
- * Generates Vue Query cache key for GET /templates
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetTemplatesQueryKey(args: InferRequestType<typeof client.templates.$get>) {
-  return ['/templates', args] as const
-}
-
-/**
- * Returns Vue Query query options for GET /templates
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetTemplatesQueryOptions = (
-  args: InferRequestType<typeof client.templates.$get>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetTemplatesQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.templates.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-    ),
-})
-
-/**
  * POST /templates
  *
  * テンプレート作成
@@ -480,6 +484,35 @@ export function usePostTemplates(options?: {
       parseResponse(client.templates.$post(args, clientOptions)),
   })
 }
+
+/**
+ * Generates Vue Query cache key for GET /templates/{templateId}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetTemplatesTemplateIdQueryKey(
+  args: MaybeRef<InferRequestType<(typeof client.templates)[':templateId']['$get']>>,
+) {
+  return ['templates', '/templates/:templateId', unref(args)] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /templates/{templateId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetTemplatesTemplateIdQueryOptions = (
+  args: InferRequestType<(typeof client.templates)[':templateId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetTemplatesTemplateIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.templates[':templateId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /templates/{templateId}
@@ -514,35 +547,6 @@ export function useGetTemplatesTemplateId(
   )
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates Vue Query cache key for GET /templates/{templateId}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetTemplatesTemplateIdQueryKey(
-  args: InferRequestType<(typeof client.templates)[':templateId']['$get']>,
-) {
-  return ['/templates/:templateId', args] as const
-}
-
-/**
- * Returns Vue Query query options for GET /templates/{templateId}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetTemplatesTemplateIdQueryOptions = (
-  args: InferRequestType<(typeof client.templates)[':templateId']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetTemplatesTemplateIdQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.templates[':templateId'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * PUT /templates/{templateId}
@@ -644,6 +648,30 @@ export function usePostTemplatesTemplateIdPreview(options?: {
 }
 
 /**
+ * Generates Vue Query cache key for GET /channels/preferences
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGetChannelsPreferencesQueryKey() {
+  return ['channels', '/channels/preferences'] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /channels/preferences
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetChannelsPreferencesQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetChannelsPreferencesQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.channels.preferences.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /channels/preferences
  *
  * チャンネル設定取得
@@ -668,30 +696,6 @@ export function useGetChannelsPreferences(options?: {
   const { queryKey, queryFn, ...baseOptions } = getGetChannelsPreferencesQueryOptions(clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates Vue Query cache key for GET /channels/preferences
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGetChannelsPreferencesQueryKey() {
-  return ['/channels/preferences'] as const
-}
-
-/**
- * Returns Vue Query query options for GET /channels/preferences
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetChannelsPreferencesQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetChannelsPreferencesQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.channels.preferences.$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * PUT /channels/preferences
@@ -724,6 +728,30 @@ export function usePutChannelsPreferences(options?: {
 }
 
 /**
+ * Generates Vue Query cache key for GET /channels/devices
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGetChannelsDevicesQueryKey() {
+  return ['channels', '/channels/devices'] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /channels/devices
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetChannelsDevicesQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetChannelsDevicesQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.channels.devices.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /channels/devices
  *
  * デバイス一覧取得
@@ -746,30 +774,6 @@ export function useGetChannelsDevices(options?: {
   const { queryKey, queryFn, ...baseOptions } = getGetChannelsDevicesQueryOptions(clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates Vue Query cache key for GET /channels/devices
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGetChannelsDevicesQueryKey() {
-  return ['/channels/devices'] as const
-}
-
-/**
- * Returns Vue Query query options for GET /channels/devices
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetChannelsDevicesQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetChannelsDevicesQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.channels.devices.$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /channels/devices
@@ -836,6 +840,30 @@ export function useDeleteChannelsDevicesDeviceId(options?: {
 }
 
 /**
+ * Generates Vue Query cache key for GET /webhooks
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGetWebhooksQueryKey() {
+  return ['webhooks', '/webhooks'] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /webhooks
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetWebhooksQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetWebhooksQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.webhooks.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /webhooks
  *
  * Webhook一覧取得
@@ -856,30 +884,6 @@ export function useGetWebhooks(options?: {
   const { queryKey, queryFn, ...baseOptions } = getGetWebhooksQueryOptions(clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates Vue Query cache key for GET /webhooks
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGetWebhooksQueryKey() {
-  return ['/webhooks'] as const
-}
-
-/**
- * Returns Vue Query query options for GET /webhooks
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetWebhooksQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetWebhooksQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.webhooks.$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /webhooks
@@ -908,6 +912,35 @@ export function usePostWebhooks(options?: {
       parseResponse(client.webhooks.$post(args, clientOptions)),
   })
 }
+
+/**
+ * Generates Vue Query cache key for GET /webhooks/{webhookId}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetWebhooksWebhookIdQueryKey(
+  args: MaybeRef<InferRequestType<(typeof client.webhooks)[':webhookId']['$get']>>,
+) {
+  return ['webhooks', '/webhooks/:webhookId', unref(args)] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /webhooks/{webhookId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetWebhooksWebhookIdQueryOptions = (
+  args: InferRequestType<(typeof client.webhooks)[':webhookId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetWebhooksWebhookIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.webhooks[':webhookId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /webhooks/{webhookId}
@@ -942,35 +975,6 @@ export function useGetWebhooksWebhookId(
   )
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates Vue Query cache key for GET /webhooks/{webhookId}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetWebhooksWebhookIdQueryKey(
-  args: InferRequestType<(typeof client.webhooks)[':webhookId']['$get']>,
-) {
-  return ['/webhooks/:webhookId', args] as const
-}
-
-/**
- * Returns Vue Query query options for GET /webhooks/{webhookId}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetWebhooksWebhookIdQueryOptions = (
-  args: InferRequestType<(typeof client.webhooks)[':webhookId']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetWebhooksWebhookIdQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.webhooks[':webhookId'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * PUT /webhooks/{webhookId}

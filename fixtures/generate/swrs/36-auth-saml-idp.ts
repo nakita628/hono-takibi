@@ -7,6 +7,14 @@ import { parseResponse } from 'hono/client'
 import { client } from '../clients/36-auth-saml-idp'
 
 /**
+ * Generates SWR cache key for GET /saml/sso
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
+ */
+export function getGetSamlSsoKey(args: InferRequestType<typeof client.saml.sso.$get>) {
+  return ['/saml/sso', args] as const
+}
+
+/**
  * GET /saml/sso
  *
  * SSO (HTTP-Redirect binding)
@@ -35,11 +43,11 @@ export function useGetSamlSso(
 }
 
 /**
- * Generates SWR cache key for GET /saml/sso
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for POST /saml/sso
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetSamlSsoKey(args: InferRequestType<typeof client.saml.sso.$get>) {
-  return ['/saml/sso', args] as const
+export function getPostSamlSsoMutationKey() {
+  return ['/saml/sso'] as const
 }
 
 /**
@@ -73,12 +81,11 @@ export function usePostSamlSso(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /saml/sso
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /saml/slo
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPostSamlSsoMutationKey() {
-  return 'POST /saml/sso'
+export function getGetSamlSloKey(args: InferRequestType<typeof client.saml.slo.$get>) {
+  return ['/saml/slo', args] as const
 }
 
 /**
@@ -110,11 +117,11 @@ export function useGetSamlSlo(
 }
 
 /**
- * Generates SWR cache key for GET /saml/slo
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for POST /saml/slo
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetSamlSloKey(args: InferRequestType<typeof client.saml.slo.$get>) {
-  return ['/saml/slo', args] as const
+export function getPostSamlSloMutationKey() {
+  return ['/saml/slo'] as const
 }
 
 /**
@@ -148,12 +155,11 @@ export function usePostSamlSlo(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /saml/slo
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /saml/acs
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostSamlSloMutationKey() {
-  return 'POST /saml/slo'
+export function getPostSamlAcsMutationKey() {
+  return ['/saml/acs'] as const
 }
 
 /**
@@ -187,12 +193,11 @@ export function usePostSamlAcs(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /saml/acs
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /saml/metadata
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getPostSamlAcsMutationKey() {
-  return 'POST /saml/acs'
+export function getGetSamlMetadataKey() {
+  return ['/saml/metadata'] as const
 }
 
 /**
@@ -221,11 +226,13 @@ export function useGetSamlMetadata(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /saml/metadata
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /service-providers
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getGetSamlMetadataKey() {
-  return ['/saml/metadata'] as const
+export function getGetServiceProvidersKey(
+  args: InferRequestType<(typeof client)['service-providers']['$get']>,
+) {
+  return ['/service-providers', args] as const
 }
 
 /**
@@ -255,13 +262,11 @@ export function useGetServiceProviders(
 }
 
 /**
- * Generates SWR cache key for GET /service-providers
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for POST /service-providers
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetServiceProvidersKey(
-  args: InferRequestType<(typeof client)['service-providers']['$get']>,
-) {
-  return ['/service-providers', args] as const
+export function getPostServiceProvidersMutationKey() {
+  return ['/service-providers'] as const
 }
 
 /**
@@ -299,12 +304,13 @@ export function usePostServiceProviders(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /service-providers
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /service-providers/{spId}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPostServiceProvidersMutationKey() {
-  return 'POST /service-providers'
+export function getGetServiceProvidersSpIdKey(
+  args: InferRequestType<(typeof client)['service-providers'][':spId']['$get']>,
+) {
+  return [`/service-providers/${args.param.spId}`, args] as const
 }
 
 /**
@@ -334,13 +340,11 @@ export function useGetServiceProvidersSpId(
 }
 
 /**
- * Generates SWR cache key for GET /service-providers/{spId}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for PUT /service-providers/{spId}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetServiceProvidersSpIdKey(
-  args: InferRequestType<(typeof client)['service-providers'][':spId']['$get']>,
-) {
-  return ['/service-providers/:spId', args] as const
+export function getPutServiceProvidersSpIdMutationKey() {
+  return ['/service-providers/:spId'] as const
 }
 
 /**
@@ -380,12 +384,11 @@ export function usePutServiceProvidersSpId(options?: {
 }
 
 /**
- * Generates SWR mutation key for PUT /service-providers/{spId}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for DELETE /service-providers/{spId}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPutServiceProvidersSpIdMutationKey() {
-  return 'PUT /service-providers/:spId'
+export function getDeleteServiceProvidersSpIdMutationKey() {
+  return ['/service-providers/:spId'] as const
 }
 
 /**
@@ -428,12 +431,13 @@ export function useDeleteServiceProvidersSpId(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /service-providers/{spId}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /service-providers/{spId}/metadata
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getDeleteServiceProvidersSpIdMutationKey() {
-  return 'DELETE /service-providers/:spId'
+export function getGetServiceProvidersSpIdMetadataKey(
+  args: InferRequestType<(typeof client)['service-providers'][':spId']['metadata']['$get']>,
+) {
+  return [`/service-providers/${args.param.spId}/metadata`, args] as const
 }
 
 /**
@@ -464,13 +468,11 @@ export function useGetServiceProvidersSpIdMetadata(
 }
 
 /**
- * Generates SWR cache key for GET /service-providers/{spId}/metadata
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for PUT /service-providers/{spId}/metadata
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetServiceProvidersSpIdMetadataKey(
-  args: InferRequestType<(typeof client)['service-providers'][':spId']['metadata']['$get']>,
-) {
-  return ['/service-providers/:spId/metadata', args] as const
+export function getPutServiceProvidersSpIdMetadataMutationKey() {
+  return ['/service-providers/:spId/metadata'] as const
 }
 
 /**
@@ -514,12 +516,13 @@ export function usePutServiceProvidersSpIdMetadata(options?: {
 }
 
 /**
- * Generates SWR mutation key for PUT /service-providers/{spId}/metadata
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /service-providers/{spId}/attributes
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPutServiceProvidersSpIdMetadataMutationKey() {
-  return 'PUT /service-providers/:spId/metadata'
+export function getGetServiceProvidersSpIdAttributesKey(
+  args: InferRequestType<(typeof client)['service-providers'][':spId']['attributes']['$get']>,
+) {
+  return [`/service-providers/${args.param.spId}/attributes`, args] as const
 }
 
 /**
@@ -550,13 +553,11 @@ export function useGetServiceProvidersSpIdAttributes(
 }
 
 /**
- * Generates SWR cache key for GET /service-providers/{spId}/attributes
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for PUT /service-providers/{spId}/attributes
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetServiceProvidersSpIdAttributesKey(
-  args: InferRequestType<(typeof client)['service-providers'][':spId']['attributes']['$get']>,
-) {
-  return ['/service-providers/:spId/attributes', args] as const
+export function getPutServiceProvidersSpIdAttributesMutationKey() {
+  return ['/service-providers/:spId/attributes'] as const
 }
 
 /**
@@ -600,12 +601,11 @@ export function usePutServiceProvidersSpIdAttributes(options?: {
 }
 
 /**
- * Generates SWR mutation key for PUT /service-providers/{spId}/attributes
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /attributes
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getPutServiceProvidersSpIdAttributesMutationKey() {
-  return 'PUT /service-providers/:spId/attributes'
+export function getGetAttributesKey() {
+  return ['/attributes'] as const
 }
 
 /**
@@ -632,11 +632,11 @@ export function useGetAttributes(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /attributes
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /certificates
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetAttributesKey() {
-  return ['/attributes'] as const
+export function getGetCertificatesKey() {
+  return ['/certificates'] as const
 }
 
 /**
@@ -663,10 +663,10 @@ export function useGetCertificates(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /certificates
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR mutation key for POST /certificates
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetCertificatesKey() {
+export function getPostCertificatesMutationKey() {
   return ['/certificates'] as const
 }
 
@@ -701,12 +701,11 @@ export function usePostCertificates(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /certificates
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for DELETE /certificates/{certId}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostCertificatesMutationKey() {
-  return 'POST /certificates'
+export function getDeleteCertificatesCertIdMutationKey() {
+  return ['/certificates/:certId'] as const
 }
 
 /**
@@ -747,12 +746,11 @@ export function useDeleteCertificatesCertId(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /certificates/{certId}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /certificates/{certId}/activate
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getDeleteCertificatesCertIdMutationKey() {
-  return 'DELETE /certificates/:certId'
+export function getPostCertificatesCertIdActivateMutationKey() {
+  return ['/certificates/:certId/activate'] as const
 }
 
 /**
@@ -794,12 +792,11 @@ export function usePostCertificatesCertIdActivate(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /certificates/{certId}/activate
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /sessions
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPostCertificatesCertIdActivateMutationKey() {
-  return 'POST /certificates/:certId/activate'
+export function getGetSessionsKey(args: InferRequestType<typeof client.sessions.$get>) {
+  return ['/sessions', args] as const
 }
 
 /**
@@ -829,11 +826,11 @@ export function useGetSessions(
 }
 
 /**
- * Generates SWR cache key for GET /sessions
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for DELETE /sessions/{sessionId}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetSessionsKey(args: InferRequestType<typeof client.sessions.$get>) {
-  return ['/sessions', args] as const
+export function getDeleteSessionsSessionIdMutationKey() {
+  return ['/sessions/:sessionId'] as const
 }
 
 /**
@@ -874,12 +871,11 @@ export function useDeleteSessionsSessionId(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /sessions/{sessionId}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /audit-logs
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getDeleteSessionsSessionIdMutationKey() {
-  return 'DELETE /sessions/:sessionId'
+export function getGetAuditLogsKey(args: InferRequestType<(typeof client)['audit-logs']['$get']>) {
+  return ['/audit-logs', args] as const
 }
 
 /**
@@ -906,12 +902,4 @@ export function useGetAuditLogs(
       restSwrOptions,
     ),
   }
-}
-
-/**
- * Generates SWR cache key for GET /audit-logs
- * Returns structured key [templatePath, args] for filter-based invalidation
- */
-export function getGetAuditLogsKey(args: InferRequestType<(typeof client)['audit-logs']['$get']>) {
-  return ['/audit-logs', args] as const
 }

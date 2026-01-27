@@ -5,6 +5,14 @@ import { parseResponse } from 'hono/client'
 import { client } from '../clients/sample-geojson'
 
 /**
+ * Generates SWR cache key for GET /
+ * Returns structured key [path] for filter-based invalidation
+ */
+export function getGetKey() {
+  return ['/'] as const
+}
+
+/**
  * GET /
  *
  * Ping endpoint
@@ -30,11 +38,11 @@ export function useGet(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /projects
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getGetKey() {
-  return ['/'] as const
+export function getGetProjectsKey(args: InferRequestType<typeof client.projects.$get>) {
+  return ['/projects', args] as const
 }
 
 /**
@@ -63,12 +71,4 @@ export function useGetProjects(
       restSwrOptions,
     ),
   }
-}
-
-/**
- * Generates SWR cache key for GET /projects
- * Returns structured key [templatePath, args] for filter-based invalidation
- */
-export function getGetProjectsKey(args: InferRequestType<typeof client.projects.$get>) {
-  return ['/projects', args] as const
 }

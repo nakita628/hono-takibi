@@ -7,6 +7,14 @@ import { parseResponse } from 'hono/client'
 import { client } from '../clients/15-cross-component-refs'
 
 /**
+ * Generates SWR cache key for GET /entities
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
+ */
+export function getGetEntitiesKey(args: InferRequestType<typeof client.entities.$get>) {
+  return ['/entities', args] as const
+}
+
+/**
  * GET /entities
  */
 export function useGetEntities(
@@ -31,11 +39,11 @@ export function useGetEntities(
 }
 
 /**
- * Generates SWR cache key for GET /entities
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for POST /entities
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetEntitiesKey(args: InferRequestType<typeof client.entities.$get>) {
-  return ['/entities', args] as const
+export function getPostEntitiesMutationKey() {
+  return ['/entities'] as const
 }
 
 /**
@@ -65,12 +73,13 @@ export function usePostEntities(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /entities
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /entities/{entityId}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPostEntitiesMutationKey() {
-  return 'POST /entities'
+export function getGetEntitiesEntityIdKey(
+  args: InferRequestType<(typeof client.entities)[':entityId']['$get']>,
+) {
+  return [`/entities/${args.param.entityId}`, args] as const
 }
 
 /**
@@ -98,13 +107,11 @@ export function useGetEntitiesEntityId(
 }
 
 /**
- * Generates SWR cache key for GET /entities/{entityId}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for PUT /entities/{entityId}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetEntitiesEntityIdKey(
-  args: InferRequestType<(typeof client.entities)[':entityId']['$get']>,
-) {
-  return ['/entities/:entityId', args] as const
+export function getPutEntitiesEntityIdMutationKey() {
+  return ['/entities/:entityId'] as const
 }
 
 /**
@@ -140,12 +147,11 @@ export function usePutEntitiesEntityId(options?: {
 }
 
 /**
- * Generates SWR mutation key for PUT /entities/{entityId}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for DELETE /entities/{entityId}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPutEntitiesEntityIdMutationKey() {
-  return 'PUT /entities/:entityId'
+export function getDeleteEntitiesEntityIdMutationKey() {
+  return ['/entities/:entityId'] as const
 }
 
 /**
@@ -184,12 +190,13 @@ export function useDeleteEntitiesEntityId(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /entities/{entityId}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /entities/{entityId}/relationships
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getDeleteEntitiesEntityIdMutationKey() {
-  return 'DELETE /entities/:entityId'
+export function getGetEntitiesEntityIdRelationshipsKey(
+  args: InferRequestType<(typeof client.entities)[':entityId']['relationships']['$get']>,
+) {
+  return [`/entities/${args.param.entityId}/relationships`, args] as const
 }
 
 /**
@@ -218,13 +225,11 @@ export function useGetEntitiesEntityIdRelationships(
 }
 
 /**
- * Generates SWR cache key for GET /entities/{entityId}/relationships
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for POST /entities/{entityId}/relationships
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetEntitiesEntityIdRelationshipsKey(
-  args: InferRequestType<(typeof client.entities)[':entityId']['relationships']['$get']>,
-) {
-  return ['/entities/:entityId/relationships', args] as const
+export function getPostEntitiesEntityIdRelationshipsMutationKey() {
+  return ['/entities/:entityId/relationships'] as const
 }
 
 /**
@@ -266,12 +271,11 @@ export function usePostEntitiesEntityIdRelationships(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /entities/{entityId}/relationships
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /batch
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostEntitiesEntityIdRelationshipsMutationKey() {
-  return 'POST /entities/:entityId/relationships'
+export function getPostBatchMutationKey() {
+  return ['/batch'] as const
 }
 
 /**
@@ -298,13 +302,4 @@ export function usePostBatch(options?: {
       restMutationOptions,
     ),
   }
-}
-
-/**
- * Generates SWR mutation key for POST /batch
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
- */
-export function getPostBatchMutationKey() {
-  return 'POST /batch'
 }

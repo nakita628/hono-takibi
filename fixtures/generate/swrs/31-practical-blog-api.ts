@@ -7,6 +7,14 @@ import { parseResponse } from 'hono/client'
 import { client } from '../clients/31-practical-blog-api'
 
 /**
+ * Generates SWR cache key for GET /posts
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
+ */
+export function getGetPostsKey(args: InferRequestType<typeof client.posts.$get>) {
+  return ['/posts', args] as const
+}
+
+/**
  * GET /posts
  *
  * 記事一覧取得
@@ -33,11 +41,11 @@ export function useGetPosts(
 }
 
 /**
- * Generates SWR cache key for GET /posts
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for POST /posts
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetPostsKey(args: InferRequestType<typeof client.posts.$get>) {
-  return ['/posts', args] as const
+export function getPostPostsMutationKey() {
+  return ['/posts'] as const
 }
 
 /**
@@ -69,12 +77,13 @@ export function usePostPosts(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /posts
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /posts/{postId}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPostPostsMutationKey() {
-  return 'POST /posts'
+export function getGetPostsPostIdKey(
+  args: InferRequestType<(typeof client.posts)[':postId']['$get']>,
+) {
+  return [`/posts/${args.param.postId}`, args] as const
 }
 
 /**
@@ -104,13 +113,11 @@ export function useGetPostsPostId(
 }
 
 /**
- * Generates SWR cache key for GET /posts/{postId}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for PUT /posts/{postId}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetPostsPostIdKey(
-  args: InferRequestType<(typeof client.posts)[':postId']['$get']>,
-) {
-  return ['/posts/:postId', args] as const
+export function getPutPostsPostIdMutationKey() {
+  return ['/posts/:postId'] as const
 }
 
 /**
@@ -148,12 +155,11 @@ export function usePutPostsPostId(options?: {
 }
 
 /**
- * Generates SWR mutation key for PUT /posts/{postId}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for DELETE /posts/{postId}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPutPostsPostIdMutationKey() {
-  return 'PUT /posts/:postId'
+export function getDeletePostsPostIdMutationKey() {
+  return ['/posts/:postId'] as const
 }
 
 /**
@@ -192,12 +198,13 @@ export function useDeletePostsPostId(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /posts/{postId}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /posts/slug/{slug}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getDeletePostsPostIdMutationKey() {
-  return 'DELETE /posts/:postId'
+export function getGetPostsSlugSlugKey(
+  args: InferRequestType<(typeof client.posts.slug)[':slug']['$get']>,
+) {
+  return [`/posts/slug/${args.param.slug}`, args] as const
 }
 
 /**
@@ -227,13 +234,11 @@ export function useGetPostsSlugSlug(
 }
 
 /**
- * Generates SWR cache key for GET /posts/slug/{slug}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for POST /posts/{postId}/publish
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetPostsSlugSlugKey(
-  args: InferRequestType<(typeof client.posts.slug)[':slug']['$get']>,
-) {
-  return ['/posts/slug/:slug', args] as const
+export function getPostPostsPostIdPublishMutationKey() {
+  return ['/posts/:postId/publish'] as const
 }
 
 /**
@@ -273,12 +278,11 @@ export function usePostPostsPostIdPublish(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /posts/{postId}/publish
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /posts/{postId}/unpublish
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostPostsPostIdPublishMutationKey() {
-  return 'POST /posts/:postId/publish'
+export function getPostPostsPostIdUnpublishMutationKey() {
+  return ['/posts/:postId/unpublish'] as const
 }
 
 /**
@@ -318,12 +322,13 @@ export function usePostPostsPostIdUnpublish(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /posts/{postId}/unpublish
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /posts/{postId}/comments
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPostPostsPostIdUnpublishMutationKey() {
-  return 'POST /posts/:postId/unpublish'
+export function getGetPostsPostIdCommentsKey(
+  args: InferRequestType<(typeof client.posts)[':postId']['comments']['$get']>,
+) {
+  return [`/posts/${args.param.postId}/comments`, args] as const
 }
 
 /**
@@ -353,13 +358,11 @@ export function useGetPostsPostIdComments(
 }
 
 /**
- * Generates SWR cache key for GET /posts/{postId}/comments
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for POST /posts/{postId}/comments
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetPostsPostIdCommentsKey(
-  args: InferRequestType<(typeof client.posts)[':postId']['comments']['$get']>,
-) {
-  return ['/posts/:postId/comments', args] as const
+export function getPostPostsPostIdCommentsMutationKey() {
+  return ['/posts/:postId/comments'] as const
 }
 
 /**
@@ -399,12 +402,11 @@ export function usePostPostsPostIdComments(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /posts/{postId}/comments
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for DELETE /comments/{commentId}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostPostsPostIdCommentsMutationKey() {
-  return 'POST /posts/:postId/comments'
+export function getDeleteCommentsCommentIdMutationKey() {
+  return ['/comments/:commentId'] as const
 }
 
 /**
@@ -445,12 +447,11 @@ export function useDeleteCommentsCommentId(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /comments/{commentId}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /comments/{commentId}/approve
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getDeleteCommentsCommentIdMutationKey() {
-  return 'DELETE /comments/:commentId'
+export function getPostCommentsCommentIdApproveMutationKey() {
+  return ['/comments/:commentId/approve'] as const
 }
 
 /**
@@ -492,12 +493,11 @@ export function usePostCommentsCommentIdApprove(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /comments/{commentId}/approve
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /categories
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getPostCommentsCommentIdApproveMutationKey() {
-  return 'POST /comments/:commentId/approve'
+export function getGetCategoriesKey() {
+  return ['/categories'] as const
 }
 
 /**
@@ -524,10 +524,10 @@ export function useGetCategories(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /categories
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR mutation key for POST /categories
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetCategoriesKey() {
+export function getPostCategoriesMutationKey() {
   return ['/categories'] as const
 }
 
@@ -560,12 +560,13 @@ export function usePostCategories(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /categories
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /categories/{categoryId}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPostCategoriesMutationKey() {
-  return 'POST /categories'
+export function getGetCategoriesCategoryIdKey(
+  args: InferRequestType<(typeof client.categories)[':categoryId']['$get']>,
+) {
+  return [`/categories/${args.param.categoryId}`, args] as const
 }
 
 /**
@@ -595,13 +596,11 @@ export function useGetCategoriesCategoryId(
 }
 
 /**
- * Generates SWR cache key for GET /categories/{categoryId}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for PUT /categories/{categoryId}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetCategoriesCategoryIdKey(
-  args: InferRequestType<(typeof client.categories)[':categoryId']['$get']>,
-) {
-  return ['/categories/:categoryId', args] as const
+export function getPutCategoriesCategoryIdMutationKey() {
+  return ['/categories/:categoryId'] as const
 }
 
 /**
@@ -639,12 +638,11 @@ export function usePutCategoriesCategoryId(options?: {
 }
 
 /**
- * Generates SWR mutation key for PUT /categories/{categoryId}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for DELETE /categories/{categoryId}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPutCategoriesCategoryIdMutationKey() {
-  return 'PUT /categories/:categoryId'
+export function getDeleteCategoriesCategoryIdMutationKey() {
+  return ['/categories/:categoryId'] as const
 }
 
 /**
@@ -685,12 +683,11 @@ export function useDeleteCategoriesCategoryId(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /categories/{categoryId}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /tags
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getDeleteCategoriesCategoryIdMutationKey() {
-  return 'DELETE /categories/:categoryId'
+export function getGetTagsKey(args: InferRequestType<typeof client.tags.$get>) {
+  return ['/tags', args] as const
 }
 
 /**
@@ -720,11 +717,11 @@ export function useGetTags(
 }
 
 /**
- * Generates SWR cache key for GET /tags
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for POST /tags
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetTagsKey(args: InferRequestType<typeof client.tags.$get>) {
-  return ['/tags', args] as const
+export function getPostTagsMutationKey() {
+  return ['/tags'] as const
 }
 
 /**
@@ -756,12 +753,11 @@ export function usePostTags(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /tags
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /media
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPostTagsMutationKey() {
-  return 'POST /tags'
+export function getGetMediaKey(args: InferRequestType<typeof client.media.$get>) {
+  return ['/media', args] as const
 }
 
 /**
@@ -791,11 +787,11 @@ export function useGetMedia(
 }
 
 /**
- * Generates SWR cache key for GET /media
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for POST /media
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetMediaKey(args: InferRequestType<typeof client.media.$get>) {
-  return ['/media', args] as const
+export function getPostMediaMutationKey() {
+  return ['/media'] as const
 }
 
 /**
@@ -827,12 +823,13 @@ export function usePostMedia(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /media
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /media/{mediaId}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPostMediaMutationKey() {
-  return 'POST /media'
+export function getGetMediaMediaIdKey(
+  args: InferRequestType<(typeof client.media)[':mediaId']['$get']>,
+) {
+  return [`/media/${args.param.mediaId}`, args] as const
 }
 
 /**
@@ -862,13 +859,11 @@ export function useGetMediaMediaId(
 }
 
 /**
- * Generates SWR cache key for GET /media/{mediaId}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for PUT /media/{mediaId}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetMediaMediaIdKey(
-  args: InferRequestType<(typeof client.media)[':mediaId']['$get']>,
-) {
-  return ['/media/:mediaId', args] as const
+export function getPutMediaMediaIdMutationKey() {
+  return ['/media/:mediaId'] as const
 }
 
 /**
@@ -906,12 +901,11 @@ export function usePutMediaMediaId(options?: {
 }
 
 /**
- * Generates SWR mutation key for PUT /media/{mediaId}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for DELETE /media/{mediaId}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPutMediaMediaIdMutationKey() {
-  return 'PUT /media/:mediaId'
+export function getDeleteMediaMediaIdMutationKey() {
+  return ['/media/:mediaId'] as const
 }
 
 /**
@@ -950,12 +944,11 @@ export function useDeleteMediaMediaId(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /media/{mediaId}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /authors
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getDeleteMediaMediaIdMutationKey() {
-  return 'DELETE /media/:mediaId'
+export function getGetAuthorsKey() {
+  return ['/authors'] as const
 }
 
 /**
@@ -982,11 +975,13 @@ export function useGetAuthors(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /authors
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /authors/{authorId}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getGetAuthorsKey() {
-  return ['/authors'] as const
+export function getGetAuthorsAuthorIdKey(
+  args: InferRequestType<(typeof client.authors)[':authorId']['$get']>,
+) {
+  return [`/authors/${args.param.authorId}`, args] as const
 }
 
 /**
@@ -1013,14 +1008,4 @@ export function useGetAuthorsAuthorId(
       restSwrOptions,
     ),
   }
-}
-
-/**
- * Generates SWR cache key for GET /authors/{authorId}
- * Returns structured key [templatePath, args] for filter-based invalidation
- */
-export function getGetAuthorsAuthorIdKey(
-  args: InferRequestType<(typeof client.authors)[':authorId']['$get']>,
-) {
-  return ['/authors/:authorId', args] as const
 }

@@ -1,5 +1,9 @@
 import { useQuery, useMutation } from '@tanstack/react-query'
-import type { UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
+import type {
+  UseQueryOptions,
+  QueryFunctionContext,
+  UseMutationOptions,
+} from '@tanstack/react-query'
 import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/27-extreme-encoding'
@@ -28,6 +32,35 @@ export function usePostEncodingTest(options?: {
 }
 
 /**
+ * Generates TanStack Query cache key for GET /content-negotiation
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetContentNegotiationQueryKey(
+  args: InferRequestType<(typeof client)['content-negotiation']['$get']>,
+) {
+  return ['content-negotiation', '/content-negotiation', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /content-negotiation
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetContentNegotiationQueryOptions = (
+  args: InferRequestType<(typeof client)['content-negotiation']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetContentNegotiationQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['content-negotiation'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /content-negotiation
  */
 export function useGetContentNegotiation(
@@ -53,35 +86,6 @@ export function useGetContentNegotiation(
 }
 
 /**
- * Generates TanStack Query cache key for GET /content-negotiation
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetContentNegotiationQueryKey(
-  args: InferRequestType<(typeof client)['content-negotiation']['$get']>,
-) {
-  return ['/content-negotiation', args] as const
-}
-
-/**
- * Returns TanStack Query query options for GET /content-negotiation
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetContentNegotiationQueryOptions = (
-  args: InferRequestType<(typeof client)['content-negotiation']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetContentNegotiationQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['content-negotiation'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
-
-/**
  * POST /binary-variations
  */
 export function usePostBinaryVariations(options?: {
@@ -105,6 +109,30 @@ export function usePostBinaryVariations(options?: {
 }
 
 /**
+ * Generates TanStack Query cache key for GET /streaming
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGetStreamingQueryKey() {
+  return ['streaming', '/streaming'] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /streaming
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetStreamingQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetStreamingQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.streaming.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /streaming
  */
 export function useGetStreaming(options?: {
@@ -118,30 +146,6 @@ export function useGetStreaming(options?: {
   const { queryKey, queryFn, ...baseOptions } = getGetStreamingQueryOptions(clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates TanStack Query cache key for GET /streaming
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGetStreamingQueryKey() {
-  return ['/streaming'] as const
-}
-
-/**
- * Returns TanStack Query query options for GET /streaming
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetStreamingQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetStreamingQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.streaming.$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /streaming
@@ -186,6 +190,30 @@ export function usePostUrlEncodedComplex(options?: {
 }
 
 /**
+ * Generates TanStack Query cache key for GET /response-encoding
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGetResponseEncodingQueryKey() {
+  return ['response-encoding', '/response-encoding'] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /response-encoding
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetResponseEncodingQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetResponseEncodingQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['response-encoding'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /response-encoding
  */
 export function useGetResponseEncoding(options?: {
@@ -203,30 +231,6 @@ export function useGetResponseEncoding(options?: {
   const { queryKey, queryFn, ...baseOptions } = getGetResponseEncodingQueryOptions(clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates TanStack Query cache key for GET /response-encoding
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGetResponseEncodingQueryKey() {
-  return ['/response-encoding'] as const
-}
-
-/**
- * Returns TanStack Query query options for GET /response-encoding
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetResponseEncodingQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetResponseEncodingQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['response-encoding'].$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /schema-encoding

@@ -7,6 +7,14 @@ import { parseResponse } from 'hono/client'
 import { client } from '../clients/19-resolution-order'
 
 /**
+ * Generates SWR cache key for GET /entities
+ * Returns structured key [path] for filter-based invalidation
+ */
+export function getGetEntitiesKey() {
+  return ['/entities'] as const
+}
+
+/**
  * GET /entities
  */
 export function useGetEntities(options?: {
@@ -28,11 +36,11 @@ export function useGetEntities(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /entities
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR mutation key for POST /process
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetEntitiesKey() {
-  return ['/entities'] as const
+export function getPostProcessMutationKey() {
+  return ['/process'] as const
 }
 
 /**
@@ -62,12 +70,11 @@ export function usePostProcess(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /process
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /graph
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getPostProcessMutationKey() {
-  return 'POST /process'
+export function getGetGraphKey() {
+  return ['/graph'] as const
 }
 
 /**
@@ -92,11 +99,11 @@ export function useGetGraph(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /graph
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR mutation key for POST /transform
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetGraphKey() {
-  return ['/graph'] as const
+export function getPostTransformMutationKey() {
+  return ['/transform'] as const
 }
 
 /**
@@ -123,13 +130,4 @@ export function usePostTransform(options?: {
       restMutationOptions,
     ),
   }
-}
-
-/**
- * Generates SWR mutation key for POST /transform
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
- */
-export function getPostTransformMutationKey() {
-  return 'POST /transform'
 }

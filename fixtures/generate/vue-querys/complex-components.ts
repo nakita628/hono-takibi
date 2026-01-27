@@ -1,5 +1,7 @@
 import { useQuery, useMutation } from '@tanstack/vue-query'
-import type { UseQueryOptions, UseMutationOptions } from '@tanstack/vue-query'
+import type { UseQueryOptions, QueryFunctionContext, UseMutationOptions } from '@tanstack/vue-query'
+import { unref } from 'vue'
+import type { MaybeRef } from 'vue'
 import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/complex-components'
@@ -33,6 +35,30 @@ export function usePostAuthToken(options?: {
 }
 
 /**
+ * Generates Vue Query cache key for GET /users
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetUsersQueryKey(args: MaybeRef<InferRequestType<typeof client.users.$get>>) {
+  return ['users', '/users', unref(args)] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /users
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetUsersQueryOptions = (
+  args: InferRequestType<typeof client.users.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetUsersQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.users.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
+
+/**
  * GET /users
  *
  * List users
@@ -56,30 +82,6 @@ export function useGetUsers(
   const { queryKey, queryFn, ...baseOptions } = getGetUsersQueryOptions(args, clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates Vue Query cache key for GET /users
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetUsersQueryKey(args: InferRequestType<typeof client.users.$get>) {
-  return ['/users', args] as const
-}
-
-/**
- * Returns Vue Query query options for GET /users
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetUsersQueryOptions = (
-  args: InferRequestType<typeof client.users.$get>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetUsersQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.users.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-    ),
-})
 
 /**
  * POST /users
@@ -106,6 +108,35 @@ export function usePostUsers(options?: {
       parseResponse(client.users.$post(args, clientOptions)),
   })
 }
+
+/**
+ * Generates Vue Query cache key for GET /users/{userId}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetUsersUserIdQueryKey(
+  args: MaybeRef<InferRequestType<(typeof client.users)[':userId']['$get']>>,
+) {
+  return ['users', '/users/:userId', unref(args)] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /users/{userId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetUsersUserIdQueryOptions = (
+  args: InferRequestType<(typeof client.users)[':userId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetUsersUserIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.users[':userId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /users/{userId}
@@ -137,35 +168,6 @@ export function useGetUsersUserId(
 }
 
 /**
- * Generates Vue Query cache key for GET /users/{userId}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetUsersUserIdQueryKey(
-  args: InferRequestType<(typeof client.users)[':userId']['$get']>,
-) {
-  return ['/users/:userId', args] as const
-}
-
-/**
- * Returns Vue Query query options for GET /users/{userId}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetUsersUserIdQueryOptions = (
-  args: InferRequestType<(typeof client.users)[':userId']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetUsersUserIdQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.users[':userId'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
-
-/**
  * PATCH /users/{userId}
  *
  * Update user (partial)
@@ -194,6 +196,35 @@ export function usePatchUsersUserId(options?: {
       parseResponse(client.users[':userId'].$patch(args, clientOptions)),
   })
 }
+
+/**
+ * Generates Vue Query cache key for GET /companies/{companyId}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetCompaniesCompanyIdQueryKey(
+  args: MaybeRef<InferRequestType<(typeof client.companies)[':companyId']['$get']>>,
+) {
+  return ['companies', '/companies/:companyId', unref(args)] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /companies/{companyId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetCompaniesCompanyIdQueryOptions = (
+  args: InferRequestType<(typeof client.companies)[':companyId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetCompaniesCompanyIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.companies[':companyId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /companies/{companyId}
@@ -230,31 +261,26 @@ export function useGetCompaniesCompanyId(
 }
 
 /**
- * Generates Vue Query cache key for GET /companies/{companyId}
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Vue Query cache key for GET /orders
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetCompaniesCompanyIdQueryKey(
-  args: InferRequestType<(typeof client.companies)[':companyId']['$get']>,
-) {
-  return ['/companies/:companyId', args] as const
+export function getGetOrdersQueryKey(args: MaybeRef<InferRequestType<typeof client.orders.$get>>) {
+  return ['orders', '/orders', unref(args)] as const
 }
 
 /**
- * Returns Vue Query query options for GET /companies/{companyId}
+ * Returns Vue Query query options for GET /orders
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetCompaniesCompanyIdQueryOptions = (
-  args: InferRequestType<(typeof client.companies)[':companyId']['$get']>,
+export const getGetOrdersQueryOptions = (
+  args: InferRequestType<typeof client.orders.$get>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetCompaniesCompanyIdQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetOrdersQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.companies[':companyId'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
+      client.orders.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
     ),
 })
 
@@ -284,30 +310,6 @@ export function useGetOrders(
 }
 
 /**
- * Generates Vue Query cache key for GET /orders
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetOrdersQueryKey(args: InferRequestType<typeof client.orders.$get>) {
-  return ['/orders', args] as const
-}
-
-/**
- * Returns Vue Query query options for GET /orders
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetOrdersQueryOptions = (
-  args: InferRequestType<typeof client.orders.$get>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetOrdersQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.orders.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-    ),
-})
-
-/**
  * POST /orders
  *
  * Create order (and optionally trigger callback)
@@ -332,6 +334,35 @@ export function usePostOrders(options?: {
       parseResponse(client.orders.$post(args, clientOptions)),
   })
 }
+
+/**
+ * Generates Vue Query cache key for GET /orders/{orderId}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetOrdersOrderIdQueryKey(
+  args: MaybeRef<InferRequestType<(typeof client.orders)[':orderId']['$get']>>,
+) {
+  return ['orders', '/orders/:orderId', unref(args)] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /orders/{orderId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetOrdersOrderIdQueryOptions = (
+  args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetOrdersOrderIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.orders[':orderId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /orders/{orderId}
@@ -363,28 +394,28 @@ export function useGetOrdersOrderId(
 }
 
 /**
- * Generates Vue Query cache key for GET /orders/{orderId}
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Vue Query cache key for GET /files/{fileId}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetOrdersOrderIdQueryKey(
-  args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
+export function getGetFilesFileIdQueryKey(
+  args: MaybeRef<InferRequestType<(typeof client.files)[':fileId']['$get']>>,
 ) {
-  return ['/orders/:orderId', args] as const
+  return ['files', '/files/:fileId', unref(args)] as const
 }
 
 /**
- * Returns Vue Query query options for GET /orders/{orderId}
+ * Returns Vue Query query options for GET /files/{fileId}
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetOrdersOrderIdQueryOptions = (
-  args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
+export const getGetFilesFileIdQueryOptions = (
+  args: InferRequestType<(typeof client.files)[':fileId']['$get']>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetOrdersOrderIdQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetFilesFileIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.orders[':orderId'].$get(args, {
+      client.files[':fileId'].$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -419,35 +450,6 @@ export function useGetFilesFileId(
   const { queryKey, queryFn, ...baseOptions } = getGetFilesFileIdQueryOptions(args, clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates Vue Query cache key for GET /files/{fileId}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetFilesFileIdQueryKey(
-  args: InferRequestType<(typeof client.files)[':fileId']['$get']>,
-) {
-  return ['/files/:fileId', args] as const
-}
-
-/**
- * Returns Vue Query query options for GET /files/{fileId}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetFilesFileIdQueryOptions = (
-  args: InferRequestType<(typeof client.files)[':fileId']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetFilesFileIdQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.files[':fileId'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /subscriptions

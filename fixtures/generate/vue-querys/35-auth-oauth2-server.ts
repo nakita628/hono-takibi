@@ -1,8 +1,39 @@
 import { useQuery, useMutation } from '@tanstack/vue-query'
-import type { UseQueryOptions, UseMutationOptions } from '@tanstack/vue-query'
+import type { UseQueryOptions, QueryFunctionContext, UseMutationOptions } from '@tanstack/vue-query'
+import { unref } from 'vue'
+import type { MaybeRef } from 'vue'
 import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/35-auth-oauth2-server'
+
+/**
+ * Generates Vue Query cache key for GET /oauth/authorize
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetOauthAuthorizeQueryKey(
+  args: MaybeRef<InferRequestType<typeof client.oauth.authorize.$get>>,
+) {
+  return ['oauth', '/oauth/authorize', unref(args)] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /oauth/authorize
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetOauthAuthorizeQueryOptions = (
+  args: InferRequestType<typeof client.oauth.authorize.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetOauthAuthorizeQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.oauth.authorize.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /oauth/authorize
@@ -38,35 +69,6 @@ export function useGetOauthAuthorize(
   )
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates Vue Query cache key for GET /oauth/authorize
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetOauthAuthorizeQueryKey(
-  args: InferRequestType<typeof client.oauth.authorize.$get>,
-) {
-  return ['/oauth/authorize', args] as const
-}
-
-/**
- * Returns Vue Query query options for GET /oauth/authorize
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetOauthAuthorizeQueryOptions = (
-  args: InferRequestType<typeof client.oauth.authorize.$get>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetOauthAuthorizeQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.oauth.authorize.$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /oauth/token
@@ -194,6 +196,30 @@ export function usePostOauthDeviceCode(options?: {
 }
 
 /**
+ * Generates Vue Query cache key for GET /oauth/userinfo
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGetOauthUserinfoQueryKey() {
+  return ['oauth', '/oauth/userinfo'] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /oauth/userinfo
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetOauthUserinfoQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetOauthUserinfoQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.oauth.userinfo.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /oauth/userinfo
  *
  * ユーザー情報取得
@@ -220,23 +246,25 @@ export function useGetOauthUserinfo(options?: {
 }
 
 /**
- * Generates Vue Query cache key for GET /oauth/userinfo
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates Vue Query cache key for GET /.well-known/openid-configuration
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetOauthUserinfoQueryKey() {
-  return ['/oauth/userinfo'] as const
+export function getGetWellKnownOpenidConfigurationQueryKey() {
+  return ['.well-known', '/.well-known/openid-configuration'] as const
 }
 
 /**
- * Returns Vue Query query options for GET /oauth/userinfo
+ * Returns Vue Query query options for GET /.well-known/openid-configuration
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetOauthUserinfoQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetOauthUserinfoQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetWellKnownOpenidConfigurationQueryOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetWellKnownOpenidConfigurationQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.oauth.userinfo.$get(undefined, {
+      client['.well-known']['openid-configuration'].$get(undefined, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -275,25 +303,23 @@ export function useGetWellKnownOpenidConfiguration(options?: {
 }
 
 /**
- * Generates Vue Query cache key for GET /.well-known/openid-configuration
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates Vue Query cache key for GET /.well-known/jwks.json
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetWellKnownOpenidConfigurationQueryKey() {
-  return ['/.well-known/openid-configuration'] as const
+export function getGetWellKnownJwksJsonQueryKey() {
+  return ['.well-known', '/.well-known/jwks.json'] as const
 }
 
 /**
- * Returns Vue Query query options for GET /.well-known/openid-configuration
+ * Returns Vue Query query options for GET /.well-known/jwks.json
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetWellKnownOpenidConfigurationQueryOptions = (
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetWellKnownOpenidConfigurationQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetWellKnownJwksJsonQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetWellKnownJwksJsonQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client['.well-known']['openid-configuration'].$get(undefined, {
+      client['.well-known']['jwks.json'].$get(undefined, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -331,23 +357,23 @@ export function useGetWellKnownJwksJson(options?: {
 }
 
 /**
- * Generates Vue Query cache key for GET /.well-known/jwks.json
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates Vue Query cache key for GET /oauth/clients
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetWellKnownJwksJsonQueryKey() {
-  return ['/.well-known/jwks.json'] as const
+export function getGetOauthClientsQueryKey() {
+  return ['oauth', '/oauth/clients'] as const
 }
 
 /**
- * Returns Vue Query query options for GET /.well-known/jwks.json
+ * Returns Vue Query query options for GET /oauth/clients
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetWellKnownJwksJsonQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetWellKnownJwksJsonQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetOauthClientsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetOauthClientsQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client['.well-known']['jwks.json'].$get(undefined, {
+      client.oauth.clients.$get(undefined, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -379,30 +405,6 @@ export function useGetOauthClients(options?: {
 }
 
 /**
- * Generates Vue Query cache key for GET /oauth/clients
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGetOauthClientsQueryKey() {
-  return ['/oauth/clients'] as const
-}
-
-/**
- * Returns Vue Query query options for GET /oauth/clients
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetOauthClientsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetOauthClientsQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.oauth.clients.$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
-
-/**
  * POST /oauth/clients
  *
  * クライアント作成
@@ -429,6 +431,35 @@ export function usePostOauthClients(options?: {
       parseResponse(client.oauth.clients.$post(args, clientOptions)),
   })
 }
+
+/**
+ * Generates Vue Query cache key for GET /oauth/clients/{clientId}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetOauthClientsClientIdQueryKey(
+  args: MaybeRef<InferRequestType<(typeof client.oauth.clients)[':clientId']['$get']>>,
+) {
+  return ['oauth', '/oauth/clients/:clientId', unref(args)] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /oauth/clients/{clientId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetOauthClientsClientIdQueryOptions = (
+  args: InferRequestType<(typeof client.oauth.clients)[':clientId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetOauthClientsClientIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.oauth.clients[':clientId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /oauth/clients/{clientId}
@@ -463,35 +494,6 @@ export function useGetOauthClientsClientId(
   )
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates Vue Query cache key for GET /oauth/clients/{clientId}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetOauthClientsClientIdQueryKey(
-  args: InferRequestType<(typeof client.oauth.clients)[':clientId']['$get']>,
-) {
-  return ['/oauth/clients/:clientId', args] as const
-}
-
-/**
- * Returns Vue Query query options for GET /oauth/clients/{clientId}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetOauthClientsClientIdQueryOptions = (
-  args: InferRequestType<(typeof client.oauth.clients)[':clientId']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetOauthClientsClientIdQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.oauth.clients[':clientId'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * PUT /oauth/clients/{clientId}
@@ -594,6 +596,30 @@ export function usePostOauthClientsClientIdSecret(options?: {
 }
 
 /**
+ * Generates Vue Query cache key for GET /oauth/consents
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGetOauthConsentsQueryKey() {
+  return ['oauth', '/oauth/consents'] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /oauth/consents
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetOauthConsentsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetOauthConsentsQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.oauth.consents.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /oauth/consents
  *
  * 同意一覧取得
@@ -618,30 +644,6 @@ export function useGetOauthConsents(options?: {
   const { queryKey, queryFn, ...baseOptions } = getGetOauthConsentsQueryOptions(clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates Vue Query cache key for GET /oauth/consents
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGetOauthConsentsQueryKey() {
-  return ['/oauth/consents'] as const
-}
-
-/**
- * Returns Vue Query query options for GET /oauth/consents
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetOauthConsentsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetOauthConsentsQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.oauth.consents.$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * DELETE /oauth/consents/{clientId}

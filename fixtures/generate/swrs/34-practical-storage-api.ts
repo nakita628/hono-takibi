@@ -7,6 +7,14 @@ import { parseResponse } from 'hono/client'
 import { client } from '../clients/34-practical-storage-api'
 
 /**
+ * Generates SWR cache key for GET /files
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
+ */
+export function getGetFilesKey(args: InferRequestType<typeof client.files.$get>) {
+  return ['/files', args] as const
+}
+
+/**
  * GET /files
  *
  * ファイル一覧取得
@@ -33,11 +41,11 @@ export function useGetFiles(
 }
 
 /**
- * Generates SWR cache key for GET /files
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for POST /files/upload
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetFilesKey(args: InferRequestType<typeof client.files.$get>) {
-  return ['/files', args] as const
+export function getPostFilesUploadMutationKey() {
+  return ['/files/upload'] as const
 }
 
 /**
@@ -71,12 +79,11 @@ export function usePostFilesUpload(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /files/upload
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /files/upload/multipart/init
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostFilesUploadMutationKey() {
-  return 'POST /files/upload'
+export function getPostFilesUploadMultipartInitMutationKey() {
+  return ['/files/upload/multipart/init'] as const
 }
 
 /**
@@ -116,12 +123,11 @@ export function usePostFilesUploadMultipartInit(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /files/upload/multipart/init
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /files/upload/multipart/{uploadId}/part
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostFilesUploadMultipartInitMutationKey() {
-  return 'POST /files/upload/multipart/init'
+export function getPostFilesUploadMultipartUploadIdPartMutationKey() {
+  return ['/files/upload/multipart/:uploadId/part'] as const
 }
 
 /**
@@ -167,12 +173,11 @@ export function usePostFilesUploadMultipartUploadIdPart(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /files/upload/multipart/{uploadId}/part
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /files/upload/multipart/{uploadId}/complete
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostFilesUploadMultipartUploadIdPartMutationKey() {
-  return 'POST /files/upload/multipart/:uploadId/part'
+export function getPostFilesUploadMultipartUploadIdCompleteMutationKey() {
+  return ['/files/upload/multipart/:uploadId/complete'] as const
 }
 
 /**
@@ -223,12 +228,13 @@ export function usePostFilesUploadMultipartUploadIdComplete(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /files/upload/multipart/{uploadId}/complete
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /files/{fileId}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPostFilesUploadMultipartUploadIdCompleteMutationKey() {
-  return 'POST /files/upload/multipart/:uploadId/complete'
+export function getGetFilesFileIdKey(
+  args: InferRequestType<(typeof client.files)[':fileId']['$get']>,
+) {
+  return [`/files/${args.param.fileId}`, args] as const
 }
 
 /**
@@ -258,13 +264,11 @@ export function useGetFilesFileId(
 }
 
 /**
- * Generates SWR cache key for GET /files/{fileId}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for DELETE /files/{fileId}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetFilesFileIdKey(
-  args: InferRequestType<(typeof client.files)[':fileId']['$get']>,
-) {
-  return ['/files/:fileId', args] as const
+export function getDeleteFilesFileIdMutationKey() {
+  return ['/files/:fileId'] as const
 }
 
 /**
@@ -303,12 +307,11 @@ export function useDeleteFilesFileId(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /files/{fileId}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for PATCH /files/{fileId}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getDeleteFilesFileIdMutationKey() {
-  return 'DELETE /files/:fileId'
+export function getPatchFilesFileIdMutationKey() {
+  return ['/files/:fileId'] as const
 }
 
 /**
@@ -346,12 +349,13 @@ export function usePatchFilesFileId(options?: {
 }
 
 /**
- * Generates SWR mutation key for PATCH /files/{fileId}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /files/{fileId}/download
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPatchFilesFileIdMutationKey() {
-  return 'PATCH /files/:fileId'
+export function getGetFilesFileIdDownloadKey(
+  args: InferRequestType<(typeof client.files)[':fileId']['download']['$get']>,
+) {
+  return [`/files/${args.param.fileId}/download`, args] as const
 }
 
 /**
@@ -381,13 +385,13 @@ export function useGetFilesFileIdDownload(
 }
 
 /**
- * Generates SWR cache key for GET /files/{fileId}/download
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR cache key for GET /files/{fileId}/download-url
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getGetFilesFileIdDownloadKey(
-  args: InferRequestType<(typeof client.files)[':fileId']['download']['$get']>,
+export function getGetFilesFileIdDownloadUrlKey(
+  args: InferRequestType<(typeof client.files)[':fileId']['download-url']['$get']>,
 ) {
-  return ['/files/:fileId/download', args] as const
+  return [`/files/${args.param.fileId}/download-url`, args] as const
 }
 
 /**
@@ -417,13 +421,11 @@ export function useGetFilesFileIdDownloadUrl(
 }
 
 /**
- * Generates SWR cache key for GET /files/{fileId}/download-url
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for POST /files/{fileId}/copy
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetFilesFileIdDownloadUrlKey(
-  args: InferRequestType<(typeof client.files)[':fileId']['download-url']['$get']>,
-) {
-  return ['/files/:fileId/download-url', args] as const
+export function getPostFilesFileIdCopyMutationKey() {
+  return ['/files/:fileId/copy'] as const
 }
 
 /**
@@ -461,12 +463,11 @@ export function usePostFilesFileIdCopy(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /files/{fileId}/copy
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /files/{fileId}/move
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostFilesFileIdCopyMutationKey() {
-  return 'POST /files/:fileId/copy'
+export function getPostFilesFileIdMoveMutationKey() {
+  return ['/files/:fileId/move'] as const
 }
 
 /**
@@ -504,12 +505,13 @@ export function usePostFilesFileIdMove(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /files/{fileId}/move
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /files/{fileId}/thumbnail
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPostFilesFileIdMoveMutationKey() {
-  return 'POST /files/:fileId/move'
+export function getGetFilesFileIdThumbnailKey(
+  args: InferRequestType<(typeof client.files)[':fileId']['thumbnail']['$get']>,
+) {
+  return [`/files/${args.param.fileId}/thumbnail`, args] as const
 }
 
 /**
@@ -539,13 +541,11 @@ export function useGetFilesFileIdThumbnail(
 }
 
 /**
- * Generates SWR cache key for GET /files/{fileId}/thumbnail
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for POST /folders
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetFilesFileIdThumbnailKey(
-  args: InferRequestType<(typeof client.files)[':fileId']['thumbnail']['$get']>,
-) {
-  return ['/files/:fileId/thumbnail', args] as const
+export function getPostFoldersMutationKey() {
+  return ['/folders'] as const
 }
 
 /**
@@ -577,12 +577,13 @@ export function usePostFolders(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /folders
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /folders/{folderId}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPostFoldersMutationKey() {
-  return 'POST /folders'
+export function getGetFoldersFolderIdKey(
+  args: InferRequestType<(typeof client.folders)[':folderId']['$get']>,
+) {
+  return [`/folders/${args.param.folderId}`, args] as const
 }
 
 /**
@@ -612,13 +613,11 @@ export function useGetFoldersFolderId(
 }
 
 /**
- * Generates SWR cache key for GET /folders/{folderId}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for DELETE /folders/{folderId}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetFoldersFolderIdKey(
-  args: InferRequestType<(typeof client.folders)[':folderId']['$get']>,
-) {
-  return ['/folders/:folderId', args] as const
+export function getDeleteFoldersFolderIdMutationKey() {
+  return ['/folders/:folderId'] as const
 }
 
 /**
@@ -657,12 +656,11 @@ export function useDeleteFoldersFolderId(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /folders/{folderId}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for PATCH /folders/{folderId}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getDeleteFoldersFolderIdMutationKey() {
-  return 'DELETE /folders/:folderId'
+export function getPatchFoldersFolderIdMutationKey() {
+  return ['/folders/:folderId'] as const
 }
 
 /**
@@ -700,12 +698,13 @@ export function usePatchFoldersFolderId(options?: {
 }
 
 /**
- * Generates SWR mutation key for PATCH /folders/{folderId}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /files/{fileId}/share
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPatchFoldersFolderIdMutationKey() {
-  return 'PATCH /folders/:folderId'
+export function getGetFilesFileIdShareKey(
+  args: InferRequestType<(typeof client.files)[':fileId']['share']['$get']>,
+) {
+  return [`/files/${args.param.fileId}/share`, args] as const
 }
 
 /**
@@ -735,13 +734,11 @@ export function useGetFilesFileIdShare(
 }
 
 /**
- * Generates SWR cache key for GET /files/{fileId}/share
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for POST /files/{fileId}/share
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetFilesFileIdShareKey(
-  args: InferRequestType<(typeof client.files)[':fileId']['share']['$get']>,
-) {
-  return ['/files/:fileId/share', args] as const
+export function getPostFilesFileIdShareMutationKey() {
+  return ['/files/:fileId/share'] as const
 }
 
 /**
@@ -781,12 +778,11 @@ export function usePostFilesFileIdShare(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /files/{fileId}/share
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for DELETE /files/{fileId}/share
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostFilesFileIdShareMutationKey() {
-  return 'POST /files/:fileId/share'
+export function getDeleteFilesFileIdShareMutationKey() {
+  return ['/files/:fileId/share'] as const
 }
 
 /**
@@ -827,12 +823,11 @@ export function useDeleteFilesFileIdShare(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /files/{fileId}/share
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /files/{fileId}/share/link
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getDeleteFilesFileIdShareMutationKey() {
-  return 'DELETE /files/:fileId/share'
+export function getPostFilesFileIdShareLinkMutationKey() {
+  return ['/files/:fileId/share/link'] as const
 }
 
 /**
@@ -874,12 +869,13 @@ export function usePostFilesFileIdShareLink(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /files/{fileId}/share/link
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /files/{fileId}/versions
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPostFilesFileIdShareLinkMutationKey() {
-  return 'POST /files/:fileId/share/link'
+export function getGetFilesFileIdVersionsKey(
+  args: InferRequestType<(typeof client.files)[':fileId']['versions']['$get']>,
+) {
+  return [`/files/${args.param.fileId}/versions`, args] as const
 }
 
 /**
@@ -909,13 +905,11 @@ export function useGetFilesFileIdVersions(
 }
 
 /**
- * Generates SWR cache key for GET /files/{fileId}/versions
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for POST /files/{fileId}/versions/{versionId}/restore
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetFilesFileIdVersionsKey(
-  args: InferRequestType<(typeof client.files)[':fileId']['versions']['$get']>,
-) {
-  return ['/files/:fileId/versions', args] as const
+export function getPostFilesFileIdVersionsVersionIdRestoreMutationKey() {
+  return ['/files/:fileId/versions/:versionId/restore'] as const
 }
 
 /**
@@ -968,12 +962,11 @@ export function usePostFilesFileIdVersionsVersionIdRestore(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /files/{fileId}/versions/{versionId}/restore
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /trash
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPostFilesFileIdVersionsVersionIdRestoreMutationKey() {
-  return 'POST /files/:fileId/versions/:versionId/restore'
+export function getGetTrashKey(args: InferRequestType<typeof client.trash.$get>) {
+  return ['/trash', args] as const
 }
 
 /**
@@ -1003,11 +996,11 @@ export function useGetTrash(
 }
 
 /**
- * Generates SWR cache key for GET /trash
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for DELETE /trash
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetTrashKey(args: InferRequestType<typeof client.trash.$get>) {
-  return ['/trash', args] as const
+export function getDeleteTrashMutationKey() {
+  return ['/trash'] as const
 }
 
 /**
@@ -1039,12 +1032,11 @@ export function useDeleteTrash(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /trash
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /trash/{fileId}/restore
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getDeleteTrashMutationKey() {
-  return 'DELETE /trash'
+export function getPostTrashFileIdRestoreMutationKey() {
+  return ['/trash/:fileId/restore'] as const
 }
 
 /**
@@ -1084,12 +1076,11 @@ export function usePostTrashFileIdRestore(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /trash/{fileId}/restore
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /storage/usage
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getPostTrashFileIdRestoreMutationKey() {
-  return 'POST /trash/:fileId/restore'
+export function getGetStorageUsageKey() {
+  return ['/storage/usage'] as const
 }
 
 /**
@@ -1113,12 +1104,4 @@ export function useGetStorageUsage(options?: {
       restSwrOptions,
     ),
   }
-}
-
-/**
- * Generates SWR cache key for GET /storage/usage
- * Returns structured key [templatePath] for filter-based invalidation
- */
-export function getGetStorageUsageKey() {
-  return ['/storage/usage'] as const
 }

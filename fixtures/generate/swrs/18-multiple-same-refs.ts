@@ -7,6 +7,14 @@ import { parseResponse } from 'hono/client'
 import { client } from '../clients/18-multiple-same-refs'
 
 /**
+ * Generates SWR cache key for GET /documents
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
+ */
+export function getGetDocumentsKey(args: InferRequestType<typeof client.documents.$get>) {
+  return ['/documents', args] as const
+}
+
+/**
  * GET /documents
  */
 export function useGetDocuments(
@@ -31,11 +39,11 @@ export function useGetDocuments(
 }
 
 /**
- * Generates SWR cache key for GET /documents
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for POST /documents
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetDocumentsKey(args: InferRequestType<typeof client.documents.$get>) {
-  return ['/documents', args] as const
+export function getPostDocumentsMutationKey() {
+  return ['/documents'] as const
 }
 
 /**
@@ -65,12 +73,13 @@ export function usePostDocuments(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /documents
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /documents/{documentId}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPostDocumentsMutationKey() {
-  return 'POST /documents'
+export function getGetDocumentsDocumentIdKey(
+  args: InferRequestType<(typeof client.documents)[':documentId']['$get']>,
+) {
+  return [`/documents/${args.param.documentId}`, args] as const
 }
 
 /**
@@ -98,13 +107,11 @@ export function useGetDocumentsDocumentId(
 }
 
 /**
- * Generates SWR cache key for GET /documents/{documentId}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for PUT /documents/{documentId}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetDocumentsDocumentIdKey(
-  args: InferRequestType<(typeof client.documents)[':documentId']['$get']>,
-) {
-  return ['/documents/:documentId', args] as const
+export function getPutDocumentsDocumentIdMutationKey() {
+  return ['/documents/:documentId'] as const
 }
 
 /**
@@ -140,12 +147,13 @@ export function usePutDocumentsDocumentId(options?: {
 }
 
 /**
- * Generates SWR mutation key for PUT /documents/{documentId}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /documents/{documentId}/versions
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPutDocumentsDocumentIdMutationKey() {
-  return 'PUT /documents/:documentId'
+export function getGetDocumentsDocumentIdVersionsKey(
+  args: InferRequestType<(typeof client.documents)[':documentId']['versions']['$get']>,
+) {
+  return [`/documents/${args.param.documentId}/versions`, args] as const
 }
 
 /**
@@ -173,13 +181,11 @@ export function useGetDocumentsDocumentIdVersions(
 }
 
 /**
- * Generates SWR cache key for GET /documents/{documentId}/versions
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for POST /documents/{documentId}/share
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetDocumentsDocumentIdVersionsKey(
-  args: InferRequestType<(typeof client.documents)[':documentId']['versions']['$get']>,
-) {
-  return ['/documents/:documentId/versions', args] as const
+export function getPostDocumentsDocumentIdShareMutationKey() {
+  return ['/documents/:documentId/share'] as const
 }
 
 /**
@@ -219,12 +225,13 @@ export function usePostDocumentsDocumentIdShare(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /documents/{documentId}/share
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /users/{userId}/documents
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPostDocumentsDocumentIdShareMutationKey() {
-  return 'POST /documents/:documentId/share'
+export function getGetUsersUserIdDocumentsKey(
+  args: InferRequestType<(typeof client.users)[':userId']['documents']['$get']>,
+) {
+  return [`/users/${args.param.userId}/documents`, args] as const
 }
 
 /**
@@ -252,13 +259,11 @@ export function useGetUsersUserIdDocuments(
 }
 
 /**
- * Generates SWR cache key for GET /users/{userId}/documents
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for POST /compare
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetUsersUserIdDocumentsKey(
-  args: InferRequestType<(typeof client.users)[':userId']['documents']['$get']>,
-) {
-  return ['/users/:userId/documents', args] as const
+export function getPostCompareMutationKey() {
+  return ['/compare'] as const
 }
 
 /**
@@ -288,12 +293,11 @@ export function usePostCompare(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /compare
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /templates
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getPostCompareMutationKey() {
-  return 'POST /compare'
+export function getGetTemplatesKey() {
+  return ['/templates'] as const
 }
 
 /**
@@ -318,10 +322,10 @@ export function useGetTemplates(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /templates
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR mutation key for POST /templates
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetTemplatesKey() {
+export function getPostTemplatesMutationKey() {
   return ['/templates'] as const
 }
 
@@ -352,12 +356,11 @@ export function usePostTemplates(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /templates
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /workflows
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostTemplatesMutationKey() {
-  return 'POST /templates'
+export function getPostWorkflowsMutationKey() {
+  return ['/workflows'] as const
 }
 
 /**
@@ -384,13 +387,4 @@ export function usePostWorkflows(options?: {
       restMutationOptions,
     ),
   }
-}
-
-/**
- * Generates SWR mutation key for POST /workflows
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
- */
-export function getPostWorkflowsMutationKey() {
-  return 'POST /workflows'
 }

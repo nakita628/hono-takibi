@@ -1,8 +1,36 @@
 import { useQuery, useMutation } from '@tanstack/vue-query'
-import type { UseQueryOptions, UseMutationOptions } from '@tanstack/vue-query'
+import type { UseQueryOptions, QueryFunctionContext, UseMutationOptions } from '@tanstack/vue-query'
+import { unref } from 'vue'
+import type { MaybeRef } from 'vue'
 import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/algolia'
+
+/**
+ * Generates Vue Query cache key for GET /{path}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetPathQueryKey(
+  args: MaybeRef<InferRequestType<(typeof client)[':path']['$get']>>,
+) {
+  return [':path', '/:path', unref(args)] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /{path}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetPathQueryOptions = (
+  args: InferRequestType<(typeof client)[':path']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetPathQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client[':path'].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /{path}
@@ -32,30 +60,6 @@ export function useGetPath(
   const { queryKey, queryFn, ...baseOptions } = getGetPathQueryOptions(args, clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates Vue Query cache key for GET /{path}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetPathQueryKey(args: InferRequestType<(typeof client)[':path']['$get']>) {
-  return ['/:path', args] as const
-}
-
-/**
- * Returns Vue Query query options for GET /{path}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetPathQueryOptions = (
-  args: InferRequestType<(typeof client)[':path']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetPathQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client[':path'].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-    ),
-})
 
 /**
  * PUT /{path}
@@ -423,6 +427,37 @@ export function useDelete1IndexesIndexName(options?: {
 }
 
 /**
+ * Generates Vue Query cache key for GET /1/indexes/{indexName}/{objectID}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet1IndexesIndexNameObjectIDQueryKey(
+  args: MaybeRef<
+    InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$get']>
+  >,
+) {
+  return ['1', '/1/indexes/:indexName/:objectID', unref(args)] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /1/indexes/{indexName}/{objectID}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet1IndexesIndexNameObjectIDQueryOptions = (
+  args: InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet1IndexesIndexNameObjectIDQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['1'].indexes[':indexName'][':objectID'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /1/indexes/{indexName}/{objectID}
  *
  * Retrieve a record
@@ -461,35 +496,6 @@ export function useGet1IndexesIndexNameObjectID(
   )
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates Vue Query cache key for GET /1/indexes/{indexName}/{objectID}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet1IndexesIndexNameObjectIDQueryKey(
-  args: InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$get']>,
-) {
-  return ['/1/indexes/:indexName/:objectID', args] as const
-}
-
-/**
- * Returns Vue Query query options for GET /1/indexes/{indexName}/{objectID}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet1IndexesIndexNameObjectIDQueryOptions = (
-  args: InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGet1IndexesIndexNameObjectIDQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['1'].indexes[':indexName'][':objectID'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * PUT /1/indexes/{indexName}/{objectID}
@@ -847,6 +853,37 @@ export function usePost1IndexesObjects(options?: {
 }
 
 /**
+ * Generates Vue Query cache key for GET /1/indexes/{indexName}/settings
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet1IndexesIndexNameSettingsQueryKey(
+  args: MaybeRef<
+    InferRequestType<(typeof client)['1']['indexes'][':indexName']['settings']['$get']>
+  >,
+) {
+  return ['1', '/1/indexes/:indexName/settings', unref(args)] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /1/indexes/{indexName}/settings
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet1IndexesIndexNameSettingsQueryOptions = (
+  args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['settings']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet1IndexesIndexNameSettingsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['1'].indexes[':indexName'].settings.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /1/indexes/{indexName}/settings
  *
  * Retrieve index settings
@@ -883,35 +920,6 @@ export function useGet1IndexesIndexNameSettings(
   )
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates Vue Query cache key for GET /1/indexes/{indexName}/settings
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet1IndexesIndexNameSettingsQueryKey(
-  args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['settings']['$get']>,
-) {
-  return ['/1/indexes/:indexName/settings', args] as const
-}
-
-/**
- * Returns Vue Query query options for GET /1/indexes/{indexName}/settings
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet1IndexesIndexNameSettingsQueryOptions = (
-  args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['settings']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGet1IndexesIndexNameSettingsQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['1'].indexes[':indexName'].settings.$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * PUT /1/indexes/{indexName}/settings
@@ -952,6 +960,39 @@ export function usePut1IndexesIndexNameSettings(options?: {
     ) => parseResponse(client['1'].indexes[':indexName'].settings.$put(args, clientOptions)),
   })
 }
+
+/**
+ * Generates Vue Query cache key for GET /1/indexes/{indexName}/synonyms/{objectID}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet1IndexesIndexNameSynonymsObjectIDQueryKey(
+  args: MaybeRef<
+    InferRequestType<(typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$get']>
+  >,
+) {
+  return ['1', '/1/indexes/:indexName/synonyms/:objectID', unref(args)] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /1/indexes/{indexName}/synonyms/{objectID}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet1IndexesIndexNameSynonymsObjectIDQueryOptions = (
+  args: InferRequestType<
+    (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$get']
+  >,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet1IndexesIndexNameSynonymsObjectIDQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['1'].indexes[':indexName'].synonyms[':objectID'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /1/indexes/{indexName}/synonyms/{objectID}
@@ -996,39 +1037,6 @@ export function useGet1IndexesIndexNameSynonymsObjectID(
   )
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates Vue Query cache key for GET /1/indexes/{indexName}/synonyms/{objectID}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet1IndexesIndexNameSynonymsObjectIDQueryKey(
-  args: InferRequestType<
-    (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$get']
-  >,
-) {
-  return ['/1/indexes/:indexName/synonyms/:objectID', args] as const
-}
-
-/**
- * Returns Vue Query query options for GET /1/indexes/{indexName}/synonyms/{objectID}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet1IndexesIndexNameSynonymsObjectIDQueryOptions = (
-  args: InferRequestType<
-    (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGet1IndexesIndexNameSynonymsObjectIDQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['1'].indexes[':indexName'].synonyms[':objectID'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * PUT /1/indexes/{indexName}/synonyms/{objectID}
@@ -1259,6 +1267,30 @@ export function usePost1IndexesIndexNameSynonymsSearch(options?: {
 }
 
 /**
+ * Generates Vue Query cache key for GET /1/keys
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGet1KeysQueryKey() {
+  return ['1', '/1/keys'] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /1/keys
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet1KeysQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGet1KeysQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['1'].keys.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /1/keys
  *
  * List API keys
@@ -1285,30 +1317,6 @@ export function useGet1Keys(options?: {
   const { queryKey, queryFn, ...baseOptions } = getGet1KeysQueryOptions(clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates Vue Query cache key for GET /1/keys
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGet1KeysQueryKey() {
-  return ['/1/keys'] as const
-}
-
-/**
- * Returns Vue Query query options for GET /1/keys
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet1KeysQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGet1KeysQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['1'].keys.$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /1/keys
@@ -1341,6 +1349,35 @@ export function usePost1Keys(options?: {
       parseResponse(client['1'].keys.$post(args, clientOptions)),
   })
 }
+
+/**
+ * Generates Vue Query cache key for GET /1/keys/{key}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet1KeysKeyQueryKey(
+  args: MaybeRef<InferRequestType<(typeof client)['1']['keys'][':key']['$get']>>,
+) {
+  return ['1', '/1/keys/:key', unref(args)] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /1/keys/{key}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet1KeysKeyQueryOptions = (
+  args: InferRequestType<(typeof client)['1']['keys'][':key']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet1KeysKeyQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['1'].keys[':key'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /1/keys/{key}
@@ -1378,35 +1415,6 @@ export function useGet1KeysKey(
   const { queryKey, queryFn, ...baseOptions } = getGet1KeysKeyQueryOptions(args, clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates Vue Query cache key for GET /1/keys/{key}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet1KeysKeyQueryKey(
-  args: InferRequestType<(typeof client)['1']['keys'][':key']['$get']>,
-) {
-  return ['/1/keys/:key', args] as const
-}
-
-/**
- * Returns Vue Query query options for GET /1/keys/{key}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet1KeysKeyQueryOptions = (
-  args: InferRequestType<(typeof client)['1']['keys'][':key']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGet1KeysKeyQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['1'].keys[':key'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * PUT /1/keys/{key}
@@ -1517,6 +1525,39 @@ export function usePost1KeysKeyRestore(options?: {
 }
 
 /**
+ * Generates Vue Query cache key for GET /1/indexes/{indexName}/rules/{objectID}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet1IndexesIndexNameRulesObjectIDQueryKey(
+  args: MaybeRef<
+    InferRequestType<(typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$get']>
+  >,
+) {
+  return ['1', '/1/indexes/:indexName/rules/:objectID', unref(args)] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /1/indexes/{indexName}/rules/{objectID}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet1IndexesIndexNameRulesObjectIDQueryOptions = (
+  args: InferRequestType<
+    (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$get']
+  >,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet1IndexesIndexNameRulesObjectIDQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['1'].indexes[':indexName'].rules[':objectID'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /1/indexes/{indexName}/rules/{objectID}
  *
  * Retrieve a rule
@@ -1558,39 +1599,6 @@ export function useGet1IndexesIndexNameRulesObjectID(
   )
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates Vue Query cache key for GET /1/indexes/{indexName}/rules/{objectID}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet1IndexesIndexNameRulesObjectIDQueryKey(
-  args: InferRequestType<
-    (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$get']
-  >,
-) {
-  return ['/1/indexes/:indexName/rules/:objectID', args] as const
-}
-
-/**
- * Returns Vue Query query options for GET /1/indexes/{indexName}/rules/{objectID}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet1IndexesIndexNameRulesObjectIDQueryOptions = (
-  args: InferRequestType<
-    (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGet1IndexesIndexNameRulesObjectIDQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['1'].indexes[':indexName'].rules[':objectID'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * PUT /1/indexes/{indexName}/rules/{objectID}
@@ -1896,6 +1904,30 @@ export function usePost1DictionariesDictionaryNameSearch(options?: {
 }
 
 /**
+ * Generates Vue Query cache key for GET /1/dictionaries/* /settings
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGet1DictionariesSettingsQueryKey() {
+  return ['1', '/1/dictionaries/*/settings'] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /1/dictionaries/* /settings
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet1DictionariesSettingsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGet1DictionariesSettingsQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['1'].dictionaries['*'].settings.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /1/dictionaries/[*]/settings
  *
  * Retrieve dictionary settings
@@ -1925,30 +1957,6 @@ export function useGet1DictionariesSettings(options?: {
     getGet1DictionariesSettingsQueryOptions(clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates Vue Query cache key for GET /1/dictionaries/* /settings
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGet1DictionariesSettingsQueryKey() {
-  return ['/1/dictionaries/*/settings'] as const
-}
-
-/**
- * Returns Vue Query query options for GET /1/dictionaries/* /settings
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet1DictionariesSettingsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGet1DictionariesSettingsQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['1'].dictionaries['*'].settings.$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * PUT /1/dictionaries/[*]/settings
@@ -1986,6 +1994,30 @@ export function usePut1DictionariesSettings(options?: {
 }
 
 /**
+ * Generates Vue Query cache key for GET /1/dictionaries/* /languages
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGet1DictionariesLanguagesQueryKey() {
+  return ['1', '/1/dictionaries/*/languages'] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /1/dictionaries/* /languages
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet1DictionariesLanguagesQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGet1DictionariesLanguagesQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['1'].dictionaries['*'].languages.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /1/dictionaries/[*]/languages
  *
  * List available languages
@@ -2017,23 +2049,28 @@ export function useGet1DictionariesLanguages(options?: {
 }
 
 /**
- * Generates Vue Query cache key for GET /1/dictionaries/* /languages
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates Vue Query cache key for GET /1/clusters/mapping
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGet1DictionariesLanguagesQueryKey() {
-  return ['/1/dictionaries/*/languages'] as const
+export function getGet1ClustersMappingQueryKey(
+  args: MaybeRef<InferRequestType<(typeof client)['1']['clusters']['mapping']['$get']>>,
+) {
+  return ['1', '/1/clusters/mapping', unref(args)] as const
 }
 
 /**
- * Returns Vue Query query options for GET /1/dictionaries/* /languages
+ * Returns Vue Query query options for GET /1/clusters/mapping
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGet1DictionariesLanguagesQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGet1DictionariesLanguagesQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGet1ClustersMappingQueryOptions = (
+  args: InferRequestType<(typeof client)['1']['clusters']['mapping']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet1ClustersMappingQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client['1'].dictionaries['*'].languages.$get(undefined, {
+      client['1'].clusters.mapping.$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -2078,35 +2115,6 @@ export function useGet1ClustersMapping(
   )
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates Vue Query cache key for GET /1/clusters/mapping
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet1ClustersMappingQueryKey(
-  args: InferRequestType<(typeof client)['1']['clusters']['mapping']['$get']>,
-) {
-  return ['/1/clusters/mapping', args] as const
-}
-
-/**
- * Returns Vue Query query options for GET /1/clusters/mapping
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet1ClustersMappingQueryOptions = (
-  args: InferRequestType<(typeof client)['1']['clusters']['mapping']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGet1ClustersMappingQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['1'].clusters.mapping.$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /1/clusters/mapping
@@ -2183,6 +2191,30 @@ export function usePost1ClustersMappingBatch(options?: {
 }
 
 /**
+ * Generates Vue Query cache key for GET /1/clusters/mapping/top
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGet1ClustersMappingTopQueryKey() {
+  return ['1', '/1/clusters/mapping/top'] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /1/clusters/mapping/top
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet1ClustersMappingTopQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGet1ClustersMappingTopQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['1'].clusters.mapping.top.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /1/clusters/mapping/top
  *
  * Get top user IDs
@@ -2216,23 +2248,28 @@ export function useGet1ClustersMappingTop(options?: {
 }
 
 /**
- * Generates Vue Query cache key for GET /1/clusters/mapping/top
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates Vue Query cache key for GET /1/clusters/mapping/{userID}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGet1ClustersMappingTopQueryKey() {
-  return ['/1/clusters/mapping/top'] as const
+export function getGet1ClustersMappingUserIDQueryKey(
+  args: MaybeRef<InferRequestType<(typeof client)['1']['clusters']['mapping'][':userID']['$get']>>,
+) {
+  return ['1', '/1/clusters/mapping/:userID', unref(args)] as const
 }
 
 /**
- * Returns Vue Query query options for GET /1/clusters/mapping/top
+ * Returns Vue Query query options for GET /1/clusters/mapping/{userID}
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGet1ClustersMappingTopQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGet1ClustersMappingTopQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGet1ClustersMappingUserIDQueryOptions = (
+  args: InferRequestType<(typeof client)['1']['clusters']['mapping'][':userID']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet1ClustersMappingUserIDQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client['1'].clusters.mapping.top.$get(undefined, {
+      client['1'].clusters.mapping[':userID'].$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -2279,35 +2316,6 @@ export function useGet1ClustersMappingUserID(
 }
 
 /**
- * Generates Vue Query cache key for GET /1/clusters/mapping/{userID}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet1ClustersMappingUserIDQueryKey(
-  args: InferRequestType<(typeof client)['1']['clusters']['mapping'][':userID']['$get']>,
-) {
-  return ['/1/clusters/mapping/:userID', args] as const
-}
-
-/**
- * Returns Vue Query query options for GET /1/clusters/mapping/{userID}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet1ClustersMappingUserIDQueryOptions = (
-  args: InferRequestType<(typeof client)['1']['clusters']['mapping'][':userID']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGet1ClustersMappingUserIDQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['1'].clusters.mapping[':userID'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
-
-/**
  * DELETE /1/clusters/mapping/{userID}
  *
  * Delete user ID
@@ -2343,6 +2351,30 @@ export function useDelete1ClustersMappingUserID(options?: {
 }
 
 /**
+ * Generates Vue Query cache key for GET /1/clusters
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGet1ClustersQueryKey() {
+  return ['1', '/1/clusters'] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /1/clusters
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet1ClustersQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGet1ClustersQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['1'].clusters.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /1/clusters
  *
  * List clusters
@@ -2369,30 +2401,6 @@ export function useGet1Clusters(options?: {
   const { queryKey, queryFn, ...baseOptions } = getGet1ClustersQueryOptions(clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates Vue Query cache key for GET /1/clusters
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGet1ClustersQueryKey() {
-  return ['/1/clusters'] as const
-}
-
-/**
- * Returns Vue Query query options for GET /1/clusters
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet1ClustersQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGet1ClustersQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['1'].clusters.$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /1/clusters/mapping/search
@@ -2433,6 +2441,35 @@ export function usePost1ClustersMappingSearch(options?: {
 }
 
 /**
+ * Generates Vue Query cache key for GET /1/clusters/mapping/pending
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet1ClustersMappingPendingQueryKey(
+  args: MaybeRef<InferRequestType<(typeof client)['1']['clusters']['mapping']['pending']['$get']>>,
+) {
+  return ['1', '/1/clusters/mapping/pending', unref(args)] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /1/clusters/mapping/pending
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet1ClustersMappingPendingQueryOptions = (
+  args: InferRequestType<(typeof client)['1']['clusters']['mapping']['pending']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet1ClustersMappingPendingQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['1'].clusters.mapping.pending.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /1/clusters/mapping/pending
  *
  * Get migration and user mapping status
@@ -2469,28 +2506,23 @@ export function useGet1ClustersMappingPending(
 }
 
 /**
- * Generates Vue Query cache key for GET /1/clusters/mapping/pending
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Vue Query cache key for GET /1/security/sources
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGet1ClustersMappingPendingQueryKey(
-  args: InferRequestType<(typeof client)['1']['clusters']['mapping']['pending']['$get']>,
-) {
-  return ['/1/clusters/mapping/pending', args] as const
+export function getGet1SecuritySourcesQueryKey() {
+  return ['1', '/1/security/sources'] as const
 }
 
 /**
- * Returns Vue Query query options for GET /1/clusters/mapping/pending
+ * Returns Vue Query query options for GET /1/security/sources
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGet1ClustersMappingPendingQueryOptions = (
-  args: InferRequestType<(typeof client)['1']['clusters']['mapping']['pending']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGet1ClustersMappingPendingQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGet1SecuritySourcesQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGet1SecuritySourcesQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client['1'].clusters.mapping.pending.$get(args, {
+      client['1'].security.sources.$get(undefined, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -2526,30 +2558,6 @@ export function useGet1SecuritySources(options?: {
   const { queryKey, queryFn, ...baseOptions } = getGet1SecuritySourcesQueryOptions(clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates Vue Query cache key for GET /1/security/sources
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGet1SecuritySourcesQueryKey() {
-  return ['/1/security/sources'] as const
-}
-
-/**
- * Returns Vue Query query options for GET /1/security/sources
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet1SecuritySourcesQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGet1SecuritySourcesQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['1'].security.sources.$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * PUT /1/security/sources
@@ -2657,6 +2665,32 @@ export function useDelete1SecuritySourcesSource(options?: {
 }
 
 /**
+ * Generates Vue Query cache key for GET /1/logs
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet1LogsQueryKey(
+  args: MaybeRef<InferRequestType<(typeof client)['1']['logs']['$get']>>,
+) {
+  return ['1', '/1/logs', unref(args)] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /1/logs
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet1LogsQueryOptions = (
+  args: InferRequestType<(typeof client)['1']['logs']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet1LogsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['1'].logs.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
+
+/**
  * GET /1/logs
  *
  * Retrieve log entries
@@ -2692,26 +2726,31 @@ export function useGet1Logs(
 }
 
 /**
- * Generates Vue Query cache key for GET /1/logs
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Vue Query cache key for GET /1/task/{taskID}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGet1LogsQueryKey(args: InferRequestType<(typeof client)['1']['logs']['$get']>) {
-  return ['/1/logs', args] as const
+export function getGet1TaskTaskIDQueryKey(
+  args: MaybeRef<InferRequestType<(typeof client)['1']['task'][':taskID']['$get']>>,
+) {
+  return ['1', '/1/task/:taskID', unref(args)] as const
 }
 
 /**
- * Returns Vue Query query options for GET /1/logs
+ * Returns Vue Query query options for GET /1/task/{taskID}
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGet1LogsQueryOptions = (
-  args: InferRequestType<(typeof client)['1']['logs']['$get']>,
+export const getGet1TaskTaskIDQueryOptions = (
+  args: InferRequestType<(typeof client)['1']['task'][':taskID']['$get']>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGet1LogsQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGet1TaskTaskIDQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client['1'].logs.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      client['1'].task[':taskID'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
     ),
 })
 
@@ -2749,28 +2788,30 @@ export function useGet1TaskTaskID(
 }
 
 /**
- * Generates Vue Query cache key for GET /1/task/{taskID}
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Vue Query cache key for GET /1/indexes/{indexName}/task/{taskID}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGet1TaskTaskIDQueryKey(
-  args: InferRequestType<(typeof client)['1']['task'][':taskID']['$get']>,
+export function getGet1IndexesIndexNameTaskTaskIDQueryKey(
+  args: MaybeRef<
+    InferRequestType<(typeof client)['1']['indexes'][':indexName']['task'][':taskID']['$get']>
+  >,
 ) {
-  return ['/1/task/:taskID', args] as const
+  return ['1', '/1/indexes/:indexName/task/:taskID', unref(args)] as const
 }
 
 /**
- * Returns Vue Query query options for GET /1/task/{taskID}
+ * Returns Vue Query query options for GET /1/indexes/{indexName}/task/{taskID}
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGet1TaskTaskIDQueryOptions = (
-  args: InferRequestType<(typeof client)['1']['task'][':taskID']['$get']>,
+export const getGet1IndexesIndexNameTaskTaskIDQueryOptions = (
+  args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['task'][':taskID']['$get']>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGet1TaskTaskIDQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGet1IndexesIndexNameTaskTaskIDQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client['1'].task[':taskID'].$get(args, {
+      client['1'].indexes[':indexName'].task[':taskID'].$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -2822,35 +2863,6 @@ export function useGet1IndexesIndexNameTaskTaskID(
   )
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates Vue Query cache key for GET /1/indexes/{indexName}/task/{taskID}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet1IndexesIndexNameTaskTaskIDQueryKey(
-  args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['task'][':taskID']['$get']>,
-) {
-  return ['/1/indexes/:indexName/task/:taskID', args] as const
-}
-
-/**
- * Returns Vue Query query options for GET /1/indexes/{indexName}/task/{taskID}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet1IndexesIndexNameTaskTaskIDQueryOptions = (
-  args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['task'][':taskID']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGet1IndexesIndexNameTaskTaskIDQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['1'].indexes[':indexName'].task[':taskID'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /1/indexes/{indexName}/operation
@@ -2913,6 +2925,35 @@ export function usePost1IndexesIndexNameOperation(options?: {
 }
 
 /**
+ * Generates Vue Query cache key for GET /1/indexes
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet1IndexesQueryKey(
+  args: MaybeRef<InferRequestType<(typeof client)['1']['indexes']['$get']>>,
+) {
+  return ['1', '/1/indexes', unref(args)] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /1/indexes
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet1IndexesQueryOptions = (
+  args: InferRequestType<(typeof client)['1']['indexes']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet1IndexesQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['1'].indexes.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /1/indexes
  *
  * List indices
@@ -2946,28 +2987,28 @@ export function useGet1Indexes(
 }
 
 /**
- * Generates Vue Query cache key for GET /1/indexes
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Vue Query cache key for GET /waitForApiKey
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGet1IndexesQueryKey(
-  args: InferRequestType<(typeof client)['1']['indexes']['$get']>,
+export function getGetWaitForApiKeyQueryKey(
+  args: MaybeRef<InferRequestType<typeof client.waitForApiKey.$get>>,
 ) {
-  return ['/1/indexes', args] as const
+  return ['waitForApiKey', '/waitForApiKey', unref(args)] as const
 }
 
 /**
- * Returns Vue Query query options for GET /1/indexes
+ * Returns Vue Query query options for GET /waitForApiKey
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGet1IndexesQueryOptions = (
-  args: InferRequestType<(typeof client)['1']['indexes']['$get']>,
+export const getGetWaitForApiKeyQueryOptions = (
+  args: InferRequestType<typeof client.waitForApiKey.$get>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGet1IndexesQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetWaitForApiKeyQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client['1'].indexes.$get(args, {
+      client.waitForApiKey.$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -3004,31 +3045,28 @@ export function useGetWaitForApiKey(
 }
 
 /**
- * Generates Vue Query cache key for GET /waitForApiKey
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Vue Query cache key for GET /waitForTask
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetWaitForApiKeyQueryKey(
-  args: InferRequestType<typeof client.waitForApiKey.$get>,
+export function getGetWaitForTaskQueryKey(
+  args: MaybeRef<InferRequestType<typeof client.waitForTask.$get>>,
 ) {
-  return ['/waitForApiKey', args] as const
+  return ['waitForTask', '/waitForTask', unref(args)] as const
 }
 
 /**
- * Returns Vue Query query options for GET /waitForApiKey
+ * Returns Vue Query query options for GET /waitForTask
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetWaitForApiKeyQueryOptions = (
-  args: InferRequestType<typeof client.waitForApiKey.$get>,
+export const getGetWaitForTaskQueryOptions = (
+  args: InferRequestType<typeof client.waitForTask.$get>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetWaitForApiKeyQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetWaitForTaskQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.waitForApiKey.$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
+      client.waitForTask.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
     ),
 })
 
@@ -3064,26 +3102,31 @@ export function useGetWaitForTask(
 }
 
 /**
- * Generates Vue Query cache key for GET /waitForTask
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Vue Query cache key for GET /waitForAppTask
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetWaitForTaskQueryKey(args: InferRequestType<typeof client.waitForTask.$get>) {
-  return ['/waitForTask', args] as const
+export function getGetWaitForAppTaskQueryKey(
+  args: MaybeRef<InferRequestType<typeof client.waitForAppTask.$get>>,
+) {
+  return ['waitForAppTask', '/waitForAppTask', unref(args)] as const
 }
 
 /**
- * Returns Vue Query query options for GET /waitForTask
+ * Returns Vue Query query options for GET /waitForAppTask
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetWaitForTaskQueryOptions = (
-  args: InferRequestType<typeof client.waitForTask.$get>,
+export const getGetWaitForAppTaskQueryOptions = (
+  args: InferRequestType<typeof client.waitForAppTask.$get>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetWaitForTaskQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetWaitForAppTaskQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.waitForTask.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      client.waitForAppTask.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
     ),
 })
 
@@ -3120,28 +3163,28 @@ export function useGetWaitForAppTask(
 }
 
 /**
- * Generates Vue Query cache key for GET /waitForAppTask
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Vue Query cache key for GET /browseObjects
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetWaitForAppTaskQueryKey(
-  args: InferRequestType<typeof client.waitForAppTask.$get>,
+export function getGetBrowseObjectsQueryKey(
+  args: MaybeRef<InferRequestType<typeof client.browseObjects.$get>>,
 ) {
-  return ['/waitForAppTask', args] as const
+  return ['browseObjects', '/browseObjects', unref(args)] as const
 }
 
 /**
- * Returns Vue Query query options for GET /waitForAppTask
+ * Returns Vue Query query options for GET /browseObjects
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetWaitForAppTaskQueryOptions = (
-  args: InferRequestType<typeof client.waitForAppTask.$get>,
+export const getGetBrowseObjectsQueryOptions = (
+  args: InferRequestType<typeof client.browseObjects.$get>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetWaitForAppTaskQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetBrowseObjectsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.waitForAppTask.$get(args, {
+      client.browseObjects.$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -3182,28 +3225,28 @@ export function useGetBrowseObjects(
 }
 
 /**
- * Generates Vue Query cache key for GET /browseObjects
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Vue Query cache key for GET /generateSecuredApiKey
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetBrowseObjectsQueryKey(
-  args: InferRequestType<typeof client.browseObjects.$get>,
+export function getGetGenerateSecuredApiKeyQueryKey(
+  args: MaybeRef<InferRequestType<typeof client.generateSecuredApiKey.$get>>,
 ) {
-  return ['/browseObjects', args] as const
+  return ['generateSecuredApiKey', '/generateSecuredApiKey', unref(args)] as const
 }
 
 /**
- * Returns Vue Query query options for GET /browseObjects
+ * Returns Vue Query query options for GET /generateSecuredApiKey
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetBrowseObjectsQueryOptions = (
-  args: InferRequestType<typeof client.browseObjects.$get>,
+export const getGetGenerateSecuredApiKeyQueryOptions = (
+  args: InferRequestType<typeof client.generateSecuredApiKey.$get>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetBrowseObjectsQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetGenerateSecuredApiKeyQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.browseObjects.$get(args, {
+      client.generateSecuredApiKey.$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -3257,28 +3300,28 @@ export function useGetGenerateSecuredApiKey(
 }
 
 /**
- * Generates Vue Query cache key for GET /generateSecuredApiKey
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Vue Query cache key for GET /accountCopyIndex
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetGenerateSecuredApiKeyQueryKey(
-  args: InferRequestType<typeof client.generateSecuredApiKey.$get>,
+export function getGetAccountCopyIndexQueryKey(
+  args: MaybeRef<InferRequestType<typeof client.accountCopyIndex.$get>>,
 ) {
-  return ['/generateSecuredApiKey', args] as const
+  return ['accountCopyIndex', '/accountCopyIndex', unref(args)] as const
 }
 
 /**
- * Returns Vue Query query options for GET /generateSecuredApiKey
+ * Returns Vue Query query options for GET /accountCopyIndex
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetGenerateSecuredApiKeyQueryOptions = (
-  args: InferRequestType<typeof client.generateSecuredApiKey.$get>,
+export const getGetAccountCopyIndexQueryOptions = (
+  args: InferRequestType<typeof client.accountCopyIndex.$get>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetGenerateSecuredApiKeyQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetAccountCopyIndexQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.generateSecuredApiKey.$get(args, {
+      client.accountCopyIndex.$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -3320,28 +3363,28 @@ export function useGetAccountCopyIndex(
 }
 
 /**
- * Generates Vue Query cache key for GET /accountCopyIndex
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Vue Query cache key for GET /replaceAllObjects
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetAccountCopyIndexQueryKey(
-  args: InferRequestType<typeof client.accountCopyIndex.$get>,
+export function getGetReplaceAllObjectsQueryKey(
+  args: MaybeRef<InferRequestType<typeof client.replaceAllObjects.$get>>,
 ) {
-  return ['/accountCopyIndex', args] as const
+  return ['replaceAllObjects', '/replaceAllObjects', unref(args)] as const
 }
 
 /**
- * Returns Vue Query query options for GET /accountCopyIndex
+ * Returns Vue Query query options for GET /replaceAllObjects
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetAccountCopyIndexQueryOptions = (
-  args: InferRequestType<typeof client.accountCopyIndex.$get>,
+export const getGetReplaceAllObjectsQueryOptions = (
+  args: InferRequestType<typeof client.replaceAllObjects.$get>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetAccountCopyIndexQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetReplaceAllObjectsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.accountCopyIndex.$get(args, {
+      client.replaceAllObjects.$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -3398,28 +3441,32 @@ export function useGetReplaceAllObjects(
 }
 
 /**
- * Generates Vue Query cache key for GET /replaceAllObjects
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Vue Query cache key for GET /replaceAllObjectsWithTransformation
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetReplaceAllObjectsQueryKey(
-  args: InferRequestType<typeof client.replaceAllObjects.$get>,
+export function getGetReplaceAllObjectsWithTransformationQueryKey(
+  args: MaybeRef<InferRequestType<typeof client.replaceAllObjectsWithTransformation.$get>>,
 ) {
-  return ['/replaceAllObjects', args] as const
+  return [
+    'replaceAllObjectsWithTransformation',
+    '/replaceAllObjectsWithTransformation',
+    unref(args),
+  ] as const
 }
 
 /**
- * Returns Vue Query query options for GET /replaceAllObjects
+ * Returns Vue Query query options for GET /replaceAllObjectsWithTransformation
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetReplaceAllObjectsQueryOptions = (
-  args: InferRequestType<typeof client.replaceAllObjects.$get>,
+export const getGetReplaceAllObjectsWithTransformationQueryOptions = (
+  args: InferRequestType<typeof client.replaceAllObjectsWithTransformation.$get>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetReplaceAllObjectsQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetReplaceAllObjectsWithTransformationQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.replaceAllObjects.$get(args, {
+      client.replaceAllObjectsWithTransformation.$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -3473,28 +3520,28 @@ export function useGetReplaceAllObjectsWithTransformation(
 }
 
 /**
- * Generates Vue Query cache key for GET /replaceAllObjectsWithTransformation
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Vue Query cache key for GET /chunkedBatch
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetReplaceAllObjectsWithTransformationQueryKey(
-  args: InferRequestType<typeof client.replaceAllObjectsWithTransformation.$get>,
+export function getGetChunkedBatchQueryKey(
+  args: MaybeRef<InferRequestType<typeof client.chunkedBatch.$get>>,
 ) {
-  return ['/replaceAllObjectsWithTransformation', args] as const
+  return ['chunkedBatch', '/chunkedBatch', unref(args)] as const
 }
 
 /**
- * Returns Vue Query query options for GET /replaceAllObjectsWithTransformation
+ * Returns Vue Query query options for GET /chunkedBatch
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetReplaceAllObjectsWithTransformationQueryOptions = (
-  args: InferRequestType<typeof client.replaceAllObjectsWithTransformation.$get>,
+export const getGetChunkedBatchQueryOptions = (
+  args: InferRequestType<typeof client.chunkedBatch.$get>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetReplaceAllObjectsWithTransformationQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetChunkedBatchQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.replaceAllObjectsWithTransformation.$get(args, {
+      client.chunkedBatch.$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -3531,31 +3578,28 @@ export function useGetChunkedBatch(
 }
 
 /**
- * Generates Vue Query cache key for GET /chunkedBatch
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Vue Query cache key for GET /saveObjects
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetChunkedBatchQueryKey(
-  args: InferRequestType<typeof client.chunkedBatch.$get>,
+export function getGetSaveObjectsQueryKey(
+  args: MaybeRef<InferRequestType<typeof client.saveObjects.$get>>,
 ) {
-  return ['/chunkedBatch', args] as const
+  return ['saveObjects', '/saveObjects', unref(args)] as const
 }
 
 /**
- * Returns Vue Query query options for GET /chunkedBatch
+ * Returns Vue Query query options for GET /saveObjects
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetChunkedBatchQueryOptions = (
-  args: InferRequestType<typeof client.chunkedBatch.$get>,
+export const getGetSaveObjectsQueryOptions = (
+  args: InferRequestType<typeof client.saveObjects.$get>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetChunkedBatchQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetSaveObjectsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.chunkedBatch.$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
+      client.saveObjects.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
     ),
 })
 
@@ -3589,26 +3633,31 @@ export function useGetSaveObjects(
 }
 
 /**
- * Generates Vue Query cache key for GET /saveObjects
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Vue Query cache key for GET /saveObjectsWithTransformation
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetSaveObjectsQueryKey(args: InferRequestType<typeof client.saveObjects.$get>) {
-  return ['/saveObjects', args] as const
+export function getGetSaveObjectsWithTransformationQueryKey(
+  args: MaybeRef<InferRequestType<typeof client.saveObjectsWithTransformation.$get>>,
+) {
+  return ['saveObjectsWithTransformation', '/saveObjectsWithTransformation', unref(args)] as const
 }
 
 /**
- * Returns Vue Query query options for GET /saveObjects
+ * Returns Vue Query query options for GET /saveObjectsWithTransformation
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetSaveObjectsQueryOptions = (
-  args: InferRequestType<typeof client.saveObjects.$get>,
+export const getGetSaveObjectsWithTransformationQueryOptions = (
+  args: InferRequestType<typeof client.saveObjectsWithTransformation.$get>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetSaveObjectsQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetSaveObjectsWithTransformationQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.saveObjects.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      client.saveObjectsWithTransformation.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
     ),
 })
 
@@ -3647,35 +3696,6 @@ export function useGetSaveObjectsWithTransformation(
   )
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates Vue Query cache key for GET /saveObjectsWithTransformation
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetSaveObjectsWithTransformationQueryKey(
-  args: InferRequestType<typeof client.saveObjectsWithTransformation.$get>,
-) {
-  return ['/saveObjectsWithTransformation', args] as const
-}
-
-/**
- * Returns Vue Query query options for GET /saveObjectsWithTransformation
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetSaveObjectsWithTransformationQueryOptions = (
-  args: InferRequestType<typeof client.saveObjectsWithTransformation.$get>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetSaveObjectsWithTransformationQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.saveObjectsWithTransformation.$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /deleteObjects
@@ -3775,6 +3795,32 @@ export function usePostPartialUpdateObjectsWithTransformation(options?: {
 }
 
 /**
+ * Generates Vue Query cache key for GET /indexExists
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetIndexExistsQueryKey(
+  args: MaybeRef<InferRequestType<typeof client.indexExists.$get>>,
+) {
+  return ['indexExists', '/indexExists', unref(args)] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /indexExists
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetIndexExistsQueryOptions = (
+  args: InferRequestType<typeof client.indexExists.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetIndexExistsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.indexExists.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
+
+/**
  * GET /indexExists
  *
  * Check if an index exists or not
@@ -3804,26 +3850,31 @@ export function useGetIndexExists(
 }
 
 /**
- * Generates Vue Query cache key for GET /indexExists
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Vue Query cache key for GET /setClientApiKey
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetIndexExistsQueryKey(args: InferRequestType<typeof client.indexExists.$get>) {
-  return ['/indexExists', args] as const
+export function getGetSetClientApiKeyQueryKey(
+  args: MaybeRef<InferRequestType<typeof client.setClientApiKey.$get>>,
+) {
+  return ['setClientApiKey', '/setClientApiKey', unref(args)] as const
 }
 
 /**
- * Returns Vue Query query options for GET /indexExists
+ * Returns Vue Query query options for GET /setClientApiKey
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetIndexExistsQueryOptions = (
-  args: InferRequestType<typeof client.indexExists.$get>,
+export const getGetSetClientApiKeyQueryOptions = (
+  args: InferRequestType<typeof client.setClientApiKey.$get>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetIndexExistsQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetSetClientApiKeyQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.indexExists.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      client.setClientApiKey.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
     ),
 })
 
@@ -3860,32 +3911,3 @@ export function useGetSetClientApiKey(
   )
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates Vue Query cache key for GET /setClientApiKey
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetSetClientApiKeyQueryKey(
-  args: InferRequestType<typeof client.setClientApiKey.$get>,
-) {
-  return ['/setClientApiKey', args] as const
-}
-
-/**
- * Returns Vue Query query options for GET /setClientApiKey
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetSetClientApiKeyQueryOptions = (
-  args: InferRequestType<typeof client.setClientApiKey.$get>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetSetClientApiKeyQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.setClientApiKey.$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})

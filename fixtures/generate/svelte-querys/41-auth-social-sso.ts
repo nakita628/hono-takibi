@@ -1,8 +1,41 @@
 import { createQuery, createMutation } from '@tanstack/svelte-query'
-import type { CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
+import type {
+  CreateQueryOptions,
+  QueryFunctionContext,
+  CreateMutationOptions,
+} from '@tanstack/svelte-query'
 import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/41-auth-social-sso'
+
+/**
+ * Generates Svelte Query cache key for GET /social/authorize/{provider}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetSocialAuthorizeProviderQueryKey(
+  args: InferRequestType<(typeof client.social.authorize)[':provider']['$get']>,
+) {
+  return ['social', '/social/authorize/:provider', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /social/authorize/{provider}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetSocialAuthorizeProviderQueryOptions = (
+  args: InferRequestType<(typeof client.social.authorize)[':provider']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetSocialAuthorizeProviderQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.social.authorize[':provider'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /social/authorize/{provider}
@@ -38,28 +71,28 @@ export function createGetSocialAuthorizeProvider(
 }
 
 /**
- * Generates Svelte Query cache key for GET /social/authorize/{provider}
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Svelte Query cache key for GET /social/callback/{provider}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetSocialAuthorizeProviderQueryKey(
-  args: InferRequestType<(typeof client.social.authorize)[':provider']['$get']>,
+export function getGetSocialCallbackProviderQueryKey(
+  args: InferRequestType<(typeof client.social.callback)[':provider']['$get']>,
 ) {
-  return ['/social/authorize/:provider', args] as const
+  return ['social', '/social/callback/:provider', args] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /social/authorize/{provider}
+ * Returns Svelte Query query options for GET /social/callback/{provider}
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetSocialAuthorizeProviderQueryOptions = (
-  args: InferRequestType<(typeof client.social.authorize)[':provider']['$get']>,
+export const getGetSocialCallbackProviderQueryOptions = (
+  args: InferRequestType<(typeof client.social.callback)[':provider']['$get']>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetSocialAuthorizeProviderQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetSocialCallbackProviderQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.social.authorize[':provider'].$get(args, {
+      client.social.callback[':provider'].$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -98,35 +131,6 @@ export function createGetSocialCallbackProvider(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /social/callback/{provider}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetSocialCallbackProviderQueryKey(
-  args: InferRequestType<(typeof client.social.callback)[':provider']['$get']>,
-) {
-  return ['/social/callback/:provider', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /social/callback/{provider}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetSocialCallbackProviderQueryOptions = (
-  args: InferRequestType<(typeof client.social.callback)[':provider']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetSocialCallbackProviderQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.social.callback[':provider'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /social/token
@@ -179,6 +183,30 @@ export function createPostSocialTokenNative(options?: {
 }
 
 /**
+ * Generates Svelte Query cache key for GET /providers
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGetProvidersQueryKey() {
+  return ['providers', '/providers'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /providers
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetProvidersQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetProvidersQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.providers.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /providers
  *
  * 有効なプロバイダー一覧
@@ -200,23 +228,23 @@ export function createGetProviders(
 }
 
 /**
- * Generates Svelte Query cache key for GET /providers
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates Svelte Query cache key for GET /providers/admin
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetProvidersQueryKey() {
-  return ['/providers'] as const
+export function getGetProvidersAdminQueryKey() {
+  return ['providers', '/providers/admin'] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /providers
+ * Returns Svelte Query query options for GET /providers/admin
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetProvidersQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetProvidersQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetProvidersAdminQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetProvidersAdminQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.providers.$get(undefined, {
+      client.providers.admin.$get(undefined, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -247,30 +275,6 @@ export function createGetProvidersAdmin(
 }
 
 /**
- * Generates Svelte Query cache key for GET /providers/admin
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGetProvidersAdminQueryKey() {
-  return ['/providers/admin'] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /providers/admin
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetProvidersAdminQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetProvidersAdminQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.providers.admin.$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
-
-/**
  * POST /providers/admin
  *
  * プロバイダー追加
@@ -292,6 +296,35 @@ export function createPostProvidersAdmin(options?: {
       parseResponse(client.providers.admin.$post(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query cache key for GET /providers/{providerId}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetProvidersProviderIdQueryKey(
+  args: InferRequestType<(typeof client.providers)[':providerId']['$get']>,
+) {
+  return ['providers', '/providers/:providerId', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /providers/{providerId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetProvidersProviderIdQueryOptions = (
+  args: InferRequestType<(typeof client.providers)[':providerId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetProvidersProviderIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.providers[':providerId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /providers/{providerId}
@@ -323,35 +356,6 @@ export function createGetProvidersProviderId(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /providers/{providerId}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetProvidersProviderIdQueryKey(
-  args: InferRequestType<(typeof client.providers)[':providerId']['$get']>,
-) {
-  return ['/providers/:providerId', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /providers/{providerId}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetProvidersProviderIdQueryOptions = (
-  args: InferRequestType<(typeof client.providers)[':providerId']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetProvidersProviderIdQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.providers[':providerId'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * PUT /providers/{providerId}
@@ -436,6 +440,30 @@ export function createPostProvidersProviderIdTest(options?: {
 }
 
 /**
+ * Generates Svelte Query cache key for GET /account/linked
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGetAccountLinkedQueryKey() {
+  return ['account', '/account/linked'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /account/linked
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetAccountLinkedQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetAccountLinkedQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.account.linked.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /account/linked
  *
  * 連携アカウント一覧
@@ -457,30 +485,6 @@ export function createGetAccountLinked(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /account/linked
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGetAccountLinkedQueryKey() {
-  return ['/account/linked'] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /account/linked
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetAccountLinkedQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetAccountLinkedQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.account.linked.$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /account/link/{provider}
@@ -542,6 +546,30 @@ export function createDeleteAccountLinkProvider(options?: {
 }
 
 /**
+ * Generates Svelte Query cache key for GET /enterprise/sso
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGetEnterpriseSsoQueryKey() {
+  return ['enterprise', '/enterprise/sso'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /enterprise/sso
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetEnterpriseSsoQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetEnterpriseSsoQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.enterprise.sso.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /enterprise/sso
  *
  * エンタープライズSSO設定一覧
@@ -565,30 +593,6 @@ export function createGetEnterpriseSso(
 }
 
 /**
- * Generates Svelte Query cache key for GET /enterprise/sso
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGetEnterpriseSsoQueryKey() {
-  return ['/enterprise/sso'] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /enterprise/sso
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetEnterpriseSsoQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetEnterpriseSsoQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.enterprise.sso.$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
-
-/**
  * POST /enterprise/sso
  *
  * エンタープライズSSO設定作成
@@ -610,6 +614,35 @@ export function createPostEnterpriseSso(options?: {
       parseResponse(client.enterprise.sso.$post(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query cache key for GET /enterprise/sso/{configId}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetEnterpriseSsoConfigIdQueryKey(
+  args: InferRequestType<(typeof client.enterprise.sso)[':configId']['$get']>,
+) {
+  return ['enterprise', '/enterprise/sso/:configId', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /enterprise/sso/{configId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetEnterpriseSsoConfigIdQueryOptions = (
+  args: InferRequestType<(typeof client.enterprise.sso)[':configId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetEnterpriseSsoConfigIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.enterprise.sso[':configId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /enterprise/sso/{configId}
@@ -641,35 +674,6 @@ export function createGetEnterpriseSsoConfigId(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /enterprise/sso/{configId}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetEnterpriseSsoConfigIdQueryKey(
-  args: InferRequestType<(typeof client.enterprise.sso)[':configId']['$get']>,
-) {
-  return ['/enterprise/sso/:configId', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /enterprise/sso/{configId}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetEnterpriseSsoConfigIdQueryOptions = (
-  args: InferRequestType<(typeof client.enterprise.sso)[':configId']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetEnterpriseSsoConfigIdQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.enterprise.sso[':configId'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * PUT /enterprise/sso/{configId}
@@ -729,6 +733,35 @@ export function createDeleteEnterpriseSsoConfigId(options?: {
 }
 
 /**
+ * Generates Svelte Query cache key for GET /enterprise/sso/domain-lookup
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetEnterpriseSsoDomainLookupQueryKey(
+  args: InferRequestType<(typeof client.enterprise.sso)['domain-lookup']['$get']>,
+) {
+  return ['enterprise', '/enterprise/sso/domain-lookup', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /enterprise/sso/domain-lookup
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetEnterpriseSsoDomainLookupQueryOptions = (
+  args: InferRequestType<(typeof client.enterprise.sso)['domain-lookup']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetEnterpriseSsoDomainLookupQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.enterprise.sso['domain-lookup'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /enterprise/sso/domain-lookup
  *
  * ドメインからSSO設定を検索
@@ -760,28 +793,28 @@ export function createGetEnterpriseSsoDomainLookup(
 }
 
 /**
- * Generates Svelte Query cache key for GET /enterprise/sso/domain-lookup
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Svelte Query cache key for GET /enterprise/sso/{configId}/metadata
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetEnterpriseSsoDomainLookupQueryKey(
-  args: InferRequestType<(typeof client.enterprise.sso)['domain-lookup']['$get']>,
+export function getGetEnterpriseSsoConfigIdMetadataQueryKey(
+  args: InferRequestType<(typeof client.enterprise.sso)[':configId']['metadata']['$get']>,
 ) {
-  return ['/enterprise/sso/domain-lookup', args] as const
+  return ['enterprise', '/enterprise/sso/:configId/metadata', args] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /enterprise/sso/domain-lookup
+ * Returns Svelte Query query options for GET /enterprise/sso/{configId}/metadata
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetEnterpriseSsoDomainLookupQueryOptions = (
-  args: InferRequestType<(typeof client.enterprise.sso)['domain-lookup']['$get']>,
+export const getGetEnterpriseSsoConfigIdMetadataQueryOptions = (
+  args: InferRequestType<(typeof client.enterprise.sso)[':configId']['metadata']['$get']>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetEnterpriseSsoDomainLookupQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetEnterpriseSsoConfigIdMetadataQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.enterprise.sso['domain-lookup'].$get(args, {
+      client.enterprise.sso[':configId'].metadata.$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -820,32 +853,3 @@ export function createGetEnterpriseSsoConfigIdMetadata(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /enterprise/sso/{configId}/metadata
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetEnterpriseSsoConfigIdMetadataQueryKey(
-  args: InferRequestType<(typeof client.enterprise.sso)[':configId']['metadata']['$get']>,
-) {
-  return ['/enterprise/sso/:configId/metadata', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /enterprise/sso/{configId}/metadata
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetEnterpriseSsoConfigIdMetadataQueryOptions = (
-  args: InferRequestType<(typeof client.enterprise.sso)[':configId']['metadata']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetEnterpriseSsoConfigIdMetadataQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.enterprise.sso[':configId'].metadata.$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})

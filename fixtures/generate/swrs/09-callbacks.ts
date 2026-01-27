@@ -6,6 +6,14 @@ import { parseResponse } from 'hono/client'
 import { client } from '../clients/09-callbacks'
 
 /**
+ * Generates SWR mutation key for POST /webhooks
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ */
+export function getPostWebhooksMutationKey() {
+  return ['/webhooks'] as const
+}
+
+/**
  * POST /webhooks
  *
  * Register a webhook endpoint
@@ -34,12 +42,11 @@ export function usePostWebhooks(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /webhooks
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /subscriptions
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostWebhooksMutationKey() {
-  return 'POST /webhooks'
+export function getPostSubscriptionsMutationKey() {
+  return ['/subscriptions'] as const
 }
 
 /**
@@ -73,12 +80,11 @@ export function usePostSubscriptions(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /subscriptions
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /jobs
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostSubscriptionsMutationKey() {
-  return 'POST /subscriptions'
+export function getPostJobsMutationKey() {
+  return ['/jobs'] as const
 }
 
 /**
@@ -110,12 +116,11 @@ export function usePostJobs(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /jobs
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /integrations/{integrationId}/sync
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostJobsMutationKey() {
-  return 'POST /jobs'
+export function getPostIntegrationsIntegrationIdSyncMutationKey() {
+  return ['/integrations/:integrationId/sync'] as const
 }
 
 /**
@@ -156,13 +161,4 @@ export function usePostIntegrationsIntegrationIdSync(options?: {
       restMutationOptions,
     ),
   }
-}
-
-/**
- * Generates SWR mutation key for POST /integrations/{integrationId}/sync
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
- */
-export function getPostIntegrationsIntegrationIdSyncMutationKey() {
-  return 'POST /integrations/:integrationId/sync'
 }

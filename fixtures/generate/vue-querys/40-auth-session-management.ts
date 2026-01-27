@@ -1,8 +1,36 @@
 import { useQuery, useMutation } from '@tanstack/vue-query'
-import type { UseQueryOptions, UseMutationOptions } from '@tanstack/vue-query'
+import type { UseQueryOptions, QueryFunctionContext, UseMutationOptions } from '@tanstack/vue-query'
+import { unref } from 'vue'
+import type { MaybeRef } from 'vue'
 import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/40-auth-session-management'
+
+/**
+ * Generates Vue Query cache key for GET /sessions
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetSessionsQueryKey(
+  args: MaybeRef<InferRequestType<typeof client.sessions.$get>>,
+) {
+  return ['sessions', '/sessions', unref(args)] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /sessions
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetSessionsQueryOptions = (
+  args: InferRequestType<typeof client.sessions.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetSessionsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.sessions.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /sessions
@@ -32,30 +60,6 @@ export function useGetSessions(
   const { queryKey, queryFn, ...baseOptions } = getGetSessionsQueryOptions(args, clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates Vue Query cache key for GET /sessions
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetSessionsQueryKey(args: InferRequestType<typeof client.sessions.$get>) {
-  return ['/sessions', args] as const
-}
-
-/**
- * Returns Vue Query query options for GET /sessions
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetSessionsQueryOptions = (
-  args: InferRequestType<typeof client.sessions.$get>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetSessionsQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.sessions.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-    ),
-})
 
 /**
  * POST /sessions
@@ -88,6 +92,30 @@ export function usePostSessions(options?: {
 }
 
 /**
+ * Generates Vue Query cache key for GET /sessions/current
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGetSessionsCurrentQueryKey() {
+  return ['sessions', '/sessions/current'] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /sessions/current
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetSessionsCurrentQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetSessionsCurrentQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.sessions.current.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /sessions/current
  *
  * 現在のセッション取得
@@ -110,30 +138,6 @@ export function useGetSessionsCurrent(options?: {
   const { queryKey, queryFn, ...baseOptions } = getGetSessionsCurrentQueryOptions(clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates Vue Query cache key for GET /sessions/current
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGetSessionsCurrentQueryKey() {
-  return ['/sessions/current'] as const
-}
-
-/**
- * Returns Vue Query query options for GET /sessions/current
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetSessionsCurrentQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetSessionsCurrentQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.sessions.current.$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * DELETE /sessions/current
@@ -263,6 +267,35 @@ export function usePostSessionsCurrentActivity(options?: {
 }
 
 /**
+ * Generates Vue Query cache key for GET /sessions/{sessionId}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetSessionsSessionIdQueryKey(
+  args: MaybeRef<InferRequestType<(typeof client.sessions)[':sessionId']['$get']>>,
+) {
+  return ['sessions', '/sessions/:sessionId', unref(args)] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /sessions/{sessionId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetSessionsSessionIdQueryOptions = (
+  args: InferRequestType<(typeof client.sessions)[':sessionId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetSessionsSessionIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.sessions[':sessionId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /sessions/{sessionId}
  *
  * セッション詳細取得
@@ -295,35 +328,6 @@ export function useGetSessionsSessionId(
   )
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates Vue Query cache key for GET /sessions/{sessionId}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetSessionsSessionIdQueryKey(
-  args: InferRequestType<(typeof client.sessions)[':sessionId']['$get']>,
-) {
-  return ['/sessions/:sessionId', args] as const
-}
-
-/**
- * Returns Vue Query query options for GET /sessions/{sessionId}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetSessionsSessionIdQueryOptions = (
-  args: InferRequestType<(typeof client.sessions)[':sessionId']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetSessionsSessionIdQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.sessions[':sessionId'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * DELETE /sessions/{sessionId}
@@ -427,6 +431,35 @@ export function usePostSessionsValidate(options?: {
 }
 
 /**
+ * Generates Vue Query cache key for GET /sessions/history
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetSessionsHistoryQueryKey(
+  args: MaybeRef<InferRequestType<typeof client.sessions.history.$get>>,
+) {
+  return ['sessions', '/sessions/history', unref(args)] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /sessions/history
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetSessionsHistoryQueryOptions = (
+  args: InferRequestType<typeof client.sessions.history.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetSessionsHistoryQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.sessions.history.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /sessions/history
  *
  * セッション履歴取得
@@ -459,28 +492,28 @@ export function useGetSessionsHistory(
 }
 
 /**
- * Generates Vue Query cache key for GET /sessions/history
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Vue Query cache key for GET /sessions/security-events
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetSessionsHistoryQueryKey(
-  args: InferRequestType<typeof client.sessions.history.$get>,
+export function getGetSessionsSecurityEventsQueryKey(
+  args: MaybeRef<InferRequestType<(typeof client.sessions)['security-events']['$get']>>,
 ) {
-  return ['/sessions/history', args] as const
+  return ['sessions', '/sessions/security-events', unref(args)] as const
 }
 
 /**
- * Returns Vue Query query options for GET /sessions/history
+ * Returns Vue Query query options for GET /sessions/security-events
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetSessionsHistoryQueryOptions = (
-  args: InferRequestType<typeof client.sessions.history.$get>,
+export const getGetSessionsSecurityEventsQueryOptions = (
+  args: InferRequestType<(typeof client.sessions)['security-events']['$get']>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetSessionsHistoryQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetSessionsSecurityEventsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.sessions.history.$get(args, {
+      client.sessions['security-events'].$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -524,28 +557,23 @@ export function useGetSessionsSecurityEvents(
 }
 
 /**
- * Generates Vue Query cache key for GET /sessions/security-events
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Vue Query cache key for GET /sessions/policies
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetSessionsSecurityEventsQueryKey(
-  args: InferRequestType<(typeof client.sessions)['security-events']['$get']>,
-) {
-  return ['/sessions/security-events', args] as const
+export function getGetSessionsPoliciesQueryKey() {
+  return ['sessions', '/sessions/policies'] as const
 }
 
 /**
- * Returns Vue Query query options for GET /sessions/security-events
+ * Returns Vue Query query options for GET /sessions/policies
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetSessionsSecurityEventsQueryOptions = (
-  args: InferRequestType<(typeof client.sessions)['security-events']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetSessionsSecurityEventsQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetSessionsPoliciesQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetSessionsPoliciesQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.sessions['security-events'].$get(args, {
+      client.sessions.policies.$get(undefined, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -579,30 +607,6 @@ export function useGetSessionsPolicies(options?: {
 }
 
 /**
- * Generates Vue Query cache key for GET /sessions/policies
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGetSessionsPoliciesQueryKey() {
-  return ['/sessions/policies'] as const
-}
-
-/**
- * Returns Vue Query query options for GET /sessions/policies
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetSessionsPoliciesQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetSessionsPoliciesQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.sessions.policies.$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
-
-/**
  * PUT /sessions/policies
  *
  * セッションポリシー更新
@@ -633,6 +637,30 @@ export function usePutSessionsPolicies(options?: {
 }
 
 /**
+ * Generates Vue Query cache key for GET /sessions/trusted-devices
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGetSessionsTrustedDevicesQueryKey() {
+  return ['sessions', '/sessions/trusted-devices'] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /sessions/trusted-devices
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetSessionsTrustedDevicesQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetSessionsTrustedDevicesQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.sessions['trusted-devices'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /sessions/trusted-devices
  *
  * 信頼済みデバイス一覧
@@ -660,30 +688,6 @@ export function useGetSessionsTrustedDevices(options?: {
     getGetSessionsTrustedDevicesQueryOptions(clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates Vue Query cache key for GET /sessions/trusted-devices
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGetSessionsTrustedDevicesQueryKey() {
-  return ['/sessions/trusted-devices'] as const
-}
-
-/**
- * Returns Vue Query query options for GET /sessions/trusted-devices
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetSessionsTrustedDevicesQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetSessionsTrustedDevicesQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.sessions['trusted-devices'].$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /sessions/trusted-devices

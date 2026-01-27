@@ -7,6 +7,14 @@ import { parseResponse } from 'hono/client'
 import { client } from '../clients/07-examples'
 
 /**
+ * Generates SWR cache key for GET /products
+ * Returns structured key [path] for filter-based invalidation
+ */
+export function getGetProductsKey() {
+  return ['/products'] as const
+}
+
+/**
  * GET /products
  */
 export function useGetProducts(options?: {
@@ -28,10 +36,10 @@ export function useGetProducts(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /products
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR mutation key for POST /products
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetProductsKey() {
+export function getPostProductsMutationKey() {
   return ['/products'] as const
 }
 
@@ -62,12 +70,13 @@ export function usePostProducts(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /products
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /products/{productId}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPostProductsMutationKey() {
-  return 'POST /products'
+export function getGetProductsProductIdKey(
+  args: InferRequestType<(typeof client.products)[':productId']['$get']>,
+) {
+  return [`/products/${args.param.productId}`, args] as const
 }
 
 /**
@@ -92,14 +101,4 @@ export function useGetProductsProductId(
       restSwrOptions,
     ),
   }
-}
-
-/**
- * Generates SWR cache key for GET /products/{productId}
- * Returns structured key [templatePath, args] for filter-based invalidation
- */
-export function getGetProductsProductIdKey(
-  args: InferRequestType<(typeof client.products)[':productId']['$get']>,
-) {
-  return ['/products/:productId', args] as const
 }

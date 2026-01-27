@@ -1,8 +1,36 @@
 import { useQuery, useMutation } from '@tanstack/react-query'
-import type { UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
+import type {
+  UseQueryOptions,
+  QueryFunctionContext,
+  UseMutationOptions,
+} from '@tanstack/react-query'
 import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/06-headers'
+
+/**
+ * Generates TanStack Query cache key for GET /resources
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetResourcesQueryKey(args: InferRequestType<typeof client.resources.$get>) {
+  return ['resources', '/resources', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /resources
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetResourcesQueryOptions = (
+  args: InferRequestType<typeof client.resources.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetResourcesQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.resources.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /resources
@@ -23,26 +51,31 @@ export function useGetResources(
 }
 
 /**
- * Generates TanStack Query cache key for GET /resources
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates TanStack Query cache key for GET /resources/{id}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetResourcesQueryKey(args: InferRequestType<typeof client.resources.$get>) {
-  return ['/resources', args] as const
+export function getGetResourcesIdQueryKey(
+  args: InferRequestType<(typeof client.resources)[':id']['$get']>,
+) {
+  return ['resources', '/resources/:id', args] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /resources
+ * Returns TanStack Query query options for GET /resources/{id}
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetResourcesQueryOptions = (
-  args: InferRequestType<typeof client.resources.$get>,
+export const getGetResourcesIdQueryOptions = (
+  args: InferRequestType<(typeof client.resources)[':id']['$get']>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetResourcesQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetResourcesIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.resources.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      client.resources[':id'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
     ),
 })
 
@@ -69,35 +102,6 @@ export function useGetResourcesId(
 }
 
 /**
- * Generates TanStack Query cache key for GET /resources/{id}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetResourcesIdQueryKey(
-  args: InferRequestType<(typeof client.resources)[':id']['$get']>,
-) {
-  return ['/resources/:id', args] as const
-}
-
-/**
- * Returns TanStack Query query options for GET /resources/{id}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetResourcesIdQueryOptions = (
-  args: InferRequestType<(typeof client.resources)[':id']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetResourcesIdQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.resources[':id'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
-
-/**
  * PUT /resources/{id}
  */
 export function usePutResourcesId(options?: {
@@ -121,6 +125,35 @@ export function usePutResourcesId(options?: {
 }
 
 /**
+ * Generates TanStack Query cache key for GET /download/{id}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetDownloadIdQueryKey(
+  args: InferRequestType<(typeof client.download)[':id']['$get']>,
+) {
+  return ['download', '/download/:id', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /download/{id}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetDownloadIdQueryOptions = (
+  args: InferRequestType<(typeof client.download)[':id']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetDownloadIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.download[':id'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /download/{id}
  */
 export function useGetDownloadId(
@@ -141,32 +174,3 @@ export function useGetDownloadId(
   const { queryKey, queryFn, ...baseOptions } = getGetDownloadIdQueryOptions(args, clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates TanStack Query cache key for GET /download/{id}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetDownloadIdQueryKey(
-  args: InferRequestType<(typeof client.download)[':id']['$get']>,
-) {
-  return ['/download/:id', args] as const
-}
-
-/**
- * Returns TanStack Query query options for GET /download/{id}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetDownloadIdQueryOptions = (
-  args: InferRequestType<(typeof client.download)[':id']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetDownloadIdQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.download[':id'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})

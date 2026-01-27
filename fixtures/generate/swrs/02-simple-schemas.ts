@@ -7,6 +7,14 @@ import { parseResponse } from 'hono/client'
 import { client } from '../clients/02-simple-schemas'
 
 /**
+ * Generates SWR cache key for GET /users
+ * Returns structured key [path] for filter-based invalidation
+ */
+export function getGetUsersKey() {
+  return ['/users'] as const
+}
+
+/**
  * GET /users
  */
 export function useGetUsers(options?: {
@@ -28,10 +36,10 @@ export function useGetUsers(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /users
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR mutation key for POST /users
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetUsersKey() {
+export function getPostUsersMutationKey() {
   return ['/users'] as const
 }
 
@@ -62,12 +70,13 @@ export function usePostUsers(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /users
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /users/{userId}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPostUsersMutationKey() {
-  return 'POST /users'
+export function getGetUsersUserIdKey(
+  args: InferRequestType<(typeof client.users)[':userId']['$get']>,
+) {
+  return [`/users/${args.param.userId}`, args] as const
 }
 
 /**
@@ -92,14 +101,4 @@ export function useGetUsersUserId(
       restSwrOptions,
     ),
   }
-}
-
-/**
- * Generates SWR cache key for GET /users/{userId}
- * Returns structured key [templatePath, args] for filter-based invalidation
- */
-export function getGetUsersUserIdKey(
-  args: InferRequestType<(typeof client.users)[':userId']['$get']>,
-) {
-  return ['/users/:userId', args] as const
 }

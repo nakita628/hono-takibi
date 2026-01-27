@@ -1,8 +1,34 @@
 import { useQuery } from '@tanstack/vue-query'
-import type { UseQueryOptions } from '@tanstack/vue-query'
+import type { UseQueryOptions, QueryFunctionContext } from '@tanstack/vue-query'
+import { unref } from 'vue'
+import type { MaybeRef } from 'vue'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/openapi-literal'
+
+/**
+ * Generates Vue Query cache key for GET /primitive
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGetPrimitiveQueryKey() {
+  return ['primitive', '/primitive'] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /primitive
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetPrimitiveQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetPrimitiveQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.primitive.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /primitive
@@ -29,27 +55,3 @@ export function useGetPrimitive(options?: {
   const { queryKey, queryFn, ...baseOptions } = getGetPrimitiveQueryOptions(clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates Vue Query cache key for GET /primitive
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGetPrimitiveQueryKey() {
-  return ['/primitive'] as const
-}
-
-/**
- * Returns Vue Query query options for GET /primitive
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetPrimitiveQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetPrimitiveQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.primitive.$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})

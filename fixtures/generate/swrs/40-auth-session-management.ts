@@ -7,6 +7,14 @@ import { parseResponse } from 'hono/client'
 import { client } from '../clients/40-auth-session-management'
 
 /**
+ * Generates SWR cache key for GET /sessions
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
+ */
+export function getGetSessionsKey(args: InferRequestType<typeof client.sessions.$get>) {
+  return ['/sessions', args] as const
+}
+
+/**
  * GET /sessions
  *
  * アクティブセッション一覧
@@ -35,11 +43,11 @@ export function useGetSessions(
 }
 
 /**
- * Generates SWR cache key for GET /sessions
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for POST /sessions
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetSessionsKey(args: InferRequestType<typeof client.sessions.$get>) {
-  return ['/sessions', args] as const
+export function getPostSessionsMutationKey() {
+  return ['/sessions'] as const
 }
 
 /**
@@ -73,12 +81,11 @@ export function usePostSessions(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /sessions
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /sessions/current
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getPostSessionsMutationKey() {
-  return 'POST /sessions'
+export function getGetSessionsCurrentKey() {
+  return ['/sessions/current'] as const
 }
 
 /**
@@ -105,10 +112,10 @@ export function useGetSessionsCurrent(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /sessions/current
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR mutation key for DELETE /sessions/current
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetSessionsCurrentKey() {
+export function getDeleteSessionsCurrentMutationKey() {
   return ['/sessions/current'] as const
 }
 
@@ -145,12 +152,11 @@ export function useDeleteSessionsCurrent(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /sessions/current
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /sessions/current/refresh
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getDeleteSessionsCurrentMutationKey() {
-  return 'DELETE /sessions/current'
+export function getPostSessionsCurrentRefreshMutationKey() {
+  return ['/sessions/current/refresh'] as const
 }
 
 /**
@@ -190,12 +196,11 @@ export function usePostSessionsCurrentRefresh(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /sessions/current/refresh
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /sessions/current/extend
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostSessionsCurrentRefreshMutationKey() {
-  return 'POST /sessions/current/refresh'
+export function getPostSessionsCurrentExtendMutationKey() {
+  return ['/sessions/current/extend'] as const
 }
 
 /**
@@ -235,12 +240,11 @@ export function usePostSessionsCurrentExtend(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /sessions/current/extend
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /sessions/current/activity
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostSessionsCurrentExtendMutationKey() {
-  return 'POST /sessions/current/extend'
+export function getPostSessionsCurrentActivityMutationKey() {
+  return ['/sessions/current/activity'] as const
 }
 
 /**
@@ -277,12 +281,13 @@ export function usePostSessionsCurrentActivity(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /sessions/current/activity
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /sessions/{sessionId}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPostSessionsCurrentActivityMutationKey() {
-  return 'POST /sessions/current/activity'
+export function getGetSessionsSessionIdKey(
+  args: InferRequestType<(typeof client.sessions)[':sessionId']['$get']>,
+) {
+  return [`/sessions/${args.param.sessionId}`, args] as const
 }
 
 /**
@@ -312,13 +317,11 @@ export function useGetSessionsSessionId(
 }
 
 /**
- * Generates SWR cache key for GET /sessions/{sessionId}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for DELETE /sessions/{sessionId}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetSessionsSessionIdKey(
-  args: InferRequestType<(typeof client.sessions)[':sessionId']['$get']>,
-) {
-  return ['/sessions/:sessionId', args] as const
+export function getDeleteSessionsSessionIdMutationKey() {
+  return ['/sessions/:sessionId'] as const
 }
 
 /**
@@ -361,12 +364,11 @@ export function useDeleteSessionsSessionId(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /sessions/{sessionId}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /sessions/revoke-all
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getDeleteSessionsSessionIdMutationKey() {
-  return 'DELETE /sessions/:sessionId'
+export function getPostSessionsRevokeAllMutationKey() {
+  return ['/sessions/revoke-all'] as const
 }
 
 /**
@@ -406,12 +408,11 @@ export function usePostSessionsRevokeAll(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /sessions/revoke-all
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /sessions/validate
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostSessionsRevokeAllMutationKey() {
-  return 'POST /sessions/revoke-all'
+export function getPostSessionsValidateMutationKey() {
+  return ['/sessions/validate'] as const
 }
 
 /**
@@ -447,12 +448,13 @@ export function usePostSessionsValidate(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /sessions/validate
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /sessions/history
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPostSessionsValidateMutationKey() {
-  return 'POST /sessions/validate'
+export function getGetSessionsHistoryKey(
+  args: InferRequestType<typeof client.sessions.history.$get>,
+) {
+  return ['/sessions/history', args] as const
 }
 
 /**
@@ -482,13 +484,13 @@ export function useGetSessionsHistory(
 }
 
 /**
- * Generates SWR cache key for GET /sessions/history
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR cache key for GET /sessions/security-events
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getGetSessionsHistoryKey(
-  args: InferRequestType<typeof client.sessions.history.$get>,
+export function getGetSessionsSecurityEventsKey(
+  args: InferRequestType<(typeof client.sessions)['security-events']['$get']>,
 ) {
-  return ['/sessions/history', args] as const
+  return ['/sessions/security-events', args] as const
 }
 
 /**
@@ -520,13 +522,11 @@ export function useGetSessionsSecurityEvents(
 }
 
 /**
- * Generates SWR cache key for GET /sessions/security-events
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR cache key for GET /sessions/policies
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetSessionsSecurityEventsKey(
-  args: InferRequestType<(typeof client.sessions)['security-events']['$get']>,
-) {
-  return ['/sessions/security-events', args] as const
+export function getGetSessionsPoliciesKey() {
+  return ['/sessions/policies'] as const
 }
 
 /**
@@ -553,10 +553,10 @@ export function useGetSessionsPolicies(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /sessions/policies
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR mutation key for PUT /sessions/policies
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetSessionsPoliciesKey() {
+export function getPutSessionsPoliciesMutationKey() {
   return ['/sessions/policies'] as const
 }
 
@@ -591,12 +591,11 @@ export function usePutSessionsPolicies(options?: {
 }
 
 /**
- * Generates SWR mutation key for PUT /sessions/policies
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /sessions/trusted-devices
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getPutSessionsPoliciesMutationKey() {
-  return 'PUT /sessions/policies'
+export function getGetSessionsTrustedDevicesKey() {
+  return ['/sessions/trusted-devices'] as const
 }
 
 /**
@@ -623,10 +622,10 @@ export function useGetSessionsTrustedDevices(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /sessions/trusted-devices
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR mutation key for POST /sessions/trusted-devices
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetSessionsTrustedDevicesKey() {
+export function getPostSessionsTrustedDevicesMutationKey() {
   return ['/sessions/trusted-devices'] as const
 }
 
@@ -667,12 +666,11 @@ export function usePostSessionsTrustedDevices(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /sessions/trusted-devices
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for DELETE /sessions/trusted-devices/{deviceId}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostSessionsTrustedDevicesMutationKey() {
-  return 'POST /sessions/trusted-devices'
+export function getDeleteSessionsTrustedDevicesDeviceIdMutationKey() {
+  return ['/sessions/trusted-devices/:deviceId'] as const
 }
 
 /**
@@ -715,13 +713,4 @@ export function useDeleteSessionsTrustedDevicesDeviceId(options?: {
       restMutationOptions,
     ),
   }
-}
-
-/**
- * Generates SWR mutation key for DELETE /sessions/trusted-devices/{deviceId}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
- */
-export function getDeleteSessionsTrustedDevicesDeviceIdMutationKey() {
-  return 'DELETE /sessions/trusted-devices/:deviceId'
 }

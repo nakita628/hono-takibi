@@ -7,6 +7,14 @@ import { parseResponse } from 'hono/client'
 import { client } from '../clients/08-links'
 
 /**
+ * Generates SWR mutation key for POST /orders
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ */
+export function getPostOrdersMutationKey() {
+  return ['/orders'] as const
+}
+
+/**
  * POST /orders
  */
 export function usePostOrders(options?: {
@@ -33,12 +41,13 @@ export function usePostOrders(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /orders
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /orders/{orderId}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPostOrdersMutationKey() {
-  return 'POST /orders'
+export function getGetOrdersOrderIdKey(
+  args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
+) {
+  return [`/orders/${args.param.orderId}`, args] as const
 }
 
 /**
@@ -66,13 +75,11 @@ export function useGetOrdersOrderId(
 }
 
 /**
- * Generates SWR cache key for GET /orders/{orderId}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for DELETE /orders/{orderId}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetOrdersOrderIdKey(
-  args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
-) {
-  return ['/orders/:orderId', args] as const
+export function getDeleteOrdersOrderIdMutationKey() {
+  return ['/orders/:orderId'] as const
 }
 
 /**
@@ -108,12 +115,13 @@ export function useDeleteOrdersOrderId(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /orders/{orderId}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /orders/{orderId}/items
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getDeleteOrdersOrderIdMutationKey() {
-  return 'DELETE /orders/:orderId'
+export function getGetOrdersOrderIdItemsKey(
+  args: InferRequestType<(typeof client.orders)[':orderId']['items']['$get']>,
+) {
+  return [`/orders/${args.param.orderId}/items`, args] as const
 }
 
 /**
@@ -141,13 +149,13 @@ export function useGetOrdersOrderIdItems(
 }
 
 /**
- * Generates SWR cache key for GET /orders/{orderId}/items
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR cache key for GET /customers/{customerId}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getGetOrdersOrderIdItemsKey(
-  args: InferRequestType<(typeof client.orders)[':orderId']['items']['$get']>,
+export function getGetCustomersCustomerIdKey(
+  args: InferRequestType<(typeof client.customers)[':customerId']['$get']>,
 ) {
-  return ['/orders/:orderId/items', args] as const
+  return [`/customers/${args.param.customerId}`, args] as const
 }
 
 /**
@@ -175,13 +183,13 @@ export function useGetCustomersCustomerId(
 }
 
 /**
- * Generates SWR cache key for GET /customers/{customerId}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR cache key for GET /customers/{customerId}/orders
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getGetCustomersCustomerIdKey(
-  args: InferRequestType<(typeof client.customers)[':customerId']['$get']>,
+export function getGetCustomersCustomerIdOrdersKey(
+  args: InferRequestType<(typeof client.customers)[':customerId']['orders']['$get']>,
 ) {
-  return ['/customers/:customerId', args] as const
+  return [`/customers/${args.param.customerId}/orders`, args] as const
 }
 
 /**
@@ -209,13 +217,13 @@ export function useGetCustomersCustomerIdOrders(
 }
 
 /**
- * Generates SWR cache key for GET /customers/{customerId}/orders
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR cache key for GET /payments/{paymentId}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getGetCustomersCustomerIdOrdersKey(
-  args: InferRequestType<(typeof client.customers)[':customerId']['orders']['$get']>,
+export function getGetPaymentsPaymentIdKey(
+  args: InferRequestType<(typeof client.payments)[':paymentId']['$get']>,
 ) {
-  return ['/customers/:customerId/orders', args] as const
+  return [`/payments/${args.param.paymentId}`, args] as const
 }
 
 /**
@@ -240,14 +248,4 @@ export function useGetPaymentsPaymentId(
       restSwrOptions,
     ),
   }
-}
-
-/**
- * Generates SWR cache key for GET /payments/{paymentId}
- * Returns structured key [templatePath, args] for filter-based invalidation
- */
-export function getGetPaymentsPaymentIdKey(
-  args: InferRequestType<(typeof client.payments)[':paymentId']['$get']>,
-) {
-  return ['/payments/:paymentId', args] as const
 }

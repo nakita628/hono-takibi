@@ -7,6 +7,21 @@ import { parseResponse } from 'hono/client'
 import { client } from '../clients/13-deep-nested-refs'
 
 /**
+ * Generates SWR cache key for GET /organizations/{orgId}/departments/{deptId}/teams/{teamId}/members
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
+ */
+export function getGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersKey(
+  args: InferRequestType<
+    (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$get']
+  >,
+) {
+  return [
+    `/organizations/${args.param.orgId}/departments/${args.param.deptId}/teams/${args.param.teamId}/members`,
+    args,
+  ] as const
+}
+
+/**
  * GET /organizations/{orgId}/departments/{deptId}/teams/{teamId}/members
  */
 export function useGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(
@@ -41,15 +56,11 @@ export function useGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(
 }
 
 /**
- * Generates SWR cache key for GET /organizations/{orgId}/departments/{deptId}/teams/{teamId}/members
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for POST /organizations/{orgId}/departments/{deptId}/teams/{teamId}/members
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersKey(
-  args: InferRequestType<
-    (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$get']
-  >,
-) {
-  return ['/organizations/:orgId/departments/:deptId/teams/:teamId/members', args] as const
+export function getPostOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersMutationKey() {
+  return ['/organizations/:orgId/departments/:deptId/teams/:teamId/members'] as const
 }
 
 /**
@@ -106,12 +117,11 @@ export function usePostOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(opt
 }
 
 /**
- * Generates SWR mutation key for POST /organizations/{orgId}/departments/{deptId}/teams/{teamId}/members
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /reports/organization-summary
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getPostOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersMutationKey() {
-  return 'POST /organizations/:orgId/departments/:deptId/teams/:teamId/members'
+export function getGetReportsOrganizationSummaryKey() {
+  return ['/reports/organization-summary'] as const
 }
 
 /**
@@ -134,12 +144,4 @@ export function useGetReportsOrganizationSummary(options?: {
       restSwrOptions,
     ),
   }
-}
-
-/**
- * Generates SWR cache key for GET /reports/organization-summary
- * Returns structured key [templatePath] for filter-based invalidation
- */
-export function getGetReportsOrganizationSummaryKey() {
-  return ['/reports/organization-summary'] as const
 }

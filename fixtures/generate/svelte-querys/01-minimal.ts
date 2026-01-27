@@ -1,8 +1,29 @@
 import { createQuery } from '@tanstack/svelte-query'
-import type { CreateQueryOptions } from '@tanstack/svelte-query'
+import type { CreateQueryOptions, QueryFunctionContext } from '@tanstack/svelte-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/01-minimal'
+
+/**
+ * Generates Svelte Query cache key for GET /health
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGetHealthQueryKey() {
+  return ['health', '/health'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /health
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetHealthQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetHealthQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.health.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /health
@@ -22,24 +43,3 @@ export function createGetHealth(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /health
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGetHealthQueryKey() {
-  return ['/health'] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /health
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetHealthQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetHealthQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.health.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-    ),
-})

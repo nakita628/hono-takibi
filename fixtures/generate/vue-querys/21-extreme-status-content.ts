@@ -1,8 +1,34 @@
 import { useQuery, useMutation } from '@tanstack/vue-query'
-import type { UseQueryOptions, UseMutationOptions } from '@tanstack/vue-query'
+import type { UseQueryOptions, QueryFunctionContext, UseMutationOptions } from '@tanstack/vue-query'
+import { unref } from 'vue'
+import type { MaybeRef } from 'vue'
 import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/21-extreme-status-content'
+
+/**
+ * Generates Vue Query cache key for GET /extreme-responses
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGetExtremeResponsesQueryKey() {
+  return ['extreme-responses', '/extreme-responses'] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /extreme-responses
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetExtremeResponsesQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetExtremeResponsesQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['extreme-responses'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /extreme-responses
@@ -27,30 +53,6 @@ export function useGetExtremeResponses(options?: {
   const { queryKey, queryFn, ...baseOptions } = getGetExtremeResponsesQueryOptions(clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates Vue Query cache key for GET /extreme-responses
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGetExtremeResponsesQueryKey() {
-  return ['/extreme-responses'] as const
-}
-
-/**
- * Returns Vue Query query options for GET /extreme-responses
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetExtremeResponsesQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetExtremeResponsesQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['extreme-responses'].$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /multipart-variations

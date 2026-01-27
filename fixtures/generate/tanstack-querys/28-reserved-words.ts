@@ -1,8 +1,33 @@
 import { useQuery, useMutation } from '@tanstack/react-query'
-import type { UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
+import type {
+  UseQueryOptions,
+  QueryFunctionContext,
+  UseMutationOptions,
+} from '@tanstack/react-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/28-reserved-words'
+
+/**
+ * Generates TanStack Query cache key for GET /class
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGetClassQueryKey() {
+  return ['class', '/class'] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /class
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetClassQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetClassQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.class.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /class
@@ -20,23 +45,26 @@ export function useGetClass(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /class
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates TanStack Query cache key for GET /interface
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetClassQueryKey() {
-  return ['/class'] as const
+export function getGetInterfaceQueryKey() {
+  return ['interface', '/interface'] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /class
+ * Returns TanStack Query query options for GET /interface
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetClassQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetClassQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetInterfaceQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetInterfaceQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.class.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      client.interface.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
     ),
 })
 
@@ -56,26 +84,23 @@ export function useGetInterface(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /interface
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates TanStack Query cache key for GET /type
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetInterfaceQueryKey() {
-  return ['/interface'] as const
+export function getGetTypeQueryKey() {
+  return ['type', '/type'] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /interface
+ * Returns TanStack Query query options for GET /type
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetInterfaceQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetInterfaceQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetTypeQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetTypeQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.interface.$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
+      client.type.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
     ),
 })
 
@@ -93,27 +118,6 @@ export function useGetType(options?: {
   const { queryKey, queryFn, ...baseOptions } = getGetTypeQueryOptions(clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates TanStack Query cache key for GET /type
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGetTypeQueryKey() {
-  return ['/type'] as const
-}
-
-/**
- * Returns TanStack Query query options for GET /type
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetTypeQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetTypeQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.type.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-    ),
-})
 
 /**
  * POST /function
@@ -134,6 +138,27 @@ export function usePostFunction(options?: {
 }
 
 /**
+ * Generates TanStack Query cache key for GET /return
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGetReturnQueryKey() {
+  return ['return', '/return'] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /return
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetReturnQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetReturnQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.return.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
+
+/**
  * GET /return
  */
 export function useGetReturn(options?: {
@@ -149,23 +174,23 @@ export function useGetReturn(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /return
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates TanStack Query cache key for GET /import
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetReturnQueryKey() {
-  return ['/return'] as const
+export function getGetImportQueryKey() {
+  return ['import', '/import'] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /return
+ * Returns TanStack Query query options for GET /import
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetReturnQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetReturnQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetImportQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetImportQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.return.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      client.import.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
     ),
 })
 
@@ -185,23 +210,23 @@ export function useGetImport(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /import
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates TanStack Query cache key for GET /export
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetImportQueryKey() {
-  return ['/import'] as const
+export function getGetExportQueryKey() {
+  return ['export', '/export'] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /import
+ * Returns TanStack Query query options for GET /export
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetImportQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetImportQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetExportQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetExportQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.import.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      client.export.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
     ),
 })
 
@@ -221,23 +246,26 @@ export function useGetExport(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /export
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates TanStack Query cache key for GET /default
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetExportQueryKey() {
-  return ['/export'] as const
+export function getGetDefaultQueryKey() {
+  return ['default', '/default'] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /export
+ * Returns TanStack Query query options for GET /default
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetExportQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetExportQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetDefaultQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetDefaultQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.export.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      client.default.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
     ),
 })
 
@@ -255,30 +283,6 @@ export function useGetDefault(options?: {
   const { queryKey, queryFn, ...baseOptions } = getGetDefaultQueryOptions(clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates TanStack Query cache key for GET /default
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGetDefaultQueryKey() {
-  return ['/default'] as const
-}
-
-/**
- * Returns TanStack Query query options for GET /default
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetDefaultQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetDefaultQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.default.$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /new
@@ -317,6 +321,27 @@ export function useDeleteDelete(options?: {
 }
 
 /**
+ * Generates TanStack Query cache key for GET /void
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGetVoidQueryKey() {
+  return ['void', '/void'] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /void
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetVoidQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetVoidQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.void.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
+
+/**
  * GET /void
  */
 export function useGetVoid(options?: {
@@ -332,23 +357,23 @@ export function useGetVoid(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /void
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates TanStack Query cache key for GET /null
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetVoidQueryKey() {
-  return ['/void'] as const
+export function getGetNullQueryKey() {
+  return ['null', '/null'] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /void
+ * Returns TanStack Query query options for GET /null
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetVoidQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetVoidQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetNullQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetNullQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.void.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      client.null.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
     ),
 })
 
@@ -368,23 +393,23 @@ export function useGetNull(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /null
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates TanStack Query cache key for GET /true
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetNullQueryKey() {
-  return ['/null'] as const
+export function getGetTrueQueryKey() {
+  return ['true', '/true'] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /null
+ * Returns TanStack Query query options for GET /true
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetNullQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetNullQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetTrueQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetTrueQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.null.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      client.true.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
     ),
 })
 
@@ -404,23 +429,23 @@ export function useGetTrue(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /true
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates TanStack Query cache key for GET /false
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetTrueQueryKey() {
-  return ['/true'] as const
+export function getGetFalseQueryKey() {
+  return ['false', '/false'] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /true
+ * Returns TanStack Query query options for GET /false
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetTrueQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetTrueQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetFalseQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetFalseQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.true.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      client.false.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
     ),
 })
 
@@ -440,23 +465,23 @@ export function useGetFalse(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /false
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates TanStack Query cache key for GET /if
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetFalseQueryKey() {
-  return ['/false'] as const
+export function getGetIfQueryKey() {
+  return ['if', '/if'] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /false
+ * Returns TanStack Query query options for GET /if
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetFalseQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetFalseQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetIfQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetIfQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.false.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      client.if.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
     ),
 })
 
@@ -476,23 +501,23 @@ export function useGetIf(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /if
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates TanStack Query cache key for GET /else
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetIfQueryKey() {
-  return ['/if'] as const
+export function getGetElseQueryKey() {
+  return ['else', '/else'] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /if
+ * Returns TanStack Query query options for GET /else
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetIfQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetIfQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetElseQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetElseQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.if.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      client.else.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
     ),
 })
 
@@ -512,23 +537,23 @@ export function useGetElse(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /else
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates TanStack Query cache key for GET /for
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetElseQueryKey() {
-  return ['/else'] as const
+export function getGetForQueryKey() {
+  return ['for', '/for'] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /else
+ * Returns TanStack Query query options for GET /for
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetElseQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetElseQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetForQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetForQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.else.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      client.for.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
     ),
 })
 
@@ -548,23 +573,23 @@ export function useGetFor(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /for
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates TanStack Query cache key for GET /while
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetForQueryKey() {
-  return ['/for'] as const
+export function getGetWhileQueryKey() {
+  return ['while', '/while'] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /for
+ * Returns TanStack Query query options for GET /while
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetForQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetForQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetWhileQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetWhileQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.for.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      client.while.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
     ),
 })
 
@@ -584,23 +609,23 @@ export function useGetWhile(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /while
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates TanStack Query cache key for GET /switch
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetWhileQueryKey() {
-  return ['/while'] as const
+export function getGetSwitchQueryKey() {
+  return ['switch', '/switch'] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /while
+ * Returns TanStack Query query options for GET /switch
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetWhileQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetWhileQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetSwitchQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetSwitchQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.while.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      client.switch.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
     ),
 })
 
@@ -620,23 +645,23 @@ export function useGetSwitch(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /switch
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates TanStack Query cache key for GET /case
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetSwitchQueryKey() {
-  return ['/switch'] as const
+export function getGetCaseQueryKey() {
+  return ['case', '/case'] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /switch
+ * Returns TanStack Query query options for GET /case
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetSwitchQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetSwitchQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetCaseQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetCaseQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.switch.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      client.case.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
     ),
 })
 
@@ -656,23 +681,23 @@ export function useGetCase(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /case
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates TanStack Query cache key for GET /break
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetCaseQueryKey() {
-  return ['/case'] as const
+export function getGetBreakQueryKey() {
+  return ['break', '/break'] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /case
+ * Returns TanStack Query query options for GET /break
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetCaseQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetCaseQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetBreakQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetBreakQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.case.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      client.break.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
     ),
 })
 
@@ -692,23 +717,26 @@ export function useGetBreak(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /break
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates TanStack Query cache key for GET /continue
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetBreakQueryKey() {
-  return ['/break'] as const
+export function getGetContinueQueryKey() {
+  return ['continue', '/continue'] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /break
+ * Returns TanStack Query query options for GET /continue
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetBreakQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetBreakQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetContinueQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetContinueQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.break.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      client.continue.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
     ),
 })
 
@@ -728,26 +756,23 @@ export function useGetContinue(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /continue
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates TanStack Query cache key for GET /try
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetContinueQueryKey() {
-  return ['/continue'] as const
+export function getGetTryQueryKey() {
+  return ['try', '/try'] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /continue
+ * Returns TanStack Query query options for GET /try
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetContinueQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetContinueQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetTryQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetTryQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.continue.$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
+      client.try.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
     ),
 })
 
@@ -767,23 +792,23 @@ export function useGetTry(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /try
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates TanStack Query cache key for GET /catch
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetTryQueryKey() {
-  return ['/try'] as const
+export function getGetCatchQueryKey() {
+  return ['catch', '/catch'] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /try
+ * Returns TanStack Query query options for GET /catch
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetTryQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetTryQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetCatchQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetCatchQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.try.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      client.catch.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
     ),
 })
 
@@ -803,23 +828,26 @@ export function useGetCatch(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /catch
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates TanStack Query cache key for GET /finally
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetCatchQueryKey() {
-  return ['/catch'] as const
+export function getGetFinallyQueryKey() {
+  return ['finally', '/finally'] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /catch
+ * Returns TanStack Query query options for GET /finally
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetCatchQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetCatchQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetFinallyQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetFinallyQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.catch.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      client.finally.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
     ),
 })
 
@@ -839,26 +867,23 @@ export function useGetFinally(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /finally
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates TanStack Query cache key for GET /throw
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetFinallyQueryKey() {
-  return ['/finally'] as const
+export function getGetThrowQueryKey() {
+  return ['throw', '/throw'] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /finally
+ * Returns TanStack Query query options for GET /throw
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetFinallyQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetFinallyQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetThrowQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetThrowQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.finally.$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
+      client.throw.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
     ),
 })
 
@@ -878,23 +903,23 @@ export function useGetThrow(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /throw
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates TanStack Query cache key for GET /async
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetThrowQueryKey() {
-  return ['/throw'] as const
+export function getGetAsyncQueryKey() {
+  return ['async', '/async'] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /throw
+ * Returns TanStack Query query options for GET /async
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetThrowQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetThrowQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetAsyncQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetAsyncQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.throw.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      client.async.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
     ),
 })
 
@@ -914,23 +939,23 @@ export function useGetAsync(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /async
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates TanStack Query cache key for GET /await
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetAsyncQueryKey() {
-  return ['/async'] as const
+export function getGetAwaitQueryKey() {
+  return ['await', '/await'] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /async
+ * Returns TanStack Query query options for GET /await
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetAsyncQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetAsyncQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetAwaitQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetAwaitQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.async.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      client.await.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
     ),
 })
 
@@ -950,23 +975,23 @@ export function useGetAwait(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /await
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates TanStack Query cache key for GET /yield
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetAwaitQueryKey() {
-  return ['/await'] as const
+export function getGetYieldQueryKey() {
+  return ['yield', '/yield'] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /await
+ * Returns TanStack Query query options for GET /yield
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetAwaitQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetAwaitQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetYieldQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetYieldQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.await.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      client.yield.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
     ),
 })
 
@@ -986,23 +1011,23 @@ export function useGetYield(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /yield
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates TanStack Query cache key for GET /static
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetYieldQueryKey() {
-  return ['/yield'] as const
+export function getGetStaticQueryKey() {
+  return ['static', '/static'] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /yield
+ * Returns TanStack Query query options for GET /static
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetYieldQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetYieldQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetStaticQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetStaticQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.yield.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      client.static.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
     ),
 })
 
@@ -1022,23 +1047,23 @@ export function useGetStatic(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /static
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates TanStack Query cache key for GET /public
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetStaticQueryKey() {
-  return ['/static'] as const
+export function getGetPublicQueryKey() {
+  return ['public', '/public'] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /static
+ * Returns TanStack Query query options for GET /public
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetStaticQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetStaticQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetPublicQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetPublicQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.static.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      client.public.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
     ),
 })
 
@@ -1058,23 +1083,26 @@ export function useGetPublic(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /public
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates TanStack Query cache key for GET /private
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetPublicQueryKey() {
-  return ['/public'] as const
+export function getGetPrivateQueryKey() {
+  return ['private', '/private'] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /public
+ * Returns TanStack Query query options for GET /private
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetPublicQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetPublicQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetPrivateQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetPrivateQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.public.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      client.private.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
     ),
 })
 
@@ -1094,23 +1122,23 @@ export function useGetPrivate(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /private
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates TanStack Query cache key for GET /protected
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetPrivateQueryKey() {
-  return ['/private'] as const
+export function getGetProtectedQueryKey() {
+  return ['protected', '/protected'] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /private
+ * Returns TanStack Query query options for GET /protected
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetPrivateQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetPrivateQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetProtectedQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetProtectedQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.private.$get(undefined, {
+      client.protected.$get(undefined, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -1133,23 +1161,23 @@ export function useGetProtected(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /protected
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates TanStack Query cache key for GET /abstract
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetProtectedQueryKey() {
-  return ['/protected'] as const
+export function getGetAbstractQueryKey() {
+  return ['abstract', '/abstract'] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /protected
+ * Returns TanStack Query query options for GET /abstract
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetProtectedQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetProtectedQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetAbstractQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetAbstractQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.protected.$get(undefined, {
+      client.abstract.$get(undefined, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -1172,26 +1200,23 @@ export function useGetAbstract(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /abstract
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates TanStack Query cache key for GET /final
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetAbstractQueryKey() {
-  return ['/abstract'] as const
+export function getGetFinalQueryKey() {
+  return ['final', '/final'] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /abstract
+ * Returns TanStack Query query options for GET /final
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetAbstractQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetAbstractQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetFinalQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetFinalQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.abstract.$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
+      client.final.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
     ),
 })
 
@@ -1211,23 +1236,26 @@ export function useGetFinal(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /final
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates TanStack Query cache key for GET /extends
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetFinalQueryKey() {
-  return ['/final'] as const
+export function getGetExtendsQueryKey() {
+  return ['extends', '/extends'] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /final
+ * Returns TanStack Query query options for GET /extends
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetFinalQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetFinalQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetExtendsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetExtendsQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.final.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      client.extends.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
     ),
 })
 
@@ -1247,23 +1275,23 @@ export function useGetExtends(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /extends
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates TanStack Query cache key for GET /implements
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetExtendsQueryKey() {
-  return ['/extends'] as const
+export function getGetImplementsQueryKey() {
+  return ['implements', '/implements'] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /extends
+ * Returns TanStack Query query options for GET /implements
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetExtendsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetExtendsQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetImplementsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetImplementsQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.extends.$get(undefined, {
+      client.implements.$get(undefined, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -1286,23 +1314,23 @@ export function useGetImplements(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /implements
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates TanStack Query cache key for GET /package
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetImplementsQueryKey() {
-  return ['/implements'] as const
+export function getGetPackageQueryKey() {
+  return ['package', '/package'] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /implements
+ * Returns TanStack Query query options for GET /package
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetImplementsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetImplementsQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetPackageQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetPackageQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.implements.$get(undefined, {
+      client.package.$get(undefined, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -1325,26 +1353,23 @@ export function useGetPackage(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /package
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates TanStack Query cache key for GET /enum
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetPackageQueryKey() {
-  return ['/package'] as const
+export function getGetEnumQueryKey() {
+  return ['enum', '/enum'] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /package
+ * Returns TanStack Query query options for GET /enum
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetPackageQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetPackageQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetEnumQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetEnumQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.package.$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
+      client.enum.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
     ),
 })
 
@@ -1364,23 +1389,23 @@ export function useGetEnum(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /enum
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates TanStack Query cache key for GET /const
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetEnumQueryKey() {
-  return ['/enum'] as const
+export function getGetConstQueryKey() {
+  return ['const', '/const'] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /enum
+ * Returns TanStack Query query options for GET /const
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetEnumQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetEnumQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetConstQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetConstQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.enum.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      client.const.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
     ),
 })
 
@@ -1400,23 +1425,23 @@ export function useGetConst(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /const
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates TanStack Query cache key for GET /let
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetConstQueryKey() {
-  return ['/const'] as const
+export function getGetLetQueryKey() {
+  return ['let', '/let'] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /const
+ * Returns TanStack Query query options for GET /let
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetConstQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetConstQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetLetQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetLetQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.const.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      client.let.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
     ),
 })
 
@@ -1436,23 +1461,23 @@ export function useGetLet(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /let
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates TanStack Query cache key for GET /var
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetLetQueryKey() {
-  return ['/let'] as const
+export function getGetVarQueryKey() {
+  return ['var', '/var'] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /let
+ * Returns TanStack Query query options for GET /var
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetLetQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetLetQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetVarQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetVarQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.let.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      client.var.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
     ),
 })
 
@@ -1472,23 +1497,23 @@ export function useGetVar(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /var
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates TanStack Query cache key for GET /this
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetVarQueryKey() {
-  return ['/var'] as const
+export function getGetThisQueryKey() {
+  return ['this', '/this'] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /var
+ * Returns TanStack Query query options for GET /this
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetVarQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetVarQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetThisQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetThisQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.var.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      client.this.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
     ),
 })
 
@@ -1508,23 +1533,23 @@ export function useGetThis(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /this
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates TanStack Query cache key for GET /super
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetThisQueryKey() {
-  return ['/this'] as const
+export function getGetSuperQueryKey() {
+  return ['super', '/super'] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /this
+ * Returns TanStack Query query options for GET /super
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetThisQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetThisQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetSuperQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetSuperQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.this.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      client.super.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
     ),
 })
 
@@ -1544,23 +1569,23 @@ export function useGetSuper(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /super
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates TanStack Query cache key for GET /self
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetSuperQueryKey() {
-  return ['/super'] as const
+export function getGetSelfQueryKey() {
+  return ['self', '/self'] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /super
+ * Returns TanStack Query query options for GET /self
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetSuperQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetSuperQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetSelfQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetSelfQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.super.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      client.self.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
     ),
 })
 
@@ -1580,23 +1605,26 @@ export function useGetSelf(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /self
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates TanStack Query cache key for GET /constructor
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetSelfQueryKey() {
-  return ['/self'] as const
+export function getGetConstructorQueryKey() {
+  return ['constructor', '/constructor'] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /self
+ * Returns TanStack Query query options for GET /constructor
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetSelfQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetSelfQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetConstructorQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetConstructorQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.self.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      client.constructor.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
     ),
 })
 
@@ -1616,23 +1644,23 @@ export function useGetConstructor(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /constructor
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates TanStack Query cache key for GET /prototype
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetConstructorQueryKey() {
-  return ['/constructor'] as const
+export function getGetPrototypeQueryKey() {
+  return ['prototype', '/prototype'] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /constructor
+ * Returns TanStack Query query options for GET /prototype
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetConstructorQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetConstructorQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetPrototypeQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetPrototypeQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.constructor.$get(undefined, {
+      client.prototype.$get(undefined, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -1655,23 +1683,23 @@ export function useGetPrototype(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /prototype
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates TanStack Query cache key for GET /toString
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetPrototypeQueryKey() {
-  return ['/prototype'] as const
+export function getGetToStringQueryKey() {
+  return ['toString', '/toString'] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /prototype
+ * Returns TanStack Query query options for GET /toString
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetPrototypeQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetPrototypeQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetToStringQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetToStringQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.prototype.$get(undefined, {
+      client.toString.$get(undefined, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -1694,23 +1722,23 @@ export function useGetToString(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /toString
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates TanStack Query cache key for GET /valueOf
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetToStringQueryKey() {
-  return ['/toString'] as const
+export function getGetValueOfQueryKey() {
+  return ['valueOf', '/valueOf'] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /toString
+ * Returns TanStack Query query options for GET /valueOf
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetToStringQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetToStringQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetValueOfQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetValueOfQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.toString.$get(undefined, {
+      client.valueOf.$get(undefined, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -1733,23 +1761,23 @@ export function useGetValueOf(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /valueOf
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates TanStack Query cache key for GET /hasOwnProperty
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetValueOfQueryKey() {
-  return ['/valueOf'] as const
+export function getGetHasOwnPropertyQueryKey() {
+  return ['hasOwnProperty', '/hasOwnProperty'] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /valueOf
+ * Returns TanStack Query query options for GET /hasOwnProperty
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetValueOfQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetValueOfQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetHasOwnPropertyQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetHasOwnPropertyQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.valueOf.$get(undefined, {
+      client.hasOwnProperty.$get(undefined, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -1774,23 +1802,23 @@ export function useGetHasOwnProperty(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /hasOwnProperty
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates TanStack Query cache key for GET /name-collisions
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetHasOwnPropertyQueryKey() {
-  return ['/hasOwnProperty'] as const
+export function getGetNameCollisionsQueryKey() {
+  return ['name-collisions', '/name-collisions'] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /hasOwnProperty
+ * Returns TanStack Query query options for GET /name-collisions
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetHasOwnPropertyQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetHasOwnPropertyQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetNameCollisionsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetNameCollisionsQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.hasOwnProperty.$get(undefined, {
+      client['name-collisions'].$get(undefined, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -1815,27 +1843,3 @@ export function useGetNameCollisions(options?: {
   const { queryKey, queryFn, ...baseOptions } = getGetNameCollisionsQueryOptions(clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates TanStack Query cache key for GET /name-collisions
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGetNameCollisionsQueryKey() {
-  return ['/name-collisions'] as const
-}
-
-/**
- * Returns TanStack Query query options for GET /name-collisions
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetNameCollisionsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetNameCollisionsQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['name-collisions'].$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})

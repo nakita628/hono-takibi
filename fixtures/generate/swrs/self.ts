@@ -5,6 +5,14 @@ import { parseResponse } from 'hono/client'
 import { client } from '../clients/self'
 
 /**
+ * Generates SWR cache key for GET /categories
+ * Returns structured key [path] for filter-based invalidation
+ */
+export function getGetCategoriesKey() {
+  return ['/categories'] as const
+}
+
+/**
  * GET /categories
  */
 export function useGetCategories(options?: {
@@ -23,12 +31,4 @@ export function useGetCategories(options?: {
       restSwrOptions,
     ),
   }
-}
-
-/**
- * Generates SWR cache key for GET /categories
- * Returns structured key [templatePath] for filter-based invalidation
- */
-export function getGetCategoriesKey() {
-  return ['/categories'] as const
 }

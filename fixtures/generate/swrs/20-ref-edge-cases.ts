@@ -5,6 +5,14 @@ import { parseResponse } from 'hono/client'
 import { client } from '../clients/20-ref-edge-cases'
 
 /**
+ * Generates SWR cache key for GET /test
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
+ */
+export function getGetTestKey(args: InferRequestType<typeof client.test.$get>) {
+  return ['/test', args] as const
+}
+
+/**
  * GET /test
  */
 export function useGetTest(
@@ -29,11 +37,11 @@ export function useGetTest(
 }
 
 /**
- * Generates SWR cache key for GET /test
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR cache key for GET /empty-refs
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetTestKey(args: InferRequestType<typeof client.test.$get>) {
-  return ['/test', args] as const
+export function getGetEmptyRefsKey() {
+  return ['/empty-refs'] as const
 }
 
 /**
@@ -58,11 +66,11 @@ export function useGetEmptyRefs(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /empty-refs
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /unicode-refs
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetEmptyRefsKey() {
-  return ['/empty-refs'] as const
+export function getGetUnicodeRefsKey() {
+  return ['/unicode-refs'] as const
 }
 
 /**
@@ -87,11 +95,11 @@ export function useGetUnicodeRefs(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /unicode-refs
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /special-chars
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetUnicodeRefsKey() {
-  return ['/unicode-refs'] as const
+export function getGetSpecialCharsKey() {
+  return ['/special-chars'] as const
 }
 
 /**
@@ -116,11 +124,11 @@ export function useGetSpecialChars(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /special-chars
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /numeric-start
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetSpecialCharsKey() {
-  return ['/special-chars'] as const
+export function getGetNumericStartKey() {
+  return ['/numeric-start'] as const
 }
 
 /**
@@ -145,11 +153,11 @@ export function useGetNumericStart(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /numeric-start
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /ref-in-allof
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetNumericStartKey() {
-  return ['/numeric-start'] as const
+export function getGetRefInAllofKey() {
+  return ['/ref-in-allof'] as const
 }
 
 /**
@@ -174,11 +182,11 @@ export function useGetRefInAllof(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /ref-in-allof
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /deeply-nested
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetRefInAllofKey() {
-  return ['/ref-in-allof'] as const
+export function getGetDeeplyNestedKey() {
+  return ['/deeply-nested'] as const
 }
 
 /**
@@ -203,11 +211,11 @@ export function useGetDeeplyNested(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /deeply-nested
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /same-name-diff-context
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetDeeplyNestedKey() {
-  return ['/deeply-nested'] as const
+export function getGetSameNameDiffContextKey() {
+  return ['/same-name-diff-context'] as const
 }
 
 /**
@@ -229,12 +237,4 @@ export function useGetSameNameDiffContext(options?: {
       restSwrOptions,
     ),
   }
-}
-
-/**
- * Generates SWR cache key for GET /same-name-diff-context
- * Returns structured key [templatePath] for filter-based invalidation
- */
-export function getGetSameNameDiffContextKey() {
-  return ['/same-name-diff-context'] as const
 }

@@ -5,6 +5,14 @@ import { parseResponse } from 'hono/client'
 import { client } from '../clients/additional'
 
 /**
+ * Generates SWR cache key for GET /passthrough
+ * Returns structured key [path] for filter-based invalidation
+ */
+export function getGetPassthroughKey() {
+  return ['/passthrough'] as const
+}
+
+/**
  * GET /passthrough
  *
  * zod passthrough
@@ -27,12 +35,4 @@ export function useGetPassthrough(options?: {
       restSwrOptions,
     ),
   }
-}
-
-/**
- * Generates SWR cache key for GET /passthrough
- * Returns structured key [templatePath] for filter-based invalidation
- */
-export function getGetPassthroughKey() {
-  return ['/passthrough'] as const
 }

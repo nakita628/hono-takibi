@@ -7,6 +7,14 @@ import { parseResponse } from 'hono/client'
 import { client } from '../clients/discord-api-spec-openapi'
 
 /**
+ * Generates SWR cache key for GET /applications/@me
+ * Returns structured key [path] for filter-based invalidation
+ */
+export function getGetApplicationsMeKey() {
+  return ['/applications/@me'] as const
+}
+
+/**
  * GET /applications/@me
  */
 export function useGetApplicationsMe(options?: {
@@ -28,10 +36,10 @@ export function useGetApplicationsMe(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /applications/@me
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR mutation key for PATCH /applications/@me
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetApplicationsMeKey() {
+export function getPatchApplicationsMeMutationKey() {
   return ['/applications/@me'] as const
 }
 
@@ -68,12 +76,13 @@ export function usePatchApplicationsMe(options?: {
 }
 
 /**
- * Generates SWR mutation key for PATCH /applications/@me
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /applications/{application_id}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPatchApplicationsMeMutationKey() {
-  return 'PATCH /applications/@me'
+export function getGetApplicationsApplicationIdKey(
+  args: InferRequestType<(typeof client.applications)[':application_id']['$get']>,
+) {
+  return [`/applications/${args.param.application_id}`, args] as const
 }
 
 /**
@@ -101,13 +110,11 @@ export function useGetApplicationsApplicationId(
 }
 
 /**
- * Generates SWR cache key for GET /applications/{application_id}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for PATCH /applications/{application_id}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetApplicationsApplicationIdKey(
-  args: InferRequestType<(typeof client.applications)[':application_id']['$get']>,
-) {
-  return ['/applications/:application_id', args] as const
+export function getPatchApplicationsApplicationIdMutationKey() {
+  return ['/applications/:application_id'] as const
 }
 
 /**
@@ -147,12 +154,18 @@ export function usePatchApplicationsApplicationId(options?: {
 }
 
 /**
- * Generates SWR mutation key for PATCH /applications/{application_id}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /applications/{application_id}/activity-instances/{instance_id}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPatchApplicationsApplicationIdMutationKey() {
-  return 'PATCH /applications/:application_id'
+export function getGetApplicationsApplicationIdActivityInstancesInstanceIdKey(
+  args: InferRequestType<
+    (typeof client.applications)[':application_id']['activity-instances'][':instance_id']['$get']
+  >,
+) {
+  return [
+    `/applications/${args.param.application_id}/activity-instances/${args.param.instance_id}`,
+    args,
+  ] as const
 }
 
 /**
@@ -190,15 +203,11 @@ export function useGetApplicationsApplicationIdActivityInstancesInstanceId(
 }
 
 /**
- * Generates SWR cache key for GET /applications/{application_id}/activity-instances/{instance_id}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for POST /applications/{application_id}/attachment
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetApplicationsApplicationIdActivityInstancesInstanceIdKey(
-  args: InferRequestType<
-    (typeof client.applications)[':application_id']['activity-instances'][':instance_id']['$get']
-  >,
-) {
-  return ['/applications/:application_id/activity-instances/:instance_id', args] as const
+export function getPostApplicationsApplicationIdAttachmentMutationKey() {
+  return ['/applications/:application_id/attachment'] as const
 }
 
 /**
@@ -245,12 +254,13 @@ export function usePostApplicationsApplicationIdAttachment(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /applications/{application_id}/attachment
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /applications/{application_id}/commands
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPostApplicationsApplicationIdAttachmentMutationKey() {
-  return 'POST /applications/:application_id/attachment'
+export function getGetApplicationsApplicationIdCommandsKey(
+  args: InferRequestType<(typeof client.applications)[':application_id']['commands']['$get']>,
+) {
+  return [`/applications/${args.param.application_id}/commands`, args] as const
 }
 
 /**
@@ -279,13 +289,11 @@ export function useGetApplicationsApplicationIdCommands(
 }
 
 /**
- * Generates SWR cache key for GET /applications/{application_id}/commands
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for PUT /applications/{application_id}/commands
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetApplicationsApplicationIdCommandsKey(
-  args: InferRequestType<(typeof client.applications)[':application_id']['commands']['$get']>,
-) {
-  return ['/applications/:application_id/commands', args] as const
+export function getPutApplicationsApplicationIdCommandsMutationKey() {
+  return ['/applications/:application_id/commands'] as const
 }
 
 /**
@@ -327,12 +335,11 @@ export function usePutApplicationsApplicationIdCommands(options?: {
 }
 
 /**
- * Generates SWR mutation key for PUT /applications/{application_id}/commands
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /applications/{application_id}/commands
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPutApplicationsApplicationIdCommandsMutationKey() {
-  return 'PUT /applications/:application_id/commands'
+export function getPostApplicationsApplicationIdCommandsMutationKey() {
+  return ['/applications/:application_id/commands'] as const
 }
 
 /**
@@ -376,12 +383,18 @@ export function usePostApplicationsApplicationIdCommands(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /applications/{application_id}/commands
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /applications/{application_id}/commands/{command_id}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPostApplicationsApplicationIdCommandsMutationKey() {
-  return 'POST /applications/:application_id/commands'
+export function getGetApplicationsApplicationIdCommandsCommandIdKey(
+  args: InferRequestType<
+    (typeof client.applications)[':application_id']['commands'][':command_id']['$get']
+  >,
+) {
+  return [
+    `/applications/${args.param.application_id}/commands/${args.param.command_id}`,
+    args,
+  ] as const
 }
 
 /**
@@ -415,15 +428,11 @@ export function useGetApplicationsApplicationIdCommandsCommandId(
 }
 
 /**
- * Generates SWR cache key for GET /applications/{application_id}/commands/{command_id}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for DELETE /applications/{application_id}/commands/{command_id}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetApplicationsApplicationIdCommandsCommandIdKey(
-  args: InferRequestType<
-    (typeof client.applications)[':application_id']['commands'][':command_id']['$get']
-  >,
-) {
-  return ['/applications/:application_id/commands/:command_id', args] as const
+export function getDeleteApplicationsApplicationIdCommandsCommandIdMutationKey() {
+  return ['/applications/:application_id/commands/:command_id'] as const
 }
 
 /**
@@ -480,12 +489,11 @@ export function useDeleteApplicationsApplicationIdCommandsCommandId(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /applications/{application_id}/commands/{command_id}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for PATCH /applications/{application_id}/commands/{command_id}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getDeleteApplicationsApplicationIdCommandsCommandIdMutationKey() {
-  return 'DELETE /applications/:application_id/commands/:command_id'
+export function getPatchApplicationsApplicationIdCommandsCommandIdMutationKey() {
+  return ['/applications/:application_id/commands/:command_id'] as const
 }
 
 /**
@@ -538,12 +546,13 @@ export function usePatchApplicationsApplicationIdCommandsCommandId(options?: {
 }
 
 /**
- * Generates SWR mutation key for PATCH /applications/{application_id}/commands/{command_id}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /applications/{application_id}/emojis
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPatchApplicationsApplicationIdCommandsCommandIdMutationKey() {
-  return 'PATCH /applications/:application_id/commands/:command_id'
+export function getGetApplicationsApplicationIdEmojisKey(
+  args: InferRequestType<(typeof client.applications)[':application_id']['emojis']['$get']>,
+) {
+  return [`/applications/${args.param.application_id}/emojis`, args] as const
 }
 
 /**
@@ -572,13 +581,11 @@ export function useGetApplicationsApplicationIdEmojis(
 }
 
 /**
- * Generates SWR cache key for GET /applications/{application_id}/emojis
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for POST /applications/{application_id}/emojis
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetApplicationsApplicationIdEmojisKey(
-  args: InferRequestType<(typeof client.applications)[':application_id']['emojis']['$get']>,
-) {
-  return ['/applications/:application_id/emojis', args] as const
+export function getPostApplicationsApplicationIdEmojisMutationKey() {
+  return ['/applications/:application_id/emojis'] as const
 }
 
 /**
@@ -620,12 +627,15 @@ export function usePostApplicationsApplicationIdEmojis(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /applications/{application_id}/emojis
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /applications/{application_id}/emojis/{emoji_id}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPostApplicationsApplicationIdEmojisMutationKey() {
-  return 'POST /applications/:application_id/emojis'
+export function getGetApplicationsApplicationIdEmojisEmojiIdKey(
+  args: InferRequestType<
+    (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$get']
+  >,
+) {
+  return [`/applications/${args.param.application_id}/emojis/${args.param.emoji_id}`, args] as const
 }
 
 /**
@@ -659,15 +669,11 @@ export function useGetApplicationsApplicationIdEmojisEmojiId(
 }
 
 /**
- * Generates SWR cache key for GET /applications/{application_id}/emojis/{emoji_id}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for DELETE /applications/{application_id}/emojis/{emoji_id}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetApplicationsApplicationIdEmojisEmojiIdKey(
-  args: InferRequestType<
-    (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$get']
-  >,
-) {
-  return ['/applications/:application_id/emojis/:emoji_id', args] as const
+export function getDeleteApplicationsApplicationIdEmojisEmojiIdMutationKey() {
+  return ['/applications/:application_id/emojis/:emoji_id'] as const
 }
 
 /**
@@ -721,12 +727,11 @@ export function useDeleteApplicationsApplicationIdEmojisEmojiId(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /applications/{application_id}/emojis/{emoji_id}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for PATCH /applications/{application_id}/emojis/{emoji_id}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getDeleteApplicationsApplicationIdEmojisEmojiIdMutationKey() {
-  return 'DELETE /applications/:application_id/emojis/:emoji_id'
+export function getPatchApplicationsApplicationIdEmojisEmojiIdMutationKey() {
+  return ['/applications/:application_id/emojis/:emoji_id'] as const
 }
 
 /**
@@ -779,12 +784,13 @@ export function usePatchApplicationsApplicationIdEmojisEmojiId(options?: {
 }
 
 /**
- * Generates SWR mutation key for PATCH /applications/{application_id}/emojis/{emoji_id}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /applications/{application_id}/entitlements
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPatchApplicationsApplicationIdEmojisEmojiIdMutationKey() {
-  return 'PATCH /applications/:application_id/emojis/:emoji_id'
+export function getGetApplicationsApplicationIdEntitlementsKey(
+  args: InferRequestType<(typeof client.applications)[':application_id']['entitlements']['$get']>,
+) {
+  return [`/applications/${args.param.application_id}/entitlements`, args] as const
 }
 
 /**
@@ -816,13 +822,11 @@ export function useGetApplicationsApplicationIdEntitlements(
 }
 
 /**
- * Generates SWR cache key for GET /applications/{application_id}/entitlements
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for POST /applications/{application_id}/entitlements
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetApplicationsApplicationIdEntitlementsKey(
-  args: InferRequestType<(typeof client.applications)[':application_id']['entitlements']['$get']>,
-) {
-  return ['/applications/:application_id/entitlements', args] as const
+export function getPostApplicationsApplicationIdEntitlementsMutationKey() {
+  return ['/applications/:application_id/entitlements'] as const
 }
 
 /**
@@ -871,12 +875,18 @@ export function usePostApplicationsApplicationIdEntitlements(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /applications/{application_id}/entitlements
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /applications/{application_id}/entitlements/{entitlement_id}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPostApplicationsApplicationIdEntitlementsMutationKey() {
-  return 'POST /applications/:application_id/entitlements'
+export function getGetApplicationsApplicationIdEntitlementsEntitlementIdKey(
+  args: InferRequestType<
+    (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['$get']
+  >,
+) {
+  return [
+    `/applications/${args.param.application_id}/entitlements/${args.param.entitlement_id}`,
+    args,
+  ] as const
 }
 
 /**
@@ -914,15 +924,11 @@ export function useGetApplicationsApplicationIdEntitlementsEntitlementId(
 }
 
 /**
- * Generates SWR cache key for GET /applications/{application_id}/entitlements/{entitlement_id}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for DELETE /applications/{application_id}/entitlements/{entitlement_id}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetApplicationsApplicationIdEntitlementsEntitlementIdKey(
-  args: InferRequestType<
-    (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['$get']
-  >,
-) {
-  return ['/applications/:application_id/entitlements/:entitlement_id', args] as const
+export function getDeleteApplicationsApplicationIdEntitlementsEntitlementIdMutationKey() {
+  return ['/applications/:application_id/entitlements/:entitlement_id'] as const
 }
 
 /**
@@ -980,12 +986,11 @@ export function useDeleteApplicationsApplicationIdEntitlementsEntitlementId(opti
 }
 
 /**
- * Generates SWR mutation key for DELETE /applications/{application_id}/entitlements/{entitlement_id}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /applications/{application_id}/entitlements/{entitlement_id}/consume
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getDeleteApplicationsApplicationIdEntitlementsEntitlementIdMutationKey() {
-  return 'DELETE /applications/:application_id/entitlements/:entitlement_id'
+export function getPostApplicationsApplicationIdEntitlementsEntitlementIdConsumeMutationKey() {
+  return ['/applications/:application_id/entitlements/:entitlement_id/consume'] as const
 }
 
 /**
@@ -1043,12 +1048,18 @@ export function usePostApplicationsApplicationIdEntitlementsEntitlementIdConsume
 }
 
 /**
- * Generates SWR mutation key for POST /applications/{application_id}/entitlements/{entitlement_id}/consume
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /applications/{application_id}/guilds/{guild_id}/commands
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPostApplicationsApplicationIdEntitlementsEntitlementIdConsumeMutationKey() {
-  return 'POST /applications/:application_id/entitlements/:entitlement_id/consume'
+export function getGetApplicationsApplicationIdGuildsGuildIdCommandsKey(
+  args: InferRequestType<
+    (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$get']
+  >,
+) {
+  return [
+    `/applications/${args.param.application_id}/guilds/${args.param.guild_id}/commands`,
+    args,
+  ] as const
 }
 
 /**
@@ -1085,15 +1096,11 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommands(
 }
 
 /**
- * Generates SWR cache key for GET /applications/{application_id}/guilds/{guild_id}/commands
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for PUT /applications/{application_id}/guilds/{guild_id}/commands
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetApplicationsApplicationIdGuildsGuildIdCommandsKey(
-  args: InferRequestType<
-    (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$get']
-  >,
-) {
-  return ['/applications/:application_id/guilds/:guild_id/commands', args] as const
+export function getPutApplicationsApplicationIdGuildsGuildIdCommandsMutationKey() {
+  return ['/applications/:application_id/guilds/:guild_id/commands'] as const
 }
 
 /**
@@ -1149,12 +1156,11 @@ export function usePutApplicationsApplicationIdGuildsGuildIdCommands(options?: {
 }
 
 /**
- * Generates SWR mutation key for PUT /applications/{application_id}/guilds/{guild_id}/commands
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /applications/{application_id}/guilds/{guild_id}/commands
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPutApplicationsApplicationIdGuildsGuildIdCommandsMutationKey() {
-  return 'PUT /applications/:application_id/guilds/:guild_id/commands'
+export function getPostApplicationsApplicationIdGuildsGuildIdCommandsMutationKey() {
+  return ['/applications/:application_id/guilds/:guild_id/commands'] as const
 }
 
 /**
@@ -1210,12 +1216,18 @@ export function usePostApplicationsApplicationIdGuildsGuildIdCommands(options?: 
 }
 
 /**
- * Generates SWR mutation key for POST /applications/{application_id}/guilds/{guild_id}/commands
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /applications/{application_id}/guilds/{guild_id}/commands/permissions
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPostApplicationsApplicationIdGuildsGuildIdCommandsMutationKey() {
-  return 'POST /applications/:application_id/guilds/:guild_id/commands'
+export function getGetApplicationsApplicationIdGuildsGuildIdCommandsPermissionsKey(
+  args: InferRequestType<
+    (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['permissions']['$get']
+  >,
+) {
+  return [
+    `/applications/${args.param.application_id}/guilds/${args.param.guild_id}/commands/permissions`,
+    args,
+  ] as const
 }
 
 /**
@@ -1253,15 +1265,18 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommandsPermissions(
 }
 
 /**
- * Generates SWR cache key for GET /applications/{application_id}/guilds/{guild_id}/commands/permissions
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR cache key for GET /applications/{application_id}/guilds/{guild_id}/commands/{command_id}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getGetApplicationsApplicationIdGuildsGuildIdCommandsPermissionsKey(
+export function getGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdKey(
   args: InferRequestType<
-    (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['permissions']['$get']
+    (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$get']
   >,
 ) {
-  return ['/applications/:application_id/guilds/:guild_id/commands/permissions', args] as const
+  return [
+    `/applications/${args.param.application_id}/guilds/${args.param.guild_id}/commands/${args.param.command_id}`,
+    args,
+  ] as const
 }
 
 /**
@@ -1299,15 +1314,11 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommandsCommandId(
 }
 
 /**
- * Generates SWR cache key for GET /applications/{application_id}/guilds/{guild_id}/commands/{command_id}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for DELETE /applications/{application_id}/guilds/{guild_id}/commands/{command_id}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdKey(
-  args: InferRequestType<
-    (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$get']
-  >,
-) {
-  return ['/applications/:application_id/guilds/:guild_id/commands/:command_id', args] as const
+export function getDeleteApplicationsApplicationIdGuildsGuildIdCommandsCommandIdMutationKey() {
+  return ['/applications/:application_id/guilds/:guild_id/commands/:command_id'] as const
 }
 
 /**
@@ -1364,12 +1375,11 @@ export function useDeleteApplicationsApplicationIdGuildsGuildIdCommandsCommandId
 }
 
 /**
- * Generates SWR mutation key for DELETE /applications/{application_id}/guilds/{guild_id}/commands/{command_id}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for PATCH /applications/{application_id}/guilds/{guild_id}/commands/{command_id}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getDeleteApplicationsApplicationIdGuildsGuildIdCommandsCommandIdMutationKey() {
-  return 'DELETE /applications/:application_id/guilds/:guild_id/commands/:command_id'
+export function getPatchApplicationsApplicationIdGuildsGuildIdCommandsCommandIdMutationKey() {
+  return ['/applications/:application_id/guilds/:guild_id/commands/:command_id'] as const
 }
 
 /**
@@ -1426,12 +1436,18 @@ export function usePatchApplicationsApplicationIdGuildsGuildIdCommandsCommandId(
 }
 
 /**
- * Generates SWR mutation key for PATCH /applications/{application_id}/guilds/{guild_id}/commands/{command_id}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /applications/{application_id}/guilds/{guild_id}/commands/{command_id}/permissions
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPatchApplicationsApplicationIdGuildsGuildIdCommandsCommandIdMutationKey() {
-  return 'PATCH /applications/:application_id/guilds/:guild_id/commands/:command_id'
+export function getGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPermissionsKey(
+  args: InferRequestType<
+    (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['permissions']['$get']
+  >,
+) {
+  return [
+    `/applications/${args.param.application_id}/guilds/${args.param.guild_id}/commands/${args.param.command_id}/permissions`,
+    args,
+  ] as const
 }
 
 /**
@@ -1470,17 +1486,12 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPer
 }
 
 /**
- * Generates SWR cache key for GET /applications/{application_id}/guilds/{guild_id}/commands/{command_id}/permissions
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for PUT /applications/{application_id}/guilds/{guild_id}/commands/{command_id}/permissions
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPermissionsKey(
-  args: InferRequestType<
-    (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['permissions']['$get']
-  >,
-) {
+export function getPutApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPermissionsMutationKey() {
   return [
     '/applications/:application_id/guilds/:guild_id/commands/:command_id/permissions',
-    args,
   ] as const
 }
 
@@ -1538,12 +1549,15 @@ export function usePutApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPer
 }
 
 /**
- * Generates SWR mutation key for PUT /applications/{application_id}/guilds/{guild_id}/commands/{command_id}/permissions
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /applications/{application_id}/role-connections/metadata
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPutApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPermissionsMutationKey() {
-  return 'PUT /applications/:application_id/guilds/:guild_id/commands/:command_id/permissions'
+export function getGetApplicationsApplicationIdRoleConnectionsMetadataKey(
+  args: InferRequestType<
+    (typeof client.applications)[':application_id']['role-connections']['metadata']['$get']
+  >,
+) {
+  return [`/applications/${args.param.application_id}/role-connections/metadata`, args] as const
 }
 
 /**
@@ -1581,15 +1595,11 @@ export function useGetApplicationsApplicationIdRoleConnectionsMetadata(
 }
 
 /**
- * Generates SWR cache key for GET /applications/{application_id}/role-connections/metadata
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for PUT /applications/{application_id}/role-connections/metadata
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetApplicationsApplicationIdRoleConnectionsMetadataKey(
-  args: InferRequestType<
-    (typeof client.applications)[':application_id']['role-connections']['metadata']['$get']
-  >,
-) {
-  return ['/applications/:application_id/role-connections/metadata', args] as const
+export function getPutApplicationsApplicationIdRoleConnectionsMetadataMutationKey() {
+  return ['/applications/:application_id/role-connections/metadata'] as const
 }
 
 /**
@@ -1645,12 +1655,13 @@ export function usePutApplicationsApplicationIdRoleConnectionsMetadata(options?:
 }
 
 /**
- * Generates SWR mutation key for PUT /applications/{application_id}/role-connections/metadata
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /channels/{channel_id}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPutApplicationsApplicationIdRoleConnectionsMetadataMutationKey() {
-  return 'PUT /applications/:application_id/role-connections/metadata'
+export function getGetChannelsChannelIdKey(
+  args: InferRequestType<(typeof client.channels)[':channel_id']['$get']>,
+) {
+  return [`/channels/${args.param.channel_id}`, args] as const
 }
 
 /**
@@ -1678,13 +1689,11 @@ export function useGetChannelsChannelId(
 }
 
 /**
- * Generates SWR cache key for GET /channels/{channel_id}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for DELETE /channels/{channel_id}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetChannelsChannelIdKey(
-  args: InferRequestType<(typeof client.channels)[':channel_id']['$get']>,
-) {
-  return ['/channels/:channel_id', args] as const
+export function getDeleteChannelsChannelIdMutationKey() {
+  return ['/channels/:channel_id'] as const
 }
 
 /**
@@ -1722,12 +1731,11 @@ export function useDeleteChannelsChannelId(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /channels/{channel_id}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for PATCH /channels/{channel_id}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getDeleteChannelsChannelIdMutationKey() {
-  return 'DELETE /channels/:channel_id'
+export function getPatchChannelsChannelIdMutationKey() {
+  return ['/channels/:channel_id'] as const
 }
 
 /**
@@ -1763,12 +1771,11 @@ export function usePatchChannelsChannelId(options?: {
 }
 
 /**
- * Generates SWR mutation key for PATCH /channels/{channel_id}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /channels/{channel_id}/followers
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPatchChannelsChannelIdMutationKey() {
-  return 'PATCH /channels/:channel_id'
+export function getPostChannelsChannelIdFollowersMutationKey() {
+  return ['/channels/:channel_id/followers'] as const
 }
 
 /**
@@ -1808,12 +1815,13 @@ export function usePostChannelsChannelIdFollowers(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /channels/{channel_id}/followers
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /channels/{channel_id}/invites
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPostChannelsChannelIdFollowersMutationKey() {
-  return 'POST /channels/:channel_id/followers'
+export function getGetChannelsChannelIdInvitesKey(
+  args: InferRequestType<(typeof client.channels)[':channel_id']['invites']['$get']>,
+) {
+  return [`/channels/${args.param.channel_id}/invites`, args] as const
 }
 
 /**
@@ -1841,13 +1849,11 @@ export function useGetChannelsChannelIdInvites(
 }
 
 /**
- * Generates SWR cache key for GET /channels/{channel_id}/invites
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for POST /channels/{channel_id}/invites
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetChannelsChannelIdInvitesKey(
-  args: InferRequestType<(typeof client.channels)[':channel_id']['invites']['$get']>,
-) {
-  return ['/channels/:channel_id/invites', args] as const
+export function getPostChannelsChannelIdInvitesMutationKey() {
+  return ['/channels/:channel_id/invites'] as const
 }
 
 /**
@@ -1888,12 +1894,13 @@ export function usePostChannelsChannelIdInvites(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /channels/{channel_id}/invites
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /channels/{channel_id}/messages
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPostChannelsChannelIdInvitesMutationKey() {
-  return 'POST /channels/:channel_id/invites'
+export function getGetChannelsChannelIdMessagesKey(
+  args: InferRequestType<(typeof client.channels)[':channel_id']['messages']['$get']>,
+) {
+  return [`/channels/${args.param.channel_id}/messages`, args] as const
 }
 
 /**
@@ -1921,13 +1928,11 @@ export function useGetChannelsChannelIdMessages(
 }
 
 /**
- * Generates SWR cache key for GET /channels/{channel_id}/messages
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for POST /channels/{channel_id}/messages
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetChannelsChannelIdMessagesKey(
-  args: InferRequestType<(typeof client.channels)[':channel_id']['messages']['$get']>,
-) {
-  return ['/channels/:channel_id/messages', args] as const
+export function getPostChannelsChannelIdMessagesMutationKey() {
+  return ['/channels/:channel_id/messages'] as const
 }
 
 /**
@@ -1967,12 +1972,11 @@ export function usePostChannelsChannelIdMessages(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /channels/{channel_id}/messages
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /channels/{channel_id}/messages/bulk-delete
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostChannelsChannelIdMessagesMutationKey() {
-  return 'POST /channels/:channel_id/messages'
+export function getPostChannelsChannelIdMessagesBulkDeleteMutationKey() {
+  return ['/channels/:channel_id/messages/bulk-delete'] as const
 }
 
 /**
@@ -2024,12 +2028,13 @@ export function usePostChannelsChannelIdMessagesBulkDelete(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /channels/{channel_id}/messages/bulk-delete
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /channels/{channel_id}/messages/pins
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPostChannelsChannelIdMessagesBulkDeleteMutationKey() {
-  return 'POST /channels/:channel_id/messages/bulk-delete'
+export function getGetChannelsChannelIdMessagesPinsKey(
+  args: InferRequestType<(typeof client.channels)[':channel_id']['messages']['pins']['$get']>,
+) {
+  return [`/channels/${args.param.channel_id}/messages/pins`, args] as const
 }
 
 /**
@@ -2058,13 +2063,11 @@ export function useGetChannelsChannelIdMessagesPins(
 }
 
 /**
- * Generates SWR cache key for GET /channels/{channel_id}/messages/pins
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for PUT /channels/{channel_id}/messages/pins/{message_id}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetChannelsChannelIdMessagesPinsKey(
-  args: InferRequestType<(typeof client.channels)[':channel_id']['messages']['pins']['$get']>,
-) {
-  return ['/channels/:channel_id/messages/pins', args] as const
+export function getPutChannelsChannelIdMessagesPinsMessageIdMutationKey() {
+  return ['/channels/:channel_id/messages/pins/:message_id'] as const
 }
 
 /**
@@ -2118,12 +2121,11 @@ export function usePutChannelsChannelIdMessagesPinsMessageId(options?: {
 }
 
 /**
- * Generates SWR mutation key for PUT /channels/{channel_id}/messages/pins/{message_id}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for DELETE /channels/{channel_id}/messages/pins/{message_id}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPutChannelsChannelIdMessagesPinsMessageIdMutationKey() {
-  return 'PUT /channels/:channel_id/messages/pins/:message_id'
+export function getDeleteChannelsChannelIdMessagesPinsMessageIdMutationKey() {
+  return ['/channels/:channel_id/messages/pins/:message_id'] as const
 }
 
 /**
@@ -2177,12 +2179,15 @@ export function useDeleteChannelsChannelIdMessagesPinsMessageId(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /channels/{channel_id}/messages/pins/{message_id}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /channels/{channel_id}/messages/{message_id}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getDeleteChannelsChannelIdMessagesPinsMessageIdMutationKey() {
-  return 'DELETE /channels/:channel_id/messages/pins/:message_id'
+export function getGetChannelsChannelIdMessagesMessageIdKey(
+  args: InferRequestType<
+    (typeof client.channels)[':channel_id']['messages'][':message_id']['$get']
+  >,
+) {
+  return [`/channels/${args.param.channel_id}/messages/${args.param.message_id}`, args] as const
 }
 
 /**
@@ -2215,15 +2220,11 @@ export function useGetChannelsChannelIdMessagesMessageId(
 }
 
 /**
- * Generates SWR cache key for GET /channels/{channel_id}/messages/{message_id}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for DELETE /channels/{channel_id}/messages/{message_id}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetChannelsChannelIdMessagesMessageIdKey(
-  args: InferRequestType<
-    (typeof client.channels)[':channel_id']['messages'][':message_id']['$get']
-  >,
-) {
-  return ['/channels/:channel_id/messages/:message_id', args] as const
+export function getDeleteChannelsChannelIdMessagesMessageIdMutationKey() {
+  return ['/channels/:channel_id/messages/:message_id'] as const
 }
 
 /**
@@ -2275,12 +2276,11 @@ export function useDeleteChannelsChannelIdMessagesMessageId(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /channels/{channel_id}/messages/{message_id}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for PATCH /channels/{channel_id}/messages/{message_id}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getDeleteChannelsChannelIdMessagesMessageIdMutationKey() {
-  return 'DELETE /channels/:channel_id/messages/:message_id'
+export function getPatchChannelsChannelIdMessagesMessageIdMutationKey() {
+  return ['/channels/:channel_id/messages/:message_id'] as const
 }
 
 /**
@@ -2329,12 +2329,11 @@ export function usePatchChannelsChannelIdMessagesMessageId(options?: {
 }
 
 /**
- * Generates SWR mutation key for PATCH /channels/{channel_id}/messages/{message_id}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /channels/{channel_id}/messages/{message_id}/crosspost
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPatchChannelsChannelIdMessagesMessageIdMutationKey() {
-  return 'PATCH /channels/:channel_id/messages/:message_id'
+export function getPostChannelsChannelIdMessagesMessageIdCrosspostMutationKey() {
+  return ['/channels/:channel_id/messages/:message_id/crosspost'] as const
 }
 
 /**
@@ -2390,12 +2389,11 @@ export function usePostChannelsChannelIdMessagesMessageIdCrosspost(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /channels/{channel_id}/messages/{message_id}/crosspost
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for DELETE /channels/{channel_id}/messages/{message_id}/reactions
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostChannelsChannelIdMessagesMessageIdCrosspostMutationKey() {
-  return 'POST /channels/:channel_id/messages/:message_id/crosspost'
+export function getDeleteChannelsChannelIdMessagesMessageIdReactionsMutationKey() {
+  return ['/channels/:channel_id/messages/:message_id/reactions'] as const
 }
 
 /**
@@ -2452,12 +2450,18 @@ export function useDeleteChannelsChannelIdMessagesMessageIdReactions(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /channels/{channel_id}/messages/{message_id}/reactions
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /channels/{channel_id}/messages/{message_id}/reactions/{emoji_name}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getDeleteChannelsChannelIdMessagesMessageIdReactionsMutationKey() {
-  return 'DELETE /channels/:channel_id/messages/:message_id/reactions'
+export function getGetChannelsChannelIdMessagesMessageIdReactionsEmojiNameKey(
+  args: InferRequestType<
+    (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['$get']
+  >,
+) {
+  return [
+    `/channels/${args.param.channel_id}/messages/${args.param.message_id}/reactions/${args.param.emoji_name}`,
+    args,
+  ] as const
 }
 
 /**
@@ -2495,15 +2499,11 @@ export function useGetChannelsChannelIdMessagesMessageIdReactionsEmojiName(
 }
 
 /**
- * Generates SWR cache key for GET /channels/{channel_id}/messages/{message_id}/reactions/{emoji_name}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for DELETE /channels/{channel_id}/messages/{message_id}/reactions/{emoji_name}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetChannelsChannelIdMessagesMessageIdReactionsEmojiNameKey(
-  args: InferRequestType<
-    (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['$get']
-  >,
-) {
-  return ['/channels/:channel_id/messages/:message_id/reactions/:emoji_name', args] as const
+export function getDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameMutationKey() {
+  return ['/channels/:channel_id/messages/:message_id/reactions/:emoji_name'] as const
 }
 
 /**
@@ -2561,12 +2561,11 @@ export function useDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiName(op
 }
 
 /**
- * Generates SWR mutation key for DELETE /channels/{channel_id}/messages/{message_id}/reactions/{emoji_name}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for PUT /channels/{channel_id}/messages/{message_id}/reactions/{emoji_name}/@me
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameMutationKey() {
-  return 'DELETE /channels/:channel_id/messages/:message_id/reactions/:emoji_name'
+export function getPutChannelsChannelIdMessagesMessageIdReactionsEmojiNameMeMutationKey() {
+  return ['/channels/:channel_id/messages/:message_id/reactions/:emoji_name/@me'] as const
 }
 
 /**
@@ -2623,12 +2622,11 @@ export function usePutChannelsChannelIdMessagesMessageIdReactionsEmojiNameMe(opt
 }
 
 /**
- * Generates SWR mutation key for PUT /channels/{channel_id}/messages/{message_id}/reactions/{emoji_name}/@me
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for DELETE /channels/{channel_id}/messages/{message_id}/reactions/{emoji_name}/@me
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPutChannelsChannelIdMessagesMessageIdReactionsEmojiNameMeMutationKey() {
-  return 'PUT /channels/:channel_id/messages/:message_id/reactions/:emoji_name/@me'
+export function getDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameMeMutationKey() {
+  return ['/channels/:channel_id/messages/:message_id/reactions/:emoji_name/@me'] as const
 }
 
 /**
@@ -2685,12 +2683,11 @@ export function useDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameMe(
 }
 
 /**
- * Generates SWR mutation key for DELETE /channels/{channel_id}/messages/{message_id}/reactions/{emoji_name}/@me
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for DELETE /channels/{channel_id}/messages/{message_id}/reactions/{emoji_name}/{user_id}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameMeMutationKey() {
-  return 'DELETE /channels/:channel_id/messages/:message_id/reactions/:emoji_name/@me'
+export function getDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameUserIdMutationKey() {
+  return ['/channels/:channel_id/messages/:message_id/reactions/:emoji_name/:user_id'] as const
 }
 
 /**
@@ -2747,12 +2744,11 @@ export function useDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameUse
 }
 
 /**
- * Generates SWR mutation key for DELETE /channels/{channel_id}/messages/{message_id}/reactions/{emoji_name}/{user_id}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /channels/{channel_id}/messages/{message_id}/threads
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameUserIdMutationKey() {
-  return 'DELETE /channels/:channel_id/messages/:message_id/reactions/:emoji_name/:user_id'
+export function getPostChannelsChannelIdMessagesMessageIdThreadsMutationKey() {
+  return ['/channels/:channel_id/messages/:message_id/threads'] as const
 }
 
 /**
@@ -2805,12 +2801,11 @@ export function usePostChannelsChannelIdMessagesMessageIdThreads(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /channels/{channel_id}/messages/{message_id}/threads
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for PUT /channels/{channel_id}/permissions/{overwrite_id}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostChannelsChannelIdMessagesMessageIdThreadsMutationKey() {
-  return 'POST /channels/:channel_id/messages/:message_id/threads'
+export function getPutChannelsChannelIdPermissionsOverwriteIdMutationKey() {
+  return ['/channels/:channel_id/permissions/:overwrite_id'] as const
 }
 
 /**
@@ -2864,12 +2859,11 @@ export function usePutChannelsChannelIdPermissionsOverwriteId(options?: {
 }
 
 /**
- * Generates SWR mutation key for PUT /channels/{channel_id}/permissions/{overwrite_id}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for DELETE /channels/{channel_id}/permissions/{overwrite_id}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPutChannelsChannelIdPermissionsOverwriteIdMutationKey() {
-  return 'PUT /channels/:channel_id/permissions/:overwrite_id'
+export function getDeleteChannelsChannelIdPermissionsOverwriteIdMutationKey() {
+  return ['/channels/:channel_id/permissions/:overwrite_id'] as const
 }
 
 /**
@@ -2923,12 +2917,13 @@ export function useDeleteChannelsChannelIdPermissionsOverwriteId(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /channels/{channel_id}/permissions/{overwrite_id}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /channels/{channel_id}/pins
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getDeleteChannelsChannelIdPermissionsOverwriteIdMutationKey() {
-  return 'DELETE /channels/:channel_id/permissions/:overwrite_id'
+export function getGetChannelsChannelIdPinsKey(
+  args: InferRequestType<(typeof client.channels)[':channel_id']['pins']['$get']>,
+) {
+  return [`/channels/${args.param.channel_id}/pins`, args] as const
 }
 
 /**
@@ -2956,13 +2951,11 @@ export function useGetChannelsChannelIdPins(
 }
 
 /**
- * Generates SWR cache key for GET /channels/{channel_id}/pins
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for PUT /channels/{channel_id}/pins/{message_id}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetChannelsChannelIdPinsKey(
-  args: InferRequestType<(typeof client.channels)[':channel_id']['pins']['$get']>,
-) {
-  return ['/channels/:channel_id/pins', args] as const
+export function getPutChannelsChannelIdPinsMessageIdMutationKey() {
+  return ['/channels/:channel_id/pins/:message_id'] as const
 }
 
 /**
@@ -3010,12 +3003,11 @@ export function usePutChannelsChannelIdPinsMessageId(options?: {
 }
 
 /**
- * Generates SWR mutation key for PUT /channels/{channel_id}/pins/{message_id}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for DELETE /channels/{channel_id}/pins/{message_id}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPutChannelsChannelIdPinsMessageIdMutationKey() {
-  return 'PUT /channels/:channel_id/pins/:message_id'
+export function getDeleteChannelsChannelIdPinsMessageIdMutationKey() {
+  return ['/channels/:channel_id/pins/:message_id'] as const
 }
 
 /**
@@ -3065,12 +3057,18 @@ export function useDeleteChannelsChannelIdPinsMessageId(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /channels/{channel_id}/pins/{message_id}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /channels/{channel_id}/polls/{message_id}/answers/{answer_id}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getDeleteChannelsChannelIdPinsMessageIdMutationKey() {
-  return 'DELETE /channels/:channel_id/pins/:message_id'
+export function getGetChannelsChannelIdPollsMessageIdAnswersAnswerIdKey(
+  args: InferRequestType<
+    (typeof client.channels)[':channel_id']['polls'][':message_id']['answers'][':answer_id']['$get']
+  >,
+) {
+  return [
+    `/channels/${args.param.channel_id}/polls/${args.param.message_id}/answers/${args.param.answer_id}`,
+    args,
+  ] as const
 }
 
 /**
@@ -3107,15 +3105,11 @@ export function useGetChannelsChannelIdPollsMessageIdAnswersAnswerId(
 }
 
 /**
- * Generates SWR cache key for GET /channels/{channel_id}/polls/{message_id}/answers/{answer_id}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for POST /channels/{channel_id}/polls/{message_id}/expire
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetChannelsChannelIdPollsMessageIdAnswersAnswerIdKey(
-  args: InferRequestType<
-    (typeof client.channels)[':channel_id']['polls'][':message_id']['answers'][':answer_id']['$get']
-  >,
-) {
-  return ['/channels/:channel_id/polls/:message_id/answers/:answer_id', args] as const
+export function getPostChannelsChannelIdPollsMessageIdExpireMutationKey() {
+  return ['/channels/:channel_id/polls/:message_id/expire'] as const
 }
 
 /**
@@ -3168,12 +3162,11 @@ export function usePostChannelsChannelIdPollsMessageIdExpire(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /channels/{channel_id}/polls/{message_id}/expire
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for PUT /channels/{channel_id}/recipients/{user_id}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostChannelsChannelIdPollsMessageIdExpireMutationKey() {
-  return 'POST /channels/:channel_id/polls/:message_id/expire'
+export function getPutChannelsChannelIdRecipientsUserIdMutationKey() {
+  return ['/channels/:channel_id/recipients/:user_id'] as const
 }
 
 /**
@@ -3223,12 +3216,11 @@ export function usePutChannelsChannelIdRecipientsUserId(options?: {
 }
 
 /**
- * Generates SWR mutation key for PUT /channels/{channel_id}/recipients/{user_id}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for DELETE /channels/{channel_id}/recipients/{user_id}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPutChannelsChannelIdRecipientsUserIdMutationKey() {
-  return 'PUT /channels/:channel_id/recipients/:user_id'
+export function getDeleteChannelsChannelIdRecipientsUserIdMutationKey() {
+  return ['/channels/:channel_id/recipients/:user_id'] as const
 }
 
 /**
@@ -3280,12 +3272,11 @@ export function useDeleteChannelsChannelIdRecipientsUserId(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /channels/{channel_id}/recipients/{user_id}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /channels/{channel_id}/send-soundboard-sound
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getDeleteChannelsChannelIdRecipientsUserIdMutationKey() {
-  return 'DELETE /channels/:channel_id/recipients/:user_id'
+export function getPostChannelsChannelIdSendSoundboardSoundMutationKey() {
+  return ['/channels/:channel_id/send-soundboard-sound'] as const
 }
 
 /**
@@ -3335,12 +3326,13 @@ export function usePostChannelsChannelIdSendSoundboardSound(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /channels/{channel_id}/send-soundboard-sound
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /channels/{channel_id}/thread-members
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPostChannelsChannelIdSendSoundboardSoundMutationKey() {
-  return 'POST /channels/:channel_id/send-soundboard-sound'
+export function getGetChannelsChannelIdThreadMembersKey(
+  args: InferRequestType<(typeof client.channels)[':channel_id']['thread-members']['$get']>,
+) {
+  return [`/channels/${args.param.channel_id}/thread-members`, args] as const
 }
 
 /**
@@ -3369,13 +3361,11 @@ export function useGetChannelsChannelIdThreadMembers(
 }
 
 /**
- * Generates SWR cache key for GET /channels/{channel_id}/thread-members
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for PUT /channels/{channel_id}/thread-members/@me
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetChannelsChannelIdThreadMembersKey(
-  args: InferRequestType<(typeof client.channels)[':channel_id']['thread-members']['$get']>,
-) {
-  return ['/channels/:channel_id/thread-members', args] as const
+export function getPutChannelsChannelIdThreadMembersMeMutationKey() {
+  return ['/channels/:channel_id/thread-members/@me'] as const
 }
 
 /**
@@ -3425,12 +3415,11 @@ export function usePutChannelsChannelIdThreadMembersMe(options?: {
 }
 
 /**
- * Generates SWR mutation key for PUT /channels/{channel_id}/thread-members/@me
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for DELETE /channels/{channel_id}/thread-members/@me
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPutChannelsChannelIdThreadMembersMeMutationKey() {
-  return 'PUT /channels/:channel_id/thread-members/@me'
+export function getDeleteChannelsChannelIdThreadMembersMeMutationKey() {
+  return ['/channels/:channel_id/thread-members/@me'] as const
 }
 
 /**
@@ -3482,12 +3471,15 @@ export function useDeleteChannelsChannelIdThreadMembersMe(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /channels/{channel_id}/thread-members/@me
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /channels/{channel_id}/thread-members/{user_id}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getDeleteChannelsChannelIdThreadMembersMeMutationKey() {
-  return 'DELETE /channels/:channel_id/thread-members/@me'
+export function getGetChannelsChannelIdThreadMembersUserIdKey(
+  args: InferRequestType<
+    (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$get']
+  >,
+) {
+  return [`/channels/${args.param.channel_id}/thread-members/${args.param.user_id}`, args] as const
 }
 
 /**
@@ -3521,15 +3513,11 @@ export function useGetChannelsChannelIdThreadMembersUserId(
 }
 
 /**
- * Generates SWR cache key for GET /channels/{channel_id}/thread-members/{user_id}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for PUT /channels/{channel_id}/thread-members/{user_id}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetChannelsChannelIdThreadMembersUserIdKey(
-  args: InferRequestType<
-    (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$get']
-  >,
-) {
-  return ['/channels/:channel_id/thread-members/:user_id', args] as const
+export function getPutChannelsChannelIdThreadMembersUserIdMutationKey() {
+  return ['/channels/:channel_id/thread-members/:user_id'] as const
 }
 
 /**
@@ -3581,12 +3569,11 @@ export function usePutChannelsChannelIdThreadMembersUserId(options?: {
 }
 
 /**
- * Generates SWR mutation key for PUT /channels/{channel_id}/thread-members/{user_id}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for DELETE /channels/{channel_id}/thread-members/{user_id}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPutChannelsChannelIdThreadMembersUserIdMutationKey() {
-  return 'PUT /channels/:channel_id/thread-members/:user_id'
+export function getDeleteChannelsChannelIdThreadMembersUserIdMutationKey() {
+  return ['/channels/:channel_id/thread-members/:user_id'] as const
 }
 
 /**
@@ -3640,12 +3627,11 @@ export function useDeleteChannelsChannelIdThreadMembersUserId(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /channels/{channel_id}/thread-members/{user_id}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /channels/{channel_id}/threads
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getDeleteChannelsChannelIdThreadMembersUserIdMutationKey() {
-  return 'DELETE /channels/:channel_id/thread-members/:user_id'
+export function getPostChannelsChannelIdThreadsMutationKey() {
+  return ['/channels/:channel_id/threads'] as const
 }
 
 /**
@@ -3685,12 +3671,15 @@ export function usePostChannelsChannelIdThreads(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /channels/{channel_id}/threads
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /channels/{channel_id}/threads/archived/private
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPostChannelsChannelIdThreadsMutationKey() {
-  return 'POST /channels/:channel_id/threads'
+export function getGetChannelsChannelIdThreadsArchivedPrivateKey(
+  args: InferRequestType<
+    (typeof client.channels)[':channel_id']['threads']['archived']['private']['$get']
+  >,
+) {
+  return [`/channels/${args.param.channel_id}/threads/archived/private`, args] as const
 }
 
 /**
@@ -3724,15 +3713,15 @@ export function useGetChannelsChannelIdThreadsArchivedPrivate(
 }
 
 /**
- * Generates SWR cache key for GET /channels/{channel_id}/threads/archived/private
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR cache key for GET /channels/{channel_id}/threads/archived/public
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getGetChannelsChannelIdThreadsArchivedPrivateKey(
+export function getGetChannelsChannelIdThreadsArchivedPublicKey(
   args: InferRequestType<
-    (typeof client.channels)[':channel_id']['threads']['archived']['private']['$get']
+    (typeof client.channels)[':channel_id']['threads']['archived']['public']['$get']
   >,
 ) {
-  return ['/channels/:channel_id/threads/archived/private', args] as const
+  return [`/channels/${args.param.channel_id}/threads/archived/public`, args] as const
 }
 
 /**
@@ -3766,15 +3755,13 @@ export function useGetChannelsChannelIdThreadsArchivedPublic(
 }
 
 /**
- * Generates SWR cache key for GET /channels/{channel_id}/threads/archived/public
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR cache key for GET /channels/{channel_id}/threads/search
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getGetChannelsChannelIdThreadsArchivedPublicKey(
-  args: InferRequestType<
-    (typeof client.channels)[':channel_id']['threads']['archived']['public']['$get']
-  >,
+export function getGetChannelsChannelIdThreadsSearchKey(
+  args: InferRequestType<(typeof client.channels)[':channel_id']['threads']['search']['$get']>,
 ) {
-  return ['/channels/:channel_id/threads/archived/public', args] as const
+  return [`/channels/${args.param.channel_id}/threads/search`, args] as const
 }
 
 /**
@@ -3803,13 +3790,11 @@ export function useGetChannelsChannelIdThreadsSearch(
 }
 
 /**
- * Generates SWR cache key for GET /channels/{channel_id}/threads/search
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for POST /channels/{channel_id}/typing
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetChannelsChannelIdThreadsSearchKey(
-  args: InferRequestType<(typeof client.channels)[':channel_id']['threads']['search']['$get']>,
-) {
-  return ['/channels/:channel_id/threads/search', args] as const
+export function getPostChannelsChannelIdTypingMutationKey() {
+  return ['/channels/:channel_id/typing'] as const
 }
 
 /**
@@ -3850,12 +3835,15 @@ export function usePostChannelsChannelIdTyping(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /channels/{channel_id}/typing
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /channels/{channel_id}/users/@me/threads/archived/private
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPostChannelsChannelIdTypingMutationKey() {
-  return 'POST /channels/:channel_id/typing'
+export function getGetChannelsChannelIdUsersMeThreadsArchivedPrivateKey(
+  args: InferRequestType<
+    (typeof client.channels)[':channel_id']['users']['@me']['threads']['archived']['private']['$get']
+  >,
+) {
+  return [`/channels/${args.param.channel_id}/users/@me/threads/archived/private`, args] as const
 }
 
 /**
@@ -3892,15 +3880,13 @@ export function useGetChannelsChannelIdUsersMeThreadsArchivedPrivate(
 }
 
 /**
- * Generates SWR cache key for GET /channels/{channel_id}/users/@me/threads/archived/private
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR cache key for GET /channels/{channel_id}/webhooks
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getGetChannelsChannelIdUsersMeThreadsArchivedPrivateKey(
-  args: InferRequestType<
-    (typeof client.channels)[':channel_id']['users']['@me']['threads']['archived']['private']['$get']
-  >,
+export function getGetChannelsChannelIdWebhooksKey(
+  args: InferRequestType<(typeof client.channels)[':channel_id']['webhooks']['$get']>,
 ) {
-  return ['/channels/:channel_id/users/@me/threads/archived/private', args] as const
+  return [`/channels/${args.param.channel_id}/webhooks`, args] as const
 }
 
 /**
@@ -3928,13 +3914,11 @@ export function useGetChannelsChannelIdWebhooks(
 }
 
 /**
- * Generates SWR cache key for GET /channels/{channel_id}/webhooks
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for POST /channels/{channel_id}/webhooks
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetChannelsChannelIdWebhooksKey(
-  args: InferRequestType<(typeof client.channels)[':channel_id']['webhooks']['$get']>,
-) {
-  return ['/channels/:channel_id/webhooks', args] as const
+export function getPostChannelsChannelIdWebhooksMutationKey() {
+  return ['/channels/:channel_id/webhooks'] as const
 }
 
 /**
@@ -3974,12 +3958,11 @@ export function usePostChannelsChannelIdWebhooks(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /channels/{channel_id}/webhooks
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /gateway
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getPostChannelsChannelIdWebhooksMutationKey() {
-  return 'POST /channels/:channel_id/webhooks'
+export function getGetGatewayKey() {
+  return ['/gateway'] as const
 }
 
 /**
@@ -4004,11 +3987,11 @@ export function useGetGateway(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /gateway
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /gateway/bot
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetGatewayKey() {
-  return ['/gateway'] as const
+export function getGetGatewayBotKey() {
+  return ['/gateway/bot'] as const
 }
 
 /**
@@ -4033,11 +4016,13 @@ export function useGetGatewayBot(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /gateway/bot
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /guilds/templates/{code}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getGetGatewayBotKey() {
-  return ['/gateway/bot'] as const
+export function getGetGuildsTemplatesCodeKey(
+  args: InferRequestType<(typeof client.guilds.templates)[':code']['$get']>,
+) {
+  return [`/guilds/templates/${args.param.code}`, args] as const
 }
 
 /**
@@ -4065,13 +4050,13 @@ export function useGetGuildsTemplatesCode(
 }
 
 /**
- * Generates SWR cache key for GET /guilds/templates/{code}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR cache key for GET /guilds/{guild_id}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getGetGuildsTemplatesCodeKey(
-  args: InferRequestType<(typeof client.guilds.templates)[':code']['$get']>,
+export function getGetGuildsGuildIdKey(
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['$get']>,
 ) {
-  return ['/guilds/templates/:code', args] as const
+  return [`/guilds/${args.param.guild_id}`, args] as const
 }
 
 /**
@@ -4099,13 +4084,11 @@ export function useGetGuildsGuildId(
 }
 
 /**
- * Generates SWR cache key for GET /guilds/{guild_id}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for PATCH /guilds/{guild_id}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetGuildsGuildIdKey(
-  args: InferRequestType<(typeof client.guilds)[':guild_id']['$get']>,
-) {
-  return ['/guilds/:guild_id', args] as const
+export function getPatchGuildsGuildIdMutationKey() {
+  return ['/guilds/:guild_id'] as const
 }
 
 /**
@@ -4141,12 +4124,13 @@ export function usePatchGuildsGuildId(options?: {
 }
 
 /**
- * Generates SWR mutation key for PATCH /guilds/{guild_id}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /guilds/{guild_id}/audit-logs
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPatchGuildsGuildIdMutationKey() {
-  return 'PATCH /guilds/:guild_id'
+export function getGetGuildsGuildIdAuditLogsKey(
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['audit-logs']['$get']>,
+) {
+  return [`/guilds/${args.param.guild_id}/audit-logs`, args] as const
 }
 
 /**
@@ -4174,13 +4158,13 @@ export function useGetGuildsGuildIdAuditLogs(
 }
 
 /**
- * Generates SWR cache key for GET /guilds/{guild_id}/audit-logs
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR cache key for GET /guilds/{guild_id}/auto-moderation/rules
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getGetGuildsGuildIdAuditLogsKey(
-  args: InferRequestType<(typeof client.guilds)[':guild_id']['audit-logs']['$get']>,
+export function getGetGuildsGuildIdAutoModerationRulesKey(
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$get']>,
 ) {
-  return ['/guilds/:guild_id/audit-logs', args] as const
+  return [`/guilds/${args.param.guild_id}/auto-moderation/rules`, args] as const
 }
 
 /**
@@ -4211,13 +4195,11 @@ export function useGetGuildsGuildIdAutoModerationRules(
 }
 
 /**
- * Generates SWR cache key for GET /guilds/{guild_id}/auto-moderation/rules
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for POST /guilds/{guild_id}/auto-moderation/rules
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetGuildsGuildIdAutoModerationRulesKey(
-  args: InferRequestType<(typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$get']>,
-) {
-  return ['/guilds/:guild_id/auto-moderation/rules', args] as const
+export function getPostGuildsGuildIdAutoModerationRulesMutationKey() {
+  return ['/guilds/:guild_id/auto-moderation/rules'] as const
 }
 
 /**
@@ -4266,12 +4248,18 @@ export function usePostGuildsGuildIdAutoModerationRules(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /guilds/{guild_id}/auto-moderation/rules
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /guilds/{guild_id}/auto-moderation/rules/{rule_id}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPostGuildsGuildIdAutoModerationRulesMutationKey() {
-  return 'POST /guilds/:guild_id/auto-moderation/rules'
+export function getGetGuildsGuildIdAutoModerationRulesRuleIdKey(
+  args: InferRequestType<
+    (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$get']
+  >,
+) {
+  return [
+    `/guilds/${args.param.guild_id}/auto-moderation/rules/${args.param.rule_id}`,
+    args,
+  ] as const
 }
 
 /**
@@ -4305,15 +4293,11 @@ export function useGetGuildsGuildIdAutoModerationRulesRuleId(
 }
 
 /**
- * Generates SWR cache key for GET /guilds/{guild_id}/auto-moderation/rules/{rule_id}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for DELETE /guilds/{guild_id}/auto-moderation/rules/{rule_id}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetGuildsGuildIdAutoModerationRulesRuleIdKey(
-  args: InferRequestType<
-    (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$get']
-  >,
-) {
-  return ['/guilds/:guild_id/auto-moderation/rules/:rule_id', args] as const
+export function getDeleteGuildsGuildIdAutoModerationRulesRuleIdMutationKey() {
+  return ['/guilds/:guild_id/auto-moderation/rules/:rule_id'] as const
 }
 
 /**
@@ -4370,12 +4354,11 @@ export function useDeleteGuildsGuildIdAutoModerationRulesRuleId(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /guilds/{guild_id}/auto-moderation/rules/{rule_id}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for PATCH /guilds/{guild_id}/auto-moderation/rules/{rule_id}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getDeleteGuildsGuildIdAutoModerationRulesRuleIdMutationKey() {
-  return 'DELETE /guilds/:guild_id/auto-moderation/rules/:rule_id'
+export function getPatchGuildsGuildIdAutoModerationRulesRuleIdMutationKey() {
+  return ['/guilds/:guild_id/auto-moderation/rules/:rule_id'] as const
 }
 
 /**
@@ -4431,12 +4414,13 @@ export function usePatchGuildsGuildIdAutoModerationRulesRuleId(options?: {
 }
 
 /**
- * Generates SWR mutation key for PATCH /guilds/{guild_id}/auto-moderation/rules/{rule_id}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /guilds/{guild_id}/bans
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPatchGuildsGuildIdAutoModerationRulesRuleIdMutationKey() {
-  return 'PATCH /guilds/:guild_id/auto-moderation/rules/:rule_id'
+export function getGetGuildsGuildIdBansKey(
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['bans']['$get']>,
+) {
+  return [`/guilds/${args.param.guild_id}/bans`, args] as const
 }
 
 /**
@@ -4464,13 +4448,13 @@ export function useGetGuildsGuildIdBans(
 }
 
 /**
- * Generates SWR cache key for GET /guilds/{guild_id}/bans
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR cache key for GET /guilds/{guild_id}/bans/{user_id}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getGetGuildsGuildIdBansKey(
-  args: InferRequestType<(typeof client.guilds)[':guild_id']['bans']['$get']>,
+export function getGetGuildsGuildIdBansUserIdKey(
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$get']>,
 ) {
-  return ['/guilds/:guild_id/bans', args] as const
+  return [`/guilds/${args.param.guild_id}/bans/${args.param.user_id}`, args] as const
 }
 
 /**
@@ -4499,13 +4483,11 @@ export function useGetGuildsGuildIdBansUserId(
 }
 
 /**
- * Generates SWR cache key for GET /guilds/{guild_id}/bans/{user_id}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for PUT /guilds/{guild_id}/bans/{user_id}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetGuildsGuildIdBansUserIdKey(
-  args: InferRequestType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$get']>,
-) {
-  return ['/guilds/:guild_id/bans/:user_id', args] as const
+export function getPutGuildsGuildIdBansUserIdMutationKey() {
+  return ['/guilds/:guild_id/bans/:user_id'] as const
 }
 
 /**
@@ -4548,12 +4530,11 @@ export function usePutGuildsGuildIdBansUserId(options?: {
 }
 
 /**
- * Generates SWR mutation key for PUT /guilds/{guild_id}/bans/{user_id}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for DELETE /guilds/{guild_id}/bans/{user_id}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPutGuildsGuildIdBansUserIdMutationKey() {
-  return 'PUT /guilds/:guild_id/bans/:user_id'
+export function getDeleteGuildsGuildIdBansUserIdMutationKey() {
+  return ['/guilds/:guild_id/bans/:user_id'] as const
 }
 
 /**
@@ -4596,12 +4577,11 @@ export function useDeleteGuildsGuildIdBansUserId(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /guilds/{guild_id}/bans/{user_id}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /guilds/{guild_id}/bulk-ban
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getDeleteGuildsGuildIdBansUserIdMutationKey() {
-  return 'DELETE /guilds/:guild_id/bans/:user_id'
+export function getPostGuildsGuildIdBulkBanMutationKey() {
+  return ['/guilds/:guild_id/bulk-ban'] as const
 }
 
 /**
@@ -4641,12 +4621,13 @@ export function usePostGuildsGuildIdBulkBan(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /guilds/{guild_id}/bulk-ban
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /guilds/{guild_id}/channels
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPostGuildsGuildIdBulkBanMutationKey() {
-  return 'POST /guilds/:guild_id/bulk-ban'
+export function getGetGuildsGuildIdChannelsKey(
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['channels']['$get']>,
+) {
+  return [`/guilds/${args.param.guild_id}/channels`, args] as const
 }
 
 /**
@@ -4674,13 +4655,11 @@ export function useGetGuildsGuildIdChannels(
 }
 
 /**
- * Generates SWR cache key for GET /guilds/{guild_id}/channels
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for POST /guilds/{guild_id}/channels
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetGuildsGuildIdChannelsKey(
-  args: InferRequestType<(typeof client.guilds)[':guild_id']['channels']['$get']>,
-) {
-  return ['/guilds/:guild_id/channels', args] as const
+export function getPostGuildsGuildIdChannelsMutationKey() {
+  return ['/guilds/:guild_id/channels'] as const
 }
 
 /**
@@ -4720,12 +4699,11 @@ export function usePostGuildsGuildIdChannels(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /guilds/{guild_id}/channels
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for PATCH /guilds/{guild_id}/channels
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostGuildsGuildIdChannelsMutationKey() {
-  return 'POST /guilds/:guild_id/channels'
+export function getPatchGuildsGuildIdChannelsMutationKey() {
+  return ['/guilds/:guild_id/channels'] as const
 }
 
 /**
@@ -4766,12 +4744,13 @@ export function usePatchGuildsGuildIdChannels(options?: {
 }
 
 /**
- * Generates SWR mutation key for PATCH /guilds/{guild_id}/channels
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /guilds/{guild_id}/emojis
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPatchGuildsGuildIdChannelsMutationKey() {
-  return 'PATCH /guilds/:guild_id/channels'
+export function getGetGuildsGuildIdEmojisKey(
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['emojis']['$get']>,
+) {
+  return [`/guilds/${args.param.guild_id}/emojis`, args] as const
 }
 
 /**
@@ -4799,13 +4778,11 @@ export function useGetGuildsGuildIdEmojis(
 }
 
 /**
- * Generates SWR cache key for GET /guilds/{guild_id}/emojis
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for POST /guilds/{guild_id}/emojis
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetGuildsGuildIdEmojisKey(
-  args: InferRequestType<(typeof client.guilds)[':guild_id']['emojis']['$get']>,
-) {
-  return ['/guilds/:guild_id/emojis', args] as const
+export function getPostGuildsGuildIdEmojisMutationKey() {
+  return ['/guilds/:guild_id/emojis'] as const
 }
 
 /**
@@ -4843,12 +4820,13 @@ export function usePostGuildsGuildIdEmojis(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /guilds/{guild_id}/emojis
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /guilds/{guild_id}/emojis/{emoji_id}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPostGuildsGuildIdEmojisMutationKey() {
-  return 'POST /guilds/:guild_id/emojis'
+export function getGetGuildsGuildIdEmojisEmojiIdKey(
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$get']>,
+) {
+  return [`/guilds/${args.param.guild_id}/emojis/${args.param.emoji_id}`, args] as const
 }
 
 /**
@@ -4877,13 +4855,11 @@ export function useGetGuildsGuildIdEmojisEmojiId(
 }
 
 /**
- * Generates SWR cache key for GET /guilds/{guild_id}/emojis/{emoji_id}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for DELETE /guilds/{guild_id}/emojis/{emoji_id}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetGuildsGuildIdEmojisEmojiIdKey(
-  args: InferRequestType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$get']>,
-) {
-  return ['/guilds/:guild_id/emojis/:emoji_id', args] as const
+export function getDeleteGuildsGuildIdEmojisEmojiIdMutationKey() {
+  return ['/guilds/:guild_id/emojis/:emoji_id'] as const
 }
 
 /**
@@ -4931,12 +4907,11 @@ export function useDeleteGuildsGuildIdEmojisEmojiId(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /guilds/{guild_id}/emojis/{emoji_id}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for PATCH /guilds/{guild_id}/emojis/{emoji_id}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getDeleteGuildsGuildIdEmojisEmojiIdMutationKey() {
-  return 'DELETE /guilds/:guild_id/emojis/:emoji_id'
+export function getPatchGuildsGuildIdEmojisEmojiIdMutationKey() {
+  return ['/guilds/:guild_id/emojis/:emoji_id'] as const
 }
 
 /**
@@ -4980,12 +4955,13 @@ export function usePatchGuildsGuildIdEmojisEmojiId(options?: {
 }
 
 /**
- * Generates SWR mutation key for PATCH /guilds/{guild_id}/emojis/{emoji_id}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /guilds/{guild_id}/integrations
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPatchGuildsGuildIdEmojisEmojiIdMutationKey() {
-  return 'PATCH /guilds/:guild_id/emojis/:emoji_id'
+export function getGetGuildsGuildIdIntegrationsKey(
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['integrations']['$get']>,
+) {
+  return [`/guilds/${args.param.guild_id}/integrations`, args] as const
 }
 
 /**
@@ -5013,13 +4989,11 @@ export function useGetGuildsGuildIdIntegrations(
 }
 
 /**
- * Generates SWR cache key for GET /guilds/{guild_id}/integrations
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for DELETE /guilds/{guild_id}/integrations/{integration_id}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetGuildsGuildIdIntegrationsKey(
-  args: InferRequestType<(typeof client.guilds)[':guild_id']['integrations']['$get']>,
-) {
-  return ['/guilds/:guild_id/integrations', args] as const
+export function getDeleteGuildsGuildIdIntegrationsIntegrationIdMutationKey() {
+  return ['/guilds/:guild_id/integrations/:integration_id'] as const
 }
 
 /**
@@ -5073,12 +5047,13 @@ export function useDeleteGuildsGuildIdIntegrationsIntegrationId(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /guilds/{guild_id}/integrations/{integration_id}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /guilds/{guild_id}/invites
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getDeleteGuildsGuildIdIntegrationsIntegrationIdMutationKey() {
-  return 'DELETE /guilds/:guild_id/integrations/:integration_id'
+export function getGetGuildsGuildIdInvitesKey(
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['invites']['$get']>,
+) {
+  return [`/guilds/${args.param.guild_id}/invites`, args] as const
 }
 
 /**
@@ -5106,13 +5081,13 @@ export function useGetGuildsGuildIdInvites(
 }
 
 /**
- * Generates SWR cache key for GET /guilds/{guild_id}/invites
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR cache key for GET /guilds/{guild_id}/members
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getGetGuildsGuildIdInvitesKey(
-  args: InferRequestType<(typeof client.guilds)[':guild_id']['invites']['$get']>,
+export function getGetGuildsGuildIdMembersKey(
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['members']['$get']>,
 ) {
-  return ['/guilds/:guild_id/invites', args] as const
+  return [`/guilds/${args.param.guild_id}/members`, args] as const
 }
 
 /**
@@ -5140,13 +5115,11 @@ export function useGetGuildsGuildIdMembers(
 }
 
 /**
- * Generates SWR cache key for GET /guilds/{guild_id}/members
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for PATCH /guilds/{guild_id}/members/@me
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetGuildsGuildIdMembersKey(
-  args: InferRequestType<(typeof client.guilds)[':guild_id']['members']['$get']>,
-) {
-  return ['/guilds/:guild_id/members', args] as const
+export function getPatchGuildsGuildIdMembersMeMutationKey() {
+  return ['/guilds/:guild_id/members/@me'] as const
 }
 
 /**
@@ -5188,12 +5161,13 @@ export function usePatchGuildsGuildIdMembersMe(options?: {
 }
 
 /**
- * Generates SWR mutation key for PATCH /guilds/{guild_id}/members/@me
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /guilds/{guild_id}/members/search
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPatchGuildsGuildIdMembersMeMutationKey() {
-  return 'PATCH /guilds/:guild_id/members/@me'
+export function getGetGuildsGuildIdMembersSearchKey(
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['members']['search']['$get']>,
+) {
+  return [`/guilds/${args.param.guild_id}/members/search`, args] as const
 }
 
 /**
@@ -5222,13 +5196,13 @@ export function useGetGuildsGuildIdMembersSearch(
 }
 
 /**
- * Generates SWR cache key for GET /guilds/{guild_id}/members/search
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR cache key for GET /guilds/{guild_id}/members/{user_id}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getGetGuildsGuildIdMembersSearchKey(
-  args: InferRequestType<(typeof client.guilds)[':guild_id']['members']['search']['$get']>,
+export function getGetGuildsGuildIdMembersUserIdKey(
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$get']>,
 ) {
-  return ['/guilds/:guild_id/members/search', args] as const
+  return [`/guilds/${args.param.guild_id}/members/${args.param.user_id}`, args] as const
 }
 
 /**
@@ -5257,13 +5231,11 @@ export function useGetGuildsGuildIdMembersUserId(
 }
 
 /**
- * Generates SWR cache key for GET /guilds/{guild_id}/members/{user_id}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for PUT /guilds/{guild_id}/members/{user_id}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetGuildsGuildIdMembersUserIdKey(
-  args: InferRequestType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$get']>,
-) {
-  return ['/guilds/:guild_id/members/:user_id', args] as const
+export function getPutGuildsGuildIdMembersUserIdMutationKey() {
+  return ['/guilds/:guild_id/members/:user_id'] as const
 }
 
 /**
@@ -5306,12 +5278,11 @@ export function usePutGuildsGuildIdMembersUserId(options?: {
 }
 
 /**
- * Generates SWR mutation key for PUT /guilds/{guild_id}/members/{user_id}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for DELETE /guilds/{guild_id}/members/{user_id}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPutGuildsGuildIdMembersUserIdMutationKey() {
-  return 'PUT /guilds/:guild_id/members/:user_id'
+export function getDeleteGuildsGuildIdMembersUserIdMutationKey() {
+  return ['/guilds/:guild_id/members/:user_id'] as const
 }
 
 /**
@@ -5359,12 +5330,11 @@ export function useDeleteGuildsGuildIdMembersUserId(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /guilds/{guild_id}/members/{user_id}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for PATCH /guilds/{guild_id}/members/{user_id}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getDeleteGuildsGuildIdMembersUserIdMutationKey() {
-  return 'DELETE /guilds/:guild_id/members/:user_id'
+export function getPatchGuildsGuildIdMembersUserIdMutationKey() {
+  return ['/guilds/:guild_id/members/:user_id'] as const
 }
 
 /**
@@ -5411,12 +5381,11 @@ export function usePatchGuildsGuildIdMembersUserId(options?: {
 }
 
 /**
- * Generates SWR mutation key for PATCH /guilds/{guild_id}/members/{user_id}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for PUT /guilds/{guild_id}/members/{user_id}/roles/{role_id}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPatchGuildsGuildIdMembersUserIdMutationKey() {
-  return 'PATCH /guilds/:guild_id/members/:user_id'
+export function getPutGuildsGuildIdMembersUserIdRolesRoleIdMutationKey() {
+  return ['/guilds/:guild_id/members/:user_id/roles/:role_id'] as const
 }
 
 /**
@@ -5470,12 +5439,11 @@ export function usePutGuildsGuildIdMembersUserIdRolesRoleId(options?: {
 }
 
 /**
- * Generates SWR mutation key for PUT /guilds/{guild_id}/members/{user_id}/roles/{role_id}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for DELETE /guilds/{guild_id}/members/{user_id}/roles/{role_id}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPutGuildsGuildIdMembersUserIdRolesRoleIdMutationKey() {
-  return 'PUT /guilds/:guild_id/members/:user_id/roles/:role_id'
+export function getDeleteGuildsGuildIdMembersUserIdRolesRoleIdMutationKey() {
+  return ['/guilds/:guild_id/members/:user_id/roles/:role_id'] as const
 }
 
 /**
@@ -5532,12 +5500,13 @@ export function useDeleteGuildsGuildIdMembersUserIdRolesRoleId(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /guilds/{guild_id}/members/{user_id}/roles/{role_id}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /guilds/{guild_id}/new-member-welcome
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getDeleteGuildsGuildIdMembersUserIdRolesRoleIdMutationKey() {
-  return 'DELETE /guilds/:guild_id/members/:user_id/roles/:role_id'
+export function getGetGuildsGuildIdNewMemberWelcomeKey(
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['new-member-welcome']['$get']>,
+) {
+  return [`/guilds/${args.param.guild_id}/new-member-welcome`, args] as const
 }
 
 /**
@@ -5566,13 +5535,13 @@ export function useGetGuildsGuildIdNewMemberWelcome(
 }
 
 /**
- * Generates SWR cache key for GET /guilds/{guild_id}/new-member-welcome
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR cache key for GET /guilds/{guild_id}/onboarding
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getGetGuildsGuildIdNewMemberWelcomeKey(
-  args: InferRequestType<(typeof client.guilds)[':guild_id']['new-member-welcome']['$get']>,
+export function getGetGuildsGuildIdOnboardingKey(
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['onboarding']['$get']>,
 ) {
-  return ['/guilds/:guild_id/new-member-welcome', args] as const
+  return [`/guilds/${args.param.guild_id}/onboarding`, args] as const
 }
 
 /**
@@ -5600,13 +5569,11 @@ export function useGetGuildsGuildIdOnboarding(
 }
 
 /**
- * Generates SWR cache key for GET /guilds/{guild_id}/onboarding
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for PUT /guilds/{guild_id}/onboarding
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetGuildsGuildIdOnboardingKey(
-  args: InferRequestType<(typeof client.guilds)[':guild_id']['onboarding']['$get']>,
-) {
-  return ['/guilds/:guild_id/onboarding', args] as const
+export function getPutGuildsGuildIdOnboardingMutationKey() {
+  return ['/guilds/:guild_id/onboarding'] as const
 }
 
 /**
@@ -5646,12 +5613,13 @@ export function usePutGuildsGuildIdOnboarding(options?: {
 }
 
 /**
- * Generates SWR mutation key for PUT /guilds/{guild_id}/onboarding
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /guilds/{guild_id}/preview
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPutGuildsGuildIdOnboardingMutationKey() {
-  return 'PUT /guilds/:guild_id/onboarding'
+export function getGetGuildsGuildIdPreviewKey(
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['preview']['$get']>,
+) {
+  return [`/guilds/${args.param.guild_id}/preview`, args] as const
 }
 
 /**
@@ -5679,13 +5647,13 @@ export function useGetGuildsGuildIdPreview(
 }
 
 /**
- * Generates SWR cache key for GET /guilds/{guild_id}/preview
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR cache key for GET /guilds/{guild_id}/prune
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getGetGuildsGuildIdPreviewKey(
-  args: InferRequestType<(typeof client.guilds)[':guild_id']['preview']['$get']>,
+export function getGetGuildsGuildIdPruneKey(
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['prune']['$get']>,
 ) {
-  return ['/guilds/:guild_id/preview', args] as const
+  return [`/guilds/${args.param.guild_id}/prune`, args] as const
 }
 
 /**
@@ -5713,13 +5681,11 @@ export function useGetGuildsGuildIdPrune(
 }
 
 /**
- * Generates SWR cache key for GET /guilds/{guild_id}/prune
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for POST /guilds/{guild_id}/prune
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetGuildsGuildIdPruneKey(
-  args: InferRequestType<(typeof client.guilds)[':guild_id']['prune']['$get']>,
-) {
-  return ['/guilds/:guild_id/prune', args] as const
+export function getPostGuildsGuildIdPruneMutationKey() {
+  return ['/guilds/:guild_id/prune'] as const
 }
 
 /**
@@ -5757,12 +5723,13 @@ export function usePostGuildsGuildIdPrune(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /guilds/{guild_id}/prune
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /guilds/{guild_id}/regions
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPostGuildsGuildIdPruneMutationKey() {
-  return 'POST /guilds/:guild_id/prune'
+export function getGetGuildsGuildIdRegionsKey(
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['regions']['$get']>,
+) {
+  return [`/guilds/${args.param.guild_id}/regions`, args] as const
 }
 
 /**
@@ -5790,13 +5757,13 @@ export function useGetGuildsGuildIdRegions(
 }
 
 /**
- * Generates SWR cache key for GET /guilds/{guild_id}/regions
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR cache key for GET /guilds/{guild_id}/roles
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getGetGuildsGuildIdRegionsKey(
-  args: InferRequestType<(typeof client.guilds)[':guild_id']['regions']['$get']>,
+export function getGetGuildsGuildIdRolesKey(
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['roles']['$get']>,
 ) {
-  return ['/guilds/:guild_id/regions', args] as const
+  return [`/guilds/${args.param.guild_id}/roles`, args] as const
 }
 
 /**
@@ -5824,13 +5791,11 @@ export function useGetGuildsGuildIdRoles(
 }
 
 /**
- * Generates SWR cache key for GET /guilds/{guild_id}/roles
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for POST /guilds/{guild_id}/roles
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetGuildsGuildIdRolesKey(
-  args: InferRequestType<(typeof client.guilds)[':guild_id']['roles']['$get']>,
-) {
-  return ['/guilds/:guild_id/roles', args] as const
+export function getPostGuildsGuildIdRolesMutationKey() {
+  return ['/guilds/:guild_id/roles'] as const
 }
 
 /**
@@ -5868,12 +5833,11 @@ export function usePostGuildsGuildIdRoles(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /guilds/{guild_id}/roles
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for PATCH /guilds/{guild_id}/roles
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostGuildsGuildIdRolesMutationKey() {
-  return 'POST /guilds/:guild_id/roles'
+export function getPatchGuildsGuildIdRolesMutationKey() {
+  return ['/guilds/:guild_id/roles'] as const
 }
 
 /**
@@ -5911,12 +5875,13 @@ export function usePatchGuildsGuildIdRoles(options?: {
 }
 
 /**
- * Generates SWR mutation key for PATCH /guilds/{guild_id}/roles
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /guilds/{guild_id}/roles/{role_id}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPatchGuildsGuildIdRolesMutationKey() {
-  return 'PATCH /guilds/:guild_id/roles'
+export function getGetGuildsGuildIdRolesRoleIdKey(
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$get']>,
+) {
+  return [`/guilds/${args.param.guild_id}/roles/${args.param.role_id}`, args] as const
 }
 
 /**
@@ -5945,13 +5910,11 @@ export function useGetGuildsGuildIdRolesRoleId(
 }
 
 /**
- * Generates SWR cache key for GET /guilds/{guild_id}/roles/{role_id}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for DELETE /guilds/{guild_id}/roles/{role_id}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetGuildsGuildIdRolesRoleIdKey(
-  args: InferRequestType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$get']>,
-) {
-  return ['/guilds/:guild_id/roles/:role_id', args] as const
+export function getDeleteGuildsGuildIdRolesRoleIdMutationKey() {
+  return ['/guilds/:guild_id/roles/:role_id'] as const
 }
 
 /**
@@ -5994,12 +5957,11 @@ export function useDeleteGuildsGuildIdRolesRoleId(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /guilds/{guild_id}/roles/{role_id}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for PATCH /guilds/{guild_id}/roles/{role_id}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getDeleteGuildsGuildIdRolesRoleIdMutationKey() {
-  return 'DELETE /guilds/:guild_id/roles/:role_id'
+export function getPatchGuildsGuildIdRolesRoleIdMutationKey() {
+  return ['/guilds/:guild_id/roles/:role_id'] as const
 }
 
 /**
@@ -6041,12 +6003,13 @@ export function usePatchGuildsGuildIdRolesRoleId(options?: {
 }
 
 /**
- * Generates SWR mutation key for PATCH /guilds/{guild_id}/roles/{role_id}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /guilds/{guild_id}/scheduled-events
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPatchGuildsGuildIdRolesRoleIdMutationKey() {
-  return 'PATCH /guilds/:guild_id/roles/:role_id'
+export function getGetGuildsGuildIdScheduledEventsKey(
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['scheduled-events']['$get']>,
+) {
+  return [`/guilds/${args.param.guild_id}/scheduled-events`, args] as const
 }
 
 /**
@@ -6075,13 +6038,11 @@ export function useGetGuildsGuildIdScheduledEvents(
 }
 
 /**
- * Generates SWR cache key for GET /guilds/{guild_id}/scheduled-events
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for POST /guilds/{guild_id}/scheduled-events
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetGuildsGuildIdScheduledEventsKey(
-  args: InferRequestType<(typeof client.guilds)[':guild_id']['scheduled-events']['$get']>,
-) {
-  return ['/guilds/:guild_id/scheduled-events', args] as const
+export function getPostGuildsGuildIdScheduledEventsMutationKey() {
+  return ['/guilds/:guild_id/scheduled-events'] as const
 }
 
 /**
@@ -6123,12 +6084,18 @@ export function usePostGuildsGuildIdScheduledEvents(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /guilds/{guild_id}/scheduled-events
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /guilds/{guild_id}/scheduled-events/{guild_scheduled_event_id}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPostGuildsGuildIdScheduledEventsMutationKey() {
-  return 'POST /guilds/:guild_id/scheduled-events'
+export function getGetGuildsGuildIdScheduledEventsGuildScheduledEventIdKey(
+  args: InferRequestType<
+    (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$get']
+  >,
+) {
+  return [
+    `/guilds/${args.param.guild_id}/scheduled-events/${args.param.guild_scheduled_event_id}`,
+    args,
+  ] as const
 }
 
 /**
@@ -6166,15 +6133,11 @@ export function useGetGuildsGuildIdScheduledEventsGuildScheduledEventId(
 }
 
 /**
- * Generates SWR cache key for GET /guilds/{guild_id}/scheduled-events/{guild_scheduled_event_id}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for DELETE /guilds/{guild_id}/scheduled-events/{guild_scheduled_event_id}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetGuildsGuildIdScheduledEventsGuildScheduledEventIdKey(
-  args: InferRequestType<
-    (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$get']
-  >,
-) {
-  return ['/guilds/:guild_id/scheduled-events/:guild_scheduled_event_id', args] as const
+export function getDeleteGuildsGuildIdScheduledEventsGuildScheduledEventIdMutationKey() {
+  return ['/guilds/:guild_id/scheduled-events/:guild_scheduled_event_id'] as const
 }
 
 /**
@@ -6232,12 +6195,11 @@ export function useDeleteGuildsGuildIdScheduledEventsGuildScheduledEventId(optio
 }
 
 /**
- * Generates SWR mutation key for DELETE /guilds/{guild_id}/scheduled-events/{guild_scheduled_event_id}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for PATCH /guilds/{guild_id}/scheduled-events/{guild_scheduled_event_id}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getDeleteGuildsGuildIdScheduledEventsGuildScheduledEventIdMutationKey() {
-  return 'DELETE /guilds/:guild_id/scheduled-events/:guild_scheduled_event_id'
+export function getPatchGuildsGuildIdScheduledEventsGuildScheduledEventIdMutationKey() {
+  return ['/guilds/:guild_id/scheduled-events/:guild_scheduled_event_id'] as const
 }
 
 /**
@@ -6293,12 +6255,18 @@ export function usePatchGuildsGuildIdScheduledEventsGuildScheduledEventId(option
 }
 
 /**
- * Generates SWR mutation key for PATCH /guilds/{guild_id}/scheduled-events/{guild_scheduled_event_id}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /guilds/{guild_id}/scheduled-events/{guild_scheduled_event_id}/users
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPatchGuildsGuildIdScheduledEventsGuildScheduledEventIdMutationKey() {
-  return 'PATCH /guilds/:guild_id/scheduled-events/:guild_scheduled_event_id'
+export function getGetGuildsGuildIdScheduledEventsGuildScheduledEventIdUsersKey(
+  args: InferRequestType<
+    (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['users']['$get']
+  >,
+) {
+  return [
+    `/guilds/${args.param.guild_id}/scheduled-events/${args.param.guild_scheduled_event_id}/users`,
+    args,
+  ] as const
 }
 
 /**
@@ -6336,15 +6304,13 @@ export function useGetGuildsGuildIdScheduledEventsGuildScheduledEventIdUsers(
 }
 
 /**
- * Generates SWR cache key for GET /guilds/{guild_id}/scheduled-events/{guild_scheduled_event_id}/users
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR cache key for GET /guilds/{guild_id}/soundboard-sounds
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getGetGuildsGuildIdScheduledEventsGuildScheduledEventIdUsersKey(
-  args: InferRequestType<
-    (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['users']['$get']
-  >,
+export function getGetGuildsGuildIdSoundboardSoundsKey(
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['soundboard-sounds']['$get']>,
 ) {
-  return ['/guilds/:guild_id/scheduled-events/:guild_scheduled_event_id/users', args] as const
+  return [`/guilds/${args.param.guild_id}/soundboard-sounds`, args] as const
 }
 
 /**
@@ -6373,13 +6339,11 @@ export function useGetGuildsGuildIdSoundboardSounds(
 }
 
 /**
- * Generates SWR cache key for GET /guilds/{guild_id}/soundboard-sounds
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for POST /guilds/{guild_id}/soundboard-sounds
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetGuildsGuildIdSoundboardSoundsKey(
-  args: InferRequestType<(typeof client.guilds)[':guild_id']['soundboard-sounds']['$get']>,
-) {
-  return ['/guilds/:guild_id/soundboard-sounds', args] as const
+export function getPostGuildsGuildIdSoundboardSoundsMutationKey() {
+  return ['/guilds/:guild_id/soundboard-sounds'] as const
 }
 
 /**
@@ -6421,12 +6385,15 @@ export function usePostGuildsGuildIdSoundboardSounds(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /guilds/{guild_id}/soundboard-sounds
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /guilds/{guild_id}/soundboard-sounds/{sound_id}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPostGuildsGuildIdSoundboardSoundsMutationKey() {
-  return 'POST /guilds/:guild_id/soundboard-sounds'
+export function getGetGuildsGuildIdSoundboardSoundsSoundIdKey(
+  args: InferRequestType<
+    (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$get']
+  >,
+) {
+  return [`/guilds/${args.param.guild_id}/soundboard-sounds/${args.param.sound_id}`, args] as const
 }
 
 /**
@@ -6460,15 +6427,11 @@ export function useGetGuildsGuildIdSoundboardSoundsSoundId(
 }
 
 /**
- * Generates SWR cache key for GET /guilds/{guild_id}/soundboard-sounds/{sound_id}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for DELETE /guilds/{guild_id}/soundboard-sounds/{sound_id}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetGuildsGuildIdSoundboardSoundsSoundIdKey(
-  args: InferRequestType<
-    (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$get']
-  >,
-) {
-  return ['/guilds/:guild_id/soundboard-sounds/:sound_id', args] as const
+export function getDeleteGuildsGuildIdSoundboardSoundsSoundIdMutationKey() {
+  return ['/guilds/:guild_id/soundboard-sounds/:sound_id'] as const
 }
 
 /**
@@ -6522,12 +6485,11 @@ export function useDeleteGuildsGuildIdSoundboardSoundsSoundId(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /guilds/{guild_id}/soundboard-sounds/{sound_id}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for PATCH /guilds/{guild_id}/soundboard-sounds/{sound_id}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getDeleteGuildsGuildIdSoundboardSoundsSoundIdMutationKey() {
-  return 'DELETE /guilds/:guild_id/soundboard-sounds/:sound_id'
+export function getPatchGuildsGuildIdSoundboardSoundsSoundIdMutationKey() {
+  return ['/guilds/:guild_id/soundboard-sounds/:sound_id'] as const
 }
 
 /**
@@ -6580,12 +6542,13 @@ export function usePatchGuildsGuildIdSoundboardSoundsSoundId(options?: {
 }
 
 /**
- * Generates SWR mutation key for PATCH /guilds/{guild_id}/soundboard-sounds/{sound_id}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /guilds/{guild_id}/stickers
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPatchGuildsGuildIdSoundboardSoundsSoundIdMutationKey() {
-  return 'PATCH /guilds/:guild_id/soundboard-sounds/:sound_id'
+export function getGetGuildsGuildIdStickersKey(
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['stickers']['$get']>,
+) {
+  return [`/guilds/${args.param.guild_id}/stickers`, args] as const
 }
 
 /**
@@ -6613,13 +6576,11 @@ export function useGetGuildsGuildIdStickers(
 }
 
 /**
- * Generates SWR cache key for GET /guilds/{guild_id}/stickers
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for POST /guilds/{guild_id}/stickers
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetGuildsGuildIdStickersKey(
-  args: InferRequestType<(typeof client.guilds)[':guild_id']['stickers']['$get']>,
-) {
-  return ['/guilds/:guild_id/stickers', args] as const
+export function getPostGuildsGuildIdStickersMutationKey() {
+  return ['/guilds/:guild_id/stickers'] as const
 }
 
 /**
@@ -6659,12 +6620,13 @@ export function usePostGuildsGuildIdStickers(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /guilds/{guild_id}/stickers
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /guilds/{guild_id}/stickers/{sticker_id}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPostGuildsGuildIdStickersMutationKey() {
-  return 'POST /guilds/:guild_id/stickers'
+export function getGetGuildsGuildIdStickersStickerIdKey(
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$get']>,
+) {
+  return [`/guilds/${args.param.guild_id}/stickers/${args.param.sticker_id}`, args] as const
 }
 
 /**
@@ -6693,13 +6655,11 @@ export function useGetGuildsGuildIdStickersStickerId(
 }
 
 /**
- * Generates SWR cache key for GET /guilds/{guild_id}/stickers/{sticker_id}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for DELETE /guilds/{guild_id}/stickers/{sticker_id}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetGuildsGuildIdStickersStickerIdKey(
-  args: InferRequestType<(typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$get']>,
-) {
-  return ['/guilds/:guild_id/stickers/:sticker_id', args] as const
+export function getDeleteGuildsGuildIdStickersStickerIdMutationKey() {
+  return ['/guilds/:guild_id/stickers/:sticker_id'] as const
 }
 
 /**
@@ -6749,12 +6709,11 @@ export function useDeleteGuildsGuildIdStickersStickerId(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /guilds/{guild_id}/stickers/{sticker_id}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for PATCH /guilds/{guild_id}/stickers/{sticker_id}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getDeleteGuildsGuildIdStickersStickerIdMutationKey() {
-  return 'DELETE /guilds/:guild_id/stickers/:sticker_id'
+export function getPatchGuildsGuildIdStickersStickerIdMutationKey() {
+  return ['/guilds/:guild_id/stickers/:sticker_id'] as const
 }
 
 /**
@@ -6803,12 +6762,13 @@ export function usePatchGuildsGuildIdStickersStickerId(options?: {
 }
 
 /**
- * Generates SWR mutation key for PATCH /guilds/{guild_id}/stickers/{sticker_id}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /guilds/{guild_id}/templates
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPatchGuildsGuildIdStickersStickerIdMutationKey() {
-  return 'PATCH /guilds/:guild_id/stickers/:sticker_id'
+export function getGetGuildsGuildIdTemplatesKey(
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['templates']['$get']>,
+) {
+  return [`/guilds/${args.param.guild_id}/templates`, args] as const
 }
 
 /**
@@ -6836,13 +6796,11 @@ export function useGetGuildsGuildIdTemplates(
 }
 
 /**
- * Generates SWR cache key for GET /guilds/{guild_id}/templates
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for POST /guilds/{guild_id}/templates
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetGuildsGuildIdTemplatesKey(
-  args: InferRequestType<(typeof client.guilds)[':guild_id']['templates']['$get']>,
-) {
-  return ['/guilds/:guild_id/templates', args] as const
+export function getPostGuildsGuildIdTemplatesMutationKey() {
+  return ['/guilds/:guild_id/templates'] as const
 }
 
 /**
@@ -6882,12 +6840,11 @@ export function usePostGuildsGuildIdTemplates(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /guilds/{guild_id}/templates
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for PUT /guilds/{guild_id}/templates/{code}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostGuildsGuildIdTemplatesMutationKey() {
-  return 'POST /guilds/:guild_id/templates'
+export function getPutGuildsGuildIdTemplatesCodeMutationKey() {
+  return ['/guilds/:guild_id/templates/:code'] as const
 }
 
 /**
@@ -6929,12 +6886,11 @@ export function usePutGuildsGuildIdTemplatesCode(options?: {
 }
 
 /**
- * Generates SWR mutation key for PUT /guilds/{guild_id}/templates/{code}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for DELETE /guilds/{guild_id}/templates/{code}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPutGuildsGuildIdTemplatesCodeMutationKey() {
-  return 'PUT /guilds/:guild_id/templates/:code'
+export function getDeleteGuildsGuildIdTemplatesCodeMutationKey() {
+  return ['/guilds/:guild_id/templates/:code'] as const
 }
 
 /**
@@ -6978,12 +6934,11 @@ export function useDeleteGuildsGuildIdTemplatesCode(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /guilds/{guild_id}/templates/{code}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for PATCH /guilds/{guild_id}/templates/{code}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getDeleteGuildsGuildIdTemplatesCodeMutationKey() {
-  return 'DELETE /guilds/:guild_id/templates/:code'
+export function getPatchGuildsGuildIdTemplatesCodeMutationKey() {
+  return ['/guilds/:guild_id/templates/:code'] as const
 }
 
 /**
@@ -7025,12 +6980,13 @@ export function usePatchGuildsGuildIdTemplatesCode(options?: {
 }
 
 /**
- * Generates SWR mutation key for PATCH /guilds/{guild_id}/templates/{code}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /guilds/{guild_id}/threads/active
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPatchGuildsGuildIdTemplatesCodeMutationKey() {
-  return 'PATCH /guilds/:guild_id/templates/:code'
+export function getGetGuildsGuildIdThreadsActiveKey(
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['threads']['active']['$get']>,
+) {
+  return [`/guilds/${args.param.guild_id}/threads/active`, args] as const
 }
 
 /**
@@ -7059,13 +7015,13 @@ export function useGetGuildsGuildIdThreadsActive(
 }
 
 /**
- * Generates SWR cache key for GET /guilds/{guild_id}/threads/active
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR cache key for GET /guilds/{guild_id}/vanity-url
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getGetGuildsGuildIdThreadsActiveKey(
-  args: InferRequestType<(typeof client.guilds)[':guild_id']['threads']['active']['$get']>,
+export function getGetGuildsGuildIdVanityUrlKey(
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['vanity-url']['$get']>,
 ) {
-  return ['/guilds/:guild_id/threads/active', args] as const
+  return [`/guilds/${args.param.guild_id}/vanity-url`, args] as const
 }
 
 /**
@@ -7093,13 +7049,13 @@ export function useGetGuildsGuildIdVanityUrl(
 }
 
 /**
- * Generates SWR cache key for GET /guilds/{guild_id}/vanity-url
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR cache key for GET /guilds/{guild_id}/voice-states/@me
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getGetGuildsGuildIdVanityUrlKey(
-  args: InferRequestType<(typeof client.guilds)[':guild_id']['vanity-url']['$get']>,
+export function getGetGuildsGuildIdVoiceStatesMeKey(
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['voice-states']['@me']['$get']>,
 ) {
-  return ['/guilds/:guild_id/vanity-url', args] as const
+  return [`/guilds/${args.param.guild_id}/voice-states/@me`, args] as const
 }
 
 /**
@@ -7128,13 +7084,11 @@ export function useGetGuildsGuildIdVoiceStatesMe(
 }
 
 /**
- * Generates SWR cache key for GET /guilds/{guild_id}/voice-states/@me
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for PATCH /guilds/{guild_id}/voice-states/@me
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetGuildsGuildIdVoiceStatesMeKey(
-  args: InferRequestType<(typeof client.guilds)[':guild_id']['voice-states']['@me']['$get']>,
-) {
-  return ['/guilds/:guild_id/voice-states/@me', args] as const
+export function getPatchGuildsGuildIdVoiceStatesMeMutationKey() {
+  return ['/guilds/:guild_id/voice-states/@me'] as const
 }
 
 /**
@@ -7182,12 +7136,13 @@ export function usePatchGuildsGuildIdVoiceStatesMe(options?: {
 }
 
 /**
- * Generates SWR mutation key for PATCH /guilds/{guild_id}/voice-states/@me
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /guilds/{guild_id}/voice-states/{user_id}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPatchGuildsGuildIdVoiceStatesMeMutationKey() {
-  return 'PATCH /guilds/:guild_id/voice-states/@me'
+export function getGetGuildsGuildIdVoiceStatesUserIdKey(
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$get']>,
+) {
+  return [`/guilds/${args.param.guild_id}/voice-states/${args.param.user_id}`, args] as const
 }
 
 /**
@@ -7218,13 +7173,11 @@ export function useGetGuildsGuildIdVoiceStatesUserId(
 }
 
 /**
- * Generates SWR cache key for GET /guilds/{guild_id}/voice-states/{user_id}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for PATCH /guilds/{guild_id}/voice-states/{user_id}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetGuildsGuildIdVoiceStatesUserIdKey(
-  args: InferRequestType<(typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$get']>,
-) {
-  return ['/guilds/:guild_id/voice-states/:user_id', args] as const
+export function getPatchGuildsGuildIdVoiceStatesUserIdMutationKey() {
+  return ['/guilds/:guild_id/voice-states/:user_id'] as const
 }
 
 /**
@@ -7274,12 +7227,13 @@ export function usePatchGuildsGuildIdVoiceStatesUserId(options?: {
 }
 
 /**
- * Generates SWR mutation key for PATCH /guilds/{guild_id}/voice-states/{user_id}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /guilds/{guild_id}/webhooks
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPatchGuildsGuildIdVoiceStatesUserIdMutationKey() {
-  return 'PATCH /guilds/:guild_id/voice-states/:user_id'
+export function getGetGuildsGuildIdWebhooksKey(
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['webhooks']['$get']>,
+) {
+  return [`/guilds/${args.param.guild_id}/webhooks`, args] as const
 }
 
 /**
@@ -7307,13 +7261,13 @@ export function useGetGuildsGuildIdWebhooks(
 }
 
 /**
- * Generates SWR cache key for GET /guilds/{guild_id}/webhooks
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR cache key for GET /guilds/{guild_id}/welcome-screen
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getGetGuildsGuildIdWebhooksKey(
-  args: InferRequestType<(typeof client.guilds)[':guild_id']['webhooks']['$get']>,
+export function getGetGuildsGuildIdWelcomeScreenKey(
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['welcome-screen']['$get']>,
 ) {
-  return ['/guilds/:guild_id/webhooks', args] as const
+  return [`/guilds/${args.param.guild_id}/welcome-screen`, args] as const
 }
 
 /**
@@ -7342,13 +7296,11 @@ export function useGetGuildsGuildIdWelcomeScreen(
 }
 
 /**
- * Generates SWR cache key for GET /guilds/{guild_id}/welcome-screen
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for PATCH /guilds/{guild_id}/welcome-screen
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetGuildsGuildIdWelcomeScreenKey(
-  args: InferRequestType<(typeof client.guilds)[':guild_id']['welcome-screen']['$get']>,
-) {
-  return ['/guilds/:guild_id/welcome-screen', args] as const
+export function getPatchGuildsGuildIdWelcomeScreenMutationKey() {
+  return ['/guilds/:guild_id/welcome-screen'] as const
 }
 
 /**
@@ -7390,12 +7342,13 @@ export function usePatchGuildsGuildIdWelcomeScreen(options?: {
 }
 
 /**
- * Generates SWR mutation key for PATCH /guilds/{guild_id}/welcome-screen
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /guilds/{guild_id}/widget
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPatchGuildsGuildIdWelcomeScreenMutationKey() {
-  return 'PATCH /guilds/:guild_id/welcome-screen'
+export function getGetGuildsGuildIdWidgetKey(
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['widget']['$get']>,
+) {
+  return [`/guilds/${args.param.guild_id}/widget`, args] as const
 }
 
 /**
@@ -7423,13 +7376,11 @@ export function useGetGuildsGuildIdWidget(
 }
 
 /**
- * Generates SWR cache key for GET /guilds/{guild_id}/widget
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for PATCH /guilds/{guild_id}/widget
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetGuildsGuildIdWidgetKey(
-  args: InferRequestType<(typeof client.guilds)[':guild_id']['widget']['$get']>,
-) {
-  return ['/guilds/:guild_id/widget', args] as const
+export function getPatchGuildsGuildIdWidgetMutationKey() {
+  return ['/guilds/:guild_id/widget'] as const
 }
 
 /**
@@ -7467,12 +7418,13 @@ export function usePatchGuildsGuildIdWidget(options?: {
 }
 
 /**
- * Generates SWR mutation key for PATCH /guilds/{guild_id}/widget
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /guilds/{guild_id}/widget.json
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPatchGuildsGuildIdWidgetMutationKey() {
-  return 'PATCH /guilds/:guild_id/widget'
+export function getGetGuildsGuildIdWidgetJsonKey(
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['widget.json']['$get']>,
+) {
+  return [`/guilds/${args.param.guild_id}/widget.json`, args] as const
 }
 
 /**
@@ -7501,13 +7453,13 @@ export function useGetGuildsGuildIdWidgetJson(
 }
 
 /**
- * Generates SWR cache key for GET /guilds/{guild_id}/widget.json
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR cache key for GET /guilds/{guild_id}/widget.png
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getGetGuildsGuildIdWidgetJsonKey(
-  args: InferRequestType<(typeof client.guilds)[':guild_id']['widget.json']['$get']>,
+export function getGetGuildsGuildIdWidgetPngKey(
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['widget.png']['$get']>,
 ) {
-  return ['/guilds/:guild_id/widget.json', args] as const
+  return [`/guilds/${args.param.guild_id}/widget.png`, args] as const
 }
 
 /**
@@ -7535,13 +7487,11 @@ export function useGetGuildsGuildIdWidgetPng(
 }
 
 /**
- * Generates SWR cache key for GET /guilds/{guild_id}/widget.png
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for POST /interactions/{interaction_id}/{interaction_token}/callback
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetGuildsGuildIdWidgetPngKey(
-  args: InferRequestType<(typeof client.guilds)[':guild_id']['widget.png']['$get']>,
-) {
-  return ['/guilds/:guild_id/widget.png', args] as const
+export function getPostInteractionsInteractionIdInteractionTokenCallbackMutationKey() {
+  return ['/interactions/:interaction_id/:interaction_token/callback'] as const
 }
 
 /**
@@ -7598,12 +7548,13 @@ export function usePostInteractionsInteractionIdInteractionTokenCallback(options
 }
 
 /**
- * Generates SWR mutation key for POST /interactions/{interaction_id}/{interaction_token}/callback
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /invites/{code}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPostInteractionsInteractionIdInteractionTokenCallbackMutationKey() {
-  return 'POST /interactions/:interaction_id/:interaction_token/callback'
+export function getGetInvitesCodeKey(
+  args: InferRequestType<(typeof client.invites)[':code']['$get']>,
+) {
+  return [`/invites/${args.param.code}`, args] as const
 }
 
 /**
@@ -7631,13 +7582,11 @@ export function useGetInvitesCode(
 }
 
 /**
- * Generates SWR cache key for GET /invites/{code}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for DELETE /invites/{code}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetInvitesCodeKey(
-  args: InferRequestType<(typeof client.invites)[':code']['$get']>,
-) {
-  return ['/invites/:code', args] as const
+export function getDeleteInvitesCodeMutationKey() {
+  return ['/invites/:code'] as const
 }
 
 /**
@@ -7673,12 +7622,11 @@ export function useDeleteInvitesCode(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /invites/{code}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for PUT /lobbies
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getDeleteInvitesCodeMutationKey() {
-  return 'DELETE /invites/:code'
+export function getPutLobbiesMutationKey() {
+  return ['/lobbies'] as const
 }
 
 /**
@@ -7708,12 +7656,11 @@ export function usePutLobbies(options?: {
 }
 
 /**
- * Generates SWR mutation key for PUT /lobbies
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /lobbies
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPutLobbiesMutationKey() {
-  return 'PUT /lobbies'
+export function getPostLobbiesMutationKey() {
+  return ['/lobbies'] as const
 }
 
 /**
@@ -7743,12 +7690,13 @@ export function usePostLobbies(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /lobbies
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /lobbies/{lobby_id}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPostLobbiesMutationKey() {
-  return 'POST /lobbies'
+export function getGetLobbiesLobbyIdKey(
+  args: InferRequestType<(typeof client.lobbies)[':lobby_id']['$get']>,
+) {
+  return [`/lobbies/${args.param.lobby_id}`, args] as const
 }
 
 /**
@@ -7776,13 +7724,11 @@ export function useGetLobbiesLobbyId(
 }
 
 /**
- * Generates SWR cache key for GET /lobbies/{lobby_id}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for PATCH /lobbies/{lobby_id}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetLobbiesLobbyIdKey(
-  args: InferRequestType<(typeof client.lobbies)[':lobby_id']['$get']>,
-) {
-  return ['/lobbies/:lobby_id', args] as const
+export function getPatchLobbiesLobbyIdMutationKey() {
+  return ['/lobbies/:lobby_id'] as const
 }
 
 /**
@@ -7818,12 +7764,11 @@ export function usePatchLobbiesLobbyId(options?: {
 }
 
 /**
- * Generates SWR mutation key for PATCH /lobbies/{lobby_id}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for PATCH /lobbies/{lobby_id}/channel-linking
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPatchLobbiesLobbyIdMutationKey() {
-  return 'PATCH /lobbies/:lobby_id'
+export function getPatchLobbiesLobbyIdChannelLinkingMutationKey() {
+  return ['/lobbies/:lobby_id/channel-linking'] as const
 }
 
 /**
@@ -7865,12 +7810,11 @@ export function usePatchLobbiesLobbyIdChannelLinking(options?: {
 }
 
 /**
- * Generates SWR mutation key for PATCH /lobbies/{lobby_id}/channel-linking
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for DELETE /lobbies/{lobby_id}/members/@me
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPatchLobbiesLobbyIdChannelLinkingMutationKey() {
-  return 'PATCH /lobbies/:lobby_id/channel-linking'
+export function getDeleteLobbiesLobbyIdMembersMeMutationKey() {
+  return ['/lobbies/:lobby_id/members/@me'] as const
 }
 
 /**
@@ -7913,12 +7857,11 @@ export function useDeleteLobbiesLobbyIdMembersMe(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /lobbies/{lobby_id}/members/@me
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /lobbies/{lobby_id}/members/@me/invites
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getDeleteLobbiesLobbyIdMembersMeMutationKey() {
-  return 'DELETE /lobbies/:lobby_id/members/@me'
+export function getPostLobbiesLobbyIdMembersMeInvitesMutationKey() {
+  return ['/lobbies/:lobby_id/members/@me/invites'] as const
 }
 
 /**
@@ -7965,12 +7908,11 @@ export function usePostLobbiesLobbyIdMembersMeInvites(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /lobbies/{lobby_id}/members/@me/invites
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /lobbies/{lobby_id}/members/bulk
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostLobbiesLobbyIdMembersMeInvitesMutationKey() {
-  return 'POST /lobbies/:lobby_id/members/@me/invites'
+export function getPostLobbiesLobbyIdMembersBulkMutationKey() {
+  return ['/lobbies/:lobby_id/members/bulk'] as const
 }
 
 /**
@@ -8012,12 +7954,11 @@ export function usePostLobbiesLobbyIdMembersBulk(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /lobbies/{lobby_id}/members/bulk
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for PUT /lobbies/{lobby_id}/members/{user_id}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostLobbiesLobbyIdMembersBulkMutationKey() {
-  return 'POST /lobbies/:lobby_id/members/bulk'
+export function getPutLobbiesLobbyIdMembersUserIdMutationKey() {
+  return ['/lobbies/:lobby_id/members/:user_id'] as const
 }
 
 /**
@@ -8059,12 +8000,11 @@ export function usePutLobbiesLobbyIdMembersUserId(options?: {
 }
 
 /**
- * Generates SWR mutation key for PUT /lobbies/{lobby_id}/members/{user_id}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for DELETE /lobbies/{lobby_id}/members/{user_id}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPutLobbiesLobbyIdMembersUserIdMutationKey() {
-  return 'PUT /lobbies/:lobby_id/members/:user_id'
+export function getDeleteLobbiesLobbyIdMembersUserIdMutationKey() {
+  return ['/lobbies/:lobby_id/members/:user_id'] as const
 }
 
 /**
@@ -8112,12 +8052,11 @@ export function useDeleteLobbiesLobbyIdMembersUserId(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /lobbies/{lobby_id}/members/{user_id}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /lobbies/{lobby_id}/members/{user_id}/invites
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getDeleteLobbiesLobbyIdMembersUserIdMutationKey() {
-  return 'DELETE /lobbies/:lobby_id/members/:user_id'
+export function getPostLobbiesLobbyIdMembersUserIdInvitesMutationKey() {
+  return ['/lobbies/:lobby_id/members/:user_id/invites'] as const
 }
 
 /**
@@ -8170,12 +8109,13 @@ export function usePostLobbiesLobbyIdMembersUserIdInvites(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /lobbies/{lobby_id}/members/{user_id}/invites
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /lobbies/{lobby_id}/messages
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPostLobbiesLobbyIdMembersUserIdInvitesMutationKey() {
-  return 'POST /lobbies/:lobby_id/members/:user_id/invites'
+export function getGetLobbiesLobbyIdMessagesKey(
+  args: InferRequestType<(typeof client.lobbies)[':lobby_id']['messages']['$get']>,
+) {
+  return [`/lobbies/${args.param.lobby_id}/messages`, args] as const
 }
 
 /**
@@ -8203,13 +8143,11 @@ export function useGetLobbiesLobbyIdMessages(
 }
 
 /**
- * Generates SWR cache key for GET /lobbies/{lobby_id}/messages
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for POST /lobbies/{lobby_id}/messages
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetLobbiesLobbyIdMessagesKey(
-  args: InferRequestType<(typeof client.lobbies)[':lobby_id']['messages']['$get']>,
-) {
-  return ['/lobbies/:lobby_id/messages', args] as const
+export function getPostLobbiesLobbyIdMessagesMutationKey() {
+  return ['/lobbies/:lobby_id/messages'] as const
 }
 
 /**
@@ -8249,12 +8187,11 @@ export function usePostLobbiesLobbyIdMessages(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /lobbies/{lobby_id}/messages
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /oauth2/@me
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getPostLobbiesLobbyIdMessagesMutationKey() {
-  return 'POST /lobbies/:lobby_id/messages'
+export function getGetOauth2MeKey() {
+  return ['/oauth2/@me'] as const
 }
 
 /**
@@ -8279,11 +8216,11 @@ export function useGetOauth2Me(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /oauth2/@me
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /oauth2/applications/@me
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetOauth2MeKey() {
-  return ['/oauth2/@me'] as const
+export function getGetOauth2ApplicationsMeKey() {
+  return ['/oauth2/applications/@me'] as const
 }
 
 /**
@@ -8308,11 +8245,11 @@ export function useGetOauth2ApplicationsMe(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /oauth2/applications/@me
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /oauth2/keys
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetOauth2ApplicationsMeKey() {
-  return ['/oauth2/applications/@me'] as const
+export function getGetOauth2KeysKey() {
+  return ['/oauth2/keys'] as const
 }
 
 /**
@@ -8337,11 +8274,11 @@ export function useGetOauth2Keys(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /oauth2/keys
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /oauth2/userinfo
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetOauth2KeysKey() {
-  return ['/oauth2/keys'] as const
+export function getGetOauth2UserinfoKey() {
+  return ['/oauth2/userinfo'] as const
 }
 
 /**
@@ -8366,11 +8303,11 @@ export function useGetOauth2Userinfo(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /oauth2/userinfo
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR mutation key for POST /partner-sdk/provisional-accounts/unmerge
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetOauth2UserinfoKey() {
-  return ['/oauth2/userinfo'] as const
+export function getPostPartnerSdkProvisionalAccountsUnmergeMutationKey() {
+  return ['/partner-sdk/provisional-accounts/unmerge'] as const
 }
 
 /**
@@ -8420,12 +8357,11 @@ export function usePostPartnerSdkProvisionalAccountsUnmerge(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /partner-sdk/provisional-accounts/unmerge
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /partner-sdk/provisional-accounts/unmerge/bot
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostPartnerSdkProvisionalAccountsUnmergeMutationKey() {
-  return 'POST /partner-sdk/provisional-accounts/unmerge'
+export function getPostPartnerSdkProvisionalAccountsUnmergeBotMutationKey() {
+  return ['/partner-sdk/provisional-accounts/unmerge/bot'] as const
 }
 
 /**
@@ -8479,12 +8415,11 @@ export function usePostPartnerSdkProvisionalAccountsUnmergeBot(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /partner-sdk/provisional-accounts/unmerge/bot
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /partner-sdk/token
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostPartnerSdkProvisionalAccountsUnmergeBotMutationKey() {
-  return 'POST /partner-sdk/provisional-accounts/unmerge/bot'
+export function getPostPartnerSdkTokenMutationKey() {
+  return ['/partner-sdk/token'] as const
 }
 
 /**
@@ -8520,12 +8455,11 @@ export function usePostPartnerSdkToken(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /partner-sdk/token
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /partner-sdk/token/bot
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostPartnerSdkTokenMutationKey() {
-  return 'POST /partner-sdk/token'
+export function getPostPartnerSdkTokenBotMutationKey() {
+  return ['/partner-sdk/token/bot'] as const
 }
 
 /**
@@ -8563,12 +8497,11 @@ export function usePostPartnerSdkTokenBot(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /partner-sdk/token/bot
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /soundboard-default-sounds
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getPostPartnerSdkTokenBotMutationKey() {
-  return 'POST /partner-sdk/token/bot'
+export function getGetSoundboardDefaultSoundsKey() {
+  return ['/soundboard-default-sounds'] as const
 }
 
 /**
@@ -8593,11 +8526,11 @@ export function useGetSoundboardDefaultSounds(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /soundboard-default-sounds
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR mutation key for POST /stage-instances
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetSoundboardDefaultSoundsKey() {
-  return ['/soundboard-default-sounds'] as const
+export function getPostStageInstancesMutationKey() {
+  return ['/stage-instances'] as const
 }
 
 /**
@@ -8633,12 +8566,13 @@ export function usePostStageInstances(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /stage-instances
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /stage-instances/{channel_id}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPostStageInstancesMutationKey() {
-  return 'POST /stage-instances'
+export function getGetStageInstancesChannelIdKey(
+  args: InferRequestType<(typeof client)['stage-instances'][':channel_id']['$get']>,
+) {
+  return [`/stage-instances/${args.param.channel_id}`, args] as const
 }
 
 /**
@@ -8666,13 +8600,11 @@ export function useGetStageInstancesChannelId(
 }
 
 /**
- * Generates SWR cache key for GET /stage-instances/{channel_id}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for DELETE /stage-instances/{channel_id}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetStageInstancesChannelIdKey(
-  args: InferRequestType<(typeof client)['stage-instances'][':channel_id']['$get']>,
-) {
-  return ['/stage-instances/:channel_id', args] as const
+export function getDeleteStageInstancesChannelIdMutationKey() {
+  return ['/stage-instances/:channel_id'] as const
 }
 
 /**
@@ -8713,12 +8645,11 @@ export function useDeleteStageInstancesChannelId(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /stage-instances/{channel_id}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for PATCH /stage-instances/{channel_id}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getDeleteStageInstancesChannelIdMutationKey() {
-  return 'DELETE /stage-instances/:channel_id'
+export function getPatchStageInstancesChannelIdMutationKey() {
+  return ['/stage-instances/:channel_id'] as const
 }
 
 /**
@@ -8758,12 +8689,11 @@ export function usePatchStageInstancesChannelId(options?: {
 }
 
 /**
- * Generates SWR mutation key for PATCH /stage-instances/{channel_id}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /sticker-packs
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getPatchStageInstancesChannelIdMutationKey() {
-  return 'PATCH /stage-instances/:channel_id'
+export function getGetStickerPacksKey() {
+  return ['/sticker-packs'] as const
 }
 
 /**
@@ -8788,11 +8718,13 @@ export function useGetStickerPacks(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /sticker-packs
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /sticker-packs/{pack_id}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getGetStickerPacksKey() {
-  return ['/sticker-packs'] as const
+export function getGetStickerPacksPackIdKey(
+  args: InferRequestType<(typeof client)['sticker-packs'][':pack_id']['$get']>,
+) {
+  return [`/sticker-packs/${args.param.pack_id}`, args] as const
 }
 
 /**
@@ -8820,13 +8752,13 @@ export function useGetStickerPacksPackId(
 }
 
 /**
- * Generates SWR cache key for GET /sticker-packs/{pack_id}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR cache key for GET /stickers/{sticker_id}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getGetStickerPacksPackIdKey(
-  args: InferRequestType<(typeof client)['sticker-packs'][':pack_id']['$get']>,
+export function getGetStickersStickerIdKey(
+  args: InferRequestType<(typeof client.stickers)[':sticker_id']['$get']>,
 ) {
-  return ['/sticker-packs/:pack_id', args] as const
+  return [`/stickers/${args.param.sticker_id}`, args] as const
 }
 
 /**
@@ -8854,13 +8786,11 @@ export function useGetStickersStickerId(
 }
 
 /**
- * Generates SWR cache key for GET /stickers/{sticker_id}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR cache key for GET /users/@me
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetStickersStickerIdKey(
-  args: InferRequestType<(typeof client.stickers)[':sticker_id']['$get']>,
-) {
-  return ['/stickers/:sticker_id', args] as const
+export function getGetUsersMeKey() {
+  return ['/users/@me'] as const
 }
 
 /**
@@ -8885,10 +8815,10 @@ export function useGetUsersMe(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /users/@me
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR mutation key for PATCH /users/@me
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetUsersMeKey() {
+export function getPatchUsersMeMutationKey() {
   return ['/users/@me'] as const
 }
 
@@ -8921,12 +8851,15 @@ export function usePatchUsersMe(options?: {
 }
 
 /**
- * Generates SWR mutation key for PATCH /users/@me
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /users/@me/applications/{application_id}/entitlements
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPatchUsersMeMutationKey() {
-  return 'PATCH /users/@me'
+export function getGetUsersMeApplicationsApplicationIdEntitlementsKey(
+  args: InferRequestType<
+    (typeof client.users)['@me']['applications'][':application_id']['entitlements']['$get']
+  >,
+) {
+  return [`/users/@me/applications/${args.param.application_id}/entitlements`, args] as const
 }
 
 /**
@@ -8963,15 +8896,15 @@ export function useGetUsersMeApplicationsApplicationIdEntitlements(
 }
 
 /**
- * Generates SWR cache key for GET /users/@me/applications/{application_id}/entitlements
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR cache key for GET /users/@me/applications/{application_id}/role-connection
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getGetUsersMeApplicationsApplicationIdEntitlementsKey(
+export function getGetUsersMeApplicationsApplicationIdRoleConnectionKey(
   args: InferRequestType<
-    (typeof client.users)['@me']['applications'][':application_id']['entitlements']['$get']
+    (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$get']
   >,
 ) {
-  return ['/users/@me/applications/:application_id/entitlements', args] as const
+  return [`/users/@me/applications/${args.param.application_id}/role-connection`, args] as const
 }
 
 /**
@@ -9008,15 +8941,11 @@ export function useGetUsersMeApplicationsApplicationIdRoleConnection(
 }
 
 /**
- * Generates SWR cache key for GET /users/@me/applications/{application_id}/role-connection
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for PUT /users/@me/applications/{application_id}/role-connection
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetUsersMeApplicationsApplicationIdRoleConnectionKey(
-  args: InferRequestType<
-    (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$get']
-  >,
-) {
-  return ['/users/@me/applications/:application_id/role-connection', args] as const
+export function getPutUsersMeApplicationsApplicationIdRoleConnectionMutationKey() {
+  return ['/users/@me/applications/:application_id/role-connection'] as const
 }
 
 /**
@@ -9072,12 +9001,11 @@ export function usePutUsersMeApplicationsApplicationIdRoleConnection(options?: {
 }
 
 /**
- * Generates SWR mutation key for PUT /users/@me/applications/{application_id}/role-connection
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for DELETE /users/@me/applications/{application_id}/role-connection
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPutUsersMeApplicationsApplicationIdRoleConnectionMutationKey() {
-  return 'PUT /users/@me/applications/:application_id/role-connection'
+export function getDeleteUsersMeApplicationsApplicationIdRoleConnectionMutationKey() {
+  return ['/users/@me/applications/:application_id/role-connection'] as const
 }
 
 /**
@@ -9134,12 +9062,11 @@ export function useDeleteUsersMeApplicationsApplicationIdRoleConnection(options?
 }
 
 /**
- * Generates SWR mutation key for DELETE /users/@me/applications/{application_id}/role-connection
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /users/@me/channels
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getDeleteUsersMeApplicationsApplicationIdRoleConnectionMutationKey() {
-  return 'DELETE /users/@me/applications/:application_id/role-connection'
+export function getPostUsersMeChannelsMutationKey() {
+  return ['/users/@me/channels'] as const
 }
 
 /**
@@ -9175,12 +9102,11 @@ export function usePostUsersMeChannels(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /users/@me/channels
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /users/@me/connections
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getPostUsersMeChannelsMutationKey() {
-  return 'POST /users/@me/channels'
+export function getGetUsersMeConnectionsKey() {
+  return ['/users/@me/connections'] as const
 }
 
 /**
@@ -9205,11 +9131,13 @@ export function useGetUsersMeConnections(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /users/@me/connections
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /users/@me/guilds
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getGetUsersMeConnectionsKey() {
-  return ['/users/@me/connections'] as const
+export function getGetUsersMeGuildsKey(
+  args: InferRequestType<(typeof client.users)['@me']['guilds']['$get']>,
+) {
+  return ['/users/@me/guilds', args] as const
 }
 
 /**
@@ -9237,13 +9165,11 @@ export function useGetUsersMeGuilds(
 }
 
 /**
- * Generates SWR cache key for GET /users/@me/guilds
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for DELETE /users/@me/guilds/{guild_id}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetUsersMeGuildsKey(
-  args: InferRequestType<(typeof client.users)['@me']['guilds']['$get']>,
-) {
-  return ['/users/@me/guilds', args] as const
+export function getDeleteUsersMeGuildsGuildIdMutationKey() {
+  return ['/users/@me/guilds/:guild_id'] as const
 }
 
 /**
@@ -9286,12 +9212,13 @@ export function useDeleteUsersMeGuildsGuildId(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /users/@me/guilds/{guild_id}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /users/@me/guilds/{guild_id}/member
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getDeleteUsersMeGuildsGuildIdMutationKey() {
-  return 'DELETE /users/@me/guilds/:guild_id'
+export function getGetUsersMeGuildsGuildIdMemberKey(
+  args: InferRequestType<(typeof client.users)['@me']['guilds'][':guild_id']['member']['$get']>,
+) {
+  return [`/users/@me/guilds/${args.param.guild_id}/member`, args] as const
 }
 
 /**
@@ -9320,13 +9247,13 @@ export function useGetUsersMeGuildsGuildIdMember(
 }
 
 /**
- * Generates SWR cache key for GET /users/@me/guilds/{guild_id}/member
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR cache key for GET /users/{user_id}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getGetUsersMeGuildsGuildIdMemberKey(
-  args: InferRequestType<(typeof client.users)['@me']['guilds'][':guild_id']['member']['$get']>,
+export function getGetUsersUserIdKey(
+  args: InferRequestType<(typeof client.users)[':user_id']['$get']>,
 ) {
-  return ['/users/@me/guilds/:guild_id/member', args] as const
+  return [`/users/${args.param.user_id}`, args] as const
 }
 
 /**
@@ -9354,13 +9281,11 @@ export function useGetUsersUserId(
 }
 
 /**
- * Generates SWR cache key for GET /users/{user_id}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR cache key for GET /voice/regions
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetUsersUserIdKey(
-  args: InferRequestType<(typeof client.users)[':user_id']['$get']>,
-) {
-  return ['/users/:user_id', args] as const
+export function getGetVoiceRegionsKey() {
+  return ['/voice/regions'] as const
 }
 
 /**
@@ -9385,11 +9310,13 @@ export function useGetVoiceRegions(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /voice/regions
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /webhooks/{webhook_id}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getGetVoiceRegionsKey() {
-  return ['/voice/regions'] as const
+export function getGetWebhooksWebhookIdKey(
+  args: InferRequestType<(typeof client.webhooks)[':webhook_id']['$get']>,
+) {
+  return [`/webhooks/${args.param.webhook_id}`, args] as const
 }
 
 /**
@@ -9417,13 +9344,11 @@ export function useGetWebhooksWebhookId(
 }
 
 /**
- * Generates SWR cache key for GET /webhooks/{webhook_id}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for DELETE /webhooks/{webhook_id}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetWebhooksWebhookIdKey(
-  args: InferRequestType<(typeof client.webhooks)[':webhook_id']['$get']>,
-) {
-  return ['/webhooks/:webhook_id', args] as const
+export function getDeleteWebhooksWebhookIdMutationKey() {
+  return ['/webhooks/:webhook_id'] as const
 }
 
 /**
@@ -9462,12 +9387,11 @@ export function useDeleteWebhooksWebhookId(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /webhooks/{webhook_id}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for PATCH /webhooks/{webhook_id}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getDeleteWebhooksWebhookIdMutationKey() {
-  return 'DELETE /webhooks/:webhook_id'
+export function getPatchWebhooksWebhookIdMutationKey() {
+  return ['/webhooks/:webhook_id'] as const
 }
 
 /**
@@ -9503,12 +9427,13 @@ export function usePatchWebhooksWebhookId(options?: {
 }
 
 /**
- * Generates SWR mutation key for PATCH /webhooks/{webhook_id}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /webhooks/{webhook_id}/{webhook_token}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPatchWebhooksWebhookIdMutationKey() {
-  return 'PATCH /webhooks/:webhook_id'
+export function getGetWebhooksWebhookIdWebhookTokenKey(
+  args: InferRequestType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$get']>,
+) {
+  return [`/webhooks/${args.param.webhook_id}/${args.param.webhook_token}`, args] as const
 }
 
 /**
@@ -9537,13 +9462,11 @@ export function useGetWebhooksWebhookIdWebhookToken(
 }
 
 /**
- * Generates SWR cache key for GET /webhooks/{webhook_id}/{webhook_token}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for POST /webhooks/{webhook_id}/{webhook_token}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetWebhooksWebhookIdWebhookTokenKey(
-  args: InferRequestType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$get']>,
-) {
-  return ['/webhooks/:webhook_id/:webhook_token', args] as const
+export function getPostWebhooksWebhookIdWebhookTokenMutationKey() {
+  return ['/webhooks/:webhook_id/:webhook_token'] as const
 }
 
 /**
@@ -9587,12 +9510,11 @@ export function usePostWebhooksWebhookIdWebhookToken(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /webhooks/{webhook_id}/{webhook_token}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for DELETE /webhooks/{webhook_id}/{webhook_token}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostWebhooksWebhookIdWebhookTokenMutationKey() {
-  return 'POST /webhooks/:webhook_id/:webhook_token'
+export function getDeleteWebhooksWebhookIdWebhookTokenMutationKey() {
+  return ['/webhooks/:webhook_id/:webhook_token'] as const
 }
 
 /**
@@ -9640,12 +9562,11 @@ export function useDeleteWebhooksWebhookIdWebhookToken(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /webhooks/{webhook_id}/{webhook_token}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for PATCH /webhooks/{webhook_id}/{webhook_token}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getDeleteWebhooksWebhookIdWebhookTokenMutationKey() {
-  return 'DELETE /webhooks/:webhook_id/:webhook_token'
+export function getPatchWebhooksWebhookIdWebhookTokenMutationKey() {
+  return ['/webhooks/:webhook_id/:webhook_token'] as const
 }
 
 /**
@@ -9688,12 +9609,11 @@ export function usePatchWebhooksWebhookIdWebhookToken(options?: {
 }
 
 /**
- * Generates SWR mutation key for PATCH /webhooks/{webhook_id}/{webhook_token}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /webhooks/{webhook_id}/{webhook_token}/github
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPatchWebhooksWebhookIdWebhookTokenMutationKey() {
-  return 'PATCH /webhooks/:webhook_id/:webhook_token'
+export function getPostWebhooksWebhookIdWebhookTokenGithubMutationKey() {
+  return ['/webhooks/:webhook_id/:webhook_token/github'] as const
 }
 
 /**
@@ -9745,12 +9665,18 @@ export function usePostWebhooksWebhookIdWebhookTokenGithub(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /webhooks/{webhook_id}/{webhook_token}/github
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /webhooks/{webhook_id}/{webhook_token}/messages/@original
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPostWebhooksWebhookIdWebhookTokenGithubMutationKey() {
-  return 'POST /webhooks/:webhook_id/:webhook_token/github'
+export function getGetWebhooksWebhookIdWebhookTokenMessagesOriginalKey(
+  args: InferRequestType<
+    (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$get']
+  >,
+) {
+  return [
+    `/webhooks/${args.param.webhook_id}/${args.param.webhook_token}/messages/@original`,
+    args,
+  ] as const
 }
 
 /**
@@ -9787,15 +9713,11 @@ export function useGetWebhooksWebhookIdWebhookTokenMessagesOriginal(
 }
 
 /**
- * Generates SWR cache key for GET /webhooks/{webhook_id}/{webhook_token}/messages/@original
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for DELETE /webhooks/{webhook_id}/{webhook_token}/messages/@original
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetWebhooksWebhookIdWebhookTokenMessagesOriginalKey(
-  args: InferRequestType<
-    (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$get']
-  >,
-) {
-  return ['/webhooks/:webhook_id/:webhook_token/messages/@original', args] as const
+export function getDeleteWebhooksWebhookIdWebhookTokenMessagesOriginalMutationKey() {
+  return ['/webhooks/:webhook_id/:webhook_token/messages/@original'] as const
 }
 
 /**
@@ -9852,12 +9774,11 @@ export function useDeleteWebhooksWebhookIdWebhookTokenMessagesOriginal(options?:
 }
 
 /**
- * Generates SWR mutation key for DELETE /webhooks/{webhook_id}/{webhook_token}/messages/@original
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for PATCH /webhooks/{webhook_id}/{webhook_token}/messages/@original
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getDeleteWebhooksWebhookIdWebhookTokenMessagesOriginalMutationKey() {
-  return 'DELETE /webhooks/:webhook_id/:webhook_token/messages/@original'
+export function getPatchWebhooksWebhookIdWebhookTokenMessagesOriginalMutationKey() {
+  return ['/webhooks/:webhook_id/:webhook_token/messages/@original'] as const
 }
 
 /**
@@ -9913,12 +9834,18 @@ export function usePatchWebhooksWebhookIdWebhookTokenMessagesOriginal(options?: 
 }
 
 /**
- * Generates SWR mutation key for PATCH /webhooks/{webhook_id}/{webhook_token}/messages/@original
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /webhooks/{webhook_id}/{webhook_token}/messages/{message_id}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPatchWebhooksWebhookIdWebhookTokenMessagesOriginalMutationKey() {
-  return 'PATCH /webhooks/:webhook_id/:webhook_token/messages/@original'
+export function getGetWebhooksWebhookIdWebhookTokenMessagesMessageIdKey(
+  args: InferRequestType<
+    (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$get']
+  >,
+) {
+  return [
+    `/webhooks/${args.param.webhook_id}/${args.param.webhook_token}/messages/${args.param.message_id}`,
+    args,
+  ] as const
 }
 
 /**
@@ -9955,15 +9882,11 @@ export function useGetWebhooksWebhookIdWebhookTokenMessagesMessageId(
 }
 
 /**
- * Generates SWR cache key for GET /webhooks/{webhook_id}/{webhook_token}/messages/{message_id}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for DELETE /webhooks/{webhook_id}/{webhook_token}/messages/{message_id}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetWebhooksWebhookIdWebhookTokenMessagesMessageIdKey(
-  args: InferRequestType<
-    (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$get']
-  >,
-) {
-  return ['/webhooks/:webhook_id/:webhook_token/messages/:message_id', args] as const
+export function getDeleteWebhooksWebhookIdWebhookTokenMessagesMessageIdMutationKey() {
+  return ['/webhooks/:webhook_id/:webhook_token/messages/:message_id'] as const
 }
 
 /**
@@ -10020,12 +9943,11 @@ export function useDeleteWebhooksWebhookIdWebhookTokenMessagesMessageId(options?
 }
 
 /**
- * Generates SWR mutation key for DELETE /webhooks/{webhook_id}/{webhook_token}/messages/{message_id}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for PATCH /webhooks/{webhook_id}/{webhook_token}/messages/{message_id}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getDeleteWebhooksWebhookIdWebhookTokenMessagesMessageIdMutationKey() {
-  return 'DELETE /webhooks/:webhook_id/:webhook_token/messages/:message_id'
+export function getPatchWebhooksWebhookIdWebhookTokenMessagesMessageIdMutationKey() {
+  return ['/webhooks/:webhook_id/:webhook_token/messages/:message_id'] as const
 }
 
 /**
@@ -10081,12 +10003,11 @@ export function usePatchWebhooksWebhookIdWebhookTokenMessagesMessageId(options?:
 }
 
 /**
- * Generates SWR mutation key for PATCH /webhooks/{webhook_id}/{webhook_token}/messages/{message_id}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /webhooks/{webhook_id}/{webhook_token}/slack
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPatchWebhooksWebhookIdWebhookTokenMessagesMessageIdMutationKey() {
-  return 'PATCH /webhooks/:webhook_id/:webhook_token/messages/:message_id'
+export function getPostWebhooksWebhookIdWebhookTokenSlackMutationKey() {
+  return ['/webhooks/:webhook_id/:webhook_token/slack'] as const
 }
 
 /**
@@ -10132,13 +10053,4 @@ export function usePostWebhooksWebhookIdWebhookTokenSlack(options?: {
       restMutationOptions,
     ),
   }
-}
-
-/**
- * Generates SWR mutation key for POST /webhooks/{webhook_id}/{webhook_token}/slack
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
- */
-export function getPostWebhooksWebhookIdWebhookTokenSlackMutationKey() {
-  return 'POST /webhooks/:webhook_id/:webhook_token/slack'
 }

@@ -1,8 +1,36 @@
 import { createQuery, createMutation } from '@tanstack/svelte-query'
-import type { CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
+import type {
+  CreateQueryOptions,
+  QueryFunctionContext,
+  CreateMutationOptions,
+} from '@tanstack/svelte-query'
 import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/34-practical-storage-api'
+
+/**
+ * Generates Svelte Query cache key for GET /files
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetFilesQueryKey(args: InferRequestType<typeof client.files.$get>) {
+  return ['files', '/files', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /files
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetFilesQueryOptions = (
+  args: InferRequestType<typeof client.files.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetFilesQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.files.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /files
@@ -25,30 +53,6 @@ export function createGetFiles(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /files
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetFilesQueryKey(args: InferRequestType<typeof client.files.$get>) {
-  return ['/files', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /files
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetFilesQueryOptions = (
-  args: InferRequestType<typeof client.files.$get>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetFilesQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.files.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-    ),
-})
 
 /**
  * POST /files/upload
@@ -162,6 +166,35 @@ export function createPostFilesUploadMultipartUploadIdComplete(options?: {
 }
 
 /**
+ * Generates Svelte Query cache key for GET /files/{fileId}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetFilesFileIdQueryKey(
+  args: InferRequestType<(typeof client.files)[':fileId']['$get']>,
+) {
+  return ['files', '/files/:fileId', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /files/{fileId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetFilesFileIdQueryOptions = (
+  args: InferRequestType<(typeof client.files)[':fileId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetFilesFileIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.files[':fileId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /files/{fileId}
  *
  * ファイル情報取得
@@ -186,35 +219,6 @@ export function createGetFilesFileId(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /files/{fileId}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetFilesFileIdQueryKey(
-  args: InferRequestType<(typeof client.files)[':fileId']['$get']>,
-) {
-  return ['/files/:fileId', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /files/{fileId}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetFilesFileIdQueryOptions = (
-  args: InferRequestType<(typeof client.files)[':fileId']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetFilesFileIdQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.files[':fileId'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * DELETE /files/{fileId}
@@ -268,6 +272,35 @@ export function createPatchFilesFileId(options?: {
 }
 
 /**
+ * Generates Svelte Query cache key for GET /files/{fileId}/download
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetFilesFileIdDownloadQueryKey(
+  args: InferRequestType<(typeof client.files)[':fileId']['download']['$get']>,
+) {
+  return ['files', '/files/:fileId/download', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /files/{fileId}/download
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetFilesFileIdDownloadQueryOptions = (
+  args: InferRequestType<(typeof client.files)[':fileId']['download']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetFilesFileIdDownloadQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.files[':fileId'].download.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /files/{fileId}/download
  *
  * ファイルダウンロード
@@ -299,28 +332,28 @@ export function createGetFilesFileIdDownload(
 }
 
 /**
- * Generates Svelte Query cache key for GET /files/{fileId}/download
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Svelte Query cache key for GET /files/{fileId}/download-url
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetFilesFileIdDownloadQueryKey(
-  args: InferRequestType<(typeof client.files)[':fileId']['download']['$get']>,
+export function getGetFilesFileIdDownloadUrlQueryKey(
+  args: InferRequestType<(typeof client.files)[':fileId']['download-url']['$get']>,
 ) {
-  return ['/files/:fileId/download', args] as const
+  return ['files', '/files/:fileId/download-url', args] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /files/{fileId}/download
+ * Returns Svelte Query query options for GET /files/{fileId}/download-url
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetFilesFileIdDownloadQueryOptions = (
-  args: InferRequestType<(typeof client.files)[':fileId']['download']['$get']>,
+export const getGetFilesFileIdDownloadUrlQueryOptions = (
+  args: InferRequestType<(typeof client.files)[':fileId']['download-url']['$get']>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetFilesFileIdDownloadQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetFilesFileIdDownloadUrlQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.files[':fileId'].download.$get(args, {
+      client.files[':fileId']['download-url'].$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -357,35 +390,6 @@ export function createGetFilesFileIdDownloadUrl(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /files/{fileId}/download-url
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetFilesFileIdDownloadUrlQueryKey(
-  args: InferRequestType<(typeof client.files)[':fileId']['download-url']['$get']>,
-) {
-  return ['/files/:fileId/download-url', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /files/{fileId}/download-url
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetFilesFileIdDownloadUrlQueryOptions = (
-  args: InferRequestType<(typeof client.files)[':fileId']['download-url']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetFilesFileIdDownloadUrlQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.files[':fileId']['download-url'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /files/{fileId}/copy
@@ -438,6 +442,35 @@ export function createPostFilesFileIdMove(options?: {
 }
 
 /**
+ * Generates Svelte Query cache key for GET /files/{fileId}/thumbnail
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetFilesFileIdThumbnailQueryKey(
+  args: InferRequestType<(typeof client.files)[':fileId']['thumbnail']['$get']>,
+) {
+  return ['files', '/files/:fileId/thumbnail', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /files/{fileId}/thumbnail
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetFilesFileIdThumbnailQueryOptions = (
+  args: InferRequestType<(typeof client.files)[':fileId']['thumbnail']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetFilesFileIdThumbnailQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.files[':fileId'].thumbnail.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /files/{fileId}/thumbnail
  *
  * サムネイル取得
@@ -469,35 +502,6 @@ export function createGetFilesFileIdThumbnail(
 }
 
 /**
- * Generates Svelte Query cache key for GET /files/{fileId}/thumbnail
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetFilesFileIdThumbnailQueryKey(
-  args: InferRequestType<(typeof client.files)[':fileId']['thumbnail']['$get']>,
-) {
-  return ['/files/:fileId/thumbnail', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /files/{fileId}/thumbnail
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetFilesFileIdThumbnailQueryOptions = (
-  args: InferRequestType<(typeof client.files)[':fileId']['thumbnail']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetFilesFileIdThumbnailQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.files[':fileId'].thumbnail.$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
-
-/**
  * POST /folders
  *
  * フォルダ作成
@@ -517,6 +521,35 @@ export function createPostFolders(options?: {
       parseResponse(client.folders.$post(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query cache key for GET /folders/{folderId}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetFoldersFolderIdQueryKey(
+  args: InferRequestType<(typeof client.folders)[':folderId']['$get']>,
+) {
+  return ['folders', '/folders/:folderId', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /folders/{folderId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetFoldersFolderIdQueryOptions = (
+  args: InferRequestType<(typeof client.folders)[':folderId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetFoldersFolderIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.folders[':folderId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /folders/{folderId}
@@ -546,35 +579,6 @@ export function createGetFoldersFolderId(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /folders/{folderId}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetFoldersFolderIdQueryKey(
-  args: InferRequestType<(typeof client.folders)[':folderId']['$get']>,
-) {
-  return ['/folders/:folderId', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /folders/{folderId}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetFoldersFolderIdQueryOptions = (
-  args: InferRequestType<(typeof client.folders)[':folderId']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetFoldersFolderIdQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.folders[':folderId'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * DELETE /folders/{folderId}
@@ -628,6 +632,35 @@ export function createPatchFoldersFolderId(options?: {
 }
 
 /**
+ * Generates Svelte Query cache key for GET /files/{fileId}/share
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetFilesFileIdShareQueryKey(
+  args: InferRequestType<(typeof client.files)[':fileId']['share']['$get']>,
+) {
+  return ['files', '/files/:fileId/share', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /files/{fileId}/share
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetFilesFileIdShareQueryOptions = (
+  args: InferRequestType<(typeof client.files)[':fileId']['share']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetFilesFileIdShareQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.files[':fileId'].share.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /files/{fileId}/share
  *
  * 共有設定取得
@@ -657,35 +690,6 @@ export function createGetFilesFileIdShare(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /files/{fileId}/share
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetFilesFileIdShareQueryKey(
-  args: InferRequestType<(typeof client.files)[':fileId']['share']['$get']>,
-) {
-  return ['/files/:fileId/share', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /files/{fileId}/share
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetFilesFileIdShareQueryOptions = (
-  args: InferRequestType<(typeof client.files)[':fileId']['share']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetFilesFileIdShareQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.files[':fileId'].share.$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /files/{fileId}/share
@@ -773,6 +777,35 @@ export function createPostFilesFileIdShareLink(options?: {
 }
 
 /**
+ * Generates Svelte Query cache key for GET /files/{fileId}/versions
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetFilesFileIdVersionsQueryKey(
+  args: InferRequestType<(typeof client.files)[':fileId']['versions']['$get']>,
+) {
+  return ['files', '/files/:fileId/versions', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /files/{fileId}/versions
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetFilesFileIdVersionsQueryOptions = (
+  args: InferRequestType<(typeof client.files)[':fileId']['versions']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetFilesFileIdVersionsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.files[':fileId'].versions.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /files/{fileId}/versions
  *
  * バージョン一覧取得
@@ -802,35 +835,6 @@ export function createGetFilesFileIdVersions(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /files/{fileId}/versions
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetFilesFileIdVersionsQueryKey(
-  args: InferRequestType<(typeof client.files)[':fileId']['versions']['$get']>,
-) {
-  return ['/files/:fileId/versions', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /files/{fileId}/versions
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetFilesFileIdVersionsQueryOptions = (
-  args: InferRequestType<(typeof client.files)[':fileId']['versions']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetFilesFileIdVersionsQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.files[':fileId'].versions.$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /files/{fileId}/versions/{versionId}/restore
@@ -870,6 +874,30 @@ export function createPostFilesFileIdVersionsVersionIdRestore(options?: {
 }
 
 /**
+ * Generates Svelte Query cache key for GET /trash
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetTrashQueryKey(args: InferRequestType<typeof client.trash.$get>) {
+  return ['trash', '/trash', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /trash
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetTrashQueryOptions = (
+  args: InferRequestType<typeof client.trash.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetTrashQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.trash.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
+
+/**
  * GET /trash
  *
  * ゴミ箱一覧取得
@@ -890,30 +918,6 @@ export function createGetTrash(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /trash
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetTrashQueryKey(args: InferRequestType<typeof client.trash.$get>) {
-  return ['/trash', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /trash
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetTrashQueryOptions = (
-  args: InferRequestType<typeof client.trash.$get>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetTrashQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.trash.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-    ),
-})
 
 /**
  * DELETE /trash
@@ -965,6 +969,30 @@ export function createPostTrashFileIdRestore(options?: {
 }
 
 /**
+ * Generates Svelte Query cache key for GET /storage/usage
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGetStorageUsageQueryKey() {
+  return ['storage', '/storage/usage'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /storage/usage
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetStorageUsageQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetStorageUsageQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.storage.usage.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /storage/usage
  *
  * ストレージ使用量取得
@@ -986,27 +1014,3 @@ export function createGetStorageUsage(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /storage/usage
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGetStorageUsageQueryKey() {
-  return ['/storage/usage'] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /storage/usage
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetStorageUsageQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetStorageUsageQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.storage.usage.$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})

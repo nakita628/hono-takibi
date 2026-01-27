@@ -1,8 +1,34 @@
 import { useQuery, useMutation } from '@tanstack/vue-query'
-import type { UseQueryOptions, UseMutationOptions } from '@tanstack/vue-query'
+import type { UseQueryOptions, QueryFunctionContext, UseMutationOptions } from '@tanstack/vue-query'
+import { unref } from 'vue'
+import type { MaybeRef } from 'vue'
 import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/34-practical-storage-api'
+
+/**
+ * Generates Vue Query cache key for GET /files
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetFilesQueryKey(args: MaybeRef<InferRequestType<typeof client.files.$get>>) {
+  return ['files', '/files', unref(args)] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /files
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetFilesQueryOptions = (
+  args: InferRequestType<typeof client.files.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetFilesQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.files.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /files
@@ -28,30 +54,6 @@ export function useGetFiles(
   const { queryKey, queryFn, ...baseOptions } = getGetFilesQueryOptions(args, clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates Vue Query cache key for GET /files
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetFilesQueryKey(args: InferRequestType<typeof client.files.$get>) {
-  return ['/files', args] as const
-}
-
-/**
- * Returns Vue Query query options for GET /files
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetFilesQueryOptions = (
-  args: InferRequestType<typeof client.files.$get>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetFilesQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.files.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-    ),
-})
 
 /**
  * POST /files/upload
@@ -189,6 +191,35 @@ export function usePostFilesUploadMultipartUploadIdComplete(options?: {
 }
 
 /**
+ * Generates Vue Query cache key for GET /files/{fileId}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetFilesFileIdQueryKey(
+  args: MaybeRef<InferRequestType<(typeof client.files)[':fileId']['$get']>>,
+) {
+  return ['files', '/files/:fileId', unref(args)] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /files/{fileId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetFilesFileIdQueryOptions = (
+  args: InferRequestType<(typeof client.files)[':fileId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetFilesFileIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.files[':fileId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /files/{fileId}
  *
  * ファイル情報取得
@@ -216,35 +247,6 @@ export function useGetFilesFileId(
   const { queryKey, queryFn, ...baseOptions } = getGetFilesFileIdQueryOptions(args, clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates Vue Query cache key for GET /files/{fileId}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetFilesFileIdQueryKey(
-  args: InferRequestType<(typeof client.files)[':fileId']['$get']>,
-) {
-  return ['/files/:fileId', args] as const
-}
-
-/**
- * Returns Vue Query query options for GET /files/{fileId}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetFilesFileIdQueryOptions = (
-  args: InferRequestType<(typeof client.files)[':fileId']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetFilesFileIdQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.files[':fileId'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * DELETE /files/{fileId}
@@ -308,6 +310,35 @@ export function usePatchFilesFileId(options?: {
 }
 
 /**
+ * Generates Vue Query cache key for GET /files/{fileId}/download
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetFilesFileIdDownloadQueryKey(
+  args: MaybeRef<InferRequestType<(typeof client.files)[':fileId']['download']['$get']>>,
+) {
+  return ['files', '/files/:fileId/download', unref(args)] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /files/{fileId}/download
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetFilesFileIdDownloadQueryOptions = (
+  args: InferRequestType<(typeof client.files)[':fileId']['download']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetFilesFileIdDownloadQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.files[':fileId'].download.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /files/{fileId}/download
  *
  * ファイルダウンロード
@@ -342,28 +373,28 @@ export function useGetFilesFileIdDownload(
 }
 
 /**
- * Generates Vue Query cache key for GET /files/{fileId}/download
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Vue Query cache key for GET /files/{fileId}/download-url
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetFilesFileIdDownloadQueryKey(
-  args: InferRequestType<(typeof client.files)[':fileId']['download']['$get']>,
+export function getGetFilesFileIdDownloadUrlQueryKey(
+  args: MaybeRef<InferRequestType<(typeof client.files)[':fileId']['download-url']['$get']>>,
 ) {
-  return ['/files/:fileId/download', args] as const
+  return ['files', '/files/:fileId/download-url', unref(args)] as const
 }
 
 /**
- * Returns Vue Query query options for GET /files/{fileId}/download
+ * Returns Vue Query query options for GET /files/{fileId}/download-url
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetFilesFileIdDownloadQueryOptions = (
-  args: InferRequestType<(typeof client.files)[':fileId']['download']['$get']>,
+export const getGetFilesFileIdDownloadUrlQueryOptions = (
+  args: InferRequestType<(typeof client.files)[':fileId']['download-url']['$get']>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetFilesFileIdDownloadQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetFilesFileIdDownloadUrlQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.files[':fileId'].download.$get(args, {
+      client.files[':fileId']['download-url'].$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -403,35 +434,6 @@ export function useGetFilesFileIdDownloadUrl(
   )
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates Vue Query cache key for GET /files/{fileId}/download-url
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetFilesFileIdDownloadUrlQueryKey(
-  args: InferRequestType<(typeof client.files)[':fileId']['download-url']['$get']>,
-) {
-  return ['/files/:fileId/download-url', args] as const
-}
-
-/**
- * Returns Vue Query query options for GET /files/{fileId}/download-url
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetFilesFileIdDownloadUrlQueryOptions = (
-  args: InferRequestType<(typeof client.files)[':fileId']['download-url']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetFilesFileIdDownloadUrlQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.files[':fileId']['download-url'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /files/{fileId}/copy
@@ -498,6 +500,35 @@ export function usePostFilesFileIdMove(options?: {
 }
 
 /**
+ * Generates Vue Query cache key for GET /files/{fileId}/thumbnail
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetFilesFileIdThumbnailQueryKey(
+  args: MaybeRef<InferRequestType<(typeof client.files)[':fileId']['thumbnail']['$get']>>,
+) {
+  return ['files', '/files/:fileId/thumbnail', unref(args)] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /files/{fileId}/thumbnail
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetFilesFileIdThumbnailQueryOptions = (
+  args: InferRequestType<(typeof client.files)[':fileId']['thumbnail']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetFilesFileIdThumbnailQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.files[':fileId'].thumbnail.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /files/{fileId}/thumbnail
  *
  * サムネイル取得
@@ -532,35 +563,6 @@ export function useGetFilesFileIdThumbnail(
 }
 
 /**
- * Generates Vue Query cache key for GET /files/{fileId}/thumbnail
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetFilesFileIdThumbnailQueryKey(
-  args: InferRequestType<(typeof client.files)[':fileId']['thumbnail']['$get']>,
-) {
-  return ['/files/:fileId/thumbnail', args] as const
-}
-
-/**
- * Returns Vue Query query options for GET /files/{fileId}/thumbnail
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetFilesFileIdThumbnailQueryOptions = (
-  args: InferRequestType<(typeof client.files)[':fileId']['thumbnail']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetFilesFileIdThumbnailQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.files[':fileId'].thumbnail.$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
-
-/**
  * POST /folders
  *
  * フォルダ作成
@@ -585,6 +587,35 @@ export function usePostFolders(options?: {
       parseResponse(client.folders.$post(args, clientOptions)),
   })
 }
+
+/**
+ * Generates Vue Query cache key for GET /folders/{folderId}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetFoldersFolderIdQueryKey(
+  args: MaybeRef<InferRequestType<(typeof client.folders)[':folderId']['$get']>>,
+) {
+  return ['folders', '/folders/:folderId', unref(args)] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /folders/{folderId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetFoldersFolderIdQueryOptions = (
+  args: InferRequestType<(typeof client.folders)[':folderId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetFoldersFolderIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.folders[':folderId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /folders/{folderId}
@@ -619,35 +650,6 @@ export function useGetFoldersFolderId(
   )
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates Vue Query cache key for GET /folders/{folderId}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetFoldersFolderIdQueryKey(
-  args: InferRequestType<(typeof client.folders)[':folderId']['$get']>,
-) {
-  return ['/folders/:folderId', args] as const
-}
-
-/**
- * Returns Vue Query query options for GET /folders/{folderId}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetFoldersFolderIdQueryOptions = (
-  args: InferRequestType<(typeof client.folders)[':folderId']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetFoldersFolderIdQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.folders[':folderId'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * DELETE /folders/{folderId}
@@ -715,6 +717,35 @@ export function usePatchFoldersFolderId(options?: {
 }
 
 /**
+ * Generates Vue Query cache key for GET /files/{fileId}/share
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetFilesFileIdShareQueryKey(
+  args: MaybeRef<InferRequestType<(typeof client.files)[':fileId']['share']['$get']>>,
+) {
+  return ['files', '/files/:fileId/share', unref(args)] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /files/{fileId}/share
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetFilesFileIdShareQueryOptions = (
+  args: InferRequestType<(typeof client.files)[':fileId']['share']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetFilesFileIdShareQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.files[':fileId'].share.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /files/{fileId}/share
  *
  * 共有設定取得
@@ -747,35 +778,6 @@ export function useGetFilesFileIdShare(
   )
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates Vue Query cache key for GET /files/{fileId}/share
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetFilesFileIdShareQueryKey(
-  args: InferRequestType<(typeof client.files)[':fileId']['share']['$get']>,
-) {
-  return ['/files/:fileId/share', args] as const
-}
-
-/**
- * Returns Vue Query query options for GET /files/{fileId}/share
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetFilesFileIdShareQueryOptions = (
-  args: InferRequestType<(typeof client.files)[':fileId']['share']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetFilesFileIdShareQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.files[':fileId'].share.$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /files/{fileId}/share
@@ -878,6 +880,35 @@ export function usePostFilesFileIdShareLink(options?: {
 }
 
 /**
+ * Generates Vue Query cache key for GET /files/{fileId}/versions
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetFilesFileIdVersionsQueryKey(
+  args: MaybeRef<InferRequestType<(typeof client.files)[':fileId']['versions']['$get']>>,
+) {
+  return ['files', '/files/:fileId/versions', unref(args)] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /files/{fileId}/versions
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetFilesFileIdVersionsQueryOptions = (
+  args: InferRequestType<(typeof client.files)[':fileId']['versions']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetFilesFileIdVersionsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.files[':fileId'].versions.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /files/{fileId}/versions
  *
  * バージョン一覧取得
@@ -910,35 +941,6 @@ export function useGetFilesFileIdVersions(
   )
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates Vue Query cache key for GET /files/{fileId}/versions
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetFilesFileIdVersionsQueryKey(
-  args: InferRequestType<(typeof client.files)[':fileId']['versions']['$get']>,
-) {
-  return ['/files/:fileId/versions', args] as const
-}
-
-/**
- * Returns Vue Query query options for GET /files/{fileId}/versions
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetFilesFileIdVersionsQueryOptions = (
-  args: InferRequestType<(typeof client.files)[':fileId']['versions']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetFilesFileIdVersionsQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.files[':fileId'].versions.$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /files/{fileId}/versions/{versionId}/restore
@@ -985,6 +987,30 @@ export function usePostFilesFileIdVersionsVersionIdRestore(options?: {
 }
 
 /**
+ * Generates Vue Query cache key for GET /trash
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetTrashQueryKey(args: MaybeRef<InferRequestType<typeof client.trash.$get>>) {
+  return ['trash', '/trash', unref(args)] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /trash
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetTrashQueryOptions = (
+  args: InferRequestType<typeof client.trash.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetTrashQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.trash.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
+
+/**
  * GET /trash
  *
  * ゴミ箱一覧取得
@@ -1008,30 +1034,6 @@ export function useGetTrash(
   const { queryKey, queryFn, ...baseOptions } = getGetTrashQueryOptions(args, clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates Vue Query cache key for GET /trash
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetTrashQueryKey(args: InferRequestType<typeof client.trash.$get>) {
-  return ['/trash', args] as const
-}
-
-/**
- * Returns Vue Query query options for GET /trash
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetTrashQueryOptions = (
-  args: InferRequestType<typeof client.trash.$get>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetTrashQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.trash.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-    ),
-})
 
 /**
  * DELETE /trash
@@ -1095,6 +1097,30 @@ export function usePostTrashFileIdRestore(options?: {
 }
 
 /**
+ * Generates Vue Query cache key for GET /storage/usage
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGetStorageUsageQueryKey() {
+  return ['storage', '/storage/usage'] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /storage/usage
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetStorageUsageQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetStorageUsageQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.storage.usage.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /storage/usage
  *
  * ストレージ使用量取得
@@ -1117,27 +1143,3 @@ export function useGetStorageUsage(options?: {
   const { queryKey, queryFn, ...baseOptions } = getGetStorageUsageQueryOptions(clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates Vue Query cache key for GET /storage/usage
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGetStorageUsageQueryKey() {
-  return ['/storage/usage'] as const
-}
-
-/**
- * Returns Vue Query query options for GET /storage/usage
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetStorageUsageQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetStorageUsageQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.storage.usage.$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})

@@ -5,6 +5,14 @@ import { parseResponse } from 'hono/client'
 import { client } from '../clients/openapi-complex-array'
 
 /**
+ * Generates SWR cache key for GET /array
+ * Returns structured key [path] for filter-based invalidation
+ */
+export function getGetArrayKey() {
+  return ['/array'] as const
+}
+
+/**
  * GET /array
  *
  * zod array
@@ -27,12 +35,4 @@ export function useGetArray(options?: {
       restSwrOptions,
     ),
   }
-}
-
-/**
- * Generates SWR cache key for GET /array
- * Returns structured key [templatePath] for filter-based invalidation
- */
-export function getGetArrayKey() {
-  return ['/array'] as const
 }

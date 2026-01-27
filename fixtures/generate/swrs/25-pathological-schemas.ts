@@ -6,6 +6,14 @@ import { parseResponse } from 'hono/client'
 import { client } from '../clients/25-pathological-schemas'
 
 /**
+ * Generates SWR mutation key for POST /pathological
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ */
+export function getPostPathologicalMutationKey() {
+  return ['/pathological'] as const
+}
+
+/**
  * POST /pathological
  */
 export function usePostPathological(options?: {
@@ -31,13 +39,4 @@ export function usePostPathological(options?: {
       restMutationOptions,
     ),
   }
-}
-
-/**
- * Generates SWR mutation key for POST /pathological
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
- */
-export function getPostPathologicalMutationKey() {
-  return 'POST /pathological'
 }

@@ -1,5 +1,9 @@
 import { useQuery, useMutation } from '@tanstack/react-query'
-import type { UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
+import type {
+  UseQueryOptions,
+  QueryFunctionContext,
+  UseMutationOptions,
+} from '@tanstack/react-query'
 import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/16-complex-composition'
@@ -43,6 +47,30 @@ export function usePostEvents(options?: {
 }
 
 /**
+ * Generates TanStack Query cache key for GET /configs
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGetConfigsQueryKey() {
+  return ['configs', '/configs'] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /configs
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetConfigsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetConfigsQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.configs.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /configs
  */
 export function useGetConfigs(options?: {
@@ -56,30 +84,6 @@ export function useGetConfigs(options?: {
   const { queryKey, queryFn, ...baseOptions } = getGetConfigsQueryOptions(clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates TanStack Query cache key for GET /configs
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGetConfigsQueryKey() {
-  return ['/configs'] as const
-}
-
-/**
- * Returns TanStack Query query options for GET /configs
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetConfigsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetConfigsQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.configs.$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * PUT /configs

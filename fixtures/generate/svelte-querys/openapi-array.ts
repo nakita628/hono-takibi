@@ -1,8 +1,29 @@
 import { createQuery } from '@tanstack/svelte-query'
-import type { CreateQueryOptions } from '@tanstack/svelte-query'
+import type { CreateQueryOptions, QueryFunctionContext } from '@tanstack/svelte-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/openapi-array'
+
+/**
+ * Generates Svelte Query cache key for GET /array
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGetArrayQueryKey() {
+  return ['array', '/array'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /array
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetArrayQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetArrayQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.array.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /array
@@ -26,24 +47,3 @@ export function createGetArray(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /array
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGetArrayQueryKey() {
-  return ['/array'] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /array
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetArrayQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetArrayQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.array.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-    ),
-})

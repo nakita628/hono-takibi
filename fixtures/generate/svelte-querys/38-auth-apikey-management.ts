@@ -1,8 +1,36 @@
 import { createQuery, createMutation } from '@tanstack/svelte-query'
-import type { CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
+import type {
+  CreateQueryOptions,
+  QueryFunctionContext,
+  CreateMutationOptions,
+} from '@tanstack/svelte-query'
 import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/38-auth-apikey-management'
+
+/**
+ * Generates Svelte Query cache key for GET /api-keys
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetApiKeysQueryKey(args: InferRequestType<(typeof client)['api-keys']['$get']>) {
+  return ['api-keys', '/api-keys', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /api-keys
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetApiKeysQueryOptions = (
+  args: InferRequestType<(typeof client)['api-keys']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetApiKeysQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['api-keys'].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /api-keys
@@ -29,30 +57,6 @@ export function createGetApiKeys(
 }
 
 /**
- * Generates Svelte Query cache key for GET /api-keys
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetApiKeysQueryKey(args: InferRequestType<(typeof client)['api-keys']['$get']>) {
-  return ['/api-keys', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /api-keys
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetApiKeysQueryOptions = (
-  args: InferRequestType<(typeof client)['api-keys']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetApiKeysQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['api-keys'].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-    ),
-})
-
-/**
  * POST /api-keys
  *
  * APIキー作成
@@ -74,6 +78,35 @@ export function createPostApiKeys(options?: {
       parseResponse(client['api-keys'].$post(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query cache key for GET /api-keys/{keyId}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetApiKeysKeyIdQueryKey(
+  args: InferRequestType<(typeof client)['api-keys'][':keyId']['$get']>,
+) {
+  return ['api-keys', '/api-keys/:keyId', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /api-keys/{keyId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetApiKeysKeyIdQueryOptions = (
+  args: InferRequestType<(typeof client)['api-keys'][':keyId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetApiKeysKeyIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['api-keys'][':keyId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /api-keys/{keyId}
@@ -100,35 +133,6 @@ export function createGetApiKeysKeyId(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /api-keys/{keyId}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetApiKeysKeyIdQueryKey(
-  args: InferRequestType<(typeof client)['api-keys'][':keyId']['$get']>,
-) {
-  return ['/api-keys/:keyId', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /api-keys/{keyId}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetApiKeysKeyIdQueryOptions = (
-  args: InferRequestType<(typeof client)['api-keys'][':keyId']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetApiKeysKeyIdQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['api-keys'][':keyId'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * DELETE /api-keys/{keyId}
@@ -240,6 +244,35 @@ export function createPostApiKeysKeyIdRotate(options?: {
 }
 
 /**
+ * Generates Svelte Query cache key for GET /api-keys/{keyId}/usage
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetApiKeysKeyIdUsageQueryKey(
+  args: InferRequestType<(typeof client)['api-keys'][':keyId']['usage']['$get']>,
+) {
+  return ['api-keys', '/api-keys/:keyId/usage', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /api-keys/{keyId}/usage
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetApiKeysKeyIdUsageQueryOptions = (
+  args: InferRequestType<(typeof client)['api-keys'][':keyId']['usage']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetApiKeysKeyIdUsageQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['api-keys'][':keyId'].usage.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /api-keys/{keyId}/usage
  *
  * APIキー使用量取得
@@ -271,28 +304,28 @@ export function createGetApiKeysKeyIdUsage(
 }
 
 /**
- * Generates Svelte Query cache key for GET /api-keys/{keyId}/usage
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Svelte Query cache key for GET /api-keys/{keyId}/rate-limit/current
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetApiKeysKeyIdUsageQueryKey(
-  args: InferRequestType<(typeof client)['api-keys'][':keyId']['usage']['$get']>,
+export function getGetApiKeysKeyIdRateLimitCurrentQueryKey(
+  args: InferRequestType<(typeof client)['api-keys'][':keyId']['rate-limit']['current']['$get']>,
 ) {
-  return ['/api-keys/:keyId/usage', args] as const
+  return ['api-keys', '/api-keys/:keyId/rate-limit/current', args] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /api-keys/{keyId}/usage
+ * Returns Svelte Query query options for GET /api-keys/{keyId}/rate-limit/current
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetApiKeysKeyIdUsageQueryOptions = (
-  args: InferRequestType<(typeof client)['api-keys'][':keyId']['usage']['$get']>,
+export const getGetApiKeysKeyIdRateLimitCurrentQueryOptions = (
+  args: InferRequestType<(typeof client)['api-keys'][':keyId']['rate-limit']['current']['$get']>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetApiKeysKeyIdUsageQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetApiKeysKeyIdRateLimitCurrentQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client['api-keys'][':keyId'].usage.$get(args, {
+      client['api-keys'][':keyId']['rate-limit'].current.$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -333,35 +366,6 @@ export function createGetApiKeysKeyIdRateLimitCurrent(
 }
 
 /**
- * Generates Svelte Query cache key for GET /api-keys/{keyId}/rate-limit/current
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetApiKeysKeyIdRateLimitCurrentQueryKey(
-  args: InferRequestType<(typeof client)['api-keys'][':keyId']['rate-limit']['current']['$get']>,
-) {
-  return ['/api-keys/:keyId/rate-limit/current', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /api-keys/{keyId}/rate-limit/current
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetApiKeysKeyIdRateLimitCurrentQueryOptions = (
-  args: InferRequestType<(typeof client)['api-keys'][':keyId']['rate-limit']['current']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetApiKeysKeyIdRateLimitCurrentQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['api-keys'][':keyId']['rate-limit'].current.$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
-
-/**
  * POST /api-keys/verify
  *
  * APIキー検証
@@ -387,6 +391,27 @@ export function createPostApiKeysVerify(options?: {
 }
 
 /**
+ * Generates Svelte Query cache key for GET /scopes
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGetScopesQueryKey() {
+  return ['scopes', '/scopes'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /scopes
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetScopesQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetScopesQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.scopes.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
+
+/**
  * GET /scopes
  *
  * 利用可能なスコープ一覧
@@ -406,24 +431,3 @@ export function createGetScopes(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /scopes
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGetScopesQueryKey() {
-  return ['/scopes'] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /scopes
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetScopesQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetScopesQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.scopes.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-    ),
-})

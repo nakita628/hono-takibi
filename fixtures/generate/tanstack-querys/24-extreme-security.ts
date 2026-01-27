@@ -1,8 +1,33 @@
 import { useQuery, useMutation } from '@tanstack/react-query'
-import type { UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
+import type {
+  UseQueryOptions,
+  QueryFunctionContext,
+  UseMutationOptions,
+} from '@tanstack/react-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/24-extreme-security'
+
+/**
+ * Generates TanStack Query cache key for GET /public
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGetPublicQueryKey() {
+  return ['public', '/public'] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /public
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetPublicQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetPublicQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.public.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /public
@@ -22,23 +47,26 @@ export function useGetPublic(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /public
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates TanStack Query cache key for GET /single-auth
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetPublicQueryKey() {
-  return ['/public'] as const
+export function getGetSingleAuthQueryKey() {
+  return ['single-auth', '/single-auth'] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /public
+ * Returns TanStack Query query options for GET /single-auth
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetPublicQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetPublicQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetSingleAuthQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetSingleAuthQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.public.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      client['single-auth'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
     ),
 })
 
@@ -62,23 +90,23 @@ export function useGetSingleAuth(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /single-auth
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates TanStack Query cache key for GET /any-auth
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetSingleAuthQueryKey() {
-  return ['/single-auth'] as const
+export function getGetAnyAuthQueryKey() {
+  return ['any-auth', '/any-auth'] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /single-auth
+ * Returns TanStack Query query options for GET /any-auth
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetSingleAuthQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetSingleAuthQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetAnyAuthQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetAnyAuthQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client['single-auth'].$get(undefined, {
+      client['any-auth'].$get(undefined, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -105,23 +133,23 @@ export function useGetAnyAuth(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /any-auth
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates TanStack Query cache key for GET /all-auth
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetAnyAuthQueryKey() {
-  return ['/any-auth'] as const
+export function getGetAllAuthQueryKey() {
+  return ['all-auth', '/all-auth'] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /any-auth
+ * Returns TanStack Query query options for GET /all-auth
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetAnyAuthQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetAnyAuthQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetAllAuthQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetAllAuthQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client['any-auth'].$get(undefined, {
+      client['all-auth'].$get(undefined, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -148,23 +176,23 @@ export function useGetAllAuth(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /all-auth
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates TanStack Query cache key for GET /complex-auth
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetAllAuthQueryKey() {
-  return ['/all-auth'] as const
+export function getGetComplexAuthQueryKey() {
+  return ['complex-auth', '/complex-auth'] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /all-auth
+ * Returns TanStack Query query options for GET /complex-auth
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetAllAuthQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetAllAuthQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetComplexAuthQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetComplexAuthQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client['all-auth'].$get(undefined, {
+      client['complex-auth'].$get(undefined, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -191,23 +219,23 @@ export function useGetComplexAuth(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /complex-auth
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates TanStack Query cache key for GET /scoped-oauth
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetComplexAuthQueryKey() {
-  return ['/complex-auth'] as const
+export function getGetScopedOauthQueryKey() {
+  return ['scoped-oauth', '/scoped-oauth'] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /complex-auth
+ * Returns TanStack Query query options for GET /scoped-oauth
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetComplexAuthQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetComplexAuthQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetScopedOauthQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetScopedOauthQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client['complex-auth'].$get(undefined, {
+      client['scoped-oauth'].$get(undefined, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -234,23 +262,23 @@ export function useGetScopedOauth(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /scoped-oauth
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates TanStack Query cache key for GET /mixed-level-security
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetScopedOauthQueryKey() {
-  return ['/scoped-oauth'] as const
+export function getGetMixedLevelSecurityQueryKey() {
+  return ['mixed-level-security', '/mixed-level-security'] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /scoped-oauth
+ * Returns TanStack Query query options for GET /mixed-level-security
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetScopedOauthQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetScopedOauthQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetMixedLevelSecurityQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetMixedLevelSecurityQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client['scoped-oauth'].$get(undefined, {
+      client['mixed-level-security'].$get(undefined, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -277,30 +305,6 @@ export function useGetMixedLevelSecurity(options?: {
   const { queryKey, queryFn, ...baseOptions } = getGetMixedLevelSecurityQueryOptions(clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates TanStack Query cache key for GET /mixed-level-security
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGetMixedLevelSecurityQueryKey() {
-  return ['/mixed-level-security'] as const
-}
-
-/**
- * Returns TanStack Query query options for GET /mixed-level-security
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetMixedLevelSecurityQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetMixedLevelSecurityQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['mixed-level-security'].$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * PUT /mixed-level-security
@@ -381,6 +385,30 @@ export function useDeleteMixedLevelSecurity(options?: {
 }
 
 /**
+ * Generates TanStack Query cache key for GET /override-global
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGetOverrideGlobalQueryKey() {
+  return ['override-global', '/override-global'] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /override-global
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetOverrideGlobalQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetOverrideGlobalQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['override-global'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /override-global
  *
  * Override global security with public
@@ -402,23 +430,23 @@ export function useGetOverrideGlobal(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /override-global
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates TanStack Query cache key for GET /optional-enhanced
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetOverrideGlobalQueryKey() {
-  return ['/override-global'] as const
+export function getGetOptionalEnhancedQueryKey() {
+  return ['optional-enhanced', '/optional-enhanced'] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /override-global
+ * Returns TanStack Query query options for GET /optional-enhanced
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetOverrideGlobalQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetOverrideGlobalQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetOptionalEnhancedQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetOptionalEnhancedQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client['override-global'].$get(undefined, {
+      client['optional-enhanced'].$get(undefined, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -447,23 +475,23 @@ export function useGetOptionalEnhanced(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /optional-enhanced
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates TanStack Query cache key for GET /multi-tenant
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetOptionalEnhancedQueryKey() {
-  return ['/optional-enhanced'] as const
+export function getGetMultiTenantQueryKey() {
+  return ['multi-tenant', '/multi-tenant'] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /optional-enhanced
+ * Returns TanStack Query query options for GET /multi-tenant
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetOptionalEnhancedQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetOptionalEnhancedQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetMultiTenantQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetMultiTenantQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client['optional-enhanced'].$get(undefined, {
+      client['multi-tenant'].$get(undefined, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -488,27 +516,3 @@ export function useGetMultiTenant(options?: {
   const { queryKey, queryFn, ...baseOptions } = getGetMultiTenantQueryOptions(clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates TanStack Query cache key for GET /multi-tenant
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGetMultiTenantQueryKey() {
-  return ['/multi-tenant'] as const
-}
-
-/**
- * Returns TanStack Query query options for GET /multi-tenant
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetMultiTenantQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetMultiTenantQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['multi-tenant'].$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})

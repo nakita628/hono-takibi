@@ -1,8 +1,32 @@
 import { createQuery } from '@tanstack/svelte-query'
-import type { CreateQueryOptions } from '@tanstack/svelte-query'
+import type { CreateQueryOptions, QueryFunctionContext } from '@tanstack/svelte-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/openapi-literal'
+
+/**
+ * Generates Svelte Query cache key for GET /primitive
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGetPrimitiveQueryKey() {
+  return ['primitive', '/primitive'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /primitive
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetPrimitiveQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetPrimitiveQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.primitive.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /primitive
@@ -26,27 +50,3 @@ export function createGetPrimitive(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /primitive
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGetPrimitiveQueryKey() {
-  return ['/primitive'] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /primitive
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetPrimitiveQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetPrimitiveQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.primitive.$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})

@@ -5,6 +5,14 @@ import { parseResponse } from 'hono/client'
 import { client } from '../clients/openapi-boolean'
 
 /**
+ * Generates SWR cache key for GET /boolean
+ * Returns structured key [path] for filter-based invalidation
+ */
+export function getGetBooleanKey() {
+  return ['/boolean'] as const
+}
+
+/**
  * GET /boolean
  *
  * zod boolean
@@ -27,12 +35,4 @@ export function useGetBoolean(options?: {
       restSwrOptions,
     ),
   }
-}
-
-/**
- * Generates SWR cache key for GET /boolean
- * Returns structured key [templatePath] for filter-based invalidation
- */
-export function getGetBooleanKey() {
-  return ['/boolean'] as const
 }

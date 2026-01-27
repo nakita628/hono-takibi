@@ -5,6 +5,14 @@ import { parseResponse } from 'hono/client'
 import { client } from '../clients/openapi-nullable'
 
 /**
+ * Generates SWR cache key for GET /nullable
+ * Returns structured key [path] for filter-based invalidation
+ */
+export function getGetNullableKey() {
+  return ['/nullable'] as const
+}
+
+/**
  * GET /nullable
  *
  * zod nullable
@@ -27,12 +35,4 @@ export function useGetNullable(options?: {
       restSwrOptions,
     ),
   }
-}
-
-/**
- * Generates SWR cache key for GET /nullable
- * Returns structured key [templatePath] for filter-based invalidation
- */
-export function getGetNullableKey() {
-  return ['/nullable'] as const
 }

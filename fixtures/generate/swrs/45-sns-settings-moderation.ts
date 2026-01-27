@@ -7,6 +7,14 @@ import { parseResponse } from 'hono/client'
 import { client } from '../clients/45-sns-settings-moderation'
 
 /**
+ * Generates SWR cache key for GET /settings/account
+ * Returns structured key [path] for filter-based invalidation
+ */
+export function getGetSettingsAccountKey() {
+  return ['/settings/account'] as const
+}
+
+/**
  * GET /settings/account
  *
  * アカウント設定取得
@@ -30,10 +38,10 @@ export function useGetSettingsAccount(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /settings/account
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR mutation key for PUT /settings/account
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetSettingsAccountKey() {
+export function getPutSettingsAccountMutationKey() {
   return ['/settings/account'] as const
 }
 
@@ -68,12 +76,13 @@ export function usePutSettingsAccount(options?: {
 }
 
 /**
- * Generates SWR mutation key for PUT /settings/account
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /settings/username/check
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPutSettingsAccountMutationKey() {
-  return 'PUT /settings/account'
+export function getGetSettingsUsernameCheckKey(
+  args: InferRequestType<typeof client.settings.username.check.$get>,
+) {
+  return ['/settings/username/check', args] as const
 }
 
 /**
@@ -103,13 +112,11 @@ export function useGetSettingsUsernameCheck(
 }
 
 /**
- * Generates SWR cache key for GET /settings/username/check
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR cache key for GET /settings/privacy
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetSettingsUsernameCheckKey(
-  args: InferRequestType<typeof client.settings.username.check.$get>,
-) {
-  return ['/settings/username/check', args] as const
+export function getGetSettingsPrivacyKey() {
+  return ['/settings/privacy'] as const
 }
 
 /**
@@ -136,10 +143,10 @@ export function useGetSettingsPrivacy(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /settings/privacy
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR mutation key for PUT /settings/privacy
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetSettingsPrivacyKey() {
+export function getPutSettingsPrivacyMutationKey() {
   return ['/settings/privacy'] as const
 }
 
@@ -174,12 +181,11 @@ export function usePutSettingsPrivacy(options?: {
 }
 
 /**
- * Generates SWR mutation key for PUT /settings/privacy
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /settings/content-preferences
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getPutSettingsPrivacyMutationKey() {
-  return 'PUT /settings/privacy'
+export function getGetSettingsContentPreferencesKey() {
+  return ['/settings/content-preferences'] as const
 }
 
 /**
@@ -207,10 +213,10 @@ export function useGetSettingsContentPreferences(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /settings/content-preferences
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR mutation key for PUT /settings/content-preferences
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetSettingsContentPreferencesKey() {
+export function getPutSettingsContentPreferencesMutationKey() {
   return ['/settings/content-preferences'] as const
 }
 
@@ -251,12 +257,11 @@ export function usePutSettingsContentPreferences(options?: {
 }
 
 /**
- * Generates SWR mutation key for PUT /settings/content-preferences
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /settings/muted-words
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getPutSettingsContentPreferencesMutationKey() {
-  return 'PUT /settings/content-preferences'
+export function getGetSettingsMutedWordsKey() {
+  return ['/settings/muted-words'] as const
 }
 
 /**
@@ -283,10 +288,10 @@ export function useGetSettingsMutedWords(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /settings/muted-words
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR mutation key for POST /settings/muted-words
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetSettingsMutedWordsKey() {
+export function getPostSettingsMutedWordsMutationKey() {
   return ['/settings/muted-words'] as const
 }
 
@@ -325,12 +330,11 @@ export function usePostSettingsMutedWords(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /settings/muted-words
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for DELETE /settings/muted-words/{wordId}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostSettingsMutedWordsMutationKey() {
-  return 'POST /settings/muted-words'
+export function getDeleteSettingsMutedWordsWordIdMutationKey() {
+  return ['/settings/muted-words/:wordId'] as const
 }
 
 /**
@@ -373,12 +377,11 @@ export function useDeleteSettingsMutedWordsWordId(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /settings/muted-words/{wordId}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /settings/sessions
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getDeleteSettingsMutedWordsWordIdMutationKey() {
-  return 'DELETE /settings/muted-words/:wordId'
+export function getGetSettingsSessionsKey() {
+  return ['/settings/sessions'] as const
 }
 
 /**
@@ -405,11 +408,11 @@ export function useGetSettingsSessions(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /settings/sessions
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR mutation key for DELETE /settings/sessions/{sessionId}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetSettingsSessionsKey() {
-  return ['/settings/sessions'] as const
+export function getDeleteSettingsSessionsSessionIdMutationKey() {
+  return ['/settings/sessions/:sessionId'] as const
 }
 
 /**
@@ -452,12 +455,11 @@ export function useDeleteSettingsSessionsSessionId(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /settings/sessions/{sessionId}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /settings/connected-apps
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getDeleteSettingsSessionsSessionIdMutationKey() {
-  return 'DELETE /settings/sessions/:sessionId'
+export function getGetSettingsConnectedAppsKey() {
+  return ['/settings/connected-apps'] as const
 }
 
 /**
@@ -484,11 +486,11 @@ export function useGetSettingsConnectedApps(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /settings/connected-apps
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR mutation key for DELETE /settings/connected-apps/{appId}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetSettingsConnectedAppsKey() {
-  return ['/settings/connected-apps'] as const
+export function getDeleteSettingsConnectedAppsAppIdMutationKey() {
+  return ['/settings/connected-apps/:appId'] as const
 }
 
 /**
@@ -533,12 +535,11 @@ export function useDeleteSettingsConnectedAppsAppId(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /settings/connected-apps/{appId}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /settings/data-export
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getDeleteSettingsConnectedAppsAppIdMutationKey() {
-  return 'DELETE /settings/connected-apps/:appId'
+export function getPostSettingsDataExportMutationKey() {
+  return ['/settings/data-export'] as const
 }
 
 /**
@@ -573,12 +574,13 @@ export function usePostSettingsDataExport(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /settings/data-export
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /settings/data-export/{requestId}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPostSettingsDataExportMutationKey() {
-  return 'POST /settings/data-export'
+export function getGetSettingsDataExportRequestIdKey(
+  args: InferRequestType<(typeof client.settings)['data-export'][':requestId']['$get']>,
+) {
+  return [`/settings/data-export/${args.param.requestId}`, args] as const
 }
 
 /**
@@ -609,13 +611,11 @@ export function useGetSettingsDataExportRequestId(
 }
 
 /**
- * Generates SWR cache key for GET /settings/data-export/{requestId}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for POST /settings/deactivate
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetSettingsDataExportRequestIdKey(
-  args: InferRequestType<(typeof client.settings)['data-export'][':requestId']['$get']>,
-) {
-  return ['/settings/data-export/:requestId', args] as const
+export function getPostSettingsDeactivateMutationKey() {
+  return ['/settings/deactivate'] as const
 }
 
 /**
@@ -649,12 +649,11 @@ export function usePostSettingsDeactivate(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /settings/deactivate
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /reports
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostSettingsDeactivateMutationKey() {
-  return 'POST /settings/deactivate'
+export function getPostReportsMutationKey() {
+  return ['/reports'] as const
 }
 
 /**
@@ -686,12 +685,13 @@ export function usePostReports(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /reports
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /reports/{reportId}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPostReportsMutationKey() {
-  return 'POST /reports'
+export function getGetReportsReportIdKey(
+  args: InferRequestType<(typeof client.reports)[':reportId']['$get']>,
+) {
+  return [`/reports/${args.param.reportId}`, args] as const
 }
 
 /**
@@ -721,13 +721,13 @@ export function useGetReportsReportId(
 }
 
 /**
- * Generates SWR cache key for GET /reports/{reportId}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR cache key for GET /moderation/queue
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getGetReportsReportIdKey(
-  args: InferRequestType<(typeof client.reports)[':reportId']['$get']>,
+export function getGetModerationQueueKey(
+  args: InferRequestType<typeof client.moderation.queue.$get>,
 ) {
-  return ['/reports/:reportId', args] as const
+  return ['/moderation/queue', args] as const
 }
 
 /**
@@ -759,13 +759,13 @@ export function useGetModerationQueue(
 }
 
 /**
- * Generates SWR cache key for GET /moderation/queue
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR cache key for GET /moderation/items/{itemId}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getGetModerationQueueKey(
-  args: InferRequestType<typeof client.moderation.queue.$get>,
+export function getGetModerationItemsItemIdKey(
+  args: InferRequestType<(typeof client.moderation.items)[':itemId']['$get']>,
 ) {
-  return ['/moderation/queue', args] as const
+  return [`/moderation/items/${args.param.itemId}`, args] as const
 }
 
 /**
@@ -795,13 +795,11 @@ export function useGetModerationItemsItemId(
 }
 
 /**
- * Generates SWR cache key for GET /moderation/items/{itemId}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for POST /moderation/items/{itemId}/action
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetModerationItemsItemIdKey(
-  args: InferRequestType<(typeof client.moderation.items)[':itemId']['$get']>,
-) {
-  return ['/moderation/items/:itemId', args] as const
+export function getPostModerationItemsItemIdActionMutationKey() {
+  return ['/moderation/items/:itemId/action'] as const
 }
 
 /**
@@ -845,12 +843,13 @@ export function usePostModerationItemsItemIdAction(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /moderation/items/{itemId}/action
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /moderation/users/{userId}/history
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPostModerationItemsItemIdActionMutationKey() {
-  return 'POST /moderation/items/:itemId/action'
+export function getGetModerationUsersUserIdHistoryKey(
+  args: InferRequestType<(typeof client.moderation.users)[':userId']['history']['$get']>,
+) {
+  return [`/moderation/users/${args.param.userId}/history`, args] as const
 }
 
 /**
@@ -881,13 +880,11 @@ export function useGetModerationUsersUserIdHistory(
 }
 
 /**
- * Generates SWR cache key for GET /moderation/users/{userId}/history
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for POST /moderation/users/{userId}/suspend
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetModerationUsersUserIdHistoryKey(
-  args: InferRequestType<(typeof client.moderation.users)[':userId']['history']['$get']>,
-) {
-  return ['/moderation/users/:userId/history', args] as const
+export function getPostModerationUsersUserIdSuspendMutationKey() {
+  return ['/moderation/users/:userId/suspend'] as const
 }
 
 /**
@@ -931,12 +928,11 @@ export function usePostModerationUsersUserIdSuspend(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /moderation/users/{userId}/suspend
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /moderation/users/{userId}/unsuspend
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostModerationUsersUserIdSuspendMutationKey() {
-  return 'POST /moderation/users/:userId/suspend'
+export function getPostModerationUsersUserIdUnsuspendMutationKey() {
+  return ['/moderation/users/:userId/unsuspend'] as const
 }
 
 /**
@@ -980,12 +976,13 @@ export function usePostModerationUsersUserIdUnsuspend(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /moderation/users/{userId}/unsuspend
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /analytics/posts/{postId}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPostModerationUsersUserIdUnsuspendMutationKey() {
-  return 'POST /moderation/users/:userId/unsuspend'
+export function getGetAnalyticsPostsPostIdKey(
+  args: InferRequestType<(typeof client.analytics.posts)[':postId']['$get']>,
+) {
+  return [`/analytics/posts/${args.param.postId}`, args] as const
 }
 
 /**
@@ -1015,13 +1012,13 @@ export function useGetAnalyticsPostsPostId(
 }
 
 /**
- * Generates SWR cache key for GET /analytics/posts/{postId}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR cache key for GET /analytics/account
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getGetAnalyticsPostsPostIdKey(
-  args: InferRequestType<(typeof client.analytics.posts)[':postId']['$get']>,
+export function getGetAnalyticsAccountKey(
+  args: InferRequestType<typeof client.analytics.account.$get>,
 ) {
-  return ['/analytics/posts/:postId', args] as const
+  return ['/analytics/account', args] as const
 }
 
 /**
@@ -1051,13 +1048,13 @@ export function useGetAnalyticsAccount(
 }
 
 /**
- * Generates SWR cache key for GET /analytics/account
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR cache key for GET /analytics/followers
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getGetAnalyticsAccountKey(
-  args: InferRequestType<typeof client.analytics.account.$get>,
+export function getGetAnalyticsFollowersKey(
+  args: InferRequestType<typeof client.analytics.followers.$get>,
 ) {
-  return ['/analytics/account', args] as const
+  return ['/analytics/followers', args] as const
 }
 
 /**
@@ -1087,13 +1084,13 @@ export function useGetAnalyticsFollowers(
 }
 
 /**
- * Generates SWR cache key for GET /analytics/followers
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR cache key for GET /analytics/top-posts
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getGetAnalyticsFollowersKey(
-  args: InferRequestType<typeof client.analytics.followers.$get>,
+export function getGetAnalyticsTopPostsKey(
+  args: InferRequestType<(typeof client.analytics)['top-posts']['$get']>,
 ) {
-  return ['/analytics/followers', args] as const
+  return ['/analytics/top-posts', args] as const
 }
 
 /**
@@ -1120,14 +1117,4 @@ export function useGetAnalyticsTopPosts(
       restSwrOptions,
     ),
   }
-}
-
-/**
- * Generates SWR cache key for GET /analytics/top-posts
- * Returns structured key [templatePath, args] for filter-based invalidation
- */
-export function getGetAnalyticsTopPostsKey(
-  args: InferRequestType<(typeof client.analytics)['top-posts']['$get']>,
-) {
-  return ['/analytics/top-posts', args] as const
 }

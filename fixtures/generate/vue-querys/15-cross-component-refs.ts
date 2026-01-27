@@ -1,8 +1,36 @@
 import { useQuery, useMutation } from '@tanstack/vue-query'
-import type { UseQueryOptions, UseMutationOptions } from '@tanstack/vue-query'
+import type { UseQueryOptions, QueryFunctionContext, UseMutationOptions } from '@tanstack/vue-query'
+import { unref } from 'vue'
+import type { MaybeRef } from 'vue'
 import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/15-cross-component-refs'
+
+/**
+ * Generates Vue Query cache key for GET /entities
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetEntitiesQueryKey(
+  args: MaybeRef<InferRequestType<typeof client.entities.$get>>,
+) {
+  return ['entities', '/entities', unref(args)] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /entities
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetEntitiesQueryOptions = (
+  args: InferRequestType<typeof client.entities.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetEntitiesQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.entities.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /entities
@@ -30,30 +58,6 @@ export function useGetEntities(
 }
 
 /**
- * Generates Vue Query cache key for GET /entities
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetEntitiesQueryKey(args: InferRequestType<typeof client.entities.$get>) {
-  return ['/entities', args] as const
-}
-
-/**
- * Returns Vue Query query options for GET /entities
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetEntitiesQueryOptions = (
-  args: InferRequestType<typeof client.entities.$get>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetEntitiesQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.entities.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-    ),
-})
-
-/**
  * POST /entities
  */
 export function usePostEntities(options?: {
@@ -78,6 +82,35 @@ export function usePostEntities(options?: {
       parseResponse(client.entities.$post(args, clientOptions)),
   })
 }
+
+/**
+ * Generates Vue Query cache key for GET /entities/{entityId}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetEntitiesEntityIdQueryKey(
+  args: MaybeRef<InferRequestType<(typeof client.entities)[':entityId']['$get']>>,
+) {
+  return ['entities', '/entities/:entityId', unref(args)] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /entities/{entityId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetEntitiesEntityIdQueryOptions = (
+  args: InferRequestType<(typeof client.entities)[':entityId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetEntitiesEntityIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.entities[':entityId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /entities/{entityId}
@@ -110,35 +143,6 @@ export function useGetEntitiesEntityId(
   )
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates Vue Query cache key for GET /entities/{entityId}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetEntitiesEntityIdQueryKey(
-  args: InferRequestType<(typeof client.entities)[':entityId']['$get']>,
-) {
-  return ['/entities/:entityId', args] as const
-}
-
-/**
- * Returns Vue Query query options for GET /entities/{entityId}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetEntitiesEntityIdQueryOptions = (
-  args: InferRequestType<(typeof client.entities)[':entityId']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetEntitiesEntityIdQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.entities[':entityId'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * PUT /entities/{entityId}
@@ -200,6 +204,35 @@ export function useDeleteEntitiesEntityId(options?: {
 }
 
 /**
+ * Generates Vue Query cache key for GET /entities/{entityId}/relationships
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetEntitiesEntityIdRelationshipsQueryKey(
+  args: MaybeRef<InferRequestType<(typeof client.entities)[':entityId']['relationships']['$get']>>,
+) {
+  return ['entities', '/entities/:entityId/relationships', unref(args)] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /entities/{entityId}/relationships
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetEntitiesEntityIdRelationshipsQueryOptions = (
+  args: InferRequestType<(typeof client.entities)[':entityId']['relationships']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetEntitiesEntityIdRelationshipsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.entities[':entityId'].relationships.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /entities/{entityId}/relationships
  */
 export function useGetEntitiesEntityIdRelationships(
@@ -230,35 +263,6 @@ export function useGetEntitiesEntityIdRelationships(
   )
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates Vue Query cache key for GET /entities/{entityId}/relationships
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetEntitiesEntityIdRelationshipsQueryKey(
-  args: InferRequestType<(typeof client.entities)[':entityId']['relationships']['$get']>,
-) {
-  return ['/entities/:entityId/relationships', args] as const
-}
-
-/**
- * Returns Vue Query query options for GET /entities/{entityId}/relationships
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetEntitiesEntityIdRelationshipsQueryOptions = (
-  args: InferRequestType<(typeof client.entities)[':entityId']['relationships']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetEntitiesEntityIdRelationshipsQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.entities[':entityId'].relationships.$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /entities/{entityId}/relationships

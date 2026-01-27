@@ -1,8 +1,33 @@
 import { useQuery, useMutation } from '@tanstack/react-query'
-import type { UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
+import type {
+  UseQueryOptions,
+  QueryFunctionContext,
+  UseMutationOptions,
+} from '@tanstack/react-query'
 import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/26-extreme-features'
+
+/**
+ * Generates TanStack Query cache key for GET /stream
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGetStreamQueryKey() {
+  return ['stream', '/stream'] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /stream
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetStreamQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetStreamQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.stream.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /stream
@@ -20,27 +45,6 @@ export function useGetStream(options?: {
   const { queryKey, queryFn, ...baseOptions } = getGetStreamQueryOptions(clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates TanStack Query cache key for GET /stream
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGetStreamQueryKey() {
-  return ['/stream'] as const
-}
-
-/**
- * Returns TanStack Query query options for GET /stream
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetStreamQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetStreamQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.stream.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-    ),
-})
 
 /**
  * POST /graphql
@@ -89,6 +93,30 @@ export function usePostGrpcGateway(options?: {
 }
 
 /**
+ * Generates TanStack Query cache key for GET /deprecated-endpoint
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGetDeprecatedEndpointQueryKey() {
+  return ['deprecated-endpoint', '/deprecated-endpoint'] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /deprecated-endpoint
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetDeprecatedEndpointQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetDeprecatedEndpointQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['deprecated-endpoint'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /deprecated-endpoint
  *
  * This endpoint is deprecated
@@ -112,27 +140,3 @@ export function useGetDeprecatedEndpoint(options?: {
   const { queryKey, queryFn, ...baseOptions } = getGetDeprecatedEndpointQueryOptions(clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates TanStack Query cache key for GET /deprecated-endpoint
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGetDeprecatedEndpointQueryKey() {
-  return ['/deprecated-endpoint'] as const
-}
-
-/**
- * Returns TanStack Query query options for GET /deprecated-endpoint
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetDeprecatedEndpointQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetDeprecatedEndpointQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['deprecated-endpoint'].$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})

@@ -5,6 +5,14 @@ import { parseResponse } from 'hono/client'
 import { client } from '../clients/01-minimal'
 
 /**
+ * Generates SWR cache key for GET /health
+ * Returns structured key [path] for filter-based invalidation
+ */
+export function getGetHealthKey() {
+  return ['/health'] as const
+}
+
+/**
  * GET /health
  */
 export function useGetHealth(options?: {
@@ -23,12 +31,4 @@ export function useGetHealth(options?: {
       restSwrOptions,
     ),
   }
-}
-
-/**
- * Generates SWR cache key for GET /health
- * Returns structured key [templatePath] for filter-based invalidation
- */
-export function getGetHealthKey() {
-  return ['/health'] as const
 }

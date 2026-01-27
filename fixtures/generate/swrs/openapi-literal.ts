@@ -5,6 +5,14 @@ import { parseResponse } from 'hono/client'
 import { client } from '../clients/openapi-literal'
 
 /**
+ * Generates SWR cache key for GET /primitive
+ * Returns structured key [path] for filter-based invalidation
+ */
+export function getGetPrimitiveKey() {
+  return ['/primitive'] as const
+}
+
+/**
  * GET /primitive
  *
  * zod primitive
@@ -27,12 +35,4 @@ export function useGetPrimitive(options?: {
       restSwrOptions,
     ),
   }
-}
-
-/**
- * Generates SWR cache key for GET /primitive
- * Returns structured key [templatePath] for filter-based invalidation
- */
-export function getGetPrimitiveKey() {
-  return ['/primitive'] as const
 }

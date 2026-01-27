@@ -5,6 +5,14 @@ import { parseResponse } from 'hono/client'
 import { client } from '../clients/fizz-buzz'
 
 /**
+ * Generates SWR cache key for GET /fizzbuzz
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
+ */
+export function getGetFizzbuzzKey(args: InferRequestType<typeof client.fizzbuzz.$get>) {
+  return ['/fizzbuzz', args] as const
+}
+
+/**
  * GET /fizzbuzz
  *
  * Get FizzBuzz result
@@ -30,12 +38,4 @@ export function useGetFizzbuzz(
       restSwrOptions,
     ),
   }
-}
-
-/**
- * Generates SWR cache key for GET /fizzbuzz
- * Returns structured key [templatePath, args] for filter-based invalidation
- */
-export function getGetFizzbuzzKey(args: InferRequestType<typeof client.fizzbuzz.$get>) {
-  return ['/fizzbuzz', args] as const
 }

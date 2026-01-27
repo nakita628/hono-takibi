@@ -7,6 +7,14 @@ import { parseResponse } from 'hono/client'
 import { client } from '../clients/12-edge-cases'
 
 /**
+ * Generates SWR cache key for GET /all-methods
+ * Returns structured key [path] for filter-based invalidation
+ */
+export function getGetAllMethodsKey() {
+  return ['/all-methods'] as const
+}
+
+/**
  * GET /all-methods
  */
 export function useGetAllMethods(options?: {
@@ -28,10 +36,10 @@ export function useGetAllMethods(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /all-methods
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR mutation key for PUT /all-methods
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetAllMethodsKey() {
+export function getPutAllMethodsMutationKey() {
   return ['/all-methods'] as const
 }
 
@@ -63,12 +71,11 @@ export function usePutAllMethods(options?: {
 }
 
 /**
- * Generates SWR mutation key for PUT /all-methods
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /all-methods
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPutAllMethodsMutationKey() {
-  return 'PUT /all-methods'
+export function getPostAllMethodsMutationKey() {
+  return ['/all-methods'] as const
 }
 
 /**
@@ -99,12 +106,11 @@ export function usePostAllMethods(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /all-methods
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for DELETE /all-methods
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostAllMethodsMutationKey() {
-  return 'POST /all-methods'
+export function getDeleteAllMethodsMutationKey() {
+  return ['/all-methods'] as const
 }
 
 /**
@@ -137,12 +143,11 @@ export function useDeleteAllMethods(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /all-methods
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for OPTIONS /all-methods
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getDeleteAllMethodsMutationKey() {
-  return 'DELETE /all-methods'
+export function getOptionsAllMethodsMutationKey() {
+  return ['/all-methods'] as const
 }
 
 /**
@@ -175,12 +180,11 @@ export function useOptionsAllMethods(options?: {
 }
 
 /**
- * Generates SWR mutation key for OPTIONS /all-methods
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for HEAD /all-methods
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getOptionsAllMethodsMutationKey() {
-  return 'OPTIONS /all-methods'
+export function getHeadAllMethodsMutationKey() {
+  return ['/all-methods'] as const
 }
 
 /**
@@ -211,12 +215,11 @@ export function useHeadAllMethods(options?: {
 }
 
 /**
- * Generates SWR mutation key for HEAD /all-methods
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for PATCH /all-methods
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getHeadAllMethodsMutationKey() {
-  return 'HEAD /all-methods'
+export function getPatchAllMethodsMutationKey() {
+  return ['/all-methods'] as const
 }
 
 /**
@@ -249,12 +252,11 @@ export function usePatchAllMethods(options?: {
 }
 
 /**
- * Generates SWR mutation key for PATCH /all-methods
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for TRACE /all-methods
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPatchAllMethodsMutationKey() {
-  return 'PATCH /all-methods'
+export function getTraceAllMethodsMutationKey() {
+  return ['/all-methods'] as const
 }
 
 /**
@@ -287,12 +289,18 @@ export function useTraceAllMethods(options?: {
 }
 
 /**
- * Generates SWR mutation key for TRACE /all-methods
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /users/{userId}/posts/{postId}/comments/{commentId}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getTraceAllMethodsMutationKey() {
-  return 'TRACE /all-methods'
+export function getGetUsersUserIdPostsPostIdCommentsCommentIdKey(
+  args: InferRequestType<
+    (typeof client.users)[':userId']['posts'][':postId']['comments'][':commentId']['$get']
+  >,
+) {
+  return [
+    `/users/${args.param.userId}/posts/${args.param.postId}/comments/${args.param.commentId}`,
+    args,
+  ] as const
 }
 
 /**
@@ -326,15 +334,13 @@ export function useGetUsersUserIdPostsPostIdCommentsCommentId(
 }
 
 /**
- * Generates SWR cache key for GET /users/{userId}/posts/{postId}/comments/{commentId}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR cache key for GET /params-test/{pathParam}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getGetUsersUserIdPostsPostIdCommentsCommentIdKey(
-  args: InferRequestType<
-    (typeof client.users)[':userId']['posts'][':postId']['comments'][':commentId']['$get']
-  >,
+export function getGetParamsTestPathParamKey(
+  args: InferRequestType<(typeof client)['params-test'][':pathParam']['$get']>,
 ) {
-  return ['/users/:userId/posts/:postId/comments/:commentId', args] as const
+  return [`/params-test/${args.param.pathParam}`, args] as const
 }
 
 /**
@@ -362,13 +368,11 @@ export function useGetParamsTestPathParam(
 }
 
 /**
- * Generates SWR cache key for GET /params-test/{pathParam}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for POST /no-content
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetParamsTestPathParamKey(
-  args: InferRequestType<(typeof client)['params-test'][':pathParam']['$get']>,
-) {
-  return ['/params-test/:pathParam', args] as const
+export function getPostNoContentMutationKey() {
+  return ['/no-content'] as const
 }
 
 /**
@@ -402,12 +406,11 @@ export function usePostNoContent(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /no-content
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /multi-content
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getPostNoContentMutationKey() {
-  return 'POST /no-content'
+export function getGetMultiContentKey() {
+  return ['/multi-content'] as const
 }
 
 /**
@@ -432,10 +435,10 @@ export function useGetMultiContent(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /multi-content
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR mutation key for POST /multi-content
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetMultiContentKey() {
+export function getPostMultiContentMutationKey() {
   return ['/multi-content'] as const
 }
 
@@ -472,12 +475,11 @@ export function usePostMultiContent(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /multi-content
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /response-ranges
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getPostMultiContentMutationKey() {
-  return 'POST /multi-content'
+export function getGetResponseRangesKey() {
+  return ['/response-ranges'] as const
 }
 
 /**
@@ -502,11 +504,11 @@ export function useGetResponseRanges(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /response-ranges
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /deprecated
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetResponseRangesKey() {
-  return ['/response-ranges'] as const
+export function getGetDeprecatedKey() {
+  return ['/deprecated'] as const
 }
 
 /**
@@ -533,11 +535,11 @@ export function useGetDeprecated(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /deprecated
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /no-operation-id
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetDeprecatedKey() {
-  return ['/deprecated'] as const
+export function getGetNoOperationIdKey() {
+  return ['/no-operation-id'] as const
 }
 
 /**
@@ -564,11 +566,11 @@ export function useGetNoOperationId(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /no-operation-id
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR mutation key for POST /empty-body
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetNoOperationIdKey() {
-  return ['/no-operation-id'] as const
+export function getPostEmptyBodyMutationKey() {
+  return ['/empty-body'] as const
 }
 
 /**
@@ -600,12 +602,11 @@ export function usePostEmptyBody(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /empty-body
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /circular
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getPostEmptyBodyMutationKey() {
-  return 'POST /empty-body'
+export function getGetCircularKey() {
+  return ['/circular'] as const
 }
 
 /**
@@ -630,11 +631,11 @@ export function useGetCircular(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /circular
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /deep-nesting
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetCircularKey() {
-  return ['/circular'] as const
+export function getGetDeepNestingKey() {
+  return ['/deep-nesting'] as const
 }
 
 /**
@@ -659,11 +660,13 @@ export function useGetDeepNesting(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /deep-nesting
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /array-params
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getGetDeepNestingKey() {
-  return ['/deep-nesting'] as const
+export function getGetArrayParamsKey(
+  args: InferRequestType<(typeof client)['array-params']['$get']>,
+) {
+  return ['/array-params', args] as const
 }
 
 /**
@@ -691,13 +694,13 @@ export function useGetArrayParams(
 }
 
 /**
- * Generates SWR cache key for GET /array-params
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR cache key for GET /object-param
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getGetArrayParamsKey(
-  args: InferRequestType<(typeof client)['array-params']['$get']>,
+export function getGetObjectParamKey(
+  args: InferRequestType<(typeof client)['object-param']['$get']>,
 ) {
-  return ['/array-params', args] as const
+  return ['/object-param', args] as const
 }
 
 /**
@@ -722,14 +725,4 @@ export function useGetObjectParam(
       restSwrOptions,
     ),
   }
-}
-
-/**
- * Generates SWR cache key for GET /object-param
- * Returns structured key [templatePath, args] for filter-based invalidation
- */
-export function getGetObjectParamKey(
-  args: InferRequestType<(typeof client)['object-param']['$get']>,
-) {
-  return ['/object-param', args] as const
 }

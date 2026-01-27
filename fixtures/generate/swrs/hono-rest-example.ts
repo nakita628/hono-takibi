@@ -7,6 +7,14 @@ import { parseResponse } from 'hono/client'
 import { client } from '../clients/hono-rest-example'
 
 /**
+ * Generates SWR cache key for GET /
+ * Returns structured key [path] for filter-based invalidation
+ */
+export function getGetKey() {
+  return ['/'] as const
+}
+
+/**
  * GET /
  *
  * Welcome message
@@ -32,11 +40,11 @@ export function useGet(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /posts
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getGetKey() {
-  return ['/'] as const
+export function getGetPostsKey(args: InferRequestType<typeof client.posts.$get>) {
+  return ['/posts', args] as const
 }
 
 /**
@@ -68,11 +76,11 @@ export function useGetPosts(
 }
 
 /**
- * Generates SWR cache key for GET /posts
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for POST /posts
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetPostsKey(args: InferRequestType<typeof client.posts.$get>) {
-  return ['/posts', args] as const
+export function getPostPostsMutationKey() {
+  return ['/posts'] as const
 }
 
 /**
@@ -106,12 +114,11 @@ export function usePostPosts(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /posts
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for PUT /posts/{id}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostPostsMutationKey() {
-  return 'POST /posts'
+export function getPutPostsIdMutationKey() {
+  return ['/posts/:id'] as const
 }
 
 /**
@@ -148,12 +155,11 @@ export function usePutPostsId(options?: {
 }
 
 /**
- * Generates SWR mutation key for PUT /posts/{id}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for DELETE /posts/{id}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPutPostsIdMutationKey() {
-  return 'PUT /posts/:id'
+export function getDeletePostsIdMutationKey() {
+  return ['/posts/:id'] as const
 }
 
 /**
@@ -189,13 +195,4 @@ export function useDeletePostsId(options?: {
       restMutationOptions,
     ),
   }
-}
-
-/**
- * Generates SWR mutation key for DELETE /posts/{id}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
- */
-export function getDeletePostsIdMutationKey() {
-  return 'DELETE /posts/:id'
 }

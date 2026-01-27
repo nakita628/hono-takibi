@@ -5,6 +5,14 @@ import { parseResponse } from 'hono/client'
 import { client } from '../clients/schema-reference'
 
 /**
+ * Generates SWR cache key for GET /example
+ * Returns structured key [path] for filter-based invalidation
+ */
+export function getGetExampleKey() {
+  return ['/example'] as const
+}
+
+/**
  * GET /example
  *
  * Sample Endpoint
@@ -25,12 +33,4 @@ export function useGetExample(options?: {
       restSwrOptions,
     ),
   }
-}
-
-/**
- * Generates SWR cache key for GET /example
- * Returns structured key [templatePath] for filter-based invalidation
- */
-export function getGetExampleKey() {
-  return ['/example'] as const
 }

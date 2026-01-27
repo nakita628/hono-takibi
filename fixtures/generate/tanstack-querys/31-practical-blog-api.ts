@@ -1,8 +1,36 @@
 import { useQuery, useMutation } from '@tanstack/react-query'
-import type { UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
+import type {
+  UseQueryOptions,
+  QueryFunctionContext,
+  UseMutationOptions,
+} from '@tanstack/react-query'
 import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/31-practical-blog-api'
+
+/**
+ * Generates TanStack Query cache key for GET /posts
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetPostsQueryKey(args: InferRequestType<typeof client.posts.$get>) {
+  return ['posts', '/posts', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /posts
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetPostsQueryOptions = (
+  args: InferRequestType<typeof client.posts.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetPostsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.posts.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /posts
@@ -25,30 +53,6 @@ export function useGetPosts(
 }
 
 /**
- * Generates TanStack Query cache key for GET /posts
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetPostsQueryKey(args: InferRequestType<typeof client.posts.$get>) {
-  return ['/posts', args] as const
-}
-
-/**
- * Returns TanStack Query query options for GET /posts
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetPostsQueryOptions = (
-  args: InferRequestType<typeof client.posts.$get>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetPostsQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.posts.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-    ),
-})
-
-/**
  * POST /posts
  *
  * 記事作成
@@ -68,6 +72,35 @@ export function usePostPosts(options?: {
       parseResponse(client.posts.$post(args, clientOptions)),
   })
 }
+
+/**
+ * Generates TanStack Query cache key for GET /posts/{postId}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetPostsPostIdQueryKey(
+  args: InferRequestType<(typeof client.posts)[':postId']['$get']>,
+) {
+  return ['posts', '/posts/:postId', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /posts/{postId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetPostsPostIdQueryOptions = (
+  args: InferRequestType<(typeof client.posts)[':postId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetPostsPostIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.posts[':postId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /posts/{postId}
@@ -92,35 +125,6 @@ export function useGetPostsPostId(
   const { queryKey, queryFn, ...baseOptions } = getGetPostsPostIdQueryOptions(args, clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates TanStack Query cache key for GET /posts/{postId}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetPostsPostIdQueryKey(
-  args: InferRequestType<(typeof client.posts)[':postId']['$get']>,
-) {
-  return ['/posts/:postId', args] as const
-}
-
-/**
- * Returns TanStack Query query options for GET /posts/{postId}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetPostsPostIdQueryOptions = (
-  args: InferRequestType<(typeof client.posts)[':postId']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetPostsPostIdQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.posts[':postId'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * PUT /posts/{postId}
@@ -174,6 +178,35 @@ export function useDeletePostsPostId(options?: {
 }
 
 /**
+ * Generates TanStack Query cache key for GET /posts/slug/{slug}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetPostsSlugSlugQueryKey(
+  args: InferRequestType<(typeof client.posts.slug)[':slug']['$get']>,
+) {
+  return ['posts', '/posts/slug/:slug', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /posts/slug/{slug}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetPostsSlugSlugQueryOptions = (
+  args: InferRequestType<(typeof client.posts.slug)[':slug']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetPostsSlugSlugQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.posts.slug[':slug'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /posts/slug/{slug}
  *
  * スラッグで記事取得
@@ -196,35 +229,6 @@ export function useGetPostsSlugSlug(
   const { queryKey, queryFn, ...baseOptions } = getGetPostsSlugSlugQueryOptions(args, clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates TanStack Query cache key for GET /posts/slug/{slug}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetPostsSlugSlugQueryKey(
-  args: InferRequestType<(typeof client.posts.slug)[':slug']['$get']>,
-) {
-  return ['/posts/slug/:slug', args] as const
-}
-
-/**
- * Returns TanStack Query query options for GET /posts/slug/{slug}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetPostsSlugSlugQueryOptions = (
-  args: InferRequestType<(typeof client.posts.slug)[':slug']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetPostsSlugSlugQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.posts.slug[':slug'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /posts/{postId}/publish
@@ -283,6 +287,35 @@ export function usePostPostsPostIdUnpublish(options?: {
 }
 
 /**
+ * Generates TanStack Query cache key for GET /posts/{postId}/comments
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetPostsPostIdCommentsQueryKey(
+  args: InferRequestType<(typeof client.posts)[':postId']['comments']['$get']>,
+) {
+  return ['posts', '/posts/:postId/comments', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /posts/{postId}/comments
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetPostsPostIdCommentsQueryOptions = (
+  args: InferRequestType<(typeof client.posts)[':postId']['comments']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetPostsPostIdCommentsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.posts[':postId'].comments.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /posts/{postId}/comments
  *
  * 記事のコメント一覧取得
@@ -310,35 +343,6 @@ export function useGetPostsPostIdComments(
   )
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates TanStack Query cache key for GET /posts/{postId}/comments
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetPostsPostIdCommentsQueryKey(
-  args: InferRequestType<(typeof client.posts)[':postId']['comments']['$get']>,
-) {
-  return ['/posts/:postId/comments', args] as const
-}
-
-/**
- * Returns TanStack Query query options for GET /posts/{postId}/comments
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetPostsPostIdCommentsQueryOptions = (
-  args: InferRequestType<(typeof client.posts)[':postId']['comments']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetPostsPostIdCommentsQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.posts[':postId'].comments.$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /posts/{postId}/comments
@@ -425,6 +429,30 @@ export function usePostCommentsCommentIdApprove(options?: {
 }
 
 /**
+ * Generates TanStack Query cache key for GET /categories
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGetCategoriesQueryKey() {
+  return ['categories', '/categories'] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /categories
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetCategoriesQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetCategoriesQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.categories.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /categories
  *
  * カテゴリ一覧取得
@@ -440,30 +468,6 @@ export function useGetCategories(options?: {
   const { queryKey, queryFn, ...baseOptions } = getGetCategoriesQueryOptions(clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates TanStack Query cache key for GET /categories
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGetCategoriesQueryKey() {
-  return ['/categories'] as const
-}
-
-/**
- * Returns TanStack Query query options for GET /categories
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetCategoriesQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetCategoriesQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.categories.$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /categories
@@ -485,6 +489,35 @@ export function usePostCategories(options?: {
       parseResponse(client.categories.$post(args, clientOptions)),
   })
 }
+
+/**
+ * Generates TanStack Query cache key for GET /categories/{categoryId}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetCategoriesCategoryIdQueryKey(
+  args: InferRequestType<(typeof client.categories)[':categoryId']['$get']>,
+) {
+  return ['categories', '/categories/:categoryId', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /categories/{categoryId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetCategoriesCategoryIdQueryOptions = (
+  args: InferRequestType<(typeof client.categories)[':categoryId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetCategoriesCategoryIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.categories[':categoryId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /categories/{categoryId}
@@ -514,35 +547,6 @@ export function useGetCategoriesCategoryId(
   )
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates TanStack Query cache key for GET /categories/{categoryId}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetCategoriesCategoryIdQueryKey(
-  args: InferRequestType<(typeof client.categories)[':categoryId']['$get']>,
-) {
-  return ['/categories/:categoryId', args] as const
-}
-
-/**
- * Returns TanStack Query query options for GET /categories/{categoryId}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetCategoriesCategoryIdQueryOptions = (
-  args: InferRequestType<(typeof client.categories)[':categoryId']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetCategoriesCategoryIdQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.categories[':categoryId'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * PUT /categories/{categoryId}
@@ -599,6 +603,30 @@ export function useDeleteCategoriesCategoryId(options?: {
 }
 
 /**
+ * Generates TanStack Query cache key for GET /tags
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetTagsQueryKey(args: InferRequestType<typeof client.tags.$get>) {
+  return ['tags', '/tags', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /tags
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetTagsQueryOptions = (
+  args: InferRequestType<typeof client.tags.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetTagsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.tags.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
+
+/**
  * GET /tags
  *
  * タグ一覧取得
@@ -617,30 +645,6 @@ export function useGetTags(
   const { queryKey, queryFn, ...baseOptions } = getGetTagsQueryOptions(args, clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates TanStack Query cache key for GET /tags
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetTagsQueryKey(args: InferRequestType<typeof client.tags.$get>) {
-  return ['/tags', args] as const
-}
-
-/**
- * Returns TanStack Query query options for GET /tags
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetTagsQueryOptions = (
-  args: InferRequestType<typeof client.tags.$get>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetTagsQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.tags.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-    ),
-})
 
 /**
  * POST /tags
@@ -664,6 +668,30 @@ export function usePostTags(options?: {
 }
 
 /**
+ * Generates TanStack Query cache key for GET /media
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetMediaQueryKey(args: InferRequestType<typeof client.media.$get>) {
+  return ['media', '/media', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /media
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetMediaQueryOptions = (
+  args: InferRequestType<typeof client.media.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetMediaQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.media.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
+
+/**
  * GET /media
  *
  * メディア一覧取得
@@ -682,30 +710,6 @@ export function useGetMedia(
   const { queryKey, queryFn, ...baseOptions } = getGetMediaQueryOptions(args, clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates TanStack Query cache key for GET /media
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetMediaQueryKey(args: InferRequestType<typeof client.media.$get>) {
-  return ['/media', args] as const
-}
-
-/**
- * Returns TanStack Query query options for GET /media
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetMediaQueryOptions = (
-  args: InferRequestType<typeof client.media.$get>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetMediaQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.media.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-    ),
-})
 
 /**
  * POST /media
@@ -727,6 +731,35 @@ export function usePostMedia(options?: {
       parseResponse(client.media.$post(args, clientOptions)),
   })
 }
+
+/**
+ * Generates TanStack Query cache key for GET /media/{mediaId}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetMediaMediaIdQueryKey(
+  args: InferRequestType<(typeof client.media)[':mediaId']['$get']>,
+) {
+  return ['media', '/media/:mediaId', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /media/{mediaId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetMediaMediaIdQueryOptions = (
+  args: InferRequestType<(typeof client.media)[':mediaId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetMediaMediaIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.media[':mediaId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /media/{mediaId}
@@ -751,35 +784,6 @@ export function useGetMediaMediaId(
   const { queryKey, queryFn, ...baseOptions } = getGetMediaMediaIdQueryOptions(args, clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates TanStack Query cache key for GET /media/{mediaId}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetMediaMediaIdQueryKey(
-  args: InferRequestType<(typeof client.media)[':mediaId']['$get']>,
-) {
-  return ['/media/:mediaId', args] as const
-}
-
-/**
- * Returns TanStack Query query options for GET /media/{mediaId}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetMediaMediaIdQueryOptions = (
-  args: InferRequestType<(typeof client.media)[':mediaId']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetMediaMediaIdQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.media[':mediaId'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * PUT /media/{mediaId}
@@ -833,6 +837,30 @@ export function useDeleteMediaMediaId(options?: {
 }
 
 /**
+ * Generates TanStack Query cache key for GET /authors
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGetAuthorsQueryKey() {
+  return ['authors', '/authors'] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /authors
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetAuthorsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetAuthorsQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.authors.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /authors
  *
  * 著者一覧取得
@@ -850,23 +878,28 @@ export function useGetAuthors(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /authors
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates TanStack Query cache key for GET /authors/{authorId}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetAuthorsQueryKey() {
-  return ['/authors'] as const
+export function getGetAuthorsAuthorIdQueryKey(
+  args: InferRequestType<(typeof client.authors)[':authorId']['$get']>,
+) {
+  return ['authors', '/authors/:authorId', args] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /authors
+ * Returns TanStack Query query options for GET /authors/{authorId}
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetAuthorsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetAuthorsQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetAuthorsAuthorIdQueryOptions = (
+  args: InferRequestType<(typeof client.authors)[':authorId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetAuthorsAuthorIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.authors.$get(undefined, {
+      client.authors[':authorId'].$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -899,32 +932,3 @@ export function useGetAuthorsAuthorId(
   )
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates TanStack Query cache key for GET /authors/{authorId}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetAuthorsAuthorIdQueryKey(
-  args: InferRequestType<(typeof client.authors)[':authorId']['$get']>,
-) {
-  return ['/authors/:authorId', args] as const
-}
-
-/**
- * Returns TanStack Query query options for GET /authors/{authorId}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetAuthorsAuthorIdQueryOptions = (
-  args: InferRequestType<(typeof client.authors)[':authorId']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetAuthorsAuthorIdQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.authors[':authorId'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})

@@ -1,5 +1,9 @@
 import { createQuery, createMutation } from '@tanstack/svelte-query'
-import type { CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
+import type {
+  CreateQueryOptions,
+  QueryFunctionContext,
+  CreateMutationOptions,
+} from '@tanstack/svelte-query'
 import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/edge'
@@ -26,6 +30,30 @@ export function createPostPolymorphic(options?: {
 }
 
 /**
+ * Generates Svelte Query cache key for GET /search
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetSearchQueryKey(args: InferRequestType<typeof client.search.$get>) {
+  return ['search', '/search', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /search
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetSearchQueryOptions = (
+  args: InferRequestType<typeof client.search.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetSearchQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.search.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
+
+/**
  * GET /search
  *
  * Search with complex query
@@ -46,30 +74,6 @@ export function createGetSearch(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /search
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetSearchQueryKey(args: InferRequestType<typeof client.search.$get>) {
-  return ['/search', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /search
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetSearchQueryOptions = (
-  args: InferRequestType<typeof client.search.$get>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetSearchQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.search.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-    ),
-})
 
 /**
  * PUT /multi-step

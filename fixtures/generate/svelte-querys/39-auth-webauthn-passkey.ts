@@ -1,5 +1,9 @@
 import { createQuery, createMutation } from '@tanstack/svelte-query'
-import type { CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
+import type {
+  CreateQueryOptions,
+  QueryFunctionContext,
+  CreateMutationOptions,
+} from '@tanstack/svelte-query'
 import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/39-auth-webauthn-passkey'
@@ -113,6 +117,30 @@ export function createPostWebauthnAuthenticateVerify(options?: {
 }
 
 /**
+ * Generates Svelte Query cache key for GET /webauthn/credentials
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGetWebauthnCredentialsQueryKey() {
+  return ['webauthn', '/webauthn/credentials'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /webauthn/credentials
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetWebauthnCredentialsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetWebauthnCredentialsQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.webauthn.credentials.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /webauthn/credentials
  *
  * 認証情報一覧取得
@@ -142,23 +170,28 @@ export function createGetWebauthnCredentials(
 }
 
 /**
- * Generates Svelte Query cache key for GET /webauthn/credentials
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates Svelte Query cache key for GET /webauthn/credentials/{credentialId}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetWebauthnCredentialsQueryKey() {
-  return ['/webauthn/credentials'] as const
+export function getGetWebauthnCredentialsCredentialIdQueryKey(
+  args: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$get']>,
+) {
+  return ['webauthn', '/webauthn/credentials/:credentialId', args] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /webauthn/credentials
+ * Returns Svelte Query query options for GET /webauthn/credentials/{credentialId}
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetWebauthnCredentialsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetWebauthnCredentialsQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetWebauthnCredentialsCredentialIdQueryOptions = (
+  args: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetWebauthnCredentialsCredentialIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.webauthn.credentials.$get(undefined, {
+      client.webauthn.credentials[':credentialId'].$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -195,35 +228,6 @@ export function createGetWebauthnCredentialsCredentialId(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /webauthn/credentials/{credentialId}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetWebauthnCredentialsCredentialIdQueryKey(
-  args: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$get']>,
-) {
-  return ['/webauthn/credentials/:credentialId', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /webauthn/credentials/{credentialId}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetWebauthnCredentialsCredentialIdQueryOptions = (
-  args: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetWebauthnCredentialsCredentialIdQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.webauthn.credentials[':credentialId'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * DELETE /webauthn/credentials/{credentialId}
@@ -287,6 +291,30 @@ export function createPatchWebauthnCredentialsCredentialId(options?: {
 }
 
 /**
+ * Generates Svelte Query cache key for GET /webauthn/settings
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGetWebauthnSettingsQueryKey() {
+  return ['webauthn', '/webauthn/settings'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /webauthn/settings
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetWebauthnSettingsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetWebauthnSettingsQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.webauthn.settings.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /webauthn/settings
  *
  * WebAuthn設定取得
@@ -312,23 +340,23 @@ export function createGetWebauthnSettings(
 }
 
 /**
- * Generates Svelte Query cache key for GET /webauthn/settings
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates Svelte Query cache key for GET /webauthn/settings/rp
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetWebauthnSettingsQueryKey() {
-  return ['/webauthn/settings'] as const
+export function getGetWebauthnSettingsRpQueryKey() {
+  return ['webauthn', '/webauthn/settings/rp'] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /webauthn/settings
+ * Returns Svelte Query query options for GET /webauthn/settings/rp
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetWebauthnSettingsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetWebauthnSettingsQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetWebauthnSettingsRpQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetWebauthnSettingsRpQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.webauthn.settings.$get(undefined, {
+      client.webauthn.settings.rp.$get(undefined, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -361,30 +389,6 @@ export function createGetWebauthnSettingsRp(
 }
 
 /**
- * Generates Svelte Query cache key for GET /webauthn/settings/rp
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGetWebauthnSettingsRpQueryKey() {
-  return ['/webauthn/settings/rp'] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /webauthn/settings/rp
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetWebauthnSettingsRpQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetWebauthnSettingsRpQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.webauthn.settings.rp.$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
-
-/**
  * PUT /webauthn/settings/rp
  *
  * リライングパーティ情報更新
@@ -406,6 +410,30 @@ export function createPutWebauthnSettingsRp(options?: {
       parseResponse(client.webauthn.settings.rp.$put(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query cache key for GET /webauthn/authenticators
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGetWebauthnAuthenticatorsQueryKey() {
+  return ['webauthn', '/webauthn/authenticators'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /webauthn/authenticators
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetWebauthnAuthenticatorsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetWebauthnAuthenticatorsQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.webauthn.authenticators.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /webauthn/authenticators
@@ -435,27 +463,3 @@ export function createGetWebauthnAuthenticators(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /webauthn/authenticators
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGetWebauthnAuthenticatorsQueryKey() {
-  return ['/webauthn/authenticators'] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /webauthn/authenticators
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetWebauthnAuthenticatorsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetWebauthnAuthenticatorsQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.webauthn.authenticators.$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})

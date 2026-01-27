@@ -7,6 +7,14 @@ import { parseResponse } from 'hono/client'
 import { client } from '../clients/38-auth-apikey-management'
 
 /**
+ * Generates SWR cache key for GET /api-keys
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
+ */
+export function getGetApiKeysKey(args: InferRequestType<(typeof client)['api-keys']['$get']>) {
+  return ['/api-keys', args] as const
+}
+
+/**
  * GET /api-keys
  *
  * APIキー一覧取得
@@ -33,11 +41,11 @@ export function useGetApiKeys(
 }
 
 /**
- * Generates SWR cache key for GET /api-keys
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for POST /api-keys
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetApiKeysKey(args: InferRequestType<(typeof client)['api-keys']['$get']>) {
-  return ['/api-keys', args] as const
+export function getPostApiKeysMutationKey() {
+  return ['/api-keys'] as const
 }
 
 /**
@@ -71,12 +79,13 @@ export function usePostApiKeys(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /api-keys
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /api-keys/{keyId}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPostApiKeysMutationKey() {
-  return 'POST /api-keys'
+export function getGetApiKeysKeyIdKey(
+  args: InferRequestType<(typeof client)['api-keys'][':keyId']['$get']>,
+) {
+  return [`/api-keys/${args.param.keyId}`, args] as const
 }
 
 /**
@@ -106,13 +115,11 @@ export function useGetApiKeysKeyId(
 }
 
 /**
- * Generates SWR cache key for GET /api-keys/{keyId}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for DELETE /api-keys/{keyId}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetApiKeysKeyIdKey(
-  args: InferRequestType<(typeof client)['api-keys'][':keyId']['$get']>,
-) {
-  return ['/api-keys/:keyId', args] as const
+export function getDeleteApiKeysKeyIdMutationKey() {
+  return ['/api-keys/:keyId'] as const
 }
 
 /**
@@ -153,12 +160,11 @@ export function useDeleteApiKeysKeyId(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /api-keys/{keyId}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for PATCH /api-keys/{keyId}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getDeleteApiKeysKeyIdMutationKey() {
-  return 'DELETE /api-keys/:keyId'
+export function getPatchApiKeysKeyIdMutationKey() {
+  return ['/api-keys/:keyId'] as const
 }
 
 /**
@@ -196,12 +202,11 @@ export function usePatchApiKeysKeyId(options?: {
 }
 
 /**
- * Generates SWR mutation key for PATCH /api-keys/{keyId}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /api-keys/{keyId}/revoke
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPatchApiKeysKeyIdMutationKey() {
-  return 'PATCH /api-keys/:keyId'
+export function getPostApiKeysKeyIdRevokeMutationKey() {
+  return ['/api-keys/:keyId/revoke'] as const
 }
 
 /**
@@ -243,12 +248,11 @@ export function usePostApiKeysKeyIdRevoke(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /api-keys/{keyId}/revoke
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /api-keys/{keyId}/rotate
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostApiKeysKeyIdRevokeMutationKey() {
-  return 'POST /api-keys/:keyId/revoke'
+export function getPostApiKeysKeyIdRotateMutationKey() {
+  return ['/api-keys/:keyId/rotate'] as const
 }
 
 /**
@@ -290,12 +294,13 @@ export function usePostApiKeysKeyIdRotate(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /api-keys/{keyId}/rotate
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /api-keys/{keyId}/usage
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPostApiKeysKeyIdRotateMutationKey() {
-  return 'POST /api-keys/:keyId/rotate'
+export function getGetApiKeysKeyIdUsageKey(
+  args: InferRequestType<(typeof client)['api-keys'][':keyId']['usage']['$get']>,
+) {
+  return [`/api-keys/${args.param.keyId}/usage`, args] as const
 }
 
 /**
@@ -325,13 +330,13 @@ export function useGetApiKeysKeyIdUsage(
 }
 
 /**
- * Generates SWR cache key for GET /api-keys/{keyId}/usage
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR cache key for GET /api-keys/{keyId}/rate-limit/current
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getGetApiKeysKeyIdUsageKey(
-  args: InferRequestType<(typeof client)['api-keys'][':keyId']['usage']['$get']>,
+export function getGetApiKeysKeyIdRateLimitCurrentKey(
+  args: InferRequestType<(typeof client)['api-keys'][':keyId']['rate-limit']['current']['$get']>,
 ) {
-  return ['/api-keys/:keyId/usage', args] as const
+  return [`/api-keys/${args.param.keyId}/rate-limit/current`, args] as const
 }
 
 /**
@@ -362,13 +367,11 @@ export function useGetApiKeysKeyIdRateLimitCurrent(
 }
 
 /**
- * Generates SWR cache key for GET /api-keys/{keyId}/rate-limit/current
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for POST /api-keys/verify
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetApiKeysKeyIdRateLimitCurrentKey(
-  args: InferRequestType<(typeof client)['api-keys'][':keyId']['rate-limit']['current']['$get']>,
-) {
-  return ['/api-keys/:keyId/rate-limit/current', args] as const
+export function getPostApiKeysVerifyMutationKey() {
+  return ['/api-keys/verify'] as const
 }
 
 /**
@@ -406,12 +409,11 @@ export function usePostApiKeysVerify(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /api-keys/verify
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /scopes
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getPostApiKeysVerifyMutationKey() {
-  return 'POST /api-keys/verify'
+export function getGetScopesKey() {
+  return ['/scopes'] as const
 }
 
 /**
@@ -435,12 +437,4 @@ export function useGetScopes(options?: {
       restSwrOptions,
     ),
   }
-}
-
-/**
- * Generates SWR cache key for GET /scopes
- * Returns structured key [templatePath] for filter-based invalidation
- */
-export function getGetScopesKey() {
-  return ['/scopes'] as const
 }

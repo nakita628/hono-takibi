@@ -7,6 +7,14 @@ import { parseResponse } from 'hono/client'
 import { client } from '../clients/16-complex-composition'
 
 /**
+ * Generates SWR mutation key for POST /messages
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ */
+export function getPostMessagesMutationKey() {
+  return ['/messages'] as const
+}
+
+/**
  * POST /messages
  */
 export function usePostMessages(options?: {
@@ -33,12 +41,11 @@ export function usePostMessages(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /messages
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /events
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostMessagesMutationKey() {
-  return 'POST /messages'
+export function getPostEventsMutationKey() {
+  return ['/events'] as const
 }
 
 /**
@@ -68,12 +75,11 @@ export function usePostEvents(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /events
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /configs
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getPostEventsMutationKey() {
-  return 'POST /events'
+export function getGetConfigsKey() {
+  return ['/configs'] as const
 }
 
 /**
@@ -98,10 +104,10 @@ export function useGetConfigs(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /configs
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR mutation key for PUT /configs
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetConfigsKey() {
+export function getPutConfigsMutationKey() {
   return ['/configs'] as const
 }
 
@@ -132,12 +138,11 @@ export function usePutConfigs(options?: {
 }
 
 /**
- * Generates SWR mutation key for PUT /configs
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /resources
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPutConfigsMutationKey() {
-  return 'PUT /configs'
+export function getPostResourcesMutationKey() {
+  return ['/resources'] as const
 }
 
 /**
@@ -167,12 +172,11 @@ export function usePostResources(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /resources
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /validations
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostResourcesMutationKey() {
-  return 'POST /resources'
+export function getPostValidationsMutationKey() {
+  return ['/validations'] as const
 }
 
 /**
@@ -199,13 +203,4 @@ export function usePostValidations(options?: {
       restMutationOptions,
     ),
   }
-}
-
-/**
- * Generates SWR mutation key for POST /validations
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
- */
-export function getPostValidationsMutationKey() {
-  return 'POST /validations'
 }

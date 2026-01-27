@@ -7,6 +7,14 @@ import { parseResponse } from 'hono/client'
 import { client } from '../clients/26-extreme-features'
 
 /**
+ * Generates SWR cache key for GET /stream
+ * Returns structured key [path] for filter-based invalidation
+ */
+export function getGetStreamKey() {
+  return ['/stream'] as const
+}
+
+/**
  * GET /stream
  *
  * Stream data with Server-Sent Events
@@ -30,11 +38,11 @@ export function useGetStream(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /stream
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR mutation key for POST /graphql
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetStreamKey() {
-  return ['/stream'] as const
+export function getPostGraphqlMutationKey() {
+  return ['/graphql'] as const
 }
 
 /**
@@ -66,12 +74,11 @@ export function usePostGraphql(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /graphql
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /grpc-gateway
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostGraphqlMutationKey() {
-  return 'POST /graphql'
+export function getPostGrpcGatewayMutationKey() {
+  return ['/grpc-gateway'] as const
 }
 
 /**
@@ -109,12 +116,11 @@ export function usePostGrpcGateway(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /grpc-gateway
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /deprecated-endpoint
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getPostGrpcGatewayMutationKey() {
-  return 'POST /grpc-gateway'
+export function getGetDeprecatedEndpointKey() {
+  return ['/deprecated-endpoint'] as const
 }
 
 /**
@@ -142,12 +148,4 @@ export function useGetDeprecatedEndpoint(options?: {
       restSwrOptions,
     ),
   }
-}
-
-/**
- * Generates SWR cache key for GET /deprecated-endpoint
- * Returns structured key [templatePath] for filter-based invalidation
- */
-export function getGetDeprecatedEndpointKey() {
-  return ['/deprecated-endpoint'] as const
 }

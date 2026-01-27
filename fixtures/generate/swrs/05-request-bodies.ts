@@ -6,6 +6,14 @@ import { parseResponse } from 'hono/client'
 import { client } from '../clients/05-request-bodies'
 
 /**
+ * Generates SWR mutation key for POST /users
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ */
+export function getPostUsersMutationKey() {
+  return ['/users'] as const
+}
+
+/**
  * POST /users
  */
 export function usePostUsers(options?: {
@@ -32,12 +40,11 @@ export function usePostUsers(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /users
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for PUT /users/{userId}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostUsersMutationKey() {
-  return 'POST /users'
+export function getPutUsersUserIdMutationKey() {
+  return ['/users/:userId'] as const
 }
 
 /**
@@ -73,12 +80,11 @@ export function usePutUsersUserId(options?: {
 }
 
 /**
- * Generates SWR mutation key for PUT /users/{userId}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for PATCH /users/{userId}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPutUsersUserIdMutationKey() {
-  return 'PUT /users/:userId'
+export function getPatchUsersUserIdMutationKey() {
+  return ['/users/:userId'] as const
 }
 
 /**
@@ -114,12 +120,11 @@ export function usePatchUsersUserId(options?: {
 }
 
 /**
- * Generates SWR mutation key for PATCH /users/{userId}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /users/{userId}/avatar
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPatchUsersUserIdMutationKey() {
-  return 'PATCH /users/:userId'
+export function getPostUsersUserIdAvatarMutationKey() {
+  return ['/users/:userId/avatar'] as const
 }
 
 /**
@@ -157,12 +162,11 @@ export function usePostUsersUserIdAvatar(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /users/{userId}/avatar
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /bulk/users
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostUsersUserIdAvatarMutationKey() {
-  return 'POST /users/:userId/avatar'
+export function getPostBulkUsersMutationKey() {
+  return ['/bulk/users'] as const
 }
 
 /**
@@ -189,13 +193,4 @@ export function usePostBulkUsers(options?: {
       restMutationOptions,
     ),
   }
-}
-
-/**
- * Generates SWR mutation key for POST /bulk/users
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
- */
-export function getPostBulkUsersMutationKey() {
-  return 'POST /bulk/users'
 }

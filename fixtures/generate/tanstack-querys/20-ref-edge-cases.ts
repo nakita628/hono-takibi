@@ -1,8 +1,32 @@
 import { useQuery } from '@tanstack/react-query'
-import type { UseQueryOptions } from '@tanstack/react-query'
+import type { UseQueryOptions, QueryFunctionContext } from '@tanstack/react-query'
 import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/20-ref-edge-cases'
+
+/**
+ * Generates TanStack Query cache key for GET /test
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetTestQueryKey(args: InferRequestType<typeof client.test.$get>) {
+  return ['test', '/test', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /test
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetTestQueryOptions = (
+  args: InferRequestType<typeof client.test.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetTestQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.test.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /test
@@ -23,26 +47,26 @@ export function useGetTest(
 }
 
 /**
- * Generates TanStack Query cache key for GET /test
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates TanStack Query cache key for GET /empty-refs
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetTestQueryKey(args: InferRequestType<typeof client.test.$get>) {
-  return ['/test', args] as const
+export function getGetEmptyRefsQueryKey() {
+  return ['empty-refs', '/empty-refs'] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /test
+ * Returns TanStack Query query options for GET /empty-refs
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetTestQueryOptions = (
-  args: InferRequestType<typeof client.test.$get>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetTestQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetEmptyRefsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetEmptyRefsQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.test.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      client['empty-refs'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
     ),
 })
 
@@ -64,23 +88,23 @@ export function useGetEmptyRefs(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /empty-refs
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates TanStack Query cache key for GET /unicode-refs
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetEmptyRefsQueryKey() {
-  return ['/empty-refs'] as const
+export function getGetUnicodeRefsQueryKey() {
+  return ['unicode-refs', '/unicode-refs'] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /empty-refs
+ * Returns TanStack Query query options for GET /unicode-refs
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetEmptyRefsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetEmptyRefsQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetUnicodeRefsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetUnicodeRefsQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client['empty-refs'].$get(undefined, {
+      client['unicode-refs'].$get(undefined, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -105,23 +129,23 @@ export function useGetUnicodeRefs(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /unicode-refs
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates TanStack Query cache key for GET /special-chars
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetUnicodeRefsQueryKey() {
-  return ['/unicode-refs'] as const
+export function getGetSpecialCharsQueryKey() {
+  return ['special-chars', '/special-chars'] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /unicode-refs
+ * Returns TanStack Query query options for GET /special-chars
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetUnicodeRefsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetUnicodeRefsQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetSpecialCharsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetSpecialCharsQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client['unicode-refs'].$get(undefined, {
+      client['special-chars'].$get(undefined, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -148,23 +172,23 @@ export function useGetSpecialChars(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /special-chars
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates TanStack Query cache key for GET /numeric-start
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetSpecialCharsQueryKey() {
-  return ['/special-chars'] as const
+export function getGetNumericStartQueryKey() {
+  return ['numeric-start', '/numeric-start'] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /special-chars
+ * Returns TanStack Query query options for GET /numeric-start
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetSpecialCharsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetSpecialCharsQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetNumericStartQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetNumericStartQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client['special-chars'].$get(undefined, {
+      client['numeric-start'].$get(undefined, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -191,23 +215,23 @@ export function useGetNumericStart(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /numeric-start
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates TanStack Query cache key for GET /ref-in-allof
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetNumericStartQueryKey() {
-  return ['/numeric-start'] as const
+export function getGetRefInAllofQueryKey() {
+  return ['ref-in-allof', '/ref-in-allof'] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /numeric-start
+ * Returns TanStack Query query options for GET /ref-in-allof
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetNumericStartQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetNumericStartQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetRefInAllofQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetRefInAllofQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client['numeric-start'].$get(undefined, {
+      client['ref-in-allof'].$get(undefined, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -232,23 +256,23 @@ export function useGetRefInAllof(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /ref-in-allof
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates TanStack Query cache key for GET /deeply-nested
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetRefInAllofQueryKey() {
-  return ['/ref-in-allof'] as const
+export function getGetDeeplyNestedQueryKey() {
+  return ['deeply-nested', '/deeply-nested'] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /ref-in-allof
+ * Returns TanStack Query query options for GET /deeply-nested
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetRefInAllofQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetRefInAllofQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetDeeplyNestedQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetDeeplyNestedQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client['ref-in-allof'].$get(undefined, {
+      client['deeply-nested'].$get(undefined, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -275,23 +299,23 @@ export function useGetDeeplyNested(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /deeply-nested
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates TanStack Query cache key for GET /same-name-diff-context
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetDeeplyNestedQueryKey() {
-  return ['/deeply-nested'] as const
+export function getGetSameNameDiffContextQueryKey() {
+  return ['same-name-diff-context', '/same-name-diff-context'] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /deeply-nested
+ * Returns TanStack Query query options for GET /same-name-diff-context
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetDeeplyNestedQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetDeeplyNestedQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetSameNameDiffContextQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetSameNameDiffContextQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client['deeply-nested'].$get(undefined, {
+      client['same-name-diff-context'].$get(undefined, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -316,27 +340,3 @@ export function useGetSameNameDiffContext(options?: {
   const { queryKey, queryFn, ...baseOptions } = getGetSameNameDiffContextQueryOptions(clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates TanStack Query cache key for GET /same-name-diff-context
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGetSameNameDiffContextQueryKey() {
-  return ['/same-name-diff-context'] as const
-}
-
-/**
- * Returns TanStack Query query options for GET /same-name-diff-context
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetSameNameDiffContextQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetSameNameDiffContextQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['same-name-diff-context'].$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})

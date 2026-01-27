@@ -1,8 +1,41 @@
 import { createQuery, createMutation } from '@tanstack/svelte-query'
-import type { CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
+import type {
+  CreateQueryOptions,
+  QueryFunctionContext,
+  CreateMutationOptions,
+} from '@tanstack/svelte-query'
 import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/twilio_api_v2010'
+
+/**
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts.json
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet20100401AccountsJsonQueryKey(
+  args: InferRequestType<(typeof client)['2010-04-01']['Accounts.json']['$get']>,
+) {
+  return ['2010-04-01', '/2010-04-01/Accounts.json', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts.json
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet20100401AccountsJsonQueryOptions = (
+  args: InferRequestType<(typeof client)['2010-04-01']['Accounts.json']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet20100401AccountsJsonQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['2010-04-01']['Accounts.json'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /2010-04-01/Accounts.json
@@ -38,35 +71,6 @@ export function createGet20100401AccountsJson(
 }
 
 /**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts.json
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet20100401AccountsJsonQueryKey(
-  args: InferRequestType<(typeof client)['2010-04-01']['Accounts.json']['$get']>,
-) {
-  return ['/2010-04-01/Accounts.json', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts.json
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet20100401AccountsJsonQueryOptions = (
-  args: InferRequestType<(typeof client)['2010-04-01']['Accounts.json']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGet20100401AccountsJsonQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['2010-04-01']['Accounts.json'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
-
-/**
  * POST /2010-04-01/Accounts.json
  *
  * Create a new Twilio Subaccount from the account making the request
@@ -95,6 +99,35 @@ export function createPost20100401AccountsJson(options?: {
     ) => parseResponse(client['2010-04-01']['Accounts.json'].$post(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{Sid.json}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet20100401AccountsSidJsonQueryKey(
+  args: InferRequestType<(typeof client)['2010-04-01']['Accounts'][':Sid.json']['$get']>,
+) {
+  return ['2010-04-01', '/2010-04-01/Accounts/:Sid.json', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{Sid.json}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet20100401AccountsSidJsonQueryOptions = (
+  args: InferRequestType<(typeof client)['2010-04-01']['Accounts'][':Sid.json']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet20100401AccountsSidJsonQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':Sid.json'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /2010-04-01/Accounts/{Sid}.json
@@ -130,35 +163,6 @@ export function createGet20100401AccountsSidJson(
 }
 
 /**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{Sid.json}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet20100401AccountsSidJsonQueryKey(
-  args: InferRequestType<(typeof client)['2010-04-01']['Accounts'][':Sid.json']['$get']>,
-) {
-  return ['/2010-04-01/Accounts/:Sid.json', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{Sid.json}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet20100401AccountsSidJsonQueryOptions = (
-  args: InferRequestType<(typeof client)['2010-04-01']['Accounts'][':Sid.json']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGet20100401AccountsSidJsonQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['2010-04-01'].Accounts[':Sid.json'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
-
-/**
  * POST /2010-04-01/Accounts/{Sid}.json
  *
  * Modify the properties of a given Account
@@ -187,6 +191,39 @@ export function createPost20100401AccountsSidJson(options?: {
     ) => parseResponse(client['2010-04-01'].Accounts[':Sid.json'].$post(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Addresses.json
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet20100401AccountsAccountSidAddressesJsonQueryKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses.json']['$get']
+  >,
+) {
+  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/Addresses.json', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Addresses.json
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet20100401AccountsAccountSidAddressesJsonQueryOptions = (
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses.json']['$get']
+  >,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet20100401AccountsAccountSidAddressesJsonQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid']['Addresses.json'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /2010-04-01/Accounts/{AccountSid}/Addresses.json
@@ -220,39 +257,6 @@ export function createGet20100401AccountsAccountSidAddressesJson(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Addresses.json
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet20100401AccountsAccountSidAddressesJsonQueryKey(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses.json']['$get']
-  >,
-) {
-  return ['/2010-04-01/Accounts/:AccountSid/Addresses.json', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Addresses.json
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet20100401AccountsAccountSidAddressesJsonQueryOptions = (
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGet20100401AccountsAccountSidAddressesJsonQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['2010-04-01'].Accounts[':AccountSid']['Addresses.json'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/Addresses.json
@@ -292,6 +296,39 @@ export function createPost20100401AccountsAccountSidAddressesJson(options?: {
 }
 
 /**
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Addresses/{Sid.json}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet20100401AccountsAccountSidAddressesSidJsonQueryKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$get']
+  >,
+) {
+  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/Addresses/:Sid.json', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Addresses/{Sid.json}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet20100401AccountsAccountSidAddressesSidJsonQueryOptions = (
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$get']
+  >,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet20100401AccountsAccountSidAddressesSidJsonQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].Addresses[':Sid.json'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /2010-04-01/Accounts/{AccountSid}/Addresses/{Sid}.json
  */
 export function createGet20100401AccountsAccountSidAddressesSidJson(
@@ -323,39 +360,6 @@ export function createGet20100401AccountsAccountSidAddressesSidJson(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Addresses/{Sid.json}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet20100401AccountsAccountSidAddressesSidJsonQueryKey(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$get']
-  >,
-) {
-  return ['/2010-04-01/Accounts/:AccountSid/Addresses/:Sid.json', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Addresses/{Sid.json}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet20100401AccountsAccountSidAddressesSidJsonQueryOptions = (
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGet20100401AccountsAccountSidAddressesSidJsonQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['2010-04-01'].Accounts[':AccountSid'].Addresses[':Sid.json'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/Addresses/{Sid}.json
@@ -439,6 +443,39 @@ export function createDelete20100401AccountsAccountSidAddressesSidJson(options?:
 }
 
 /**
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Applications.json
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet20100401AccountsAccountSidApplicationsJsonQueryKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications.json']['$get']
+  >,
+) {
+  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/Applications.json', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Applications.json
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet20100401AccountsAccountSidApplicationsJsonQueryOptions = (
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications.json']['$get']
+  >,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet20100401AccountsAccountSidApplicationsJsonQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid']['Applications.json'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /2010-04-01/Accounts/{AccountSid}/Applications.json
  *
  * Retrieve a list of applications representing an application within the requesting account
@@ -474,39 +511,6 @@ export function createGet20100401AccountsAccountSidApplicationsJson(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Applications.json
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet20100401AccountsAccountSidApplicationsJsonQueryKey(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications.json']['$get']
-  >,
-) {
-  return ['/2010-04-01/Accounts/:AccountSid/Applications.json', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Applications.json
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet20100401AccountsAccountSidApplicationsJsonQueryOptions = (
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGet20100401AccountsAccountSidApplicationsJsonQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['2010-04-01'].Accounts[':AccountSid']['Applications.json'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/Applications.json
@@ -553,6 +557,39 @@ export function createPost20100401AccountsAccountSidApplicationsJson(options?: {
 }
 
 /**
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Applications/{Sid.json}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet20100401AccountsAccountSidApplicationsSidJsonQueryKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$get']
+  >,
+) {
+  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/Applications/:Sid.json', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Applications/{Sid.json}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet20100401AccountsAccountSidApplicationsSidJsonQueryOptions = (
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$get']
+  >,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet20100401AccountsAccountSidApplicationsSidJsonQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].Applications[':Sid.json'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /2010-04-01/Accounts/{AccountSid}/Applications/{Sid}.json
  *
  * Fetch the application specified by the provided sid
@@ -588,39 +625,6 @@ export function createGet20100401AccountsAccountSidApplicationsSidJson(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Applications/{Sid.json}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet20100401AccountsAccountSidApplicationsSidJsonQueryKey(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$get']
-  >,
-) {
-  return ['/2010-04-01/Accounts/:AccountSid/Applications/:Sid.json', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Applications/{Sid.json}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet20100401AccountsAccountSidApplicationsSidJsonQueryOptions = (
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGet20100401AccountsAccountSidApplicationsSidJsonQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['2010-04-01'].Accounts[':AccountSid'].Applications[':Sid.json'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/Applications/{Sid}.json
@@ -712,6 +716,42 @@ export function createDelete20100401AccountsAccountSidApplicationsSidJson(option
 }
 
 /**
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AuthorizedConnectApps/{ConnectAppSid.json}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet20100401AccountsAccountSidAuthorizedConnectAppsConnectAppSidJsonQueryKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AuthorizedConnectApps'][':ConnectAppSid.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    '/2010-04-01/Accounts/:AccountSid/AuthorizedConnectApps/:ConnectAppSid.json',
+    args,
+  ] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/AuthorizedConnectApps/{ConnectAppSid.json}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet20100401AccountsAccountSidAuthorizedConnectAppsConnectAppSidJsonQueryOptions = (
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AuthorizedConnectApps'][':ConnectAppSid.json']['$get']
+  >,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet20100401AccountsAccountSidAuthorizedConnectAppsConnectAppSidJsonQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].AuthorizedConnectApps[
+        ':ConnectAppSid.json'
+      ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
+
+/**
  * GET /2010-04-01/Accounts/{AccountSid}/AuthorizedConnectApps/{ConnectAppSid}.json
  *
  * Fetch an instance of an authorized-connect-app
@@ -752,37 +792,39 @@ export function createGet20100401AccountsAccountSidAuthorizedConnectAppsConnectA
 }
 
 /**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AuthorizedConnectApps/{ConnectAppSid.json}
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AuthorizedConnectApps.json
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGet20100401AccountsAccountSidAuthorizedConnectAppsConnectAppSidJsonQueryKey(
+export function getGet20100401AccountsAccountSidAuthorizedConnectAppsJsonQueryKey(
   args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AuthorizedConnectApps'][':ConnectAppSid.json']['$get']
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AuthorizedConnectApps.json']['$get']
   >,
 ) {
   return [
-    '/2010-04-01/Accounts/:AccountSid/AuthorizedConnectApps/:ConnectAppSid.json',
+    '2010-04-01',
+    '/2010-04-01/Accounts/:AccountSid/AuthorizedConnectApps.json',
     args,
   ] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/AuthorizedConnectApps/{ConnectAppSid.json}
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/AuthorizedConnectApps.json
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGet20100401AccountsAccountSidAuthorizedConnectAppsConnectAppSidJsonQueryOptions = (
+export const getGet20100401AccountsAccountSidAuthorizedConnectAppsJsonQueryOptions = (
   args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AuthorizedConnectApps'][':ConnectAppSid.json']['$get']
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AuthorizedConnectApps.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGet20100401AccountsAccountSidAuthorizedConnectAppsConnectAppSidJsonQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGet20100401AccountsAccountSidAuthorizedConnectAppsJsonQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client['2010-04-01'].Accounts[':AccountSid'].AuthorizedConnectApps[
-        ':ConnectAppSid.json'
-      ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      client['2010-04-01'].Accounts[':AccountSid']['AuthorizedConnectApps.json'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
     ),
 })
 
@@ -824,32 +866,36 @@ export function createGet20100401AccountsAccountSidAuthorizedConnectAppsJson(
 }
 
 /**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AuthorizedConnectApps.json
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers.json
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGet20100401AccountsAccountSidAuthorizedConnectAppsJsonQueryKey(
+export function getGet20100401AccountsAccountSidAvailablePhoneNumbersJsonQueryKey(
   args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AuthorizedConnectApps.json']['$get']
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers.json']['$get']
   >,
 ) {
-  return ['/2010-04-01/Accounts/:AccountSid/AuthorizedConnectApps.json', args] as const
+  return [
+    '2010-04-01',
+    '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers.json',
+    args,
+  ] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/AuthorizedConnectApps.json
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers.json
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGet20100401AccountsAccountSidAuthorizedConnectAppsJsonQueryOptions = (
+export const getGet20100401AccountsAccountSidAvailablePhoneNumbersJsonQueryOptions = (
   args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AuthorizedConnectApps.json']['$get']
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGet20100401AccountsAccountSidAuthorizedConnectAppsJsonQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGet20100401AccountsAccountSidAvailablePhoneNumbersJsonQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client['2010-04-01'].Accounts[':AccountSid']['AuthorizedConnectApps.json'].$get(args, {
+      client['2010-04-01'].Accounts[':AccountSid']['AvailablePhoneNumbers.json'].$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -890,35 +936,39 @@ export function createGet20100401AccountsAccountSidAvailablePhoneNumbersJson(
 }
 
 /**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers.json
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode.json}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGet20100401AccountsAccountSidAvailablePhoneNumbersJsonQueryKey(
+export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeJsonQueryKey(
   args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers.json']['$get']
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode.json']['$get']
   >,
 ) {
-  return ['/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers.json', args] as const
+  return [
+    '2010-04-01',
+    '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode.json',
+    args,
+  ] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers.json
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode.json}
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGet20100401AccountsAccountSidAvailablePhoneNumbersJsonQueryOptions = (
+export const getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeJsonQueryOptions = (
   args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers.json']['$get']
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGet20100401AccountsAccountSidAvailablePhoneNumbersJsonQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeJsonQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client['2010-04-01'].Accounts[':AccountSid']['AvailablePhoneNumbers.json'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
+      client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode.json'].$get(
+        args,
+        { ...clientOptions, init: { ...clientOptions?.init, signal } },
+      ),
     ),
 })
 
@@ -959,37 +1009,42 @@ export function createGet20100401AccountsAccountSidAvailablePhoneNumbersCountryC
 }
 
 /**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode.json}
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/Local.json
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeJsonQueryKey(
+export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeLocalJsonQueryKey(
   args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode.json']['$get']
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['Local.json']['$get']
   >,
 ) {
-  return ['/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode.json', args] as const
+  return [
+    '2010-04-01',
+    '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode/Local.json',
+    args,
+  ] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode.json}
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/Local.json
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeJsonQueryOptions = (
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeJsonQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode.json'].$get(
-        args,
-        { ...clientOptions, init: { ...clientOptions?.init, signal } },
+export const getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeLocalJsonQueryOptions =
+  (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['Local.json']['$get']
+    >,
+    clientOptions?: ClientRequestOptions,
+  ) => ({
+    queryKey:
+      getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeLocalJsonQueryKey(args),
+    queryFn: ({ signal }: QueryFunctionContext) =>
+      parseResponse(
+        client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
+          'Local.json'
+        ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
-    ),
-})
+  })
 
 /**
  * GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/Local.json
@@ -1028,38 +1083,41 @@ export function createGet20100401AccountsAccountSidAvailablePhoneNumbersCountryC
 }
 
 /**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/Local.json
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/MachineToMachine.json
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeLocalJsonQueryKey(
+export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMachineToMachineJsonQueryKey(
   args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['Local.json']['$get']
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['MachineToMachine.json']['$get']
   >,
 ) {
   return [
-    '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode/Local.json',
+    '2010-04-01',
+    '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode/MachineToMachine.json',
     args,
   ] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/Local.json
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/MachineToMachine.json
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeLocalJsonQueryOptions =
+export const getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMachineToMachineJsonQueryOptions =
   (
     args: InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['Local.json']['$get']
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['MachineToMachine.json']['$get']
     >,
     clientOptions?: ClientRequestOptions,
   ) => ({
     queryKey:
-      getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeLocalJsonQueryKey(args),
-    queryFn: ({ signal }: { signal: AbortSignal }) =>
+      getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMachineToMachineJsonQueryKey(
+        args,
+      ),
+    queryFn: ({ signal }: QueryFunctionContext) =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
-          'Local.json'
+          'MachineToMachine.json'
         ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
   })
@@ -1101,40 +1159,39 @@ export function createGet20100401AccountsAccountSidAvailablePhoneNumbersCountryC
 }
 
 /**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/MachineToMachine.json
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/Mobile.json
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMachineToMachineJsonQueryKey(
+export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMobileJsonQueryKey(
   args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['MachineToMachine.json']['$get']
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['Mobile.json']['$get']
   >,
 ) {
   return [
-    '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode/MachineToMachine.json',
+    '2010-04-01',
+    '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode/Mobile.json',
     args,
   ] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/MachineToMachine.json
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/Mobile.json
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMachineToMachineJsonQueryOptions =
+export const getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMobileJsonQueryOptions =
   (
     args: InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['MachineToMachine.json']['$get']
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['Mobile.json']['$get']
     >,
     clientOptions?: ClientRequestOptions,
   ) => ({
     queryKey:
-      getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMachineToMachineJsonQueryKey(
-        args,
-      ),
-    queryFn: ({ signal }: { signal: AbortSignal }) =>
+      getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMobileJsonQueryKey(args),
+    queryFn: ({ signal }: QueryFunctionContext) =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
-          'MachineToMachine.json'
+          'Mobile.json'
         ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
   })
@@ -1176,38 +1233,39 @@ export function createGet20100401AccountsAccountSidAvailablePhoneNumbersCountryC
 }
 
 /**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/Mobile.json
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/National.json
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMobileJsonQueryKey(
+export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeNationalJsonQueryKey(
   args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['Mobile.json']['$get']
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['National.json']['$get']
   >,
 ) {
   return [
-    '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode/Mobile.json',
+    '2010-04-01',
+    '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode/National.json',
     args,
   ] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/Mobile.json
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/National.json
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMobileJsonQueryOptions =
+export const getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeNationalJsonQueryOptions =
   (
     args: InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['Mobile.json']['$get']
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['National.json']['$get']
     >,
     clientOptions?: ClientRequestOptions,
   ) => ({
     queryKey:
-      getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMobileJsonQueryKey(args),
-    queryFn: ({ signal }: { signal: AbortSignal }) =>
+      getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeNationalJsonQueryKey(args),
+    queryFn: ({ signal }: QueryFunctionContext) =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
-          'Mobile.json'
+          'National.json'
         ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
   })
@@ -1249,38 +1307,39 @@ export function createGet20100401AccountsAccountSidAvailablePhoneNumbersCountryC
 }
 
 /**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/National.json
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/SharedCost.json
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeNationalJsonQueryKey(
+export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeSharedCostJsonQueryKey(
   args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['National.json']['$get']
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['SharedCost.json']['$get']
   >,
 ) {
   return [
-    '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode/National.json',
+    '2010-04-01',
+    '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode/SharedCost.json',
     args,
   ] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/National.json
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/SharedCost.json
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeNationalJsonQueryOptions =
+export const getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeSharedCostJsonQueryOptions =
   (
     args: InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['National.json']['$get']
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['SharedCost.json']['$get']
     >,
     clientOptions?: ClientRequestOptions,
   ) => ({
     queryKey:
-      getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeNationalJsonQueryKey(args),
-    queryFn: ({ signal }: { signal: AbortSignal }) =>
+      getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeSharedCostJsonQueryKey(args),
+    queryFn: ({ signal }: QueryFunctionContext) =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
-          'National.json'
+          'SharedCost.json'
         ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
   })
@@ -1322,38 +1381,39 @@ export function createGet20100401AccountsAccountSidAvailablePhoneNumbersCountryC
 }
 
 /**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/SharedCost.json
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/TollFree.json
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeSharedCostJsonQueryKey(
+export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeTollFreeJsonQueryKey(
   args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['SharedCost.json']['$get']
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['TollFree.json']['$get']
   >,
 ) {
   return [
-    '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode/SharedCost.json',
+    '2010-04-01',
+    '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode/TollFree.json',
     args,
   ] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/SharedCost.json
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/TollFree.json
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeSharedCostJsonQueryOptions =
+export const getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeTollFreeJsonQueryOptions =
   (
     args: InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['SharedCost.json']['$get']
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['TollFree.json']['$get']
     >,
     clientOptions?: ClientRequestOptions,
   ) => ({
     queryKey:
-      getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeSharedCostJsonQueryKey(args),
-    queryFn: ({ signal }: { signal: AbortSignal }) =>
+      getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeTollFreeJsonQueryKey(args),
+    queryFn: ({ signal }: QueryFunctionContext) =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
-          'SharedCost.json'
+          'TollFree.json'
         ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
   })
@@ -1395,38 +1455,39 @@ export function createGet20100401AccountsAccountSidAvailablePhoneNumbersCountryC
 }
 
 /**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/TollFree.json
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/Voip.json
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeTollFreeJsonQueryKey(
+export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeVoipJsonQueryKey(
   args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['TollFree.json']['$get']
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['Voip.json']['$get']
   >,
 ) {
   return [
-    '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode/TollFree.json',
+    '2010-04-01',
+    '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode/Voip.json',
     args,
   ] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/TollFree.json
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/Voip.json
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeTollFreeJsonQueryOptions =
+export const getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeVoipJsonQueryOptions =
   (
     args: InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['TollFree.json']['$get']
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['Voip.json']['$get']
     >,
     clientOptions?: ClientRequestOptions,
   ) => ({
     queryKey:
-      getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeTollFreeJsonQueryKey(args),
-    queryFn: ({ signal }: { signal: AbortSignal }) =>
+      getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeVoipJsonQueryKey(args),
+    queryFn: ({ signal }: QueryFunctionContext) =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
-          'TollFree.json'
+          'Voip.json'
         ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
   })
@@ -1468,41 +1529,37 @@ export function createGet20100401AccountsAccountSidAvailablePhoneNumbersCountryC
 }
 
 /**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/Voip.json
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Balance.json
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeVoipJsonQueryKey(
+export function getGet20100401AccountsAccountSidBalanceJsonQueryKey(
   args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['Voip.json']['$get']
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Balance.json']['$get']
   >,
 ) {
-  return [
-    '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode/Voip.json',
-    args,
-  ] as const
+  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/Balance.json', args] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/Voip.json
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Balance.json
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeVoipJsonQueryOptions =
-  (
-    args: InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['Voip.json']['$get']
-    >,
-    clientOptions?: ClientRequestOptions,
-  ) => ({
-    queryKey:
-      getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeVoipJsonQueryKey(args),
-    queryFn: ({ signal }: { signal: AbortSignal }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
-          'Voip.json'
-        ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-  })
+export const getGet20100401AccountsAccountSidBalanceJsonQueryOptions = (
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Balance.json']['$get']
+  >,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet20100401AccountsAccountSidBalanceJsonQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid']['Balance.json'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /2010-04-01/Accounts/{AccountSid}/Balance.json
@@ -1542,32 +1599,32 @@ export function createGet20100401AccountsAccountSidBalanceJson(
 }
 
 /**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Balance.json
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls.json
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGet20100401AccountsAccountSidBalanceJsonQueryKey(
+export function getGet20100401AccountsAccountSidCallsJsonQueryKey(
   args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Balance.json']['$get']
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls.json']['$get']
   >,
 ) {
-  return ['/2010-04-01/Accounts/:AccountSid/Balance.json', args] as const
+  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/Calls.json', args] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Balance.json
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Calls.json
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGet20100401AccountsAccountSidBalanceJsonQueryOptions = (
+export const getGet20100401AccountsAccountSidCallsJsonQueryOptions = (
   args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Balance.json']['$get']
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGet20100401AccountsAccountSidBalanceJsonQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGet20100401AccountsAccountSidCallsJsonQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client['2010-04-01'].Accounts[':AccountSid']['Balance.json'].$get(args, {
+      client['2010-04-01'].Accounts[':AccountSid']['Calls.json'].$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -1612,39 +1669,6 @@ export function createGet20100401AccountsAccountSidCallsJson(
 }
 
 /**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls.json
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet20100401AccountsAccountSidCallsJsonQueryKey(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls.json']['$get']
-  >,
-) {
-  return ['/2010-04-01/Accounts/:AccountSid/Calls.json', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Calls.json
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet20100401AccountsAccountSidCallsJsonQueryOptions = (
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGet20100401AccountsAccountSidCallsJsonQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['2010-04-01'].Accounts[':AccountSid']['Calls.json'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
-
-/**
  * POST /2010-04-01/Accounts/{AccountSid}/Calls.json
  *
  * Create a new outgoing call to phones, SIP-enabled endpoints or Twilio Client connections
@@ -1686,6 +1710,39 @@ export function createPost20100401AccountsAccountSidCallsJson(options?: {
 }
 
 /**
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{Sid.json}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet20100401AccountsAccountSidCallsSidJsonQueryKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$get']
+  >,
+) {
+  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/Calls/:Sid.json', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Calls/{Sid.json}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet20100401AccountsAccountSidCallsSidJsonQueryOptions = (
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$get']
+  >,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet20100401AccountsAccountSidCallsSidJsonQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].Calls[':Sid.json'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /2010-04-01/Accounts/{AccountSid}/Calls/{Sid}.json
  *
  * Fetch the call specified by the provided Call SID
@@ -1721,39 +1778,6 @@ export function createGet20100401AccountsAccountSidCallsSidJson(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{Sid.json}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet20100401AccountsAccountSidCallsSidJsonQueryKey(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$get']
-  >,
-) {
-  return ['/2010-04-01/Accounts/:AccountSid/Calls/:Sid.json', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Calls/{Sid.json}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet20100401AccountsAccountSidCallsSidJsonQueryOptions = (
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGet20100401AccountsAccountSidCallsSidJsonQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['2010-04-01'].Accounts[':AccountSid'].Calls[':Sid.json'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/Calls/{Sid}.json
@@ -1842,6 +1866,43 @@ export function createDelete20100401AccountsAccountSidCallsSidJson(options?: {
 }
 
 /**
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Events.json
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet20100401AccountsAccountSidCallsCallSidEventsJsonQueryKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Events.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Events.json',
+    args,
+  ] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Events.json
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet20100401AccountsAccountSidCallsCallSidEventsJsonQueryOptions = (
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Events.json']['$get']
+  >,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet20100401AccountsAccountSidCallsCallSidEventsJsonQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Events.json'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Events.json
  *
  * Retrieve a list of all events for a call.
@@ -1879,35 +1940,38 @@ export function createGet20100401AccountsAccountSidCallsCallSidEventsJson(
 }
 
 /**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Events.json
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Notifications/{Sid.json}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGet20100401AccountsAccountSidCallsCallSidEventsJsonQueryKey(
+export function getGet20100401AccountsAccountSidCallsCallSidNotificationsSidJsonQueryKey(
   args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Events.json']['$get']
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Notifications'][':Sid.json']['$get']
   >,
 ) {
-  return ['/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Events.json', args] as const
+  return [
+    '2010-04-01',
+    '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Notifications/:Sid.json',
+    args,
+  ] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Events.json
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Notifications/{Sid.json}
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGet20100401AccountsAccountSidCallsCallSidEventsJsonQueryOptions = (
+export const getGet20100401AccountsAccountSidCallsCallSidNotificationsSidJsonQueryOptions = (
   args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Events.json']['$get']
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Notifications'][':Sid.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGet20100401AccountsAccountSidCallsCallSidEventsJsonQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGet20100401AccountsAccountSidCallsCallSidNotificationsSidJsonQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Events.json'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
+      client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'].Notifications[
+        ':Sid.json'
+      ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
     ),
 })
 
@@ -1948,34 +2012,39 @@ export function createGet20100401AccountsAccountSidCallsCallSidNotificationsSidJ
 }
 
 /**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Notifications/{Sid.json}
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Notifications.json
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGet20100401AccountsAccountSidCallsCallSidNotificationsSidJsonQueryKey(
+export function getGet20100401AccountsAccountSidCallsCallSidNotificationsJsonQueryKey(
   args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Notifications'][':Sid.json']['$get']
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Notifications.json']['$get']
   >,
 ) {
-  return ['/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Notifications/:Sid.json', args] as const
+  return [
+    '2010-04-01',
+    '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Notifications.json',
+    args,
+  ] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Notifications/{Sid.json}
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Notifications.json
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGet20100401AccountsAccountSidCallsCallSidNotificationsSidJsonQueryOptions = (
+export const getGet20100401AccountsAccountSidCallsCallSidNotificationsJsonQueryOptions = (
   args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Notifications'][':Sid.json']['$get']
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Notifications.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGet20100401AccountsAccountSidCallsCallSidNotificationsSidJsonQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGet20100401AccountsAccountSidCallsCallSidNotificationsJsonQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'].Notifications[
-        ':Sid.json'
-      ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Notifications.json'].$get(
+        args,
+        { ...clientOptions, init: { ...clientOptions?.init, signal } },
+      ),
     ),
 })
 
@@ -2013,35 +2082,39 @@ export function createGet20100401AccountsAccountSidCallsCallSidNotificationsJson
 }
 
 /**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Notifications.json
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Recordings.json
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGet20100401AccountsAccountSidCallsCallSidNotificationsJsonQueryKey(
+export function getGet20100401AccountsAccountSidCallsCallSidRecordingsJsonQueryKey(
   args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Notifications.json']['$get']
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings.json']['$get']
   >,
 ) {
-  return ['/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Notifications.json', args] as const
+  return [
+    '2010-04-01',
+    '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Recordings.json',
+    args,
+  ] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Notifications.json
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Recordings.json
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGet20100401AccountsAccountSidCallsCallSidNotificationsJsonQueryOptions = (
+export const getGet20100401AccountsAccountSidCallsCallSidRecordingsJsonQueryOptions = (
   args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Notifications.json']['$get']
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGet20100401AccountsAccountSidCallsCallSidNotificationsJsonQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGet20100401AccountsAccountSidCallsCallSidRecordingsJsonQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Notifications.json'].$get(
-        args,
-        { ...clientOptions, init: { ...clientOptions?.init, signal } },
-      ),
+      client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Recordings.json'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
     ),
 })
 
@@ -2081,39 +2154,6 @@ export function createGet20100401AccountsAccountSidCallsCallSidRecordingsJson(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Recordings.json
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet20100401AccountsAccountSidCallsCallSidRecordingsJsonQueryKey(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings.json']['$get']
-  >,
-) {
-  return ['/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Recordings.json', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Recordings.json
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet20100401AccountsAccountSidCallsCallSidRecordingsJsonQueryOptions = (
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGet20100401AccountsAccountSidCallsCallSidRecordingsJsonQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Recordings.json'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Recordings.json
@@ -2160,6 +2200,43 @@ export function createPost20100401AccountsAccountSidCallsCallSidRecordingsJson(o
 }
 
 /**
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Recordings/{Sid.json}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet20100401AccountsAccountSidCallsCallSidRecordingsSidJsonQueryKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Recordings/:Sid.json',
+    args,
+  ] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Recordings/{Sid.json}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet20100401AccountsAccountSidCallsCallSidRecordingsSidJsonQueryOptions = (
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$get']
+  >,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet20100401AccountsAccountSidCallsCallSidRecordingsSidJsonQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'].Recordings[':Sid.json'].$get(
+        args,
+        { ...clientOptions, init: { ...clientOptions?.init, signal } },
+      ),
+    ),
+})
+
+/**
  * GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Recordings/{Sid}.json
  *
  * Fetch an instance of a recording for a call
@@ -2195,39 +2272,6 @@ export function createGet20100401AccountsAccountSidCallsCallSidRecordingsSidJson
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Recordings/{Sid.json}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet20100401AccountsAccountSidCallsCallSidRecordingsSidJsonQueryKey(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$get']
-  >,
-) {
-  return ['/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Recordings/:Sid.json', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Recordings/{Sid.json}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet20100401AccountsAccountSidCallsCallSidRecordingsSidJsonQueryOptions = (
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGet20100401AccountsAccountSidCallsCallSidRecordingsSidJsonQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'].Recordings[':Sid.json'].$get(
-        args,
-        { ...clientOptions, init: { ...clientOptions?.init, signal } },
-      ),
-    ),
-})
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Recordings/{Sid}.json
@@ -2317,6 +2361,39 @@ export function createDelete20100401AccountsAccountSidCallsCallSidRecordingsSidJ
 }
 
 /**
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{Sid.json}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet20100401AccountsAccountSidConferencesSidJsonQueryKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':Sid.json']['$get']
+  >,
+) {
+  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/Conferences/:Sid.json', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{Sid.json}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet20100401AccountsAccountSidConferencesSidJsonQueryOptions = (
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':Sid.json']['$get']
+  >,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet20100401AccountsAccountSidConferencesSidJsonQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].Conferences[':Sid.json'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /2010-04-01/Accounts/{AccountSid}/Conferences/{Sid}.json
  *
  * Fetch an instance of a conference
@@ -2352,39 +2429,6 @@ export function createGet20100401AccountsAccountSidConferencesSidJson(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{Sid.json}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet20100401AccountsAccountSidConferencesSidJsonQueryKey(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':Sid.json']['$get']
-  >,
-) {
-  return ['/2010-04-01/Accounts/:AccountSid/Conferences/:Sid.json', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{Sid.json}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet20100401AccountsAccountSidConferencesSidJsonQueryOptions = (
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':Sid.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGet20100401AccountsAccountSidConferencesSidJsonQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['2010-04-01'].Accounts[':AccountSid'].Conferences[':Sid.json'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/Conferences/{Sid}.json
@@ -2427,6 +2471,39 @@ export function createPost20100401AccountsAccountSidConferencesSidJson(options?:
 }
 
 /**
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences.json
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet20100401AccountsAccountSidConferencesJsonQueryKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences.json']['$get']
+  >,
+) {
+  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/Conferences.json', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Conferences.json
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet20100401AccountsAccountSidConferencesJsonQueryOptions = (
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences.json']['$get']
+  >,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet20100401AccountsAccountSidConferencesJsonQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid']['Conferences.json'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /2010-04-01/Accounts/{AccountSid}/Conferences.json
  *
  * Retrieve a list of conferences belonging to the account used to make the request
@@ -2464,35 +2541,38 @@ export function createGet20100401AccountsAccountSidConferencesJson(
 }
 
 /**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences.json
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Recordings.json
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGet20100401AccountsAccountSidConferencesJsonQueryKey(
+export function getGet20100401AccountsAccountSidConferencesConferenceSidRecordingsJsonQueryKey(
   args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences.json']['$get']
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings.json']['$get']
   >,
 ) {
-  return ['/2010-04-01/Accounts/:AccountSid/Conferences.json', args] as const
+  return [
+    '2010-04-01',
+    '/2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Recordings.json',
+    args,
+  ] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Conferences.json
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Recordings.json
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGet20100401AccountsAccountSidConferencesJsonQueryOptions = (
+export const getGet20100401AccountsAccountSidConferencesConferenceSidRecordingsJsonQueryOptions = (
   args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences.json']['$get']
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGet20100401AccountsAccountSidConferencesJsonQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGet20100401AccountsAccountSidConferencesConferenceSidRecordingsJsonQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client['2010-04-01'].Accounts[':AccountSid']['Conferences.json'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
+      client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'][
+        'Recordings.json'
+      ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
     ),
 })
 
@@ -2537,39 +2617,42 @@ export function createGet20100401AccountsAccountSidConferencesConferenceSidRecor
 }
 
 /**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Recordings.json
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Recordings/{Sid.json}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGet20100401AccountsAccountSidConferencesConferenceSidRecordingsJsonQueryKey(
+export function getGet20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJsonQueryKey(
   args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings.json']['$get']
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$get']
   >,
 ) {
   return [
-    '/2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Recordings.json',
+    '2010-04-01',
+    '/2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Recordings/:Sid.json',
     args,
   ] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Recordings.json
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Recordings/{Sid.json}
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGet20100401AccountsAccountSidConferencesConferenceSidRecordingsJsonQueryOptions = (
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGet20100401AccountsAccountSidConferencesConferenceSidRecordingsJsonQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'][
-        'Recordings.json'
-      ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-    ),
-})
+export const getGet20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJsonQueryOptions =
+  (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$get']
+    >,
+    clientOptions?: ClientRequestOptions,
+  ) => ({
+    queryKey:
+      getGet20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJsonQueryKey(args),
+    queryFn: ({ signal }: QueryFunctionContext) =>
+      parseResponse(
+        client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'].Recordings[
+          ':Sid.json'
+        ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })
 
 /**
  * GET /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Recordings/{Sid}.json
@@ -2610,43 +2693,6 @@ export function createGet20100401AccountsAccountSidConferencesConferenceSidRecor
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Recordings/{Sid.json}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJsonQueryKey(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$get']
-  >,
-) {
-  return [
-    '/2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Recordings/:Sid.json',
-    args,
-  ] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Recordings/{Sid.json}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJsonQueryOptions =
-  (
-    args: InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$get']
-    >,
-    clientOptions?: ClientRequestOptions,
-  ) => ({
-    queryKey:
-      getGet20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJsonQueryKey(args),
-    queryFn: ({ signal }: { signal: AbortSignal }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'].Recordings[
-          ':Sid.json'
-        ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-  })
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Recordings/{Sid}.json
@@ -2736,6 +2782,39 @@ export function createDelete20100401AccountsAccountSidConferencesConferenceSidRe
 }
 
 /**
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/ConnectApps/{Sid.json}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet20100401AccountsAccountSidConnectAppsSidJsonQueryKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$get']
+  >,
+) {
+  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/ConnectApps/:Sid.json', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/ConnectApps/{Sid.json}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet20100401AccountsAccountSidConnectAppsSidJsonQueryOptions = (
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$get']
+  >,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet20100401AccountsAccountSidConnectAppsSidJsonQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].ConnectApps[':Sid.json'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /2010-04-01/Accounts/{AccountSid}/ConnectApps/{Sid}.json
  *
  * Fetch an instance of a connect-app
@@ -2771,39 +2850,6 @@ export function createGet20100401AccountsAccountSidConnectAppsSidJson(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/ConnectApps/{Sid.json}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet20100401AccountsAccountSidConnectAppsSidJsonQueryKey(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$get']
-  >,
-) {
-  return ['/2010-04-01/Accounts/:AccountSid/ConnectApps/:Sid.json', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/ConnectApps/{Sid.json}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet20100401AccountsAccountSidConnectAppsSidJsonQueryOptions = (
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGet20100401AccountsAccountSidConnectAppsSidJsonQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['2010-04-01'].Accounts[':AccountSid'].ConnectApps[':Sid.json'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/ConnectApps/{Sid}.json
@@ -2895,6 +2941,39 @@ export function createDelete20100401AccountsAccountSidConnectAppsSidJson(options
 }
 
 /**
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/ConnectApps.json
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet20100401AccountsAccountSidConnectAppsJsonQueryKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps.json']['$get']
+  >,
+) {
+  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/ConnectApps.json', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/ConnectApps.json
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet20100401AccountsAccountSidConnectAppsJsonQueryOptions = (
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps.json']['$get']
+  >,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet20100401AccountsAccountSidConnectAppsJsonQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid']['ConnectApps.json'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /2010-04-01/Accounts/{AccountSid}/ConnectApps.json
  *
  * Retrieve a list of connect-apps belonging to the account used to make the request
@@ -2932,37 +3011,42 @@ export function createGet20100401AccountsAccountSidConnectAppsJson(
 }
 
 /**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/ConnectApps.json
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Addresses/{AddressSid}/DependentPhoneNumbers.json
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGet20100401AccountsAccountSidConnectAppsJsonQueryKey(
+export function getGet20100401AccountsAccountSidAddressesAddressSidDependentPhoneNumbersJsonQueryKey(
   args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps.json']['$get']
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':AddressSid']['DependentPhoneNumbers.json']['$get']
   >,
 ) {
-  return ['/2010-04-01/Accounts/:AccountSid/ConnectApps.json', args] as const
+  return [
+    '2010-04-01',
+    '/2010-04-01/Accounts/:AccountSid/Addresses/:AddressSid/DependentPhoneNumbers.json',
+    args,
+  ] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/ConnectApps.json
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Addresses/{AddressSid}/DependentPhoneNumbers.json
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGet20100401AccountsAccountSidConnectAppsJsonQueryOptions = (
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGet20100401AccountsAccountSidConnectAppsJsonQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['2010-04-01'].Accounts[':AccountSid']['ConnectApps.json'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
+export const getGet20100401AccountsAccountSidAddressesAddressSidDependentPhoneNumbersJsonQueryOptions =
+  (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':AddressSid']['DependentPhoneNumbers.json']['$get']
+    >,
+    clientOptions?: ClientRequestOptions,
+  ) => ({
+    queryKey:
+      getGet20100401AccountsAccountSidAddressesAddressSidDependentPhoneNumbersJsonQueryKey(args),
+    queryFn: ({ signal }: QueryFunctionContext) =>
+      parseResponse(
+        client['2010-04-01'].Accounts[':AccountSid'].Addresses[':AddressSid'][
+          'DependentPhoneNumbers.json'
+        ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })
 
 /**
  * GET /2010-04-01/Accounts/{AccountSid}/Addresses/{AddressSid}/DependentPhoneNumbers.json
@@ -3001,41 +3085,41 @@ export function createGet20100401AccountsAccountSidAddressesAddressSidDependentP
 }
 
 /**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Addresses/{AddressSid}/DependentPhoneNumbers.json
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{Sid.json}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGet20100401AccountsAccountSidAddressesAddressSidDependentPhoneNumbersJsonQueryKey(
+export function getGet20100401AccountsAccountSidIncomingPhoneNumbersSidJsonQueryKey(
   args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':AddressSid']['DependentPhoneNumbers.json']['$get']
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$get']
   >,
 ) {
   return [
-    '/2010-04-01/Accounts/:AccountSid/Addresses/:AddressSid/DependentPhoneNumbers.json',
+    '2010-04-01',
+    '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:Sid.json',
     args,
   ] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Addresses/{AddressSid}/DependentPhoneNumbers.json
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{Sid.json}
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGet20100401AccountsAccountSidAddressesAddressSidDependentPhoneNumbersJsonQueryOptions =
-  (
-    args: InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':AddressSid']['DependentPhoneNumbers.json']['$get']
-    >,
-    clientOptions?: ClientRequestOptions,
-  ) => ({
-    queryKey:
-      getGet20100401AccountsAccountSidAddressesAddressSidDependentPhoneNumbersJsonQueryKey(args),
-    queryFn: ({ signal }: { signal: AbortSignal }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Addresses[':AddressSid'][
-          'DependentPhoneNumbers.json'
-        ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-  })
+export const getGet20100401AccountsAccountSidIncomingPhoneNumbersSidJsonQueryOptions = (
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$get']
+  >,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet20100401AccountsAccountSidIncomingPhoneNumbersSidJsonQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[':Sid.json'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{Sid}.json
@@ -3073,39 +3157,6 @@ export function createGet20100401AccountsAccountSidIncomingPhoneNumbersSidJson(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{Sid.json}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet20100401AccountsAccountSidIncomingPhoneNumbersSidJsonQueryKey(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$get']
-  >,
-) {
-  return ['/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:Sid.json', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{Sid.json}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet20100401AccountsAccountSidIncomingPhoneNumbersSidJsonQueryOptions = (
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGet20100401AccountsAccountSidIncomingPhoneNumbersSidJsonQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[':Sid.json'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{Sid}.json
@@ -3197,6 +3248,39 @@ export function createDelete20100401AccountsAccountSidIncomingPhoneNumbersSidJso
 }
 
 /**
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers.json
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet20100401AccountsAccountSidIncomingPhoneNumbersJsonQueryKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers.json']['$get']
+  >,
+) {
+  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers.json', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers.json
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet20100401AccountsAccountSidIncomingPhoneNumbersJsonQueryOptions = (
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers.json']['$get']
+  >,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet20100401AccountsAccountSidIncomingPhoneNumbersJsonQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid']['IncomingPhoneNumbers.json'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers.json
  *
  * Retrieve a list of incoming-phone-numbers belonging to the account used to make the request.
@@ -3232,39 +3316,6 @@ export function createGet20100401AccountsAccountSidIncomingPhoneNumbersJson(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers.json
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet20100401AccountsAccountSidIncomingPhoneNumbersJsonQueryKey(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers.json']['$get']
-  >,
-) {
-  return ['/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers.json', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers.json
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet20100401AccountsAccountSidIncomingPhoneNumbersJsonQueryOptions = (
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGet20100401AccountsAccountSidIncomingPhoneNumbersJsonQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['2010-04-01'].Accounts[':AccountSid']['IncomingPhoneNumbers.json'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers.json
@@ -3311,6 +3362,49 @@ export function createPost20100401AccountsAccountSidIncomingPhoneNumbersJson(opt
 }
 
 /**
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns/{Sid.json}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsSidJsonQueryKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':Sid.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:ResourceSid/AssignedAddOns/:Sid.json',
+    args,
+  ] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns/{Sid.json}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsSidJsonQueryOptions =
+  (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':Sid.json']['$get']
+    >,
+    clientOptions?: ClientRequestOptions,
+  ) => ({
+    queryKey:
+      getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsSidJsonQueryKey(
+        args,
+      ),
+    queryFn: ({ signal }: QueryFunctionContext) =>
+      parseResponse(
+        client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[
+          ':ResourceSid'
+        ].AssignedAddOns[':Sid.json'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
+
+/**
  * GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns/{Sid}.json
  *
  * Fetch an instance of an Add-on installation currently assigned to this Number.
@@ -3349,48 +3443,6 @@ export function createGet20100401AccountsAccountSidIncomingPhoneNumbersResourceS
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns/{Sid.json}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsSidJsonQueryKey(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':Sid.json']['$get']
-  >,
-) {
-  return [
-    '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:ResourceSid/AssignedAddOns/:Sid.json',
-    args,
-  ] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns/{Sid.json}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsSidJsonQueryOptions =
-  (
-    args: InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':Sid.json']['$get']
-    >,
-    clientOptions?: ClientRequestOptions,
-  ) => ({
-    queryKey:
-      getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsSidJsonQueryKey(
-        args,
-      ),
-    queryFn: ({ signal }: { signal: AbortSignal }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[
-          ':ResourceSid'
-        ].AssignedAddOns[':Sid.json'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
 
 /**
  * DELETE /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns/{Sid}.json
@@ -3437,6 +3489,46 @@ export function createDelete20100401AccountsAccountSidIncomingPhoneNumbersResour
 }
 
 /**
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns.json
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsJsonQueryKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:ResourceSid/AssignedAddOns.json',
+    args,
+  ] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns.json
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsJsonQueryOptions =
+  (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns.json']['$get']
+    >,
+    clientOptions?: ClientRequestOptions,
+  ) => ({
+    queryKey:
+      getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsJsonQueryKey(
+        args,
+      ),
+    queryFn: ({ signal }: QueryFunctionContext) =>
+      parseResponse(
+        client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[':ResourceSid'][
+          'AssignedAddOns.json'
+        ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })
+
+/**
  * GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns.json
  *
  * Retrieve a list of Add-on installations currently assigned to this Number.
@@ -3475,45 +3567,6 @@ export function createGet20100401AccountsAccountSidIncomingPhoneNumbersResourceS
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns.json
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsJsonQueryKey(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns.json']['$get']
-  >,
-) {
-  return [
-    '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:ResourceSid/AssignedAddOns.json',
-    args,
-  ] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns.json
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsJsonQueryOptions =
-  (
-    args: InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns.json']['$get']
-    >,
-    clientOptions?: ClientRequestOptions,
-  ) => ({
-    queryKey:
-      getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsJsonQueryKey(
-        args,
-      ),
-    queryFn: ({ signal }: { signal: AbortSignal }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[':ResourceSid'][
-          'AssignedAddOns.json'
-        ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-  })
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns.json
@@ -3559,6 +3612,49 @@ export function createPost20100401AccountsAccountSidIncomingPhoneNumbersResource
 }
 
 /**
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns/{AssignedAddOnSid}/Extensions/{Sid.json}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsAssignedAddOnSidExtensionsSidJsonQueryKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':AssignedAddOnSid']['Extensions'][':Sid.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:ResourceSid/AssignedAddOns/:AssignedAddOnSid/Extensions/:Sid.json',
+    args,
+  ] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns/{AssignedAddOnSid}/Extensions/{Sid.json}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsAssignedAddOnSidExtensionsSidJsonQueryOptions =
+  (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':AssignedAddOnSid']['Extensions'][':Sid.json']['$get']
+    >,
+    clientOptions?: ClientRequestOptions,
+  ) => ({
+    queryKey:
+      getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsAssignedAddOnSidExtensionsSidJsonQueryKey(
+        args,
+      ),
+    queryFn: ({ signal }: QueryFunctionContext) =>
+      parseResponse(
+        client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[
+          ':ResourceSid'
+        ].AssignedAddOns[':AssignedAddOnSid'].Extensions[':Sid.json'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
+
+/**
  * GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns/{AssignedAddOnSid}/Extensions/{Sid}.json
  *
  * Fetch an instance of an Extension for the Assigned Add-on.
@@ -3599,41 +3695,42 @@ export function createGet20100401AccountsAccountSidIncomingPhoneNumbersResourceS
 }
 
 /**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns/{AssignedAddOnSid}/Extensions/{Sid.json}
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns/{AssignedAddOnSid}/Extensions.json
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsAssignedAddOnSidExtensionsSidJsonQueryKey(
+export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsAssignedAddOnSidExtensionsJsonQueryKey(
   args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':AssignedAddOnSid']['Extensions'][':Sid.json']['$get']
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':AssignedAddOnSid']['Extensions.json']['$get']
   >,
 ) {
   return [
-    '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:ResourceSid/AssignedAddOns/:AssignedAddOnSid/Extensions/:Sid.json',
+    '2010-04-01',
+    '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:ResourceSid/AssignedAddOns/:AssignedAddOnSid/Extensions.json',
     args,
   ] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns/{AssignedAddOnSid}/Extensions/{Sid.json}
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns/{AssignedAddOnSid}/Extensions.json
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsAssignedAddOnSidExtensionsSidJsonQueryOptions =
+export const getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsAssignedAddOnSidExtensionsJsonQueryOptions =
   (
     args: InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':AssignedAddOnSid']['Extensions'][':Sid.json']['$get']
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':AssignedAddOnSid']['Extensions.json']['$get']
     >,
     clientOptions?: ClientRequestOptions,
   ) => ({
     queryKey:
-      getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsAssignedAddOnSidExtensionsSidJsonQueryKey(
+      getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsAssignedAddOnSidExtensionsJsonQueryKey(
         args,
       ),
-    queryFn: ({ signal }: { signal: AbortSignal }) =>
+    queryFn: ({ signal }: QueryFunctionContext) =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[
           ':ResourceSid'
-        ].AssignedAddOns[':AssignedAddOnSid'].Extensions[':Sid.json'].$get(args, {
+        ].AssignedAddOns[':AssignedAddOnSid']['Extensions.json'].$get(args, {
           ...clientOptions,
           init: { ...clientOptions?.init, signal },
         }),
@@ -3681,46 +3778,41 @@ export function createGet20100401AccountsAccountSidIncomingPhoneNumbersResourceS
 }
 
 /**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns/{AssignedAddOnSid}/Extensions.json
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/Local.json
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsAssignedAddOnSidExtensionsJsonQueryKey(
+export function getGet20100401AccountsAccountSidIncomingPhoneNumbersLocalJsonQueryKey(
   args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':AssignedAddOnSid']['Extensions.json']['$get']
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Local.json']['$get']
   >,
 ) {
   return [
-    '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:ResourceSid/AssignedAddOns/:AssignedAddOnSid/Extensions.json',
+    '2010-04-01',
+    '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/Local.json',
     args,
   ] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns/{AssignedAddOnSid}/Extensions.json
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/Local.json
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsAssignedAddOnSidExtensionsJsonQueryOptions =
-  (
-    args: InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':AssignedAddOnSid']['Extensions.json']['$get']
-    >,
-    clientOptions?: ClientRequestOptions,
-  ) => ({
-    queryKey:
-      getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsAssignedAddOnSidExtensionsJsonQueryKey(
-        args,
-      ),
-    queryFn: ({ signal }: { signal: AbortSignal }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[
-          ':ResourceSid'
-        ].AssignedAddOns[':AssignedAddOnSid']['Extensions.json'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGet20100401AccountsAccountSidIncomingPhoneNumbersLocalJsonQueryOptions = (
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Local.json']['$get']
+  >,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet20100401AccountsAccountSidIncomingPhoneNumbersLocalJsonQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers['Local.json'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/Local.json
@@ -3754,39 +3846,6 @@ export function createGet20100401AccountsAccountSidIncomingPhoneNumbersLocalJson
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/Local.json
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet20100401AccountsAccountSidIncomingPhoneNumbersLocalJsonQueryKey(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Local.json']['$get']
-  >,
-) {
-  return ['/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/Local.json', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/Local.json
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet20100401AccountsAccountSidIncomingPhoneNumbersLocalJsonQueryOptions = (
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Local.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGet20100401AccountsAccountSidIncomingPhoneNumbersLocalJsonQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers['Local.json'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/Local.json
@@ -3829,6 +3888,43 @@ export function createPost20100401AccountsAccountSidIncomingPhoneNumbersLocalJso
 }
 
 /**
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/Mobile.json
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet20100401AccountsAccountSidIncomingPhoneNumbersMobileJsonQueryKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Mobile.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/Mobile.json',
+    args,
+  ] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/Mobile.json
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet20100401AccountsAccountSidIncomingPhoneNumbersMobileJsonQueryOptions = (
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Mobile.json']['$get']
+  >,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet20100401AccountsAccountSidIncomingPhoneNumbersMobileJsonQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers['Mobile.json'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/Mobile.json
  */
 export function createGet20100401AccountsAccountSidIncomingPhoneNumbersMobileJson(
@@ -3860,39 +3956,6 @@ export function createGet20100401AccountsAccountSidIncomingPhoneNumbersMobileJso
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/Mobile.json
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet20100401AccountsAccountSidIncomingPhoneNumbersMobileJsonQueryKey(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Mobile.json']['$get']
-  >,
-) {
-  return ['/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/Mobile.json', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/Mobile.json
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet20100401AccountsAccountSidIncomingPhoneNumbersMobileJsonQueryOptions = (
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Mobile.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGet20100401AccountsAccountSidIncomingPhoneNumbersMobileJsonQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers['Mobile.json'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/Mobile.json
@@ -3935,6 +3998,43 @@ export function createPost20100401AccountsAccountSidIncomingPhoneNumbersMobileJs
 }
 
 /**
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/TollFree.json
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJsonQueryKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['TollFree.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/TollFree.json',
+    args,
+  ] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/TollFree.json
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJsonQueryOptions = (
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['TollFree.json']['$get']
+  >,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJsonQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers['TollFree.json'].$get(
+        args,
+        { ...clientOptions, init: { ...clientOptions?.init, signal } },
+      ),
+    ),
+})
+
+/**
  * GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/TollFree.json
  */
 export function createGet20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJson(
@@ -3969,39 +4069,6 @@ export function createGet20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJ
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/TollFree.json
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJsonQueryKey(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['TollFree.json']['$get']
-  >,
-) {
-  return ['/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/TollFree.json', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/TollFree.json
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJsonQueryOptions = (
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['TollFree.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGet20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJsonQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers['TollFree.json'].$get(
-        args,
-        { ...clientOptions, init: { ...clientOptions?.init, signal } },
-      ),
-    ),
-})
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/TollFree.json
@@ -4044,6 +4111,39 @@ export function createPost20100401AccountsAccountSidIncomingPhoneNumbersTollFree
 }
 
 /**
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Keys/{Sid.json}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet20100401AccountsAccountSidKeysSidJsonQueryKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$get']
+  >,
+) {
+  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/Keys/:Sid.json', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Keys/{Sid.json}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet20100401AccountsAccountSidKeysSidJsonQueryOptions = (
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$get']
+  >,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet20100401AccountsAccountSidKeysSidJsonQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].Keys[':Sid.json'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /2010-04-01/Accounts/{AccountSid}/Keys/{Sid}.json
  */
 export function createGet20100401AccountsAccountSidKeysSidJson(
@@ -4075,39 +4175,6 @@ export function createGet20100401AccountsAccountSidKeysSidJson(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Keys/{Sid.json}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet20100401AccountsAccountSidKeysSidJsonQueryKey(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$get']
-  >,
-) {
-  return ['/2010-04-01/Accounts/:AccountSid/Keys/:Sid.json', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Keys/{Sid.json}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet20100401AccountsAccountSidKeysSidJsonQueryOptions = (
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGet20100401AccountsAccountSidKeysSidJsonQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['2010-04-01'].Accounts[':AccountSid'].Keys[':Sid.json'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/Keys/{Sid}.json
@@ -4185,6 +4252,39 @@ export function createDelete20100401AccountsAccountSidKeysSidJson(options?: {
 }
 
 /**
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Keys.json
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet20100401AccountsAccountSidKeysJsonQueryKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys.json']['$get']
+  >,
+) {
+  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/Keys.json', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Keys.json
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet20100401AccountsAccountSidKeysJsonQueryOptions = (
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys.json']['$get']
+  >,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet20100401AccountsAccountSidKeysJsonQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid']['Keys.json'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /2010-04-01/Accounts/{AccountSid}/Keys.json
  */
 export function createGet20100401AccountsAccountSidKeysJson(
@@ -4216,39 +4316,6 @@ export function createGet20100401AccountsAccountSidKeysJson(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Keys.json
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet20100401AccountsAccountSidKeysJsonQueryKey(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys.json']['$get']
-  >,
-) {
-  return ['/2010-04-01/Accounts/:AccountSid/Keys.json', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Keys.json
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet20100401AccountsAccountSidKeysJsonQueryOptions = (
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGet20100401AccountsAccountSidKeysJsonQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['2010-04-01'].Accounts[':AccountSid']['Keys.json'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/Keys.json
@@ -4286,6 +4353,43 @@ export function createPost20100401AccountsAccountSidKeysJson(options?: {
 }
 
 /**
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Messages/{MessageSid}/Media/{Sid.json}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet20100401AccountsAccountSidMessagesMessageSidMediaSidJsonQueryKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media'][':Sid.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    '/2010-04-01/Accounts/:AccountSid/Messages/:MessageSid/Media/:Sid.json',
+    args,
+  ] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Messages/{MessageSid}/Media/{Sid.json}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet20100401AccountsAccountSidMessagesMessageSidMediaSidJsonQueryOptions = (
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media'][':Sid.json']['$get']
+  >,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet20100401AccountsAccountSidMessagesMessageSidMediaSidJsonQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].Messages[':MessageSid'].Media[':Sid.json'].$get(
+        args,
+        { ...clientOptions, init: { ...clientOptions?.init, signal } },
+      ),
+    ),
+})
+
+/**
  * GET /2010-04-01/Accounts/{AccountSid}/Messages/{MessageSid}/Media/{Sid}.json
  *
  * Fetch a single Media resource associated with a specific Message resource
@@ -4321,39 +4425,6 @@ export function createGet20100401AccountsAccountSidMessagesMessageSidMediaSidJso
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Messages/{MessageSid}/Media/{Sid.json}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet20100401AccountsAccountSidMessagesMessageSidMediaSidJsonQueryKey(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media'][':Sid.json']['$get']
-  >,
-) {
-  return ['/2010-04-01/Accounts/:AccountSid/Messages/:MessageSid/Media/:Sid.json', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Messages/{MessageSid}/Media/{Sid.json}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet20100401AccountsAccountSidMessagesMessageSidMediaSidJsonQueryOptions = (
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media'][':Sid.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGet20100401AccountsAccountSidMessagesMessageSidMediaSidJsonQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['2010-04-01'].Accounts[':AccountSid'].Messages[':MessageSid'].Media[':Sid.json'].$get(
-        args,
-        { ...clientOptions, init: { ...clientOptions?.init, signal } },
-      ),
-    ),
-})
 
 /**
  * DELETE /2010-04-01/Accounts/{AccountSid}/Messages/{MessageSid}/Media/{Sid}.json
@@ -4400,6 +4471,43 @@ export function createDelete20100401AccountsAccountSidMessagesMessageSidMediaSid
 }
 
 /**
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Messages/{MessageSid}/Media.json
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet20100401AccountsAccountSidMessagesMessageSidMediaJsonQueryKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    '/2010-04-01/Accounts/:AccountSid/Messages/:MessageSid/Media.json',
+    args,
+  ] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Messages/{MessageSid}/Media.json
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet20100401AccountsAccountSidMessagesMessageSidMediaJsonQueryOptions = (
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media.json']['$get']
+  >,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet20100401AccountsAccountSidMessagesMessageSidMediaJsonQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].Messages[':MessageSid']['Media.json'].$get(
+        args,
+        { ...clientOptions, init: { ...clientOptions?.init, signal } },
+      ),
+    ),
+})
+
+/**
  * GET /2010-04-01/Accounts/{AccountSid}/Messages/{MessageSid}/Media.json
  *
  * Read a list of Media resources associated with a specific Message resource
@@ -4437,35 +4545,38 @@ export function createGet20100401AccountsAccountSidMessagesMessageSidMediaJson(
 }
 
 /**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Messages/{MessageSid}/Media.json
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Queues/{QueueSid}/Members/{CallSid.json}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGet20100401AccountsAccountSidMessagesMessageSidMediaJsonQueryKey(
+export function getGet20100401AccountsAccountSidQueuesQueueSidMembersCallSidJsonQueryKey(
   args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media.json']['$get']
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members'][':CallSid.json']['$get']
   >,
 ) {
-  return ['/2010-04-01/Accounts/:AccountSid/Messages/:MessageSid/Media.json', args] as const
+  return [
+    '2010-04-01',
+    '/2010-04-01/Accounts/:AccountSid/Queues/:QueueSid/Members/:CallSid.json',
+    args,
+  ] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Messages/{MessageSid}/Media.json
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Queues/{QueueSid}/Members/{CallSid.json}
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGet20100401AccountsAccountSidMessagesMessageSidMediaJsonQueryOptions = (
+export const getGet20100401AccountsAccountSidQueuesQueueSidMembersCallSidJsonQueryOptions = (
   args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media.json']['$get']
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members'][':CallSid.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGet20100401AccountsAccountSidMessagesMessageSidMediaJsonQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGet20100401AccountsAccountSidQueuesQueueSidMembersCallSidJsonQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client['2010-04-01'].Accounts[':AccountSid'].Messages[':MessageSid']['Media.json'].$get(
-        args,
-        { ...clientOptions, init: { ...clientOptions?.init, signal } },
-      ),
+      client['2010-04-01'].Accounts[':AccountSid'].Queues[':QueueSid'].Members[
+        ':CallSid.json'
+      ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
     ),
 })
 
@@ -4508,38 +4619,6 @@ export function createGet20100401AccountsAccountSidQueuesQueueSidMembersCallSidJ
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Queues/{QueueSid}/Members/{CallSid.json}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet20100401AccountsAccountSidQueuesQueueSidMembersCallSidJsonQueryKey(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members'][':CallSid.json']['$get']
-  >,
-) {
-  return ['/2010-04-01/Accounts/:AccountSid/Queues/:QueueSid/Members/:CallSid.json', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Queues/{QueueSid}/Members/{CallSid.json}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet20100401AccountsAccountSidQueuesQueueSidMembersCallSidJsonQueryOptions = (
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members'][':CallSid.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGet20100401AccountsAccountSidQueuesQueueSidMembersCallSidJsonQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['2010-04-01'].Accounts[':AccountSid'].Queues[':QueueSid'].Members[
-        ':CallSid.json'
-      ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-    ),
-})
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/Queues/{QueueSid}/Members/{CallSid}.json
@@ -4585,6 +4664,43 @@ export function createPost20100401AccountsAccountSidQueuesQueueSidMembersCallSid
 }
 
 /**
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Queues/{QueueSid}/Members.json
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet20100401AccountsAccountSidQueuesQueueSidMembersJsonQueryKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    '/2010-04-01/Accounts/:AccountSid/Queues/:QueueSid/Members.json',
+    args,
+  ] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Queues/{QueueSid}/Members.json
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet20100401AccountsAccountSidQueuesQueueSidMembersJsonQueryOptions = (
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members.json']['$get']
+  >,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet20100401AccountsAccountSidQueuesQueueSidMembersJsonQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].Queues[':QueueSid']['Members.json'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /2010-04-01/Accounts/{AccountSid}/Queues/{QueueSid}/Members.json
  *
  * Retrieve the members of the queue
@@ -4622,32 +4738,32 @@ export function createGet20100401AccountsAccountSidQueuesQueueSidMembersJson(
 }
 
 /**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Queues/{QueueSid}/Members.json
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Messages.json
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGet20100401AccountsAccountSidQueuesQueueSidMembersJsonQueryKey(
+export function getGet20100401AccountsAccountSidMessagesJsonQueryKey(
   args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members.json']['$get']
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages.json']['$get']
   >,
 ) {
-  return ['/2010-04-01/Accounts/:AccountSid/Queues/:QueueSid/Members.json', args] as const
+  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/Messages.json', args] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Queues/{QueueSid}/Members.json
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Messages.json
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGet20100401AccountsAccountSidQueuesQueueSidMembersJsonQueryOptions = (
+export const getGet20100401AccountsAccountSidMessagesJsonQueryOptions = (
   args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members.json']['$get']
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGet20100401AccountsAccountSidQueuesQueueSidMembersJsonQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGet20100401AccountsAccountSidMessagesJsonQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client['2010-04-01'].Accounts[':AccountSid'].Queues[':QueueSid']['Members.json'].$get(args, {
+      client['2010-04-01'].Accounts[':AccountSid']['Messages.json'].$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -4692,39 +4808,6 @@ export function createGet20100401AccountsAccountSidMessagesJson(
 }
 
 /**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Messages.json
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet20100401AccountsAccountSidMessagesJsonQueryKey(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages.json']['$get']
-  >,
-) {
-  return ['/2010-04-01/Accounts/:AccountSid/Messages.json', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Messages.json
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet20100401AccountsAccountSidMessagesJsonQueryOptions = (
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGet20100401AccountsAccountSidMessagesJsonQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['2010-04-01'].Accounts[':AccountSid']['Messages.json'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
-
-/**
  * POST /2010-04-01/Accounts/{AccountSid}/Messages.json
  *
  * Send a message
@@ -4766,6 +4849,39 @@ export function createPost20100401AccountsAccountSidMessagesJson(options?: {
 }
 
 /**
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Messages/{Sid.json}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet20100401AccountsAccountSidMessagesSidJsonQueryKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$get']
+  >,
+) {
+  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/Messages/:Sid.json', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Messages/{Sid.json}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet20100401AccountsAccountSidMessagesSidJsonQueryOptions = (
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$get']
+  >,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet20100401AccountsAccountSidMessagesSidJsonQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].Messages[':Sid.json'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /2010-04-01/Accounts/{AccountSid}/Messages/{Sid}.json
  *
  * Fetch a specific Message
@@ -4801,39 +4917,6 @@ export function createGet20100401AccountsAccountSidMessagesSidJson(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Messages/{Sid.json}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet20100401AccountsAccountSidMessagesSidJsonQueryKey(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$get']
-  >,
-) {
-  return ['/2010-04-01/Accounts/:AccountSid/Messages/:Sid.json', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Messages/{Sid.json}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet20100401AccountsAccountSidMessagesSidJsonQueryOptions = (
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGet20100401AccountsAccountSidMessagesSidJsonQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['2010-04-01'].Accounts[':AccountSid'].Messages[':Sid.json'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/Messages/{Sid}.json
@@ -4969,6 +5052,39 @@ export function createPost20100401AccountsAccountSidMessagesMessageSidFeedbackJs
 }
 
 /**
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SigningKeys.json
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet20100401AccountsAccountSidSigningKeysJsonQueryKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys.json']['$get']
+  >,
+) {
+  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/SigningKeys.json', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/SigningKeys.json
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet20100401AccountsAccountSidSigningKeysJsonQueryOptions = (
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys.json']['$get']
+  >,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet20100401AccountsAccountSidSigningKeysJsonQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid']['SigningKeys.json'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /2010-04-01/Accounts/{AccountSid}/SigningKeys.json
  */
 export function createGet20100401AccountsAccountSidSigningKeysJson(
@@ -5000,39 +5116,6 @@ export function createGet20100401AccountsAccountSidSigningKeysJson(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SigningKeys.json
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet20100401AccountsAccountSidSigningKeysJsonQueryKey(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys.json']['$get']
-  >,
-) {
-  return ['/2010-04-01/Accounts/:AccountSid/SigningKeys.json', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/SigningKeys.json
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet20100401AccountsAccountSidSigningKeysJsonQueryOptions = (
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGet20100401AccountsAccountSidSigningKeysJsonQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['2010-04-01'].Accounts[':AccountSid']['SigningKeys.json'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/SigningKeys.json
@@ -5076,6 +5159,39 @@ export function createPost20100401AccountsAccountSidSigningKeysJson(options?: {
 }
 
 /**
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Notifications/{Sid.json}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet20100401AccountsAccountSidNotificationsSidJsonQueryKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Notifications'][':Sid.json']['$get']
+  >,
+) {
+  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/Notifications/:Sid.json', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Notifications/{Sid.json}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet20100401AccountsAccountSidNotificationsSidJsonQueryOptions = (
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Notifications'][':Sid.json']['$get']
+  >,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet20100401AccountsAccountSidNotificationsSidJsonQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].Notifications[':Sid.json'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /2010-04-01/Accounts/{AccountSid}/Notifications/{Sid}.json
  *
  * Fetch a notification belonging to the account used to make the request
@@ -5113,32 +5229,32 @@ export function createGet20100401AccountsAccountSidNotificationsSidJson(
 }
 
 /**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Notifications/{Sid.json}
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Notifications.json
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGet20100401AccountsAccountSidNotificationsSidJsonQueryKey(
+export function getGet20100401AccountsAccountSidNotificationsJsonQueryKey(
   args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Notifications'][':Sid.json']['$get']
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Notifications.json']['$get']
   >,
 ) {
-  return ['/2010-04-01/Accounts/:AccountSid/Notifications/:Sid.json', args] as const
+  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/Notifications.json', args] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Notifications/{Sid.json}
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Notifications.json
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGet20100401AccountsAccountSidNotificationsSidJsonQueryOptions = (
+export const getGet20100401AccountsAccountSidNotificationsJsonQueryOptions = (
   args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Notifications'][':Sid.json']['$get']
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Notifications.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGet20100401AccountsAccountSidNotificationsSidJsonQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGet20100401AccountsAccountSidNotificationsJsonQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client['2010-04-01'].Accounts[':AccountSid'].Notifications[':Sid.json'].$get(args, {
+      client['2010-04-01'].Accounts[':AccountSid']['Notifications.json'].$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -5183,32 +5299,36 @@ export function createGet20100401AccountsAccountSidNotificationsJson(
 }
 
 /**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Notifications.json
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/OutgoingCallerIds/{Sid.json}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGet20100401AccountsAccountSidNotificationsJsonQueryKey(
+export function getGet20100401AccountsAccountSidOutgoingCallerIdsSidJsonQueryKey(
   args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Notifications.json']['$get']
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$get']
   >,
 ) {
-  return ['/2010-04-01/Accounts/:AccountSid/Notifications.json', args] as const
+  return [
+    '2010-04-01',
+    '/2010-04-01/Accounts/:AccountSid/OutgoingCallerIds/:Sid.json',
+    args,
+  ] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Notifications.json
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/OutgoingCallerIds/{Sid.json}
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGet20100401AccountsAccountSidNotificationsJsonQueryOptions = (
+export const getGet20100401AccountsAccountSidOutgoingCallerIdsSidJsonQueryOptions = (
   args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Notifications.json']['$get']
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGet20100401AccountsAccountSidNotificationsJsonQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGet20100401AccountsAccountSidOutgoingCallerIdsSidJsonQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client['2010-04-01'].Accounts[':AccountSid']['Notifications.json'].$get(args, {
+      client['2010-04-01'].Accounts[':AccountSid'].OutgoingCallerIds[':Sid.json'].$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -5251,39 +5371,6 @@ export function createGet20100401AccountsAccountSidOutgoingCallerIdsSidJson(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/OutgoingCallerIds/{Sid.json}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet20100401AccountsAccountSidOutgoingCallerIdsSidJsonQueryKey(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$get']
-  >,
-) {
-  return ['/2010-04-01/Accounts/:AccountSid/OutgoingCallerIds/:Sid.json', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/OutgoingCallerIds/{Sid.json}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet20100401AccountsAccountSidOutgoingCallerIdsSidJsonQueryOptions = (
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGet20100401AccountsAccountSidOutgoingCallerIdsSidJsonQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['2010-04-01'].Accounts[':AccountSid'].OutgoingCallerIds[':Sid.json'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/OutgoingCallerIds/{Sid}.json
@@ -5375,6 +5462,39 @@ export function createDelete20100401AccountsAccountSidOutgoingCallerIdsSidJson(o
 }
 
 /**
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/OutgoingCallerIds.json
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet20100401AccountsAccountSidOutgoingCallerIdsJsonQueryKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds.json']['$get']
+  >,
+) {
+  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/OutgoingCallerIds.json', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/OutgoingCallerIds.json
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet20100401AccountsAccountSidOutgoingCallerIdsJsonQueryOptions = (
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds.json']['$get']
+  >,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet20100401AccountsAccountSidOutgoingCallerIdsJsonQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid']['OutgoingCallerIds.json'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /2010-04-01/Accounts/{AccountSid}/OutgoingCallerIds.json
  *
  * Retrieve a list of outgoing-caller-ids belonging to the account used to make the request
@@ -5410,39 +5530,6 @@ export function createGet20100401AccountsAccountSidOutgoingCallerIdsJson(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/OutgoingCallerIds.json
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet20100401AccountsAccountSidOutgoingCallerIdsJsonQueryKey(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds.json']['$get']
-  >,
-) {
-  return ['/2010-04-01/Accounts/:AccountSid/OutgoingCallerIds.json', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/OutgoingCallerIds.json
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet20100401AccountsAccountSidOutgoingCallerIdsJsonQueryOptions = (
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGet20100401AccountsAccountSidOutgoingCallerIdsJsonQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['2010-04-01'].Accounts[':AccountSid']['OutgoingCallerIds.json'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/OutgoingCallerIds.json
@@ -5485,6 +5572,44 @@ export function createPost20100401AccountsAccountSidOutgoingCallerIdsJson(option
 }
 
 /**
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Participants/{CallSid.json}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJsonQueryKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    '/2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Participants/:CallSid.json',
+    args,
+  ] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Participants/{CallSid.json}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJsonQueryOptions =
+  (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$get']
+    >,
+    clientOptions?: ClientRequestOptions,
+  ) => ({
+    queryKey:
+      getGet20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJsonQueryKey(args),
+    queryFn: ({ signal }: QueryFunctionContext) =>
+      parseResponse(
+        client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'].Participants[
+          ':CallSid.json'
+        ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })
+
+/**
  * GET /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Participants/{CallSid}.json
  *
  * Fetch an instance of a participant
@@ -5523,43 +5648,6 @@ export function createGet20100401AccountsAccountSidConferencesConferenceSidParti
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Participants/{CallSid.json}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJsonQueryKey(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$get']
-  >,
-) {
-  return [
-    '/2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Participants/:CallSid.json',
-    args,
-  ] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Participants/{CallSid.json}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJsonQueryOptions =
-  (
-    args: InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$get']
-    >,
-    clientOptions?: ClientRequestOptions,
-  ) => ({
-    queryKey:
-      getGet20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJsonQueryKey(args),
-    queryFn: ({ signal }: { signal: AbortSignal }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'].Participants[
-          ':CallSid.json'
-        ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-  })
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Participants/{CallSid}.json
@@ -5649,6 +5737,44 @@ export function createDelete20100401AccountsAccountSidConferencesConferenceSidPa
 }
 
 /**
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Participants.json
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet20100401AccountsAccountSidConferencesConferenceSidParticipantsJsonQueryKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    '/2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Participants.json',
+    args,
+  ] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Participants.json
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet20100401AccountsAccountSidConferencesConferenceSidParticipantsJsonQueryOptions =
+  (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants.json']['$get']
+    >,
+    clientOptions?: ClientRequestOptions,
+  ) => ({
+    queryKey:
+      getGet20100401AccountsAccountSidConferencesConferenceSidParticipantsJsonQueryKey(args),
+    queryFn: ({ signal }: QueryFunctionContext) =>
+      parseResponse(
+        client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'][
+          'Participants.json'
+        ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })
+
+/**
  * GET /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Participants.json
  *
  * Retrieve a list of participants belonging to the account used to make the request
@@ -5687,43 +5813,6 @@ export function createGet20100401AccountsAccountSidConferencesConferenceSidParti
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Participants.json
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet20100401AccountsAccountSidConferencesConferenceSidParticipantsJsonQueryKey(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants.json']['$get']
-  >,
-) {
-  return [
-    '/2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Participants.json',
-    args,
-  ] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Participants.json
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet20100401AccountsAccountSidConferencesConferenceSidParticipantsJsonQueryOptions =
-  (
-    args: InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants.json']['$get']
-    >,
-    clientOptions?: ClientRequestOptions,
-  ) => ({
-    queryKey:
-      getGet20100401AccountsAccountSidConferencesConferenceSidParticipantsJsonQueryKey(args),
-    queryFn: ({ signal }: { signal: AbortSignal }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'][
-          'Participants.json'
-        ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-  })
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Participants.json
@@ -5853,6 +5942,39 @@ export function createPost20100401AccountsAccountSidCallsCallSidPaymentsSidJson(
 }
 
 /**
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Queues/{Sid.json}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet20100401AccountsAccountSidQueuesSidJsonQueryKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$get']
+  >,
+) {
+  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/Queues/:Sid.json', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Queues/{Sid.json}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet20100401AccountsAccountSidQueuesSidJsonQueryOptions = (
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$get']
+  >,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet20100401AccountsAccountSidQueuesSidJsonQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].Queues[':Sid.json'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /2010-04-01/Accounts/{AccountSid}/Queues/{Sid}.json
  *
  * Fetch an instance of a queue identified by the QueueSid
@@ -5888,39 +6010,6 @@ export function createGet20100401AccountsAccountSidQueuesSidJson(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Queues/{Sid.json}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet20100401AccountsAccountSidQueuesSidJsonQueryKey(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$get']
-  >,
-) {
-  return ['/2010-04-01/Accounts/:AccountSid/Queues/:Sid.json', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Queues/{Sid.json}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet20100401AccountsAccountSidQueuesSidJsonQueryOptions = (
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGet20100401AccountsAccountSidQueuesSidJsonQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['2010-04-01'].Accounts[':AccountSid'].Queues[':Sid.json'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/Queues/{Sid}.json
@@ -6009,6 +6098,39 @@ export function createDelete20100401AccountsAccountSidQueuesSidJson(options?: {
 }
 
 /**
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Queues.json
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet20100401AccountsAccountSidQueuesJsonQueryKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues.json']['$get']
+  >,
+) {
+  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/Queues.json', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Queues.json
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet20100401AccountsAccountSidQueuesJsonQueryOptions = (
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues.json']['$get']
+  >,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet20100401AccountsAccountSidQueuesJsonQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid']['Queues.json'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /2010-04-01/Accounts/{AccountSid}/Queues.json
  *
  * Retrieve a list of queues belonging to the account used to make the request
@@ -6044,39 +6166,6 @@ export function createGet20100401AccountsAccountSidQueuesJson(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Queues.json
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet20100401AccountsAccountSidQueuesJsonQueryKey(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues.json']['$get']
-  >,
-) {
-  return ['/2010-04-01/Accounts/:AccountSid/Queues.json', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Queues.json
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet20100401AccountsAccountSidQueuesJsonQueryOptions = (
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGet20100401AccountsAccountSidQueuesJsonQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['2010-04-01'].Accounts[':AccountSid']['Queues.json'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/Queues.json
@@ -6207,6 +6296,39 @@ export function createPost20100401AccountsAccountSidCallsCallSidTranscriptionsSi
 }
 
 /**
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{Sid.json}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet20100401AccountsAccountSidRecordingsSidJsonQueryKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':Sid.json']['$get']
+  >,
+) {
+  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/Recordings/:Sid.json', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{Sid.json}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet20100401AccountsAccountSidRecordingsSidJsonQueryOptions = (
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':Sid.json']['$get']
+  >,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet20100401AccountsAccountSidRecordingsSidJsonQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].Recordings[':Sid.json'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /2010-04-01/Accounts/{AccountSid}/Recordings/{Sid}.json
  *
  * Fetch an instance of a recording
@@ -6242,39 +6364,6 @@ export function createGet20100401AccountsAccountSidRecordingsSidJson(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{Sid.json}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet20100401AccountsAccountSidRecordingsSidJsonQueryKey(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':Sid.json']['$get']
-  >,
-) {
-  return ['/2010-04-01/Accounts/:AccountSid/Recordings/:Sid.json', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{Sid.json}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet20100401AccountsAccountSidRecordingsSidJsonQueryOptions = (
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':Sid.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGet20100401AccountsAccountSidRecordingsSidJsonQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['2010-04-01'].Accounts[':AccountSid'].Recordings[':Sid.json'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * DELETE /2010-04-01/Accounts/{AccountSid}/Recordings/{Sid}.json
@@ -6322,6 +6411,39 @@ export function createDelete20100401AccountsAccountSidRecordingsSidJson(options?
 }
 
 /**
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings.json
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet20100401AccountsAccountSidRecordingsJsonQueryKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings.json']['$get']
+  >,
+) {
+  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/Recordings.json', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Recordings.json
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet20100401AccountsAccountSidRecordingsJsonQueryOptions = (
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings.json']['$get']
+  >,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet20100401AccountsAccountSidRecordingsJsonQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid']['Recordings.json'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /2010-04-01/Accounts/{AccountSid}/Recordings.json
  *
  * Retrieve a list of recordings belonging to the account used to make the request
@@ -6359,37 +6481,42 @@ export function createGet20100401AccountsAccountSidRecordingsJson(
 }
 
 /**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings.json
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{Sid.json}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGet20100401AccountsAccountSidRecordingsJsonQueryKey(
+export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsSidJsonQueryKey(
   args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings.json']['$get']
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':Sid.json']['$get']
   >,
 ) {
-  return ['/2010-04-01/Accounts/:AccountSid/Recordings.json', args] as const
+  return [
+    '2010-04-01',
+    '/2010-04-01/Accounts/:AccountSid/Recordings/:ReferenceSid/AddOnResults/:Sid.json',
+    args,
+  ] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Recordings.json
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{Sid.json}
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGet20100401AccountsAccountSidRecordingsJsonQueryOptions = (
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGet20100401AccountsAccountSidRecordingsJsonQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['2010-04-01'].Accounts[':AccountSid']['Recordings.json'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
+export const getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsSidJsonQueryOptions =
+  (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':Sid.json']['$get']
+    >,
+    clientOptions?: ClientRequestOptions,
+  ) => ({
+    queryKey:
+      getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsSidJsonQueryKey(args),
+    queryFn: ({ signal }: QueryFunctionContext) =>
+      parseResponse(
+        client['2010-04-01'].Accounts[':AccountSid'].Recordings[':ReferenceSid'].AddOnResults[
+          ':Sid.json'
+        ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })
 
 /**
  * GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{Sid}.json
@@ -6430,43 +6557,6 @@ export function createGet20100401AccountsAccountSidRecordingsReferenceSidAddOnRe
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{Sid.json}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsSidJsonQueryKey(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':Sid.json']['$get']
-  >,
-) {
-  return [
-    '/2010-04-01/Accounts/:AccountSid/Recordings/:ReferenceSid/AddOnResults/:Sid.json',
-    args,
-  ] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{Sid.json}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsSidJsonQueryOptions =
-  (
-    args: InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':Sid.json']['$get']
-    >,
-    clientOptions?: ClientRequestOptions,
-  ) => ({
-    queryKey:
-      getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsSidJsonQueryKey(args),
-    queryFn: ({ signal }: { signal: AbortSignal }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Recordings[':ReferenceSid'].AddOnResults[
-          ':Sid.json'
-        ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-  })
 
 /**
  * DELETE /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{Sid}.json
@@ -6513,6 +6603,42 @@ export function createDelete20100401AccountsAccountSidRecordingsReferenceSidAddO
 }
 
 /**
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults.json
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsJsonQueryKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    '/2010-04-01/Accounts/:AccountSid/Recordings/:ReferenceSid/AddOnResults.json',
+    args,
+  ] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults.json
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsJsonQueryOptions = (
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults.json']['$get']
+  >,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsJsonQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].Recordings[':ReferenceSid'][
+        'AddOnResults.json'
+      ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
+
+/**
  * GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults.json
  *
  * Retrieve a list of results belonging to the recording
@@ -6553,39 +6679,47 @@ export function createGet20100401AccountsAccountSidRecordingsReferenceSidAddOnRe
 }
 
 /**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults.json
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{AddOnResultSid}/Payloads/{Sid.json}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsJsonQueryKey(
+export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsSidJsonQueryKey(
   args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults.json']['$get']
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':Sid.json']['$get']
   >,
 ) {
   return [
-    '/2010-04-01/Accounts/:AccountSid/Recordings/:ReferenceSid/AddOnResults.json',
+    '2010-04-01',
+    '/2010-04-01/Accounts/:AccountSid/Recordings/:ReferenceSid/AddOnResults/:AddOnResultSid/Payloads/:Sid.json',
     args,
   ] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults.json
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{AddOnResultSid}/Payloads/{Sid.json}
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsJsonQueryOptions = (
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsJsonQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['2010-04-01'].Accounts[':AccountSid'].Recordings[':ReferenceSid'][
-        'AddOnResults.json'
-      ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-    ),
-})
+export const getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsSidJsonQueryOptions =
+  (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':Sid.json']['$get']
+    >,
+    clientOptions?: ClientRequestOptions,
+  ) => ({
+    queryKey:
+      getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsSidJsonQueryKey(
+        args,
+      ),
+    queryFn: ({ signal }: QueryFunctionContext) =>
+      parseResponse(
+        client['2010-04-01'].Accounts[':AccountSid'].Recordings[':ReferenceSid'].AddOnResults[
+          ':AddOnResultSid'
+        ].Payloads[':Sid.json'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{AddOnResultSid}/Payloads/{Sid}.json
@@ -6626,48 +6760,6 @@ export function createGet20100401AccountsAccountSidRecordingsReferenceSidAddOnRe
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{AddOnResultSid}/Payloads/{Sid.json}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsSidJsonQueryKey(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':Sid.json']['$get']
-  >,
-) {
-  return [
-    '/2010-04-01/Accounts/:AccountSid/Recordings/:ReferenceSid/AddOnResults/:AddOnResultSid/Payloads/:Sid.json',
-    args,
-  ] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{AddOnResultSid}/Payloads/{Sid.json}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsSidJsonQueryOptions =
-  (
-    args: InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':Sid.json']['$get']
-    >,
-    clientOptions?: ClientRequestOptions,
-  ) => ({
-    queryKey:
-      getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsSidJsonQueryKey(
-        args,
-      ),
-    queryFn: ({ signal }: { signal: AbortSignal }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Recordings[':ReferenceSid'].AddOnResults[
-          ':AddOnResultSid'
-        ].Payloads[':Sid.json'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
 
 /**
  * DELETE /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{AddOnResultSid}/Payloads/{Sid}.json
@@ -6714,6 +6806,49 @@ export function createDelete20100401AccountsAccountSidRecordingsReferenceSidAddO
 }
 
 /**
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{AddOnResultSid}/Payloads.json
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsJsonQueryKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    '/2010-04-01/Accounts/:AccountSid/Recordings/:ReferenceSid/AddOnResults/:AddOnResultSid/Payloads.json',
+    args,
+  ] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{AddOnResultSid}/Payloads.json
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsJsonQueryOptions =
+  (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads.json']['$get']
+    >,
+    clientOptions?: ClientRequestOptions,
+  ) => ({
+    queryKey:
+      getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsJsonQueryKey(
+        args,
+      ),
+    queryFn: ({ signal }: QueryFunctionContext) =>
+      parseResponse(
+        client['2010-04-01'].Accounts[':AccountSid'].Recordings[':ReferenceSid'].AddOnResults[
+          ':AddOnResultSid'
+        ]['Payloads.json'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
+
+/**
  * GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{AddOnResultSid}/Payloads.json
  *
  * Retrieve a list of payloads belonging to the AddOnResult
@@ -6754,41 +6889,42 @@ export function createGet20100401AccountsAccountSidRecordingsReferenceSidAddOnRe
 }
 
 /**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{AddOnResultSid}/Payloads.json
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{AddOnResultSid}/Payloads/{PayloadSid}/Data.json
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsJsonQueryKey(
+export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsPayloadSidDataJsonQueryKey(
   args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads.json']['$get']
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':PayloadSid']['Data.json']['$get']
   >,
 ) {
   return [
-    '/2010-04-01/Accounts/:AccountSid/Recordings/:ReferenceSid/AddOnResults/:AddOnResultSid/Payloads.json',
+    '2010-04-01',
+    '/2010-04-01/Accounts/:AccountSid/Recordings/:ReferenceSid/AddOnResults/:AddOnResultSid/Payloads/:PayloadSid/Data.json',
     args,
   ] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{AddOnResultSid}/Payloads.json
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{AddOnResultSid}/Payloads/{PayloadSid}/Data.json
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsJsonQueryOptions =
+export const getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsPayloadSidDataJsonQueryOptions =
   (
     args: InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads.json']['$get']
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':PayloadSid']['Data.json']['$get']
     >,
     clientOptions?: ClientRequestOptions,
   ) => ({
     queryKey:
-      getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsJsonQueryKey(
+      getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsPayloadSidDataJsonQueryKey(
         args,
       ),
-    queryFn: ({ signal }: { signal: AbortSignal }) =>
+    queryFn: ({ signal }: QueryFunctionContext) =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Recordings[':ReferenceSid'].AddOnResults[
           ':AddOnResultSid'
-        ]['Payloads.json'].$get(args, {
+        ].Payloads[':PayloadSid']['Data.json'].$get(args, {
           ...clientOptions,
           init: { ...clientOptions?.init, signal },
         }),
@@ -6836,44 +6972,40 @@ export function createGet20100401AccountsAccountSidRecordingsReferenceSidAddOnRe
 }
 
 /**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{AddOnResultSid}/Payloads/{PayloadSid}/Data.json
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{RecordingSid}/Transcriptions/{Sid.json}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsPayloadSidDataJsonQueryKey(
+export function getGet20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsSidJsonQueryKey(
   args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':PayloadSid']['Data.json']['$get']
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions'][':Sid.json']['$get']
   >,
 ) {
   return [
-    '/2010-04-01/Accounts/:AccountSid/Recordings/:ReferenceSid/AddOnResults/:AddOnResultSid/Payloads/:PayloadSid/Data.json',
+    '2010-04-01',
+    '/2010-04-01/Accounts/:AccountSid/Recordings/:RecordingSid/Transcriptions/:Sid.json',
     args,
   ] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{AddOnResultSid}/Payloads/{PayloadSid}/Data.json
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{RecordingSid}/Transcriptions/{Sid.json}
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsPayloadSidDataJsonQueryOptions =
+export const getGet20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsSidJsonQueryOptions =
   (
     args: InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':PayloadSid']['Data.json']['$get']
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions'][':Sid.json']['$get']
     >,
     clientOptions?: ClientRequestOptions,
   ) => ({
     queryKey:
-      getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsPayloadSidDataJsonQueryKey(
-        args,
-      ),
-    queryFn: ({ signal }: { signal: AbortSignal }) =>
+      getGet20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsSidJsonQueryKey(args),
+    queryFn: ({ signal }: QueryFunctionContext) =>
       parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Recordings[':ReferenceSid'].AddOnResults[
-          ':AddOnResultSid'
-        ].Payloads[':PayloadSid']['Data.json'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
+        client['2010-04-01'].Accounts[':AccountSid'].Recordings[':RecordingSid'].Transcriptions[
+          ':Sid.json'
+        ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
   })
 
@@ -6912,43 +7044,6 @@ export function createGet20100401AccountsAccountSidRecordingsRecordingSidTranscr
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{RecordingSid}/Transcriptions/{Sid.json}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsSidJsonQueryKey(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions'][':Sid.json']['$get']
-  >,
-) {
-  return [
-    '/2010-04-01/Accounts/:AccountSid/Recordings/:RecordingSid/Transcriptions/:Sid.json',
-    args,
-  ] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{RecordingSid}/Transcriptions/{Sid.json}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsSidJsonQueryOptions =
-  (
-    args: InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions'][':Sid.json']['$get']
-    >,
-    clientOptions?: ClientRequestOptions,
-  ) => ({
-    queryKey:
-      getGet20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsSidJsonQueryKey(args),
-    queryFn: ({ signal }: { signal: AbortSignal }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Recordings[':RecordingSid'].Transcriptions[
-          ':Sid.json'
-        ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-  })
 
 /**
  * DELETE /2010-04-01/Accounts/{AccountSid}/Recordings/{RecordingSid}/Transcriptions/{Sid}.json
@@ -6991,6 +7086,44 @@ export function createDelete20100401AccountsAccountSidRecordingsRecordingSidTran
 }
 
 /**
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{RecordingSid}/Transcriptions.json
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsJsonQueryKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    '/2010-04-01/Accounts/:AccountSid/Recordings/:RecordingSid/Transcriptions.json',
+    args,
+  ] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{RecordingSid}/Transcriptions.json
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsJsonQueryOptions =
+  (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions.json']['$get']
+    >,
+    clientOptions?: ClientRequestOptions,
+  ) => ({
+    queryKey:
+      getGet20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsJsonQueryKey(args),
+    queryFn: ({ signal }: QueryFunctionContext) =>
+      parseResponse(
+        client['2010-04-01'].Accounts[':AccountSid'].Recordings[':RecordingSid'][
+          'Transcriptions.json'
+        ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })
+
+/**
  * GET /2010-04-01/Accounts/{AccountSid}/Recordings/{RecordingSid}/Transcriptions.json
  */
 export function createGet20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsJson(
@@ -7027,41 +7160,37 @@ export function createGet20100401AccountsAccountSidRecordingsRecordingSidTranscr
 }
 
 /**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{RecordingSid}/Transcriptions.json
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SMS/ShortCodes/{Sid.json}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGet20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsJsonQueryKey(
+export function getGet20100401AccountsAccountSidSMSShortCodesSidJsonQueryKey(
   args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions.json']['$get']
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes'][':Sid.json']['$get']
   >,
 ) {
-  return [
-    '/2010-04-01/Accounts/:AccountSid/Recordings/:RecordingSid/Transcriptions.json',
-    args,
-  ] as const
+  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/SMS/ShortCodes/:Sid.json', args] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{RecordingSid}/Transcriptions.json
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/SMS/ShortCodes/{Sid.json}
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGet20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsJsonQueryOptions =
-  (
-    args: InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions.json']['$get']
-    >,
-    clientOptions?: ClientRequestOptions,
-  ) => ({
-    queryKey:
-      getGet20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsJsonQueryKey(args),
-    queryFn: ({ signal }: { signal: AbortSignal }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Recordings[':RecordingSid'][
-          'Transcriptions.json'
-        ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-  })
+export const getGet20100401AccountsAccountSidSMSShortCodesSidJsonQueryOptions = (
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes'][':Sid.json']['$get']
+  >,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet20100401AccountsAccountSidSMSShortCodesSidJsonQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].SMS.ShortCodes[':Sid.json'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /2010-04-01/Accounts/{AccountSid}/SMS/ShortCodes/{Sid}.json
@@ -7099,39 +7228,6 @@ export function createGet20100401AccountsAccountSidSMSShortCodesSidJson(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SMS/ShortCodes/{Sid.json}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet20100401AccountsAccountSidSMSShortCodesSidJsonQueryKey(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes'][':Sid.json']['$get']
-  >,
-) {
-  return ['/2010-04-01/Accounts/:AccountSid/SMS/ShortCodes/:Sid.json', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/SMS/ShortCodes/{Sid.json}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet20100401AccountsAccountSidSMSShortCodesSidJsonQueryOptions = (
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes'][':Sid.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGet20100401AccountsAccountSidSMSShortCodesSidJsonQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['2010-04-01'].Accounts[':AccountSid'].SMS.ShortCodes[':Sid.json'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/SMS/ShortCodes/{Sid}.json
@@ -7178,6 +7274,39 @@ export function createPost20100401AccountsAccountSidSMSShortCodesSidJson(options
 }
 
 /**
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SMS/ShortCodes.json
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet20100401AccountsAccountSidSMSShortCodesJsonQueryKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes.json']['$get']
+  >,
+) {
+  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/SMS/ShortCodes.json', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/SMS/ShortCodes.json
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet20100401AccountsAccountSidSMSShortCodesJsonQueryOptions = (
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes.json']['$get']
+  >,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet20100401AccountsAccountSidSMSShortCodesJsonQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].SMS['ShortCodes.json'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /2010-04-01/Accounts/{AccountSid}/SMS/ShortCodes.json
  *
  * Retrieve a list of short-codes belonging to the account used to make the request
@@ -7215,32 +7344,32 @@ export function createGet20100401AccountsAccountSidSMSShortCodesJson(
 }
 
 /**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SMS/ShortCodes.json
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SigningKeys/{Sid.json}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGet20100401AccountsAccountSidSMSShortCodesJsonQueryKey(
+export function getGet20100401AccountsAccountSidSigningKeysSidJsonQueryKey(
   args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes.json']['$get']
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$get']
   >,
 ) {
-  return ['/2010-04-01/Accounts/:AccountSid/SMS/ShortCodes.json', args] as const
+  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/SigningKeys/:Sid.json', args] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/SMS/ShortCodes.json
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/SigningKeys/{Sid.json}
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGet20100401AccountsAccountSidSMSShortCodesJsonQueryOptions = (
+export const getGet20100401AccountsAccountSidSigningKeysSidJsonQueryOptions = (
   args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes.json']['$get']
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGet20100401AccountsAccountSidSMSShortCodesJsonQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGet20100401AccountsAccountSidSigningKeysSidJsonQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client['2010-04-01'].Accounts[':AccountSid'].SMS['ShortCodes.json'].$get(args, {
+      client['2010-04-01'].Accounts[':AccountSid'].SigningKeys[':Sid.json'].$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -7279,39 +7408,6 @@ export function createGet20100401AccountsAccountSidSigningKeysSidJson(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SigningKeys/{Sid.json}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet20100401AccountsAccountSidSigningKeysSidJsonQueryKey(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$get']
-  >,
-) {
-  return ['/2010-04-01/Accounts/:AccountSid/SigningKeys/:Sid.json', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/SigningKeys/{Sid.json}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet20100401AccountsAccountSidSigningKeysSidJsonQueryOptions = (
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGet20100401AccountsAccountSidSigningKeysSidJsonQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['2010-04-01'].Accounts[':AccountSid'].SigningKeys[':Sid.json'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/SigningKeys/{Sid}.json
@@ -7395,6 +7491,46 @@ export function createDelete20100401AccountsAccountSidSigningKeysSidJson(options
 }
 
 /**
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/CredentialListMappings.json
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsJsonQueryKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Calls/CredentialListMappings.json',
+    args,
+  ] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/CredentialListMappings.json
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsJsonQueryOptions =
+  (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings.json']['$get']
+    >,
+    clientOptions?: ClientRequestOptions,
+  ) => ({
+    queryKey:
+      getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsJsonQueryKey(
+        args,
+      ),
+    queryFn: ({ signal }: QueryFunctionContext) =>
+      parseResponse(
+        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'].Auth.Calls[
+          'CredentialListMappings.json'
+        ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })
+
+/**
  * GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/CredentialListMappings.json
  *
  * Retrieve a list of credential list mappings belonging to the domain used in the request
@@ -7433,45 +7569,6 @@ export function createGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsC
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/CredentialListMappings.json
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsJsonQueryKey(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings.json']['$get']
-  >,
-) {
-  return [
-    '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Calls/CredentialListMappings.json',
-    args,
-  ] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/CredentialListMappings.json
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsJsonQueryOptions =
-  (
-    args: InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings.json']['$get']
-    >,
-    clientOptions?: ClientRequestOptions,
-  ) => ({
-    queryKey:
-      getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsJsonQueryKey(
-        args,
-      ),
-    queryFn: ({ signal }: { signal: AbortSignal }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'].Auth.Calls[
-          'CredentialListMappings.json'
-        ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-  })
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/CredentialListMappings.json
@@ -7517,6 +7614,49 @@ export function createPost20100401AccountsAccountSidSIPDomainsDomainSidAuthCalls
 }
 
 /**
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/CredentialListMappings/{Sid.json}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsSidJsonQueryKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings'][':Sid.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Calls/CredentialListMappings/:Sid.json',
+    args,
+  ] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/CredentialListMappings/{Sid.json}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsSidJsonQueryOptions =
+  (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings'][':Sid.json']['$get']
+    >,
+    clientOptions?: ClientRequestOptions,
+  ) => ({
+    queryKey:
+      getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsSidJsonQueryKey(
+        args,
+      ),
+    queryFn: ({ signal }: QueryFunctionContext) =>
+      parseResponse(
+        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
+          ':DomainSid'
+        ].Auth.Calls.CredentialListMappings[':Sid.json'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
+
+/**
  * GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/CredentialListMappings/{Sid}.json
  *
  * Fetch a specific instance of a credential list mapping
@@ -7555,48 +7695,6 @@ export function createGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsC
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/CredentialListMappings/{Sid.json}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsSidJsonQueryKey(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings'][':Sid.json']['$get']
-  >,
-) {
-  return [
-    '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Calls/CredentialListMappings/:Sid.json',
-    args,
-  ] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/CredentialListMappings/{Sid.json}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsSidJsonQueryOptions =
-  (
-    args: InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings'][':Sid.json']['$get']
-    >,
-    clientOptions?: ClientRequestOptions,
-  ) => ({
-    queryKey:
-      getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsSidJsonQueryKey(
-        args,
-      ),
-    queryFn: ({ signal }: { signal: AbortSignal }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
-          ':DomainSid'
-        ].Auth.Calls.CredentialListMappings[':Sid.json'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
 
 /**
  * DELETE /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/CredentialListMappings/{Sid}.json
@@ -7643,6 +7741,46 @@ export function createDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthCal
 }
 
 /**
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/IpAccessControlListMappings.json
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsJsonQueryKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Calls/IpAccessControlListMappings.json',
+    args,
+  ] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/IpAccessControlListMappings.json
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsJsonQueryOptions =
+  (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings.json']['$get']
+    >,
+    clientOptions?: ClientRequestOptions,
+  ) => ({
+    queryKey:
+      getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsJsonQueryKey(
+        args,
+      ),
+    queryFn: ({ signal }: QueryFunctionContext) =>
+      parseResponse(
+        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'].Auth.Calls[
+          'IpAccessControlListMappings.json'
+        ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })
+
+/**
  * GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/IpAccessControlListMappings.json
  *
  * Retrieve a list of IP Access Control List mappings belonging to the domain used in the request
@@ -7681,45 +7819,6 @@ export function createGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsI
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/IpAccessControlListMappings.json
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsJsonQueryKey(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings.json']['$get']
-  >,
-) {
-  return [
-    '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Calls/IpAccessControlListMappings.json',
-    args,
-  ] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/IpAccessControlListMappings.json
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsJsonQueryOptions =
-  (
-    args: InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings.json']['$get']
-    >,
-    clientOptions?: ClientRequestOptions,
-  ) => ({
-    queryKey:
-      getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsJsonQueryKey(
-        args,
-      ),
-    queryFn: ({ signal }: { signal: AbortSignal }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'].Auth.Calls[
-          'IpAccessControlListMappings.json'
-        ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-  })
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/IpAccessControlListMappings.json
@@ -7765,6 +7864,49 @@ export function createPost20100401AccountsAccountSidSIPDomainsDomainSidAuthCalls
 }
 
 /**
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/IpAccessControlListMappings/{Sid.json}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsSidJsonQueryKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings'][':Sid.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Calls/IpAccessControlListMappings/:Sid.json',
+    args,
+  ] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/IpAccessControlListMappings/{Sid.json}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsSidJsonQueryOptions =
+  (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings'][':Sid.json']['$get']
+    >,
+    clientOptions?: ClientRequestOptions,
+  ) => ({
+    queryKey:
+      getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsSidJsonQueryKey(
+        args,
+      ),
+    queryFn: ({ signal }: QueryFunctionContext) =>
+      parseResponse(
+        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
+          ':DomainSid'
+        ].Auth.Calls.IpAccessControlListMappings[':Sid.json'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
+
+/**
  * GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/IpAccessControlListMappings/{Sid}.json
  *
  * Fetch a specific instance of an IP Access Control List mapping
@@ -7803,48 +7945,6 @@ export function createGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsI
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/IpAccessControlListMappings/{Sid.json}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsSidJsonQueryKey(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings'][':Sid.json']['$get']
-  >,
-) {
-  return [
-    '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Calls/IpAccessControlListMappings/:Sid.json',
-    args,
-  ] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/IpAccessControlListMappings/{Sid.json}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsSidJsonQueryOptions =
-  (
-    args: InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings'][':Sid.json']['$get']
-    >,
-    clientOptions?: ClientRequestOptions,
-  ) => ({
-    queryKey:
-      getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsSidJsonQueryKey(
-        args,
-      ),
-    queryFn: ({ signal }: { signal: AbortSignal }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
-          ':DomainSid'
-        ].Auth.Calls.IpAccessControlListMappings[':Sid.json'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
 
 /**
  * DELETE /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/IpAccessControlListMappings/{Sid}.json
@@ -7891,6 +7991,46 @@ export function createDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthCal
 }
 
 /**
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Registrations/CredentialListMappings.json
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsJsonQueryKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Registrations/CredentialListMappings.json',
+    args,
+  ] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Registrations/CredentialListMappings.json
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsJsonQueryOptions =
+  (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings.json']['$get']
+    >,
+    clientOptions?: ClientRequestOptions,
+  ) => ({
+    queryKey:
+      getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsJsonQueryKey(
+        args,
+      ),
+    queryFn: ({ signal }: QueryFunctionContext) =>
+      parseResponse(
+        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'].Auth.Registrations[
+          'CredentialListMappings.json'
+        ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })
+
+/**
  * GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Registrations/CredentialListMappings.json
  *
  * Retrieve a list of credential list mappings belonging to the domain used in the request
@@ -7929,45 +8069,6 @@ export function createGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegist
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Registrations/CredentialListMappings.json
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsJsonQueryKey(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings.json']['$get']
-  >,
-) {
-  return [
-    '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Registrations/CredentialListMappings.json',
-    args,
-  ] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Registrations/CredentialListMappings.json
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsJsonQueryOptions =
-  (
-    args: InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings.json']['$get']
-    >,
-    clientOptions?: ClientRequestOptions,
-  ) => ({
-    queryKey:
-      getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsJsonQueryKey(
-        args,
-      ),
-    queryFn: ({ signal }: { signal: AbortSignal }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'].Auth.Registrations[
-          'CredentialListMappings.json'
-        ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-  })
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Registrations/CredentialListMappings.json
@@ -8013,6 +8114,49 @@ export function createPost20100401AccountsAccountSidSIPDomainsDomainSidAuthRegis
 }
 
 /**
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Registrations/CredentialListMappings/{Sid.json}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsSidJsonQueryKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings'][':Sid.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Registrations/CredentialListMappings/:Sid.json',
+    args,
+  ] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Registrations/CredentialListMappings/{Sid.json}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsSidJsonQueryOptions =
+  (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings'][':Sid.json']['$get']
+    >,
+    clientOptions?: ClientRequestOptions,
+  ) => ({
+    queryKey:
+      getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsSidJsonQueryKey(
+        args,
+      ),
+    queryFn: ({ signal }: QueryFunctionContext) =>
+      parseResponse(
+        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
+          ':DomainSid'
+        ].Auth.Registrations.CredentialListMappings[':Sid.json'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
+
+/**
  * GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Registrations/CredentialListMappings/{Sid}.json
  *
  * Fetch a specific instance of a credential list mapping
@@ -8051,48 +8195,6 @@ export function createGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegist
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Registrations/CredentialListMappings/{Sid.json}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsSidJsonQueryKey(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings'][':Sid.json']['$get']
-  >,
-) {
-  return [
-    '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Registrations/CredentialListMappings/:Sid.json',
-    args,
-  ] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Registrations/CredentialListMappings/{Sid.json}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsSidJsonQueryOptions =
-  (
-    args: InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings'][':Sid.json']['$get']
-    >,
-    clientOptions?: ClientRequestOptions,
-  ) => ({
-    queryKey:
-      getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsSidJsonQueryKey(
-        args,
-      ),
-    queryFn: ({ signal }: { signal: AbortSignal }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
-          ':DomainSid'
-        ].Auth.Registrations.CredentialListMappings[':Sid.json'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
 
 /**
  * DELETE /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Registrations/CredentialListMappings/{Sid}.json
@@ -8139,6 +8241,46 @@ export function createDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthReg
 }
 
 /**
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{CredentialListSid}/Credentials.json
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsJsonQueryKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists/:CredentialListSid/Credentials.json',
+    args,
+  ] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{CredentialListSid}/Credentials.json
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsJsonQueryOptions =
+  (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials.json']['$get']
+    >,
+    clientOptions?: ClientRequestOptions,
+  ) => ({
+    queryKey:
+      getGet20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsJsonQueryKey(
+        args,
+      ),
+    queryFn: ({ signal }: QueryFunctionContext) =>
+      parseResponse(
+        client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[':CredentialListSid'][
+          'Credentials.json'
+        ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })
+
+/**
  * GET /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{CredentialListSid}/Credentials.json
  *
  * Retrieve a list of credentials.
@@ -8177,45 +8319,6 @@ export function createGet20100401AccountsAccountSidSIPCredentialListsCredentialL
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{CredentialListSid}/Credentials.json
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsJsonQueryKey(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials.json']['$get']
-  >,
-) {
-  return [
-    '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists/:CredentialListSid/Credentials.json',
-    args,
-  ] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{CredentialListSid}/Credentials.json
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsJsonQueryOptions =
-  (
-    args: InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials.json']['$get']
-    >,
-    clientOptions?: ClientRequestOptions,
-  ) => ({
-    queryKey:
-      getGet20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsJsonQueryKey(
-        args,
-      ),
-    queryFn: ({ signal }: { signal: AbortSignal }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[':CredentialListSid'][
-          'Credentials.json'
-        ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-  })
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{CredentialListSid}/Credentials.json
@@ -8261,6 +8364,49 @@ export function createPost20100401AccountsAccountSidSIPCredentialListsCredential
 }
 
 /**
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{CredentialListSid}/Credentials/{Sid.json}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJsonQueryKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists/:CredentialListSid/Credentials/:Sid.json',
+    args,
+  ] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{CredentialListSid}/Credentials/{Sid.json}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJsonQueryOptions =
+  (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$get']
+    >,
+    clientOptions?: ClientRequestOptions,
+  ) => ({
+    queryKey:
+      getGet20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJsonQueryKey(
+        args,
+      ),
+    queryFn: ({ signal }: QueryFunctionContext) =>
+      parseResponse(
+        client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[
+          ':CredentialListSid'
+        ].Credentials[':Sid.json'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
+
+/**
  * GET /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{CredentialListSid}/Credentials/{Sid}.json
  *
  * Fetch a single credential.
@@ -8299,48 +8445,6 @@ export function createGet20100401AccountsAccountSidSIPCredentialListsCredentialL
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{CredentialListSid}/Credentials/{Sid.json}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJsonQueryKey(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$get']
-  >,
-) {
-  return [
-    '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists/:CredentialListSid/Credentials/:Sid.json',
-    args,
-  ] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{CredentialListSid}/Credentials/{Sid.json}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJsonQueryOptions =
-  (
-    args: InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$get']
-    >,
-    clientOptions?: ClientRequestOptions,
-  ) => ({
-    queryKey:
-      getGet20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJsonQueryKey(
-        args,
-      ),
-    queryFn: ({ signal }: { signal: AbortSignal }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[
-          ':CredentialListSid'
-        ].Credentials[':Sid.json'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{CredentialListSid}/Credentials/{Sid}.json
@@ -8430,6 +8534,39 @@ export function createDelete20100401AccountsAccountSidSIPCredentialListsCredenti
 }
 
 /**
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists.json
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet20100401AccountsAccountSidSIPCredentialListsJsonQueryKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists.json']['$get']
+  >,
+) {
+  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists.json', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists.json
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet20100401AccountsAccountSidSIPCredentialListsJsonQueryOptions = (
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists.json']['$get']
+  >,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet20100401AccountsAccountSidSIPCredentialListsJsonQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].SIP['CredentialLists.json'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists.json
  *
  * Get All Credential Lists
@@ -8465,39 +8602,6 @@ export function createGet20100401AccountsAccountSidSIPCredentialListsJson(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists.json
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet20100401AccountsAccountSidSIPCredentialListsJsonQueryKey(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists.json']['$get']
-  >,
-) {
-  return ['/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists.json', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists.json
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet20100401AccountsAccountSidSIPCredentialListsJsonQueryOptions = (
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGet20100401AccountsAccountSidSIPCredentialListsJsonQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['2010-04-01'].Accounts[':AccountSid'].SIP['CredentialLists.json'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists.json
@@ -8544,6 +8648,43 @@ export function createPost20100401AccountsAccountSidSIPCredentialListsJson(optio
 }
 
 /**
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{Sid.json}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet20100401AccountsAccountSidSIPCredentialListsSidJsonQueryKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists/:Sid.json',
+    args,
+  ] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{Sid.json}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet20100401AccountsAccountSidSIPCredentialListsSidJsonQueryOptions = (
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$get']
+  >,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet20100401AccountsAccountSidSIPCredentialListsSidJsonQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[':Sid.json'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{Sid}.json
  *
  * Get a Credential List
@@ -8579,39 +8720,6 @@ export function createGet20100401AccountsAccountSidSIPCredentialListsSidJson(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{Sid.json}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet20100401AccountsAccountSidSIPCredentialListsSidJsonQueryKey(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$get']
-  >,
-) {
-  return ['/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists/:Sid.json', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{Sid.json}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet20100401AccountsAccountSidSIPCredentialListsSidJsonQueryOptions = (
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGet20100401AccountsAccountSidSIPCredentialListsSidJsonQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[':Sid.json'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{Sid}.json
@@ -8703,6 +8811,44 @@ export function createDelete20100401AccountsAccountSidSIPCredentialListsSidJson(
 }
 
 /**
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/CredentialListMappings.json
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsJsonQueryKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/CredentialListMappings.json',
+    args,
+  ] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/CredentialListMappings.json
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsJsonQueryOptions =
+  (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings.json']['$get']
+    >,
+    clientOptions?: ClientRequestOptions,
+  ) => ({
+    queryKey:
+      getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsJsonQueryKey(args),
+    queryFn: ({ signal }: QueryFunctionContext) =>
+      parseResponse(
+        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'][
+          'CredentialListMappings.json'
+        ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })
+
+/**
  * GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/CredentialListMappings.json
  *
  * Read multiple CredentialListMapping resources from an account.
@@ -8741,43 +8887,6 @@ export function createGet20100401AccountsAccountSidSIPDomainsDomainSidCredential
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/CredentialListMappings.json
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsJsonQueryKey(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings.json']['$get']
-  >,
-) {
-  return [
-    '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/CredentialListMappings.json',
-    args,
-  ] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/CredentialListMappings.json
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsJsonQueryOptions =
-  (
-    args: InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings.json']['$get']
-    >,
-    clientOptions?: ClientRequestOptions,
-  ) => ({
-    queryKey:
-      getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsJsonQueryKey(args),
-    queryFn: ({ signal }: { signal: AbortSignal }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'][
-          'CredentialListMappings.json'
-        ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-  })
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/CredentialListMappings.json
@@ -8823,6 +8932,49 @@ export function createPost20100401AccountsAccountSidSIPDomainsDomainSidCredentia
 }
 
 /**
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/CredentialListMappings/{Sid.json}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsSidJsonQueryKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings'][':Sid.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/CredentialListMappings/:Sid.json',
+    args,
+  ] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/CredentialListMappings/{Sid.json}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsSidJsonQueryOptions =
+  (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings'][':Sid.json']['$get']
+    >,
+    clientOptions?: ClientRequestOptions,
+  ) => ({
+    queryKey:
+      getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsSidJsonQueryKey(
+        args,
+      ),
+    queryFn: ({ signal }: QueryFunctionContext) =>
+      parseResponse(
+        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
+          ':DomainSid'
+        ].CredentialListMappings[':Sid.json'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
+
+/**
  * GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/CredentialListMappings/{Sid}.json
  *
  * Fetch a single CredentialListMapping resource from an account.
@@ -8861,48 +9013,6 @@ export function createGet20100401AccountsAccountSidSIPDomainsDomainSidCredential
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/CredentialListMappings/{Sid.json}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsSidJsonQueryKey(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings'][':Sid.json']['$get']
-  >,
-) {
-  return [
-    '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/CredentialListMappings/:Sid.json',
-    args,
-  ] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/CredentialListMappings/{Sid.json}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsSidJsonQueryOptions =
-  (
-    args: InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings'][':Sid.json']['$get']
-    >,
-    clientOptions?: ClientRequestOptions,
-  ) => ({
-    queryKey:
-      getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsSidJsonQueryKey(
-        args,
-      ),
-    queryFn: ({ signal }: { signal: AbortSignal }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
-          ':DomainSid'
-        ].CredentialListMappings[':Sid.json'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
 
 /**
  * DELETE /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/CredentialListMappings/{Sid}.json
@@ -8949,6 +9059,39 @@ export function createDelete20100401AccountsAccountSidSIPDomainsDomainSidCredent
 }
 
 /**
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains.json
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet20100401AccountsAccountSidSIPDomainsJsonQueryKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains.json']['$get']
+  >,
+) {
+  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/SIP/Domains.json', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains.json
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet20100401AccountsAccountSidSIPDomainsJsonQueryOptions = (
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains.json']['$get']
+  >,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet20100401AccountsAccountSidSIPDomainsJsonQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].SIP['Domains.json'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains.json
  *
  * Retrieve a list of domains belonging to the account used to make the request
@@ -8984,39 +9127,6 @@ export function createGet20100401AccountsAccountSidSIPDomainsJson(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains.json
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet20100401AccountsAccountSidSIPDomainsJsonQueryKey(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains.json']['$get']
-  >,
-) {
-  return ['/2010-04-01/Accounts/:AccountSid/SIP/Domains.json', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains.json
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet20100401AccountsAccountSidSIPDomainsJsonQueryOptions = (
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGet20100401AccountsAccountSidSIPDomainsJsonQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['2010-04-01'].Accounts[':AccountSid'].SIP['Domains.json'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains.json
@@ -9060,6 +9170,39 @@ export function createPost20100401AccountsAccountSidSIPDomainsJson(options?: {
 }
 
 /**
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{Sid.json}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet20100401AccountsAccountSidSIPDomainsSidJsonQueryKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$get']
+  >,
+) {
+  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:Sid.json', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{Sid.json}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet20100401AccountsAccountSidSIPDomainsSidJsonQueryOptions = (
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$get']
+  >,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet20100401AccountsAccountSidSIPDomainsSidJsonQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':Sid.json'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{Sid}.json
  *
  * Fetch an instance of a Domain
@@ -9095,39 +9238,6 @@ export function createGet20100401AccountsAccountSidSIPDomainsSidJson(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{Sid.json}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet20100401AccountsAccountSidSIPDomainsSidJsonQueryKey(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$get']
-  >,
-) {
-  return ['/2010-04-01/Accounts/:AccountSid/SIP/Domains/:Sid.json', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{Sid.json}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet20100401AccountsAccountSidSIPDomainsSidJsonQueryOptions = (
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGet20100401AccountsAccountSidSIPDomainsSidJsonQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':Sid.json'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{Sid}.json
@@ -9219,6 +9329,43 @@ export function createDelete20100401AccountsAccountSidSIPDomainsSidJson(options?
 }
 
 /**
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists.json
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet20100401AccountsAccountSidSIPIpAccessControlListsJsonQueryKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists.json',
+    args,
+  ] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists.json
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet20100401AccountsAccountSidSIPIpAccessControlListsJsonQueryOptions = (
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists.json']['$get']
+  >,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet20100401AccountsAccountSidSIPIpAccessControlListsJsonQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].SIP['IpAccessControlLists.json'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists.json
  *
  * Retrieve a list of IpAccessControlLists that belong to the account used to make the request
@@ -9254,39 +9401,6 @@ export function createGet20100401AccountsAccountSidSIPIpAccessControlListsJson(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists.json
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet20100401AccountsAccountSidSIPIpAccessControlListsJsonQueryKey(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists.json']['$get']
-  >,
-) {
-  return ['/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists.json', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists.json
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet20100401AccountsAccountSidSIPIpAccessControlListsJsonQueryOptions = (
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGet20100401AccountsAccountSidSIPIpAccessControlListsJsonQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['2010-04-01'].Accounts[':AccountSid'].SIP['IpAccessControlLists.json'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists.json
@@ -9333,6 +9447,43 @@ export function createPost20100401AccountsAccountSidSIPIpAccessControlListsJson(
 }
 
 /**
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{Sid.json}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet20100401AccountsAccountSidSIPIpAccessControlListsSidJsonQueryKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists/:Sid.json',
+    args,
+  ] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{Sid.json}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet20100401AccountsAccountSidSIPIpAccessControlListsSidJsonQueryOptions = (
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$get']
+  >,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet20100401AccountsAccountSidSIPIpAccessControlListsSidJsonQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[':Sid.json'].$get(
+        args,
+        { ...clientOptions, init: { ...clientOptions?.init, signal } },
+      ),
+    ),
+})
+
+/**
  * GET /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{Sid}.json
  *
  * Fetch a specific instance of an IpAccessControlList
@@ -9368,39 +9519,6 @@ export function createGet20100401AccountsAccountSidSIPIpAccessControlListsSidJso
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{Sid.json}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet20100401AccountsAccountSidSIPIpAccessControlListsSidJsonQueryKey(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$get']
-  >,
-) {
-  return ['/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists/:Sid.json', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{Sid.json}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet20100401AccountsAccountSidSIPIpAccessControlListsSidJsonQueryOptions = (
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGet20100401AccountsAccountSidSIPIpAccessControlListsSidJsonQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[':Sid.json'].$get(
-        args,
-        { ...clientOptions, init: { ...clientOptions?.init, signal } },
-      ),
-    ),
-})
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{Sid}.json
@@ -9492,6 +9610,49 @@ export function createDelete20100401AccountsAccountSidSIPIpAccessControlListsSid
 }
 
 /**
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/IpAccessControlListMappings/{Sid.json}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsSidJsonQueryKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings'][':Sid.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/IpAccessControlListMappings/:Sid.json',
+    args,
+  ] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/IpAccessControlListMappings/{Sid.json}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsSidJsonQueryOptions =
+  (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings'][':Sid.json']['$get']
+    >,
+    clientOptions?: ClientRequestOptions,
+  ) => ({
+    queryKey:
+      getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsSidJsonQueryKey(
+        args,
+      ),
+    queryFn: ({ signal }: QueryFunctionContext) =>
+      parseResponse(
+        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
+          ':DomainSid'
+        ].IpAccessControlListMappings[':Sid.json'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
+
+/**
  * GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/IpAccessControlListMappings/{Sid}.json
  *
  * Fetch an IpAccessControlListMapping resource.
@@ -9530,48 +9691,6 @@ export function createGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessCo
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/IpAccessControlListMappings/{Sid.json}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsSidJsonQueryKey(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings'][':Sid.json']['$get']
-  >,
-) {
-  return [
-    '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/IpAccessControlListMappings/:Sid.json',
-    args,
-  ] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/IpAccessControlListMappings/{Sid.json}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsSidJsonQueryOptions =
-  (
-    args: InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings'][':Sid.json']['$get']
-    >,
-    clientOptions?: ClientRequestOptions,
-  ) => ({
-    queryKey:
-      getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsSidJsonQueryKey(
-        args,
-      ),
-    queryFn: ({ signal }: { signal: AbortSignal }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
-          ':DomainSid'
-        ].IpAccessControlListMappings[':Sid.json'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
 
 /**
  * DELETE /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/IpAccessControlListMappings/{Sid}.json
@@ -9618,6 +9737,46 @@ export function createDelete20100401AccountsAccountSidSIPDomainsDomainSidIpAcces
 }
 
 /**
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/IpAccessControlListMappings.json
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsJsonQueryKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/IpAccessControlListMappings.json',
+    args,
+  ] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/IpAccessControlListMappings.json
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsJsonQueryOptions =
+  (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings.json']['$get']
+    >,
+    clientOptions?: ClientRequestOptions,
+  ) => ({
+    queryKey:
+      getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsJsonQueryKey(
+        args,
+      ),
+    queryFn: ({ signal }: QueryFunctionContext) =>
+      parseResponse(
+        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'][
+          'IpAccessControlListMappings.json'
+        ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })
+
+/**
  * GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/IpAccessControlListMappings.json
  *
  * Retrieve a list of IpAccessControlListMapping resources.
@@ -9656,45 +9815,6 @@ export function createGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessCo
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/IpAccessControlListMappings.json
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsJsonQueryKey(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings.json']['$get']
-  >,
-) {
-  return [
-    '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/IpAccessControlListMappings.json',
-    args,
-  ] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/IpAccessControlListMappings.json
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsJsonQueryOptions =
-  (
-    args: InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings.json']['$get']
-    >,
-    clientOptions?: ClientRequestOptions,
-  ) => ({
-    queryKey:
-      getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsJsonQueryKey(
-        args,
-      ),
-    queryFn: ({ signal }: { signal: AbortSignal }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'][
-          'IpAccessControlListMappings.json'
-        ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-  })
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/IpAccessControlListMappings.json
@@ -9740,6 +9860,49 @@ export function createPost20100401AccountsAccountSidSIPDomainsDomainSidIpAccessC
 }
 
 /**
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{IpAccessControlListSid}/IpAddresses.json
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesJsonQueryKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists/:IpAccessControlListSid/IpAddresses.json',
+    args,
+  ] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{IpAccessControlListSid}/IpAddresses.json
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesJsonQueryOptions =
+  (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses.json']['$get']
+    >,
+    clientOptions?: ClientRequestOptions,
+  ) => ({
+    queryKey:
+      getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesJsonQueryKey(
+        args,
+      ),
+    queryFn: ({ signal }: QueryFunctionContext) =>
+      parseResponse(
+        client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[
+          ':IpAccessControlListSid'
+        ]['IpAddresses.json'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
+
+/**
  * GET /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{IpAccessControlListSid}/IpAddresses.json
  *
  * Read multiple IpAddress resources.
@@ -9778,48 +9941,6 @@ export function createGet20100401AccountsAccountSidSIPIpAccessControlListsIpAcce
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{IpAccessControlListSid}/IpAddresses.json
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesJsonQueryKey(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses.json']['$get']
-  >,
-) {
-  return [
-    '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists/:IpAccessControlListSid/IpAddresses.json',
-    args,
-  ] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{IpAccessControlListSid}/IpAddresses.json
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesJsonQueryOptions =
-  (
-    args: InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses.json']['$get']
-    >,
-    clientOptions?: ClientRequestOptions,
-  ) => ({
-    queryKey:
-      getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesJsonQueryKey(
-        args,
-      ),
-    queryFn: ({ signal }: { signal: AbortSignal }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[
-          ':IpAccessControlListSid'
-        ]['IpAddresses.json'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{IpAccessControlListSid}/IpAddresses.json
@@ -9865,6 +9986,49 @@ export function createPost20100401AccountsAccountSidSIPIpAccessControlListsIpAcc
 }
 
 /**
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{IpAccessControlListSid}/IpAddresses/{Sid.json}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJsonQueryKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$get']
+  >,
+) {
+  return [
+    '2010-04-01',
+    '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists/:IpAccessControlListSid/IpAddresses/:Sid.json',
+    args,
+  ] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{IpAccessControlListSid}/IpAddresses/{Sid.json}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJsonQueryOptions =
+  (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$get']
+    >,
+    clientOptions?: ClientRequestOptions,
+  ) => ({
+    queryKey:
+      getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJsonQueryKey(
+        args,
+      ),
+    queryFn: ({ signal }: QueryFunctionContext) =>
+      parseResponse(
+        client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[
+          ':IpAccessControlListSid'
+        ].IpAddresses[':Sid.json'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
+
+/**
  * GET /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{IpAccessControlListSid}/IpAddresses/{Sid}.json
  *
  * Read one IpAddress resource.
@@ -9903,48 +10067,6 @@ export function createGet20100401AccountsAccountSidSIPIpAccessControlListsIpAcce
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{IpAccessControlListSid}/IpAddresses/{Sid.json}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJsonQueryKey(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$get']
-  >,
-) {
-  return [
-    '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists/:IpAccessControlListSid/IpAddresses/:Sid.json',
-    args,
-  ] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{IpAccessControlListSid}/IpAddresses/{Sid.json}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJsonQueryOptions =
-  (
-    args: InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$get']
-    >,
-    clientOptions?: ClientRequestOptions,
-  ) => ({
-    queryKey:
-      getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJsonQueryKey(
-        args,
-      ),
-    queryFn: ({ signal }: { signal: AbortSignal }) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[
-          ':IpAccessControlListSid'
-        ].IpAddresses[':Sid.json'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{IpAccessControlListSid}/IpAddresses/{Sid}.json
@@ -10251,6 +10373,39 @@ export function createPost20100401AccountsAccountSidTokensJson(options?: {
 }
 
 /**
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Transcriptions/{Sid.json}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet20100401AccountsAccountSidTranscriptionsSidJsonQueryKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions'][':Sid.json']['$get']
+  >,
+) {
+  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/Transcriptions/:Sid.json', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Transcriptions/{Sid.json}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet20100401AccountsAccountSidTranscriptionsSidJsonQueryOptions = (
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions'][':Sid.json']['$get']
+  >,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet20100401AccountsAccountSidTranscriptionsSidJsonQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].Transcriptions[':Sid.json'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /2010-04-01/Accounts/{AccountSid}/Transcriptions/{Sid}.json
  *
  * Fetch an instance of a Transcription
@@ -10286,39 +10441,6 @@ export function createGet20100401AccountsAccountSidTranscriptionsSidJson(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Transcriptions/{Sid.json}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet20100401AccountsAccountSidTranscriptionsSidJsonQueryKey(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions'][':Sid.json']['$get']
-  >,
-) {
-  return ['/2010-04-01/Accounts/:AccountSid/Transcriptions/:Sid.json', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Transcriptions/{Sid.json}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet20100401AccountsAccountSidTranscriptionsSidJsonQueryOptions = (
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions'][':Sid.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGet20100401AccountsAccountSidTranscriptionsSidJsonQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['2010-04-01'].Accounts[':AccountSid'].Transcriptions[':Sid.json'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * DELETE /2010-04-01/Accounts/{AccountSid}/Transcriptions/{Sid}.json
@@ -10366,6 +10488,39 @@ export function createDelete20100401AccountsAccountSidTranscriptionsSidJson(opti
 }
 
 /**
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Transcriptions.json
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet20100401AccountsAccountSidTranscriptionsJsonQueryKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions.json']['$get']
+  >,
+) {
+  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/Transcriptions.json', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Transcriptions.json
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet20100401AccountsAccountSidTranscriptionsJsonQueryOptions = (
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions.json']['$get']
+  >,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet20100401AccountsAccountSidTranscriptionsJsonQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid']['Transcriptions.json'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /2010-04-01/Accounts/{AccountSid}/Transcriptions.json
  *
  * Retrieve a list of transcriptions belonging to the account used to make the request
@@ -10403,32 +10558,32 @@ export function createGet20100401AccountsAccountSidTranscriptionsJson(
 }
 
 /**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Transcriptions.json
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records.json
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGet20100401AccountsAccountSidTranscriptionsJsonQueryKey(
+export function getGet20100401AccountsAccountSidUsageRecordsJsonQueryKey(
   args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions.json']['$get']
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records.json']['$get']
   >,
 ) {
-  return ['/2010-04-01/Accounts/:AccountSid/Transcriptions.json', args] as const
+  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/Usage/Records.json', args] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Transcriptions.json
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records.json
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGet20100401AccountsAccountSidTranscriptionsJsonQueryOptions = (
+export const getGet20100401AccountsAccountSidUsageRecordsJsonQueryOptions = (
   args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions.json']['$get']
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGet20100401AccountsAccountSidTranscriptionsJsonQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGet20100401AccountsAccountSidUsageRecordsJsonQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client['2010-04-01'].Accounts[':AccountSid']['Transcriptions.json'].$get(args, {
+      client['2010-04-01'].Accounts[':AccountSid'].Usage['Records.json'].$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -10473,32 +10628,36 @@ export function createGet20100401AccountsAccountSidUsageRecordsJson(
 }
 
 /**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records.json
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/AllTime.json
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGet20100401AccountsAccountSidUsageRecordsJsonQueryKey(
+export function getGet20100401AccountsAccountSidUsageRecordsAllTimeJsonQueryKey(
   args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records.json']['$get']
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['AllTime.json']['$get']
   >,
 ) {
-  return ['/2010-04-01/Accounts/:AccountSid/Usage/Records.json', args] as const
+  return [
+    '2010-04-01',
+    '/2010-04-01/Accounts/:AccountSid/Usage/Records/AllTime.json',
+    args,
+  ] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records.json
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/AllTime.json
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGet20100401AccountsAccountSidUsageRecordsJsonQueryOptions = (
+export const getGet20100401AccountsAccountSidUsageRecordsAllTimeJsonQueryOptions = (
   args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records.json']['$get']
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['AllTime.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGet20100401AccountsAccountSidUsageRecordsJsonQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGet20100401AccountsAccountSidUsageRecordsAllTimeJsonQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client['2010-04-01'].Accounts[':AccountSid'].Usage['Records.json'].$get(args, {
+      client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['AllTime.json'].$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -10539,32 +10698,32 @@ export function createGet20100401AccountsAccountSidUsageRecordsAllTimeJson(
 }
 
 /**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/AllTime.json
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Daily.json
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGet20100401AccountsAccountSidUsageRecordsAllTimeJsonQueryKey(
+export function getGet20100401AccountsAccountSidUsageRecordsDailyJsonQueryKey(
   args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['AllTime.json']['$get']
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Daily.json']['$get']
   >,
 ) {
-  return ['/2010-04-01/Accounts/:AccountSid/Usage/Records/AllTime.json', args] as const
+  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/Usage/Records/Daily.json', args] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/AllTime.json
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Daily.json
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGet20100401AccountsAccountSidUsageRecordsAllTimeJsonQueryOptions = (
+export const getGet20100401AccountsAccountSidUsageRecordsDailyJsonQueryOptions = (
   args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['AllTime.json']['$get']
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Daily.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGet20100401AccountsAccountSidUsageRecordsAllTimeJsonQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGet20100401AccountsAccountSidUsageRecordsDailyJsonQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['AllTime.json'].$get(args, {
+      client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['Daily.json'].$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -10605,32 +10764,36 @@ export function createGet20100401AccountsAccountSidUsageRecordsDailyJson(
 }
 
 /**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Daily.json
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/LastMonth.json
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGet20100401AccountsAccountSidUsageRecordsDailyJsonQueryKey(
+export function getGet20100401AccountsAccountSidUsageRecordsLastMonthJsonQueryKey(
   args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Daily.json']['$get']
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['LastMonth.json']['$get']
   >,
 ) {
-  return ['/2010-04-01/Accounts/:AccountSid/Usage/Records/Daily.json', args] as const
+  return [
+    '2010-04-01',
+    '/2010-04-01/Accounts/:AccountSid/Usage/Records/LastMonth.json',
+    args,
+  ] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Daily.json
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/LastMonth.json
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGet20100401AccountsAccountSidUsageRecordsDailyJsonQueryOptions = (
+export const getGet20100401AccountsAccountSidUsageRecordsLastMonthJsonQueryOptions = (
   args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Daily.json']['$get']
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['LastMonth.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGet20100401AccountsAccountSidUsageRecordsDailyJsonQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGet20100401AccountsAccountSidUsageRecordsLastMonthJsonQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['Daily.json'].$get(args, {
+      client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['LastMonth.json'].$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -10671,32 +10834,36 @@ export function createGet20100401AccountsAccountSidUsageRecordsLastMonthJson(
 }
 
 /**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/LastMonth.json
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Monthly.json
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGet20100401AccountsAccountSidUsageRecordsLastMonthJsonQueryKey(
+export function getGet20100401AccountsAccountSidUsageRecordsMonthlyJsonQueryKey(
   args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['LastMonth.json']['$get']
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Monthly.json']['$get']
   >,
 ) {
-  return ['/2010-04-01/Accounts/:AccountSid/Usage/Records/LastMonth.json', args] as const
+  return [
+    '2010-04-01',
+    '/2010-04-01/Accounts/:AccountSid/Usage/Records/Monthly.json',
+    args,
+  ] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/LastMonth.json
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Monthly.json
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGet20100401AccountsAccountSidUsageRecordsLastMonthJsonQueryOptions = (
+export const getGet20100401AccountsAccountSidUsageRecordsMonthlyJsonQueryOptions = (
   args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['LastMonth.json']['$get']
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Monthly.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGet20100401AccountsAccountSidUsageRecordsLastMonthJsonQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGet20100401AccountsAccountSidUsageRecordsMonthlyJsonQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['LastMonth.json'].$get(args, {
+      client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['Monthly.json'].$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -10737,32 +10904,36 @@ export function createGet20100401AccountsAccountSidUsageRecordsMonthlyJson(
 }
 
 /**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Monthly.json
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/ThisMonth.json
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGet20100401AccountsAccountSidUsageRecordsMonthlyJsonQueryKey(
+export function getGet20100401AccountsAccountSidUsageRecordsThisMonthJsonQueryKey(
   args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Monthly.json']['$get']
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['ThisMonth.json']['$get']
   >,
 ) {
-  return ['/2010-04-01/Accounts/:AccountSid/Usage/Records/Monthly.json', args] as const
+  return [
+    '2010-04-01',
+    '/2010-04-01/Accounts/:AccountSid/Usage/Records/ThisMonth.json',
+    args,
+  ] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Monthly.json
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/ThisMonth.json
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGet20100401AccountsAccountSidUsageRecordsMonthlyJsonQueryOptions = (
+export const getGet20100401AccountsAccountSidUsageRecordsThisMonthJsonQueryOptions = (
   args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Monthly.json']['$get']
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['ThisMonth.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGet20100401AccountsAccountSidUsageRecordsMonthlyJsonQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGet20100401AccountsAccountSidUsageRecordsThisMonthJsonQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['Monthly.json'].$get(args, {
+      client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['ThisMonth.json'].$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -10803,32 +10974,32 @@ export function createGet20100401AccountsAccountSidUsageRecordsThisMonthJson(
 }
 
 /**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/ThisMonth.json
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Today.json
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGet20100401AccountsAccountSidUsageRecordsThisMonthJsonQueryKey(
+export function getGet20100401AccountsAccountSidUsageRecordsTodayJsonQueryKey(
   args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['ThisMonth.json']['$get']
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Today.json']['$get']
   >,
 ) {
-  return ['/2010-04-01/Accounts/:AccountSid/Usage/Records/ThisMonth.json', args] as const
+  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/Usage/Records/Today.json', args] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/ThisMonth.json
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Today.json
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGet20100401AccountsAccountSidUsageRecordsThisMonthJsonQueryOptions = (
+export const getGet20100401AccountsAccountSidUsageRecordsTodayJsonQueryOptions = (
   args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['ThisMonth.json']['$get']
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Today.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGet20100401AccountsAccountSidUsageRecordsThisMonthJsonQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGet20100401AccountsAccountSidUsageRecordsTodayJsonQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['ThisMonth.json'].$get(args, {
+      client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['Today.json'].$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -10869,32 +11040,32 @@ export function createGet20100401AccountsAccountSidUsageRecordsTodayJson(
 }
 
 /**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Today.json
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Yearly.json
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGet20100401AccountsAccountSidUsageRecordsTodayJsonQueryKey(
+export function getGet20100401AccountsAccountSidUsageRecordsYearlyJsonQueryKey(
   args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Today.json']['$get']
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Yearly.json']['$get']
   >,
 ) {
-  return ['/2010-04-01/Accounts/:AccountSid/Usage/Records/Today.json', args] as const
+  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/Usage/Records/Yearly.json', args] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Today.json
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Yearly.json
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGet20100401AccountsAccountSidUsageRecordsTodayJsonQueryOptions = (
+export const getGet20100401AccountsAccountSidUsageRecordsYearlyJsonQueryOptions = (
   args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Today.json']['$get']
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Yearly.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGet20100401AccountsAccountSidUsageRecordsTodayJsonQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGet20100401AccountsAccountSidUsageRecordsYearlyJsonQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['Today.json'].$get(args, {
+      client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['Yearly.json'].$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -10935,32 +11106,36 @@ export function createGet20100401AccountsAccountSidUsageRecordsYearlyJson(
 }
 
 /**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Yearly.json
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Yesterday.json
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGet20100401AccountsAccountSidUsageRecordsYearlyJsonQueryKey(
+export function getGet20100401AccountsAccountSidUsageRecordsYesterdayJsonQueryKey(
   args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Yearly.json']['$get']
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Yesterday.json']['$get']
   >,
 ) {
-  return ['/2010-04-01/Accounts/:AccountSid/Usage/Records/Yearly.json', args] as const
+  return [
+    '2010-04-01',
+    '/2010-04-01/Accounts/:AccountSid/Usage/Records/Yesterday.json',
+    args,
+  ] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Yearly.json
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Yesterday.json
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGet20100401AccountsAccountSidUsageRecordsYearlyJsonQueryOptions = (
+export const getGet20100401AccountsAccountSidUsageRecordsYesterdayJsonQueryOptions = (
   args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Yearly.json']['$get']
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Yesterday.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGet20100401AccountsAccountSidUsageRecordsYearlyJsonQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGet20100401AccountsAccountSidUsageRecordsYesterdayJsonQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['Yearly.json'].$get(args, {
+      client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['Yesterday.json'].$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -11001,32 +11176,32 @@ export function createGet20100401AccountsAccountSidUsageRecordsYesterdayJson(
 }
 
 /**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Yesterday.json
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Triggers/{Sid.json}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGet20100401AccountsAccountSidUsageRecordsYesterdayJsonQueryKey(
+export function getGet20100401AccountsAccountSidUsageTriggersSidJsonQueryKey(
   args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Yesterday.json']['$get']
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$get']
   >,
 ) {
-  return ['/2010-04-01/Accounts/:AccountSid/Usage/Records/Yesterday.json', args] as const
+  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/Usage/Triggers/:Sid.json', args] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Yesterday.json
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Usage/Triggers/{Sid.json}
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGet20100401AccountsAccountSidUsageRecordsYesterdayJsonQueryOptions = (
+export const getGet20100401AccountsAccountSidUsageTriggersSidJsonQueryOptions = (
   args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Yesterday.json']['$get']
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGet20100401AccountsAccountSidUsageRecordsYesterdayJsonQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGet20100401AccountsAccountSidUsageTriggersSidJsonQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['Yesterday.json'].$get(args, {
+      client['2010-04-01'].Accounts[':AccountSid'].Usage.Triggers[':Sid.json'].$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -11069,39 +11244,6 @@ export function createGet20100401AccountsAccountSidUsageTriggersSidJson(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Triggers/{Sid.json}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet20100401AccountsAccountSidUsageTriggersSidJsonQueryKey(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$get']
-  >,
-) {
-  return ['/2010-04-01/Accounts/:AccountSid/Usage/Triggers/:Sid.json', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Usage/Triggers/{Sid.json}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet20100401AccountsAccountSidUsageTriggersSidJsonQueryOptions = (
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGet20100401AccountsAccountSidUsageTriggersSidJsonQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['2010-04-01'].Accounts[':AccountSid'].Usage.Triggers[':Sid.json'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/Usage/Triggers/{Sid}.json
@@ -11189,6 +11331,39 @@ export function createDelete20100401AccountsAccountSidUsageTriggersSidJson(optio
 }
 
 /**
+ * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Triggers.json
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGet20100401AccountsAccountSidUsageTriggersJsonQueryKey(
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers.json']['$get']
+  >,
+) {
+  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/Usage/Triggers.json', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Usage/Triggers.json
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGet20100401AccountsAccountSidUsageTriggersJsonQueryOptions = (
+  args: InferRequestType<
+    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers.json']['$get']
+  >,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGet20100401AccountsAccountSidUsageTriggersJsonQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].Usage['Triggers.json'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /2010-04-01/Accounts/{AccountSid}/Usage/Triggers.json
  *
  * Retrieve a list of usage-triggers belonging to the account used to make the request
@@ -11224,39 +11399,6 @@ export function createGet20100401AccountsAccountSidUsageTriggersJson(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Triggers.json
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGet20100401AccountsAccountSidUsageTriggersJsonQueryKey(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers.json']['$get']
-  >,
-) {
-  return ['/2010-04-01/Accounts/:AccountSid/Usage/Triggers.json', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /2010-04-01/Accounts/{AccountSid}/Usage/Triggers.json
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGet20100401AccountsAccountSidUsageTriggersJsonQueryOptions = (
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGet20100401AccountsAccountSidUsageTriggersJsonQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client['2010-04-01'].Accounts[':AccountSid'].Usage['Triggers.json'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/Usage/Triggers.json

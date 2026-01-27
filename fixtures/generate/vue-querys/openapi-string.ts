@@ -1,8 +1,31 @@
 import { useQuery } from '@tanstack/vue-query'
-import type { UseQueryOptions } from '@tanstack/vue-query'
+import type { UseQueryOptions, QueryFunctionContext } from '@tanstack/vue-query'
+import { unref } from 'vue'
+import type { MaybeRef } from 'vue'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/openapi-string'
+
+/**
+ * Generates Vue Query cache key for GET /string
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGetStringQueryKey() {
+  return ['string', '/string'] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /string
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetStringQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetStringQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.string.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /string
@@ -27,24 +50,3 @@ export function useGetString(options?: {
   const { queryKey, queryFn, ...baseOptions } = getGetStringQueryOptions(clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates Vue Query cache key for GET /string
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGetStringQueryKey() {
-  return ['/string'] as const
-}
-
-/**
- * Returns Vue Query query options for GET /string
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetStringQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetStringQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.string.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-    ),
-})

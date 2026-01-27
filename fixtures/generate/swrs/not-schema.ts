@@ -6,6 +6,14 @@ import { parseResponse } from 'hono/client'
 import { client } from '../clients/not-schema'
 
 /**
+ * Generates SWR mutation key for POST /validate
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ */
+export function getPostValidateMutationKey() {
+  return ['/validate'] as const
+}
+
+/**
  * POST /validate
  */
 export function usePostValidate(options?: {
@@ -29,13 +37,4 @@ export function usePostValidate(options?: {
       restMutationOptions,
     ),
   }
-}
-
-/**
- * Generates SWR mutation key for POST /validate
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
- */
-export function getPostValidateMutationKey() {
-  return 'POST /validate'
 }

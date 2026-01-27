@@ -7,6 +7,14 @@ import { parseResponse } from 'hono/client'
 import { client } from '../clients/44-sns-notifications-dm-search'
 
 /**
+ * Generates SWR cache key for GET /notifications
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
+ */
+export function getGetNotificationsKey(args: InferRequestType<typeof client.notifications.$get>) {
+  return ['/notifications', args] as const
+}
+
+/**
  * GET /notifications
  *
  * 通知一覧取得
@@ -33,11 +41,11 @@ export function useGetNotifications(
 }
 
 /**
- * Generates SWR cache key for GET /notifications
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR cache key for GET /notifications/unread-count
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetNotificationsKey(args: InferRequestType<typeof client.notifications.$get>) {
-  return ['/notifications', args] as const
+export function getGetNotificationsUnreadCountKey() {
+  return ['/notifications/unread-count'] as const
 }
 
 /**
@@ -65,11 +73,11 @@ export function useGetNotificationsUnreadCount(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /notifications/unread-count
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR mutation key for POST /notifications/mark-read
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetNotificationsUnreadCountKey() {
-  return ['/notifications/unread-count'] as const
+export function getPostNotificationsMarkReadMutationKey() {
+  return ['/notifications/mark-read'] as const
 }
 
 /**
@@ -109,12 +117,11 @@ export function usePostNotificationsMarkRead(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /notifications/mark-read
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /notifications/settings
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getPostNotificationsMarkReadMutationKey() {
-  return 'POST /notifications/mark-read'
+export function getGetNotificationsSettingsKey() {
+  return ['/notifications/settings'] as const
 }
 
 /**
@@ -141,10 +148,10 @@ export function useGetNotificationsSettings(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /notifications/settings
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR mutation key for PUT /notifications/settings
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetNotificationsSettingsKey() {
+export function getPutNotificationsSettingsMutationKey() {
   return ['/notifications/settings'] as const
 }
 
@@ -183,12 +190,13 @@ export function usePutNotificationsSettings(options?: {
 }
 
 /**
- * Generates SWR mutation key for PUT /notifications/settings
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /dm/conversations
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPutNotificationsSettingsMutationKey() {
-  return 'PUT /notifications/settings'
+export function getGetDmConversationsKey(
+  args: InferRequestType<typeof client.dm.conversations.$get>,
+) {
+  return ['/dm/conversations', args] as const
 }
 
 /**
@@ -218,13 +226,11 @@ export function useGetDmConversations(
 }
 
 /**
- * Generates SWR cache key for GET /dm/conversations
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for POST /dm/conversations
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetDmConversationsKey(
-  args: InferRequestType<typeof client.dm.conversations.$get>,
-) {
-  return ['/dm/conversations', args] as const
+export function getPostDmConversationsMutationKey() {
+  return ['/dm/conversations'] as const
 }
 
 /**
@@ -258,12 +264,13 @@ export function usePostDmConversations(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /dm/conversations
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /dm/conversations/{conversationId}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPostDmConversationsMutationKey() {
-  return 'POST /dm/conversations'
+export function getGetDmConversationsConversationIdKey(
+  args: InferRequestType<(typeof client.dm.conversations)[':conversationId']['$get']>,
+) {
+  return [`/dm/conversations/${args.param.conversationId}`, args] as const
 }
 
 /**
@@ -294,13 +301,11 @@ export function useGetDmConversationsConversationId(
 }
 
 /**
- * Generates SWR cache key for GET /dm/conversations/{conversationId}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for DELETE /dm/conversations/{conversationId}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetDmConversationsConversationIdKey(
-  args: InferRequestType<(typeof client.dm.conversations)[':conversationId']['$get']>,
-) {
-  return ['/dm/conversations/:conversationId', args] as const
+export function getDeleteDmConversationsConversationIdMutationKey() {
+  return ['/dm/conversations/:conversationId'] as const
 }
 
 /**
@@ -345,12 +350,13 @@ export function useDeleteDmConversationsConversationId(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /dm/conversations/{conversationId}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /dm/conversations/{conversationId}/messages
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getDeleteDmConversationsConversationIdMutationKey() {
-  return 'DELETE /dm/conversations/:conversationId'
+export function getGetDmConversationsConversationIdMessagesKey(
+  args: InferRequestType<(typeof client.dm.conversations)[':conversationId']['messages']['$get']>,
+) {
+  return [`/dm/conversations/${args.param.conversationId}/messages`, args] as const
 }
 
 /**
@@ -384,13 +390,11 @@ export function useGetDmConversationsConversationIdMessages(
 }
 
 /**
- * Generates SWR cache key for GET /dm/conversations/{conversationId}/messages
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for POST /dm/conversations/{conversationId}/messages
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetDmConversationsConversationIdMessagesKey(
-  args: InferRequestType<(typeof client.dm.conversations)[':conversationId']['messages']['$get']>,
-) {
-  return ['/dm/conversations/:conversationId/messages', args] as const
+export function getPostDmConversationsConversationIdMessagesMutationKey() {
+  return ['/dm/conversations/:conversationId/messages'] as const
 }
 
 /**
@@ -441,12 +445,11 @@ export function usePostDmConversationsConversationIdMessages(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /dm/conversations/{conversationId}/messages
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /dm/conversations/{conversationId}/read
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostDmConversationsConversationIdMessagesMutationKey() {
-  return 'POST /dm/conversations/:conversationId/messages'
+export function getPostDmConversationsConversationIdReadMutationKey() {
+  return ['/dm/conversations/:conversationId/read'] as const
 }
 
 /**
@@ -492,12 +495,11 @@ export function usePostDmConversationsConversationIdRead(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /dm/conversations/{conversationId}/read
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /dm/conversations/{conversationId}/typing
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostDmConversationsConversationIdReadMutationKey() {
-  return 'POST /dm/conversations/:conversationId/read'
+export function getPostDmConversationsConversationIdTypingMutationKey() {
+  return ['/dm/conversations/:conversationId/typing'] as const
 }
 
 /**
@@ -546,12 +548,11 @@ export function usePostDmConversationsConversationIdTyping(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /dm/conversations/{conversationId}/typing
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for DELETE /dm/messages/{messageId}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostDmConversationsConversationIdTypingMutationKey() {
-  return 'POST /dm/conversations/:conversationId/typing'
+export function getDeleteDmMessagesMessageIdMutationKey() {
+  return ['/dm/messages/:messageId'] as const
 }
 
 /**
@@ -592,12 +593,11 @@ export function useDeleteDmMessagesMessageId(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /dm/messages/{messageId}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /dm/messages/{messageId}/reactions
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getDeleteDmMessagesMessageIdMutationKey() {
-  return 'DELETE /dm/messages/:messageId'
+export function getPostDmMessagesMessageIdReactionsMutationKey() {
+  return ['/dm/messages/:messageId/reactions'] as const
 }
 
 /**
@@ -641,12 +641,11 @@ export function usePostDmMessagesMessageIdReactions(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /dm/messages/{messageId}/reactions
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for DELETE /dm/messages/{messageId}/reactions
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostDmMessagesMessageIdReactionsMutationKey() {
-  return 'POST /dm/messages/:messageId/reactions'
+export function getDeleteDmMessagesMessageIdReactionsMutationKey() {
+  return ['/dm/messages/:messageId/reactions'] as const
 }
 
 /**
@@ -690,12 +689,11 @@ export function useDeleteDmMessagesMessageIdReactions(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /dm/messages/{messageId}/reactions
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /dm/unread-count
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getDeleteDmMessagesMessageIdReactionsMutationKey() {
-  return 'DELETE /dm/messages/:messageId/reactions'
+export function getGetDmUnreadCountKey() {
+  return ['/dm/unread-count'] as const
 }
 
 /**
@@ -722,11 +720,11 @@ export function useGetDmUnreadCount(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /dm/unread-count
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /search/posts
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getGetDmUnreadCountKey() {
-  return ['/dm/unread-count'] as const
+export function getGetSearchPostsKey(args: InferRequestType<typeof client.search.posts.$get>) {
+  return ['/search/posts', args] as const
 }
 
 /**
@@ -756,11 +754,11 @@ export function useGetSearchPosts(
 }
 
 /**
- * Generates SWR cache key for GET /search/posts
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR cache key for GET /search/users
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getGetSearchPostsKey(args: InferRequestType<typeof client.search.posts.$get>) {
-  return ['/search/posts', args] as const
+export function getGetSearchUsersKey(args: InferRequestType<typeof client.search.users.$get>) {
+  return ['/search/users', args] as const
 }
 
 /**
@@ -790,11 +788,13 @@ export function useGetSearchUsers(
 }
 
 /**
- * Generates SWR cache key for GET /search/users
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR cache key for GET /search/hashtags
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getGetSearchUsersKey(args: InferRequestType<typeof client.search.users.$get>) {
-  return ['/search/users', args] as const
+export function getGetSearchHashtagsKey(
+  args: InferRequestType<typeof client.search.hashtags.$get>,
+) {
+  return ['/search/hashtags', args] as const
 }
 
 /**
@@ -824,13 +824,11 @@ export function useGetSearchHashtags(
 }
 
 /**
- * Generates SWR cache key for GET /search/hashtags
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR cache key for GET /search/recent
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetSearchHashtagsKey(
-  args: InferRequestType<typeof client.search.hashtags.$get>,
-) {
-  return ['/search/hashtags', args] as const
+export function getGetSearchRecentKey() {
+  return ['/search/recent'] as const
 }
 
 /**
@@ -857,10 +855,10 @@ export function useGetSearchRecent(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /search/recent
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR mutation key for DELETE /search/recent
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetSearchRecentKey() {
+export function getDeleteSearchRecentMutationKey() {
   return ['/search/recent'] as const
 }
 
@@ -895,12 +893,11 @@ export function useDeleteSearchRecent(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /search/recent
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /trends
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getDeleteSearchRecentMutationKey() {
-  return 'DELETE /search/recent'
+export function getGetTrendsKey(args: InferRequestType<typeof client.trends.$get>) {
+  return ['/trends', args] as const
 }
 
 /**
@@ -930,11 +927,11 @@ export function useGetTrends(
 }
 
 /**
- * Generates SWR cache key for GET /trends
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR cache key for GET /trends/locations
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetTrendsKey(args: InferRequestType<typeof client.trends.$get>) {
-  return ['/trends', args] as const
+export function getGetTrendsLocationsKey() {
+  return ['/trends/locations'] as const
 }
 
 /**
@@ -961,11 +958,13 @@ export function useGetTrendsLocations(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /trends/locations
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /suggestions/users
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getGetTrendsLocationsKey() {
-  return ['/trends/locations'] as const
+export function getGetSuggestionsUsersKey(
+  args: InferRequestType<typeof client.suggestions.users.$get>,
+) {
+  return ['/suggestions/users', args] as const
 }
 
 /**
@@ -995,13 +994,11 @@ export function useGetSuggestionsUsers(
 }
 
 /**
- * Generates SWR cache key for GET /suggestions/users
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for POST /suggestions/users/{userId}/hide
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetSuggestionsUsersKey(
-  args: InferRequestType<typeof client.suggestions.users.$get>,
-) {
-  return ['/suggestions/users', args] as const
+export function getPostSuggestionsUsersUserIdHideMutationKey() {
+  return ['/suggestions/users/:userId/hide'] as const
 }
 
 /**
@@ -1043,12 +1040,11 @@ export function usePostSuggestionsUsersUserIdHide(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /suggestions/users/{userId}/hide
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /suggestions/topics
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getPostSuggestionsUsersUserIdHideMutationKey() {
-  return 'POST /suggestions/users/:userId/hide'
+export function getGetSuggestionsTopicsKey() {
+  return ['/suggestions/topics'] as const
 }
 
 /**
@@ -1075,11 +1071,11 @@ export function useGetSuggestionsTopics(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /suggestions/topics
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR mutation key for POST /topics/{topicId}/follow
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetSuggestionsTopicsKey() {
-  return ['/suggestions/topics'] as const
+export function getPostTopicsTopicIdFollowMutationKey() {
+  return ['/topics/:topicId/follow'] as const
 }
 
 /**
@@ -1119,12 +1115,11 @@ export function usePostTopicsTopicIdFollow(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /topics/{topicId}/follow
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for DELETE /topics/{topicId}/follow
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostTopicsTopicIdFollowMutationKey() {
-  return 'POST /topics/:topicId/follow'
+export function getDeleteTopicsTopicIdFollowMutationKey() {
+  return ['/topics/:topicId/follow'] as const
 }
 
 /**
@@ -1161,13 +1156,4 @@ export function useDeleteTopicsTopicIdFollow(options?: {
       restMutationOptions,
     ),
   }
-}
-
-/**
- * Generates SWR mutation key for DELETE /topics/{topicId}/follow
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
- */
-export function getDeleteTopicsTopicIdFollowMutationKey() {
-  return 'DELETE /topics/:topicId/follow'
 }

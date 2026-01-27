@@ -7,6 +7,14 @@ import { parseResponse } from 'hono/client'
 import { client } from '../clients/28-reserved-words'
 
 /**
+ * Generates SWR cache key for GET /class
+ * Returns structured key [path] for filter-based invalidation
+ */
+export function getGetClassKey() {
+  return ['/class'] as const
+}
+
+/**
  * GET /class
  */
 export function useGetClass(options?: {
@@ -28,11 +36,11 @@ export function useGetClass(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /class
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /interface
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetClassKey() {
-  return ['/class'] as const
+export function getGetInterfaceKey() {
+  return ['/interface'] as const
 }
 
 /**
@@ -57,11 +65,11 @@ export function useGetInterface(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /interface
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /type
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetInterfaceKey() {
-  return ['/interface'] as const
+export function getGetTypeKey() {
+  return ['/type'] as const
 }
 
 /**
@@ -86,11 +94,11 @@ export function useGetType(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /type
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR mutation key for POST /function
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetTypeKey() {
-  return ['/type'] as const
+export function getPostFunctionMutationKey() {
+  return ['/function'] as const
 }
 
 /**
@@ -119,12 +127,11 @@ export function usePostFunction(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /function
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /return
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getPostFunctionMutationKey() {
-  return 'POST /function'
+export function getGetReturnKey() {
+  return ['/return'] as const
 }
 
 /**
@@ -149,11 +156,11 @@ export function useGetReturn(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /return
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /import
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetReturnKey() {
-  return ['/return'] as const
+export function getGetImportKey() {
+  return ['/import'] as const
 }
 
 /**
@@ -178,11 +185,11 @@ export function useGetImport(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /import
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /export
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetImportKey() {
-  return ['/import'] as const
+export function getGetExportKey() {
+  return ['/export'] as const
 }
 
 /**
@@ -207,11 +214,11 @@ export function useGetExport(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /export
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /default
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetExportKey() {
-  return ['/export'] as const
+export function getGetDefaultKey() {
+  return ['/default'] as const
 }
 
 /**
@@ -236,11 +243,11 @@ export function useGetDefault(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /default
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR mutation key for POST /new
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetDefaultKey() {
-  return ['/default'] as const
+export function getPostNewMutationKey() {
+  return ['/new'] as const
 }
 
 /**
@@ -269,12 +276,11 @@ export function usePostNew(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /new
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for DELETE /delete
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostNewMutationKey() {
-  return 'POST /new'
+export function getDeleteDeleteMutationKey() {
+  return ['/delete'] as const
 }
 
 /**
@@ -303,12 +309,11 @@ export function useDeleteDelete(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /delete
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /void
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getDeleteDeleteMutationKey() {
-  return 'DELETE /delete'
+export function getGetVoidKey() {
+  return ['/void'] as const
 }
 
 /**
@@ -333,11 +338,11 @@ export function useGetVoid(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /void
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /null
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetVoidKey() {
-  return ['/void'] as const
+export function getGetNullKey() {
+  return ['/null'] as const
 }
 
 /**
@@ -362,11 +367,11 @@ export function useGetNull(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /null
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /true
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetNullKey() {
-  return ['/null'] as const
+export function getGetTrueKey() {
+  return ['/true'] as const
 }
 
 /**
@@ -391,11 +396,11 @@ export function useGetTrue(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /true
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /false
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetTrueKey() {
-  return ['/true'] as const
+export function getGetFalseKey() {
+  return ['/false'] as const
 }
 
 /**
@@ -420,11 +425,11 @@ export function useGetFalse(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /false
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /if
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetFalseKey() {
-  return ['/false'] as const
+export function getGetIfKey() {
+  return ['/if'] as const
 }
 
 /**
@@ -449,11 +454,11 @@ export function useGetIf(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /if
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /else
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetIfKey() {
-  return ['/if'] as const
+export function getGetElseKey() {
+  return ['/else'] as const
 }
 
 /**
@@ -478,11 +483,11 @@ export function useGetElse(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /else
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /for
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetElseKey() {
-  return ['/else'] as const
+export function getGetForKey() {
+  return ['/for'] as const
 }
 
 /**
@@ -507,11 +512,11 @@ export function useGetFor(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /for
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /while
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetForKey() {
-  return ['/for'] as const
+export function getGetWhileKey() {
+  return ['/while'] as const
 }
 
 /**
@@ -536,11 +541,11 @@ export function useGetWhile(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /while
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /switch
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetWhileKey() {
-  return ['/while'] as const
+export function getGetSwitchKey() {
+  return ['/switch'] as const
 }
 
 /**
@@ -565,11 +570,11 @@ export function useGetSwitch(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /switch
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /case
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetSwitchKey() {
-  return ['/switch'] as const
+export function getGetCaseKey() {
+  return ['/case'] as const
 }
 
 /**
@@ -594,11 +599,11 @@ export function useGetCase(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /case
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /break
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetCaseKey() {
-  return ['/case'] as const
+export function getGetBreakKey() {
+  return ['/break'] as const
 }
 
 /**
@@ -623,11 +628,11 @@ export function useGetBreak(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /break
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /continue
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetBreakKey() {
-  return ['/break'] as const
+export function getGetContinueKey() {
+  return ['/continue'] as const
 }
 
 /**
@@ -652,11 +657,11 @@ export function useGetContinue(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /continue
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /try
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetContinueKey() {
-  return ['/continue'] as const
+export function getGetTryKey() {
+  return ['/try'] as const
 }
 
 /**
@@ -681,11 +686,11 @@ export function useGetTry(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /try
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /catch
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetTryKey() {
-  return ['/try'] as const
+export function getGetCatchKey() {
+  return ['/catch'] as const
 }
 
 /**
@@ -710,11 +715,11 @@ export function useGetCatch(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /catch
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /finally
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetCatchKey() {
-  return ['/catch'] as const
+export function getGetFinallyKey() {
+  return ['/finally'] as const
 }
 
 /**
@@ -739,11 +744,11 @@ export function useGetFinally(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /finally
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /throw
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetFinallyKey() {
-  return ['/finally'] as const
+export function getGetThrowKey() {
+  return ['/throw'] as const
 }
 
 /**
@@ -768,11 +773,11 @@ export function useGetThrow(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /throw
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /async
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetThrowKey() {
-  return ['/throw'] as const
+export function getGetAsyncKey() {
+  return ['/async'] as const
 }
 
 /**
@@ -797,11 +802,11 @@ export function useGetAsync(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /async
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /await
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetAsyncKey() {
-  return ['/async'] as const
+export function getGetAwaitKey() {
+  return ['/await'] as const
 }
 
 /**
@@ -826,11 +831,11 @@ export function useGetAwait(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /await
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /yield
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetAwaitKey() {
-  return ['/await'] as const
+export function getGetYieldKey() {
+  return ['/yield'] as const
 }
 
 /**
@@ -855,11 +860,11 @@ export function useGetYield(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /yield
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /static
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetYieldKey() {
-  return ['/yield'] as const
+export function getGetStaticKey() {
+  return ['/static'] as const
 }
 
 /**
@@ -884,11 +889,11 @@ export function useGetStatic(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /static
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /public
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetStaticKey() {
-  return ['/static'] as const
+export function getGetPublicKey() {
+  return ['/public'] as const
 }
 
 /**
@@ -913,11 +918,11 @@ export function useGetPublic(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /public
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /private
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetPublicKey() {
-  return ['/public'] as const
+export function getGetPrivateKey() {
+  return ['/private'] as const
 }
 
 /**
@@ -942,11 +947,11 @@ export function useGetPrivate(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /private
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /protected
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetPrivateKey() {
-  return ['/private'] as const
+export function getGetProtectedKey() {
+  return ['/protected'] as const
 }
 
 /**
@@ -971,11 +976,11 @@ export function useGetProtected(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /protected
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /abstract
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetProtectedKey() {
-  return ['/protected'] as const
+export function getGetAbstractKey() {
+  return ['/abstract'] as const
 }
 
 /**
@@ -1000,11 +1005,11 @@ export function useGetAbstract(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /abstract
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /final
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetAbstractKey() {
-  return ['/abstract'] as const
+export function getGetFinalKey() {
+  return ['/final'] as const
 }
 
 /**
@@ -1029,11 +1034,11 @@ export function useGetFinal(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /final
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /extends
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetFinalKey() {
-  return ['/final'] as const
+export function getGetExtendsKey() {
+  return ['/extends'] as const
 }
 
 /**
@@ -1058,11 +1063,11 @@ export function useGetExtends(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /extends
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /implements
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetExtendsKey() {
-  return ['/extends'] as const
+export function getGetImplementsKey() {
+  return ['/implements'] as const
 }
 
 /**
@@ -1087,11 +1092,11 @@ export function useGetImplements(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /implements
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /package
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetImplementsKey() {
-  return ['/implements'] as const
+export function getGetPackageKey() {
+  return ['/package'] as const
 }
 
 /**
@@ -1116,11 +1121,11 @@ export function useGetPackage(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /package
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /enum
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetPackageKey() {
-  return ['/package'] as const
+export function getGetEnumKey() {
+  return ['/enum'] as const
 }
 
 /**
@@ -1145,11 +1150,11 @@ export function useGetEnum(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /enum
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /const
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetEnumKey() {
-  return ['/enum'] as const
+export function getGetConstKey() {
+  return ['/const'] as const
 }
 
 /**
@@ -1174,11 +1179,11 @@ export function useGetConst(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /const
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /let
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetConstKey() {
-  return ['/const'] as const
+export function getGetLetKey() {
+  return ['/let'] as const
 }
 
 /**
@@ -1203,11 +1208,11 @@ export function useGetLet(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /let
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /var
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetLetKey() {
-  return ['/let'] as const
+export function getGetVarKey() {
+  return ['/var'] as const
 }
 
 /**
@@ -1232,11 +1237,11 @@ export function useGetVar(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /var
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /this
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetVarKey() {
-  return ['/var'] as const
+export function getGetThisKey() {
+  return ['/this'] as const
 }
 
 /**
@@ -1261,11 +1266,11 @@ export function useGetThis(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /this
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /super
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetThisKey() {
-  return ['/this'] as const
+export function getGetSuperKey() {
+  return ['/super'] as const
 }
 
 /**
@@ -1290,11 +1295,11 @@ export function useGetSuper(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /super
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /self
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetSuperKey() {
-  return ['/super'] as const
+export function getGetSelfKey() {
+  return ['/self'] as const
 }
 
 /**
@@ -1319,11 +1324,11 @@ export function useGetSelf(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /self
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /constructor
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetSelfKey() {
-  return ['/self'] as const
+export function getGetConstructorKey() {
+  return ['/constructor'] as const
 }
 
 /**
@@ -1348,11 +1353,11 @@ export function useGetConstructor(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /constructor
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /prototype
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetConstructorKey() {
-  return ['/constructor'] as const
+export function getGetPrototypeKey() {
+  return ['/prototype'] as const
 }
 
 /**
@@ -1377,11 +1382,11 @@ export function useGetPrototype(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /prototype
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /toString
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetPrototypeKey() {
-  return ['/prototype'] as const
+export function getGetToStringKey() {
+  return ['/toString'] as const
 }
 
 /**
@@ -1406,11 +1411,11 @@ export function useGetToString(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /toString
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /valueOf
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetToStringKey() {
-  return ['/toString'] as const
+export function getGetValueOfKey() {
+  return ['/valueOf'] as const
 }
 
 /**
@@ -1435,11 +1440,11 @@ export function useGetValueOf(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /valueOf
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /hasOwnProperty
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetValueOfKey() {
-  return ['/valueOf'] as const
+export function getGetHasOwnPropertyKey() {
+  return ['/hasOwnProperty'] as const
 }
 
 /**
@@ -1464,11 +1469,11 @@ export function useGetHasOwnProperty(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /hasOwnProperty
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /name-collisions
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetHasOwnPropertyKey() {
-  return ['/hasOwnProperty'] as const
+export function getGetNameCollisionsKey() {
+  return ['/name-collisions'] as const
 }
 
 /**
@@ -1490,12 +1495,4 @@ export function useGetNameCollisions(options?: {
       restSwrOptions,
     ),
   }
-}
-
-/**
- * Generates SWR cache key for GET /name-collisions
- * Returns structured key [templatePath] for filter-based invalidation
- */
-export function getGetNameCollisionsKey() {
-  return ['/name-collisions'] as const
 }

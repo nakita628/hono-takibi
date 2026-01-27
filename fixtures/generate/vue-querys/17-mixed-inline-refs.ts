@@ -1,8 +1,34 @@
 import { useQuery, useMutation } from '@tanstack/vue-query'
-import type { UseQueryOptions, UseMutationOptions } from '@tanstack/vue-query'
+import type { UseQueryOptions, QueryFunctionContext, UseMutationOptions } from '@tanstack/vue-query'
+import { unref } from 'vue'
+import type { MaybeRef } from 'vue'
 import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/17-mixed-inline-refs'
+
+/**
+ * Generates Vue Query cache key for GET /users
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetUsersQueryKey(args: MaybeRef<InferRequestType<typeof client.users.$get>>) {
+  return ['users', '/users', unref(args)] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /users
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetUsersQueryOptions = (
+  args: InferRequestType<typeof client.users.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetUsersQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.users.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /users
@@ -28,30 +54,6 @@ export function useGetUsers(
 }
 
 /**
- * Generates Vue Query cache key for GET /users
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetUsersQueryKey(args: InferRequestType<typeof client.users.$get>) {
-  return ['/users', args] as const
-}
-
-/**
- * Returns Vue Query query options for GET /users
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetUsersQueryOptions = (
-  args: InferRequestType<typeof client.users.$get>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetUsersQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.users.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-    ),
-})
-
-/**
  * POST /users
  */
 export function usePostUsers(options?: {
@@ -74,6 +76,35 @@ export function usePostUsers(options?: {
       parseResponse(client.users.$post(args, clientOptions)),
   })
 }
+
+/**
+ * Generates Vue Query cache key for GET /users/{userId}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetUsersUserIdQueryKey(
+  args: MaybeRef<InferRequestType<(typeof client.users)[':userId']['$get']>>,
+) {
+  return ['users', '/users/:userId', unref(args)] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /users/{userId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetUsersUserIdQueryOptions = (
+  args: InferRequestType<(typeof client.users)[':userId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetUsersUserIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.users[':userId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /users/{userId}
@@ -103,35 +134,6 @@ export function useGetUsersUserId(
 }
 
 /**
- * Generates Vue Query cache key for GET /users/{userId}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetUsersUserIdQueryKey(
-  args: InferRequestType<(typeof client.users)[':userId']['$get']>,
-) {
-  return ['/users/:userId', args] as const
-}
-
-/**
- * Returns Vue Query query options for GET /users/{userId}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetUsersUserIdQueryOptions = (
-  args: InferRequestType<(typeof client.users)[':userId']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetUsersUserIdQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.users[':userId'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
-
-/**
  * POST /orders
  */
 export function usePostOrders(options?: {
@@ -154,6 +156,35 @@ export function usePostOrders(options?: {
       parseResponse(client.orders.$post(args, clientOptions)),
   })
 }
+
+/**
+ * Generates Vue Query cache key for GET /products/{productId}/variants
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetProductsProductIdVariantsQueryKey(
+  args: MaybeRef<InferRequestType<(typeof client.products)[':productId']['variants']['$get']>>,
+) {
+  return ['products', '/products/:productId/variants', unref(args)] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /products/{productId}/variants
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetProductsProductIdVariantsQueryOptions = (
+  args: InferRequestType<(typeof client.products)[':productId']['variants']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetProductsProductIdVariantsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.products[':productId'].variants.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /products/{productId}/variants
@@ -186,35 +217,6 @@ export function useGetProductsProductIdVariants(
   )
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates Vue Query cache key for GET /products/{productId}/variants
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetProductsProductIdVariantsQueryKey(
-  args: InferRequestType<(typeof client.products)[':productId']['variants']['$get']>,
-) {
-  return ['/products/:productId/variants', args] as const
-}
-
-/**
- * Returns Vue Query query options for GET /products/{productId}/variants
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetProductsProductIdVariantsQueryOptions = (
-  args: InferRequestType<(typeof client.products)[':productId']['variants']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetProductsProductIdVariantsQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.products[':productId'].variants.$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /reports/generate

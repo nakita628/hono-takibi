@@ -7,6 +7,14 @@ import { parseResponse } from 'hono/client'
 import { client } from '../clients/37-auth-mfa'
 
 /**
+ * Generates SWR cache key for GET /mfa/status
+ * Returns structured key [path] for filter-based invalidation
+ */
+export function getGetMfaStatusKey() {
+  return ['/mfa/status'] as const
+}
+
+/**
  * GET /mfa/status
  *
  * MFA設定状況取得
@@ -30,11 +38,11 @@ export function useGetMfaStatus(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /mfa/status
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /mfa/methods
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetMfaStatusKey() {
-  return ['/mfa/status'] as const
+export function getGetMfaMethodsKey() {
+  return ['/mfa/methods'] as const
 }
 
 /**
@@ -61,11 +69,11 @@ export function useGetMfaMethods(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /mfa/methods
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR mutation key for PUT /mfa/preferred
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetMfaMethodsKey() {
-  return ['/mfa/methods'] as const
+export function getPutMfaPreferredMutationKey() {
+  return ['/mfa/preferred'] as const
 }
 
 /**
@@ -99,12 +107,11 @@ export function usePutMfaPreferred(options?: {
 }
 
 /**
- * Generates SWR mutation key for PUT /mfa/preferred
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /mfa/totp/setup
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPutMfaPreferredMutationKey() {
-  return 'PUT /mfa/preferred'
+export function getPostMfaTotpSetupMutationKey() {
+  return ['/mfa/totp/setup'] as const
 }
 
 /**
@@ -140,12 +147,11 @@ export function usePostMfaTotpSetup(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /mfa/totp/setup
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /mfa/totp/verify
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostMfaTotpSetupMutationKey() {
-  return 'POST /mfa/totp/setup'
+export function getPostMfaTotpVerifyMutationKey() {
+  return ['/mfa/totp/verify'] as const
 }
 
 /**
@@ -181,12 +187,11 @@ export function usePostMfaTotpVerify(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /mfa/totp/verify
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for DELETE /mfa/totp
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostMfaTotpVerifyMutationKey() {
-  return 'POST /mfa/totp/verify'
+export function getDeleteMfaTotpMutationKey() {
+  return ['/mfa/totp'] as const
 }
 
 /**
@@ -219,12 +224,11 @@ export function useDeleteMfaTotp(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /mfa/totp
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /mfa/sms/setup
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getDeleteMfaTotpMutationKey() {
-  return 'DELETE /mfa/totp'
+export function getPostMfaSmsSetupMutationKey() {
+  return ['/mfa/sms/setup'] as const
 }
 
 /**
@@ -260,12 +264,11 @@ export function usePostMfaSmsSetup(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /mfa/sms/setup
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /mfa/sms/verify
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostMfaSmsSetupMutationKey() {
-  return 'POST /mfa/sms/setup'
+export function getPostMfaSmsVerifyMutationKey() {
+  return ['/mfa/sms/verify'] as const
 }
 
 /**
@@ -299,12 +302,11 @@ export function usePostMfaSmsVerify(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /mfa/sms/verify
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for DELETE /mfa/sms/{methodId}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostMfaSmsVerifyMutationKey() {
-  return 'POST /mfa/sms/verify'
+export function getDeleteMfaSmsMethodIdMutationKey() {
+  return ['/mfa/sms/:methodId'] as const
 }
 
 /**
@@ -343,12 +345,11 @@ export function useDeleteMfaSmsMethodId(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /mfa/sms/{methodId}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /mfa/email/setup
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getDeleteMfaSmsMethodIdMutationKey() {
-  return 'DELETE /mfa/sms/:methodId'
+export function getPostMfaEmailSetupMutationKey() {
+  return ['/mfa/email/setup'] as const
 }
 
 /**
@@ -382,12 +383,11 @@ export function usePostMfaEmailSetup(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /mfa/email/setup
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /mfa/email/verify
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostMfaEmailSetupMutationKey() {
-  return 'POST /mfa/email/setup'
+export function getPostMfaEmailVerifyMutationKey() {
+  return ['/mfa/email/verify'] as const
 }
 
 /**
@@ -421,12 +421,11 @@ export function usePostMfaEmailVerify(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /mfa/email/verify
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /mfa/webauthn/register/options
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostMfaEmailVerifyMutationKey() {
-  return 'POST /mfa/email/verify'
+export function getPostMfaWebauthnRegisterOptionsMutationKey() {
+  return ['/mfa/webauthn/register/options'] as const
 }
 
 /**
@@ -466,12 +465,11 @@ export function usePostMfaWebauthnRegisterOptions(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /mfa/webauthn/register/options
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /mfa/webauthn/register/verify
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostMfaWebauthnRegisterOptionsMutationKey() {
-  return 'POST /mfa/webauthn/register/options'
+export function getPostMfaWebauthnRegisterVerifyMutationKey() {
+  return ['/mfa/webauthn/register/verify'] as const
 }
 
 /**
@@ -509,12 +507,11 @@ export function usePostMfaWebauthnRegisterVerify(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /mfa/webauthn/register/verify
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /mfa/webauthn/credentials
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getPostMfaWebauthnRegisterVerifyMutationKey() {
-  return 'POST /mfa/webauthn/register/verify'
+export function getGetMfaWebauthnCredentialsKey() {
+  return ['/mfa/webauthn/credentials'] as const
 }
 
 /**
@@ -541,11 +538,11 @@ export function useGetMfaWebauthnCredentials(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /mfa/webauthn/credentials
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR mutation key for DELETE /mfa/webauthn/credentials/{credentialId}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetMfaWebauthnCredentialsKey() {
-  return ['/mfa/webauthn/credentials'] as const
+export function getDeleteMfaWebauthnCredentialsCredentialIdMutationKey() {
+  return ['/mfa/webauthn/credentials/:credentialId'] as const
 }
 
 /**
@@ -595,12 +592,11 @@ export function useDeleteMfaWebauthnCredentialsCredentialId(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /mfa/webauthn/credentials/{credentialId}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for PATCH /mfa/webauthn/credentials/{credentialId}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getDeleteMfaWebauthnCredentialsCredentialIdMutationKey() {
-  return 'DELETE /mfa/webauthn/credentials/:credentialId'
+export function getPatchMfaWebauthnCredentialsCredentialIdMutationKey() {
+  return ['/mfa/webauthn/credentials/:credentialId'] as const
 }
 
 /**
@@ -645,12 +641,11 @@ export function usePatchMfaWebauthnCredentialsCredentialId(options?: {
 }
 
 /**
- * Generates SWR mutation key for PATCH /mfa/webauthn/credentials/{credentialId}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /mfa/backup-codes/generate
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPatchMfaWebauthnCredentialsCredentialIdMutationKey() {
-  return 'PATCH /mfa/webauthn/credentials/:credentialId'
+export function getPostMfaBackupCodesGenerateMutationKey() {
+  return ['/mfa/backup-codes/generate'] as const
 }
 
 /**
@@ -694,12 +689,11 @@ export function usePostMfaBackupCodesGenerate(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /mfa/backup-codes/generate
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /mfa/backup-codes/status
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getPostMfaBackupCodesGenerateMutationKey() {
-  return 'POST /mfa/backup-codes/generate'
+export function getGetMfaBackupCodesStatusKey() {
+  return ['/mfa/backup-codes/status'] as const
 }
 
 /**
@@ -726,11 +720,11 @@ export function useGetMfaBackupCodesStatus(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /mfa/backup-codes/status
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR mutation key for POST /mfa/challenge
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetMfaBackupCodesStatusKey() {
-  return ['/mfa/backup-codes/status'] as const
+export function getPostMfaChallengeMutationKey() {
+  return ['/mfa/challenge'] as const
 }
 
 /**
@@ -766,12 +760,11 @@ export function usePostMfaChallenge(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /mfa/challenge
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /mfa/challenge/send
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostMfaChallengeMutationKey() {
-  return 'POST /mfa/challenge'
+export function getPostMfaChallengeSendMutationKey() {
+  return ['/mfa/challenge/send'] as const
 }
 
 /**
@@ -807,12 +800,11 @@ export function usePostMfaChallengeSend(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /mfa/challenge/send
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /mfa/verify
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostMfaChallengeSendMutationKey() {
-  return 'POST /mfa/challenge/send'
+export function getPostMfaVerifyMutationKey() {
+  return ['/mfa/verify'] as const
 }
 
 /**
@@ -846,12 +838,11 @@ export function usePostMfaVerify(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /mfa/verify
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /mfa/webauthn/authenticate/options
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostMfaVerifyMutationKey() {
-  return 'POST /mfa/verify'
+export function getPostMfaWebauthnAuthenticateOptionsMutationKey() {
+  return ['/mfa/webauthn/authenticate/options'] as const
 }
 
 /**
@@ -891,12 +882,11 @@ export function usePostMfaWebauthnAuthenticateOptions(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /mfa/webauthn/authenticate/options
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /mfa/recovery
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostMfaWebauthnAuthenticateOptionsMutationKey() {
-  return 'POST /mfa/webauthn/authenticate/options'
+export function getPostMfaRecoveryMutationKey() {
+  return ['/mfa/recovery'] as const
 }
 
 /**
@@ -932,12 +922,11 @@ export function usePostMfaRecovery(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /mfa/recovery
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /mfa/recovery/verify
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostMfaRecoveryMutationKey() {
-  return 'POST /mfa/recovery'
+export function getPostMfaRecoveryVerifyMutationKey() {
+  return ['/mfa/recovery/verify'] as const
 }
 
 /**
@@ -968,13 +957,4 @@ export function usePostMfaRecoveryVerify(options?: {
       restMutationOptions,
     ),
   }
-}
-
-/**
- * Generates SWR mutation key for POST /mfa/recovery/verify
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
- */
-export function getPostMfaRecoveryVerifyMutationKey() {
-  return 'POST /mfa/recovery/verify'
 }

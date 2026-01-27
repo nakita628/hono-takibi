@@ -1,8 +1,36 @@
 import { createQuery, createMutation } from '@tanstack/svelte-query'
-import type { CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
+import type {
+  CreateQueryOptions,
+  QueryFunctionContext,
+  CreateMutationOptions,
+} from '@tanstack/svelte-query'
 import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/37-auth-mfa'
+
+/**
+ * Generates Svelte Query cache key for GET /mfa/status
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGetMfaStatusQueryKey() {
+  return ['mfa', '/mfa/status'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /mfa/status
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetMfaStatusQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetMfaStatusQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.mfa.status.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /mfa/status
@@ -26,23 +54,23 @@ export function createGetMfaStatus(
 }
 
 /**
- * Generates Svelte Query cache key for GET /mfa/status
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates Svelte Query cache key for GET /mfa/methods
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetMfaStatusQueryKey() {
-  return ['/mfa/status'] as const
+export function getGetMfaMethodsQueryKey() {
+  return ['mfa', '/mfa/methods'] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /mfa/status
+ * Returns Svelte Query query options for GET /mfa/methods
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetMfaStatusQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetMfaStatusQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetMfaMethodsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetMfaMethodsQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.mfa.status.$get(undefined, {
+      client.mfa.methods.$get(undefined, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -71,30 +99,6 @@ export function createGetMfaMethods(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /mfa/methods
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGetMfaMethodsQueryKey() {
-  return ['/mfa/methods'] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /mfa/methods
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetMfaMethodsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetMfaMethodsQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.mfa.methods.$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * PUT /mfa/preferred
@@ -364,6 +368,30 @@ export function createPostMfaWebauthnRegisterVerify(options?: {
 }
 
 /**
+ * Generates Svelte Query cache key for GET /mfa/webauthn/credentials
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGetMfaWebauthnCredentialsQueryKey() {
+  return ['mfa', '/mfa/webauthn/credentials'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /mfa/webauthn/credentials
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetMfaWebauthnCredentialsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetMfaWebauthnCredentialsQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.mfa.webauthn.credentials.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /mfa/webauthn/credentials
  *
  * WebAuthn認証器一覧
@@ -389,30 +417,6 @@ export function createGetMfaWebauthnCredentials(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /mfa/webauthn/credentials
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGetMfaWebauthnCredentialsQueryKey() {
-  return ['/mfa/webauthn/credentials'] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /mfa/webauthn/credentials
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetMfaWebauthnCredentialsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetMfaWebauthnCredentialsQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.mfa.webauthn.credentials.$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * DELETE /mfa/webauthn/credentials/{credentialId}
@@ -506,6 +510,30 @@ export function createPostMfaBackupCodesGenerate(options?: {
 }
 
 /**
+ * Generates Svelte Query cache key for GET /mfa/backup-codes/status
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGetMfaBackupCodesStatusQueryKey() {
+  return ['mfa', '/mfa/backup-codes/status'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /mfa/backup-codes/status
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetMfaBackupCodesStatusQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetMfaBackupCodesStatusQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.mfa['backup-codes'].status.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /mfa/backup-codes/status
  *
  * バックアップコード状況取得
@@ -533,30 +561,6 @@ export function createGetMfaBackupCodesStatus(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /mfa/backup-codes/status
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGetMfaBackupCodesStatusQueryKey() {
-  return ['/mfa/backup-codes/status'] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /mfa/backup-codes/status
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetMfaBackupCodesStatusQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetMfaBackupCodesStatusQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.mfa['backup-codes'].status.$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /mfa/challenge

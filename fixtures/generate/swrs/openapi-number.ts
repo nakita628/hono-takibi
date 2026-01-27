@@ -5,6 +5,14 @@ import { parseResponse } from 'hono/client'
 import { client } from '../clients/openapi-number'
 
 /**
+ * Generates SWR cache key for GET /number
+ * Returns structured key [path] for filter-based invalidation
+ */
+export function getGetNumberKey() {
+  return ['/number'] as const
+}
+
+/**
  * GET /number
  *
  * zod number
@@ -27,12 +35,4 @@ export function useGetNumber(options?: {
       restSwrOptions,
     ),
   }
-}
-
-/**
- * Generates SWR cache key for GET /number
- * Returns structured key [templatePath] for filter-based invalidation
- */
-export function getGetNumberKey() {
-  return ['/number'] as const
 }

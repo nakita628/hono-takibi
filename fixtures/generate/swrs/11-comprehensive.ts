@@ -7,6 +7,14 @@ import { parseResponse } from 'hono/client'
 import { client } from '../clients/11-comprehensive'
 
 /**
+ * Generates SWR cache key for GET /products
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
+ */
+export function getGetProductsKey(args: InferRequestType<typeof client.products.$get>) {
+  return ['/products', args] as const
+}
+
+/**
  * GET /products
  *
  * List all products
@@ -35,11 +43,11 @@ export function useGetProducts(
 }
 
 /**
- * Generates SWR cache key for GET /products
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for POST /products
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetProductsKey(args: InferRequestType<typeof client.products.$get>) {
-  return ['/products', args] as const
+export function getPostProductsMutationKey() {
+  return ['/products'] as const
 }
 
 /**
@@ -71,12 +79,13 @@ export function usePostProducts(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /products
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /products/{productId}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPostProductsMutationKey() {
-  return 'POST /products'
+export function getGetProductsProductIdKey(
+  args: InferRequestType<(typeof client.products)[':productId']['$get']>,
+) {
+  return [`/products/${args.param.productId}`, args] as const
 }
 
 /**
@@ -106,13 +115,11 @@ export function useGetProductsProductId(
 }
 
 /**
- * Generates SWR cache key for GET /products/{productId}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for PUT /products/{productId}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetProductsProductIdKey(
-  args: InferRequestType<(typeof client.products)[':productId']['$get']>,
-) {
-  return ['/products/:productId', args] as const
+export function getPutProductsProductIdMutationKey() {
+  return ['/products/:productId'] as const
 }
 
 /**
@@ -150,12 +157,11 @@ export function usePutProductsProductId(options?: {
 }
 
 /**
- * Generates SWR mutation key for PUT /products/{productId}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for DELETE /products/{productId}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPutProductsProductIdMutationKey() {
-  return 'PUT /products/:productId'
+export function getDeleteProductsProductIdMutationKey() {
+  return ['/products/:productId'] as const
 }
 
 /**
@@ -196,12 +202,11 @@ export function useDeleteProductsProductId(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /products/{productId}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /orders
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getDeleteProductsProductIdMutationKey() {
-  return 'DELETE /products/:productId'
+export function getPostOrdersMutationKey() {
+  return ['/orders'] as const
 }
 
 /**
@@ -233,12 +238,11 @@ export function usePostOrders(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /orders
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /webhooks
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostOrdersMutationKey() {
-  return 'POST /orders'
+export function getPostWebhooksMutationKey() {
+  return ['/webhooks'] as const
 }
 
 /**
@@ -267,13 +271,4 @@ export function usePostWebhooks(options?: {
       restMutationOptions,
     ),
   }
-}
-
-/**
- * Generates SWR mutation key for POST /webhooks
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
- */
-export function getPostWebhooksMutationKey() {
-  return 'POST /webhooks'
 }

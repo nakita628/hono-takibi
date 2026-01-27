@@ -7,6 +7,14 @@ import { parseResponse } from 'hono/client'
 import { client } from '../clients/complex-components'
 
 /**
+ * Generates SWR mutation key for POST /auth/token
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ */
+export function getPostAuthTokenMutationKey() {
+  return ['/auth/token'] as const
+}
+
+/**
  * POST /auth/token
  *
  * Issue access token
@@ -35,12 +43,11 @@ export function usePostAuthToken(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /auth/token
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /users
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPostAuthTokenMutationKey() {
-  return 'POST /auth/token'
+export function getGetUsersKey(args: InferRequestType<typeof client.users.$get>) {
+  return ['/users', args] as const
 }
 
 /**
@@ -70,11 +77,11 @@ export function useGetUsers(
 }
 
 /**
- * Generates SWR cache key for GET /users
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for POST /users
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetUsersKey(args: InferRequestType<typeof client.users.$get>) {
-  return ['/users', args] as const
+export function getPostUsersMutationKey() {
+  return ['/users'] as const
 }
 
 /**
@@ -106,12 +113,13 @@ export function usePostUsers(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /users
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /users/{userId}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPostUsersMutationKey() {
-  return 'POST /users'
+export function getGetUsersUserIdKey(
+  args: InferRequestType<(typeof client.users)[':userId']['$get']>,
+) {
+  return [`/users/${args.param.userId}`, args] as const
 }
 
 /**
@@ -141,13 +149,11 @@ export function useGetUsersUserId(
 }
 
 /**
- * Generates SWR cache key for GET /users/{userId}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for PATCH /users/{userId}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetUsersUserIdKey(
-  args: InferRequestType<(typeof client.users)[':userId']['$get']>,
-) {
-  return ['/users/:userId', args] as const
+export function getPatchUsersUserIdMutationKey() {
+  return ['/users/:userId'] as const
 }
 
 /**
@@ -185,12 +191,13 @@ export function usePatchUsersUserId(options?: {
 }
 
 /**
- * Generates SWR mutation key for PATCH /users/{userId}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /companies/{companyId}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPatchUsersUserIdMutationKey() {
-  return 'PATCH /users/:userId'
+export function getGetCompaniesCompanyIdKey(
+  args: InferRequestType<(typeof client.companies)[':companyId']['$get']>,
+) {
+  return [`/companies/${args.param.companyId}`, args] as const
 }
 
 /**
@@ -220,13 +227,11 @@ export function useGetCompaniesCompanyId(
 }
 
 /**
- * Generates SWR cache key for GET /companies/{companyId}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR cache key for GET /orders
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getGetCompaniesCompanyIdKey(
-  args: InferRequestType<(typeof client.companies)[':companyId']['$get']>,
-) {
-  return ['/companies/:companyId', args] as const
+export function getGetOrdersKey(args: InferRequestType<typeof client.orders.$get>) {
+  return ['/orders', args] as const
 }
 
 /**
@@ -256,11 +261,11 @@ export function useGetOrders(
 }
 
 /**
- * Generates SWR cache key for GET /orders
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for POST /orders
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetOrdersKey(args: InferRequestType<typeof client.orders.$get>) {
-  return ['/orders', args] as const
+export function getPostOrdersMutationKey() {
+  return ['/orders'] as const
 }
 
 /**
@@ -292,12 +297,13 @@ export function usePostOrders(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /orders
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /orders/{orderId}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPostOrdersMutationKey() {
-  return 'POST /orders'
+export function getGetOrdersOrderIdKey(
+  args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
+) {
+  return [`/orders/${args.param.orderId}`, args] as const
 }
 
 /**
@@ -327,13 +333,13 @@ export function useGetOrdersOrderId(
 }
 
 /**
- * Generates SWR cache key for GET /orders/{orderId}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR cache key for GET /files/{fileId}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getGetOrdersOrderIdKey(
-  args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
+export function getGetFilesFileIdKey(
+  args: InferRequestType<(typeof client.files)[':fileId']['$get']>,
 ) {
-  return ['/orders/:orderId', args] as const
+  return [`/files/${args.param.fileId}`, args] as const
 }
 
 /**
@@ -363,13 +369,11 @@ export function useGetFilesFileId(
 }
 
 /**
- * Generates SWR cache key for GET /files/{fileId}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for POST /subscriptions
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetFilesFileIdKey(
-  args: InferRequestType<(typeof client.files)[':fileId']['$get']>,
-) {
-  return ['/files/:fileId', args] as const
+export function getPostSubscriptionsMutationKey() {
+  return ['/subscriptions'] as const
 }
 
 /**
@@ -400,13 +404,4 @@ export function usePostSubscriptions(options?: {
       restMutationOptions,
     ),
   }
-}
-
-/**
- * Generates SWR mutation key for POST /subscriptions
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
- */
-export function getPostSubscriptionsMutationKey() {
-  return 'POST /subscriptions'
 }

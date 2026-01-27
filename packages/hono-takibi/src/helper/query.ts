@@ -103,18 +103,21 @@ function makeQueryOptionsGetterName(method: string, pathStr: string): string {
 /**
  * Generates query key getter function code using structured keys.
  *
- * Uses static template path as prefix (no runtime $url() call),
- * combined with args object for TanStack Query's structured key pattern.
+ * Pattern: ['prefix', '/full/path', args?]
+ * - prefix: First path segment for prefix invalidation (e.g., 'pet')
+ * - path: Full path for uniqueness (e.g., '/pet/findByStatus')
+ * - args: Request arguments when present
+ *
  * This enables:
- * - Partial invalidation: invalidateQueries({ queryKey: ['/pet/:petId'] })
- * - No query string order issues (TanStack Query normalizes object keys)
- * - No runtime overhead (path is string literal)
+ * - Prefix invalidation: invalidateQueries({ queryKey: ['pet'] }) → all pet queries
+ * - Unique keys: Different endpoints never collide
+ * - No query string order issues (query params as object)
  *
  * @param keyGetterName - Function name for key getter
  * @param hasArgs - Whether the operation has arguments
  * @param inferRequestType - TypeScript type for request
  * @param honoPath - Hono-style path (with :param)
- * @param clientPath - Client path expression (unused, kept for signature compatibility)
+ * @param clientPath - Client path expression
  * @param config - Framework configuration
  * @returns Query key getter function code
  * @see https://tanstack.com/query/latest/docs/framework/react/guides/query-keys
@@ -125,25 +128,44 @@ function makeQueryKeyGetterCode(
   inferRequestType: string,
   honoPath: string,
   _clientPath: string,
-  config: { frameworkName: string },
+  config: { frameworkName: string; isVueQuery?: boolean },
 ): string {
   const safeCommentPath = escapeCommentEnd(honoPath.replace(/:([^/]+)/g, '{$1}'))
   const safeCommentPathNoParam = escapeCommentEnd(honoPath)
-  // Use structured key: [templatePath, args]
-  // - templatePath: static string literal (e.g., '/pet/:petId')
-  // - args: enables TanStack Query's deep object comparison
+
+  // Extract prefix (first path segment without leading slash)
+  // e.g., '/pet/findByStatus' → 'pet', '/store/inventory' → 'store'
+  const prefix = honoPath.replace(/^\//, '').split('/')[0]
+
+  // Vue Query: uses MaybeRef and unref
+  if (config.isVueQuery) {
+    if (hasArgs) {
+      return `/**
+ * Generates ${config.frameworkName} cache key for GET ${safeCommentPath}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function ${keyGetterName}(args:MaybeRef<${inferRequestType}>){return['${prefix}','${honoPath}',unref(args)]as const}`
+    }
+    return `/**
+ * Generates ${config.frameworkName} cache key for GET ${safeCommentPathNoParam}
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function ${keyGetterName}(){return['${prefix}','${honoPath}']as const}`
+  }
+
+  // TanStack Query / Svelte Query: ['prefix', '/path', args]
   if (hasArgs) {
     return `/**
  * Generates ${config.frameworkName} cache key for GET ${safeCommentPath}
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function ${keyGetterName}(args:${inferRequestType}){return['${honoPath}',args]as const}`
+export function ${keyGetterName}(args:${inferRequestType}){return['${prefix}','${honoPath}',args]as const}`
   }
   return `/**
  * Generates ${config.frameworkName} cache key for GET ${safeCommentPathNoParam}
- * Returns structured key [templatePath] for partial invalidation support
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function ${keyGetterName}(){return['${honoPath}']as const}`
+export function ${keyGetterName}(){return['${prefix}','${honoPath}']as const}`
 }
 
 /**
@@ -313,6 +335,7 @@ function makeHookCode(
     useQueryOptionsType: string
     useMutationOptionsType: string
     usePartialOmit?: boolean
+    isVueQuery?: boolean
   },
 ): { code: string; isQuery: boolean; hasArgs: boolean } | null {
   const op = item[method]
@@ -367,9 +390,9 @@ function makeHookCode(
       docs,
       config,
     )
-    // Combine hook code with key getter code and query options getter code
+    // Combine in Orval order: key getter → options getter → hook
     return {
-      code: `${hookCode}\n\n${keyGetterCode}\n\n${optionsGetterCode}`,
+      code: `${keyGetterCode}\n\n${optionsGetterCode}\n\n${hookCode}`,
       isQuery: true,
       hasArgs,
     }
@@ -404,6 +427,7 @@ function makeHookCodes(
     useQueryOptionsType: string
     useMutationOptionsType: string
     usePartialOmit?: boolean
+    isVueQuery?: boolean
   },
 ): { hookName: string; code: string; isQuery: boolean; hasArgs: boolean }[] {
   return Object.entries(paths)
@@ -450,6 +474,7 @@ function makeHeader(
     mutationFn: string
     useQueryOptionsType: string
     useMutationOptionsType: string
+    isVueQuery?: boolean
   },
 ): string {
   const queryImports = [
@@ -478,6 +503,8 @@ function makeHeader(
     ...(typeImports.length > 0
       ? [`import type{${typeImports.join(',')}}from'${config.packageName}'`]
       : []),
+    // Vue Query needs MaybeRef type and unref from 'vue' for queryKey generation
+    ...(config.isVueQuery && hasQuery ? ["import{unref}from'vue'", "import type{MaybeRef}from'vue'"] : []),
     `import type{${honoTypeImportParts.join(',')}}from'hono/client'`,
     "import{parseResponse}from'hono/client'",
     `import{${clientName}}from'${importPath}'`,
@@ -540,6 +567,7 @@ export async function makeQueryHooks(
     useQueryOptionsType: string
     useMutationOptionsType: string
     usePartialOmit?: boolean
+    isVueQuery?: boolean
   },
   split?: boolean,
   clientName = 'client',

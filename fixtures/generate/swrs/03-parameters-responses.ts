@@ -7,6 +7,14 @@ import { parseResponse } from 'hono/client'
 import { client } from '../clients/03-parameters-responses'
 
 /**
+ * Generates SWR cache key for GET /items
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
+ */
+export function getGetItemsKey(args: InferRequestType<typeof client.items.$get>) {
+  return ['/items', args] as const
+}
+
+/**
  * GET /items
  */
 export function useGetItems(
@@ -31,11 +39,13 @@ export function useGetItems(
 }
 
 /**
- * Generates SWR cache key for GET /items
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR cache key for GET /items/{itemId}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getGetItemsKey(args: InferRequestType<typeof client.items.$get>) {
-  return ['/items', args] as const
+export function getGetItemsItemIdKey(
+  args: InferRequestType<(typeof client.items)[':itemId']['$get']>,
+) {
+  return [`/items/${args.param.itemId}`, args] as const
 }
 
 /**
@@ -63,13 +73,11 @@ export function useGetItemsItemId(
 }
 
 /**
- * Generates SWR cache key for GET /items/{itemId}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for DELETE /items/{itemId}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetItemsItemIdKey(
-  args: InferRequestType<(typeof client.items)[':itemId']['$get']>,
-) {
-  return ['/items/:itemId', args] as const
+export function getDeleteItemsItemIdMutationKey() {
+  return ['/items/:itemId'] as const
 }
 
 /**
@@ -103,13 +111,4 @@ export function useDeleteItemsItemId(options?: {
       restMutationOptions,
     ),
   }
-}
-
-/**
- * Generates SWR mutation key for DELETE /items/{itemId}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
- */
-export function getDeleteItemsItemIdMutationKey() {
-  return 'DELETE /items/:itemId'
 }

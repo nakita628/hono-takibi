@@ -82,6 +82,8 @@ export async function vueQuery(
     useMutationOptionsType: 'UseMutationOptions',
     // Vue Query needs Partial<Omit<...>> due to QueryKey type conflicts with MaybeRefOrGetter
     usePartialOmit: true,
+    // Vue Query uses different queryKey pattern (no leading slash, separate path params)
+    isVueQuery: true,
   }
   return makeQueryHooks(openAPI, output, importPath, config, split, clientName)
 }

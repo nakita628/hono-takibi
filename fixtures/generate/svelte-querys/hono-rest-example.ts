@@ -1,8 +1,33 @@
 import { createQuery, createMutation } from '@tanstack/svelte-query'
-import type { CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
+import type {
+  CreateQueryOptions,
+  QueryFunctionContext,
+  CreateMutationOptions,
+} from '@tanstack/svelte-query'
 import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/hono-rest-example'
+
+/**
+ * Generates Svelte Query cache key for GET /
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGetQueryKey() {
+  return ['', '/'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.index.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /
@@ -28,23 +53,26 @@ export function createGet(
 }
 
 /**
- * Generates Svelte Query cache key for GET /
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates Svelte Query cache key for GET /posts
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetQueryKey() {
-  return ['/'] as const
+export function getGetPostsQueryKey(args: InferRequestType<typeof client.posts.$get>) {
+  return ['posts', '/posts', args] as const
 }
 
 /**
- * Returns Svelte Query query options for GET /
+ * Returns Svelte Query query options for GET /posts
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetPostsQueryOptions = (
+  args: InferRequestType<typeof client.posts.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetPostsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.index.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      client.posts.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
     ),
 })
 
@@ -71,30 +99,6 @@ export function createGetPosts(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
-
-/**
- * Generates Svelte Query cache key for GET /posts
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetPostsQueryKey(args: InferRequestType<typeof client.posts.$get>) {
-  return ['/posts', args] as const
-}
-
-/**
- * Returns Svelte Query query options for GET /posts
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetPostsQueryOptions = (
-  args: InferRequestType<typeof client.posts.$get>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetPostsQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.posts.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-    ),
-})
 
 /**
  * POST /posts

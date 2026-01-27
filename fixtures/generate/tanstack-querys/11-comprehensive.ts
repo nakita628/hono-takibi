@@ -1,8 +1,36 @@
 import { useQuery, useMutation } from '@tanstack/react-query'
-import type { UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
+import type {
+  UseQueryOptions,
+  QueryFunctionContext,
+  UseMutationOptions,
+} from '@tanstack/react-query'
 import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/11-comprehensive'
+
+/**
+ * Generates TanStack Query cache key for GET /products
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetProductsQueryKey(args: InferRequestType<typeof client.products.$get>) {
+  return ['products', '/products', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /products
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetProductsQueryOptions = (
+  args: InferRequestType<typeof client.products.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetProductsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.products.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /products
@@ -27,30 +55,6 @@ export function useGetProducts(
 }
 
 /**
- * Generates TanStack Query cache key for GET /products
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetProductsQueryKey(args: InferRequestType<typeof client.products.$get>) {
-  return ['/products', args] as const
-}
-
-/**
- * Returns TanStack Query query options for GET /products
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetProductsQueryOptions = (
-  args: InferRequestType<typeof client.products.$get>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetProductsQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.products.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-    ),
-})
-
-/**
  * POST /products
  *
  * Create a new product
@@ -70,6 +74,35 @@ export function usePostProducts(options?: {
       parseResponse(client.products.$post(args, clientOptions)),
   })
 }
+
+/**
+ * Generates TanStack Query cache key for GET /products/{productId}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetProductsProductIdQueryKey(
+  args: InferRequestType<(typeof client.products)[':productId']['$get']>,
+) {
+  return ['products', '/products/:productId', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /products/{productId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetProductsProductIdQueryOptions = (
+  args: InferRequestType<(typeof client.products)[':productId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetProductsProductIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.products[':productId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /products/{productId}
@@ -97,35 +130,6 @@ export function useGetProductsProductId(
   )
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates TanStack Query cache key for GET /products/{productId}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetProductsProductIdQueryKey(
-  args: InferRequestType<(typeof client.products)[':productId']['$get']>,
-) {
-  return ['/products/:productId', args] as const
-}
-
-/**
- * Returns TanStack Query query options for GET /products/{productId}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetProductsProductIdQueryOptions = (
-  args: InferRequestType<(typeof client.products)[':productId']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetProductsProductIdQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.products[':productId'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * PUT /products/{productId}

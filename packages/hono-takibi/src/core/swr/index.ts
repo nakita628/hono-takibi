@@ -79,14 +79,14 @@ const toMutationKeyGetterName = (method: string, pathStr: string): string => {
 }
 
 /**
- * Generates SWR key getter function code using structured keys.
+ * Generates SWR key getter function code using Orval-style structured keys.
  *
- * Uses static template path as prefix (no runtime $url() call),
- * combined with args object for structured key pattern.
- * This enables:
- * - Filter-based invalidation: mutate((key) => key[0] === '/pet/:petId', ...)
- * - No query string order issues
- * - No runtime overhead (path is string literal)
+ * Pattern follows Orval's conventions:
+ * - [resolvedPath] for path params only
+ * - [resolvedPath, query] for path + query params
+ * - ['/path', query] for query params only
+ *
+ * This enables filter-based invalidation: mutate((key) => key[0].startsWith('/items'), ...)
  *
  * @see https://swr.vercel.app/docs/arguments
  */
@@ -100,19 +100,25 @@ const makeKeyGetterCode = (
   // Add space between * and / to prevent early comment termination (* / instead of */)
   const safeCommentPath = honoPath.replace(/:([^/]+)/g, '{$1}').replace(/\*\//g, '* /')
   const safeCommentPathNoParam = honoPath.replace(/\*\//g, '* /')
-  // Use structured key: [templatePath, args]
-  // - templatePath: static string literal (e.g., '/pet/:petId')
-  // - args: enables SWR's serialization for cache comparison
+
+  // Check if path has params (e.g., /pet/:petId)
+  const hasPathParams = /:([^/]+)/.test(honoPath)
+
+  // Build resolved path template literal: /pet/:petId -> `/pet/${args.param.petId}`
+  const resolvedPathTemplate = honoPath.replace(/:([^/]+)/g, '${args.param.$1}')
+
+  // Use structured key: [resolvedPath, args]
   if (hasArgs) {
+    const pathExpr = hasPathParams ? `\`${resolvedPathTemplate}\`` : `'${honoPath}'`
     return `/**
  * Generates SWR cache key for GET ${safeCommentPath}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function ${keyGetterName}(args:${inferRequestType}){return['${honoPath}',args]as const}`
+export function ${keyGetterName}(args:${inferRequestType}){return[${pathExpr},args]as const}`
   }
   return `/**
  * Generates SWR cache key for GET ${safeCommentPathNoParam}
- * Returns structured key [templatePath] for filter-based invalidation
+ * Returns structured key [path] for filter-based invalidation
  */
 export function ${keyGetterName}(){return['${honoPath}']as const}`
 }
@@ -176,10 +182,11 @@ const makeHookCode = (
       : `${clientPath}.$${method}(undefined,clientOptions)`
     const fetcherBody = buildFetcher(clientCall)
 
-    hookCode = `${docs}
-export function ${hookName}(${argsSig}${optionsSig}){const{swr:swrOptions,client:clientOptions}=options??{};const{swrKey:customKey,enabled,...restSwrOptions}=swrOptions??{};const isEnabled=enabled!==false;const swrKey=customKey??(isEnabled?${keyCall}:null);return{swrKey,...useSWR(swrKey,async()=>${fetcherBody},restSwrOptions)}}
+    // Orval order: key getter → hook
+    hookCode = `${keyGetterCode}
 
-${keyGetterCode}`
+${docs}
+export function ${hookName}(${argsSig}${optionsSig}){const{swr:swrOptions,client:clientOptions}=options??{};const{swrKey:customKey,enabled,...restSwrOptions}=swrOptions??{};const isEnabled=enabled!==false;const swrKey=customKey??(isEnabled?${keyCall}:null);return{swrKey,...useSWR(swrKey,async()=>${fetcherBody},restSwrOptions)}}`
   } else {
     // useSWRMutation hook for POST/PUT/DELETE/PATCH
     // Option A: Simple template key pattern
@@ -202,33 +209,35 @@ ${keyGetterCode}`
     // Safe comment path for JSDoc
     const safeCommentPath = honoPath.replace(/:([^/]+)/g, '{$1}').replace(/\*\//g, '* /')
 
-    // Key is static template - no runtime $url() call needed
+    // Orval-style mutation key: array with template path (no method prefix)
+    // Path params are NOT resolved since args are passed via trigger's { arg }
     const mutationKeyGetterCode = `/**
  * Generates SWR mutation key for ${methodUpper} ${safeCommentPath}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function ${mutationKeyGetterName}(){return'${methodUpper} ${honoPath}'}`
+export function ${mutationKeyGetterName}(){return['${honoPath}']as const}`
 
     if (hasArgs) {
       const clientCall = `${clientPath}.$${method}(arg,clientOptions)`
       const fetcherBody = buildFetcher(clientCall)
 
       const optionsSig = `options?:{mutation?:${mutationConfigType}&{swrKey?:Key};client?:ClientRequestOptions}`
-      hookCode = `${docs}
-export function ${hookName}(${optionsSig}){const{mutation:mutationOptions,client:clientOptions}=options??{};const{swrKey:customKey,...restMutationOptions}=mutationOptions??{};const swrKey=customKey??${mutationKeyGetterName}();return{swrKey,...useSWRMutation(swrKey,async(_:Key,{arg}:{arg:${inferRequestType}})=>${fetcherBody},restMutationOptions)}}
+      // Orval order: key getter → hook
+      hookCode = `${mutationKeyGetterCode}
 
-${mutationKeyGetterCode}`
+${docs}
+export function ${hookName}(${optionsSig}){const{mutation:mutationOptions,client:clientOptions}=options??{};const{swrKey:customKey,...restMutationOptions}=mutationOptions??{};const swrKey=customKey??${mutationKeyGetterName}();return{swrKey,...useSWRMutation(swrKey,async(_:Key,{arg}:{arg:${inferRequestType}})=>${fetcherBody},restMutationOptions)}}`
     } else {
       // No args - key is fixed
       const clientCall = `${clientPath}.$${method}(undefined,clientOptions)`
       const fetcherBody = buildFetcher(clientCall)
 
       const optionsSig = `options?:{mutation?:${mutationConfigType}&{swrKey?:Key};client?:ClientRequestOptions}`
-      hookCode = `${docs}
-export function ${hookName}(${optionsSig}){const{mutation:mutationOptions,client:clientOptions}=options??{};const{swrKey:customKey,...restMutationOptions}=mutationOptions??{};const swrKey=customKey??${mutationKeyGetterName}();return{swrKey,...useSWRMutation(swrKey,async()=>${fetcherBody},restMutationOptions)}}
+      // Orval order: key getter → hook
+      hookCode = `${mutationKeyGetterCode}
 
-${mutationKeyGetterCode}`
+${docs}
+export function ${hookName}(${optionsSig}){const{mutation:mutationOptions,client:clientOptions}=options??{};const{swrKey:customKey,...restMutationOptions}=mutationOptions??{};const swrKey=customKey??${mutationKeyGetterName}();return{swrKey,...useSWRMutation(swrKey,async()=>${fetcherBody},restMutationOptions)}}`
     }
   }
 

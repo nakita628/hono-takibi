@@ -7,6 +7,14 @@ import { parseResponse } from 'hono/client'
 import { client } from '../clients/pet-store'
 
 /**
+ * Generates SWR mutation key for PUT /pet
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ */
+export function getPutPetMutationKey() {
+  return ['/pet'] as const
+}
+
+/**
  * PUT /pet
  *
  * Update an existing pet
@@ -37,12 +45,11 @@ export function usePutPet(options?: {
 }
 
 /**
- * Generates SWR mutation key for PUT /pet
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /pet
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPutPetMutationKey() {
-  return 'PUT /pet'
+export function getPostPetMutationKey() {
+  return ['/pet'] as const
 }
 
 /**
@@ -76,12 +83,13 @@ export function usePostPet(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /pet
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /pet/findByStatus
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPostPetMutationKey() {
-  return 'POST /pet'
+export function getGetPetFindByStatusKey(
+  args: InferRequestType<typeof client.pet.findByStatus.$get>,
+) {
+  return ['/pet/findByStatus', args] as const
 }
 
 /**
@@ -113,13 +121,11 @@ export function useGetPetFindByStatus(
 }
 
 /**
- * Generates SWR cache key for GET /pet/findByStatus
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR cache key for GET /pet/findByTags
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getGetPetFindByStatusKey(
-  args: InferRequestType<typeof client.pet.findByStatus.$get>,
-) {
-  return ['/pet/findByStatus', args] as const
+export function getGetPetFindByTagsKey(args: InferRequestType<typeof client.pet.findByTags.$get>) {
+  return ['/pet/findByTags', args] as const
 }
 
 /**
@@ -151,11 +157,11 @@ export function useGetPetFindByTags(
 }
 
 /**
- * Generates SWR cache key for GET /pet/findByTags
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR cache key for GET /pet/{petId}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getGetPetFindByTagsKey(args: InferRequestType<typeof client.pet.findByTags.$get>) {
-  return ['/pet/findByTags', args] as const
+export function getGetPetPetIdKey(args: InferRequestType<(typeof client.pet)[':petId']['$get']>) {
+  return [`/pet/${args.param.petId}`, args] as const
 }
 
 /**
@@ -187,11 +193,11 @@ export function useGetPetPetId(
 }
 
 /**
- * Generates SWR cache key for GET /pet/{petId}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for POST /pet/{petId}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetPetPetIdKey(args: InferRequestType<(typeof client.pet)[':petId']['$get']>) {
-  return ['/pet/:petId', args] as const
+export function getPostPetPetIdMutationKey() {
+  return ['/pet/:petId'] as const
 }
 
 /**
@@ -225,12 +231,11 @@ export function usePostPetPetId(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /pet/{petId}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for DELETE /pet/{petId}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostPetPetIdMutationKey() {
-  return 'POST /pet/:petId'
+export function getDeletePetPetIdMutationKey() {
+  return ['/pet/:petId'] as const
 }
 
 /**
@@ -270,12 +275,11 @@ export function useDeletePetPetId(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /pet/{petId}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /pet/{petId}/uploadImage
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getDeletePetPetIdMutationKey() {
-  return 'DELETE /pet/:petId'
+export function getPostPetPetIdUploadImageMutationKey() {
+  return ['/pet/:petId/uploadImage'] as const
 }
 
 /**
@@ -315,12 +319,11 @@ export function usePostPetPetIdUploadImage(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /pet/{petId}/uploadImage
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /store/inventory
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getPostPetPetIdUploadImageMutationKey() {
-  return 'POST /pet/:petId/uploadImage'
+export function getGetStoreInventoryKey() {
+  return ['/store/inventory'] as const
 }
 
 /**
@@ -349,11 +352,11 @@ export function useGetStoreInventory(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /store/inventory
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR mutation key for POST /store/order
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetStoreInventoryKey() {
-  return ['/store/inventory'] as const
+export function getPostStoreOrderMutationKey() {
+  return ['/store/order'] as const
 }
 
 /**
@@ -387,12 +390,13 @@ export function usePostStoreOrder(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /store/order
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /store/order/{orderId}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPostStoreOrderMutationKey() {
-  return 'POST /store/order'
+export function getGetStoreOrderOrderIdKey(
+  args: InferRequestType<(typeof client.store.order)[':orderId']['$get']>,
+) {
+  return [`/store/order/${args.param.orderId}`, args] as const
 }
 
 /**
@@ -424,13 +428,11 @@ export function useGetStoreOrderOrderId(
 }
 
 /**
- * Generates SWR cache key for GET /store/order/{orderId}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for DELETE /store/order/{orderId}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetStoreOrderOrderIdKey(
-  args: InferRequestType<(typeof client.store.order)[':orderId']['$get']>,
-) {
-  return ['/store/order/:orderId', args] as const
+export function getDeleteStoreOrderOrderIdMutationKey() {
+  return ['/store/order/:orderId'] as const
 }
 
 /**
@@ -472,12 +474,11 @@ export function useDeleteStoreOrderOrderId(options?: {
 }
 
 /**
- * Generates SWR mutation key for DELETE /store/order/{orderId}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /user
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getDeleteStoreOrderOrderIdMutationKey() {
-  return 'DELETE /store/order/:orderId'
+export function getPostUserMutationKey() {
+  return ['/user'] as const
 }
 
 /**
@@ -511,12 +512,11 @@ export function usePostUser(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /user
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /user/createWithList
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostUserMutationKey() {
-  return 'POST /user'
+export function getPostUserCreateWithListMutationKey() {
+  return ['/user/createWithList'] as const
 }
 
 /**
@@ -552,12 +552,11 @@ export function usePostUserCreateWithList(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /user/createWithList
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /user/login
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPostUserCreateWithListMutationKey() {
-  return 'POST /user/createWithList'
+export function getGetUserLoginKey(args: InferRequestType<typeof client.user.login.$get>) {
+  return ['/user/login', args] as const
 }
 
 /**
@@ -587,11 +586,11 @@ export function useGetUserLogin(
 }
 
 /**
- * Generates SWR cache key for GET /user/login
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR cache key for GET /user/logout
+ * Returns structured key [path] for filter-based invalidation
  */
-export function getGetUserLoginKey(args: InferRequestType<typeof client.user.login.$get>) {
-  return ['/user/login', args] as const
+export function getGetUserLogoutKey() {
+  return ['/user/logout'] as const
 }
 
 /**
@@ -618,11 +617,13 @@ export function useGetUserLogout(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /user/logout
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR cache key for GET /user/{username}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getGetUserLogoutKey() {
-  return ['/user/logout'] as const
+export function getGetUserUsernameKey(
+  args: InferRequestType<(typeof client.user)[':username']['$get']>,
+) {
+  return [`/user/${args.param.username}`, args] as const
 }
 
 /**
@@ -652,13 +653,11 @@ export function useGetUserUsername(
 }
 
 /**
- * Generates SWR cache key for GET /user/{username}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for PUT /user/{username}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetUserUsernameKey(
-  args: InferRequestType<(typeof client.user)[':username']['$get']>,
-) {
-  return ['/user/:username', args] as const
+export function getPutUserUsernameMutationKey() {
+  return ['/user/:username'] as const
 }
 
 /**
@@ -698,12 +697,11 @@ export function usePutUserUsername(options?: {
 }
 
 /**
- * Generates SWR mutation key for PUT /user/{username}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for DELETE /user/{username}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPutUserUsernameMutationKey() {
-  return 'PUT /user/:username'
+export function getDeleteUserUsernameMutationKey() {
+  return ['/user/:username'] as const
 }
 
 /**
@@ -740,13 +738,4 @@ export function useDeleteUserUsername(options?: {
       restMutationOptions,
     ),
   }
-}
-
-/**
- * Generates SWR mutation key for DELETE /user/{username}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
- */
-export function getDeleteUserUsernameMutationKey() {
-  return 'DELETE /user/:username'
 }

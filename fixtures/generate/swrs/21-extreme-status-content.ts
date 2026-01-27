@@ -7,6 +7,14 @@ import { parseResponse } from 'hono/client'
 import { client } from '../clients/21-extreme-status-content'
 
 /**
+ * Generates SWR cache key for GET /extreme-responses
+ * Returns structured key [path] for filter-based invalidation
+ */
+export function getGetExtremeResponsesKey() {
+  return ['/extreme-responses'] as const
+}
+
+/**
  * GET /extreme-responses
  */
 export function useGetExtremeResponses(options?: {
@@ -28,11 +36,11 @@ export function useGetExtremeResponses(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /extreme-responses
- * Returns structured key [templatePath] for filter-based invalidation
+ * Generates SWR mutation key for POST /multipart-variations
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetExtremeResponsesKey() {
-  return ['/extreme-responses'] as const
+export function getPostMultipartVariationsMutationKey() {
+  return ['/multipart-variations'] as const
 }
 
 /**
@@ -68,12 +76,11 @@ export function usePostMultipartVariations(options?: {
 }
 
 /**
- * Generates SWR mutation key for POST /multipart-variations
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR mutation key for POST /charset-variations
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getPostMultipartVariationsMutationKey() {
-  return 'POST /multipart-variations'
+export function getPostCharsetVariationsMutationKey() {
+  return ['/charset-variations'] as const
 }
 
 /**
@@ -106,13 +113,4 @@ export function usePostCharsetVariations(options?: {
       restMutationOptions,
     ),
   }
-}
-
-/**
- * Generates SWR mutation key for POST /charset-variations
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
- */
-export function getPostCharsetVariationsMutationKey() {
-  return 'POST /charset-variations'
 }

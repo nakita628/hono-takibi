@@ -7,6 +7,14 @@ import { parseResponse } from 'hono/client'
 import { client } from '../clients/06-headers'
 
 /**
+ * Generates SWR cache key for GET /resources
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
+ */
+export function getGetResourcesKey(args: InferRequestType<typeof client.resources.$get>) {
+  return ['/resources', args] as const
+}
+
+/**
  * GET /resources
  */
 export function useGetResources(
@@ -31,11 +39,13 @@ export function useGetResources(
 }
 
 /**
- * Generates SWR cache key for GET /resources
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR cache key for GET /resources/{id}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getGetResourcesKey(args: InferRequestType<typeof client.resources.$get>) {
-  return ['/resources', args] as const
+export function getGetResourcesIdKey(
+  args: InferRequestType<(typeof client.resources)[':id']['$get']>,
+) {
+  return [`/resources/${args.param.id}`, args] as const
 }
 
 /**
@@ -63,13 +73,11 @@ export function useGetResourcesId(
 }
 
 /**
- * Generates SWR cache key for GET /resources/{id}
- * Returns structured key [templatePath, args] for filter-based invalidation
+ * Generates SWR mutation key for PUT /resources/{id}
+ * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
  */
-export function getGetResourcesIdKey(
-  args: InferRequestType<(typeof client.resources)[':id']['$get']>,
-) {
-  return ['/resources/:id', args] as const
+export function getPutResourcesIdMutationKey() {
+  return ['/resources/:id'] as const
 }
 
 /**
@@ -105,12 +113,13 @@ export function usePutResourcesId(options?: {
 }
 
 /**
- * Generates SWR mutation key for PUT /resources/{id}
- * Returns fixed template key (path params are NOT resolved)
- * All args should be passed via trigger's { arg } object
+ * Generates SWR cache key for GET /download/{id}
+ * Returns structured key [resolvedPath, args] for filter-based invalidation
  */
-export function getPutResourcesIdMutationKey() {
-  return 'PUT /resources/:id'
+export function getGetDownloadIdKey(
+  args: InferRequestType<(typeof client.download)[':id']['$get']>,
+) {
+  return [`/download/${args.param.id}`, args] as const
 }
 
 /**
@@ -135,14 +144,4 @@ export function useGetDownloadId(
       restSwrOptions,
     ),
   }
-}
-
-/**
- * Generates SWR cache key for GET /download/{id}
- * Returns structured key [templatePath, args] for filter-based invalidation
- */
-export function getGetDownloadIdKey(
-  args: InferRequestType<(typeof client.download)[':id']['$get']>,
-) {
-  return ['/download/:id', args] as const
 }

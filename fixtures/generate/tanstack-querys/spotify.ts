@@ -1,8 +1,36 @@
 import { useQuery, useMutation } from '@tanstack/react-query'
-import type { UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
+import type {
+  UseQueryOptions,
+  QueryFunctionContext,
+  UseMutationOptions,
+} from '@tanstack/react-query'
 import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/spotify'
+
+/**
+ * Generates TanStack Query cache key for GET /albums
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetAlbumsQueryKey(args: InferRequestType<typeof client.albums.$get>) {
+  return ['albums', '/albums', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /albums
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetAlbumsQueryOptions = (
+  args: InferRequestType<typeof client.albums.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetAlbumsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.albums.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /albums
@@ -27,26 +55,31 @@ export function useGetAlbums(
 }
 
 /**
- * Generates TanStack Query cache key for GET /albums
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates TanStack Query cache key for GET /albums/{id}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetAlbumsQueryKey(args: InferRequestType<typeof client.albums.$get>) {
-  return ['/albums', args] as const
+export function getGetAlbumsIdQueryKey(
+  args: InferRequestType<(typeof client.albums)[':id']['$get']>,
+) {
+  return ['albums', '/albums/:id', args] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /albums
+ * Returns TanStack Query query options for GET /albums/{id}
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetAlbumsQueryOptions = (
-  args: InferRequestType<typeof client.albums.$get>,
+export const getGetAlbumsIdQueryOptions = (
+  args: InferRequestType<(typeof client.albums)[':id']['$get']>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetAlbumsQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetAlbumsIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.albums.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      client.albums[':id'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
     ),
 })
 
@@ -75,28 +108,28 @@ export function useGetAlbumsId(
 }
 
 /**
- * Generates TanStack Query cache key for GET /albums/{id}
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates TanStack Query cache key for GET /albums/{id}/tracks
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetAlbumsIdQueryKey(
-  args: InferRequestType<(typeof client.albums)[':id']['$get']>,
+export function getGetAlbumsIdTracksQueryKey(
+  args: InferRequestType<(typeof client.albums)[':id']['tracks']['$get']>,
 ) {
-  return ['/albums/:id', args] as const
+  return ['albums', '/albums/:id/tracks', args] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /albums/{id}
+ * Returns TanStack Query query options for GET /albums/{id}/tracks
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetAlbumsIdQueryOptions = (
-  args: InferRequestType<(typeof client.albums)[':id']['$get']>,
+export const getGetAlbumsIdTracksQueryOptions = (
+  args: InferRequestType<(typeof client.albums)[':id']['tracks']['$get']>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetAlbumsIdQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetAlbumsIdTracksQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.albums[':id'].$get(args, {
+      client.albums[':id'].tracks.$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -134,31 +167,26 @@ export function useGetAlbumsIdTracks(
 }
 
 /**
- * Generates TanStack Query cache key for GET /albums/{id}/tracks
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates TanStack Query cache key for GET /artists
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetAlbumsIdTracksQueryKey(
-  args: InferRequestType<(typeof client.albums)[':id']['tracks']['$get']>,
-) {
-  return ['/albums/:id/tracks', args] as const
+export function getGetArtistsQueryKey(args: InferRequestType<typeof client.artists.$get>) {
+  return ['artists', '/artists', args] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /albums/{id}/tracks
+ * Returns TanStack Query query options for GET /artists
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetAlbumsIdTracksQueryOptions = (
-  args: InferRequestType<(typeof client.albums)[':id']['tracks']['$get']>,
+export const getGetArtistsQueryOptions = (
+  args: InferRequestType<typeof client.artists.$get>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetAlbumsIdTracksQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetArtistsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.albums[':id'].tracks.$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
+      client.artists.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
     ),
 })
 
@@ -185,26 +213,31 @@ export function useGetArtists(
 }
 
 /**
- * Generates TanStack Query cache key for GET /artists
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates TanStack Query cache key for GET /artists/{id}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetArtistsQueryKey(args: InferRequestType<typeof client.artists.$get>) {
-  return ['/artists', args] as const
+export function getGetArtistsIdQueryKey(
+  args: InferRequestType<(typeof client.artists)[':id']['$get']>,
+) {
+  return ['artists', '/artists/:id', args] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /artists
+ * Returns TanStack Query query options for GET /artists/{id}
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetArtistsQueryOptions = (
-  args: InferRequestType<typeof client.artists.$get>,
+export const getGetArtistsIdQueryOptions = (
+  args: InferRequestType<(typeof client.artists)[':id']['$get']>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetArtistsQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetArtistsIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.artists.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      client.artists[':id'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
     ),
 })
 
@@ -235,28 +268,28 @@ export function useGetArtistsId(
 }
 
 /**
- * Generates TanStack Query cache key for GET /artists/{id}
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates TanStack Query cache key for GET /artists/{id}/albums
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetArtistsIdQueryKey(
-  args: InferRequestType<(typeof client.artists)[':id']['$get']>,
+export function getGetArtistsIdAlbumsQueryKey(
+  args: InferRequestType<(typeof client.artists)[':id']['albums']['$get']>,
 ) {
-  return ['/artists/:id', args] as const
+  return ['artists', '/artists/:id/albums', args] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /artists/{id}
+ * Returns TanStack Query query options for GET /artists/{id}/albums
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetArtistsIdQueryOptions = (
-  args: InferRequestType<(typeof client.artists)[':id']['$get']>,
+export const getGetArtistsIdAlbumsQueryOptions = (
+  args: InferRequestType<(typeof client.artists)[':id']['albums']['$get']>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetArtistsIdQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetArtistsIdAlbumsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.artists[':id'].$get(args, {
+      client.artists[':id'].albums.$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -295,28 +328,28 @@ export function useGetArtistsIdAlbums(
 }
 
 /**
- * Generates TanStack Query cache key for GET /artists/{id}/albums
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates TanStack Query cache key for GET /artists/{id}/related-artists
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetArtistsIdAlbumsQueryKey(
-  args: InferRequestType<(typeof client.artists)[':id']['albums']['$get']>,
+export function getGetArtistsIdRelatedArtistsQueryKey(
+  args: InferRequestType<(typeof client.artists)[':id']['related-artists']['$get']>,
 ) {
-  return ['/artists/:id/albums', args] as const
+  return ['artists', '/artists/:id/related-artists', args] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /artists/{id}/albums
+ * Returns TanStack Query query options for GET /artists/{id}/related-artists
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetArtistsIdAlbumsQueryOptions = (
-  args: InferRequestType<(typeof client.artists)[':id']['albums']['$get']>,
+export const getGetArtistsIdRelatedArtistsQueryOptions = (
+  args: InferRequestType<(typeof client.artists)[':id']['related-artists']['$get']>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetArtistsIdAlbumsQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetArtistsIdRelatedArtistsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.artists[':id'].albums.$get(args, {
+      client.artists[':id']['related-artists'].$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -355,28 +388,28 @@ export function useGetArtistsIdRelatedArtists(
 }
 
 /**
- * Generates TanStack Query cache key for GET /artists/{id}/related-artists
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates TanStack Query cache key for GET /artists/{id}/top-tracks
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetArtistsIdRelatedArtistsQueryKey(
-  args: InferRequestType<(typeof client.artists)[':id']['related-artists']['$get']>,
+export function getGetArtistsIdTopTracksQueryKey(
+  args: InferRequestType<(typeof client.artists)[':id']['top-tracks']['$get']>,
 ) {
-  return ['/artists/:id/related-artists', args] as const
+  return ['artists', '/artists/:id/top-tracks', args] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /artists/{id}/related-artists
+ * Returns TanStack Query query options for GET /artists/{id}/top-tracks
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetArtistsIdRelatedArtistsQueryOptions = (
-  args: InferRequestType<(typeof client.artists)[':id']['related-artists']['$get']>,
+export const getGetArtistsIdTopTracksQueryOptions = (
+  args: InferRequestType<(typeof client.artists)[':id']['top-tracks']['$get']>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetArtistsIdRelatedArtistsQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetArtistsIdTopTracksQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.artists[':id']['related-artists'].$get(args, {
+      client.artists[':id']['top-tracks'].$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -415,28 +448,28 @@ export function useGetArtistsIdTopTracks(
 }
 
 /**
- * Generates TanStack Query cache key for GET /artists/{id}/top-tracks
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates TanStack Query cache key for GET /audio-analysis/{id}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetArtistsIdTopTracksQueryKey(
-  args: InferRequestType<(typeof client.artists)[':id']['top-tracks']['$get']>,
+export function getGetAudioAnalysisIdQueryKey(
+  args: InferRequestType<(typeof client)['audio-analysis'][':id']['$get']>,
 ) {
-  return ['/artists/:id/top-tracks', args] as const
+  return ['audio-analysis', '/audio-analysis/:id', args] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /artists/{id}/top-tracks
+ * Returns TanStack Query query options for GET /audio-analysis/{id}
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetArtistsIdTopTracksQueryOptions = (
-  args: InferRequestType<(typeof client.artists)[':id']['top-tracks']['$get']>,
+export const getGetAudioAnalysisIdQueryOptions = (
+  args: InferRequestType<(typeof client)['audio-analysis'][':id']['$get']>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetArtistsIdTopTracksQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetAudioAnalysisIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.artists[':id']['top-tracks'].$get(args, {
+      client['audio-analysis'][':id'].$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -475,28 +508,28 @@ export function useGetAudioAnalysisId(
 }
 
 /**
- * Generates TanStack Query cache key for GET /audio-analysis/{id}
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates TanStack Query cache key for GET /audio-features
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetAudioAnalysisIdQueryKey(
-  args: InferRequestType<(typeof client)['audio-analysis'][':id']['$get']>,
+export function getGetAudioFeaturesQueryKey(
+  args: InferRequestType<(typeof client)['audio-features']['$get']>,
 ) {
-  return ['/audio-analysis/:id', args] as const
+  return ['audio-features', '/audio-features', args] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /audio-analysis/{id}
+ * Returns TanStack Query query options for GET /audio-features
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetAudioAnalysisIdQueryOptions = (
-  args: InferRequestType<(typeof client)['audio-analysis'][':id']['$get']>,
+export const getGetAudioFeaturesQueryOptions = (
+  args: InferRequestType<(typeof client)['audio-features']['$get']>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetAudioAnalysisIdQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetAudioFeaturesQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client['audio-analysis'][':id'].$get(args, {
+      client['audio-features'].$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -530,28 +563,28 @@ export function useGetAudioFeatures(
 }
 
 /**
- * Generates TanStack Query cache key for GET /audio-features
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates TanStack Query cache key for GET /audio-features/{id}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetAudioFeaturesQueryKey(
-  args: InferRequestType<(typeof client)['audio-features']['$get']>,
+export function getGetAudioFeaturesIdQueryKey(
+  args: InferRequestType<(typeof client)['audio-features'][':id']['$get']>,
 ) {
-  return ['/audio-features', args] as const
+  return ['audio-features', '/audio-features/:id', args] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /audio-features
+ * Returns TanStack Query query options for GET /audio-features/{id}
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetAudioFeaturesQueryOptions = (
-  args: InferRequestType<(typeof client)['audio-features']['$get']>,
+export const getGetAudioFeaturesIdQueryOptions = (
+  args: InferRequestType<(typeof client)['audio-features'][':id']['$get']>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetAudioFeaturesQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetAudioFeaturesIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client['audio-features'].$get(args, {
+      client['audio-features'][':id'].$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -591,31 +624,26 @@ export function useGetAudioFeaturesId(
 }
 
 /**
- * Generates TanStack Query cache key for GET /audio-features/{id}
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates TanStack Query cache key for GET /audiobooks
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetAudioFeaturesIdQueryKey(
-  args: InferRequestType<(typeof client)['audio-features'][':id']['$get']>,
-) {
-  return ['/audio-features/:id', args] as const
+export function getGetAudiobooksQueryKey(args: InferRequestType<typeof client.audiobooks.$get>) {
+  return ['audiobooks', '/audiobooks', args] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /audio-features/{id}
+ * Returns TanStack Query query options for GET /audiobooks
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetAudioFeaturesIdQueryOptions = (
-  args: InferRequestType<(typeof client)['audio-features'][':id']['$get']>,
+export const getGetAudiobooksQueryOptions = (
+  args: InferRequestType<typeof client.audiobooks.$get>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetAudioFeaturesIdQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetAudiobooksQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client['audio-features'][':id'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
+      client.audiobooks.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
     ),
 })
 
@@ -643,26 +671,31 @@ export function useGetAudiobooks(
 }
 
 /**
- * Generates TanStack Query cache key for GET /audiobooks
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates TanStack Query cache key for GET /audiobooks/{id}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetAudiobooksQueryKey(args: InferRequestType<typeof client.audiobooks.$get>) {
-  return ['/audiobooks', args] as const
+export function getGetAudiobooksIdQueryKey(
+  args: InferRequestType<(typeof client.audiobooks)[':id']['$get']>,
+) {
+  return ['audiobooks', '/audiobooks/:id', args] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /audiobooks
+ * Returns TanStack Query query options for GET /audiobooks/{id}
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetAudiobooksQueryOptions = (
-  args: InferRequestType<typeof client.audiobooks.$get>,
+export const getGetAudiobooksIdQueryOptions = (
+  args: InferRequestType<(typeof client.audiobooks)[':id']['$get']>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetAudiobooksQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetAudiobooksIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.audiobooks.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      client.audiobooks[':id'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
     ),
 })
 
@@ -694,28 +727,28 @@ export function useGetAudiobooksId(
 }
 
 /**
- * Generates TanStack Query cache key for GET /audiobooks/{id}
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates TanStack Query cache key for GET /audiobooks/{id}/chapters
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetAudiobooksIdQueryKey(
-  args: InferRequestType<(typeof client.audiobooks)[':id']['$get']>,
+export function getGetAudiobooksIdChaptersQueryKey(
+  args: InferRequestType<(typeof client.audiobooks)[':id']['chapters']['$get']>,
 ) {
-  return ['/audiobooks/:id', args] as const
+  return ['audiobooks', '/audiobooks/:id/chapters', args] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /audiobooks/{id}
+ * Returns TanStack Query query options for GET /audiobooks/{id}/chapters
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetAudiobooksIdQueryOptions = (
-  args: InferRequestType<(typeof client.audiobooks)[':id']['$get']>,
+export const getGetAudiobooksIdChaptersQueryOptions = (
+  args: InferRequestType<(typeof client.audiobooks)[':id']['chapters']['$get']>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetAudiobooksIdQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetAudiobooksIdChaptersQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.audiobooks[':id'].$get(args, {
+      client.audiobooks[':id'].chapters.$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -755,28 +788,28 @@ export function useGetAudiobooksIdChapters(
 }
 
 /**
- * Generates TanStack Query cache key for GET /audiobooks/{id}/chapters
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates TanStack Query cache key for GET /browse/categories
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetAudiobooksIdChaptersQueryKey(
-  args: InferRequestType<(typeof client.audiobooks)[':id']['chapters']['$get']>,
+export function getGetBrowseCategoriesQueryKey(
+  args: InferRequestType<typeof client.browse.categories.$get>,
 ) {
-  return ['/audiobooks/:id/chapters', args] as const
+  return ['browse', '/browse/categories', args] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /audiobooks/{id}/chapters
+ * Returns TanStack Query query options for GET /browse/categories
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetAudiobooksIdChaptersQueryOptions = (
-  args: InferRequestType<(typeof client.audiobooks)[':id']['chapters']['$get']>,
+export const getGetBrowseCategoriesQueryOptions = (
+  args: InferRequestType<typeof client.browse.categories.$get>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetAudiobooksIdChaptersQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetBrowseCategoriesQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.audiobooks[':id'].chapters.$get(args, {
+      client.browse.categories.$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -811,28 +844,28 @@ export function useGetBrowseCategories(
 }
 
 /**
- * Generates TanStack Query cache key for GET /browse/categories
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates TanStack Query cache key for GET /browse/categories/{category_id}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetBrowseCategoriesQueryKey(
-  args: InferRequestType<typeof client.browse.categories.$get>,
+export function getGetBrowseCategoriesCategoryIdQueryKey(
+  args: InferRequestType<(typeof client.browse.categories)[':category_id']['$get']>,
 ) {
-  return ['/browse/categories', args] as const
+  return ['browse', '/browse/categories/:category_id', args] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /browse/categories
+ * Returns TanStack Query query options for GET /browse/categories/{category_id}
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetBrowseCategoriesQueryOptions = (
-  args: InferRequestType<typeof client.browse.categories.$get>,
+export const getGetBrowseCategoriesCategoryIdQueryOptions = (
+  args: InferRequestType<(typeof client.browse.categories)[':category_id']['$get']>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetBrowseCategoriesQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetBrowseCategoriesCategoryIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.browse.categories.$get(args, {
+      client.browse.categories[':category_id'].$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -871,28 +904,28 @@ export function useGetBrowseCategoriesCategoryId(
 }
 
 /**
- * Generates TanStack Query cache key for GET /browse/categories/{category_id}
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates TanStack Query cache key for GET /browse/categories/{category_id}/playlists
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetBrowseCategoriesCategoryIdQueryKey(
-  args: InferRequestType<(typeof client.browse.categories)[':category_id']['$get']>,
+export function getGetBrowseCategoriesCategoryIdPlaylistsQueryKey(
+  args: InferRequestType<(typeof client.browse.categories)[':category_id']['playlists']['$get']>,
 ) {
-  return ['/browse/categories/:category_id', args] as const
+  return ['browse', '/browse/categories/:category_id/playlists', args] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /browse/categories/{category_id}
+ * Returns TanStack Query query options for GET /browse/categories/{category_id}/playlists
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetBrowseCategoriesCategoryIdQueryOptions = (
-  args: InferRequestType<(typeof client.browse.categories)[':category_id']['$get']>,
+export const getGetBrowseCategoriesCategoryIdPlaylistsQueryOptions = (
+  args: InferRequestType<(typeof client.browse.categories)[':category_id']['playlists']['$get']>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetBrowseCategoriesCategoryIdQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetBrowseCategoriesCategoryIdPlaylistsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.browse.categories[':category_id'].$get(args, {
+      client.browse.categories[':category_id'].playlists.$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -931,28 +964,28 @@ export function useGetBrowseCategoriesCategoryIdPlaylists(
 }
 
 /**
- * Generates TanStack Query cache key for GET /browse/categories/{category_id}/playlists
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates TanStack Query cache key for GET /browse/featured-playlists
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetBrowseCategoriesCategoryIdPlaylistsQueryKey(
-  args: InferRequestType<(typeof client.browse.categories)[':category_id']['playlists']['$get']>,
+export function getGetBrowseFeaturedPlaylistsQueryKey(
+  args: InferRequestType<(typeof client.browse)['featured-playlists']['$get']>,
 ) {
-  return ['/browse/categories/:category_id/playlists', args] as const
+  return ['browse', '/browse/featured-playlists', args] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /browse/categories/{category_id}/playlists
+ * Returns TanStack Query query options for GET /browse/featured-playlists
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetBrowseCategoriesCategoryIdPlaylistsQueryOptions = (
-  args: InferRequestType<(typeof client.browse.categories)[':category_id']['playlists']['$get']>,
+export const getGetBrowseFeaturedPlaylistsQueryOptions = (
+  args: InferRequestType<(typeof client.browse)['featured-playlists']['$get']>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetBrowseCategoriesCategoryIdPlaylistsQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetBrowseFeaturedPlaylistsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.browse.categories[':category_id'].playlists.$get(args, {
+      client.browse['featured-playlists'].$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -991,28 +1024,28 @@ export function useGetBrowseFeaturedPlaylists(
 }
 
 /**
- * Generates TanStack Query cache key for GET /browse/featured-playlists
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates TanStack Query cache key for GET /browse/new-releases
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetBrowseFeaturedPlaylistsQueryKey(
-  args: InferRequestType<(typeof client.browse)['featured-playlists']['$get']>,
+export function getGetBrowseNewReleasesQueryKey(
+  args: InferRequestType<(typeof client.browse)['new-releases']['$get']>,
 ) {
-  return ['/browse/featured-playlists', args] as const
+  return ['browse', '/browse/new-releases', args] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /browse/featured-playlists
+ * Returns TanStack Query query options for GET /browse/new-releases
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetBrowseFeaturedPlaylistsQueryOptions = (
-  args: InferRequestType<(typeof client.browse)['featured-playlists']['$get']>,
+export const getGetBrowseNewReleasesQueryOptions = (
+  args: InferRequestType<(typeof client.browse)['new-releases']['$get']>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetBrowseFeaturedPlaylistsQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetBrowseNewReleasesQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.browse['featured-playlists'].$get(args, {
+      client.browse['new-releases'].$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -1049,31 +1082,26 @@ export function useGetBrowseNewReleases(
 }
 
 /**
- * Generates TanStack Query cache key for GET /browse/new-releases
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates TanStack Query cache key for GET /chapters
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetBrowseNewReleasesQueryKey(
-  args: InferRequestType<(typeof client.browse)['new-releases']['$get']>,
-) {
-  return ['/browse/new-releases', args] as const
+export function getGetChaptersQueryKey(args: InferRequestType<typeof client.chapters.$get>) {
+  return ['chapters', '/chapters', args] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /browse/new-releases
+ * Returns TanStack Query query options for GET /chapters
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetBrowseNewReleasesQueryOptions = (
-  args: InferRequestType<(typeof client.browse)['new-releases']['$get']>,
+export const getGetChaptersQueryOptions = (
+  args: InferRequestType<typeof client.chapters.$get>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetBrowseNewReleasesQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetChaptersQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.browse['new-releases'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
+      client.chapters.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
     ),
 })
 
@@ -1101,26 +1129,31 @@ export function useGetChapters(
 }
 
 /**
- * Generates TanStack Query cache key for GET /chapters
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates TanStack Query cache key for GET /chapters/{id}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetChaptersQueryKey(args: InferRequestType<typeof client.chapters.$get>) {
-  return ['/chapters', args] as const
+export function getGetChaptersIdQueryKey(
+  args: InferRequestType<(typeof client.chapters)[':id']['$get']>,
+) {
+  return ['chapters', '/chapters/:id', args] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /chapters
+ * Returns TanStack Query query options for GET /chapters/{id}
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetChaptersQueryOptions = (
-  args: InferRequestType<typeof client.chapters.$get>,
+export const getGetChaptersIdQueryOptions = (
+  args: InferRequestType<(typeof client.chapters)[':id']['$get']>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetChaptersQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetChaptersIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.chapters.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      client.chapters[':id'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
     ),
 })
 
@@ -1152,31 +1185,26 @@ export function useGetChaptersId(
 }
 
 /**
- * Generates TanStack Query cache key for GET /chapters/{id}
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates TanStack Query cache key for GET /episodes
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetChaptersIdQueryKey(
-  args: InferRequestType<(typeof client.chapters)[':id']['$get']>,
-) {
-  return ['/chapters/:id', args] as const
+export function getGetEpisodesQueryKey(args: InferRequestType<typeof client.episodes.$get>) {
+  return ['episodes', '/episodes', args] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /chapters/{id}
+ * Returns TanStack Query query options for GET /episodes
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetChaptersIdQueryOptions = (
-  args: InferRequestType<(typeof client.chapters)[':id']['$get']>,
+export const getGetEpisodesQueryOptions = (
+  args: InferRequestType<typeof client.episodes.$get>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetChaptersIdQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetEpisodesQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.chapters[':id'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
+      client.episodes.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
     ),
 })
 
@@ -1203,26 +1231,31 @@ export function useGetEpisodes(
 }
 
 /**
- * Generates TanStack Query cache key for GET /episodes
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates TanStack Query cache key for GET /episodes/{id}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetEpisodesQueryKey(args: InferRequestType<typeof client.episodes.$get>) {
-  return ['/episodes', args] as const
+export function getGetEpisodesIdQueryKey(
+  args: InferRequestType<(typeof client.episodes)[':id']['$get']>,
+) {
+  return ['episodes', '/episodes/:id', args] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /episodes
+ * Returns TanStack Query query options for GET /episodes/{id}
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetEpisodesQueryOptions = (
-  args: InferRequestType<typeof client.episodes.$get>,
+export const getGetEpisodesIdQueryOptions = (
+  args: InferRequestType<(typeof client.episodes)[':id']['$get']>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetEpisodesQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetEpisodesIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.episodes.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      client.episodes[':id'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
     ),
 })
 
@@ -1254,28 +1287,23 @@ export function useGetEpisodesId(
 }
 
 /**
- * Generates TanStack Query cache key for GET /episodes/{id}
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates TanStack Query cache key for GET /markets
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetEpisodesIdQueryKey(
-  args: InferRequestType<(typeof client.episodes)[':id']['$get']>,
-) {
-  return ['/episodes/:id', args] as const
+export function getGetMarketsQueryKey() {
+  return ['markets', '/markets'] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /episodes/{id}
+ * Returns TanStack Query query options for GET /markets
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetEpisodesIdQueryOptions = (
-  args: InferRequestType<(typeof client.episodes)[':id']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetEpisodesIdQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetMarketsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetMarketsQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.episodes[':id'].$get(args, {
+      client.markets.$get(undefined, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -1302,26 +1330,23 @@ export function useGetMarkets(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /markets
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates TanStack Query cache key for GET /me
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetMarketsQueryKey() {
-  return ['/markets'] as const
+export function getGetMeQueryKey() {
+  return ['me', '/me'] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /markets
+ * Returns TanStack Query query options for GET /me
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetMarketsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetMarketsQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetMeQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetMeQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.markets.$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
+      client.me.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
     ),
 })
 
@@ -1346,23 +1371,26 @@ export function useGetMe(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /me
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates TanStack Query cache key for GET /me/albums
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetMeQueryKey() {
-  return ['/me'] as const
+export function getGetMeAlbumsQueryKey(args: InferRequestType<typeof client.me.albums.$get>) {
+  return ['me', '/me/albums', args] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /me
+ * Returns TanStack Query query options for GET /me/albums
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetMeQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetMeQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetMeAlbumsQueryOptions = (
+  args: InferRequestType<typeof client.me.albums.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetMeAlbumsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.me.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      client.me.albums.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
     ),
 })
 
@@ -1387,30 +1415,6 @@ export function useGetMeAlbums(
   const { queryKey, queryFn, ...baseOptions } = getGetMeAlbumsQueryOptions(args, clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates TanStack Query cache key for GET /me/albums
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetMeAlbumsQueryKey(args: InferRequestType<typeof client.me.albums.$get>) {
-  return ['/me/albums', args] as const
-}
-
-/**
- * Returns TanStack Query query options for GET /me/albums
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetMeAlbumsQueryOptions = (
-  args: InferRequestType<typeof client.me.albums.$get>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetMeAlbumsQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.me.albums.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-    ),
-})
 
 /**
  * PUT /me/albums
@@ -1459,6 +1463,35 @@ export function useDeleteMeAlbums(options?: {
 }
 
 /**
+ * Generates TanStack Query cache key for GET /me/albums/contains
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetMeAlbumsContainsQueryKey(
+  args: InferRequestType<typeof client.me.albums.contains.$get>,
+) {
+  return ['me', '/me/albums/contains', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /me/albums/contains
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetMeAlbumsContainsQueryOptions = (
+  args: InferRequestType<typeof client.me.albums.contains.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetMeAlbumsContainsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.me.albums.contains.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /me/albums/contains
  *
  * Check User's Saved Albums
@@ -1486,28 +1519,28 @@ export function useGetMeAlbumsContains(
 }
 
 /**
- * Generates TanStack Query cache key for GET /me/albums/contains
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates TanStack Query cache key for GET /me/audiobooks
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetMeAlbumsContainsQueryKey(
-  args: InferRequestType<typeof client.me.albums.contains.$get>,
+export function getGetMeAudiobooksQueryKey(
+  args: InferRequestType<typeof client.me.audiobooks.$get>,
 ) {
-  return ['/me/albums/contains', args] as const
+  return ['me', '/me/audiobooks', args] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /me/albums/contains
+ * Returns TanStack Query query options for GET /me/audiobooks
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetMeAlbumsContainsQueryOptions = (
-  args: InferRequestType<typeof client.me.albums.contains.$get>,
+export const getGetMeAudiobooksQueryOptions = (
+  args: InferRequestType<typeof client.me.audiobooks.$get>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetMeAlbumsContainsQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetMeAudiobooksQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.me.albums.contains.$get(args, {
+      client.me.audiobooks.$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -1537,35 +1570,6 @@ export function useGetMeAudiobooks(
   const { queryKey, queryFn, ...baseOptions } = getGetMeAudiobooksQueryOptions(args, clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates TanStack Query cache key for GET /me/audiobooks
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetMeAudiobooksQueryKey(
-  args: InferRequestType<typeof client.me.audiobooks.$get>,
-) {
-  return ['/me/audiobooks', args] as const
-}
-
-/**
- * Returns TanStack Query query options for GET /me/audiobooks
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetMeAudiobooksQueryOptions = (
-  args: InferRequestType<typeof client.me.audiobooks.$get>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetMeAudiobooksQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.me.audiobooks.$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * PUT /me/audiobooks
@@ -1618,6 +1622,35 @@ export function useDeleteMeAudiobooks(options?: {
 }
 
 /**
+ * Generates TanStack Query cache key for GET /me/audiobooks/contains
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetMeAudiobooksContainsQueryKey(
+  args: InferRequestType<typeof client.me.audiobooks.contains.$get>,
+) {
+  return ['me', '/me/audiobooks/contains', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /me/audiobooks/contains
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetMeAudiobooksContainsQueryOptions = (
+  args: InferRequestType<typeof client.me.audiobooks.contains.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetMeAudiobooksContainsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.me.audiobooks.contains.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /me/audiobooks/contains
  *
  * Check User's Saved Audiobooks
@@ -1647,31 +1680,26 @@ export function useGetMeAudiobooksContains(
 }
 
 /**
- * Generates TanStack Query cache key for GET /me/audiobooks/contains
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates TanStack Query cache key for GET /me/episodes
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetMeAudiobooksContainsQueryKey(
-  args: InferRequestType<typeof client.me.audiobooks.contains.$get>,
-) {
-  return ['/me/audiobooks/contains', args] as const
+export function getGetMeEpisodesQueryKey(args: InferRequestType<typeof client.me.episodes.$get>) {
+  return ['me', '/me/episodes', args] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /me/audiobooks/contains
+ * Returns TanStack Query query options for GET /me/episodes
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetMeAudiobooksContainsQueryOptions = (
-  args: InferRequestType<typeof client.me.audiobooks.contains.$get>,
+export const getGetMeEpisodesQueryOptions = (
+  args: InferRequestType<typeof client.me.episodes.$get>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetMeAudiobooksContainsQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetMeEpisodesQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.me.audiobooks.contains.$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
+      client.me.episodes.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
     ),
 })
 
@@ -1699,30 +1727,6 @@ export function useGetMeEpisodes(
   const { queryKey, queryFn, ...baseOptions } = getGetMeEpisodesQueryOptions(args, clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates TanStack Query cache key for GET /me/episodes
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetMeEpisodesQueryKey(args: InferRequestType<typeof client.me.episodes.$get>) {
-  return ['/me/episodes', args] as const
-}
-
-/**
- * Returns TanStack Query query options for GET /me/episodes
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetMeEpisodesQueryOptions = (
-  args: InferRequestType<typeof client.me.episodes.$get>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetMeEpisodesQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.me.episodes.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-    ),
-})
 
 /**
  * PUT /me/episodes
@@ -1775,6 +1779,35 @@ export function useDeleteMeEpisodes(options?: {
 }
 
 /**
+ * Generates TanStack Query cache key for GET /me/episodes/contains
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetMeEpisodesContainsQueryKey(
+  args: InferRequestType<typeof client.me.episodes.contains.$get>,
+) {
+  return ['me', '/me/episodes/contains', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /me/episodes/contains
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetMeEpisodesContainsQueryOptions = (
+  args: InferRequestType<typeof client.me.episodes.contains.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetMeEpisodesContainsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.me.episodes.contains.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /me/episodes/contains
  *
  * Check User's Saved Episodes
@@ -1805,28 +1838,26 @@ export function useGetMeEpisodesContains(
 }
 
 /**
- * Generates TanStack Query cache key for GET /me/episodes/contains
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates TanStack Query cache key for GET /me/following
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetMeEpisodesContainsQueryKey(
-  args: InferRequestType<typeof client.me.episodes.contains.$get>,
-) {
-  return ['/me/episodes/contains', args] as const
+export function getGetMeFollowingQueryKey(args: InferRequestType<typeof client.me.following.$get>) {
+  return ['me', '/me/following', args] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /me/episodes/contains
+ * Returns TanStack Query query options for GET /me/following
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetMeEpisodesContainsQueryOptions = (
-  args: InferRequestType<typeof client.me.episodes.contains.$get>,
+export const getGetMeFollowingQueryOptions = (
+  args: InferRequestType<typeof client.me.following.$get>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetMeEpisodesContainsQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetMeFollowingQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.me.episodes.contains.$get(args, {
+      client.me.following.$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -1856,33 +1887,6 @@ export function useGetMeFollowing(
   const { queryKey, queryFn, ...baseOptions } = getGetMeFollowingQueryOptions(args, clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates TanStack Query cache key for GET /me/following
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetMeFollowingQueryKey(args: InferRequestType<typeof client.me.following.$get>) {
-  return ['/me/following', args] as const
-}
-
-/**
- * Returns TanStack Query query options for GET /me/following
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetMeFollowingQueryOptions = (
-  args: InferRequestType<typeof client.me.following.$get>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetMeFollowingQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.me.following.$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * PUT /me/following
@@ -1936,6 +1940,35 @@ export function useDeleteMeFollowing(options?: {
 }
 
 /**
+ * Generates TanStack Query cache key for GET /me/following/contains
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetMeFollowingContainsQueryKey(
+  args: InferRequestType<typeof client.me.following.contains.$get>,
+) {
+  return ['me', '/me/following/contains', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /me/following/contains
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetMeFollowingContainsQueryOptions = (
+  args: InferRequestType<typeof client.me.following.contains.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetMeFollowingContainsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.me.following.contains.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /me/following/contains
  *
  * Check If User Follows Artists or Users
@@ -1965,31 +1998,26 @@ export function useGetMeFollowingContains(
 }
 
 /**
- * Generates TanStack Query cache key for GET /me/following/contains
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates TanStack Query cache key for GET /me/player
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetMeFollowingContainsQueryKey(
-  args: InferRequestType<typeof client.me.following.contains.$get>,
-) {
-  return ['/me/following/contains', args] as const
+export function getGetMePlayerQueryKey(args: InferRequestType<typeof client.me.player.$get>) {
+  return ['me', '/me/player', args] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /me/following/contains
+ * Returns TanStack Query query options for GET /me/player
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetMeFollowingContainsQueryOptions = (
-  args: InferRequestType<typeof client.me.following.contains.$get>,
+export const getGetMePlayerQueryOptions = (
+  args: InferRequestType<typeof client.me.player.$get>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetMeFollowingContainsQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetMePlayerQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.me.following.contains.$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
+      client.me.player.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
     ),
 })
 
@@ -2016,30 +2044,6 @@ export function useGetMePlayer(
 }
 
 /**
- * Generates TanStack Query cache key for GET /me/player
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetMePlayerQueryKey(args: InferRequestType<typeof client.me.player.$get>) {
-  return ['/me/player', args] as const
-}
-
-/**
- * Returns TanStack Query query options for GET /me/player
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetMePlayerQueryOptions = (
-  args: InferRequestType<typeof client.me.player.$get>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetMePlayerQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.me.player.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-    ),
-})
-
-/**
  * PUT /me/player
  *
  * Transfer Playback
@@ -2062,6 +2066,35 @@ export function usePutMePlayer(options?: {
       parseResponse(client.me.player.$put(args, clientOptions)),
   })
 }
+
+/**
+ * Generates TanStack Query cache key for GET /me/player/currently-playing
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetMePlayerCurrentlyPlayingQueryKey(
+  args: InferRequestType<(typeof client.me.player)['currently-playing']['$get']>,
+) {
+  return ['me', '/me/player/currently-playing', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /me/player/currently-playing
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetMePlayerCurrentlyPlayingQueryOptions = (
+  args: InferRequestType<(typeof client.me.player)['currently-playing']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetMePlayerCurrentlyPlayingQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.me.player['currently-playing'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /me/player/currently-playing
@@ -2095,28 +2128,23 @@ export function useGetMePlayerCurrentlyPlaying(
 }
 
 /**
- * Generates TanStack Query cache key for GET /me/player/currently-playing
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates TanStack Query cache key for GET /me/player/devices
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetMePlayerCurrentlyPlayingQueryKey(
-  args: InferRequestType<(typeof client.me.player)['currently-playing']['$get']>,
-) {
-  return ['/me/player/currently-playing', args] as const
+export function getGetMePlayerDevicesQueryKey() {
+  return ['me', '/me/player/devices'] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /me/player/currently-playing
+ * Returns TanStack Query query options for GET /me/player/devices
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetMePlayerCurrentlyPlayingQueryOptions = (
-  args: InferRequestType<(typeof client.me.player)['currently-playing']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetMePlayerCurrentlyPlayingQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+export const getGetMePlayerDevicesQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetMePlayerDevicesQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.me.player['currently-playing'].$get(args, {
+      client.me.player.devices.$get(undefined, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -2143,30 +2171,6 @@ export function useGetMePlayerDevices(options?: {
   const { queryKey, queryFn, ...baseOptions } = getGetMePlayerDevicesQueryOptions(clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates TanStack Query cache key for GET /me/player/devices
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGetMePlayerDevicesQueryKey() {
-  return ['/me/player/devices'] as const
-}
-
-/**
- * Returns TanStack Query query options for GET /me/player/devices
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetMePlayerDevicesQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetMePlayerDevicesQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.me.player.devices.$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /me/player/next
@@ -2275,6 +2279,30 @@ export function usePostMePlayerPrevious(options?: {
 }
 
 /**
+ * Generates TanStack Query cache key for GET /me/player/queue
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGetMePlayerQueueQueryKey() {
+  return ['me', '/me/player/queue'] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /me/player/queue
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetMePlayerQueueQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetMePlayerQueueQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.me.player.queue.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /me/player/queue
  *
  * Get the User's Queue
@@ -2294,30 +2322,6 @@ export function useGetMePlayerQueue(options?: {
   const { queryKey, queryFn, ...baseOptions } = getGetMePlayerQueueQueryOptions(clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates TanStack Query cache key for GET /me/player/queue
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGetMePlayerQueueQueryKey() {
-  return ['/me/player/queue'] as const
-}
-
-/**
- * Returns TanStack Query query options for GET /me/player/queue
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetMePlayerQueueQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetMePlayerQueueQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.me.player.queue.$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /me/player/queue
@@ -2344,6 +2348,35 @@ export function usePostMePlayerQueue(options?: {
       parseResponse(client.me.player.queue.$post(args, clientOptions)),
   })
 }
+
+/**
+ * Generates TanStack Query cache key for GET /me/player/recently-played
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetMePlayerRecentlyPlayedQueryKey(
+  args: InferRequestType<(typeof client.me.player)['recently-played']['$get']>,
+) {
+  return ['me', '/me/player/recently-played', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /me/player/recently-played
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetMePlayerRecentlyPlayedQueryOptions = (
+  args: InferRequestType<(typeof client.me.player)['recently-played']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetMePlayerRecentlyPlayedQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.me.player['recently-played'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /me/player/recently-played
@@ -2376,35 +2409,6 @@ export function useGetMePlayerRecentlyPlayed(
   )
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates TanStack Query cache key for GET /me/player/recently-played
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetMePlayerRecentlyPlayedQueryKey(
-  args: InferRequestType<(typeof client.me.player)['recently-played']['$get']>,
-) {
-  return ['/me/player/recently-played', args] as const
-}
-
-/**
- * Returns TanStack Query query options for GET /me/player/recently-played
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetMePlayerRecentlyPlayedQueryOptions = (
-  args: InferRequestType<(typeof client.me.player)['recently-played']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetMePlayerRecentlyPlayedQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.me.player['recently-played'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * PUT /me/player/repeat
@@ -2512,6 +2516,33 @@ export function usePutMePlayerVolume(options?: {
 }
 
 /**
+ * Generates TanStack Query cache key for GET /me/playlists
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetMePlaylistsQueryKey(args: InferRequestType<typeof client.me.playlists.$get>) {
+  return ['me', '/me/playlists', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /me/playlists
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetMePlaylistsQueryOptions = (
+  args: InferRequestType<typeof client.me.playlists.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetMePlaylistsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.me.playlists.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /me/playlists
  *
  * Get Current User's Playlists
@@ -2537,29 +2568,26 @@ export function useGetMePlaylists(
 }
 
 /**
- * Generates TanStack Query cache key for GET /me/playlists
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates TanStack Query cache key for GET /me/shows
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetMePlaylistsQueryKey(args: InferRequestType<typeof client.me.playlists.$get>) {
-  return ['/me/playlists', args] as const
+export function getGetMeShowsQueryKey(args: InferRequestType<typeof client.me.shows.$get>) {
+  return ['me', '/me/shows', args] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /me/playlists
+ * Returns TanStack Query query options for GET /me/shows
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetMePlaylistsQueryOptions = (
-  args: InferRequestType<typeof client.me.playlists.$get>,
+export const getGetMeShowsQueryOptions = (
+  args: InferRequestType<typeof client.me.shows.$get>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetMePlaylistsQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetMeShowsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.me.playlists.$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
+      client.me.shows.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
     ),
 })
 
@@ -2584,30 +2612,6 @@ export function useGetMeShows(
   const { queryKey, queryFn, ...baseOptions } = getGetMeShowsQueryOptions(args, clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates TanStack Query cache key for GET /me/shows
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetMeShowsQueryKey(args: InferRequestType<typeof client.me.shows.$get>) {
-  return ['/me/shows', args] as const
-}
-
-/**
- * Returns TanStack Query query options for GET /me/shows
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetMeShowsQueryOptions = (
-  args: InferRequestType<typeof client.me.shows.$get>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetMeShowsQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.me.shows.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-    ),
-})
 
 /**
  * PUT /me/shows
@@ -2656,6 +2660,35 @@ export function useDeleteMeShows(options?: {
 }
 
 /**
+ * Generates TanStack Query cache key for GET /me/shows/contains
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetMeShowsContainsQueryKey(
+  args: InferRequestType<typeof client.me.shows.contains.$get>,
+) {
+  return ['me', '/me/shows/contains', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /me/shows/contains
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetMeShowsContainsQueryOptions = (
+  args: InferRequestType<typeof client.me.shows.contains.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetMeShowsContainsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.me.shows.contains.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /me/shows/contains
  *
  * Check User's Saved Shows
@@ -2683,28 +2716,28 @@ export function useGetMeShowsContains(
 }
 
 /**
- * Generates TanStack Query cache key for GET /me/shows/contains
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates TanStack Query cache key for GET /me/top/{type}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetMeShowsContainsQueryKey(
-  args: InferRequestType<typeof client.me.shows.contains.$get>,
+export function getGetMeTopTypeQueryKey(
+  args: InferRequestType<(typeof client.me.top)[':type']['$get']>,
 ) {
-  return ['/me/shows/contains', args] as const
+  return ['me', '/me/top/:type', args] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /me/shows/contains
+ * Returns TanStack Query query options for GET /me/top/{type}
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetMeShowsContainsQueryOptions = (
-  args: InferRequestType<typeof client.me.shows.contains.$get>,
+export const getGetMeTopTypeQueryOptions = (
+  args: InferRequestType<(typeof client.me.top)[':type']['$get']>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetMeShowsContainsQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetMeTopTypeQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.me.shows.contains.$get(args, {
+      client.me.top[':type'].$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -2738,31 +2771,26 @@ export function useGetMeTopType(
 }
 
 /**
- * Generates TanStack Query cache key for GET /me/top/{type}
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates TanStack Query cache key for GET /me/tracks
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetMeTopTypeQueryKey(
-  args: InferRequestType<(typeof client.me.top)[':type']['$get']>,
-) {
-  return ['/me/top/:type', args] as const
+export function getGetMeTracksQueryKey(args: InferRequestType<typeof client.me.tracks.$get>) {
+  return ['me', '/me/tracks', args] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /me/top/{type}
+ * Returns TanStack Query query options for GET /me/tracks
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetMeTopTypeQueryOptions = (
-  args: InferRequestType<(typeof client.me.top)[':type']['$get']>,
+export const getGetMeTracksQueryOptions = (
+  args: InferRequestType<typeof client.me.tracks.$get>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetMeTopTypeQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetMeTracksQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.me.top[':type'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
+      client.me.tracks.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
     ),
 })
 
@@ -2787,30 +2815,6 @@ export function useGetMeTracks(
   const { queryKey, queryFn, ...baseOptions } = getGetMeTracksQueryOptions(args, clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates TanStack Query cache key for GET /me/tracks
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetMeTracksQueryKey(args: InferRequestType<typeof client.me.tracks.$get>) {
-  return ['/me/tracks', args] as const
-}
-
-/**
- * Returns TanStack Query query options for GET /me/tracks
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetMeTracksQueryOptions = (
-  args: InferRequestType<typeof client.me.tracks.$get>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetMeTracksQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.me.tracks.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-    ),
-})
 
 /**
  * PUT /me/tracks
@@ -2859,6 +2863,35 @@ export function useDeleteMeTracks(options?: {
 }
 
 /**
+ * Generates TanStack Query cache key for GET /me/tracks/contains
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetMeTracksContainsQueryKey(
+  args: InferRequestType<typeof client.me.tracks.contains.$get>,
+) {
+  return ['me', '/me/tracks/contains', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /me/tracks/contains
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetMeTracksContainsQueryOptions = (
+  args: InferRequestType<typeof client.me.tracks.contains.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetMeTracksContainsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.me.tracks.contains.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /me/tracks/contains
  *
  * Check User's Saved Tracks
@@ -2886,28 +2919,28 @@ export function useGetMeTracksContains(
 }
 
 /**
- * Generates TanStack Query cache key for GET /me/tracks/contains
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates TanStack Query cache key for GET /playlists/{playlist_id}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetMeTracksContainsQueryKey(
-  args: InferRequestType<typeof client.me.tracks.contains.$get>,
+export function getGetPlaylistsPlaylistIdQueryKey(
+  args: InferRequestType<(typeof client.playlists)[':playlist_id']['$get']>,
 ) {
-  return ['/me/tracks/contains', args] as const
+  return ['playlists', '/playlists/:playlist_id', args] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /me/tracks/contains
+ * Returns TanStack Query query options for GET /playlists/{playlist_id}
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetMeTracksContainsQueryOptions = (
-  args: InferRequestType<typeof client.me.tracks.contains.$get>,
+export const getGetPlaylistsPlaylistIdQueryOptions = (
+  args: InferRequestType<(typeof client.playlists)[':playlist_id']['$get']>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetMeTracksContainsQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetPlaylistsPlaylistIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.me.tracks.contains.$get(args, {
+      client.playlists[':playlist_id'].$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -2944,35 +2977,6 @@ export function useGetPlaylistsPlaylistId(
   )
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates TanStack Query cache key for GET /playlists/{playlist_id}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetPlaylistsPlaylistIdQueryKey(
-  args: InferRequestType<(typeof client.playlists)[':playlist_id']['$get']>,
-) {
-  return ['/playlists/:playlist_id', args] as const
-}
-
-/**
- * Returns TanStack Query query options for GET /playlists/{playlist_id}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetPlaylistsPlaylistIdQueryOptions = (
-  args: InferRequestType<(typeof client.playlists)[':playlist_id']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetPlaylistsPlaylistIdQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.playlists[':playlist_id'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * PUT /playlists/{playlist_id}
@@ -3063,6 +3067,39 @@ export function useDeletePlaylistsPlaylistIdFollowers(options?: {
 }
 
 /**
+ * Generates TanStack Query cache key for GET /playlists/{playlist_id}/followers/contains
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetPlaylistsPlaylistIdFollowersContainsQueryKey(
+  args: InferRequestType<
+    (typeof client.playlists)[':playlist_id']['followers']['contains']['$get']
+  >,
+) {
+  return ['playlists', '/playlists/:playlist_id/followers/contains', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /playlists/{playlist_id}/followers/contains
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetPlaylistsPlaylistIdFollowersContainsQueryOptions = (
+  args: InferRequestType<
+    (typeof client.playlists)[':playlist_id']['followers']['contains']['$get']
+  >,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetPlaylistsPlaylistIdFollowersContainsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.playlists[':playlist_id'].followers.contains.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /playlists/{playlist_id}/followers/contains
  *
  * Check if Users Follow Playlist
@@ -3096,32 +3133,28 @@ export function useGetPlaylistsPlaylistIdFollowersContains(
 }
 
 /**
- * Generates TanStack Query cache key for GET /playlists/{playlist_id}/followers/contains
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates TanStack Query cache key for GET /playlists/{playlist_id}/images
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetPlaylistsPlaylistIdFollowersContainsQueryKey(
-  args: InferRequestType<
-    (typeof client.playlists)[':playlist_id']['followers']['contains']['$get']
-  >,
+export function getGetPlaylistsPlaylistIdImagesQueryKey(
+  args: InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$get']>,
 ) {
-  return ['/playlists/:playlist_id/followers/contains', args] as const
+  return ['playlists', '/playlists/:playlist_id/images', args] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /playlists/{playlist_id}/followers/contains
+ * Returns TanStack Query query options for GET /playlists/{playlist_id}/images
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetPlaylistsPlaylistIdFollowersContainsQueryOptions = (
-  args: InferRequestType<
-    (typeof client.playlists)[':playlist_id']['followers']['contains']['$get']
-  >,
+export const getGetPlaylistsPlaylistIdImagesQueryOptions = (
+  args: InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$get']>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetPlaylistsPlaylistIdFollowersContainsQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetPlaylistsPlaylistIdImagesQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.playlists[':playlist_id'].followers.contains.$get(args, {
+      client.playlists[':playlist_id'].images.$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -3160,35 +3193,6 @@ export function useGetPlaylistsPlaylistIdImages(
 }
 
 /**
- * Generates TanStack Query cache key for GET /playlists/{playlist_id}/images
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetPlaylistsPlaylistIdImagesQueryKey(
-  args: InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$get']>,
-) {
-  return ['/playlists/:playlist_id/images', args] as const
-}
-
-/**
- * Returns TanStack Query query options for GET /playlists/{playlist_id}/images
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetPlaylistsPlaylistIdImagesQueryOptions = (
-  args: InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetPlaylistsPlaylistIdImagesQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.playlists[':playlist_id'].images.$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
-
-/**
  * PUT /playlists/{playlist_id}/images
  *
  * Add Custom Playlist Cover Image
@@ -3217,6 +3221,35 @@ export function usePutPlaylistsPlaylistIdImages(options?: {
     ) => parseResponse(client.playlists[':playlist_id'].images.$put(args, clientOptions)),
   })
 }
+
+/**
+ * Generates TanStack Query cache key for GET /playlists/{playlist_id}/tracks
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetPlaylistsPlaylistIdTracksQueryKey(
+  args: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$get']>,
+) {
+  return ['playlists', '/playlists/:playlist_id/tracks', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /playlists/{playlist_id}/tracks
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetPlaylistsPlaylistIdTracksQueryOptions = (
+  args: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetPlaylistsPlaylistIdTracksQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.playlists[':playlist_id'].tracks.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /playlists/{playlist_id}/tracks
@@ -3248,35 +3281,6 @@ export function useGetPlaylistsPlaylistIdTracks(
   )
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates TanStack Query cache key for GET /playlists/{playlist_id}/tracks
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetPlaylistsPlaylistIdTracksQueryKey(
-  args: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$get']>,
-) {
-  return ['/playlists/:playlist_id/tracks', args] as const
-}
-
-/**
- * Returns TanStack Query query options for GET /playlists/{playlist_id}/tracks
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetPlaylistsPlaylistIdTracksQueryOptions = (
-  args: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetPlaylistsPlaylistIdTracksQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.playlists[':playlist_id'].tracks.$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * PUT /playlists/{playlist_id}/tracks
@@ -3375,6 +3379,35 @@ export function useDeletePlaylistsPlaylistIdTracks(options?: {
 }
 
 /**
+ * Generates TanStack Query cache key for GET /recommendations
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetRecommendationsQueryKey(
+  args: InferRequestType<typeof client.recommendations.$get>,
+) {
+  return ['recommendations', '/recommendations', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /recommendations
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetRecommendationsQueryOptions = (
+  args: InferRequestType<typeof client.recommendations.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetRecommendationsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.recommendations.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /recommendations
  *
  * Get Recommendations
@@ -3404,28 +3437,25 @@ export function useGetRecommendations(
 }
 
 /**
- * Generates TanStack Query cache key for GET /recommendations
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates TanStack Query cache key for GET /recommendations/available-genre-seeds
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
  */
-export function getGetRecommendationsQueryKey(
-  args: InferRequestType<typeof client.recommendations.$get>,
-) {
-  return ['/recommendations', args] as const
+export function getGetRecommendationsAvailableGenreSeedsQueryKey() {
+  return ['recommendations', '/recommendations/available-genre-seeds'] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /recommendations
+ * Returns TanStack Query query options for GET /recommendations/available-genre-seeds
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetRecommendationsQueryOptions = (
-  args: InferRequestType<typeof client.recommendations.$get>,
+export const getGetRecommendationsAvailableGenreSeedsQueryOptions = (
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetRecommendationsQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetRecommendationsAvailableGenreSeedsQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.recommendations.$get(args, {
+      client.recommendations['available-genre-seeds'].$get(undefined, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -3459,28 +3489,26 @@ export function useGetRecommendationsAvailableGenreSeeds(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /recommendations/available-genre-seeds
- * Returns structured key [templatePath] for partial invalidation support
+ * Generates TanStack Query cache key for GET /search
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetRecommendationsAvailableGenreSeedsQueryKey() {
-  return ['/recommendations/available-genre-seeds'] as const
+export function getGetSearchQueryKey(args: InferRequestType<typeof client.search.$get>) {
+  return ['search', '/search', args] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /recommendations/available-genre-seeds
+ * Returns TanStack Query query options for GET /search
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetRecommendationsAvailableGenreSeedsQueryOptions = (
+export const getGetSearchQueryOptions = (
+  args: InferRequestType<typeof client.search.$get>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetRecommendationsAvailableGenreSeedsQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetSearchQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.recommendations['available-genre-seeds'].$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
+      client.search.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
     ),
 })
 
@@ -3509,26 +3537,26 @@ export function useGetSearch(
 }
 
 /**
- * Generates TanStack Query cache key for GET /search
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates TanStack Query cache key for GET /shows
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetSearchQueryKey(args: InferRequestType<typeof client.search.$get>) {
-  return ['/search', args] as const
+export function getGetShowsQueryKey(args: InferRequestType<typeof client.shows.$get>) {
+  return ['shows', '/shows', args] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /search
+ * Returns TanStack Query query options for GET /shows
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetSearchQueryOptions = (
-  args: InferRequestType<typeof client.search.$get>,
+export const getGetShowsQueryOptions = (
+  args: InferRequestType<typeof client.shows.$get>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetSearchQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetShowsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.search.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      client.shows.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
     ),
 })
 
@@ -3555,26 +3583,31 @@ export function useGetShows(
 }
 
 /**
- * Generates TanStack Query cache key for GET /shows
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates TanStack Query cache key for GET /shows/{id}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetShowsQueryKey(args: InferRequestType<typeof client.shows.$get>) {
-  return ['/shows', args] as const
+export function getGetShowsIdQueryKey(
+  args: InferRequestType<(typeof client.shows)[':id']['$get']>,
+) {
+  return ['shows', '/shows/:id', args] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /shows
+ * Returns TanStack Query query options for GET /shows/{id}
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetShowsQueryOptions = (
-  args: InferRequestType<typeof client.shows.$get>,
+export const getGetShowsIdQueryOptions = (
+  args: InferRequestType<(typeof client.shows)[':id']['$get']>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetShowsQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetShowsIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.shows.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      client.shows[':id'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
     ),
 })
 
@@ -3604,28 +3637,28 @@ export function useGetShowsId(
 }
 
 /**
- * Generates TanStack Query cache key for GET /shows/{id}
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates TanStack Query cache key for GET /shows/{id}/episodes
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetShowsIdQueryKey(
-  args: InferRequestType<(typeof client.shows)[':id']['$get']>,
+export function getGetShowsIdEpisodesQueryKey(
+  args: InferRequestType<(typeof client.shows)[':id']['episodes']['$get']>,
 ) {
-  return ['/shows/:id', args] as const
+  return ['shows', '/shows/:id/episodes', args] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /shows/{id}
+ * Returns TanStack Query query options for GET /shows/{id}/episodes
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetShowsIdQueryOptions = (
-  args: InferRequestType<(typeof client.shows)[':id']['$get']>,
+export const getGetShowsIdEpisodesQueryOptions = (
+  args: InferRequestType<(typeof client.shows)[':id']['episodes']['$get']>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetShowsIdQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetShowsIdEpisodesQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.shows[':id'].$get(args, {
+      client.shows[':id'].episodes.$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -3664,31 +3697,26 @@ export function useGetShowsIdEpisodes(
 }
 
 /**
- * Generates TanStack Query cache key for GET /shows/{id}/episodes
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates TanStack Query cache key for GET /tracks
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetShowsIdEpisodesQueryKey(
-  args: InferRequestType<(typeof client.shows)[':id']['episodes']['$get']>,
-) {
-  return ['/shows/:id/episodes', args] as const
+export function getGetTracksQueryKey(args: InferRequestType<typeof client.tracks.$get>) {
+  return ['tracks', '/tracks', args] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /shows/{id}/episodes
+ * Returns TanStack Query query options for GET /tracks
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetShowsIdEpisodesQueryOptions = (
-  args: InferRequestType<(typeof client.shows)[':id']['episodes']['$get']>,
+export const getGetTracksQueryOptions = (
+  args: InferRequestType<typeof client.tracks.$get>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetShowsIdEpisodesQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetTracksQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.shows[':id'].episodes.$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
+      client.tracks.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
     ),
 })
 
@@ -3715,26 +3743,31 @@ export function useGetTracks(
 }
 
 /**
- * Generates TanStack Query cache key for GET /tracks
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates TanStack Query cache key for GET /tracks/{id}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetTracksQueryKey(args: InferRequestType<typeof client.tracks.$get>) {
-  return ['/tracks', args] as const
+export function getGetTracksIdQueryKey(
+  args: InferRequestType<(typeof client.tracks)[':id']['$get']>,
+) {
+  return ['tracks', '/tracks/:id', args] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /tracks
+ * Returns TanStack Query query options for GET /tracks/{id}
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetTracksQueryOptions = (
-  args: InferRequestType<typeof client.tracks.$get>,
+export const getGetTracksIdQueryOptions = (
+  args: InferRequestType<(typeof client.tracks)[':id']['$get']>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetTracksQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetTracksIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.tracks.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      client.tracks[':id'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
     ),
 })
 
@@ -3764,28 +3797,28 @@ export function useGetTracksId(
 }
 
 /**
- * Generates TanStack Query cache key for GET /tracks/{id}
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates TanStack Query cache key for GET /users/{user_id}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetTracksIdQueryKey(
-  args: InferRequestType<(typeof client.tracks)[':id']['$get']>,
+export function getGetUsersUserIdQueryKey(
+  args: InferRequestType<(typeof client.users)[':user_id']['$get']>,
 ) {
-  return ['/tracks/:id', args] as const
+  return ['users', '/users/:user_id', args] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /tracks/{id}
+ * Returns TanStack Query query options for GET /users/{user_id}
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetTracksIdQueryOptions = (
-  args: InferRequestType<(typeof client.tracks)[':id']['$get']>,
+export const getGetUsersUserIdQueryOptions = (
+  args: InferRequestType<(typeof client.users)[':user_id']['$get']>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetTracksIdQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetUsersUserIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.tracks[':id'].$get(args, {
+      client.users[':user_id'].$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -3819,28 +3852,28 @@ export function useGetUsersUserId(
 }
 
 /**
- * Generates TanStack Query cache key for GET /users/{user_id}
- * Returns structured key [templatePath, args] for partial invalidation support
+ * Generates TanStack Query cache key for GET /users/{user_id}/playlists
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
  */
-export function getGetUsersUserIdQueryKey(
-  args: InferRequestType<(typeof client.users)[':user_id']['$get']>,
+export function getGetUsersUserIdPlaylistsQueryKey(
+  args: InferRequestType<(typeof client.users)[':user_id']['playlists']['$get']>,
 ) {
-  return ['/users/:user_id', args] as const
+  return ['users', '/users/:user_id/playlists', args] as const
 }
 
 /**
- * Returns TanStack Query query options for GET /users/{user_id}
+ * Returns TanStack Query query options for GET /users/{user_id}/playlists
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetUsersUserIdQueryOptions = (
-  args: InferRequestType<(typeof client.users)[':user_id']['$get']>,
+export const getGetUsersUserIdPlaylistsQueryOptions = (
+  args: InferRequestType<(typeof client.users)[':user_id']['playlists']['$get']>,
   clientOptions?: ClientRequestOptions,
 ) => ({
-  queryKey: getGetUsersUserIdQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
+  queryKey: getGetUsersUserIdPlaylistsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
     parseResponse(
-      client.users[':user_id'].$get(args, {
+      client.users[':user_id'].playlists.$get(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
       }),
@@ -3877,35 +3910,6 @@ export function useGetUsersUserIdPlaylists(
   )
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates TanStack Query cache key for GET /users/{user_id}/playlists
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetUsersUserIdPlaylistsQueryKey(
-  args: InferRequestType<(typeof client.users)[':user_id']['playlists']['$get']>,
-) {
-  return ['/users/:user_id/playlists', args] as const
-}
-
-/**
- * Returns TanStack Query query options for GET /users/{user_id}/playlists
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetUsersUserIdPlaylistsQueryOptions = (
-  args: InferRequestType<(typeof client.users)[':user_id']['playlists']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetUsersUserIdPlaylistsQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.users[':user_id'].playlists.$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /users/{user_id}/playlists

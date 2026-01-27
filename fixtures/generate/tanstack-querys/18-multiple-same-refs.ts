@@ -1,8 +1,36 @@
 import { useQuery, useMutation } from '@tanstack/react-query'
-import type { UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
+import type {
+  UseQueryOptions,
+  QueryFunctionContext,
+  UseMutationOptions,
+} from '@tanstack/react-query'
 import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/18-multiple-same-refs'
+
+/**
+ * Generates TanStack Query cache key for GET /documents
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetDocumentsQueryKey(args: InferRequestType<typeof client.documents.$get>) {
+  return ['documents', '/documents', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /documents
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetDocumentsQueryOptions = (
+  args: InferRequestType<typeof client.documents.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetDocumentsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.documents.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /documents
@@ -23,30 +51,6 @@ export function useGetDocuments(
 }
 
 /**
- * Generates TanStack Query cache key for GET /documents
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetDocumentsQueryKey(args: InferRequestType<typeof client.documents.$get>) {
-  return ['/documents', args] as const
-}
-
-/**
- * Returns TanStack Query query options for GET /documents
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetDocumentsQueryOptions = (
-  args: InferRequestType<typeof client.documents.$get>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetDocumentsQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.documents.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-    ),
-})
-
-/**
  * POST /documents
  */
 export function usePostDocuments(options?: {
@@ -64,6 +68,35 @@ export function usePostDocuments(options?: {
       parseResponse(client.documents.$post(args, clientOptions)),
   })
 }
+
+/**
+ * Generates TanStack Query cache key for GET /documents/{documentId}
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetDocumentsDocumentIdQueryKey(
+  args: InferRequestType<(typeof client.documents)[':documentId']['$get']>,
+) {
+  return ['documents', '/documents/:documentId', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /documents/{documentId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetDocumentsDocumentIdQueryOptions = (
+  args: InferRequestType<(typeof client.documents)[':documentId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetDocumentsDocumentIdQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.documents[':documentId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /documents/{documentId}
@@ -93,35 +126,6 @@ export function useGetDocumentsDocumentId(
 }
 
 /**
- * Generates TanStack Query cache key for GET /documents/{documentId}
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetDocumentsDocumentIdQueryKey(
-  args: InferRequestType<(typeof client.documents)[':documentId']['$get']>,
-) {
-  return ['/documents/:documentId', args] as const
-}
-
-/**
- * Returns TanStack Query query options for GET /documents/{documentId}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetDocumentsDocumentIdQueryOptions = (
-  args: InferRequestType<(typeof client.documents)[':documentId']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetDocumentsDocumentIdQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.documents[':documentId'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
-
-/**
  * PUT /documents/{documentId}
  */
 export function usePutDocumentsDocumentId(options?: {
@@ -143,6 +147,35 @@ export function usePutDocumentsDocumentId(options?: {
       parseResponse(client.documents[':documentId'].$put(args, clientOptions)),
   })
 }
+
+/**
+ * Generates TanStack Query cache key for GET /documents/{documentId}/versions
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetDocumentsDocumentIdVersionsQueryKey(
+  args: InferRequestType<(typeof client.documents)[':documentId']['versions']['$get']>,
+) {
+  return ['documents', '/documents/:documentId/versions', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /documents/{documentId}/versions
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetDocumentsDocumentIdVersionsQueryOptions = (
+  args: InferRequestType<(typeof client.documents)[':documentId']['versions']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetDocumentsDocumentIdVersionsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.documents[':documentId'].versions.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /documents/{documentId}/versions
@@ -172,35 +205,6 @@ export function useGetDocumentsDocumentIdVersions(
 }
 
 /**
- * Generates TanStack Query cache key for GET /documents/{documentId}/versions
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetDocumentsDocumentIdVersionsQueryKey(
-  args: InferRequestType<(typeof client.documents)[':documentId']['versions']['$get']>,
-) {
-  return ['/documents/:documentId/versions', args] as const
-}
-
-/**
- * Returns TanStack Query query options for GET /documents/{documentId}/versions
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetDocumentsDocumentIdVersionsQueryOptions = (
-  args: InferRequestType<(typeof client.documents)[':documentId']['versions']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetDocumentsDocumentIdVersionsQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.documents[':documentId'].versions.$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
-
-/**
  * POST /documents/{documentId}/share
  */
 export function usePostDocumentsDocumentIdShare(options?: {
@@ -225,6 +229,35 @@ export function usePostDocumentsDocumentIdShare(options?: {
     ) => parseResponse(client.documents[':documentId'].share.$post(args, clientOptions)),
   })
 }
+
+/**
+ * Generates TanStack Query cache key for GET /users/{userId}/documents
+ * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ */
+export function getGetUsersUserIdDocumentsQueryKey(
+  args: InferRequestType<(typeof client.users)[':userId']['documents']['$get']>,
+) {
+  return ['users', '/users/:userId/documents', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /users/{userId}/documents
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetUsersUserIdDocumentsQueryOptions = (
+  args: InferRequestType<(typeof client.users)[':userId']['documents']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetUsersUserIdDocumentsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.users[':userId'].documents.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /users/{userId}/documents
@@ -254,35 +287,6 @@ export function useGetUsersUserIdDocuments(
 }
 
 /**
- * Generates TanStack Query cache key for GET /users/{userId}/documents
- * Returns structured key [templatePath, args] for partial invalidation support
- */
-export function getGetUsersUserIdDocumentsQueryKey(
-  args: InferRequestType<(typeof client.users)[':userId']['documents']['$get']>,
-) {
-  return ['/users/:userId/documents', args] as const
-}
-
-/**
- * Returns TanStack Query query options for GET /users/{userId}/documents
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetUsersUserIdDocumentsQueryOptions = (
-  args: InferRequestType<(typeof client.users)[':userId']['documents']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetUsersUserIdDocumentsQueryKey(args),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.users[':userId'].documents.$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
-
-/**
  * POST /compare
  */
 export function usePostCompare(options?: {
@@ -302,6 +306,30 @@ export function usePostCompare(options?: {
 }
 
 /**
+ * Generates TanStack Query cache key for GET /templates
+ * Returns structured key ['prefix', 'path'] for prefix invalidation
+ */
+export function getGetTemplatesQueryKey() {
+  return ['templates', '/templates'] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /templates
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetTemplatesQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetTemplatesQueryKey(),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.templates.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
+
+/**
  * GET /templates
  */
 export function useGetTemplates(options?: {
@@ -315,30 +343,6 @@ export function useGetTemplates(options?: {
   const { queryKey, queryFn, ...baseOptions } = getGetTemplatesQueryOptions(clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
-
-/**
- * Generates TanStack Query cache key for GET /templates
- * Returns structured key [templatePath] for partial invalidation support
- */
-export function getGetTemplatesQueryKey() {
-  return ['/templates'] as const
-}
-
-/**
- * Returns TanStack Query query options for GET /templates
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export const getGetTemplatesQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetTemplatesQueryKey(),
-  queryFn: ({ signal }: { signal: AbortSignal }) =>
-    parseResponse(
-      client.templates.$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
 
 /**
  * POST /templates
