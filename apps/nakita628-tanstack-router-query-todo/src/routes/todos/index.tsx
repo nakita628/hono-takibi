@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { memo, useCallback, useEffect, useRef, useState } from 'react'
+import { memo, useCallback, useState } from 'react'
 import type { Todo } from '@/api/routes'
 import {
   getGetTodoQueryKey,
@@ -39,39 +39,13 @@ export const Route = createFileRoute('/todos/')({
 /** TodoItem - メモ化されたリストアイテムコンポーネント */
 const TodoItem = memo(function TodoItem({
   todo,
-  isEditing,
-  editContent,
-  isUpdatePending,
-  isDeletePending,
   onToggle,
   onDelete,
-  onStartEdit,
-  onSaveEdit,
-  onCancelEdit,
-  onEditContentChange,
-  onEditKeyDown,
 }: {
   todo: Todo
-  isEditing: boolean
-  editContent: string
-  isUpdatePending: boolean
-  isDeletePending: boolean
   onToggle: (id: string, completed: number) => void
   onDelete: (id: string) => void
-  onStartEdit: (todo: Todo) => void
-  onSaveEdit: (id: string) => void
-  onCancelEdit: () => void
-  onEditContentChange: (value: string) => void
-  onEditKeyDown: (e: React.KeyboardEvent<HTMLInputElement>, id: string) => void
 }) {
-  const editInputRef = useRef<HTMLInputElement>(null)
-
-  useEffect(() => {
-    if (isEditing) {
-      editInputRef.current?.focus()
-    }
-  }, [isEditing])
-
   const handleToggle = useCallback(() => {
     onToggle(todo.id, todo.completed)
   }, [todo.id, todo.completed, onToggle])
@@ -79,21 +53,6 @@ const TodoItem = memo(function TodoItem({
   const handleDelete = useCallback(() => {
     onDelete(todo.id)
   }, [todo.id, onDelete])
-
-  const handleStartEdit = useCallback(() => {
-    onStartEdit(todo)
-  }, [todo, onStartEdit])
-
-  const handleSaveEdit = useCallback(() => {
-    onSaveEdit(todo.id)
-  }, [todo.id, onSaveEdit])
-
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLInputElement>) => {
-      onEditKeyDown(e, todo.id)
-    },
-    [todo.id, onEditKeyDown],
-  )
 
   return (
     <li className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl hover:bg-orange-50 transition-colors group">
@@ -103,69 +62,28 @@ const TodoItem = memo(function TodoItem({
         onChange={handleToggle}
         className="w-5 h-5 text-orange-500 rounded focus:ring-orange-500 cursor-pointer accent-orange-500"
       />
-      {isEditing ? (
-        <div className="flex-1 flex gap-2">
-          <input
-            ref={editInputRef}
-            type="text"
-            value={editContent}
-            onChange={(e) => onEditContentChange(e.target.value)}
-            onKeyDown={handleKeyDown}
-            className="flex-1 border border-orange-300 rounded-lg px-3 py-1 focus:outline-none focus:ring-2 focus:ring-orange-500"
-            maxLength={140}
-          />
-          <button
-            type="button"
-            onClick={handleSaveEdit}
-            disabled={!editContent.trim() || isUpdatePending}
-            className="text-green-600 hover:text-green-700 font-medium px-2"
-          >
-            {isUpdatePending ? '...' : 'Save'}
-          </button>
-          <button
-            type="button"
-            onClick={onCancelEdit}
-            className="text-gray-500 hover:text-gray-700 font-medium px-2"
-          >
-            Cancel
-          </button>
-        </div>
-      ) : (
-        <>
-          <span
-            onDoubleClick={handleStartEdit}
-            className={`flex-1 cursor-pointer ${
-              todo.completed === 1 ? 'line-through text-gray-400' : 'text-gray-800'
-            }`}
-            title="Double-click to edit"
-          >
-            {todo.content}
-          </span>
-          <Link
-            to="/todos/$id"
-            params={{ id: todo.id }}
-            className="text-orange-400 hover:text-orange-600 opacity-0 group-hover:opacity-100 transition-opacity px-2 py-1"
-          >
-            Details
-          </Link>
-          <button
-            type="button"
-            onClick={handleDelete}
-            disabled={isDeletePending}
-            className="text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity px-2 py-1"
-          >
-            Delete
-          </button>
-        </>
-      )}
+      <Link
+        to="/todos/$id"
+        params={{ id: todo.id }}
+        className={`flex-1 ${
+          todo.completed === 1 ? 'line-through text-gray-400' : 'text-gray-800'
+        } hover:text-orange-600 transition-colors`}
+      >
+        {todo.content}
+      </Link>
+      <button
+        type="button"
+        onClick={handleDelete}
+        className="text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity px-2 py-1"
+      >
+        Delete
+      </button>
     </li>
   )
 })
 
 function TodosPage() {
   const [newContent, setNewContent] = useState('')
-  const [editingId, setEditingId] = useState<string | null>(null)
-  const [editContent, setEditContent] = useState('')
   const queryClient = useQueryClient()
 
   const { data } = useSuspenseQuery(getGetTodoQueryOptions({ query: {} }))
@@ -182,10 +100,7 @@ function TodosPage() {
 
   const updateMutation = useMutation({
     ...getPutTodoIdMutationOptions(),
-    onSuccess: () => {
-      invalidateTodos()
-      setEditingId(null)
-    },
+    onSuccess: invalidateTodos,
   })
 
   const deleteMutation = useMutation({
@@ -217,28 +132,6 @@ function TodosPage() {
     [deleteMutation],
   )
 
-  const handleStartEdit = useCallback((todo: Todo) => {
-    setEditingId(todo.id)
-    setEditContent(todo.content)
-  }, [])
-
-  const handleSaveEdit = useCallback(
-    async (id: string) => {
-      const trimmed = editContent.trim()
-      if (!trimmed) return
-      await updateMutation.mutateAsync({
-        param: { id },
-        json: { content: trimmed },
-      })
-    },
-    [editContent, updateMutation],
-  )
-
-  const handleCancelEdit = useCallback(() => {
-    setEditingId(null)
-    setEditContent('')
-  }, [])
-
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
       if (e.key !== 'Enter') return
@@ -246,21 +139,6 @@ function TodosPage() {
     },
     [handleAddTodo],
   )
-
-  const handleEditKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLInputElement>, id: string) => {
-      if (e.key === 'Enter') {
-        handleSaveEdit(id)
-      } else if (e.key === 'Escape') {
-        handleCancelEdit()
-      }
-    },
-    [handleSaveEdit, handleCancelEdit],
-  )
-
-  const handleEditContentChange = useCallback((value: string) => {
-    setEditContent(value)
-  }, [])
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-100 py-8 px-4">
@@ -290,10 +168,10 @@ function TodosPage() {
             <button
               type="button"
               onClick={handleAddTodo}
-              disabled={!newContent.trim() || createMutation.isPending}
+              disabled={!newContent.trim()}
               className="bg-orange-500 hover:bg-orange-600 text-white font-semibold px-6 py-3 rounded-lg transition-colors disabled:opacity-50"
             >
-              {createMutation.isPending ? 'Adding...' : 'Add'}
+              Add
             </button>
           </div>
 
@@ -308,17 +186,8 @@ function TodosPage() {
                 <TodoItem
                   key={todo.id}
                   todo={todo}
-                  isEditing={editingId === todo.id}
-                  editContent={editContent}
-                  isUpdatePending={updateMutation.isPending}
-                  isDeletePending={deleteMutation.isPending}
                   onToggle={handleToggleTodo}
                   onDelete={handleRemoveTodo}
-                  onStartEdit={handleStartEdit}
-                  onSaveEdit={handleSaveEdit}
-                  onCancelEdit={handleCancelEdit}
-                  onEditContentChange={handleEditContentChange}
-                  onEditKeyDown={handleEditKeyDown}
                 />
               ))}
             </ul>

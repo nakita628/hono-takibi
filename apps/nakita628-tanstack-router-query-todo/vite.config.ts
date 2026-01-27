@@ -22,6 +22,7 @@ export default defineConfig(({ mode }) => {
           input: './src/main.tsx',
           output: {
             entryFileNames: 'static/main.js',
+            assetFileNames: 'static/main.css',
           },
         },
       },

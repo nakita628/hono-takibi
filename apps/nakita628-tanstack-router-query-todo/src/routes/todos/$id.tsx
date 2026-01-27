@@ -9,10 +9,29 @@ import {
   getDeleteTodoIdMutationOptions,
 } from '@/hooks/query'
 
+/**
+ * Formats an ISO date string into a human-readable format.
+ */
+function formatDate(dateString: string): string {
+  const date = new Date(dateString)
+  return date.toLocaleString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+}
+
 export const Route = createFileRoute('/todos/$id')({
   loader: ({ context: { queryClient }, params: { id } }) =>
     queryClient.ensureQueryData(getGetTodoIdQueryOptions({ param: { id } })),
   component: TodoDetailPage,
+  pendingComponent: () => (
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-100 flex items-center justify-center">
+      <div className="text-gray-600 text-lg">Loading...</div>
+    </div>
+  ),
 })
 
 function TodoDetailPage() {
@@ -52,13 +71,18 @@ function TodoDetailPage() {
     },
   })
 
-  const handleEdit = useCallback(() => {
+  const handleStartEdit = useCallback(() => {
     if (!todo || 'message' in todo) return
     setEditContent(todo.content)
     setIsEditing(true)
   }, [todo])
 
-  const handleSave = useCallback(async () => {
+  const handleCancelEdit = useCallback(() => {
+    setIsEditing(false)
+    setEditContent('')
+  }, [])
+
+  const handleSaveEdit = useCallback(async () => {
     const trimmed = editContent.trim()
     if (!trimmed) return
     await updateMutation.mutateAsync({
@@ -67,7 +91,7 @@ function TodoDetailPage() {
     })
   }, [id, editContent, updateMutation])
 
-  const handleToggle = useCallback(async () => {
+  const handleToggleCompleted = useCallback(async () => {
     if (!todo || 'message' in todo) return
     await updateMutation.mutateAsync({
       param: { id },
@@ -79,28 +103,21 @@ function TodoDetailPage() {
     await deleteMutation.mutateAsync({ param: { id } })
   }, [id, deleteMutation])
 
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === 'Enter') {
-        handleSave()
-      } else if (e.key === 'Escape') {
-        setIsEditing(false)
-      }
-    },
-    [handleSave],
-  )
-
   if (!todo || 'message' in todo) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-100 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-800 mb-4">Todo Not Found</h1>
-          <Link
-            to="/todos"
-            className="text-orange-600 hover:text-orange-700 font-medium"
-          >
-            ← Back to Todos
-          </Link>
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-100 py-8 px-4">
+        <div className="max-w-2xl mx-auto">
+          <div className="mb-6">
+            <Link
+              to="/todos"
+              className="inline-flex items-center text-orange-600 hover:text-orange-700 font-medium"
+            >
+              <span className="mr-1">←</span> Back to Todos
+            </Link>
+          </div>
+          <div className="bg-white rounded-2xl shadow-xl p-6">
+            <p className="text-red-500 text-center">Todo not found</p>
+          </div>
         </div>
       </div>
     )
@@ -119,109 +136,105 @@ function TodoDetailPage() {
         </div>
 
         <div className="bg-white rounded-2xl shadow-xl p-6">
-          <div className="flex items-start gap-4">
-            <button
-              type="button"
-              onClick={handleToggle}
-              disabled={updateMutation.isPending}
-              className={`w-6 h-6 rounded-full flex items-center justify-center cursor-pointer transition-colors ${
-                todo.completed === 1 ? 'bg-green-500 hover:bg-green-600' : 'bg-gray-300 hover:bg-gray-400'
-              }`}
-            >
-              {todo.completed === 1 && (
-                <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                  <path
-                    fillRule="evenodd"
-                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                    clipRule="evenodd"
-                  />
-                </svg>
+          <div className="flex items-center justify-between mb-6">
+            <h1 className="text-3xl font-bold text-gray-800">Todo Details</h1>
+            <div className="flex gap-2">
+              {!isEditing && (
+                <button
+                  type="button"
+                  onClick={handleStartEdit}
+                  className="px-4 py-2 text-sm font-medium text-orange-600 hover:text-orange-700 hover:bg-orange-50 rounded-lg transition-colors"
+                >
+                  Edit
+                </button>
               )}
-            </button>
-            <div className="flex-1">
+              <button
+                type="button"
+                onClick={handleDelete}
+                disabled={deleteMutation.isPending}
+                className="px-4 py-2 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
+              >
+                {deleteMutation.isPending ? 'Deleting...' : 'Delete'}
+              </button>
+            </div>
+          </div>
+
+          <div className="space-y-6">
+            <div>
+              <span className="block text-sm font-medium text-gray-500 mb-2">ID</span>
+              <p className="text-gray-700 font-mono text-sm bg-gray-50 p-3 rounded-lg break-all">
+                {todo.id}
+              </p>
+            </div>
+
+            <div>
+              <span className="block text-sm font-medium text-gray-500 mb-2">Content</span>
               {isEditing ? (
-                <div className="flex gap-2">
+                <div className="space-y-3">
                   <input
                     ref={editInputRef}
                     type="text"
                     value={editContent}
                     onChange={(e) => setEditContent(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    className="flex-1 text-xl font-bold border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-shadow"
                     maxLength={140}
                   />
-                  <button
-                    type="button"
-                    onClick={handleSave}
-                    disabled={!editContent.trim() || updateMutation.isPending}
-                    className="bg-orange-500 hover:bg-orange-600 text-white font-semibold px-4 py-2 rounded-lg transition-colors disabled:opacity-50"
-                  >
-                    {updateMutation.isPending ? 'Saving...' : 'Save'}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setIsEditing(false)}
-                    className="bg-gray-300 hover:bg-gray-400 text-gray-700 font-semibold px-4 py-2 rounded-lg transition-colors"
-                  >
-                    Cancel
-                  </button>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={handleSaveEdit}
+                      disabled={updateMutation.isPending || !editContent.trim()}
+                      className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white font-medium rounded-lg transition-colors disabled:opacity-50"
+                    >
+                      {updateMutation.isPending ? 'Saving...' : 'Save'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleCancelEdit}
+                      disabled={updateMutation.isPending}
+                      className="px-4 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 font-medium rounded-lg transition-colors"
+                    >
+                      Cancel
+                    </button>
+                  </div>
                 </div>
               ) : (
-                <div className="flex items-center gap-2">
-                  <h1
-                    className={`text-2xl font-bold ${
-                      todo.completed === 1 ? 'line-through text-gray-400' : 'text-gray-800'
-                    }`}
-                  >
-                    {todo.content}
-                  </h1>
-                  <button
-                    type="button"
-                    onClick={handleEdit}
-                    className="text-gray-400 hover:text-orange-500 transition-colors"
-                    title="Edit"
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                      />
-                    </svg>
-                  </button>
-                </div>
+                <p className="text-gray-800 text-lg">{todo.content}</p>
               )}
-              <div className="mt-4 space-y-2 text-sm text-gray-500">
-                <p>
-                  <span className="font-medium">Status:</span>{' '}
-                  {todo.completed === 1 ? 'Completed' : 'Pending'}
-                </p>
-                <p>
-                  <span className="font-medium">Created:</span>{' '}
-                  {new Date(todo.createdAt).toLocaleString()}
-                </p>
-                <p>
-                  <span className="font-medium">Updated:</span>{' '}
-                  {new Date(todo.updatedAt).toLocaleString()}
-                </p>
-                <p>
-                  <span className="font-medium">ID:</span>{' '}
-                  <code className="bg-gray-100 px-2 py-1 rounded text-xs">{todo.id}</code>
-                </p>
+            </div>
+
+            <div>
+              <span className="block text-sm font-medium text-gray-500 mb-2">Status</span>
+              <button
+                type="button"
+                onClick={handleToggleCompleted}
+                disabled={updateMutation.isPending}
+                className={`inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium cursor-pointer transition-colors hover:opacity-80 disabled:opacity-50 ${
+                  todo.completed === 1
+                    ? 'bg-green-100 text-green-700'
+                    : 'bg-orange-100 text-orange-700'
+                }`}
+              >
+                <span
+                  className={`w-2 h-2 rounded-full mr-2 ${
+                    todo.completed === 1 ? 'bg-green-500' : 'bg-orange-500'
+                  }`}
+                />
+                {todo.completed === 1 ? 'Completed' : 'Pending'}
+                <span className="ml-2 text-xs opacity-60">(click to toggle)</span>
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <span className="block text-sm font-medium text-gray-500 mb-2">Created</span>
+                <p className="text-gray-700">{formatDate(todo.createdAt)}</p>
+              </div>
+              <div>
+                <span className="block text-sm font-medium text-gray-500 mb-2">Updated</span>
+                <p className="text-gray-700">{formatDate(todo.updatedAt)}</p>
               </div>
             </div>
-          </div>
-
-          <div className="mt-6 pt-4 border-t border-gray-100 flex justify-end">
-            <button
-              type="button"
-              onClick={handleDelete}
-              disabled={deleteMutation.isPending}
-              className="bg-red-500 hover:bg-red-600 text-white font-semibold px-4 py-2 rounded-lg transition-colors disabled:opacity-50"
-            >
-              {deleteMutation.isPending ? 'Deleting...' : 'Delete'}
-            </button>
           </div>
         </div>
       </div>

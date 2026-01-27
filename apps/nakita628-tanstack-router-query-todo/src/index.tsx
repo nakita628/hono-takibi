@@ -8,12 +8,17 @@ app.get('*', (c) => {
         <head>
           <meta charSet='utf-8' />
           <meta content='width=device-width, initial-scale=1' name='viewport' />
-          <link rel='stylesheet' href='src/index.css' />
-          <title>Hono🔥 React</title>
+          <title>Takibi Todo</title>
           {import.meta.env.PROD ? (
-            <script type='module' src='/static/main.js'></script>
+            <>
+              <link rel='stylesheet' href='/static/main.css' />
+              <script type='module' src='/static/main.js' />
+            </>
           ) : (
-            <script type='module' src='/src/main.tsx'></script>
+            <>
+              <link rel='stylesheet' href='/src/index.css' />
+              <script type='module' src='/src/main.tsx' />
+            </>
           )}
         </head>
         <body>

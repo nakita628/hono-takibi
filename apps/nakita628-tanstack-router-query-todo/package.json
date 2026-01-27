@@ -14,7 +14,9 @@
     "push": "drizzle-kit push",
     "generate": "drizzle-kit generate",
     "migrate": "drizzle-kit migrate",
-    "local-migrate": "wrangler d1 migrations apply DB --local"
+    "db:reset": "rm -rf .wrangler/state/v3/d1 && pnpm db:migrate",
+    "db:migrate": "wrangler d1 migrations apply DB --local",
+    "db:query": "wrangler d1 execute DB --local --command"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20260121.0",
