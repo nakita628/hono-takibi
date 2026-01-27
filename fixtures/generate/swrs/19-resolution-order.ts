@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/19-resolution-order'
 
 /**
@@ -38,7 +38,7 @@ export function getGetEntitiesKey() {
  */
 export function usePostProcess(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.process.$post>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.process.$post>>>>>,
     Error,
     string,
     InferRequestType<typeof client.process.$post>
@@ -86,7 +86,7 @@ export function getGetGraphKey() {
  */
 export function usePostTransform(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.transform.$post>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.transform.$post>>>>>,
     Error,
     string,
     InferRequestType<typeof client.transform.$post>

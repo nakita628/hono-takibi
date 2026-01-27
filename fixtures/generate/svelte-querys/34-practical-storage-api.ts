@@ -1,5 +1,5 @@
-import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/34-practical-storage-api'
 
@@ -26,7 +26,7 @@ export function createGetFiles(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetFilesQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetFilesQueryOptions(args, clientOptions), ...queryOptions }))
 }
 
 /**
@@ -61,12 +61,18 @@ export const getGetFilesQueryOptions = (
 export function createPostFilesUpload(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.files.upload.$post>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.files.upload.$post>>>>
+      >,
       variables: InferRequestType<typeof client.files.upload.$post>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.files.upload.$post>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.files.upload.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.files.upload.$post>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.files.upload.$post>,
     ) => void
@@ -77,11 +83,11 @@ export function createPostFilesUpload(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.files.upload.$post>) =>
       parseResponse(client.files.upload.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -94,7 +100,11 @@ export function createPostFilesUpload(options?: {
 export function createPostFilesUploadMultipartInit(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.files.upload.multipart.init.$post>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<typeof client.files.upload.multipart.init.$post>>>
+        >
+      >,
       variables: InferRequestType<typeof client.files.upload.multipart.init.$post>,
     ) => void
     onError?: (
@@ -102,7 +112,15 @@ export function createPostFilesUploadMultipartInit(options?: {
       variables: InferRequestType<typeof client.files.upload.multipart.init.$post>,
     ) => void
     onSettled?: (
-      data: InferResponseType<typeof client.files.upload.multipart.init.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<typeof client.files.upload.multipart.init.$post>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.files.upload.multipart.init.$post>,
     ) => void
@@ -115,11 +133,11 @@ export function createPostFilesUploadMultipartInit(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.files.upload.multipart.init.$post>) =>
       parseResponse(client.files.upload.multipart.init.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -130,7 +148,15 @@ export function createPostFilesUploadMultipartInit(options?: {
 export function createPostFilesUploadMultipartUploadIdPart(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.files.upload.multipart)[':uploadId']['part']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<(typeof client.files.upload.multipart)[':uploadId']['part']['$post']>
+            >
+          >
+        >
+      >,
       variables: InferRequestType<
         (typeof client.files.upload.multipart)[':uploadId']['part']['$post']
       >,
@@ -143,7 +169,15 @@ export function createPostFilesUploadMultipartUploadIdPart(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client.files.upload.multipart)[':uploadId']['part']['$post']>
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<(typeof client.files.upload.multipart)[':uploadId']['part']['$post']>
+                >
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -161,12 +195,12 @@ export function createPostFilesUploadMultipartUploadIdPart(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.files.upload.multipart)[':uploadId']['part']['$post']>,
     ) => parseResponse(client.files.upload.multipart[':uploadId'].part.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -177,8 +211,14 @@ export function createPostFilesUploadMultipartUploadIdPart(options?: {
 export function createPostFilesUploadMultipartUploadIdComplete(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client.files.upload.multipart)[':uploadId']['complete']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<(typeof client.files.upload.multipart)[':uploadId']['complete']['$post']>
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client.files.upload.multipart)[':uploadId']['complete']['$post']
@@ -192,8 +232,16 @@ export function createPostFilesUploadMultipartUploadIdComplete(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client.files.upload.multipart)[':uploadId']['complete']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client.files.upload.multipart)[':uploadId']['complete']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -212,7 +260,7 @@ export function createPostFilesUploadMultipartUploadIdComplete(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
@@ -220,7 +268,7 @@ export function createPostFilesUploadMultipartUploadIdComplete(options?: {
       >,
     ) =>
       parseResponse(client.files.upload.multipart[':uploadId'].complete.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -246,7 +294,10 @@ export function createGetFilesFileId(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetFilesFileIdQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGetFilesFileIdQueryOptions(args, clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**
@@ -286,7 +337,13 @@ export const getGetFilesFileIdQueryOptions = (
 export function createDeleteFilesFileId(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.files)[':fileId']['$delete']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client.files)[':fileId']['$delete']>>>
+            >
+          >
+        | undefined,
       variables: InferRequestType<(typeof client.files)[':fileId']['$delete']>,
     ) => void
     onError?: (
@@ -294,7 +351,13 @@ export function createDeleteFilesFileId(options?: {
       variables: InferRequestType<(typeof client.files)[':fileId']['$delete']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.files)[':fileId']['$delete']> | undefined | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client.files)[':fileId']['$delete']>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.files)[':fileId']['$delete']>,
     ) => void
@@ -305,11 +368,11 @@ export function createDeleteFilesFileId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.files)[':fileId']['$delete']>) =>
       parseResponse(client.files[':fileId'].$delete(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -320,7 +383,11 @@ export function createDeleteFilesFileId(options?: {
 export function createPatchFilesFileId(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.files)[':fileId']['$patch']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.files)[':fileId']['$patch']>>>
+        >
+      >,
       variables: InferRequestType<(typeof client.files)[':fileId']['$patch']>,
     ) => void
     onError?: (
@@ -328,7 +395,13 @@ export function createPatchFilesFileId(options?: {
       variables: InferRequestType<(typeof client.files)[':fileId']['$patch']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.files)[':fileId']['$patch']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client.files)[':fileId']['$patch']>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.files)[':fileId']['$patch']>,
     ) => void
@@ -339,11 +412,11 @@ export function createPatchFilesFileId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.files)[':fileId']['$patch']>) =>
       parseResponse(client.files[':fileId'].$patch(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -369,10 +442,10 @@ export function createGetFilesFileIdDownload(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
+  return createQuery(() => ({
     ...getGetFilesFileIdDownloadQueryOptions(args, clientOptions),
     ...queryOptions,
-  })
+  }))
 }
 
 /**
@@ -427,10 +500,10 @@ export function createGetFilesFileIdDownloadUrl(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
+  return createQuery(() => ({
     ...getGetFilesFileIdDownloadUrlQueryOptions(args, clientOptions),
     ...queryOptions,
-  })
+  }))
 }
 
 /**
@@ -470,7 +543,13 @@ export const getGetFilesFileIdDownloadUrlQueryOptions = (
 export function createPostFilesFileIdCopy(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.files)[':fileId']['copy']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.files)[':fileId']['copy']['$post']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client.files)[':fileId']['copy']['$post']>,
     ) => void
     onError?: (
@@ -478,7 +557,15 @@ export function createPostFilesFileIdCopy(options?: {
       variables: InferRequestType<(typeof client.files)[':fileId']['copy']['$post']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.files)[':fileId']['copy']['$post']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.files)[':fileId']['copy']['$post']>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.files)[':fileId']['copy']['$post']>,
     ) => void
@@ -491,11 +578,11 @@ export function createPostFilesFileIdCopy(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.files)[':fileId']['copy']['$post']>) =>
       parseResponse(client.files[':fileId'].copy.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -506,7 +593,13 @@ export function createPostFilesFileIdCopy(options?: {
 export function createPostFilesFileIdMove(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.files)[':fileId']['move']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.files)[':fileId']['move']['$post']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client.files)[':fileId']['move']['$post']>,
     ) => void
     onError?: (
@@ -514,7 +607,15 @@ export function createPostFilesFileIdMove(options?: {
       variables: InferRequestType<(typeof client.files)[':fileId']['move']['$post']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.files)[':fileId']['move']['$post']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.files)[':fileId']['move']['$post']>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.files)[':fileId']['move']['$post']>,
     ) => void
@@ -527,11 +628,11 @@ export function createPostFilesFileIdMove(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.files)[':fileId']['move']['$post']>) =>
       parseResponse(client.files[':fileId'].move.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -557,10 +658,10 @@ export function createGetFilesFileIdThumbnail(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
+  return createQuery(() => ({
     ...getGetFilesFileIdThumbnailQueryOptions(args, clientOptions),
     ...queryOptions,
-  })
+  }))
 }
 
 /**
@@ -600,12 +701,18 @@ export const getGetFilesFileIdThumbnailQueryOptions = (
 export function createPostFolders(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.folders.$post>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.folders.$post>>>>
+      >,
       variables: InferRequestType<typeof client.folders.$post>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.folders.$post>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.folders.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.folders.$post>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.folders.$post>,
     ) => void
@@ -616,11 +723,11 @@ export function createPostFolders(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.folders.$post>) =>
       parseResponse(client.folders.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -646,7 +753,10 @@ export function createGetFoldersFolderId(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetFoldersFolderIdQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGetFoldersFolderIdQueryOptions(args, clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**
@@ -686,7 +796,15 @@ export const getGetFoldersFolderIdQueryOptions = (
 export function createDeleteFoldersFolderId(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.folders)[':folderId']['$delete']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.folders)[':folderId']['$delete']>>
+              >
+            >
+          >
+        | undefined,
       variables: InferRequestType<(typeof client.folders)[':folderId']['$delete']>,
     ) => void
     onError?: (
@@ -695,8 +813,13 @@ export function createDeleteFoldersFolderId(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client.folders)[':folderId']['$delete']>
-        | undefined
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.folders)[':folderId']['$delete']>>
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.folders)[':folderId']['$delete']>,
@@ -710,11 +833,11 @@ export function createDeleteFoldersFolderId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.folders)[':folderId']['$delete']>) =>
       parseResponse(client.folders[':folderId'].$delete(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -725,7 +848,11 @@ export function createDeleteFoldersFolderId(options?: {
 export function createPatchFoldersFolderId(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.folders)[':folderId']['$patch']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.folders)[':folderId']['$patch']>>>
+        >
+      >,
       variables: InferRequestType<(typeof client.folders)[':folderId']['$patch']>,
     ) => void
     onError?: (
@@ -733,7 +860,15 @@ export function createPatchFoldersFolderId(options?: {
       variables: InferRequestType<(typeof client.folders)[':folderId']['$patch']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.folders)[':folderId']['$patch']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.folders)[':folderId']['$patch']>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.folders)[':folderId']['$patch']>,
     ) => void
@@ -744,11 +879,11 @@ export function createPatchFoldersFolderId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.folders)[':folderId']['$patch']>) =>
       parseResponse(client.folders[':folderId'].$patch(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -774,10 +909,10 @@ export function createGetFilesFileIdShare(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
+  return createQuery(() => ({
     ...getGetFilesFileIdShareQueryOptions(args, clientOptions),
     ...queryOptions,
-  })
+  }))
 }
 
 /**
@@ -817,7 +952,13 @@ export const getGetFilesFileIdShareQueryOptions = (
 export function createPostFilesFileIdShare(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.files)[':fileId']['share']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.files)[':fileId']['share']['$post']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client.files)[':fileId']['share']['$post']>,
     ) => void
     onError?: (
@@ -825,7 +966,15 @@ export function createPostFilesFileIdShare(options?: {
       variables: InferRequestType<(typeof client.files)[':fileId']['share']['$post']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.files)[':fileId']['share']['$post']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.files)[':fileId']['share']['$post']>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.files)[':fileId']['share']['$post']>,
     ) => void
@@ -838,12 +987,12 @@ export function createPostFilesFileIdShare(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.files)[':fileId']['share']['$post']>,
     ) => parseResponse(client.files[':fileId'].share.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -854,7 +1003,15 @@ export function createPostFilesFileIdShare(options?: {
 export function createDeleteFilesFileIdShare(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.files)[':fileId']['share']['$delete']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.files)[':fileId']['share']['$delete']>>
+              >
+            >
+          >
+        | undefined,
       variables: InferRequestType<(typeof client.files)[':fileId']['share']['$delete']>,
     ) => void
     onError?: (
@@ -863,8 +1020,13 @@ export function createDeleteFilesFileIdShare(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client.files)[':fileId']['share']['$delete']>
-        | undefined
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.files)[':fileId']['share']['$delete']>>
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.files)[':fileId']['share']['$delete']>,
@@ -878,12 +1040,12 @@ export function createDeleteFilesFileIdShare(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.files)[':fileId']['share']['$delete']>,
     ) => parseResponse(client.files[':fileId'].share.$delete(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -894,7 +1056,13 @@ export function createDeleteFilesFileIdShare(options?: {
 export function createPostFilesFileIdShareLink(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.files)[':fileId']['share']['link']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.files)[':fileId']['share']['link']['$post']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client.files)[':fileId']['share']['link']['$post']>,
     ) => void
     onError?: (
@@ -903,7 +1071,13 @@ export function createPostFilesFileIdShareLink(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client.files)[':fileId']['share']['link']['$post']>
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.files)[':fileId']['share']['link']['$post']>>
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.files)[':fileId']['share']['link']['$post']>,
@@ -917,12 +1091,12 @@ export function createPostFilesFileIdShareLink(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.files)[':fileId']['share']['link']['$post']>,
     ) => parseResponse(client.files[':fileId'].share.link.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -948,10 +1122,10 @@ export function createGetFilesFileIdVersions(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
+  return createQuery(() => ({
     ...getGetFilesFileIdVersionsQueryOptions(args, clientOptions),
     ...queryOptions,
-  })
+  }))
 }
 
 /**
@@ -991,8 +1165,16 @@ export const getGetFilesFileIdVersionsQueryOptions = (
 export function createPostFilesFileIdVersionsVersionIdRestore(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client.files)[':fileId']['versions'][':versionId']['restore']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client.files)[':fileId']['versions'][':versionId']['restore']['$post']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client.files)[':fileId']['versions'][':versionId']['restore']['$post']
@@ -1006,8 +1188,16 @@ export function createPostFilesFileIdVersionsVersionIdRestore(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client.files)[':fileId']['versions'][':versionId']['restore']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client.files)[':fileId']['versions'][':versionId']['restore']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -1026,7 +1216,7 @@ export function createPostFilesFileIdVersionsVersionIdRestore(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
@@ -1036,7 +1226,7 @@ export function createPostFilesFileIdVersionsVersionIdRestore(options?: {
       parseResponse(
         client.files[':fileId'].versions[':versionId'].restore.$post(args, clientOptions),
       ),
-  })
+  }))
 }
 
 /**
@@ -1062,7 +1252,7 @@ export function createGetTrash(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetTrashQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetTrashQueryOptions(args, clientOptions), ...queryOptions }))
 }
 
 /**
@@ -1097,12 +1287,20 @@ export const getGetTrashQueryOptions = (
 export function createDeleteTrash(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.trash.$delete> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.trash.$delete>>>>
+          >
+        | undefined,
       variables: undefined,
     ) => void
     onError?: (error: Error, variables: undefined) => void
     onSettled?: (
-      data: InferResponseType<typeof client.trash.$delete> | undefined | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.trash.$delete>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: undefined,
     ) => void
@@ -1113,10 +1311,10 @@ export function createDeleteTrash(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async () => parseResponse(client.trash.$delete(undefined, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -1127,7 +1325,13 @@ export function createDeleteTrash(options?: {
 export function createPostTrashFileIdRestore(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.trash)[':fileId']['restore']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.trash)[':fileId']['restore']['$post']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client.trash)[':fileId']['restore']['$post']>,
     ) => void
     onError?: (
@@ -1135,7 +1339,15 @@ export function createPostTrashFileIdRestore(options?: {
       variables: InferRequestType<(typeof client.trash)[':fileId']['restore']['$post']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.trash)[':fileId']['restore']['$post']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.trash)[':fileId']['restore']['$post']>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.trash)[':fileId']['restore']['$post']>,
     ) => void
@@ -1148,12 +1360,12 @@ export function createPostTrashFileIdRestore(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.trash)[':fileId']['restore']['$post']>,
     ) => parseResponse(client.trash[':fileId'].restore.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -1176,7 +1388,7 @@ export function createGetStorageUsage(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetStorageUsageQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetStorageUsageQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**

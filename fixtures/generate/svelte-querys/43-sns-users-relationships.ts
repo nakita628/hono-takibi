@@ -1,5 +1,5 @@
-import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/43-sns-users-relationships'
 
@@ -26,7 +26,10 @@ export function createGetUsersUserId(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetUsersUserIdQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGetUsersUserIdQueryOptions(args, clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**
@@ -81,10 +84,10 @@ export function createGetUsersByUsernameUsername(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
+  return createQuery(() => ({
     ...getGetUsersByUsernameUsernameQueryOptions(args, clientOptions),
     ...queryOptions,
-  })
+  }))
 }
 
 /**
@@ -139,7 +142,10 @@ export function createGetUsersSearch(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetUsersSearchQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGetUsersSearchQueryOptions(args, clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**
@@ -192,7 +198,10 @@ export function createGetUsersLookup(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetUsersLookupQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGetUsersLookupQueryOptions(args, clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**
@@ -242,7 +251,7 @@ export function createGetMe(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetMeQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetMeQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -274,12 +283,14 @@ export const getGetMeQueryOptions = (clientOptions?: ClientRequestOptions) =>
 export function createPatchMe(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.me.$patch>,
+      data: Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.$patch>>>>>,
       variables: InferRequestType<typeof client.me.$patch>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.me.$patch>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.me.$patch> | undefined,
+      data:
+        | Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.$patch>>>>>
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.me.$patch>,
     ) => void
@@ -290,11 +301,11 @@ export function createPatchMe(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.me.$patch>) =>
       parseResponse(client.me.$patch(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -305,12 +316,18 @@ export function createPatchMe(options?: {
 export function createPostMeAvatar(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.me.avatar.$post>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.avatar.$post>>>>
+      >,
       variables: InferRequestType<typeof client.me.avatar.$post>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.me.avatar.$post>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.me.avatar.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.avatar.$post>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.me.avatar.$post>,
     ) => void
@@ -321,11 +338,11 @@ export function createPostMeAvatar(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.me.avatar.$post>) =>
       parseResponse(client.me.avatar.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -336,12 +353,20 @@ export function createPostMeAvatar(options?: {
 export function createDeleteMeAvatar(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.me.avatar.$delete> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.avatar.$delete>>>>
+          >
+        | undefined,
       variables: undefined,
     ) => void
     onError?: (error: Error, variables: undefined) => void
     onSettled?: (
-      data: InferResponseType<typeof client.me.avatar.$delete> | undefined | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.avatar.$delete>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: undefined,
     ) => void
@@ -352,10 +377,10 @@ export function createDeleteMeAvatar(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async () => parseResponse(client.me.avatar.$delete(undefined, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -366,12 +391,18 @@ export function createDeleteMeAvatar(options?: {
 export function createPostMeBanner(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.me.banner.$post>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.banner.$post>>>>
+      >,
       variables: InferRequestType<typeof client.me.banner.$post>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.me.banner.$post>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.me.banner.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.banner.$post>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.me.banner.$post>,
     ) => void
@@ -382,11 +413,11 @@ export function createPostMeBanner(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.me.banner.$post>) =>
       parseResponse(client.me.banner.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -397,12 +428,20 @@ export function createPostMeBanner(options?: {
 export function createDeleteMeBanner(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.me.banner.$delete> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.banner.$delete>>>>
+          >
+        | undefined,
       variables: undefined,
     ) => void
     onError?: (error: Error, variables: undefined) => void
     onSettled?: (
-      data: InferResponseType<typeof client.me.banner.$delete> | undefined | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.banner.$delete>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: undefined,
     ) => void
@@ -413,10 +452,10 @@ export function createDeleteMeBanner(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async () => parseResponse(client.me.banner.$delete(undefined, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -427,7 +466,13 @@ export function createDeleteMeBanner(options?: {
 export function createPostUsersUserIdFollow(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.users)[':userId']['follow']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.users)[':userId']['follow']['$post']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client.users)[':userId']['follow']['$post']>,
     ) => void
     onError?: (
@@ -435,7 +480,15 @@ export function createPostUsersUserIdFollow(options?: {
       variables: InferRequestType<(typeof client.users)[':userId']['follow']['$post']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.users)[':userId']['follow']['$post']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.users)[':userId']['follow']['$post']>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.users)[':userId']['follow']['$post']>,
     ) => void
@@ -448,12 +501,12 @@ export function createPostUsersUserIdFollow(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.users)[':userId']['follow']['$post']>,
     ) => parseResponse(client.users[':userId'].follow.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -464,7 +517,13 @@ export function createPostUsersUserIdFollow(options?: {
 export function createDeleteUsersUserIdFollow(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.users)[':userId']['follow']['$delete']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.users)[':userId']['follow']['$delete']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client.users)[':userId']['follow']['$delete']>,
     ) => void
     onError?: (
@@ -472,7 +531,15 @@ export function createDeleteUsersUserIdFollow(options?: {
       variables: InferRequestType<(typeof client.users)[':userId']['follow']['$delete']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.users)[':userId']['follow']['$delete']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.users)[':userId']['follow']['$delete']>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.users)[':userId']['follow']['$delete']>,
     ) => void
@@ -485,12 +552,12 @@ export function createDeleteUsersUserIdFollow(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.users)[':userId']['follow']['$delete']>,
     ) => parseResponse(client.users[':userId'].follow.$delete(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -516,10 +583,10 @@ export function createGetUsersUserIdFollowers(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
+  return createQuery(() => ({
     ...getGetUsersUserIdFollowersQueryOptions(args, clientOptions),
     ...queryOptions,
-  })
+  }))
 }
 
 /**
@@ -574,10 +641,10 @@ export function createGetUsersUserIdFollowing(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
+  return createQuery(() => ({
     ...getGetUsersUserIdFollowingQueryOptions(args, clientOptions),
     ...queryOptions,
-  })
+  }))
 }
 
 /**
@@ -619,7 +686,13 @@ export const getGetUsersUserIdFollowingQueryOptions = (
 export function createPostUsersUserIdFollowersRemove(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.users)[':userId']['followers']['remove']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.users)[':userId']['followers']['remove']['$post']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client.users)[':userId']['followers']['remove']['$post']>,
     ) => void
     onError?: (
@@ -628,7 +701,15 @@ export function createPostUsersUserIdFollowersRemove(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client.users)[':userId']['followers']['remove']['$post']>
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<(typeof client.users)[':userId']['followers']['remove']['$post']>
+                >
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.users)[':userId']['followers']['remove']['$post']>,
@@ -642,12 +723,12 @@ export function createPostUsersUserIdFollowersRemove(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.users)[':userId']['followers']['remove']['$post']>,
     ) => parseResponse(client.users[':userId'].followers.remove.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -673,7 +754,10 @@ export function createGetRelationships(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetRelationshipsQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGetRelationshipsQueryOptions(args, clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**
@@ -730,7 +814,10 @@ export function createGetFollowRequests(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetFollowRequestsQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGetFollowRequestsQueryOptions(args, clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**
@@ -770,7 +857,13 @@ export const getGetFollowRequestsQueryOptions = (
 export function createPostFollowRequestsUserIdAccept(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client)['follow-requests'][':userId']['accept']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['follow-requests'][':userId']['accept']['$post']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client)['follow-requests'][':userId']['accept']['$post']>,
     ) => void
     onError?: (
@@ -779,7 +872,15 @@ export function createPostFollowRequestsUserIdAccept(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client)['follow-requests'][':userId']['accept']['$post']>
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<(typeof client)['follow-requests'][':userId']['accept']['$post']>
+                >
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client)['follow-requests'][':userId']['accept']['$post']>,
@@ -793,12 +894,12 @@ export function createPostFollowRequestsUserIdAccept(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client)['follow-requests'][':userId']['accept']['$post']>,
     ) => parseResponse(client['follow-requests'][':userId'].accept.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -809,7 +910,13 @@ export function createPostFollowRequestsUserIdAccept(options?: {
 export function createPostFollowRequestsUserIdReject(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client)['follow-requests'][':userId']['reject']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['follow-requests'][':userId']['reject']['$post']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client)['follow-requests'][':userId']['reject']['$post']>,
     ) => void
     onError?: (
@@ -818,7 +925,15 @@ export function createPostFollowRequestsUserIdReject(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client)['follow-requests'][':userId']['reject']['$post']>
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<(typeof client)['follow-requests'][':userId']['reject']['$post']>
+                >
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client)['follow-requests'][':userId']['reject']['$post']>,
@@ -832,12 +947,12 @@ export function createPostFollowRequestsUserIdReject(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client)['follow-requests'][':userId']['reject']['$post']>,
     ) => parseResponse(client['follow-requests'][':userId'].reject.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -848,7 +963,13 @@ export function createPostFollowRequestsUserIdReject(options?: {
 export function createPostUsersUserIdBlock(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.users)[':userId']['block']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.users)[':userId']['block']['$post']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client.users)[':userId']['block']['$post']>,
     ) => void
     onError?: (
@@ -856,7 +977,15 @@ export function createPostUsersUserIdBlock(options?: {
       variables: InferRequestType<(typeof client.users)[':userId']['block']['$post']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.users)[':userId']['block']['$post']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.users)[':userId']['block']['$post']>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.users)[':userId']['block']['$post']>,
     ) => void
@@ -869,12 +998,12 @@ export function createPostUsersUserIdBlock(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.users)[':userId']['block']['$post']>,
     ) => parseResponse(client.users[':userId'].block.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -885,7 +1014,13 @@ export function createPostUsersUserIdBlock(options?: {
 export function createDeleteUsersUserIdBlock(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.users)[':userId']['block']['$delete']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.users)[':userId']['block']['$delete']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client.users)[':userId']['block']['$delete']>,
     ) => void
     onError?: (
@@ -893,7 +1028,15 @@ export function createDeleteUsersUserIdBlock(options?: {
       variables: InferRequestType<(typeof client.users)[':userId']['block']['$delete']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.users)[':userId']['block']['$delete']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.users)[':userId']['block']['$delete']>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.users)[':userId']['block']['$delete']>,
     ) => void
@@ -906,12 +1049,12 @@ export function createDeleteUsersUserIdBlock(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.users)[':userId']['block']['$delete']>,
     ) => parseResponse(client.users[':userId'].block.$delete(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -922,7 +1065,13 @@ export function createDeleteUsersUserIdBlock(options?: {
 export function createPostUsersUserIdMute(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.users)[':userId']['mute']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.users)[':userId']['mute']['$post']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client.users)[':userId']['mute']['$post']>,
     ) => void
     onError?: (
@@ -930,7 +1079,15 @@ export function createPostUsersUserIdMute(options?: {
       variables: InferRequestType<(typeof client.users)[':userId']['mute']['$post']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.users)[':userId']['mute']['$post']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.users)[':userId']['mute']['$post']>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.users)[':userId']['mute']['$post']>,
     ) => void
@@ -943,11 +1100,11 @@ export function createPostUsersUserIdMute(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.users)[':userId']['mute']['$post']>) =>
       parseResponse(client.users[':userId'].mute.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -958,7 +1115,13 @@ export function createPostUsersUserIdMute(options?: {
 export function createDeleteUsersUserIdMute(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.users)[':userId']['mute']['$delete']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.users)[':userId']['mute']['$delete']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client.users)[':userId']['mute']['$delete']>,
     ) => void
     onError?: (
@@ -966,7 +1129,15 @@ export function createDeleteUsersUserIdMute(options?: {
       variables: InferRequestType<(typeof client.users)[':userId']['mute']['$delete']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.users)[':userId']['mute']['$delete']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.users)[':userId']['mute']['$delete']>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.users)[':userId']['mute']['$delete']>,
     ) => void
@@ -979,12 +1150,12 @@ export function createDeleteUsersUserIdMute(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.users)[':userId']['mute']['$delete']>,
     ) => parseResponse(client.users[':userId'].mute.$delete(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -1010,7 +1181,7 @@ export function createGetBlocks(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetBlocksQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetBlocksQueryOptions(args, clientOptions), ...queryOptions }))
 }
 
 /**
@@ -1060,7 +1231,7 @@ export function createGetMutes(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetMutesQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetMutesQueryOptions(args, clientOptions), ...queryOptions }))
 }
 
 /**
@@ -1107,7 +1278,7 @@ export function createGetLists(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetListsQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetListsQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -1142,12 +1313,16 @@ export const getGetListsQueryOptions = (clientOptions?: ClientRequestOptions) =>
 export function createPostLists(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.lists.$post>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.lists.$post>>>>
+      >,
       variables: InferRequestType<typeof client.lists.$post>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.lists.$post>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.lists.$post> | undefined,
+      data:
+        | Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.lists.$post>>>>>
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.lists.$post>,
     ) => void
@@ -1158,11 +1333,11 @@ export function createPostLists(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.lists.$post>) =>
       parseResponse(client.lists.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -1188,7 +1363,10 @@ export function createGetListsListId(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetListsListIdQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGetListsListIdQueryOptions(args, clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**
@@ -1228,7 +1406,11 @@ export const getGetListsListIdQueryOptions = (
 export function createPutListsListId(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.lists)[':listId']['$put']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.lists)[':listId']['$put']>>>
+        >
+      >,
       variables: InferRequestType<(typeof client.lists)[':listId']['$put']>,
     ) => void
     onError?: (
@@ -1236,7 +1418,13 @@ export function createPutListsListId(options?: {
       variables: InferRequestType<(typeof client.lists)[':listId']['$put']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.lists)[':listId']['$put']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client.lists)[':listId']['$put']>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.lists)[':listId']['$put']>,
     ) => void
@@ -1247,11 +1435,11 @@ export function createPutListsListId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.lists)[':listId']['$put']>) =>
       parseResponse(client.lists[':listId'].$put(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -1262,7 +1450,13 @@ export function createPutListsListId(options?: {
 export function createDeleteListsListId(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.lists)[':listId']['$delete']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client.lists)[':listId']['$delete']>>>
+            >
+          >
+        | undefined,
       variables: InferRequestType<(typeof client.lists)[':listId']['$delete']>,
     ) => void
     onError?: (
@@ -1270,7 +1464,13 @@ export function createDeleteListsListId(options?: {
       variables: InferRequestType<(typeof client.lists)[':listId']['$delete']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.lists)[':listId']['$delete']> | undefined | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client.lists)[':listId']['$delete']>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.lists)[':listId']['$delete']>,
     ) => void
@@ -1281,11 +1481,11 @@ export function createDeleteListsListId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.lists)[':listId']['$delete']>) =>
       parseResponse(client.lists[':listId'].$delete(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -1311,10 +1511,10 @@ export function createGetListsListIdMembers(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
+  return createQuery(() => ({
     ...getGetListsListIdMembersQueryOptions(args, clientOptions),
     ...queryOptions,
-  })
+  }))
 }
 
 /**
@@ -1354,7 +1554,13 @@ export const getGetListsListIdMembersQueryOptions = (
 export function createPostListsListIdMembers(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.lists)[':listId']['members']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.lists)[':listId']['members']['$post']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client.lists)[':listId']['members']['$post']>,
     ) => void
     onError?: (
@@ -1362,7 +1568,15 @@ export function createPostListsListIdMembers(options?: {
       variables: InferRequestType<(typeof client.lists)[':listId']['members']['$post']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.lists)[':listId']['members']['$post']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.lists)[':listId']['members']['$post']>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.lists)[':listId']['members']['$post']>,
     ) => void
@@ -1375,12 +1589,12 @@ export function createPostListsListIdMembers(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.lists)[':listId']['members']['$post']>,
     ) => parseResponse(client.lists[':listId'].members.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -1392,7 +1606,15 @@ export function createDeleteListsListIdMembersUserId(options?: {
   mutation?: {
     onSuccess?: (
       data:
-        | InferResponseType<(typeof client.lists)[':listId']['members'][':userId']['$delete']>
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<(typeof client.lists)[':listId']['members'][':userId']['$delete']>
+                >
+              >
+            >
+          >
         | undefined,
       variables: InferRequestType<
         (typeof client.lists)[':listId']['members'][':userId']['$delete']
@@ -1406,8 +1628,15 @@ export function createDeleteListsListIdMembersUserId(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client.lists)[':listId']['members'][':userId']['$delete']>
-        | undefined
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<(typeof client.lists)[':listId']['members'][':userId']['$delete']>
+                >
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -1425,12 +1654,12 @@ export function createDeleteListsListIdMembersUserId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.lists)[':listId']['members'][':userId']['$delete']>,
     ) => parseResponse(client.lists[':listId'].members[':userId'].$delete(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -1456,10 +1685,10 @@ export function createGetListsListIdTimeline(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
+  return createQuery(() => ({
     ...getGetListsListIdTimelineQueryOptions(args, clientOptions),
     ...queryOptions,
-  })
+  }))
 }
 
 /**
@@ -1514,10 +1743,10 @@ export function createGetUsersUserIdLists(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
+  return createQuery(() => ({
     ...getGetUsersUserIdListsQueryOptions(args, clientOptions),
     ...queryOptions,
-  })
+  }))
 }
 
 /**

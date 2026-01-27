@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/35-auth-oauth2-server'
 
 /**
@@ -53,7 +53,7 @@ export function getGetOauthAuthorizeKey(
  */
 export function usePostOauthToken(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.oauth.token.$post>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.oauth.token.$post>>>>>,
     Error,
     string,
     InferRequestType<typeof client.oauth.token.$post>
@@ -78,7 +78,9 @@ export function usePostOauthToken(options?: {
  */
 export function usePostOauthRevoke(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.oauth.revoke.$post>,
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.oauth.revoke.$post>>>>
+    >,
     Error,
     string,
     InferRequestType<typeof client.oauth.revoke.$post>
@@ -103,7 +105,9 @@ export function usePostOauthRevoke(options?: {
  */
 export function usePostOauthIntrospect(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.oauth.introspect.$post>,
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.oauth.introspect.$post>>>>
+    >,
     Error,
     string,
     InferRequestType<typeof client.oauth.introspect.$post>
@@ -128,7 +132,9 @@ export function usePostOauthIntrospect(options?: {
  */
 export function usePostOauthDeviceCode(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.oauth.device.code.$post>,
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.oauth.device.code.$post>>>>
+    >,
     Error,
     string,
     InferRequestType<typeof client.oauth.device.code.$post>
@@ -274,7 +280,9 @@ export function getGetOauthClientsKey() {
  */
 export function usePostOauthClients(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.oauth.clients.$post>,
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.oauth.clients.$post>>>>
+    >,
     Error,
     string,
     InferRequestType<typeof client.oauth.clients.$post>
@@ -331,7 +339,13 @@ export function getGetOauthClientsClientIdKey(
  */
 export function usePutOauthClientsClientId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.oauth.clients)[':clientId']['$put']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.oauth.clients)[':clientId']['$put']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.oauth.clients)[':clientId']['$put']>
@@ -356,7 +370,14 @@ export function usePutOauthClientsClientId(options?: {
  */
 export function useDeleteOauthClientsClientId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.oauth.clients)[':clientId']['$delete']> | undefined,
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.oauth.clients)[':clientId']['$delete']>>
+          >
+        >
+      >
+    | undefined,
     Error,
     string,
     InferRequestType<(typeof client.oauth.clients)[':clientId']['$delete']>
@@ -381,7 +402,13 @@ export function useDeleteOauthClientsClientId(options?: {
  */
 export function usePostOauthClientsClientIdSecret(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.oauth.clients)[':clientId']['secret']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.oauth.clients)[':clientId']['secret']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.oauth.clients)[':clientId']['secret']['$post']>
@@ -441,7 +468,14 @@ export function getGetOauthConsentsKey() {
  */
 export function useDeleteOauthConsentsClientId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.oauth.consents)[':clientId']['$delete']> | undefined,
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.oauth.consents)[':clientId']['$delete']>>
+          >
+        >
+      >
+    | undefined,
     Error,
     string,
     InferRequestType<(typeof client.oauth.consents)[':clientId']['$delete']>

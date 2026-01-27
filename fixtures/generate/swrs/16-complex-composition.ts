@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/16-complex-composition'
 
 /**
@@ -11,7 +11,7 @@ import { client } from '../clients/16-complex-composition'
  */
 export function usePostMessages(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.messages.$post>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.messages.$post>>>>>,
     Error,
     string,
     InferRequestType<typeof client.messages.$post>
@@ -32,7 +32,7 @@ export function usePostMessages(options?: {
  */
 export function usePostEvents(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.events.$post>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.events.$post>>>>>,
     Error,
     string,
     InferRequestType<typeof client.events.$post>
@@ -80,7 +80,7 @@ export function getGetConfigsKey() {
  */
 export function usePutConfigs(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.configs.$put>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.configs.$put>>>>>,
     Error,
     string,
     InferRequestType<typeof client.configs.$put>
@@ -101,7 +101,7 @@ export function usePutConfigs(options?: {
  */
 export function usePostResources(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.resources.$post>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.resources.$post>>>>>,
     Error,
     string,
     InferRequestType<typeof client.resources.$post>
@@ -122,7 +122,7 @@ export function usePostResources(options?: {
  */
 export function usePostValidations(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.validations.$post>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.validations.$post>>>>>,
     Error,
     string,
     InferRequestType<typeof client.validations.$post>

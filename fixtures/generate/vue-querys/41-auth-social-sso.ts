@@ -1,5 +1,5 @@
-import { useQuery, useMutation, queryOptions } from '@tanstack/vue-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { queryOptions, useMutation, useQuery } from '@tanstack/vue-query'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/41-auth-social-sso'
 
@@ -133,12 +133,18 @@ export const getGetSocialCallbackProviderQueryOptions = (
 export function usePostSocialToken(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.social.token.$post>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.social.token.$post>>>>
+      >,
       variables: InferRequestType<typeof client.social.token.$post>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.social.token.$post>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.social.token.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.social.token.$post>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.social.token.$post>,
     ) => void
@@ -166,7 +172,11 @@ export function usePostSocialToken(options?: {
 export function usePostSocialTokenNative(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.social.token.native.$post>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<typeof client.social.token.native.$post>>>
+        >
+      >,
       variables: InferRequestType<typeof client.social.token.native.$post>,
     ) => void
     onError?: (
@@ -174,7 +184,13 @@ export function usePostSocialTokenNative(options?: {
       variables: InferRequestType<typeof client.social.token.native.$post>,
     ) => void
     onSettled?: (
-      data: InferResponseType<typeof client.social.token.native.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<typeof client.social.token.native.$post>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.social.token.native.$post>,
     ) => void
@@ -294,7 +310,9 @@ export const getGetProvidersAdminQueryOptions = (clientOptions?: ClientRequestOp
 export function usePostProvidersAdmin(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.providers.admin.$post>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.providers.admin.$post>>>>
+      >,
       variables: InferRequestType<typeof client.providers.admin.$post>,
     ) => void
     onError?: (
@@ -302,7 +320,13 @@ export function usePostProvidersAdmin(options?: {
       variables: InferRequestType<typeof client.providers.admin.$post>,
     ) => void
     onSettled?: (
-      data: InferResponseType<typeof client.providers.admin.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<typeof client.providers.admin.$post>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.providers.admin.$post>,
     ) => void
@@ -386,7 +410,13 @@ export const getGetProvidersProviderIdQueryOptions = (
 export function usePutProvidersProviderId(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.providers)[':providerId']['$put']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.providers)[':providerId']['$put']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client.providers)[':providerId']['$put']>,
     ) => void
     onError?: (
@@ -394,7 +424,15 @@ export function usePutProvidersProviderId(options?: {
       variables: InferRequestType<(typeof client.providers)[':providerId']['$put']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.providers)[':providerId']['$put']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.providers)[':providerId']['$put']>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.providers)[':providerId']['$put']>,
     ) => void
@@ -422,7 +460,15 @@ export function usePutProvidersProviderId(options?: {
 export function useDeleteProvidersProviderId(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.providers)[':providerId']['$delete']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.providers)[':providerId']['$delete']>>
+              >
+            >
+          >
+        | undefined,
       variables: InferRequestType<(typeof client.providers)[':providerId']['$delete']>,
     ) => void
     onError?: (
@@ -431,8 +477,13 @@ export function useDeleteProvidersProviderId(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client.providers)[':providerId']['$delete']>
-        | undefined
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.providers)[':providerId']['$delete']>>
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.providers)[':providerId']['$delete']>,
@@ -462,7 +513,13 @@ export function useDeleteProvidersProviderId(options?: {
 export function usePostProvidersProviderIdTest(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.providers)[':providerId']['test']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.providers)[':providerId']['test']['$post']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client.providers)[':providerId']['test']['$post']>,
     ) => void
     onError?: (
@@ -471,7 +528,13 @@ export function usePostProvidersProviderIdTest(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client.providers)[':providerId']['test']['$post']>
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.providers)[':providerId']['test']['$post']>>
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.providers)[':providerId']['test']['$post']>,
@@ -550,7 +613,13 @@ export const getGetAccountLinkedQueryOptions = (clientOptions?: ClientRequestOpt
 export function usePostAccountLinkProvider(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.account.link)[':provider']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.account.link)[':provider']['$post']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client.account.link)[':provider']['$post']>,
     ) => void
     onError?: (
@@ -558,7 +627,15 @@ export function usePostAccountLinkProvider(options?: {
       variables: InferRequestType<(typeof client.account.link)[':provider']['$post']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.account.link)[':provider']['$post']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.account.link)[':provider']['$post']>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.account.link)[':provider']['$post']>,
     ) => void
@@ -587,7 +664,15 @@ export function usePostAccountLinkProvider(options?: {
 export function useDeleteAccountLinkProvider(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.account.link)[':provider']['$delete']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.account.link)[':provider']['$delete']>>
+              >
+            >
+          >
+        | undefined,
       variables: InferRequestType<(typeof client.account.link)[':provider']['$delete']>,
     ) => void
     onError?: (
@@ -596,8 +681,13 @@ export function useDeleteAccountLinkProvider(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client.account.link)[':provider']['$delete']>
-        | undefined
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.account.link)[':provider']['$delete']>>
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.account.link)[':provider']['$delete']>,
@@ -674,7 +764,9 @@ export const getGetEnterpriseSsoQueryOptions = (clientOptions?: ClientRequestOpt
 export function usePostEnterpriseSso(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.enterprise.sso.$post>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.enterprise.sso.$post>>>>
+      >,
       variables: InferRequestType<typeof client.enterprise.sso.$post>,
     ) => void
     onError?: (
@@ -682,7 +774,13 @@ export function usePostEnterpriseSso(options?: {
       variables: InferRequestType<typeof client.enterprise.sso.$post>,
     ) => void
     onSettled?: (
-      data: InferResponseType<typeof client.enterprise.sso.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<typeof client.enterprise.sso.$post>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.enterprise.sso.$post>,
     ) => void
@@ -766,7 +864,13 @@ export const getGetEnterpriseSsoConfigIdQueryOptions = (
 export function usePutEnterpriseSsoConfigId(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.enterprise.sso)[':configId']['$put']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.enterprise.sso)[':configId']['$put']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client.enterprise.sso)[':configId']['$put']>,
     ) => void
     onError?: (
@@ -774,7 +878,15 @@ export function usePutEnterpriseSsoConfigId(options?: {
       variables: InferRequestType<(typeof client.enterprise.sso)[':configId']['$put']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.enterprise.sso)[':configId']['$put']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.enterprise.sso)[':configId']['$put']>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.enterprise.sso)[':configId']['$put']>,
     ) => void
@@ -803,7 +915,15 @@ export function usePutEnterpriseSsoConfigId(options?: {
 export function useDeleteEnterpriseSsoConfigId(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.enterprise.sso)[':configId']['$delete']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.enterprise.sso)[':configId']['$delete']>>
+              >
+            >
+          >
+        | undefined,
       variables: InferRequestType<(typeof client.enterprise.sso)[':configId']['$delete']>,
     ) => void
     onError?: (
@@ -812,8 +932,13 @@ export function useDeleteEnterpriseSsoConfigId(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client.enterprise.sso)[':configId']['$delete']>
-        | undefined
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.enterprise.sso)[':configId']['$delete']>>
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.enterprise.sso)[':configId']['$delete']>,

@@ -25,7 +25,7 @@ export function createGetBoolean(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetBooleanQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetBooleanQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**

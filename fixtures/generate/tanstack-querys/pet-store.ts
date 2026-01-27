@@ -1,5 +1,5 @@
-import { useQuery, useMutation, queryOptions } from '@tanstack/react-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/pet-store'
 
@@ -13,12 +13,14 @@ import { client } from '../clients/pet-store'
 export function usePutPet(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.pet.$put>,
+      data: Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.pet.$put>>>>>,
       variables: InferRequestType<typeof client.pet.$put>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.pet.$put>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.pet.$put> | undefined,
+      data:
+        | Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.pet.$put>>>>>
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.pet.$put>,
     ) => void
@@ -46,12 +48,14 @@ export function usePutPet(options?: {
 export function usePostPet(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.pet.$post>,
+      data: Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.pet.$post>>>>>,
       variables: InferRequestType<typeof client.pet.$post>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.pet.$post>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.pet.$post> | undefined,
+      data:
+        | Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.pet.$post>>>>>
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.pet.$post>,
     ) => void
@@ -248,7 +252,11 @@ export const getGetPetPetIdQueryOptions = (
 export function usePostPetPetId(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.pet)[':petId']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.pet)[':petId']['$post']>>>
+        >
+      >,
       variables: InferRequestType<(typeof client.pet)[':petId']['$post']>,
     ) => void
     onError?: (
@@ -256,7 +264,13 @@ export function usePostPetPetId(options?: {
       variables: InferRequestType<(typeof client.pet)[':petId']['$post']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.pet)[':petId']['$post']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client.pet)[':petId']['$post']>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.pet)[':petId']['$post']>,
     ) => void
@@ -284,7 +298,11 @@ export function usePostPetPetId(options?: {
 export function useDeletePetPetId(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.pet)[':petId']['$delete']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.pet)[':petId']['$delete']>>>
+        >
+      >,
       variables: InferRequestType<(typeof client.pet)[':petId']['$delete']>,
     ) => void
     onError?: (
@@ -292,7 +310,13 @@ export function useDeletePetPetId(options?: {
       variables: InferRequestType<(typeof client.pet)[':petId']['$delete']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.pet)[':petId']['$delete']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client.pet)[':petId']['$delete']>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.pet)[':petId']['$delete']>,
     ) => void
@@ -318,7 +342,13 @@ export function useDeletePetPetId(options?: {
 export function usePostPetPetIdUploadImage(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.pet)[':petId']['uploadImage']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.pet)[':petId']['uploadImage']['$post']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client.pet)[':petId']['uploadImage']['$post']>,
     ) => void
     onError?: (
@@ -326,7 +356,15 @@ export function usePostPetPetIdUploadImage(options?: {
       variables: InferRequestType<(typeof client.pet)[':petId']['uploadImage']['$post']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.pet)[':petId']['uploadImage']['$post']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.pet)[':petId']['uploadImage']['$post']>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.pet)[':petId']['uploadImage']['$post']>,
     ) => void
@@ -406,12 +444,18 @@ export const getGetStoreInventoryQueryOptions = (clientOptions?: ClientRequestOp
 export function usePostStoreOrder(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.store.order.$post>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.store.order.$post>>>>
+      >,
       variables: InferRequestType<typeof client.store.order.$post>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.store.order.$post>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.store.order.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.store.order.$post>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.store.order.$post>,
     ) => void
@@ -496,7 +540,13 @@ export const getGetStoreOrderOrderIdQueryOptions = (
 export function useDeleteStoreOrderOrderId(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.store.order)[':orderId']['$delete']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.store.order)[':orderId']['$delete']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client.store.order)[':orderId']['$delete']>,
     ) => void
     onError?: (
@@ -504,7 +554,15 @@ export function useDeleteStoreOrderOrderId(options?: {
       variables: InferRequestType<(typeof client.store.order)[':orderId']['$delete']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.store.order)[':orderId']['$delete']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.store.order)[':orderId']['$delete']>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.store.order)[':orderId']['$delete']>,
     ) => void
@@ -535,12 +593,16 @@ export function useDeleteStoreOrderOrderId(options?: {
 export function usePostUser(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.user.$post>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.user.$post>>>>
+      >,
       variables: InferRequestType<typeof client.user.$post>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.user.$post>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.user.$post> | undefined,
+      data:
+        | Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.user.$post>>>>>
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.user.$post>,
     ) => void
@@ -568,7 +630,11 @@ export function usePostUser(options?: {
 export function usePostUserCreateWithList(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.user.createWithList.$post>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<typeof client.user.createWithList.$post>>>
+        >
+      >,
       variables: InferRequestType<typeof client.user.createWithList.$post>,
     ) => void
     onError?: (
@@ -576,7 +642,13 @@ export function usePostUserCreateWithList(options?: {
       variables: InferRequestType<typeof client.user.createWithList.$post>,
     ) => void
     onSettled?: (
-      data: InferResponseType<typeof client.user.createWithList.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<typeof client.user.createWithList.$post>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.user.createWithList.$post>,
     ) => void
@@ -593,8 +665,6 @@ export function usePostUserCreateWithList(options?: {
       parseResponse(client.user.createWithList.$post(args, clientOptions)),
   })
 }
-
-const {data} = usePutUserUsername()
 
 /**
  * GET /user/login
@@ -761,7 +831,11 @@ export const getGetUserUsernameQueryOptions = (
 export function usePutUserUsername(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.user)[':username']['$put']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.user)[':username']['$put']>>>
+        >
+      >,
       variables: InferRequestType<(typeof client.user)[':username']['$put']>,
     ) => void
     onError?: (
@@ -769,7 +843,13 @@ export function usePutUserUsername(options?: {
       variables: InferRequestType<(typeof client.user)[':username']['$put']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.user)[':username']['$put']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client.user)[':username']['$put']>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.user)[':username']['$put']>,
     ) => void
@@ -787,8 +867,6 @@ export function usePutUserUsername(options?: {
   })
 }
 
-
-
 /**
  * DELETE /user/{username}
  *
@@ -799,7 +877,11 @@ export function usePutUserUsername(options?: {
 export function useDeleteUserUsername(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.user)[':username']['$delete']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.user)[':username']['$delete']>>>
+        >
+      >,
       variables: InferRequestType<(typeof client.user)[':username']['$delete']>,
     ) => void
     onError?: (
@@ -807,7 +889,15 @@ export function useDeleteUserUsername(options?: {
       variables: InferRequestType<(typeof client.user)[':username']['$delete']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.user)[':username']['$delete']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.user)[':username']['$delete']>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.user)[':username']['$delete']>,
     ) => void

@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/complex-components'
 
 /**
@@ -13,7 +13,7 @@ import { client } from '../clients/complex-components'
  */
 export function usePostAuthToken(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.auth.token.$post>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.auth.token.$post>>>>>,
     Error,
     string,
     InferRequestType<typeof client.auth.token.$post>
@@ -68,7 +68,7 @@ export function getGetUsersKey(args?: InferRequestType<typeof client.users.$get>
  */
 export function usePostUsers(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.users.$post>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>,
     Error,
     string,
     InferRequestType<typeof client.users.$post>
@@ -125,7 +125,11 @@ export function getGetUsersUserIdKey(
  */
 export function usePatchUsersUserId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.users)[':userId']['$patch']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':userId']['$patch']>>>
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.users)[':userId']['$patch']>
@@ -216,7 +220,7 @@ export function getGetOrdersKey(args?: InferRequestType<typeof client.orders.$ge
  */
 export function usePostOrders(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.orders.$post>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.orders.$post>>>>>,
     Error,
     string,
     InferRequestType<typeof client.orders.$post>
@@ -307,7 +311,9 @@ export function getGetFilesFileIdKey(
  */
 export function usePostSubscriptions(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.subscriptions.$post>,
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.subscriptions.$post>>>>
+    >,
     Error,
     string,
     InferRequestType<typeof client.subscriptions.$post>

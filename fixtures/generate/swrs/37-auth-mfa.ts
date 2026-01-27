@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/37-auth-mfa'
 
 /**
@@ -71,7 +71,9 @@ export function getGetMfaMethodsKey() {
  */
 export function usePutMfaPreferred(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.mfa.preferred.$put>,
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mfa.preferred.$put>>>>
+    >,
     Error,
     string,
     InferRequestType<typeof client.mfa.preferred.$put>
@@ -96,7 +98,9 @@ export function usePutMfaPreferred(options?: {
  */
 export function usePostMfaTotpSetup(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.mfa.totp.setup.$post>,
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mfa.totp.setup.$post>>>>
+    >,
     Error,
     string,
     InferRequestType<typeof client.mfa.totp.setup.$post>
@@ -121,7 +125,9 @@ export function usePostMfaTotpSetup(options?: {
  */
 export function usePostMfaTotpVerify(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.mfa.totp.verify.$post>,
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mfa.totp.verify.$post>>>>
+    >,
     Error,
     string,
     InferRequestType<typeof client.mfa.totp.verify.$post>
@@ -144,7 +150,8 @@ export function usePostMfaTotpVerify(options?: {
  */
 export function useDeleteMfaTotp(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.mfa.totp.$delete> | undefined,
+    | Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mfa.totp.$delete>>>>>
+    | undefined,
     Error,
     string,
     InferRequestType<typeof client.mfa.totp.$delete>
@@ -169,7 +176,9 @@ export function useDeleteMfaTotp(options?: {
  */
 export function usePostMfaSmsSetup(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.mfa.sms.setup.$post>,
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mfa.sms.setup.$post>>>>
+    >,
     Error,
     string,
     InferRequestType<typeof client.mfa.sms.setup.$post>
@@ -192,7 +201,9 @@ export function usePostMfaSmsSetup(options?: {
  */
 export function usePostMfaSmsVerify(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.mfa.sms.verify.$post>,
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mfa.sms.verify.$post>>>>
+    >,
     Error,
     string,
     InferRequestType<typeof client.mfa.sms.verify.$post>
@@ -215,7 +226,12 @@ export function usePostMfaSmsVerify(options?: {
  */
 export function useDeleteMfaSmsMethodId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.mfa.sms)[':methodId']['$delete']> | undefined,
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.mfa.sms)[':methodId']['$delete']>>>
+        >
+      >
+    | undefined,
     Error,
     string,
     InferRequestType<(typeof client.mfa.sms)[':methodId']['$delete']>
@@ -240,7 +256,9 @@ export function useDeleteMfaSmsMethodId(options?: {
  */
 export function usePostMfaEmailSetup(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.mfa.email.setup.$post>,
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mfa.email.setup.$post>>>>
+    >,
     Error,
     string,
     InferRequestType<typeof client.mfa.email.setup.$post>
@@ -263,7 +281,9 @@ export function usePostMfaEmailSetup(options?: {
  */
 export function usePostMfaEmailVerify(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.mfa.email.verify.$post>,
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mfa.email.verify.$post>>>>
+    >,
     Error,
     string,
     InferRequestType<typeof client.mfa.email.verify.$post>
@@ -288,7 +308,11 @@ export function usePostMfaEmailVerify(options?: {
  */
 export function usePostMfaWebauthnRegisterOptions(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.mfa.webauthn.register.options.$post>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<typeof client.mfa.webauthn.register.options.$post>>>
+      >
+    >,
     Error,
     string,
     InferRequestType<typeof client.mfa.webauthn.register.options.$post>
@@ -313,7 +337,11 @@ export function usePostMfaWebauthnRegisterOptions(options?: {
  */
 export function usePostMfaWebauthnRegisterVerify(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.mfa.webauthn.register.verify.$post>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<typeof client.mfa.webauthn.register.verify.$post>>>
+      >
+    >,
     Error,
     string,
     InferRequestType<typeof client.mfa.webauthn.register.verify.$post>
@@ -367,7 +395,15 @@ export function getGetMfaWebauthnCredentialsKey() {
  */
 export function useDeleteMfaWebauthnCredentialsCredentialId(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<(typeof client.mfa.webauthn.credentials)[':credentialId']['$delete']>
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<(typeof client.mfa.webauthn.credentials)[':credentialId']['$delete']>
+            >
+          >
+        >
+      >
     | undefined,
     Error,
     string,
@@ -398,7 +434,13 @@ export function useDeleteMfaWebauthnCredentialsCredentialId(options?: {
  */
 export function usePatchMfaWebauthnCredentialsCredentialId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.mfa.webauthn.credentials)[':credentialId']['$patch']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.mfa.webauthn.credentials)[':credentialId']['$patch']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.mfa.webauthn.credentials)[':credentialId']['$patch']>
@@ -429,7 +471,13 @@ export function usePatchMfaWebauthnCredentialsCredentialId(options?: {
  */
 export function usePostMfaBackupCodesGenerate(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.mfa)['backup-codes']['generate']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.mfa)['backup-codes']['generate']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.mfa)['backup-codes']['generate']['$post']>
@@ -485,7 +533,9 @@ export function getGetMfaBackupCodesStatusKey() {
  */
 export function usePostMfaChallenge(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.mfa.challenge.$post>,
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mfa.challenge.$post>>>>
+    >,
     Error,
     string,
     InferRequestType<typeof client.mfa.challenge.$post>
@@ -510,7 +560,9 @@ export function usePostMfaChallenge(options?: {
  */
 export function usePostMfaChallengeSend(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.mfa.challenge.send.$post>,
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mfa.challenge.send.$post>>>>
+    >,
     Error,
     string,
     InferRequestType<typeof client.mfa.challenge.send.$post>
@@ -535,7 +587,7 @@ export function usePostMfaChallengeSend(options?: {
  */
 export function usePostMfaVerify(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.mfa.verify.$post>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mfa.verify.$post>>>>>,
     Error,
     string,
     InferRequestType<typeof client.mfa.verify.$post>
@@ -558,7 +610,13 @@ export function usePostMfaVerify(options?: {
  */
 export function usePostMfaWebauthnAuthenticateOptions(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.mfa.webauthn.authenticate.options.$post>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<typeof client.mfa.webauthn.authenticate.options.$post>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<typeof client.mfa.webauthn.authenticate.options.$post>
@@ -585,7 +643,9 @@ export function usePostMfaWebauthnAuthenticateOptions(options?: {
  */
 export function usePostMfaRecovery(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.mfa.recovery.$post>,
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mfa.recovery.$post>>>>
+    >,
     Error,
     string,
     InferRequestType<typeof client.mfa.recovery.$post>
@@ -608,7 +668,9 @@ export function usePostMfaRecovery(options?: {
  */
 export function usePostMfaRecoveryVerify(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.mfa.recovery.verify.$post>,
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mfa.recovery.verify.$post>>>>
+    >,
     Error,
     string,
     InferRequestType<typeof client.mfa.recovery.verify.$post>

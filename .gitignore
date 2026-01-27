@@ -29,3 +29,4 @@ server-build
 worker-configuration.d.ts
 .svelte-kit
 .wrangler
+orval

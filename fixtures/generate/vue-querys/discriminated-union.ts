@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/vue-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/discriminated-union'
 
@@ -9,12 +9,18 @@ import { client } from '../clients/discriminated-union'
 export function usePostMessages(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.messages.$post>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.messages.$post>>>>
+      >,
       variables: InferRequestType<typeof client.messages.$post>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.messages.$post>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.messages.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.messages.$post>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.messages.$post>,
     ) => void

@@ -1,5 +1,5 @@
-import { useQuery, useMutation, queryOptions } from '@tanstack/vue-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { queryOptions, useMutation, useQuery } from '@tanstack/vue-query'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/45-sns-settings-moderation'
 
@@ -58,7 +58,9 @@ export const getGetSettingsAccountQueryOptions = (clientOptions?: ClientRequestO
 export function usePutSettingsAccount(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.settings.account.$put>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.settings.account.$put>>>>
+      >,
       variables: InferRequestType<typeof client.settings.account.$put>,
     ) => void
     onError?: (
@@ -66,7 +68,13 @@ export function usePutSettingsAccount(options?: {
       variables: InferRequestType<typeof client.settings.account.$put>,
     ) => void
     onSettled?: (
-      data: InferResponseType<typeof client.settings.account.$put> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<typeof client.settings.account.$put>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.settings.account.$put>,
     ) => void
@@ -197,7 +205,9 @@ export const getGetSettingsPrivacyQueryOptions = (clientOptions?: ClientRequestO
 export function usePutSettingsPrivacy(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.settings.privacy.$put>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.settings.privacy.$put>>>>
+      >,
       variables: InferRequestType<typeof client.settings.privacy.$put>,
     ) => void
     onError?: (
@@ -205,7 +215,13 @@ export function usePutSettingsPrivacy(options?: {
       variables: InferRequestType<typeof client.settings.privacy.$put>,
     ) => void
     onSettled?: (
-      data: InferResponseType<typeof client.settings.privacy.$put> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<typeof client.settings.privacy.$put>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.settings.privacy.$put>,
     ) => void
@@ -283,7 +299,13 @@ export const getGetSettingsContentPreferencesQueryOptions = (
 export function usePutSettingsContentPreferences(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.settings)['content-preferences']['$put']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.settings)['content-preferences']['$put']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client.settings)['content-preferences']['$put']>,
     ) => void
     onError?: (
@@ -291,7 +313,15 @@ export function usePutSettingsContentPreferences(options?: {
       variables: InferRequestType<(typeof client.settings)['content-preferences']['$put']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.settings)['content-preferences']['$put']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.settings)['content-preferences']['$put']>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.settings)['content-preferences']['$put']>,
     ) => void
@@ -367,7 +397,13 @@ export const getGetSettingsMutedWordsQueryOptions = (clientOptions?: ClientReque
 export function usePostSettingsMutedWords(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.settings)['muted-words']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.settings)['muted-words']['$post']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client.settings)['muted-words']['$post']>,
     ) => void
     onError?: (
@@ -375,7 +411,15 @@ export function usePostSettingsMutedWords(options?: {
       variables: InferRequestType<(typeof client.settings)['muted-words']['$post']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.settings)['muted-words']['$post']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.settings)['muted-words']['$post']>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.settings)['muted-words']['$post']>,
     ) => void
@@ -404,7 +448,13 @@ export function useDeleteSettingsMutedWordsWordId(options?: {
   mutation?: {
     onSuccess?: (
       data:
-        | InferResponseType<(typeof client.settings)['muted-words'][':wordId']['$delete']>
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.settings)['muted-words'][':wordId']['$delete']>>
+              >
+            >
+          >
         | undefined,
       variables: InferRequestType<(typeof client.settings)['muted-words'][':wordId']['$delete']>,
     ) => void
@@ -414,8 +464,13 @@ export function useDeleteSettingsMutedWordsWordId(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client.settings)['muted-words'][':wordId']['$delete']>
-        | undefined
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.settings)['muted-words'][':wordId']['$delete']>>
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.settings)['muted-words'][':wordId']['$delete']>,
@@ -493,7 +548,13 @@ export function useDeleteSettingsSessionsSessionId(options?: {
   mutation?: {
     onSuccess?: (
       data:
-        | InferResponseType<(typeof client.settings.sessions)[':sessionId']['$delete']>
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.settings.sessions)[':sessionId']['$delete']>>
+              >
+            >
+          >
         | undefined,
       variables: InferRequestType<(typeof client.settings.sessions)[':sessionId']['$delete']>,
     ) => void
@@ -503,8 +564,13 @@ export function useDeleteSettingsSessionsSessionId(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client.settings.sessions)[':sessionId']['$delete']>
-        | undefined
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.settings.sessions)[':sessionId']['$delete']>>
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.settings.sessions)[':sessionId']['$delete']>,
@@ -582,7 +648,13 @@ export function useDeleteSettingsConnectedAppsAppId(options?: {
   mutation?: {
     onSuccess?: (
       data:
-        | InferResponseType<(typeof client.settings)['connected-apps'][':appId']['$delete']>
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.settings)['connected-apps'][':appId']['$delete']>>
+              >
+            >
+          >
         | undefined,
       variables: InferRequestType<(typeof client.settings)['connected-apps'][':appId']['$delete']>,
     ) => void
@@ -592,8 +664,13 @@ export function useDeleteSettingsConnectedAppsAppId(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client.settings)['connected-apps'][':appId']['$delete']>
-        | undefined
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.settings)['connected-apps'][':appId']['$delete']>>
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.settings)['connected-apps'][':appId']['$delete']>,
@@ -623,12 +700,26 @@ export function useDeleteSettingsConnectedAppsAppId(options?: {
 export function usePostSettingsDataExport(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.settings)['data-export']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.settings)['data-export']['$post']>>
+          >
+        >
+      >,
       variables: undefined,
     ) => void
     onError?: (error: Error, variables: undefined) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.settings)['data-export']['$post']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.settings)['data-export']['$post']>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: undefined,
     ) => void
@@ -712,7 +803,11 @@ export const getGetSettingsDataExportRequestIdQueryOptions = (
 export function usePostSettingsDeactivate(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.settings.deactivate.$post>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<typeof client.settings.deactivate.$post>>>
+        >
+      >,
       variables: InferRequestType<typeof client.settings.deactivate.$post>,
     ) => void
     onError?: (
@@ -720,7 +815,13 @@ export function usePostSettingsDeactivate(options?: {
       variables: InferRequestType<typeof client.settings.deactivate.$post>,
     ) => void
     onSettled?: (
-      data: InferResponseType<typeof client.settings.deactivate.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<typeof client.settings.deactivate.$post>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.settings.deactivate.$post>,
     ) => void
@@ -746,12 +847,18 @@ export function usePostSettingsDeactivate(options?: {
 export function usePostReports(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.reports.$post>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.reports.$post>>>>
+      >,
       variables: InferRequestType<typeof client.reports.$post>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.reports.$post>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.reports.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.reports.$post>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.reports.$post>,
     ) => void
@@ -947,7 +1054,13 @@ export const getGetModerationItemsItemIdQueryOptions = (
 export function usePostModerationItemsItemIdAction(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.moderation.items)[':itemId']['action']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.moderation.items)[':itemId']['action']['$post']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client.moderation.items)[':itemId']['action']['$post']>,
     ) => void
     onError?: (
@@ -956,7 +1069,13 @@ export function usePostModerationItemsItemIdAction(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client.moderation.items)[':itemId']['action']['$post']>
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.moderation.items)[':itemId']['action']['$post']>>
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.moderation.items)[':itemId']['action']['$post']>,
@@ -1044,7 +1163,13 @@ export const getGetModerationUsersUserIdHistoryQueryOptions = (
 export function usePostModerationUsersUserIdSuspend(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.moderation.users)[':userId']['suspend']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.moderation.users)[':userId']['suspend']['$post']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client.moderation.users)[':userId']['suspend']['$post']>,
     ) => void
     onError?: (
@@ -1053,7 +1178,13 @@ export function usePostModerationUsersUserIdSuspend(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client.moderation.users)[':userId']['suspend']['$post']>
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.moderation.users)[':userId']['suspend']['$post']>>
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.moderation.users)[':userId']['suspend']['$post']>,
@@ -1083,7 +1214,13 @@ export function usePostModerationUsersUserIdSuspend(options?: {
 export function usePostModerationUsersUserIdUnsuspend(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.moderation.users)[':userId']['unsuspend']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.moderation.users)[':userId']['unsuspend']['$post']>>
+          >
+        >
+      >,
       variables: InferRequestType<
         (typeof client.moderation.users)[':userId']['unsuspend']['$post']
       >,
@@ -1096,7 +1233,15 @@ export function usePostModerationUsersUserIdUnsuspend(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client.moderation.users)[':userId']['unsuspend']['$post']>
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<(typeof client.moderation.users)[':userId']['unsuspend']['$post']>
+                >
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<

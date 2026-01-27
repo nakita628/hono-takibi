@@ -592,6 +592,43 @@ export const buildInferResponseType = (
     : `InferResponseType<typeof ${clientName}${runtimePath}.$${method}${statusSuffix}>`
 }
 
+/**
+ * Build parseResponse return type expression.
+ *
+ * Uses `Awaited<ReturnType<typeof parseResponse<...>>>` to correctly infer
+ * the actual return type of parseResponse, which handles:
+ * - JSON responses (returns parsed object)
+ * - Text responses (returns string)
+ * - No content responses (returns undefined)
+ *
+ * This is more accurate than InferResponseType when the route has multiple
+ * output formats (e.g., both 'json' and 'text' outputFormat in the type union).
+ *
+ * @param clientName - Client variable name
+ * @param pathResult - Formatted path result
+ * @param method - HTTP method
+ * @returns TypeScript type expression string
+ *
+ * @example
+ * ```ts
+ * buildParseResponseType('client', pathResult, 'post')
+ * // => 'Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>'
+ * ```
+ *
+ * @see https://hono.dev/docs/guides/rpc#parsing-a-response-with-type-safety-helper
+ */
+export const buildParseResponseType = (
+  clientName: string,
+  pathResult: FormatPathResult,
+  method: HttpMethod,
+): string => {
+  const { runtimePath, typeofPrefix, bracketSuffix, hasBracket } = pathResult
+  const clientMethodType = hasBracket
+    ? `(typeof ${clientName}${typeofPrefix})${bracketSuffix}['$${method}']`
+    : `typeof ${clientName}${runtimePath}.$${method}`
+  return `Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<${clientMethodType}>>>>>`
+}
+
 /* ─────────────────────────────── Parameter analysis ─────────────────────────────── */
 
 /**

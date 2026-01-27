@@ -1,5 +1,5 @@
-import { useQuery, useMutation, queryOptions } from '@tanstack/react-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/26-extreme-features'
 
@@ -58,12 +58,18 @@ export const getGetStreamQueryOptions = (clientOptions?: ClientRequestOptions) =
 export function usePostGraphql(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.graphql.$post>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.graphql.$post>>>>
+      >,
       variables: InferRequestType<typeof client.graphql.$post>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.graphql.$post>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.graphql.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.graphql.$post>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.graphql.$post>,
     ) => void
@@ -89,7 +95,11 @@ export function usePostGraphql(options?: {
 export function usePostGrpcGateway(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client)['grpc-gateway']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client)['grpc-gateway']['$post']>>>
+        >
+      >,
       variables: InferRequestType<(typeof client)['grpc-gateway']['$post']>,
     ) => void
     onError?: (
@@ -97,7 +107,13 @@ export function usePostGrpcGateway(options?: {
       variables: InferRequestType<(typeof client)['grpc-gateway']['$post']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client)['grpc-gateway']['$post']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client)['grpc-gateway']['$post']>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client)['grpc-gateway']['$post']>,
     ) => void

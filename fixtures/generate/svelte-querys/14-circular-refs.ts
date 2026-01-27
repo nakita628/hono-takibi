@@ -1,5 +1,5 @@
-import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/14-circular-refs'
 
@@ -21,7 +21,7 @@ export function createGetTrees(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetTreesQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetTreesQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -54,12 +54,16 @@ export const getGetTreesQueryOptions = (clientOptions?: ClientRequestOptions) =>
 export function createPostTrees(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.trees.$post>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.trees.$post>>>>
+      >,
       variables: InferRequestType<typeof client.trees.$post>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.trees.$post>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.trees.$post> | undefined,
+      data:
+        | Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.trees.$post>>>>>
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.trees.$post>,
     ) => void
@@ -70,11 +74,11 @@ export function createPostTrees(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.trees.$post>) =>
       parseResponse(client.trees.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -95,7 +99,7 @@ export function createGetGraphs(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetGraphsQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetGraphsQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -140,7 +144,7 @@ export function createGetLinkedLists(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetLinkedListsQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetLinkedListsQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -185,7 +189,7 @@ export function createGetSocialNetwork(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetSocialNetworkQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetSocialNetworkQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -230,7 +234,7 @@ export function createGetFileSystem(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetFileSystemQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetFileSystemQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -275,7 +279,7 @@ export function createGetComments(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetCommentsQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetCommentsQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -320,7 +324,7 @@ export function createGetPolymorphic(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetPolymorphicQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetPolymorphicQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -365,7 +369,7 @@ export function createGetCategories(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetCategoriesQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetCategoriesQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -410,7 +414,7 @@ export function createGetWorkflow(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetWorkflowQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetWorkflowQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**

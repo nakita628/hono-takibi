@@ -27,8 +27,8 @@ import { escapeCommentEnd, isRecord, methodPath, upperFirst } from '../utils/ind
 import type { HttpMethod, OperationDeps, PathItemLike } from './index.js'
 import {
   buildInferRequestType,
-  buildInferResponseType,
   buildOperationDocs,
+  buildParseResponseType,
   core,
   createOperationDeps,
   formatPath,
@@ -202,7 +202,7 @@ function makeQueryHookCode(
   hasArgs: boolean,
   inferRequestType: string,
   docs: string,
-  config: { queryFn: string },
+  config: { queryFn: string; useThunk?: boolean },
 ): string {
   const argsSig = hasArgs ? `args:${inferRequestType},` : ''
   // Get base options from getter (no override options)
@@ -223,8 +223,13 @@ function makeQueryHookCode(
 
   // Spread at useQuery level to override options
   // queryOptions() returns DataTag-branded options, spread preserves type safety
+  // Svelte Query v5+ requires thunk pattern: createQuery(() => options)
+  const optionsExpr = `{...${optionsGetterCall},...queryOptions}`
+  const queryCall = config.useThunk
+    ? `${config.queryFn}(()=>(${optionsExpr}))`
+    : `${config.queryFn}(${optionsExpr})`
   return `${docs}
-export function ${hookName}(${argsSig}options?:${optionsType}){const{query:queryOptions,client:clientOptions}=options??{};return ${config.queryFn}({...${optionsGetterCall},...queryOptions})}`
+export function ${hookName}(${argsSig}options?:${optionsType}){const{query:queryOptions,client:clientOptions}=options??{};return ${queryCall}}`
 }
 
 /* ─────────────────────────────── Mutation Hook Code ─────────────────────────────── */
@@ -237,7 +242,7 @@ function makeMutationHookCode(
   clientPath: string,
   method: string,
   docs: string,
-  config: { mutationFn: string },
+  config: { mutationFn: string; useThunk?: boolean },
   hasNoContent: boolean,
 ): string {
   // Simple pattern with typed callbacks
@@ -253,16 +258,25 @@ function makeMutationHookCode(
   const inlineMutationOptionsType = `{onSuccess?:(data:${dataType},variables:${variablesType})=>void;onError?:(error:Error,variables:${variablesType})=>void;onSettled?:(data:${onSettledDataType},error:Error|null,variables:${variablesType})=>void;onMutate?:(variables:${variablesType})=>void;retry?:boolean|number;retryDelay?:number}`
   const optionsType = `{mutation?:${inlineMutationOptionsType};client?:ClientRequestOptions}`
 
+  // Svelte Query v5+ requires thunk pattern: createMutation(() => options)
   if (hasArgs) {
     const clientCall = `${clientPath}.$${method}(args,clientOptions)`
     const fetcherBody = makeFetcher(clientCall)
+    const optionsExpr = `{...mutationOptions,mutationFn:async(args:${inferRequestType})=>${fetcherBody}}`
+    const mutationCall = config.useThunk
+      ? `${config.mutationFn}(()=>(${optionsExpr}))`
+      : `${config.mutationFn}(${optionsExpr})`
     return `${docs}
-export function ${hookName}(options?:${optionsType}){const{mutation:mutationOptions,client:clientOptions}=options??{};return ${config.mutationFn}({...mutationOptions,mutationFn:async(args:${inferRequestType})=>${fetcherBody}})}`
+export function ${hookName}(options?:${optionsType}){const{mutation:mutationOptions,client:clientOptions}=options??{};return ${mutationCall}}`
   }
   const clientCall = `${clientPath}.$${method}(undefined,clientOptions)`
   const fetcherBody = makeFetcher(clientCall)
+  const optionsExpr = `{...mutationOptions,mutationFn:async()=>${fetcherBody}}`
+  const mutationCall = config.useThunk
+    ? `${config.mutationFn}(()=>(${optionsExpr}))`
+    : `${config.mutationFn}(${optionsExpr})`
   return `${docs}
-export function ${hookName}(options?:${optionsType}){const{mutation:mutationOptions,client:clientOptions}=options??{};return ${config.mutationFn}({...mutationOptions,mutationFn:async()=>${fetcherBody}})}`
+export function ${hookName}(options?:${optionsType}){const{mutation:mutationOptions,client:clientOptions}=options??{};return ${mutationCall}}`
 }
 
 /* ─────────────────────────────── Single-hook generator ─────────────────────────────── */
@@ -278,6 +292,7 @@ function makeHookCode(
     queryFn: string
     mutationFn: string
     queryOptionsHelper?: string
+    useThunk?: boolean
   },
 ): { code: string; isQuery: boolean; hasArgs: boolean } | null {
   const op = item[method]
@@ -289,7 +304,8 @@ function makeHookCode(
   const isQuery = method === 'get'
 
   const inferRequestType = buildInferRequestType(deps.client, pathResult, method)
-  const baseInferResponseType = buildInferResponseType(deps.client, pathResult, method)
+  // Use parseResponse return type for accurate type inference
+  const parseResponseType = buildParseResponseType(deps.client, pathResult, method)
   // parseResponse returns undefined for 204/205 No Content responses
   const hasNoContent = hasNoContentResponse(op)
 
@@ -341,7 +357,7 @@ function makeHookCode(
     hookName,
     hasArgs,
     inferRequestType,
-    baseInferResponseType,
+    parseResponseType,
     clientPath,
     method,
     docs,
@@ -363,6 +379,7 @@ function makeHookCodes(
     queryFn: string
     mutationFn: string
     queryOptionsHelper?: string
+    useThunk?: boolean
   },
 ): { hookName: string; code: string; isQuery: boolean; hasArgs: boolean }[] {
   return Object.entries(paths)
@@ -413,10 +430,9 @@ function makeHeader(
 
   // Hono client type imports
   // InferRequestType: needed when operation has args
-  // InferResponseType: only needed for mutation callbacks (onSuccess, onError, onSettled)
+  // InferResponseType: no longer needed - using parseResponse return type instead
   const honoTypeImportParts = [
     ...(needsInferRequestType ? ['InferRequestType'] : []),
-    ...(hasMutation ? ['InferResponseType'] : []),
     'ClientRequestOptions',
   ]
 
@@ -483,6 +499,7 @@ export async function makeQueryHooks(
     queryFn: string
     mutationFn: string
     queryOptionsHelper?: string
+    useThunk?: boolean
   },
   split?: boolean,
   clientName = 'client',

@@ -1,5 +1,5 @@
 import { createQuery, queryOptions } from '@tanstack/svelte-query'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/23-extreme-parameters'
 
@@ -26,10 +26,10 @@ export function createGetAP1BP2CP3DP4EP5FP6GP7HP8IP9JP10(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
+  return createQuery(() => ({
     ...getGetAP1BP2CP3DP4EP5FP6GP7HP8IP9JP10QueryOptions(args, clientOptions),
     ...queryOptions,
-  })
+  }))
 }
 
 /**
@@ -85,7 +85,10 @@ export function createGetQueryStyles(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetQueryStylesQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGetQueryStylesQueryOptions(args, clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**
@@ -138,10 +141,10 @@ export function createGetPathStylesSimpleLabelMatrix(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
+  return createQuery(() => ({
     ...getGetPathStylesSimpleLabelMatrixQueryOptions(args, clientOptions),
     ...queryOptions,
-  })
+  }))
 }
 
 /**
@@ -194,7 +197,10 @@ export function createGetHeaderStyles(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetHeaderStylesQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGetHeaderStylesQueryOptions(args, clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**
@@ -247,7 +253,10 @@ export function createGetCookieStyles(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetCookieStylesQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGetCookieStylesQueryOptions(args, clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**
@@ -300,7 +309,10 @@ export function createGetManyQueryParams(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetManyQueryParamsQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGetManyQueryParamsQueryOptions(args, clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**
@@ -353,10 +365,10 @@ export function createGetParameterContent(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
+  return createQuery(() => ({
     ...getGetParameterContentQueryOptions(args, clientOptions),
     ...queryOptions,
-  })
+  }))
 }
 
 /**
@@ -409,10 +421,10 @@ export function createGetDeprecatedParams(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
+  return createQuery(() => ({
     ...getGetDeprecatedParamsQueryOptions(args, clientOptions),
     ...queryOptions,
-  })
+  }))
 }
 
 /**
@@ -465,7 +477,10 @@ export function createGetExamplesParams(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetExamplesParamsQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGetExamplesParamsQueryOptions(args, clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**

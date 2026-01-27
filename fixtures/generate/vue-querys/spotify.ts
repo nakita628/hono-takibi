@@ -1,5 +1,5 @@
-import { useQuery, useMutation, queryOptions } from '@tanstack/vue-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { queryOptions, useMutation, useQuery } from '@tanstack/vue-query'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/spotify'
 
@@ -1473,12 +1473,18 @@ export const getGetMeAlbumsQueryOptions = (
 export function usePutMeAlbums(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.me.albums.$put>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.albums.$put>>>>
+      >,
       variables: InferRequestType<typeof client.me.albums.$put>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.me.albums.$put>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.me.albums.$put> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.albums.$put>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.me.albums.$put>,
     ) => void
@@ -1506,12 +1512,18 @@ export function usePutMeAlbums(options?: {
 export function useDeleteMeAlbums(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.me.albums.$delete>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.albums.$delete>>>>
+      >,
       variables: InferRequestType<typeof client.me.albums.$delete>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.me.albums.$delete>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.me.albums.$delete> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.albums.$delete>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.me.albums.$delete>,
     ) => void
@@ -1653,12 +1665,18 @@ export const getGetMeAudiobooksQueryOptions = (
 export function usePutMeAudiobooks(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.me.audiobooks.$put>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.audiobooks.$put>>>>
+      >,
       variables: InferRequestType<typeof client.me.audiobooks.$put>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.me.audiobooks.$put>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.me.audiobooks.$put> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.audiobooks.$put>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.me.audiobooks.$put>,
     ) => void
@@ -1686,7 +1704,9 @@ export function usePutMeAudiobooks(options?: {
 export function useDeleteMeAudiobooks(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.me.audiobooks.$delete>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.audiobooks.$delete>>>>
+      >,
       variables: InferRequestType<typeof client.me.audiobooks.$delete>,
     ) => void
     onError?: (
@@ -1694,7 +1714,13 @@ export function useDeleteMeAudiobooks(options?: {
       variables: InferRequestType<typeof client.me.audiobooks.$delete>,
     ) => void
     onSettled?: (
-      data: InferResponseType<typeof client.me.audiobooks.$delete> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<typeof client.me.audiobooks.$delete>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.me.audiobooks.$delete>,
     ) => void
@@ -1839,12 +1865,18 @@ export const getGetMeEpisodesQueryOptions = (
 export function usePutMeEpisodes(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.me.episodes.$put>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.episodes.$put>>>>
+      >,
       variables: InferRequestType<typeof client.me.episodes.$put>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.me.episodes.$put>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.me.episodes.$put> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.episodes.$put>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.me.episodes.$put>,
     ) => void
@@ -1873,12 +1905,18 @@ export function usePutMeEpisodes(options?: {
 export function useDeleteMeEpisodes(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.me.episodes.$delete>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.episodes.$delete>>>>
+      >,
       variables: InferRequestType<typeof client.me.episodes.$delete>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.me.episodes.$delete>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.me.episodes.$delete> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.episodes.$delete>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.me.episodes.$delete>,
     ) => void
@@ -2019,12 +2057,20 @@ export const getGetMeFollowingQueryOptions = (
 export function usePutMeFollowing(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.me.following.$put> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.following.$put>>>>
+          >
+        | undefined,
       variables: InferRequestType<typeof client.me.following.$put>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.me.following.$put>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.me.following.$put> | undefined | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.following.$put>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.me.following.$put>,
     ) => void
@@ -2052,7 +2098,9 @@ export function usePutMeFollowing(options?: {
 export function useDeleteMeFollowing(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.me.following.$delete>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.following.$delete>>>>
+      >,
       variables: InferRequestType<typeof client.me.following.$delete>,
     ) => void
     onError?: (
@@ -2060,7 +2108,13 @@ export function useDeleteMeFollowing(options?: {
       variables: InferRequestType<typeof client.me.following.$delete>,
     ) => void
     onSettled?: (
-      data: InferResponseType<typeof client.me.following.$delete> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<typeof client.me.following.$delete>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.me.following.$delete>,
     ) => void
@@ -2200,12 +2254,20 @@ export const getGetMePlayerQueryOptions = (
 export function usePutMePlayer(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.me.player.$put> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.player.$put>>>>
+          >
+        | undefined,
       variables: InferRequestType<typeof client.me.player.$put>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.me.player.$put>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.me.player.$put> | undefined | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.player.$put>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.me.player.$put>,
     ) => void
@@ -2342,7 +2404,13 @@ export const getGetMePlayerDevicesQueryOptions = (clientOptions?: ClientRequestO
 export function usePostMePlayerNext(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.me.player.next.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<typeof client.me.player.next.$post>>>
+            >
+          >
+        | undefined,
       variables: InferRequestType<typeof client.me.player.next.$post>,
     ) => void
     onError?: (
@@ -2350,7 +2418,13 @@ export function usePostMePlayerNext(options?: {
       variables: InferRequestType<typeof client.me.player.next.$post>,
     ) => void
     onSettled?: (
-      data: InferResponseType<typeof client.me.player.next.$post> | undefined | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<typeof client.me.player.next.$post>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.me.player.next.$post>,
     ) => void
@@ -2378,7 +2452,13 @@ export function usePostMePlayerNext(options?: {
 export function usePutMePlayerPause(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.me.player.pause.$put> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<typeof client.me.player.pause.$put>>>
+            >
+          >
+        | undefined,
       variables: InferRequestType<typeof client.me.player.pause.$put>,
     ) => void
     onError?: (
@@ -2386,7 +2466,13 @@ export function usePutMePlayerPause(options?: {
       variables: InferRequestType<typeof client.me.player.pause.$put>,
     ) => void
     onSettled?: (
-      data: InferResponseType<typeof client.me.player.pause.$put> | undefined | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<typeof client.me.player.pause.$put>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.me.player.pause.$put>,
     ) => void
@@ -2414,12 +2500,20 @@ export function usePutMePlayerPause(options?: {
 export function usePutMePlayerPlay(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.me.player.play.$put> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.player.play.$put>>>>
+          >
+        | undefined,
       variables: InferRequestType<typeof client.me.player.play.$put>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.me.player.play.$put>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.me.player.play.$put> | undefined | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.player.play.$put>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.me.player.play.$put>,
     ) => void
@@ -2447,7 +2541,13 @@ export function usePutMePlayerPlay(options?: {
 export function usePostMePlayerPrevious(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.me.player.previous.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<typeof client.me.player.previous.$post>>>
+            >
+          >
+        | undefined,
       variables: InferRequestType<typeof client.me.player.previous.$post>,
     ) => void
     onError?: (
@@ -2455,7 +2555,13 @@ export function usePostMePlayerPrevious(options?: {
       variables: InferRequestType<typeof client.me.player.previous.$post>,
     ) => void
     onSettled?: (
-      data: InferResponseType<typeof client.me.player.previous.$post> | undefined | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<typeof client.me.player.previous.$post>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.me.player.previous.$post>,
     ) => void
@@ -2532,7 +2638,13 @@ export const getGetMePlayerQueueQueryOptions = (clientOptions?: ClientRequestOpt
 export function usePostMePlayerQueue(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.me.player.queue.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<typeof client.me.player.queue.$post>>>
+            >
+          >
+        | undefined,
       variables: InferRequestType<typeof client.me.player.queue.$post>,
     ) => void
     onError?: (
@@ -2540,7 +2652,13 @@ export function usePostMePlayerQueue(options?: {
       variables: InferRequestType<typeof client.me.player.queue.$post>,
     ) => void
     onSettled?: (
-      data: InferResponseType<typeof client.me.player.queue.$post> | undefined | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<typeof client.me.player.queue.$post>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.me.player.queue.$post>,
     ) => void
@@ -2630,7 +2748,13 @@ export const getGetMePlayerRecentlyPlayedQueryOptions = (
 export function usePutMePlayerRepeat(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.me.player.repeat.$put> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<typeof client.me.player.repeat.$put>>>
+            >
+          >
+        | undefined,
       variables: InferRequestType<typeof client.me.player.repeat.$put>,
     ) => void
     onError?: (
@@ -2638,7 +2762,13 @@ export function usePutMePlayerRepeat(options?: {
       variables: InferRequestType<typeof client.me.player.repeat.$put>,
     ) => void
     onSettled?: (
-      data: InferResponseType<typeof client.me.player.repeat.$put> | undefined | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<typeof client.me.player.repeat.$put>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.me.player.repeat.$put>,
     ) => void
@@ -2666,12 +2796,20 @@ export function usePutMePlayerRepeat(options?: {
 export function usePutMePlayerSeek(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.me.player.seek.$put> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.player.seek.$put>>>>
+          >
+        | undefined,
       variables: InferRequestType<typeof client.me.player.seek.$put>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.me.player.seek.$put>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.me.player.seek.$put> | undefined | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.player.seek.$put>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.me.player.seek.$put>,
     ) => void
@@ -2699,7 +2837,13 @@ export function usePutMePlayerSeek(options?: {
 export function usePutMePlayerShuffle(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.me.player.shuffle.$put> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<typeof client.me.player.shuffle.$put>>>
+            >
+          >
+        | undefined,
       variables: InferRequestType<typeof client.me.player.shuffle.$put>,
     ) => void
     onError?: (
@@ -2707,7 +2851,13 @@ export function usePutMePlayerShuffle(options?: {
       variables: InferRequestType<typeof client.me.player.shuffle.$put>,
     ) => void
     onSettled?: (
-      data: InferResponseType<typeof client.me.player.shuffle.$put> | undefined | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<typeof client.me.player.shuffle.$put>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.me.player.shuffle.$put>,
     ) => void
@@ -2735,7 +2885,13 @@ export function usePutMePlayerShuffle(options?: {
 export function usePutMePlayerVolume(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.me.player.volume.$put> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<typeof client.me.player.volume.$put>>>
+            >
+          >
+        | undefined,
       variables: InferRequestType<typeof client.me.player.volume.$put>,
     ) => void
     onError?: (
@@ -2743,7 +2899,13 @@ export function usePutMePlayerVolume(options?: {
       variables: InferRequestType<typeof client.me.player.volume.$put>,
     ) => void
     onSettled?: (
-      data: InferResponseType<typeof client.me.player.volume.$put> | undefined | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<typeof client.me.player.volume.$put>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.me.player.volume.$put>,
     ) => void
@@ -2879,12 +3041,18 @@ export const getGetMeShowsQueryOptions = (
 export function usePutMeShows(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.me.shows.$put>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.shows.$put>>>>
+      >,
       variables: InferRequestType<typeof client.me.shows.$put>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.me.shows.$put>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.me.shows.$put> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.shows.$put>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.me.shows.$put>,
     ) => void
@@ -2912,12 +3080,18 @@ export function usePutMeShows(options?: {
 export function useDeleteMeShows(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.me.shows.$delete>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.shows.$delete>>>>
+      >,
       variables: InferRequestType<typeof client.me.shows.$delete>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.me.shows.$delete>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.me.shows.$delete> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.shows.$delete>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.me.shows.$delete>,
     ) => void
@@ -3111,12 +3285,18 @@ export const getGetMeTracksQueryOptions = (
 export function usePutMeTracks(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.me.tracks.$put>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.tracks.$put>>>>
+      >,
       variables: InferRequestType<typeof client.me.tracks.$put>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.me.tracks.$put>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.me.tracks.$put> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.tracks.$put>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.me.tracks.$put>,
     ) => void
@@ -3144,12 +3324,18 @@ export function usePutMeTracks(options?: {
 export function useDeleteMeTracks(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.me.tracks.$delete>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.tracks.$delete>>>>
+      >,
       variables: InferRequestType<typeof client.me.tracks.$delete>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.me.tracks.$delete>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.me.tracks.$delete> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.tracks.$delete>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.me.tracks.$delete>,
     ) => void
@@ -3295,7 +3481,13 @@ export const getGetPlaylistsPlaylistIdQueryOptions = (
 export function usePutPlaylistsPlaylistId(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.playlists)[':playlist_id']['$put']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.playlists)[':playlist_id']['$put']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client.playlists)[':playlist_id']['$put']>,
     ) => void
     onError?: (
@@ -3303,7 +3495,15 @@ export function usePutPlaylistsPlaylistId(options?: {
       variables: InferRequestType<(typeof client.playlists)[':playlist_id']['$put']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.playlists)[':playlist_id']['$put']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.playlists)[':playlist_id']['$put']>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.playlists)[':playlist_id']['$put']>,
     ) => void
@@ -3333,7 +3533,13 @@ export function usePutPlaylistsPlaylistId(options?: {
 export function usePutPlaylistsPlaylistIdFollowers(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.playlists)[':playlist_id']['followers']['$put']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.playlists)[':playlist_id']['followers']['$put']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client.playlists)[':playlist_id']['followers']['$put']>,
     ) => void
     onError?: (
@@ -3342,7 +3548,13 @@ export function usePutPlaylistsPlaylistIdFollowers(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client.playlists)[':playlist_id']['followers']['$put']>
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.playlists)[':playlist_id']['followers']['$put']>>
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.playlists)[':playlist_id']['followers']['$put']>,
@@ -3374,7 +3586,13 @@ export function usePutPlaylistsPlaylistIdFollowers(options?: {
 export function useDeletePlaylistsPlaylistIdFollowers(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.playlists)[':playlist_id']['followers']['$delete']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.playlists)[':playlist_id']['followers']['$delete']>>
+          >
+        >
+      >,
       variables: InferRequestType<
         (typeof client.playlists)[':playlist_id']['followers']['$delete']
       >,
@@ -3387,7 +3605,15 @@ export function useDeletePlaylistsPlaylistIdFollowers(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client.playlists)[':playlist_id']['followers']['$delete']>
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<(typeof client.playlists)[':playlist_id']['followers']['$delete']>
+                >
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -3549,7 +3775,13 @@ export const getGetPlaylistsPlaylistIdImagesQueryOptions = (
 export function usePutPlaylistsPlaylistIdImages(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.playlists)[':playlist_id']['images']['$put']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.playlists)[':playlist_id']['images']['$put']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$put']>,
     ) => void
     onError?: (
@@ -3558,7 +3790,13 @@ export function usePutPlaylistsPlaylistIdImages(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client.playlists)[':playlist_id']['images']['$put']>
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.playlists)[':playlist_id']['images']['$put']>>
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$put']>,
@@ -3656,7 +3894,13 @@ export const getGetPlaylistsPlaylistIdTracksQueryOptions = (
 export function usePutPlaylistsPlaylistIdTracks(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.playlists)[':playlist_id']['tracks']['$put']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.playlists)[':playlist_id']['tracks']['$put']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$put']>,
     ) => void
     onError?: (
@@ -3665,7 +3909,13 @@ export function usePutPlaylistsPlaylistIdTracks(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client.playlists)[':playlist_id']['tracks']['$put']>
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.playlists)[':playlist_id']['tracks']['$put']>>
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$put']>,
@@ -3697,7 +3947,13 @@ export function usePutPlaylistsPlaylistIdTracks(options?: {
 export function usePostPlaylistsPlaylistIdTracks(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.playlists)[':playlist_id']['tracks']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.playlists)[':playlist_id']['tracks']['$post']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$post']>,
     ) => void
     onError?: (
@@ -3706,7 +3962,13 @@ export function usePostPlaylistsPlaylistIdTracks(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client.playlists)[':playlist_id']['tracks']['$post']>
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.playlists)[':playlist_id']['tracks']['$post']>>
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$post']>,
@@ -3738,7 +4000,13 @@ export function usePostPlaylistsPlaylistIdTracks(options?: {
 export function useDeletePlaylistsPlaylistIdTracks(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.playlists)[':playlist_id']['tracks']['$delete']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.playlists)[':playlist_id']['tracks']['$delete']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$delete']>,
     ) => void
     onError?: (
@@ -3747,7 +4015,13 @@ export function useDeletePlaylistsPlaylistIdTracks(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client.playlists)[':playlist_id']['tracks']['$delete']>
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.playlists)[':playlist_id']['tracks']['$delete']>>
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$delete']>,
@@ -4341,7 +4615,13 @@ export const getGetUsersUserIdPlaylistsQueryOptions = (
 export function usePostUsersUserIdPlaylists(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.users)[':user_id']['playlists']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.users)[':user_id']['playlists']['$post']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client.users)[':user_id']['playlists']['$post']>,
     ) => void
     onError?: (
@@ -4349,7 +4629,15 @@ export function usePostUsersUserIdPlaylists(options?: {
       variables: InferRequestType<(typeof client.users)[':user_id']['playlists']['$post']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.users)[':user_id']['playlists']['$post']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.users)[':user_id']['playlists']['$post']>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.users)[':user_id']['playlists']['$post']>,
     ) => void

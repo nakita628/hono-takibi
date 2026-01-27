@@ -1,5 +1,5 @@
-import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/16-complex-composition'
 
@@ -9,12 +9,18 @@ import { client } from '../clients/16-complex-composition'
 export function createPostMessages(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.messages.$post>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.messages.$post>>>>
+      >,
       variables: InferRequestType<typeof client.messages.$post>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.messages.$post>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.messages.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.messages.$post>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.messages.$post>,
     ) => void
@@ -25,11 +31,11 @@ export function createPostMessages(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.messages.$post>) =>
       parseResponse(client.messages.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -38,12 +44,16 @@ export function createPostMessages(options?: {
 export function createPostEvents(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.events.$post>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.events.$post>>>>
+      >,
       variables: InferRequestType<typeof client.events.$post>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.events.$post>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.events.$post> | undefined,
+      data:
+        | Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.events.$post>>>>>
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.events.$post>,
     ) => void
@@ -54,11 +64,11 @@ export function createPostEvents(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.events.$post>) =>
       parseResponse(client.events.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -79,7 +89,7 @@ export function createGetConfigs(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetConfigsQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetConfigsQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -112,12 +122,16 @@ export const getGetConfigsQueryOptions = (clientOptions?: ClientRequestOptions) 
 export function createPutConfigs(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.configs.$put>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.configs.$put>>>>
+      >,
       variables: InferRequestType<typeof client.configs.$put>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.configs.$put>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.configs.$put> | undefined,
+      data:
+        | Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.configs.$put>>>>>
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.configs.$put>,
     ) => void
@@ -128,11 +142,11 @@ export function createPutConfigs(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.configs.$put>) =>
       parseResponse(client.configs.$put(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -141,12 +155,18 @@ export function createPutConfigs(options?: {
 export function createPostResources(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.resources.$post>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.resources.$post>>>>
+      >,
       variables: InferRequestType<typeof client.resources.$post>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.resources.$post>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.resources.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.resources.$post>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.resources.$post>,
     ) => void
@@ -157,11 +177,11 @@ export function createPostResources(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.resources.$post>) =>
       parseResponse(client.resources.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -170,12 +190,18 @@ export function createPostResources(options?: {
 export function createPostValidations(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.validations.$post>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.validations.$post>>>>
+      >,
       variables: InferRequestType<typeof client.validations.$post>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.validations.$post>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.validations.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.validations.$post>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.validations.$post>,
     ) => void
@@ -186,9 +212,9 @@ export function createPostValidations(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.validations.$post>) =>
       parseResponse(client.validations.$post(args, clientOptions)),
-  })
+  }))
 }

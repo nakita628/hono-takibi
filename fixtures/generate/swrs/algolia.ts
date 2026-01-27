@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/algolia'
 
 /**
@@ -49,7 +49,9 @@ export function getGetPathKey(args?: InferRequestType<(typeof client)[':path']['
  */
 export function usePutPath(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)[':path']['$put']>,
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)[':path']['$put']>>>>
+    >,
     Error,
     string,
     InferRequestType<(typeof client)[':path']['$put']>
@@ -74,7 +76,9 @@ export function usePutPath(options?: {
  */
 export function usePostPath(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)[':path']['$post']>,
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)[':path']['$post']>>>>
+    >,
     Error,
     string,
     InferRequestType<(typeof client)[':path']['$post']>
@@ -99,7 +103,9 @@ export function usePostPath(options?: {
  */
 export function useDeletePath(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)[':path']['$delete']>,
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)[':path']['$delete']>>>>
+    >,
     Error,
     string,
     InferRequestType<(typeof client)[':path']['$delete']>
@@ -127,7 +133,13 @@ export function useDeletePath(options?: {
  */
 export function usePost1IndexesIndexNameQuery(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['1']['indexes'][':indexName']['query']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName']['query']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client)['1']['indexes'][':indexName']['query']['$post']>
@@ -163,7 +175,13 @@ export function usePost1IndexesIndexNameQuery(options?: {
  */
 export function usePost1IndexesQueries(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['1']['indexes']['*']['queries']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['indexes']['*']['queries']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client)['1']['indexes']['*']['queries']['$post']>
@@ -194,8 +212,16 @@ export function usePost1IndexesQueries(options?: {
  */
 export function usePost1IndexesIndexNameFacetsFacetNameQuery(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['1']['indexes'][':indexName']['facets'][':facetName']['query']['$post']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['1']['indexes'][':indexName']['facets'][':facetName']['query']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -258,7 +284,13 @@ export function usePost1IndexesIndexNameFacetsFacetNameQuery(options?: {
  */
 export function usePost1IndexesIndexNameBrowse(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['1']['indexes'][':indexName']['browse']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName']['browse']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client)['1']['indexes'][':indexName']['browse']['$post']>
@@ -299,7 +331,13 @@ export function usePost1IndexesIndexNameBrowse(options?: {
  */
 export function usePost1IndexesIndexName(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['1']['indexes'][':indexName']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client)['1']['indexes'][':indexName']['$post']>
@@ -332,7 +370,13 @@ export function usePost1IndexesIndexName(options?: {
  */
 export function useDelete1IndexesIndexName(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['1']['indexes'][':indexName']['$delete']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName']['$delete']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client)['1']['indexes'][':indexName']['$delete']>
@@ -403,7 +447,13 @@ export function getGet1IndexesIndexNameObjectIDKey(
  */
 export function usePut1IndexesIndexNameObjectID(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$put']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$put']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$put']>
@@ -437,7 +487,13 @@ export function usePut1IndexesIndexNameObjectID(options?: {
  */
 export function useDelete1IndexesIndexNameObjectID(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$delete']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$delete']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$delete']>
@@ -475,7 +531,15 @@ export function useDelete1IndexesIndexNameObjectID(options?: {
  */
 export function usePost1IndexesIndexNameDeleteByQuery(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['1']['indexes'][':indexName']['deleteByQuery']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<(typeof client)['1']['indexes'][':indexName']['deleteByQuery']['$post']>
+          >
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client)['1']['indexes'][':indexName']['deleteByQuery']['$post']>
@@ -509,7 +573,13 @@ export function usePost1IndexesIndexNameDeleteByQuery(options?: {
  */
 export function usePost1IndexesIndexNameClear(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['1']['indexes'][':indexName']['clear']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName']['clear']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client)['1']['indexes'][':indexName']['clear']['$post']>
@@ -564,8 +634,16 @@ export function usePost1IndexesIndexNameClear(options?: {
  */
 export function usePost1IndexesIndexNameObjectIDPartial(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['1']['indexes'][':indexName'][':objectID']['partial']['$post']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['1']['indexes'][':indexName'][':objectID']['partial']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -609,7 +687,13 @@ export function usePost1IndexesIndexNameObjectIDPartial(options?: {
  */
 export function usePost1IndexesIndexNameBatch(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['1']['indexes'][':indexName']['batch']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName']['batch']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client)['1']['indexes'][':indexName']['batch']['$post']>
@@ -643,7 +727,13 @@ export function usePost1IndexesIndexNameBatch(options?: {
  */
 export function usePost1IndexesBatch(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['1']['indexes']['*']['batch']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['indexes']['*']['batch']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client)['1']['indexes']['*']['batch']['$post']>
@@ -672,7 +762,13 @@ export function usePost1IndexesBatch(options?: {
  */
 export function usePost1IndexesObjects(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['1']['indexes']['*']['objects']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['indexes']['*']['objects']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client)['1']['indexes']['*']['objects']['$post']>
@@ -741,7 +837,13 @@ export function getGet1IndexesIndexNameSettingsKey(
  */
 export function usePut1IndexesIndexNameSettings(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['1']['indexes'][':indexName']['settings']['$put']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName']['settings']['$put']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client)['1']['indexes'][':indexName']['settings']['$put']>
@@ -820,8 +922,16 @@ export function getGet1IndexesIndexNameSynonymsObjectIDKey(
  */
 export function usePut1IndexesIndexNameSynonymsObjectID(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$put']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$put']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -859,8 +969,16 @@ export function usePut1IndexesIndexNameSynonymsObjectID(options?: {
  */
 export function useDelete1IndexesIndexNameSynonymsObjectID(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$delete']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$delete']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -902,7 +1020,15 @@ export function useDelete1IndexesIndexNameSynonymsObjectID(options?: {
  */
 export function usePost1IndexesIndexNameSynonymsBatch(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['1']['indexes'][':indexName']['synonyms']['batch']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<(typeof client)['1']['indexes'][':indexName']['synonyms']['batch']['$post']>
+          >
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client)['1']['indexes'][':indexName']['synonyms']['batch']['$post']>
@@ -935,7 +1061,15 @@ export function usePost1IndexesIndexNameSynonymsBatch(options?: {
  */
 export function usePost1IndexesIndexNameSynonymsClear(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['1']['indexes'][':indexName']['synonyms']['clear']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<(typeof client)['1']['indexes'][':indexName']['synonyms']['clear']['$post']>
+          >
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client)['1']['indexes'][':indexName']['synonyms']['clear']['$post']>
@@ -968,7 +1102,15 @@ export function usePost1IndexesIndexNameSynonymsClear(options?: {
  */
 export function usePost1IndexesIndexNameSynonymsSearch(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['1']['indexes'][':indexName']['synonyms']['search']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<(typeof client)['1']['indexes'][':indexName']['synonyms']['search']['$post']>
+          >
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client)['1']['indexes'][':indexName']['synonyms']['search']['$post']>
@@ -1032,7 +1174,9 @@ export function getGet1KeysKey() {
  */
 export function usePost1Keys(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['1']['keys']['$post']>,
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['1']['keys']['$post']>>>>
+    >,
     Error,
     string,
     InferRequestType<(typeof client)['1']['keys']['$post']>
@@ -1099,7 +1243,11 @@ export function getGet1KeysKeyKey(
  */
 export function usePut1KeysKey(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['1']['keys'][':key']['$put']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client)['1']['keys'][':key']['$put']>>>
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client)['1']['keys'][':key']['$put']>
@@ -1126,7 +1274,11 @@ export function usePut1KeysKey(options?: {
  */
 export function useDelete1KeysKey(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['1']['keys'][':key']['$delete']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client)['1']['keys'][':key']['$delete']>>>
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client)['1']['keys'][':key']['$delete']>
@@ -1158,7 +1310,13 @@ export function useDelete1KeysKey(options?: {
  */
 export function usePost1KeysKeyRestore(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['1']['keys'][':key']['restore']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['keys'][':key']['restore']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client)['1']['keys'][':key']['restore']['$post']>
@@ -1233,7 +1391,15 @@ export function getGet1IndexesIndexNameRulesObjectIDKey(
  */
 export function usePut1IndexesIndexNameRulesObjectID(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$put']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<(typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$put']>
+          >
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$put']>
@@ -1269,8 +1435,16 @@ export function usePut1IndexesIndexNameRulesObjectID(options?: {
  */
 export function useDelete1IndexesIndexNameRulesObjectID(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$delete']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$delete']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -1312,7 +1486,15 @@ export function useDelete1IndexesIndexNameRulesObjectID(options?: {
  */
 export function usePost1IndexesIndexNameRulesBatch(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['1']['indexes'][':indexName']['rules']['batch']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<(typeof client)['1']['indexes'][':indexName']['rules']['batch']['$post']>
+          >
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client)['1']['indexes'][':indexName']['rules']['batch']['$post']>
@@ -1345,7 +1527,15 @@ export function usePost1IndexesIndexNameRulesBatch(options?: {
  */
 export function usePost1IndexesIndexNameRulesClear(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['1']['indexes'][':indexName']['rules']['clear']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<(typeof client)['1']['indexes'][':indexName']['rules']['clear']['$post']>
+          >
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client)['1']['indexes'][':indexName']['rules']['clear']['$post']>
@@ -1378,7 +1568,15 @@ export function usePost1IndexesIndexNameRulesClear(options?: {
  */
 export function usePost1IndexesIndexNameRulesSearch(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['1']['indexes'][':indexName']['rules']['search']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<(typeof client)['1']['indexes'][':indexName']['rules']['search']['$post']>
+          >
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client)['1']['indexes'][':indexName']['rules']['search']['$post']>
@@ -1411,7 +1609,15 @@ export function usePost1IndexesIndexNameRulesSearch(options?: {
  */
 export function usePost1DictionariesDictionaryNameBatch(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['1']['dictionaries'][':dictionaryName']['batch']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<(typeof client)['1']['dictionaries'][':dictionaryName']['batch']['$post']>
+          >
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client)['1']['dictionaries'][':dictionaryName']['batch']['$post']>
@@ -1444,7 +1650,15 @@ export function usePost1DictionariesDictionaryNameBatch(options?: {
  */
 export function usePost1DictionariesDictionaryNameSearch(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['1']['dictionaries'][':dictionaryName']['search']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<(typeof client)['1']['dictionaries'][':dictionaryName']['search']['$post']>
+          >
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client)['1']['dictionaries'][':dictionaryName']['search']['$post']>
@@ -1510,7 +1724,13 @@ export function getGet1DictionariesSettingsKey() {
  */
 export function usePut1DictionariesSettings(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['1']['dictionaries']['*']['settings']['$put']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['dictionaries']['*']['settings']['$put']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client)['1']['dictionaries']['*']['settings']['$put']>
@@ -1612,7 +1832,13 @@ export function getGet1ClustersMappingKey(
  */
 export function usePost1ClustersMapping(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['1']['clusters']['mapping']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['clusters']['mapping']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client)['1']['clusters']['mapping']['$post']>
@@ -1641,7 +1867,13 @@ export function usePost1ClustersMapping(options?: {
  */
 export function usePost1ClustersMappingBatch(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['1']['clusters']['mapping']['batch']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['clusters']['mapping']['batch']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client)['1']['clusters']['mapping']['batch']['$post']>
@@ -1743,7 +1975,13 @@ export function getGet1ClustersMappingUserIDKey(
  */
 export function useDelete1ClustersMappingUserID(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['1']['clusters']['mapping'][':userID']['$delete']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['clusters']['mapping'][':userID']['$delete']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client)['1']['clusters']['mapping'][':userID']['$delete']>
@@ -1808,7 +2046,13 @@ export function getGet1ClustersKey() {
  */
 export function usePost1ClustersMappingSearch(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['1']['clusters']['mapping']['search']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['clusters']['mapping']['search']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client)['1']['clusters']['mapping']['search']['$post']>
@@ -1904,7 +2148,13 @@ export function getGet1SecuritySourcesKey() {
  */
 export function usePut1SecuritySources(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['1']['security']['sources']['$put']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['security']['sources']['$put']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client)['1']['security']['sources']['$put']>
@@ -1931,7 +2181,13 @@ export function usePut1SecuritySources(options?: {
  */
 export function usePost1SecuritySourcesAppend(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['1']['security']['sources']['append']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['security']['sources']['append']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client)['1']['security']['sources']['append']['$post']>
@@ -1960,7 +2216,13 @@ export function usePost1SecuritySourcesAppend(options?: {
  */
 export function useDelete1SecuritySourcesSource(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['1']['security']['sources'][':source']['$delete']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['security']['sources'][':source']['$delete']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client)['1']['security']['sources'][':source']['$delete']>
@@ -2132,7 +2394,13 @@ export function getGet1IndexesIndexNameTaskTaskIDKey(
  */
 export function usePost1IndexesIndexNameOperation(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['1']['indexes'][':indexName']['operation']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName']['operation']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client)['1']['indexes'][':indexName']['operation']['$post']>
@@ -2635,7 +2903,9 @@ export function getGetSaveObjectsWithTransformationKey(
  */
 export function usePostDeleteObjects(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.deleteObjects.$post>,
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.deleteObjects.$post>>>>
+    >,
     Error,
     string,
     InferRequestType<typeof client.deleteObjects.$post>
@@ -2660,7 +2930,11 @@ export function usePostDeleteObjects(options?: {
  */
 export function usePostPartialUpdateObjects(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.partialUpdateObjects.$post>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<typeof client.partialUpdateObjects.$post>>>
+      >
+    >,
     Error,
     string,
     InferRequestType<typeof client.partialUpdateObjects.$post>
@@ -2687,7 +2961,13 @@ export function usePostPartialUpdateObjects(options?: {
  */
 export function usePostPartialUpdateObjectsWithTransformation(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.partialUpdateObjectsWithTransformation.$post>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<typeof client.partialUpdateObjectsWithTransformation.$post>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<typeof client.partialUpdateObjectsWithTransformation.$post>

@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/15-cross-component-refs'
 
 /**
@@ -41,7 +41,7 @@ export function getGetEntitiesKey(args?: InferRequestType<typeof client.entities
  */
 export function usePostEntities(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.entities.$post>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.entities.$post>>>>>,
     Error,
     string,
     InferRequestType<typeof client.entities.$post>
@@ -94,7 +94,11 @@ export function getGetEntitiesEntityIdKey(
  */
 export function usePutEntitiesEntityId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.entities)[':entityId']['$put']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client.entities)[':entityId']['$put']>>>
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.entities)[':entityId']['$put']>
@@ -117,7 +121,14 @@ export function usePutEntitiesEntityId(options?: {
  */
 export function useDeleteEntitiesEntityId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.entities)[':entityId']['$delete']> | undefined,
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.entities)[':entityId']['$delete']>>
+          >
+        >
+      >
+    | undefined,
     Error,
     string,
     InferRequestType<(typeof client.entities)[':entityId']['$delete']>
@@ -174,7 +185,13 @@ export function getGetEntitiesEntityIdRelationshipsKey(
  */
 export function usePostEntitiesEntityIdRelationships(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.entities)[':entityId']['relationships']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.entities)[':entityId']['relationships']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.entities)[':entityId']['relationships']['$post']>
@@ -199,7 +216,7 @@ export function usePostEntitiesEntityIdRelationships(options?: {
  */
 export function usePostBatch(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.batch.$post>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.batch.$post>>>>>,
     Error,
     string,
     InferRequestType<typeof client.batch.$post>

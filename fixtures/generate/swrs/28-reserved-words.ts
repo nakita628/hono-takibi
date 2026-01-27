@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/28-reserved-words'
 
 /**
@@ -92,7 +92,7 @@ export function getGetTypeKey() {
  */
 export function usePostFunction(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.function.$post>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.function.$post>>>>>,
     Error,
     string,
     undefined
@@ -220,7 +220,7 @@ export function getGetDefaultKey() {
  */
 export function usePostNew(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.new.$post>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.new.$post>>>>>,
     Error,
     string,
     undefined
@@ -240,7 +240,7 @@ export function usePostNew(options?: {
  */
 export function useDeleteDelete(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.delete.$delete>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.delete.$delete>>>>>,
     Error,
     string,
     undefined

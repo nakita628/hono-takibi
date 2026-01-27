@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/spotify'
 
 /**
@@ -939,7 +939,7 @@ export function getGetMeAlbumsKey(args?: InferRequestType<typeof client.me.album
  */
 export function usePutMeAlbums(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.me.albums.$put>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.albums.$put>>>>>,
     Error,
     string,
     InferRequestType<typeof client.me.albums.$put>
@@ -964,7 +964,7 @@ export function usePutMeAlbums(options?: {
  */
 export function useDeleteMeAlbums(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.me.albums.$delete>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.albums.$delete>>>>>,
     Error,
     string,
     InferRequestType<typeof client.me.albums.$delete>
@@ -1059,7 +1059,9 @@ export function getGetMeAudiobooksKey(args?: InferRequestType<typeof client.me.a
  */
 export function usePutMeAudiobooks(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.me.audiobooks.$put>,
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.audiobooks.$put>>>>
+    >,
     Error,
     string,
     InferRequestType<typeof client.me.audiobooks.$put>
@@ -1084,7 +1086,9 @@ export function usePutMeAudiobooks(options?: {
  */
 export function useDeleteMeAudiobooks(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.me.audiobooks.$delete>,
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.audiobooks.$delete>>>>
+    >,
     Error,
     string,
     InferRequestType<typeof client.me.audiobooks.$delete>
@@ -1181,7 +1185,7 @@ export function getGetMeEpisodesKey(args?: InferRequestType<typeof client.me.epi
  */
 export function usePutMeEpisodes(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.me.episodes.$put>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.episodes.$put>>>>>,
     Error,
     string,
     InferRequestType<typeof client.me.episodes.$put>
@@ -1207,7 +1211,9 @@ export function usePutMeEpisodes(options?: {
  */
 export function useDeleteMeEpisodes(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.me.episodes.$delete>,
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.episodes.$delete>>>>
+    >,
     Error,
     string,
     InferRequestType<typeof client.me.episodes.$delete>
@@ -1303,7 +1309,10 @@ export function getGetMeFollowingKey(args?: InferRequestType<typeof client.me.fo
  */
 export function usePutMeFollowing(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.me.following.$put> | undefined,
+    | Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.following.$put>>>>
+      >
+    | undefined,
     Error,
     string,
     InferRequestType<typeof client.me.following.$put>
@@ -1328,7 +1337,9 @@ export function usePutMeFollowing(options?: {
  */
 export function useDeleteMeFollowing(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.me.following.$delete>,
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.following.$delete>>>>
+    >,
     Error,
     string,
     InferRequestType<typeof client.me.following.$delete>
@@ -1423,7 +1434,8 @@ export function getGetMePlayerKey(args?: InferRequestType<typeof client.me.playe
  */
 export function usePutMePlayer(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.me.player.$put> | undefined,
+    | Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.player.$put>>>>>
+    | undefined,
     Error,
     string,
     InferRequestType<typeof client.me.player.$put>
@@ -1515,7 +1527,10 @@ export function getGetMePlayerDevicesKey() {
  */
 export function usePostMePlayerNext(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.me.player.next.$post> | undefined,
+    | Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.player.next.$post>>>>
+      >
+    | undefined,
     Error,
     string,
     InferRequestType<typeof client.me.player.next.$post>
@@ -1540,7 +1555,10 @@ export function usePostMePlayerNext(options?: {
  */
 export function usePutMePlayerPause(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.me.player.pause.$put> | undefined,
+    | Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.player.pause.$put>>>>
+      >
+    | undefined,
     Error,
     string,
     InferRequestType<typeof client.me.player.pause.$put>
@@ -1565,7 +1583,10 @@ export function usePutMePlayerPause(options?: {
  */
 export function usePutMePlayerPlay(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.me.player.play.$put> | undefined,
+    | Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.player.play.$put>>>>
+      >
+    | undefined,
     Error,
     string,
     InferRequestType<typeof client.me.player.play.$put>
@@ -1590,7 +1611,12 @@ export function usePutMePlayerPlay(options?: {
  */
 export function usePostMePlayerPrevious(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.me.player.previous.$post> | undefined,
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<typeof client.me.player.previous.$post>>>
+        >
+      >
+    | undefined,
     Error,
     string,
     InferRequestType<typeof client.me.player.previous.$post>
@@ -1646,7 +1672,10 @@ export function getGetMePlayerQueueKey() {
  */
 export function usePostMePlayerQueue(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.me.player.queue.$post> | undefined,
+    | Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.player.queue.$post>>>>
+      >
+    | undefined,
     Error,
     string,
     InferRequestType<typeof client.me.player.queue.$post>
@@ -1709,7 +1738,10 @@ export function getGetMePlayerRecentlyPlayedKey(
  */
 export function usePutMePlayerRepeat(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.me.player.repeat.$put> | undefined,
+    | Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.player.repeat.$put>>>>
+      >
+    | undefined,
     Error,
     string,
     InferRequestType<typeof client.me.player.repeat.$put>
@@ -1734,7 +1766,10 @@ export function usePutMePlayerRepeat(options?: {
  */
 export function usePutMePlayerSeek(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.me.player.seek.$put> | undefined,
+    | Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.player.seek.$put>>>>
+      >
+    | undefined,
     Error,
     string,
     InferRequestType<typeof client.me.player.seek.$put>
@@ -1759,7 +1794,10 @@ export function usePutMePlayerSeek(options?: {
  */
 export function usePutMePlayerShuffle(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.me.player.shuffle.$put> | undefined,
+    | Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.player.shuffle.$put>>>>
+      >
+    | undefined,
     Error,
     string,
     InferRequestType<typeof client.me.player.shuffle.$put>
@@ -1784,7 +1822,10 @@ export function usePutMePlayerShuffle(options?: {
  */
 export function usePutMePlayerVolume(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.me.player.volume.$put> | undefined,
+    | Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.player.volume.$put>>>>
+      >
+    | undefined,
     Error,
     string,
     InferRequestType<typeof client.me.player.volume.$put>
@@ -1878,7 +1919,7 @@ export function getGetMeShowsKey(args?: InferRequestType<typeof client.me.shows.
  */
 export function usePutMeShows(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.me.shows.$put>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.shows.$put>>>>>,
     Error,
     string,
     InferRequestType<typeof client.me.shows.$put>
@@ -1903,7 +1944,7 @@ export function usePutMeShows(options?: {
  */
 export function useDeleteMeShows(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.me.shows.$delete>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.shows.$delete>>>>>,
     Error,
     string,
     InferRequestType<typeof client.me.shows.$delete>
@@ -2034,7 +2075,7 @@ export function getGetMeTracksKey(args?: InferRequestType<typeof client.me.track
  */
 export function usePutMeTracks(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.me.tracks.$put>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.tracks.$put>>>>>,
     Error,
     string,
     InferRequestType<typeof client.me.tracks.$put>
@@ -2059,7 +2100,7 @@ export function usePutMeTracks(options?: {
  */
 export function useDeleteMeTracks(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.me.tracks.$delete>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.tracks.$delete>>>>>,
     Error,
     string,
     InferRequestType<typeof client.me.tracks.$delete>
@@ -2157,7 +2198,11 @@ export function getGetPlaylistsPlaylistIdKey(
  */
 export function usePutPlaylistsPlaylistId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.playlists)[':playlist_id']['$put']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client.playlists)[':playlist_id']['$put']>>>
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.playlists)[':playlist_id']['$put']>
@@ -2184,7 +2229,13 @@ export function usePutPlaylistsPlaylistId(options?: {
  */
 export function usePutPlaylistsPlaylistIdFollowers(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.playlists)[':playlist_id']['followers']['$put']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.playlists)[':playlist_id']['followers']['$put']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.playlists)[':playlist_id']['followers']['$put']>
@@ -2213,7 +2264,13 @@ export function usePutPlaylistsPlaylistIdFollowers(options?: {
  */
 export function useDeletePlaylistsPlaylistIdFollowers(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.playlists)[':playlist_id']['followers']['$delete']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.playlists)[':playlist_id']['followers']['$delete']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.playlists)[':playlist_id']['followers']['$delete']>
@@ -2324,7 +2381,13 @@ export function getGetPlaylistsPlaylistIdImagesKey(
  */
 export function usePutPlaylistsPlaylistIdImages(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.playlists)[':playlist_id']['images']['$put']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.playlists)[':playlist_id']['images']['$put']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$put']>
@@ -2395,7 +2458,13 @@ export function getGetPlaylistsPlaylistIdTracksKey(
  */
 export function usePutPlaylistsPlaylistIdTracks(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.playlists)[':playlist_id']['tracks']['$put']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.playlists)[':playlist_id']['tracks']['$put']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$put']>
@@ -2424,7 +2493,13 @@ export function usePutPlaylistsPlaylistIdTracks(options?: {
  */
 export function usePostPlaylistsPlaylistIdTracks(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.playlists)[':playlist_id']['tracks']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.playlists)[':playlist_id']['tracks']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$post']>
@@ -2453,7 +2528,13 @@ export function usePostPlaylistsPlaylistIdTracks(options?: {
  */
 export function useDeletePlaylistsPlaylistIdTracks(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.playlists)[':playlist_id']['tracks']['$delete']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.playlists)[':playlist_id']['tracks']['$delete']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$delete']>
@@ -2838,7 +2919,13 @@ export function getGetUsersUserIdPlaylistsKey(
  */
 export function usePostUsersUserIdPlaylists(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.users)[':user_id']['playlists']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.users)[':user_id']['playlists']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.users)[':user_id']['playlists']['$post']>

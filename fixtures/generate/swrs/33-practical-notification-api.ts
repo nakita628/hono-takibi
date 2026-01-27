@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/33-practical-notification-api'
 
 /**
@@ -80,7 +80,14 @@ export function getGetNotificationsNotificationIdKey(
  */
 export function useDeleteNotificationsNotificationId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.notifications)[':notificationId']['$delete']> | undefined,
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.notifications)[':notificationId']['$delete']>>
+          >
+        >
+      >
+    | undefined,
     Error,
     string,
     InferRequestType<(typeof client.notifications)[':notificationId']['$delete']>
@@ -107,7 +114,13 @@ export function useDeleteNotificationsNotificationId(options?: {
  */
 export function usePostNotificationsNotificationIdRead(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.notifications)[':notificationId']['read']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.notifications)[':notificationId']['read']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.notifications)[':notificationId']['read']['$post']>
@@ -136,7 +149,13 @@ export function usePostNotificationsNotificationIdRead(options?: {
  */
 export function usePostNotificationsReadAll(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.notifications)['read-all']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.notifications)['read-all']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     undefined
@@ -190,7 +209,9 @@ export function getGetNotificationsUnreadCountKey() {
  */
 export function usePostMessagesSend(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.messages.send.$post>,
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.messages.send.$post>>>>
+    >,
     Error,
     string,
     InferRequestType<typeof client.messages.send.$post>
@@ -213,7 +234,11 @@ export function usePostMessagesSend(options?: {
  */
 export function usePostMessagesSendBatch(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.messages)['send-batch']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client.messages)['send-batch']['$post']>>>
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.messages)['send-batch']['$post']>
@@ -304,7 +329,7 @@ export function getGetTemplatesKey(args?: InferRequestType<typeof client.templat
  */
 export function usePostTemplates(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.templates.$post>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.templates.$post>>>>>,
     Error,
     string,
     InferRequestType<typeof client.templates.$post>
@@ -361,7 +386,11 @@ export function getGetTemplatesTemplateIdKey(
  */
 export function usePutTemplatesTemplateId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.templates)[':templateId']['$put']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client.templates)[':templateId']['$put']>>>
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.templates)[':templateId']['$put']>
@@ -386,7 +415,14 @@ export function usePutTemplatesTemplateId(options?: {
  */
 export function useDeleteTemplatesTemplateId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.templates)[':templateId']['$delete']> | undefined,
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.templates)[':templateId']['$delete']>>
+          >
+        >
+      >
+    | undefined,
     Error,
     string,
     InferRequestType<(typeof client.templates)[':templateId']['$delete']>
@@ -411,7 +447,13 @@ export function useDeleteTemplatesTemplateId(options?: {
  */
 export function usePostTemplatesTemplateIdPreview(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.templates)[':templateId']['preview']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.templates)[':templateId']['preview']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.templates)[':templateId']['preview']['$post']>
@@ -467,7 +509,9 @@ export function getGetChannelsPreferencesKey() {
  */
 export function usePutChannelsPreferences(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.channels.preferences.$put>,
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.channels.preferences.$put>>>>
+    >,
     Error,
     string,
     InferRequestType<typeof client.channels.preferences.$put>
@@ -521,7 +565,9 @@ export function getGetChannelsDevicesKey() {
  */
 export function usePostChannelsDevices(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.channels.devices.$post>,
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.channels.devices.$post>>>>
+    >,
     Error,
     string,
     InferRequestType<typeof client.channels.devices.$post>
@@ -544,7 +590,14 @@ export function usePostChannelsDevices(options?: {
  */
 export function useDeleteChannelsDevicesDeviceId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.channels.devices)[':deviceId']['$delete']> | undefined,
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.channels.devices)[':deviceId']['$delete']>>
+          >
+        >
+      >
+    | undefined,
     Error,
     string,
     InferRequestType<(typeof client.channels.devices)[':deviceId']['$delete']>
@@ -598,7 +651,7 @@ export function getGetWebhooksKey() {
  */
 export function usePostWebhooks(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.webhooks.$post>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.webhooks.$post>>>>>,
     Error,
     string,
     InferRequestType<typeof client.webhooks.$post>
@@ -655,7 +708,11 @@ export function getGetWebhooksWebhookIdKey(
  */
 export function usePutWebhooksWebhookId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.webhooks)[':webhookId']['$put']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client.webhooks)[':webhookId']['$put']>>>
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.webhooks)[':webhookId']['$put']>
@@ -680,7 +737,14 @@ export function usePutWebhooksWebhookId(options?: {
  */
 export function useDeleteWebhooksWebhookId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.webhooks)[':webhookId']['$delete']> | undefined,
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.webhooks)[':webhookId']['$delete']>>
+          >
+        >
+      >
+    | undefined,
     Error,
     string,
     InferRequestType<(typeof client.webhooks)[':webhookId']['$delete']>
@@ -705,7 +769,13 @@ export function useDeleteWebhooksWebhookId(options?: {
  */
 export function usePostWebhooksWebhookIdTest(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.webhooks)[':webhookId']['test']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.webhooks)[':webhookId']['test']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.webhooks)[':webhookId']['test']['$post']>

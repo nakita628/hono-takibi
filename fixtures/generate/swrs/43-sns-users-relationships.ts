@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/43-sns-users-relationships'
 
 /**
@@ -174,7 +174,7 @@ export function getGetMeKey() {
  */
 export function usePatchMe(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.me.$patch>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.$patch>>>>>,
     Error,
     string,
     InferRequestType<typeof client.me.$patch>
@@ -197,7 +197,7 @@ export function usePatchMe(options?: {
  */
 export function usePostMeAvatar(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.me.avatar.$post>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.avatar.$post>>>>>,
     Error,
     string,
     InferRequestType<typeof client.me.avatar.$post>
@@ -220,7 +220,10 @@ export function usePostMeAvatar(options?: {
  */
 export function useDeleteMeAvatar(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.me.avatar.$delete> | undefined,
+    | Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.avatar.$delete>>>>
+      >
+    | undefined,
     Error,
     string,
     undefined
@@ -242,7 +245,7 @@ export function useDeleteMeAvatar(options?: {
  */
 export function usePostMeBanner(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.me.banner.$post>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.banner.$post>>>>>,
     Error,
     string,
     InferRequestType<typeof client.me.banner.$post>
@@ -265,7 +268,10 @@ export function usePostMeBanner(options?: {
  */
 export function useDeleteMeBanner(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.me.banner.$delete> | undefined,
+    | Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.banner.$delete>>>>
+      >
+    | undefined,
     Error,
     string,
     undefined
@@ -287,7 +293,13 @@ export function useDeleteMeBanner(options?: {
  */
 export function usePostUsersUserIdFollow(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.users)[':userId']['follow']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.users)[':userId']['follow']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.users)[':userId']['follow']['$post']>
@@ -312,7 +324,13 @@ export function usePostUsersUserIdFollow(options?: {
  */
 export function useDeleteUsersUserIdFollow(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.users)[':userId']['follow']['$delete']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.users)[':userId']['follow']['$delete']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.users)[':userId']['follow']['$delete']>
@@ -407,7 +425,13 @@ export function getGetUsersUserIdFollowingKey(
  */
 export function usePostUsersUserIdFollowersRemove(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.users)[':userId']['followers']['remove']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.users)[':userId']['followers']['remove']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.users)[':userId']['followers']['remove']['$post']>
@@ -504,7 +528,13 @@ export function getGetFollowRequestsKey(
  */
 export function usePostFollowRequestsUserIdAccept(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['follow-requests'][':userId']['accept']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['follow-requests'][':userId']['accept']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client)['follow-requests'][':userId']['accept']['$post']>
@@ -533,7 +563,13 @@ export function usePostFollowRequestsUserIdAccept(options?: {
  */
 export function usePostFollowRequestsUserIdReject(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['follow-requests'][':userId']['reject']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['follow-requests'][':userId']['reject']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client)['follow-requests'][':userId']['reject']['$post']>
@@ -562,7 +598,13 @@ export function usePostFollowRequestsUserIdReject(options?: {
  */
 export function usePostUsersUserIdBlock(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.users)[':userId']['block']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.users)[':userId']['block']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.users)[':userId']['block']['$post']>
@@ -587,7 +629,13 @@ export function usePostUsersUserIdBlock(options?: {
  */
 export function useDeleteUsersUserIdBlock(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.users)[':userId']['block']['$delete']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.users)[':userId']['block']['$delete']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.users)[':userId']['block']['$delete']>
@@ -612,7 +660,11 @@ export function useDeleteUsersUserIdBlock(options?: {
  */
 export function usePostUsersUserIdMute(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.users)[':userId']['mute']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':userId']['mute']['$post']>>>
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.users)[':userId']['mute']['$post']>
@@ -637,7 +689,13 @@ export function usePostUsersUserIdMute(options?: {
  */
 export function useDeleteUsersUserIdMute(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.users)[':userId']['mute']['$delete']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.users)[':userId']['mute']['$delete']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.users)[':userId']['mute']['$delete']>
@@ -755,7 +813,7 @@ export function getGetListsKey() {
  */
 export function usePostLists(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.lists.$post>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.lists.$post>>>>>,
     Error,
     string,
     InferRequestType<typeof client.lists.$post>
@@ -812,7 +870,11 @@ export function getGetListsListIdKey(
  */
 export function usePutListsListId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.lists)[':listId']['$put']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client.lists)[':listId']['$put']>>>
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.lists)[':listId']['$put']>
@@ -837,7 +899,12 @@ export function usePutListsListId(options?: {
  */
 export function useDeleteListsListId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.lists)[':listId']['$delete']> | undefined,
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.lists)[':listId']['$delete']>>>
+        >
+      >
+    | undefined,
     Error,
     string,
     InferRequestType<(typeof client.lists)[':listId']['$delete']>
@@ -896,7 +963,13 @@ export function getGetListsListIdMembersKey(
  */
 export function usePostListsListIdMembers(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.lists)[':listId']['members']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.lists)[':listId']['members']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.lists)[':listId']['members']['$post']>
@@ -921,7 +994,13 @@ export function usePostListsListIdMembers(options?: {
  */
 export function useDeleteListsListIdMembersUserId(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<(typeof client.lists)[':listId']['members'][':userId']['$delete']>
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.lists)[':listId']['members'][':userId']['$delete']>>
+          >
+        >
+      >
     | undefined,
     Error,
     string,

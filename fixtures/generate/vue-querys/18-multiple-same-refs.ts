@@ -1,5 +1,5 @@
-import { useQuery, useMutation, queryOptions } from '@tanstack/vue-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { queryOptions, useMutation, useQuery } from '@tanstack/vue-query'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/18-multiple-same-refs'
 
@@ -57,12 +57,18 @@ export const getGetDocumentsQueryOptions = (
 export function usePostDocuments(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.documents.$post>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.documents.$post>>>>
+      >,
       variables: InferRequestType<typeof client.documents.$post>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.documents.$post>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.documents.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.documents.$post>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.documents.$post>,
     ) => void
@@ -142,7 +148,13 @@ export const getGetDocumentsDocumentIdQueryOptions = (
 export function usePutDocumentsDocumentId(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.documents)[':documentId']['$put']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.documents)[':documentId']['$put']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client.documents)[':documentId']['$put']>,
     ) => void
     onError?: (
@@ -150,7 +162,15 @@ export function usePutDocumentsDocumentId(options?: {
       variables: InferRequestType<(typeof client.documents)[':documentId']['$put']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.documents)[':documentId']['$put']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.documents)[':documentId']['$put']>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.documents)[':documentId']['$put']>,
     ) => void
@@ -232,7 +252,13 @@ export const getGetDocumentsDocumentIdVersionsQueryOptions = (
 export function usePostDocumentsDocumentIdShare(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.documents)[':documentId']['share']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.documents)[':documentId']['share']['$post']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client.documents)[':documentId']['share']['$post']>,
     ) => void
     onError?: (
@@ -241,7 +267,13 @@ export function usePostDocumentsDocumentIdShare(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client.documents)[':documentId']['share']['$post']>
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.documents)[':documentId']['share']['$post']>>
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.documents)[':documentId']['share']['$post']>,
@@ -325,12 +357,18 @@ export const getGetUsersUserIdDocumentsQueryOptions = (
 export function usePostCompare(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.compare.$post>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.compare.$post>>>>
+      >,
       variables: InferRequestType<typeof client.compare.$post>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.compare.$post>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.compare.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.compare.$post>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.compare.$post>,
     ) => void
@@ -399,12 +437,18 @@ export const getGetTemplatesQueryOptions = (clientOptions?: ClientRequestOptions
 export function usePostTemplates(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.templates.$post>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.templates.$post>>>>
+      >,
       variables: InferRequestType<typeof client.templates.$post>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.templates.$post>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.templates.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.templates.$post>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.templates.$post>,
     ) => void
@@ -428,12 +472,18 @@ export function usePostTemplates(options?: {
 export function usePostWorkflows(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.workflows.$post>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.workflows.$post>>>>
+      >,
       variables: InferRequestType<typeof client.workflows.$post>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.workflows.$post>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.workflows.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.workflows.$post>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.workflows.$post>,
     ) => void

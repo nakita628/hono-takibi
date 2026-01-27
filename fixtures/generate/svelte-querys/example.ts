@@ -23,7 +23,7 @@ export function createGetSample(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetSampleQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetSampleQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**

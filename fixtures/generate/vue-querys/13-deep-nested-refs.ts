@@ -1,5 +1,5 @@
-import { useQuery, useMutation, queryOptions } from '@tanstack/vue-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { queryOptions, useMutation, useQuery } from '@tanstack/vue-query'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/13-deep-nested-refs'
 
@@ -71,8 +71,16 @@ export const getGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersQueryOpt
 export function usePostOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$post']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$post']
@@ -86,8 +94,16 @@ export function usePostOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(opt
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,

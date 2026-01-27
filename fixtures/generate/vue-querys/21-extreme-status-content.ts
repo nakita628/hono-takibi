@@ -1,5 +1,5 @@
-import { useQuery, useMutation, queryOptions } from '@tanstack/vue-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { queryOptions, useMutation, useQuery } from '@tanstack/vue-query'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/21-extreme-status-content'
 
@@ -54,7 +54,13 @@ export const getGetExtremeResponsesQueryOptions = (clientOptions?: ClientRequest
 export function usePostMultipartVariations(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client)['multipart-variations']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['multipart-variations']['$post']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client)['multipart-variations']['$post']>,
     ) => void
     onError?: (
@@ -62,7 +68,15 @@ export function usePostMultipartVariations(options?: {
       variables: InferRequestType<(typeof client)['multipart-variations']['$post']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client)['multipart-variations']['$post']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client)['multipart-variations']['$post']>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client)['multipart-variations']['$post']>,
     ) => void
@@ -88,7 +102,11 @@ export function usePostMultipartVariations(options?: {
 export function usePostCharsetVariations(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client)['charset-variations']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client)['charset-variations']['$post']>>>
+        >
+      >,
       variables: InferRequestType<(typeof client)['charset-variations']['$post']>,
     ) => void
     onError?: (
@@ -96,7 +114,15 @@ export function usePostCharsetVariations(options?: {
       variables: InferRequestType<(typeof client)['charset-variations']['$post']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client)['charset-variations']['$post']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client)['charset-variations']['$post']>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client)['charset-variations']['$post']>,
     ) => void

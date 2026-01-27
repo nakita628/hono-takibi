@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/discord-api-spec-openapi_preview'
 
 /**
@@ -38,7 +38,11 @@ export function getGetApplicationsMeKey() {
  */
 export function usePatchApplicationsMe(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.applications)['@me']['$patch']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client.applications)['@me']['$patch']>>>
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.applications)['@me']['$patch']>
@@ -93,7 +97,13 @@ export function getGetApplicationsApplicationIdKey(
  */
 export function usePatchApplicationsApplicationId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.applications)[':application_id']['$patch']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.applications)[':application_id']['$patch']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.applications)[':application_id']['$patch']>
@@ -163,7 +173,15 @@ export function getGetApplicationsApplicationIdActivityInstancesInstanceIdKey(
  */
 export function usePostApplicationsApplicationIdAttachment(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.applications)[':application_id']['attachment']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<(typeof client.applications)[':application_id']['attachment']['$post']>
+          >
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.applications)[':application_id']['attachment']['$post']>
@@ -226,7 +244,13 @@ export function getGetApplicationsApplicationIdCommandsKey(
  */
 export function usePutApplicationsApplicationIdCommands(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.applications)[':application_id']['commands']['$put']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.applications)[':application_id']['commands']['$put']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.applications)[':application_id']['commands']['$put']>
@@ -253,7 +277,13 @@ export function usePutApplicationsApplicationIdCommands(options?: {
  */
 export function usePostApplicationsApplicationIdCommands(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.applications)[':application_id']['commands']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.applications)[':application_id']['commands']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.applications)[':application_id']['commands']['$post']>
@@ -321,8 +351,16 @@ export function getGetApplicationsApplicationIdCommandsCommandIdKey(
  */
 export function useDeleteApplicationsApplicationIdCommandsCommandId(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<
-        (typeof client.applications)[':application_id']['commands'][':command_id']['$delete']
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client.applications)[':application_id']['commands'][':command_id']['$delete']
+              >
+            >
+          >
+        >
       >
     | undefined,
     Error,
@@ -358,8 +396,16 @@ export function useDeleteApplicationsApplicationIdCommandsCommandId(options?: {
  */
 export function usePatchApplicationsApplicationIdCommandsCommandId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client.applications)[':application_id']['commands'][':command_id']['$patch']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client.applications)[':application_id']['commands'][':command_id']['$patch']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -428,7 +474,13 @@ export function getGetApplicationsApplicationIdEmojisKey(
  */
 export function usePostApplicationsApplicationIdEmojis(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.applications)[':application_id']['emojis']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.applications)[':application_id']['emojis']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.applications)[':application_id']['emojis']['$post']>
@@ -495,8 +547,16 @@ export function getGetApplicationsApplicationIdEmojisEmojiIdKey(
  */
 export function useDeleteApplicationsApplicationIdEmojisEmojiId(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<
-        (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$delete']
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$delete']
+              >
+            >
+          >
+        >
       >
     | undefined,
     Error,
@@ -532,8 +592,16 @@ export function useDeleteApplicationsApplicationIdEmojisEmojiId(options?: {
  */
 export function usePatchApplicationsApplicationIdEmojisEmojiId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$patch']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$patch']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -604,7 +672,15 @@ export function getGetApplicationsApplicationIdEntitlementsKey(
  */
 export function usePostApplicationsApplicationIdEntitlements(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.applications)[':application_id']['entitlements']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<(typeof client.applications)[':application_id']['entitlements']['$post']>
+          >
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.applications)[':application_id']['entitlements']['$post']>
@@ -681,8 +757,16 @@ export function getGetApplicationsApplicationIdEntitlementsEntitlementIdKey(
  */
 export function useDeleteApplicationsApplicationIdEntitlementsEntitlementId(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<
-        (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['$delete']
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['$delete']
+              >
+            >
+          >
+        >
       >
     | undefined,
     Error,
@@ -721,8 +805,16 @@ export function useDeleteApplicationsApplicationIdEntitlementsEntitlementId(opti
  */
 export function usePostApplicationsApplicationIdEntitlementsEntitlementIdConsume(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<
-        (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['consume']['$post']
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['consume']['$post']
+              >
+            >
+          >
+        >
       >
     | undefined,
     Error,
@@ -808,8 +900,16 @@ export function getGetApplicationsApplicationIdGuildsGuildIdCommandsKey(
  */
 export function usePutApplicationsApplicationIdGuildsGuildIdCommands(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$put']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$put']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -847,8 +947,16 @@ export function usePutApplicationsApplicationIdGuildsGuildIdCommands(options?: {
  */
 export function usePostApplicationsApplicationIdGuildsGuildIdCommands(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$post']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -980,8 +1088,16 @@ export function getGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdKey
  */
 export function useDeleteApplicationsApplicationIdGuildsGuildIdCommandsCommandId(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<
-        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$delete']
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$delete']
+              >
+            >
+          >
+        >
       >
     | undefined,
     Error,
@@ -1020,8 +1136,16 @@ export function useDeleteApplicationsApplicationIdGuildsGuildIdCommandsCommandId
  */
 export function usePatchApplicationsApplicationIdGuildsGuildIdCommandsCommandId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$patch']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$patch']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -1107,8 +1231,16 @@ export function getGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPer
  */
 export function usePutApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPermissions(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['permissions']['$put']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['permissions']['$put']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -1192,8 +1324,16 @@ export function getGetApplicationsApplicationIdRoleConnectionsMetadataKey(
  */
 export function usePutApplicationsApplicationIdRoleConnectionsMetadata(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client.applications)[':application_id']['role-connections']['metadata']['$put']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client.applications)[':application_id']['role-connections']['metadata']['$put']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -1263,7 +1403,13 @@ export function getGetChannelsChannelIdKey(
  */
 export function useDeleteChannelsChannelId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.channels)[':channel_id']['$delete']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.channels)[':channel_id']['$delete']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.channels)[':channel_id']['$delete']>
@@ -1286,7 +1432,11 @@ export function useDeleteChannelsChannelId(options?: {
  */
 export function usePatchChannelsChannelId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.channels)[':channel_id']['$patch']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client.channels)[':channel_id']['$patch']>>>
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.channels)[':channel_id']['$patch']>
@@ -1309,7 +1459,13 @@ export function usePatchChannelsChannelId(options?: {
  */
 export function usePostChannelsChannelIdFollowers(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.channels)[':channel_id']['followers']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.channels)[':channel_id']['followers']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.channels)[':channel_id']['followers']['$post']>
@@ -1366,7 +1522,14 @@ export function getGetChannelsChannelIdInvitesKey(
  */
 export function usePostChannelsChannelIdInvites(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.channels)[':channel_id']['invites']['$post']> | undefined,
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.channels)[':channel_id']['invites']['$post']>>
+          >
+        >
+      >
+    | undefined,
     Error,
     string,
     InferRequestType<(typeof client.channels)[':channel_id']['invites']['$post']>
@@ -1423,7 +1586,13 @@ export function getGetChannelsChannelIdMessagesKey(
  */
 export function usePostChannelsChannelIdMessages(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.channels)[':channel_id']['messages']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.channels)[':channel_id']['messages']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.channels)[':channel_id']['messages']['$post']>
@@ -1448,7 +1617,17 @@ export function usePostChannelsChannelIdMessages(options?: {
  */
 export function usePostChannelsChannelIdMessagesBulkDelete(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<(typeof client.channels)[':channel_id']['messages']['bulk-delete']['$post']>
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client.channels)[':channel_id']['messages']['bulk-delete']['$post']
+              >
+            >
+          >
+        >
+      >
     | undefined,
     Error,
     string,
@@ -1515,8 +1694,16 @@ export function getGetChannelsChannelIdMessagesPinsKey(
  */
 export function usePutChannelsChannelIdMessagesPinsMessageId(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<
-        (typeof client.channels)[':channel_id']['messages']['pins'][':message_id']['$put']
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client.channels)[':channel_id']['messages']['pins'][':message_id']['$put']
+              >
+            >
+          >
+        >
       >
     | undefined,
     Error,
@@ -1552,8 +1739,16 @@ export function usePutChannelsChannelIdMessagesPinsMessageId(options?: {
  */
 export function useDeleteChannelsChannelIdMessagesPinsMessageId(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<
-        (typeof client.channels)[':channel_id']['messages']['pins'][':message_id']['$delete']
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client.channels)[':channel_id']['messages']['pins'][':message_id']['$delete']
+              >
+            >
+          >
+        >
       >
     | undefined,
     Error,
@@ -1629,8 +1824,16 @@ export function getGetChannelsChannelIdMessagesMessageIdKey(
  */
 export function useDeleteChannelsChannelIdMessagesMessageId(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<
-        (typeof client.channels)[':channel_id']['messages'][':message_id']['$delete']
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client.channels)[':channel_id']['messages'][':message_id']['$delete']
+              >
+            >
+          >
+        >
       >
     | undefined,
     Error,
@@ -1664,7 +1867,15 @@ export function useDeleteChannelsChannelIdMessagesMessageId(options?: {
  */
 export function usePatchChannelsChannelIdMessagesMessageId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.channels)[':channel_id']['messages'][':message_id']['$patch']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<(typeof client.channels)[':channel_id']['messages'][':message_id']['$patch']>
+          >
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.channels)[':channel_id']['messages'][':message_id']['$patch']>
@@ -1696,8 +1907,16 @@ export function usePatchChannelsChannelIdMessagesMessageId(options?: {
  */
 export function usePostChannelsChannelIdMessagesMessageIdCrosspost(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client.channels)[':channel_id']['messages'][':message_id']['crosspost']['$post']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client.channels)[':channel_id']['messages'][':message_id']['crosspost']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -1732,8 +1951,16 @@ export function usePostChannelsChannelIdMessagesMessageIdCrosspost(options?: {
  */
 export function useDeleteChannelsChannelIdMessagesMessageIdReactions(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<
-        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions']['$delete']
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions']['$delete']
+              >
+            >
+          >
+        >
       >
     | undefined,
     Error,
@@ -1819,8 +2046,16 @@ export function getGetChannelsChannelIdMessagesMessageIdReactionsEmojiNameKey(
  */
 export function useDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiName(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<
-        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['$delete']
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['$delete']
+              >
+            >
+          >
+        >
       >
     | undefined,
     Error,
@@ -1859,8 +2094,16 @@ export function useDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiName(op
  */
 export function usePutChannelsChannelIdMessagesMessageIdReactionsEmojiNameMe(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<
-        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['@me']['$put']
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['@me']['$put']
+              >
+            >
+          >
+        >
       >
     | undefined,
     Error,
@@ -1899,8 +2142,16 @@ export function usePutChannelsChannelIdMessagesMessageIdReactionsEmojiNameMe(opt
  */
 export function useDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameMe(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<
-        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['@me']['$delete']
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['@me']['$delete']
+              >
+            >
+          >
+        >
       >
     | undefined,
     Error,
@@ -1938,8 +2189,16 @@ export function useDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameMe(
  */
 export function useDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameUserId(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<
-        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name'][':user_id']['$delete']
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name'][':user_id']['$delete']
+              >
+            >
+          >
+        >
       >
     | undefined,
     Error,
@@ -1977,8 +2236,16 @@ export function useDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameUse
  */
 export function usePostChannelsChannelIdMessagesMessageIdThreads(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client.channels)[':channel_id']['messages'][':message_id']['threads']['$post']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client.channels)[':channel_id']['messages'][':message_id']['threads']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -2013,8 +2280,16 @@ export function usePostChannelsChannelIdMessagesMessageIdThreads(options?: {
  */
 export function usePutChannelsChannelIdPermissionsOverwriteId(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<
-        (typeof client.channels)[':channel_id']['permissions'][':overwrite_id']['$put']
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client.channels)[':channel_id']['permissions'][':overwrite_id']['$put']
+              >
+            >
+          >
+        >
       >
     | undefined,
     Error,
@@ -2050,8 +2325,16 @@ export function usePutChannelsChannelIdPermissionsOverwriteId(options?: {
  */
 export function useDeleteChannelsChannelIdPermissionsOverwriteId(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<
-        (typeof client.channels)[':channel_id']['permissions'][':overwrite_id']['$delete']
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client.channels)[':channel_id']['permissions'][':overwrite_id']['$delete']
+              >
+            >
+          >
+        >
       >
     | undefined,
     Error,
@@ -2119,7 +2402,15 @@ export function getGetChannelsChannelIdPinsKey(
  */
 export function usePutChannelsChannelIdPinsMessageId(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<(typeof client.channels)[':channel_id']['pins'][':message_id']['$put']>
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<(typeof client.channels)[':channel_id']['pins'][':message_id']['$put']>
+            >
+          >
+        >
+      >
     | undefined,
     Error,
     string,
@@ -2149,7 +2440,15 @@ export function usePutChannelsChannelIdPinsMessageId(options?: {
  */
 export function useDeleteChannelsChannelIdPinsMessageId(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<(typeof client.channels)[':channel_id']['pins'][':message_id']['$delete']>
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<(typeof client.channels)[':channel_id']['pins'][':message_id']['$delete']>
+            >
+          >
+        >
+      >
     | undefined,
     Error,
     string,
@@ -2227,8 +2526,16 @@ export function getGetChannelsChannelIdPollsMessageIdAnswersAnswerIdKey(
  */
 export function usePostChannelsChannelIdPollsMessageIdExpire(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client.channels)[':channel_id']['polls'][':message_id']['expire']['$post']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client.channels)[':channel_id']['polls'][':message_id']['expire']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -2263,7 +2570,15 @@ export function usePostChannelsChannelIdPollsMessageIdExpire(options?: {
  */
 export function usePutChannelsChannelIdRecipientsUserId(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<(typeof client.channels)[':channel_id']['recipients'][':user_id']['$put']>
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<(typeof client.channels)[':channel_id']['recipients'][':user_id']['$put']>
+            >
+          >
+        >
+      >
     | undefined,
     Error,
     string,
@@ -2294,8 +2609,16 @@ export function usePutChannelsChannelIdRecipientsUserId(options?: {
  */
 export function useDeleteChannelsChannelIdRecipientsUserId(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<
-        (typeof client.channels)[':channel_id']['recipients'][':user_id']['$delete']
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client.channels)[':channel_id']['recipients'][':user_id']['$delete']
+              >
+            >
+          >
+        >
       >
     | undefined,
     Error,
@@ -2329,7 +2652,15 @@ export function useDeleteChannelsChannelIdRecipientsUserId(options?: {
  */
 export function usePostChannelsChannelIdSendSoundboardSound(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<(typeof client.channels)[':channel_id']['send-soundboard-sound']['$post']>
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<(typeof client.channels)[':channel_id']['send-soundboard-sound']['$post']>
+            >
+          >
+        >
+      >
     | undefined,
     Error,
     string,
@@ -2396,7 +2727,15 @@ export function getGetChannelsChannelIdThreadMembersKey(
  */
 export function usePutChannelsChannelIdThreadMembersMe(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<(typeof client.channels)[':channel_id']['thread-members']['@me']['$put']>
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<(typeof client.channels)[':channel_id']['thread-members']['@me']['$put']>
+            >
+          >
+        >
+      >
     | undefined,
     Error,
     string,
@@ -2429,7 +2768,17 @@ export function usePutChannelsChannelIdThreadMembersMe(options?: {
  */
 export function useDeleteChannelsChannelIdThreadMembersMe(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<(typeof client.channels)[':channel_id']['thread-members']['@me']['$delete']>
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client.channels)[':channel_id']['thread-members']['@me']['$delete']
+              >
+            >
+          >
+        >
+      >
     | undefined,
     Error,
     string,
@@ -2502,8 +2851,16 @@ export function getGetChannelsChannelIdThreadMembersUserIdKey(
  */
 export function usePutChannelsChannelIdThreadMembersUserId(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<
-        (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$put']
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$put']
+              >
+            >
+          >
+        >
       >
     | undefined,
     Error,
@@ -2537,8 +2894,16 @@ export function usePutChannelsChannelIdThreadMembersUserId(options?: {
  */
 export function useDeleteChannelsChannelIdThreadMembersUserId(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<
-        (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$delete']
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$delete']
+              >
+            >
+          >
+        >
       >
     | undefined,
     Error,
@@ -2574,7 +2939,13 @@ export function useDeleteChannelsChannelIdThreadMembersUserId(options?: {
  */
 export function usePostChannelsChannelIdThreads(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.channels)[':channel_id']['threads']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.channels)[':channel_id']['threads']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.channels)[':channel_id']['threads']['$post']>
@@ -2714,7 +3085,14 @@ export function getGetChannelsChannelIdThreadsSearchKey(
  */
 export function usePostChannelsChannelIdTyping(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.channels)[':channel_id']['typing']['$post']> | undefined,
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.channels)[':channel_id']['typing']['$post']>>
+          >
+        >
+      >
+    | undefined,
     Error,
     string,
     InferRequestType<(typeof client.channels)[':channel_id']['typing']['$post']>
@@ -2818,7 +3196,13 @@ export function getGetChannelsChannelIdWebhooksKey(
  */
 export function usePostChannelsChannelIdWebhooks(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.channels)[':channel_id']['webhooks']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.channels)[':channel_id']['webhooks']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.channels)[':channel_id']['webhooks']['$post']>
@@ -2961,7 +3345,11 @@ export function getGetGuildsGuildIdKey(
  */
 export function usePatchGuildsGuildId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.guilds)[':guild_id']['$patch']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client.guilds)[':guild_id']['$patch']>>>
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.guilds)[':guild_id']['$patch']>
@@ -3052,7 +3440,15 @@ export function getGetGuildsGuildIdAutoModerationRulesKey(
  */
 export function usePostGuildsGuildIdAutoModerationRules(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<(typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$post']>
+          >
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$post']>
@@ -3122,8 +3518,16 @@ export function getGetGuildsGuildIdAutoModerationRulesRuleIdKey(
  */
 export function useDeleteGuildsGuildIdAutoModerationRulesRuleId(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<
-        (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$delete']
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$delete']
+              >
+            >
+          >
+        >
       >
     | undefined,
     Error,
@@ -3159,8 +3563,16 @@ export function useDeleteGuildsGuildIdAutoModerationRulesRuleId(options?: {
  */
 export function usePatchGuildsGuildIdAutoModerationRulesRuleId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$patch']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$patch']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -3260,7 +3672,14 @@ export function getGetGuildsGuildIdBansUserIdKey(
  */
 export function usePutGuildsGuildIdBansUserId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$put']> | undefined,
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$put']>>
+          >
+        >
+      >
+    | undefined,
     Error,
     string,
     InferRequestType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$put']>
@@ -3285,7 +3704,13 @@ export function usePutGuildsGuildIdBansUserId(options?: {
  */
 export function useDeleteGuildsGuildIdBansUserId(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$delete']>
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$delete']>>
+          >
+        >
+      >
     | undefined,
     Error,
     string,
@@ -3313,7 +3738,13 @@ export function useDeleteGuildsGuildIdBansUserId(options?: {
  */
 export function usePostGuildsGuildIdBulkBan(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.guilds)[':guild_id']['bulk-ban']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.guilds)[':guild_id']['bulk-ban']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.guilds)[':guild_id']['bulk-ban']['$post']>
@@ -3368,7 +3799,13 @@ export function getGetGuildsGuildIdChannelsKey(
  */
 export function usePostGuildsGuildIdChannels(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.guilds)[':guild_id']['channels']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.guilds)[':guild_id']['channels']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.guilds)[':guild_id']['channels']['$post']>
@@ -3391,7 +3828,14 @@ export function usePostGuildsGuildIdChannels(options?: {
  */
 export function usePatchGuildsGuildIdChannels(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.guilds)[':guild_id']['channels']['$patch']> | undefined,
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.guilds)[':guild_id']['channels']['$patch']>>
+          >
+        >
+      >
+    | undefined,
     Error,
     string,
     InferRequestType<(typeof client.guilds)[':guild_id']['channels']['$patch']>
@@ -3446,7 +3890,13 @@ export function getGetGuildsGuildIdEmojisKey(
  */
 export function usePostGuildsGuildIdEmojis(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.guilds)[':guild_id']['emojis']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.guilds)[':guild_id']['emojis']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.guilds)[':guild_id']['emojis']['$post']>
@@ -3503,7 +3953,15 @@ export function getGetGuildsGuildIdEmojisEmojiIdKey(
  */
 export function useDeleteGuildsGuildIdEmojisEmojiId(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$delete']>
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$delete']>
+            >
+          >
+        >
+      >
     | undefined,
     Error,
     string,
@@ -3531,7 +3989,13 @@ export function useDeleteGuildsGuildIdEmojisEmojiId(options?: {
  */
 export function usePatchGuildsGuildIdEmojisEmojiId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$patch']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$patch']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$patch']>
@@ -3590,8 +4054,16 @@ export function getGetGuildsGuildIdIntegrationsKey(
  */
 export function useDeleteGuildsGuildIdIntegrationsIntegrationId(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<
-        (typeof client.guilds)[':guild_id']['integrations'][':integration_id']['$delete']
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client.guilds)[':guild_id']['integrations'][':integration_id']['$delete']
+              >
+            >
+          >
+        >
       >
     | undefined,
     Error,
@@ -3691,7 +4163,13 @@ export function getGetGuildsGuildIdMembersKey(
  */
 export function usePatchGuildsGuildIdMembersMe(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.guilds)[':guild_id']['members']['@me']['$patch']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.guilds)[':guild_id']['members']['@me']['$patch']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.guilds)[':guild_id']['members']['@me']['$patch']>
@@ -3784,7 +4262,13 @@ export function getGetGuildsGuildIdMembersUserIdKey(
  */
 export function usePutGuildsGuildIdMembersUserId(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$put']>
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$put']>>
+          >
+        >
+      >
     | undefined,
     Error,
     string,
@@ -3812,7 +4296,15 @@ export function usePutGuildsGuildIdMembersUserId(options?: {
  */
 export function useDeleteGuildsGuildIdMembersUserId(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$delete']>
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$delete']>
+            >
+          >
+        >
+      >
     | undefined,
     Error,
     string,
@@ -3840,7 +4332,15 @@ export function useDeleteGuildsGuildIdMembersUserId(options?: {
  */
 export function usePatchGuildsGuildIdMembersUserId(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$patch']>
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$patch']>
+            >
+          >
+        >
+      >
     | undefined,
     Error,
     string,
@@ -3868,8 +4368,16 @@ export function usePatchGuildsGuildIdMembersUserId(options?: {
  */
 export function usePutGuildsGuildIdMembersUserIdRolesRoleId(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<
-        (typeof client.guilds)[':guild_id']['members'][':user_id']['roles'][':role_id']['$put']
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client.guilds)[':guild_id']['members'][':user_id']['roles'][':role_id']['$put']
+              >
+            >
+          >
+        >
       >
     | undefined,
     Error,
@@ -3905,8 +4413,16 @@ export function usePutGuildsGuildIdMembersUserIdRolesRoleId(options?: {
  */
 export function useDeleteGuildsGuildIdMembersUserIdRolesRoleId(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<
-        (typeof client.guilds)[':guild_id']['members'][':user_id']['roles'][':role_id']['$delete']
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client.guilds)[':guild_id']['members'][':user_id']['roles'][':role_id']['$delete']
+              >
+            >
+          >
+        >
       >
     | undefined,
     Error,
@@ -4045,7 +4561,13 @@ export function getGetGuildsGuildIdOnboardingKey(
  */
 export function usePutGuildsGuildIdOnboarding(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.guilds)[':guild_id']['onboarding']['$put']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.guilds)[':guild_id']['onboarding']['$put']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.guilds)[':guild_id']['onboarding']['$put']>
@@ -4132,7 +4654,13 @@ export function getGetGuildsGuildIdPruneKey(
  */
 export function usePostGuildsGuildIdPrune(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.guilds)[':guild_id']['prune']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.guilds)[':guild_id']['prune']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.guilds)[':guild_id']['prune']['$post']>
@@ -4219,7 +4747,13 @@ export function getGetGuildsGuildIdRolesKey(
  */
 export function usePostGuildsGuildIdRoles(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.guilds)[':guild_id']['roles']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.guilds)[':guild_id']['roles']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.guilds)[':guild_id']['roles']['$post']>
@@ -4242,7 +4776,13 @@ export function usePostGuildsGuildIdRoles(options?: {
  */
 export function usePatchGuildsGuildIdRoles(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.guilds)[':guild_id']['roles']['$patch']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.guilds)[':guild_id']['roles']['$patch']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.guilds)[':guild_id']['roles']['$patch']>
@@ -4332,7 +4872,13 @@ export function getGetGuildsGuildIdRolesRoleIdKey(
  */
 export function useDeleteGuildsGuildIdRolesRoleId(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$delete']>
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$delete']>>
+          >
+        >
+      >
     | undefined,
     Error,
     string,
@@ -4360,7 +4906,13 @@ export function useDeleteGuildsGuildIdRolesRoleId(options?: {
  */
 export function usePatchGuildsGuildIdRolesRoleId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$patch']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$patch']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$patch']>
@@ -4421,7 +4973,13 @@ export function getGetGuildsGuildIdScheduledEventsKey(
  */
 export function usePostGuildsGuildIdScheduledEvents(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.guilds)[':guild_id']['scheduled-events']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.guilds)[':guild_id']['scheduled-events']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.guilds)[':guild_id']['scheduled-events']['$post']>
@@ -4495,8 +5053,16 @@ export function getGetGuildsGuildIdScheduledEventsGuildScheduledEventIdKey(
  */
 export function useDeleteGuildsGuildIdScheduledEventsGuildScheduledEventId(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<
-        (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$delete']
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$delete']
+              >
+            >
+          >
+        >
       >
     | undefined,
     Error,
@@ -4535,8 +5101,16 @@ export function useDeleteGuildsGuildIdScheduledEventsGuildScheduledEventId(optio
  */
 export function usePatchGuildsGuildIdScheduledEventsGuildScheduledEventId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$patch']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$patch']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -4655,7 +5229,13 @@ export function getGetGuildsGuildIdSoundboardSoundsKey(
  */
 export function usePostGuildsGuildIdSoundboardSounds(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.guilds)[':guild_id']['soundboard-sounds']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.guilds)[':guild_id']['soundboard-sounds']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.guilds)[':guild_id']['soundboard-sounds']['$post']>
@@ -4722,8 +5302,16 @@ export function getGetGuildsGuildIdSoundboardSoundsSoundIdKey(
  */
 export function useDeleteGuildsGuildIdSoundboardSoundsSoundId(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<
-        (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$delete']
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$delete']
+              >
+            >
+          >
+        >
       >
     | undefined,
     Error,
@@ -4759,8 +5347,16 @@ export function useDeleteGuildsGuildIdSoundboardSoundsSoundId(options?: {
  */
 export function usePatchGuildsGuildIdSoundboardSoundsSoundId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$patch']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$patch']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -4827,7 +5423,13 @@ export function getGetGuildsGuildIdStickersKey(
  */
 export function usePostGuildsGuildIdStickers(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.guilds)[':guild_id']['stickers']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.guilds)[':guild_id']['stickers']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.guilds)[':guild_id']['stickers']['$post']>
@@ -4884,7 +5486,15 @@ export function getGetGuildsGuildIdStickersStickerIdKey(
  */
 export function useDeleteGuildsGuildIdStickersStickerId(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<(typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$delete']>
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<(typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$delete']>
+            >
+          >
+        >
+      >
     | undefined,
     Error,
     string,
@@ -4915,7 +5525,15 @@ export function useDeleteGuildsGuildIdStickersStickerId(options?: {
  */
 export function usePatchGuildsGuildIdStickersStickerId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$patch']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<(typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$patch']>
+          >
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$patch']>
@@ -4977,7 +5595,13 @@ export function getGetGuildsGuildIdTemplatesKey(
  */
 export function usePostGuildsGuildIdTemplates(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.guilds)[':guild_id']['templates']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.guilds)[':guild_id']['templates']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.guilds)[':guild_id']['templates']['$post']>
@@ -5000,7 +5624,13 @@ export function usePostGuildsGuildIdTemplates(options?: {
  */
 export function usePutGuildsGuildIdTemplatesCode(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.guilds)[':guild_id']['templates'][':code']['$put']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.guilds)[':guild_id']['templates'][':code']['$put']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.guilds)[':guild_id']['templates'][':code']['$put']>
@@ -5027,7 +5657,13 @@ export function usePutGuildsGuildIdTemplatesCode(options?: {
  */
 export function useDeleteGuildsGuildIdTemplatesCode(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.guilds)[':guild_id']['templates'][':code']['$delete']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.guilds)[':guild_id']['templates'][':code']['$delete']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.guilds)[':guild_id']['templates'][':code']['$delete']>
@@ -5054,7 +5690,13 @@ export function useDeleteGuildsGuildIdTemplatesCode(options?: {
  */
 export function usePatchGuildsGuildIdTemplatesCode(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.guilds)[':guild_id']['templates'][':code']['$patch']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.guilds)[':guild_id']['templates'][':code']['$patch']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.guilds)[':guild_id']['templates'][':code']['$patch']>
@@ -5181,7 +5823,15 @@ export function getGetGuildsGuildIdVoiceStatesMeKey(
  */
 export function usePatchGuildsGuildIdVoiceStatesMe(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<(typeof client.guilds)[':guild_id']['voice-states']['@me']['$patch']>
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<(typeof client.guilds)[':guild_id']['voice-states']['@me']['$patch']>
+            >
+          >
+        >
+      >
     | undefined,
     Error,
     string,
@@ -5246,7 +5896,15 @@ export function getGetGuildsGuildIdVoiceStatesUserIdKey(
  */
 export function usePatchGuildsGuildIdVoiceStatesUserId(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<(typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$patch']>
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<(typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$patch']>
+            >
+          >
+        >
+      >
     | undefined,
     Error,
     string,
@@ -5345,7 +6003,13 @@ export function getGetGuildsGuildIdWelcomeScreenKey(
  */
 export function usePatchGuildsGuildIdWelcomeScreen(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.guilds)[':guild_id']['welcome-screen']['$patch']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.guilds)[':guild_id']['welcome-screen']['$patch']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.guilds)[':guild_id']['welcome-screen']['$patch']>
@@ -5402,7 +6066,13 @@ export function getGetGuildsGuildIdWidgetKey(
  */
 export function usePatchGuildsGuildIdWidget(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.guilds)[':guild_id']['widget']['$patch']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.guilds)[':guild_id']['widget']['$patch']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.guilds)[':guild_id']['widget']['$patch']>
@@ -5490,8 +6160,16 @@ export function getGetGuildsGuildIdWidgetPngKey(
  */
 export function usePostInteractionsInteractionIdInteractionTokenCallback(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<
-        (typeof client.interactions)[':interaction_id'][':interaction_token']['callback']['$post']
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client.interactions)[':interaction_id'][':interaction_token']['callback']['$post']
+              >
+            >
+          >
+        >
       >
     | undefined,
     Error,
@@ -5562,7 +6240,11 @@ export function getGetInvitesCodeKey(
  */
 export function useDeleteInvitesCode(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.invites)[':code']['$delete']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client.invites)[':code']['$delete']>>>
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.invites)[':code']['$delete']>
@@ -5585,7 +6267,7 @@ export function useDeleteInvitesCode(options?: {
  */
 export function usePutLobbies(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.lobbies.$put>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.lobbies.$put>>>>>,
     Error,
     string,
     InferRequestType<typeof client.lobbies.$put>
@@ -5606,7 +6288,7 @@ export function usePutLobbies(options?: {
  */
 export function usePostLobbies(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.lobbies.$post>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.lobbies.$post>>>>>,
     Error,
     string,
     InferRequestType<typeof client.lobbies.$post>
@@ -5659,7 +6341,11 @@ export function getGetLobbiesLobbyIdKey(
  */
 export function usePatchLobbiesLobbyId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.lobbies)[':lobby_id']['$patch']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client.lobbies)[':lobby_id']['$patch']>>>
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.lobbies)[':lobby_id']['$patch']>
@@ -5682,7 +6368,13 @@ export function usePatchLobbiesLobbyId(options?: {
  */
 export function usePatchLobbiesLobbyIdChannelLinking(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.lobbies)[':lobby_id']['channel-linking']['$patch']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.lobbies)[':lobby_id']['channel-linking']['$patch']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.lobbies)[':lobby_id']['channel-linking']['$patch']>
@@ -5709,7 +6401,13 @@ export function usePatchLobbiesLobbyIdChannelLinking(options?: {
  */
 export function useDeleteLobbiesLobbyIdMembersMe(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<(typeof client.lobbies)[':lobby_id']['members']['@me']['$delete']>
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.lobbies)[':lobby_id']['members']['@me']['$delete']>>
+          >
+        >
+      >
     | undefined,
     Error,
     string,
@@ -5737,7 +6435,15 @@ export function useDeleteLobbiesLobbyIdMembersMe(options?: {
  */
 export function usePostLobbiesLobbyIdMembersMeInvites(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.lobbies)[':lobby_id']['members']['@me']['invites']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<(typeof client.lobbies)[':lobby_id']['members']['@me']['invites']['$post']>
+          >
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.lobbies)[':lobby_id']['members']['@me']['invites']['$post']>
@@ -5767,7 +6473,13 @@ export function usePostLobbiesLobbyIdMembersMeInvites(options?: {
  */
 export function usePostLobbiesLobbyIdMembersBulk(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.lobbies)[':lobby_id']['members']['bulk']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.lobbies)[':lobby_id']['members']['bulk']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.lobbies)[':lobby_id']['members']['bulk']['$post']>
@@ -5794,7 +6506,13 @@ export function usePostLobbiesLobbyIdMembersBulk(options?: {
  */
 export function usePutLobbiesLobbyIdMembersUserId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.lobbies)[':lobby_id']['members'][':user_id']['$put']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.lobbies)[':lobby_id']['members'][':user_id']['$put']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.lobbies)[':lobby_id']['members'][':user_id']['$put']>
@@ -5821,7 +6539,15 @@ export function usePutLobbiesLobbyIdMembersUserId(options?: {
  */
 export function useDeleteLobbiesLobbyIdMembersUserId(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<(typeof client.lobbies)[':lobby_id']['members'][':user_id']['$delete']>
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<(typeof client.lobbies)[':lobby_id']['members'][':user_id']['$delete']>
+            >
+          >
+        >
+      >
     | undefined,
     Error,
     string,
@@ -5851,8 +6577,16 @@ export function useDeleteLobbiesLobbyIdMembersUserId(options?: {
  */
 export function usePostLobbiesLobbyIdMembersUserIdInvites(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client.lobbies)[':lobby_id']['members'][':user_id']['invites']['$post']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client.lobbies)[':lobby_id']['members'][':user_id']['invites']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -5919,7 +6653,13 @@ export function getGetLobbiesLobbyIdMessagesKey(
  */
 export function usePostLobbiesLobbyIdMessages(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.lobbies)[':lobby_id']['messages']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.lobbies)[':lobby_id']['messages']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.lobbies)[':lobby_id']['messages']['$post']>
@@ -6050,7 +6790,15 @@ export function getGetOauth2UserinfoKey() {
  */
 export function usePostPartnerSdkProvisionalAccountsUnmerge(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<(typeof client)['partner-sdk']['provisional-accounts']['unmerge']['$post']>
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<(typeof client)['partner-sdk']['provisional-accounts']['unmerge']['$post']>
+            >
+          >
+        >
+      >
     | undefined,
     Error,
     string,
@@ -6083,8 +6831,16 @@ export function usePostPartnerSdkProvisionalAccountsUnmerge(options?: {
  */
 export function usePostPartnerSdkProvisionalAccountsUnmergeBot(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<
-        (typeof client)['partner-sdk']['provisional-accounts']['unmerge']['bot']['$post']
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['partner-sdk']['provisional-accounts']['unmerge']['bot']['$post']
+              >
+            >
+          >
+        >
       >
     | undefined,
     Error,
@@ -6120,7 +6876,11 @@ export function usePostPartnerSdkProvisionalAccountsUnmergeBot(options?: {
  */
 export function usePostPartnerSdkToken(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['partner-sdk']['token']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client)['partner-sdk']['token']['$post']>>>
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client)['partner-sdk']['token']['$post']>
@@ -6143,7 +6903,13 @@ export function usePostPartnerSdkToken(options?: {
  */
 export function usePostPartnerSdkTokenBot(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['partner-sdk']['token']['bot']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['partner-sdk']['token']['bot']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client)['partner-sdk']['token']['bot']['$post']>
@@ -6193,7 +6959,11 @@ export function getGetSoundboardDefaultSoundsKey() {
  */
 export function usePostStageInstances(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['stage-instances']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client)['stage-instances']['$post']>>>
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client)['stage-instances']['$post']>
@@ -6248,7 +7018,14 @@ export function getGetStageInstancesChannelIdKey(
  */
 export function useDeleteStageInstancesChannelId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['stage-instances'][':channel_id']['$delete']> | undefined,
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['stage-instances'][':channel_id']['$delete']>>
+          >
+        >
+      >
+    | undefined,
     Error,
     string,
     InferRequestType<(typeof client)['stage-instances'][':channel_id']['$delete']>
@@ -6273,7 +7050,13 @@ export function useDeleteStageInstancesChannelId(options?: {
  */
 export function usePatchStageInstancesChannelId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['stage-instances'][':channel_id']['$patch']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['stage-instances'][':channel_id']['$patch']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client)['stage-instances'][':channel_id']['$patch']>
@@ -6416,7 +7199,9 @@ export function getGetUsersMeKey() {
  */
 export function usePatchUsersMe(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.users)['@me']['$patch']>,
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.users)['@me']['$patch']>>>>
+    >,
     Error,
     string,
     InferRequestType<(typeof client.users)['@me']['$patch']>
@@ -6528,8 +7313,16 @@ export function getGetUsersMeApplicationsApplicationIdRoleConnectionKey(
  */
 export function usePutUsersMeApplicationsApplicationIdRoleConnection(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$put']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$put']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -6567,8 +7360,16 @@ export function usePutUsersMeApplicationsApplicationIdRoleConnection(options?: {
  */
 export function useDeleteUsersMeApplicationsApplicationIdRoleConnection(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<
-        (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$delete']
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$delete']
+              >
+            >
+          >
+        >
       >
     | undefined,
     Error,
@@ -6607,7 +7408,11 @@ export function useDeleteUsersMeApplicationsApplicationIdRoleConnection(options?
  */
 export function usePostUsersMeChannels(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.users)['@me']['channels']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client.users)['@me']['channels']['$post']>>>
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.users)['@me']['channels']['$post']>
@@ -6689,7 +7494,14 @@ export function getGetUsersMeGuildsKey(
  */
 export function useDeleteUsersMeGuildsGuildId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.users)['@me']['guilds'][':guild_id']['$delete']> | undefined,
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.users)['@me']['guilds'][':guild_id']['$delete']>>
+          >
+        >
+      >
+    | undefined,
     Error,
     string,
     InferRequestType<(typeof client.users)['@me']['guilds'][':guild_id']['$delete']>
@@ -6839,7 +7651,14 @@ export function getGetWebhooksWebhookIdKey(
  */
 export function useDeleteWebhooksWebhookId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.webhooks)[':webhook_id']['$delete']> | undefined,
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.webhooks)[':webhook_id']['$delete']>>
+          >
+        >
+      >
+    | undefined,
     Error,
     string,
     InferRequestType<(typeof client.webhooks)[':webhook_id']['$delete']>
@@ -6862,7 +7681,11 @@ export function useDeleteWebhooksWebhookId(options?: {
  */
 export function usePatchWebhooksWebhookId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.webhooks)[':webhook_id']['$patch']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client.webhooks)[':webhook_id']['$patch']>>>
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.webhooks)[':webhook_id']['$patch']>
@@ -6919,7 +7742,13 @@ export function getGetWebhooksWebhookIdWebhookTokenKey(
  */
 export function usePostWebhooksWebhookIdWebhookToken(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$post']>
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$post']>>
+          >
+        >
+      >
     | undefined,
     Error,
     string,
@@ -6947,7 +7776,15 @@ export function usePostWebhooksWebhookIdWebhookToken(options?: {
  */
 export function useDeleteWebhooksWebhookIdWebhookToken(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$delete']>
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$delete']>
+            >
+          >
+        >
+      >
     | undefined,
     Error,
     string,
@@ -6976,7 +7813,13 @@ export function useDeleteWebhooksWebhookIdWebhookToken(options?: {
  */
 export function usePatchWebhooksWebhookIdWebhookToken(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$patch']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$patch']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$patch']>
@@ -7003,8 +7846,16 @@ export function usePatchWebhooksWebhookIdWebhookToken(options?: {
  */
 export function usePostWebhooksWebhookIdWebhookTokenGithub(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<
-        (typeof client.webhooks)[':webhook_id'][':webhook_token']['github']['$post']
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client.webhooks)[':webhook_id'][':webhook_token']['github']['$post']
+              >
+            >
+          >
+        >
       >
     | undefined,
     Error,
@@ -7085,8 +7936,16 @@ export function getGetWebhooksWebhookIdWebhookTokenMessagesOriginalKey(
  */
 export function useDeleteWebhooksWebhookIdWebhookTokenMessagesOriginal(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<
-        (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$delete']
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$delete']
+              >
+            >
+          >
+        >
       >
     | undefined,
     Error,
@@ -7125,8 +7984,16 @@ export function useDeleteWebhooksWebhookIdWebhookTokenMessagesOriginal(options?:
  */
 export function usePatchWebhooksWebhookIdWebhookTokenMessagesOriginal(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$patch']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$patch']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -7211,8 +8078,16 @@ export function getGetWebhooksWebhookIdWebhookTokenMessagesMessageIdKey(
  */
 export function useDeleteWebhooksWebhookIdWebhookTokenMessagesMessageId(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<
-        (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$delete']
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$delete']
+              >
+            >
+          >
+        >
       >
     | undefined,
     Error,
@@ -7251,8 +8126,16 @@ export function useDeleteWebhooksWebhookIdWebhookTokenMessagesMessageId(options?
  */
 export function usePatchWebhooksWebhookIdWebhookTokenMessagesMessageId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$patch']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$patch']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -7290,7 +8173,15 @@ export function usePatchWebhooksWebhookIdWebhookTokenMessagesMessageId(options?:
  */
 export function usePostWebhooksWebhookIdWebhookTokenSlack(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['slack']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['slack']['$post']>
+          >
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['slack']['$post']>

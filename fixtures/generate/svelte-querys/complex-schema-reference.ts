@@ -23,7 +23,7 @@ export function createGetTest(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetTestQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetTestQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**

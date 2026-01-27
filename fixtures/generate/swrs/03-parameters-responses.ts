@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/03-parameters-responses'
 
 /**
@@ -73,7 +73,12 @@ export function getGetItemsItemIdKey(
  */
 export function useDeleteItemsItemId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.items)[':itemId']['$delete']> | undefined,
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.items)[':itemId']['$delete']>>>
+        >
+      >
+    | undefined,
     Error,
     string,
     InferRequestType<(typeof client.items)[':itemId']['$delete']>

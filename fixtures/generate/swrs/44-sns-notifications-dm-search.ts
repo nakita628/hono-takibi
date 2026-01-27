@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/44-sns-notifications-dm-search'
 
 /**
@@ -75,7 +75,13 @@ export function getGetNotificationsUnreadCountKey() {
  */
 export function usePostNotificationsMarkRead(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.notifications)['mark-read']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.notifications)['mark-read']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.notifications)['mark-read']['$post']>
@@ -129,7 +135,11 @@ export function getGetNotificationsSettingsKey() {
  */
 export function usePutNotificationsSettings(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.notifications.settings.$put>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<typeof client.notifications.settings.$put>>>
+      >
+    >,
     Error,
     string,
     InferRequestType<typeof client.notifications.settings.$put>
@@ -188,7 +198,9 @@ export function getGetDmConversationsKey(
  */
 export function usePostDmConversations(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.dm.conversations.$post>,
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.dm.conversations.$post>>>>
+    >,
     Error,
     string,
     InferRequestType<typeof client.dm.conversations.$post>
@@ -247,7 +259,14 @@ export function getGetDmConversationsConversationIdKey(
  */
 export function useDeleteDmConversationsConversationId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.dm.conversations)[':conversationId']['$delete']> | undefined,
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.dm.conversations)[':conversationId']['$delete']>>
+          >
+        >
+      >
+    | undefined,
     Error,
     string,
     InferRequestType<(typeof client.dm.conversations)[':conversationId']['$delete']>
@@ -312,7 +331,15 @@ export function getGetDmConversationsConversationIdMessagesKey(
  */
 export function usePostDmConversationsConversationIdMessages(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.dm.conversations)[':conversationId']['messages']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<(typeof client.dm.conversations)[':conversationId']['messages']['$post']>
+          >
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.dm.conversations)[':conversationId']['messages']['$post']>
@@ -344,7 +371,13 @@ export function usePostDmConversationsConversationIdMessages(options?: {
  */
 export function usePostDmConversationsConversationIdRead(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.dm.conversations)[':conversationId']['read']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.dm.conversations)[':conversationId']['read']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.dm.conversations)[':conversationId']['read']['$post']>
@@ -373,7 +406,15 @@ export function usePostDmConversationsConversationIdRead(options?: {
  */
 export function usePostDmConversationsConversationIdTyping(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.dm.conversations)[':conversationId']['typing']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<(typeof client.dm.conversations)[':conversationId']['typing']['$post']>
+          >
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.dm.conversations)[':conversationId']['typing']['$post']>
@@ -404,7 +445,14 @@ export function usePostDmConversationsConversationIdTyping(options?: {
  */
 export function useDeleteDmMessagesMessageId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.dm.messages)[':messageId']['$delete']> | undefined,
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.dm.messages)[':messageId']['$delete']>>
+          >
+        >
+      >
+    | undefined,
     Error,
     string,
     InferRequestType<(typeof client.dm.messages)[':messageId']['$delete']>
@@ -429,7 +477,13 @@ export function useDeleteDmMessagesMessageId(options?: {
  */
 export function usePostDmMessagesMessageIdReactions(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.dm.messages)[':messageId']['reactions']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.dm.messages)[':messageId']['reactions']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.dm.messages)[':messageId']['reactions']['$post']>
@@ -456,7 +510,13 @@ export function usePostDmMessagesMessageIdReactions(options?: {
  */
 export function useDeleteDmMessagesMessageIdReactions(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.dm.messages)[':messageId']['reactions']['$delete']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.dm.messages)[':messageId']['reactions']['$delete']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.dm.messages)[':messageId']['reactions']['$delete']>
@@ -641,7 +701,10 @@ export function getGetSearchRecentKey() {
  */
 export function useDeleteSearchRecent(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.search.recent.$delete> | undefined,
+    | Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.search.recent.$delete>>>>
+      >
+    | undefined,
     Error,
     string,
     undefined
@@ -758,7 +821,13 @@ export function getGetSuggestionsUsersKey(
  */
 export function usePostSuggestionsUsersUserIdHide(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.suggestions.users)[':userId']['hide']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.suggestions.users)[':userId']['hide']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.suggestions.users)[':userId']['hide']['$post']>
@@ -814,7 +883,13 @@ export function getGetSuggestionsTopicsKey() {
  */
 export function usePostTopicsTopicIdFollow(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.topics)[':topicId']['follow']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.topics)[':topicId']['follow']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.topics)[':topicId']['follow']['$post']>
@@ -839,7 +914,13 @@ export function usePostTopicsTopicIdFollow(options?: {
  */
 export function useDeleteTopicsTopicIdFollow(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.topics)[':topicId']['follow']['$delete']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.topics)[':topicId']['follow']['$delete']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.topics)[':topicId']['follow']['$delete']>

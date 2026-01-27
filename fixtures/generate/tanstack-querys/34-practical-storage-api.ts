@@ -1,5 +1,5 @@
-import { useQuery, useMutation, queryOptions } from '@tanstack/react-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/34-practical-storage-api'
 
@@ -61,12 +61,18 @@ export const getGetFilesQueryOptions = (
 export function usePostFilesUpload(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.files.upload.$post>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.files.upload.$post>>>>
+      >,
       variables: InferRequestType<typeof client.files.upload.$post>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.files.upload.$post>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.files.upload.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.files.upload.$post>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.files.upload.$post>,
     ) => void
@@ -94,7 +100,11 @@ export function usePostFilesUpload(options?: {
 export function usePostFilesUploadMultipartInit(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.files.upload.multipart.init.$post>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<typeof client.files.upload.multipart.init.$post>>>
+        >
+      >,
       variables: InferRequestType<typeof client.files.upload.multipart.init.$post>,
     ) => void
     onError?: (
@@ -102,7 +112,15 @@ export function usePostFilesUploadMultipartInit(options?: {
       variables: InferRequestType<typeof client.files.upload.multipart.init.$post>,
     ) => void
     onSettled?: (
-      data: InferResponseType<typeof client.files.upload.multipart.init.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<typeof client.files.upload.multipart.init.$post>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.files.upload.multipart.init.$post>,
     ) => void
@@ -130,7 +148,15 @@ export function usePostFilesUploadMultipartInit(options?: {
 export function usePostFilesUploadMultipartUploadIdPart(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.files.upload.multipart)[':uploadId']['part']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<(typeof client.files.upload.multipart)[':uploadId']['part']['$post']>
+            >
+          >
+        >
+      >,
       variables: InferRequestType<
         (typeof client.files.upload.multipart)[':uploadId']['part']['$post']
       >,
@@ -143,7 +169,15 @@ export function usePostFilesUploadMultipartUploadIdPart(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client.files.upload.multipart)[':uploadId']['part']['$post']>
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<(typeof client.files.upload.multipart)[':uploadId']['part']['$post']>
+                >
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -177,8 +211,14 @@ export function usePostFilesUploadMultipartUploadIdPart(options?: {
 export function usePostFilesUploadMultipartUploadIdComplete(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client.files.upload.multipart)[':uploadId']['complete']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<(typeof client.files.upload.multipart)[':uploadId']['complete']['$post']>
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client.files.upload.multipart)[':uploadId']['complete']['$post']
@@ -192,8 +232,16 @@ export function usePostFilesUploadMultipartUploadIdComplete(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client.files.upload.multipart)[':uploadId']['complete']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client.files.upload.multipart)[':uploadId']['complete']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -286,7 +334,13 @@ export const getGetFilesFileIdQueryOptions = (
 export function useDeleteFilesFileId(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.files)[':fileId']['$delete']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client.files)[':fileId']['$delete']>>>
+            >
+          >
+        | undefined,
       variables: InferRequestType<(typeof client.files)[':fileId']['$delete']>,
     ) => void
     onError?: (
@@ -294,7 +348,13 @@ export function useDeleteFilesFileId(options?: {
       variables: InferRequestType<(typeof client.files)[':fileId']['$delete']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.files)[':fileId']['$delete']> | undefined | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client.files)[':fileId']['$delete']>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.files)[':fileId']['$delete']>,
     ) => void
@@ -320,7 +380,11 @@ export function useDeleteFilesFileId(options?: {
 export function usePatchFilesFileId(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.files)[':fileId']['$patch']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.files)[':fileId']['$patch']>>>
+        >
+      >,
       variables: InferRequestType<(typeof client.files)[':fileId']['$patch']>,
     ) => void
     onError?: (
@@ -328,7 +392,13 @@ export function usePatchFilesFileId(options?: {
       variables: InferRequestType<(typeof client.files)[':fileId']['$patch']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.files)[':fileId']['$patch']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client.files)[':fileId']['$patch']>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.files)[':fileId']['$patch']>,
     ) => void
@@ -470,7 +540,13 @@ export const getGetFilesFileIdDownloadUrlQueryOptions = (
 export function usePostFilesFileIdCopy(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.files)[':fileId']['copy']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.files)[':fileId']['copy']['$post']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client.files)[':fileId']['copy']['$post']>,
     ) => void
     onError?: (
@@ -478,7 +554,15 @@ export function usePostFilesFileIdCopy(options?: {
       variables: InferRequestType<(typeof client.files)[':fileId']['copy']['$post']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.files)[':fileId']['copy']['$post']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.files)[':fileId']['copy']['$post']>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.files)[':fileId']['copy']['$post']>,
     ) => void
@@ -506,7 +590,13 @@ export function usePostFilesFileIdCopy(options?: {
 export function usePostFilesFileIdMove(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.files)[':fileId']['move']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.files)[':fileId']['move']['$post']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client.files)[':fileId']['move']['$post']>,
     ) => void
     onError?: (
@@ -514,7 +604,15 @@ export function usePostFilesFileIdMove(options?: {
       variables: InferRequestType<(typeof client.files)[':fileId']['move']['$post']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.files)[':fileId']['move']['$post']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.files)[':fileId']['move']['$post']>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.files)[':fileId']['move']['$post']>,
     ) => void
@@ -600,12 +698,18 @@ export const getGetFilesFileIdThumbnailQueryOptions = (
 export function usePostFolders(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.folders.$post>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.folders.$post>>>>
+      >,
       variables: InferRequestType<typeof client.folders.$post>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.folders.$post>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.folders.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.folders.$post>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.folders.$post>,
     ) => void
@@ -686,7 +790,15 @@ export const getGetFoldersFolderIdQueryOptions = (
 export function useDeleteFoldersFolderId(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.folders)[':folderId']['$delete']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.folders)[':folderId']['$delete']>>
+              >
+            >
+          >
+        | undefined,
       variables: InferRequestType<(typeof client.folders)[':folderId']['$delete']>,
     ) => void
     onError?: (
@@ -695,8 +807,13 @@ export function useDeleteFoldersFolderId(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client.folders)[':folderId']['$delete']>
-        | undefined
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.folders)[':folderId']['$delete']>>
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.folders)[':folderId']['$delete']>,
@@ -725,7 +842,11 @@ export function useDeleteFoldersFolderId(options?: {
 export function usePatchFoldersFolderId(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.folders)[':folderId']['$patch']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.folders)[':folderId']['$patch']>>>
+        >
+      >,
       variables: InferRequestType<(typeof client.folders)[':folderId']['$patch']>,
     ) => void
     onError?: (
@@ -733,7 +854,15 @@ export function usePatchFoldersFolderId(options?: {
       variables: InferRequestType<(typeof client.folders)[':folderId']['$patch']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.folders)[':folderId']['$patch']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.folders)[':folderId']['$patch']>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.folders)[':folderId']['$patch']>,
     ) => void
@@ -814,7 +943,13 @@ export const getGetFilesFileIdShareQueryOptions = (
 export function usePostFilesFileIdShare(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.files)[':fileId']['share']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.files)[':fileId']['share']['$post']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client.files)[':fileId']['share']['$post']>,
     ) => void
     onError?: (
@@ -822,7 +957,15 @@ export function usePostFilesFileIdShare(options?: {
       variables: InferRequestType<(typeof client.files)[':fileId']['share']['$post']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.files)[':fileId']['share']['$post']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.files)[':fileId']['share']['$post']>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.files)[':fileId']['share']['$post']>,
     ) => void
@@ -851,7 +994,15 @@ export function usePostFilesFileIdShare(options?: {
 export function useDeleteFilesFileIdShare(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.files)[':fileId']['share']['$delete']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.files)[':fileId']['share']['$delete']>>
+              >
+            >
+          >
+        | undefined,
       variables: InferRequestType<(typeof client.files)[':fileId']['share']['$delete']>,
     ) => void
     onError?: (
@@ -860,8 +1011,13 @@ export function useDeleteFilesFileIdShare(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client.files)[':fileId']['share']['$delete']>
-        | undefined
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.files)[':fileId']['share']['$delete']>>
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.files)[':fileId']['share']['$delete']>,
@@ -891,7 +1047,13 @@ export function useDeleteFilesFileIdShare(options?: {
 export function usePostFilesFileIdShareLink(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.files)[':fileId']['share']['link']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.files)[':fileId']['share']['link']['$post']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client.files)[':fileId']['share']['link']['$post']>,
     ) => void
     onError?: (
@@ -900,7 +1062,13 @@ export function usePostFilesFileIdShareLink(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client.files)[':fileId']['share']['link']['$post']>
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.files)[':fileId']['share']['link']['$post']>>
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.files)[':fileId']['share']['link']['$post']>,
@@ -988,8 +1156,16 @@ export const getGetFilesFileIdVersionsQueryOptions = (
 export function usePostFilesFileIdVersionsVersionIdRestore(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client.files)[':fileId']['versions'][':versionId']['restore']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client.files)[':fileId']['versions'][':versionId']['restore']['$post']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client.files)[':fileId']['versions'][':versionId']['restore']['$post']
@@ -1003,8 +1179,16 @@ export function usePostFilesFileIdVersionsVersionIdRestore(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client.files)[':fileId']['versions'][':versionId']['restore']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client.files)[':fileId']['versions'][':versionId']['restore']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -1094,12 +1278,20 @@ export const getGetTrashQueryOptions = (
 export function useDeleteTrash(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.trash.$delete> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.trash.$delete>>>>
+          >
+        | undefined,
       variables: undefined,
     ) => void
     onError?: (error: Error, variables: undefined) => void
     onSettled?: (
-      data: InferResponseType<typeof client.trash.$delete> | undefined | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.trash.$delete>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: undefined,
     ) => void
@@ -1124,7 +1316,13 @@ export function useDeleteTrash(options?: {
 export function usePostTrashFileIdRestore(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.trash)[':fileId']['restore']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.trash)[':fileId']['restore']['$post']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client.trash)[':fileId']['restore']['$post']>,
     ) => void
     onError?: (
@@ -1132,7 +1330,15 @@ export function usePostTrashFileIdRestore(options?: {
       variables: InferRequestType<(typeof client.trash)[':fileId']['restore']['$post']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.trash)[':fileId']['restore']['$post']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.trash)[':fileId']['restore']['$post']>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.trash)[':fileId']['restore']['$post']>,
     ) => void

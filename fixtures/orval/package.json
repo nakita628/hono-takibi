@@ -1,0 +1,22 @@
+{
+  "name": "@fixtures/orval",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "generate": "tsx src/index.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.90.20",
+    "@tanstack/svelte-query": "^6.0.18",
+    "@tanstack/vue-query": "^5.92.9",
+    "axios": "^1.9.0",
+    "swr": "^2.3.8"
+  },
+  "devDependencies": {
+    "@types/node": "^25.0.10",
+    "orval": "^8.1.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
+}

@@ -21,7 +21,7 @@ export function createGetPublic(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetPublicQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetPublicQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -66,7 +66,7 @@ export function createGetProtected(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetProtectedQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetProtectedQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -111,7 +111,7 @@ export function createGetAdmin(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetAdminQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetAdminQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -156,7 +156,7 @@ export function createGetOauthResource(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetOauthResourceQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetOauthResourceQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -201,7 +201,7 @@ export function createGetMultiAuth(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetMultiAuthQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetMultiAuthQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**

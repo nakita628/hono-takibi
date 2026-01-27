@@ -1,5 +1,5 @@
-import { useQuery, useMutation, queryOptions } from '@tanstack/react-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/02-simple-schemas'
 
@@ -54,12 +54,16 @@ export const getGetUsersQueryOptions = (clientOptions?: ClientRequestOptions) =>
 export function usePostUsers(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.users.$post>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>
+      >,
       variables: InferRequestType<typeof client.users.$post>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.users.$post>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.users.$post> | undefined,
+      data:
+        | Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.users.$post>,
     ) => void

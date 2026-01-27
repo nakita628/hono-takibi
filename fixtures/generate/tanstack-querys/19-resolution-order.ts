@@ -1,5 +1,5 @@
-import { useQuery, useMutation, queryOptions } from '@tanstack/react-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/19-resolution-order'
 
@@ -54,12 +54,18 @@ export const getGetEntitiesQueryOptions = (clientOptions?: ClientRequestOptions)
 export function usePostProcess(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.process.$post>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.process.$post>>>>
+      >,
       variables: InferRequestType<typeof client.process.$post>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.process.$post>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.process.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.process.$post>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.process.$post>,
     ) => void
@@ -128,12 +134,18 @@ export const getGetGraphQueryOptions = (clientOptions?: ClientRequestOptions) =>
 export function usePostTransform(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.transform.$post>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.transform.$post>>>>
+      >,
       variables: InferRequestType<typeof client.transform.$post>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.transform.$post>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.transform.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.transform.$post>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.transform.$post>,
     ) => void

@@ -1,5 +1,5 @@
-import { useQuery, useMutation, queryOptions } from '@tanstack/react-query'
-import type { InferResponseType, ClientRequestOptions } from 'hono/client'
+import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
+import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/28-reserved-words'
 
@@ -141,12 +141,18 @@ export const getGetTypeQueryOptions = (clientOptions?: ClientRequestOptions) =>
 export function usePostFunction(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.function.$post>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.function.$post>>>>
+      >,
       variables: undefined,
     ) => void
     onError?: (error: Error, variables: undefined) => void
     onSettled?: (
-      data: InferResponseType<typeof client.function.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.function.$post>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: undefined,
     ) => void
@@ -348,10 +354,15 @@ export const getGetDefaultQueryOptions = (clientOptions?: ClientRequestOptions) 
  */
 export function usePostNew(options?: {
   mutation?: {
-    onSuccess?: (data: InferResponseType<typeof client.new.$post>, variables: undefined) => void
+    onSuccess?: (
+      data: Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.new.$post>>>>>,
+      variables: undefined,
+    ) => void
     onError?: (error: Error, variables: undefined) => void
     onSettled?: (
-      data: InferResponseType<typeof client.new.$post> | undefined,
+      data:
+        | Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.new.$post>>>>>
+        | undefined,
       error: Error | null,
       variables: undefined,
     ) => void
@@ -374,12 +385,18 @@ export function usePostNew(options?: {
 export function useDeleteDelete(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.delete.$delete>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.delete.$delete>>>>
+      >,
       variables: undefined,
     ) => void
     onError?: (error: Error, variables: undefined) => void
     onSettled?: (
-      data: InferResponseType<typeof client.delete.$delete> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.delete.$delete>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: undefined,
     ) => void

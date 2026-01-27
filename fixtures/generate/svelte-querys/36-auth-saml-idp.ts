@@ -1,5 +1,5 @@
-import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/36-auth-saml-idp'
 
@@ -28,7 +28,7 @@ export function createGetSamlSso(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetSamlSsoQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetSamlSsoQueryOptions(args, clientOptions), ...queryOptions }))
 }
 
 /**
@@ -65,12 +65,18 @@ export const getGetSamlSsoQueryOptions = (
 export function createPostSamlSso(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.saml.sso.$post>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.saml.sso.$post>>>>
+      >,
       variables: InferRequestType<typeof client.saml.sso.$post>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.saml.sso.$post>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.saml.sso.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.saml.sso.$post>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.saml.sso.$post>,
     ) => void
@@ -81,11 +87,11 @@ export function createPostSamlSso(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.saml.sso.$post>) =>
       parseResponse(client.saml.sso.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -113,7 +119,7 @@ export function createGetSamlSlo(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetSamlSloQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetSamlSloQueryOptions(args, clientOptions), ...queryOptions }))
 }
 
 /**
@@ -150,12 +156,18 @@ export const getGetSamlSloQueryOptions = (
 export function createPostSamlSlo(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.saml.slo.$post>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.saml.slo.$post>>>>
+      >,
       variables: InferRequestType<typeof client.saml.slo.$post>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.saml.slo.$post>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.saml.slo.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.saml.slo.$post>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.saml.slo.$post>,
     ) => void
@@ -166,11 +178,11 @@ export function createPostSamlSlo(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.saml.slo.$post>) =>
       parseResponse(client.saml.slo.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -183,12 +195,18 @@ export function createPostSamlSlo(options?: {
 export function createPostSamlAcs(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.saml.acs.$post>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.saml.acs.$post>>>>
+      >,
       variables: InferRequestType<typeof client.saml.acs.$post>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.saml.acs.$post>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.saml.acs.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.saml.acs.$post>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.saml.acs.$post>,
     ) => void
@@ -199,11 +217,11 @@ export function createPostSamlAcs(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.saml.acs.$post>) =>
       parseResponse(client.saml.acs.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -228,7 +246,7 @@ export function createGetSamlMetadata(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetSamlMetadataQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetSamlMetadataQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -278,10 +296,10 @@ export function createGetServiceProviders(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
+  return createQuery(() => ({
     ...getGetServiceProvidersQueryOptions(args, clientOptions),
     ...queryOptions,
-  })
+  }))
 }
 
 /**
@@ -321,7 +339,11 @@ export const getGetServiceProvidersQueryOptions = (
 export function createPostServiceProviders(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client)['service-providers']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client)['service-providers']['$post']>>>
+        >
+      >,
       variables: InferRequestType<(typeof client)['service-providers']['$post']>,
     ) => void
     onError?: (
@@ -329,7 +351,15 @@ export function createPostServiceProviders(options?: {
       variables: InferRequestType<(typeof client)['service-providers']['$post']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client)['service-providers']['$post']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client)['service-providers']['$post']>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client)['service-providers']['$post']>,
     ) => void
@@ -340,11 +370,11 @@ export function createPostServiceProviders(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client)['service-providers']['$post']>) =>
       parseResponse(client['service-providers'].$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -370,10 +400,10 @@ export function createGetServiceProvidersSpId(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
+  return createQuery(() => ({
     ...getGetServiceProvidersSpIdQueryOptions(args, clientOptions),
     ...queryOptions,
-  })
+  }))
 }
 
 /**
@@ -413,7 +443,13 @@ export const getGetServiceProvidersSpIdQueryOptions = (
 export function createPutServiceProvidersSpId(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client)['service-providers'][':spId']['$put']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['service-providers'][':spId']['$put']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client)['service-providers'][':spId']['$put']>,
     ) => void
     onError?: (
@@ -421,7 +457,15 @@ export function createPutServiceProvidersSpId(options?: {
       variables: InferRequestType<(typeof client)['service-providers'][':spId']['$put']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client)['service-providers'][':spId']['$put']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client)['service-providers'][':spId']['$put']>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client)['service-providers'][':spId']['$put']>,
     ) => void
@@ -434,12 +478,12 @@ export function createPutServiceProvidersSpId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client)['service-providers'][':spId']['$put']>,
     ) => parseResponse(client['service-providers'][':spId'].$put(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -450,7 +494,15 @@ export function createPutServiceProvidersSpId(options?: {
 export function createDeleteServiceProvidersSpId(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client)['service-providers'][':spId']['$delete']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client)['service-providers'][':spId']['$delete']>>
+              >
+            >
+          >
+        | undefined,
       variables: InferRequestType<(typeof client)['service-providers'][':spId']['$delete']>,
     ) => void
     onError?: (
@@ -459,8 +511,13 @@ export function createDeleteServiceProvidersSpId(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client)['service-providers'][':spId']['$delete']>
-        | undefined
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client)['service-providers'][':spId']['$delete']>>
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client)['service-providers'][':spId']['$delete']>,
@@ -474,12 +531,12 @@ export function createDeleteServiceProvidersSpId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client)['service-providers'][':spId']['$delete']>,
     ) => parseResponse(client['service-providers'][':spId'].$delete(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -505,10 +562,10 @@ export function createGetServiceProvidersSpIdMetadata(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
+  return createQuery(() => ({
     ...getGetServiceProvidersSpIdMetadataQueryOptions(args, clientOptions),
     ...queryOptions,
-  })
+  }))
 }
 
 /**
@@ -548,7 +605,13 @@ export const getGetServiceProvidersSpIdMetadataQueryOptions = (
 export function createPutServiceProvidersSpIdMetadata(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client)['service-providers'][':spId']['metadata']['$put']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['service-providers'][':spId']['metadata']['$put']>>
+          >
+        >
+      >,
       variables: InferRequestType<
         (typeof client)['service-providers'][':spId']['metadata']['$put']
       >,
@@ -561,7 +624,15 @@ export function createPutServiceProvidersSpIdMetadata(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client)['service-providers'][':spId']['metadata']['$put']>
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<(typeof client)['service-providers'][':spId']['metadata']['$put']>
+                >
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -579,12 +650,12 @@ export function createPutServiceProvidersSpIdMetadata(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client)['service-providers'][':spId']['metadata']['$put']>,
     ) => parseResponse(client['service-providers'][':spId'].metadata.$put(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -610,10 +681,10 @@ export function createGetServiceProvidersSpIdAttributes(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
+  return createQuery(() => ({
     ...getGetServiceProvidersSpIdAttributesQueryOptions(args, clientOptions),
     ...queryOptions,
-  })
+  }))
 }
 
 /**
@@ -653,7 +724,13 @@ export const getGetServiceProvidersSpIdAttributesQueryOptions = (
 export function createPutServiceProvidersSpIdAttributes(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client)['service-providers'][':spId']['attributes']['$put']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['service-providers'][':spId']['attributes']['$put']>>
+          >
+        >
+      >,
       variables: InferRequestType<
         (typeof client)['service-providers'][':spId']['attributes']['$put']
       >,
@@ -666,7 +743,15 @@ export function createPutServiceProvidersSpIdAttributes(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client)['service-providers'][':spId']['attributes']['$put']>
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<(typeof client)['service-providers'][':spId']['attributes']['$put']>
+                >
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -684,12 +769,12 @@ export function createPutServiceProvidersSpIdAttributes(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client)['service-providers'][':spId']['attributes']['$put']>,
     ) => parseResponse(client['service-providers'][':spId'].attributes.$put(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -712,7 +797,7 @@ export function createGetAttributes(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetAttributesQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetAttributesQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -759,7 +844,7 @@ export function createGetCertificates(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetCertificatesQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetCertificatesQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -794,12 +879,18 @@ export const getGetCertificatesQueryOptions = (clientOptions?: ClientRequestOpti
 export function createPostCertificates(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.certificates.$post>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.certificates.$post>>>>
+      >,
       variables: InferRequestType<typeof client.certificates.$post>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.certificates.$post>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.certificates.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.certificates.$post>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.certificates.$post>,
     ) => void
@@ -810,11 +901,11 @@ export function createPostCertificates(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.certificates.$post>) =>
       parseResponse(client.certificates.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -825,7 +916,15 @@ export function createPostCertificates(options?: {
 export function createDeleteCertificatesCertId(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.certificates)[':certId']['$delete']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.certificates)[':certId']['$delete']>>
+              >
+            >
+          >
+        | undefined,
       variables: InferRequestType<(typeof client.certificates)[':certId']['$delete']>,
     ) => void
     onError?: (
@@ -834,8 +933,13 @@ export function createDeleteCertificatesCertId(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client.certificates)[':certId']['$delete']>
-        | undefined
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.certificates)[':certId']['$delete']>>
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.certificates)[':certId']['$delete']>,
@@ -849,12 +953,12 @@ export function createDeleteCertificatesCertId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.certificates)[':certId']['$delete']>,
     ) => parseResponse(client.certificates[':certId'].$delete(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -865,7 +969,13 @@ export function createDeleteCertificatesCertId(options?: {
 export function createPostCertificatesCertIdActivate(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.certificates)[':certId']['activate']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.certificates)[':certId']['activate']['$post']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client.certificates)[':certId']['activate']['$post']>,
     ) => void
     onError?: (
@@ -874,7 +984,13 @@ export function createPostCertificatesCertIdActivate(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client.certificates)[':certId']['activate']['$post']>
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.certificates)[':certId']['activate']['$post']>>
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.certificates)[':certId']['activate']['$post']>,
@@ -888,12 +1004,12 @@ export function createPostCertificatesCertIdActivate(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.certificates)[':certId']['activate']['$post']>,
     ) => parseResponse(client.certificates[':certId'].activate.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -919,7 +1035,10 @@ export function createGetSessions(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetSessionsQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGetSessionsQueryOptions(args, clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**
@@ -954,7 +1073,15 @@ export const getGetSessionsQueryOptions = (
 export function createDeleteSessionsSessionId(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.sessions)[':sessionId']['$delete']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.sessions)[':sessionId']['$delete']>>
+              >
+            >
+          >
+        | undefined,
       variables: InferRequestType<(typeof client.sessions)[':sessionId']['$delete']>,
     ) => void
     onError?: (
@@ -963,8 +1090,13 @@ export function createDeleteSessionsSessionId(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client.sessions)[':sessionId']['$delete']>
-        | undefined
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.sessions)[':sessionId']['$delete']>>
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.sessions)[':sessionId']['$delete']>,
@@ -978,11 +1110,11 @@ export function createDeleteSessionsSessionId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.sessions)[':sessionId']['$delete']>) =>
       parseResponse(client.sessions[':sessionId'].$delete(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -1008,7 +1140,10 @@ export function createGetAuditLogs(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetAuditLogsQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGetAuditLogsQueryOptions(args, clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**

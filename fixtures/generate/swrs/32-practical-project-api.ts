@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/32-practical-project-api'
 
 /**
@@ -45,7 +45,7 @@ export function getGetProjectsKey(args?: InferRequestType<typeof client.projects
  */
 export function usePostProjects(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.projects.$post>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.projects.$post>>>>>,
     Error,
     string,
     InferRequestType<typeof client.projects.$post>
@@ -102,7 +102,11 @@ export function getGetProjectsProjectIdKey(
  */
 export function usePutProjectsProjectId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.projects)[':projectId']['$put']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client.projects)[':projectId']['$put']>>>
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.projects)[':projectId']['$put']>
@@ -127,7 +131,14 @@ export function usePutProjectsProjectId(options?: {
  */
 export function useDeleteProjectsProjectId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.projects)[':projectId']['$delete']> | undefined,
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.projects)[':projectId']['$delete']>>
+          >
+        >
+      >
+    | undefined,
     Error,
     string,
     InferRequestType<(typeof client.projects)[':projectId']['$delete']>
@@ -186,7 +197,13 @@ export function getGetProjectsProjectIdMembersKey(
  */
 export function usePostProjectsProjectIdMembers(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.projects)[':projectId']['members']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.projects)[':projectId']['members']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.projects)[':projectId']['members']['$post']>
@@ -247,7 +264,13 @@ export function getGetProjectsProjectIdTasksKey(
  */
 export function usePostProjectsProjectIdTasks(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.projects)[':projectId']['tasks']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.projects)[':projectId']['tasks']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.projects)[':projectId']['tasks']['$post']>
@@ -306,7 +329,11 @@ export function getGetTasksTaskIdKey(
  */
 export function usePutTasksTaskId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.tasks)[':taskId']['$put']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client.tasks)[':taskId']['$put']>>>
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.tasks)[':taskId']['$put']>
@@ -331,7 +358,12 @@ export function usePutTasksTaskId(options?: {
  */
 export function useDeleteTasksTaskId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.tasks)[':taskId']['$delete']> | undefined,
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.tasks)[':taskId']['$delete']>>>
+        >
+      >
+    | undefined,
     Error,
     string,
     InferRequestType<(typeof client.tasks)[':taskId']['$delete']>
@@ -356,7 +388,13 @@ export function useDeleteTasksTaskId(options?: {
  */
 export function usePatchTasksTaskIdStatus(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.tasks)[':taskId']['status']['$patch']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.tasks)[':taskId']['status']['$patch']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.tasks)[':taskId']['status']['$patch']>
@@ -415,7 +453,13 @@ export function getGetTasksTaskIdCommentsKey(
  */
 export function usePostTasksTaskIdComments(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.tasks)[':taskId']['comments']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.tasks)[':taskId']['comments']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.tasks)[':taskId']['comments']['$post']>
@@ -474,7 +518,13 @@ export function getGetTasksTaskIdTimeEntriesKey(
  */
 export function usePostTasksTaskIdTimeEntries(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.tasks)[':taskId']['time-entries']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.tasks)[':taskId']['time-entries']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.tasks)[':taskId']['time-entries']['$post']>
@@ -534,7 +584,13 @@ export function getGetProjectsProjectIdMilestonesKey(
  */
 export function usePostProjectsProjectIdMilestones(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.projects)[':projectId']['milestones']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.projects)[':projectId']['milestones']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.projects)[':projectId']['milestones']['$post']>
@@ -590,7 +646,7 @@ export function getGetTeamsKey() {
  */
 export function usePostTeams(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.teams.$post>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.teams.$post>>>>>,
     Error,
     string,
     InferRequestType<typeof client.teams.$post>

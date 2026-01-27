@@ -1,5 +1,5 @@
-import { useQuery, useMutation, queryOptions } from '@tanstack/vue-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { queryOptions, useMutation, useQuery } from '@tanstack/vue-query'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/39-auth-webauthn-passkey'
 
@@ -13,7 +13,11 @@ import { client } from '../clients/39-auth-webauthn-passkey'
 export function usePostWebauthnRegisterOptions(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.webauthn.register.options.$post>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<typeof client.webauthn.register.options.$post>>>
+        >
+      >,
       variables: InferRequestType<typeof client.webauthn.register.options.$post>,
     ) => void
     onError?: (
@@ -21,7 +25,15 @@ export function usePostWebauthnRegisterOptions(options?: {
       variables: InferRequestType<typeof client.webauthn.register.options.$post>,
     ) => void
     onSettled?: (
-      data: InferResponseType<typeof client.webauthn.register.options.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<typeof client.webauthn.register.options.$post>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.webauthn.register.options.$post>,
     ) => void
@@ -49,7 +61,11 @@ export function usePostWebauthnRegisterOptions(options?: {
 export function usePostWebauthnRegisterVerify(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.webauthn.register.verify.$post>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<typeof client.webauthn.register.verify.$post>>>
+        >
+      >,
       variables: InferRequestType<typeof client.webauthn.register.verify.$post>,
     ) => void
     onError?: (
@@ -57,7 +73,15 @@ export function usePostWebauthnRegisterVerify(options?: {
       variables: InferRequestType<typeof client.webauthn.register.verify.$post>,
     ) => void
     onSettled?: (
-      data: InferResponseType<typeof client.webauthn.register.verify.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<typeof client.webauthn.register.verify.$post>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.webauthn.register.verify.$post>,
     ) => void
@@ -85,7 +109,13 @@ export function usePostWebauthnRegisterVerify(options?: {
 export function usePostWebauthnAuthenticateOptions(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.webauthn.authenticate.options.$post>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<typeof client.webauthn.authenticate.options.$post>>
+          >
+        >
+      >,
       variables: InferRequestType<typeof client.webauthn.authenticate.options.$post>,
     ) => void
     onError?: (
@@ -93,7 +123,15 @@ export function usePostWebauthnAuthenticateOptions(options?: {
       variables: InferRequestType<typeof client.webauthn.authenticate.options.$post>,
     ) => void
     onSettled?: (
-      data: InferResponseType<typeof client.webauthn.authenticate.options.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<typeof client.webauthn.authenticate.options.$post>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.webauthn.authenticate.options.$post>,
     ) => void
@@ -123,7 +161,13 @@ export function usePostWebauthnAuthenticateOptions(options?: {
 export function usePostWebauthnAuthenticateVerify(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.webauthn.authenticate.verify.$post>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<typeof client.webauthn.authenticate.verify.$post>>
+          >
+        >
+      >,
       variables: InferRequestType<typeof client.webauthn.authenticate.verify.$post>,
     ) => void
     onError?: (
@@ -131,7 +175,15 @@ export function usePostWebauthnAuthenticateVerify(options?: {
       variables: InferRequestType<typeof client.webauthn.authenticate.verify.$post>,
     ) => void
     onSettled?: (
-      data: InferResponseType<typeof client.webauthn.authenticate.verify.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<typeof client.webauthn.authenticate.verify.$post>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.webauthn.authenticate.verify.$post>,
     ) => void
@@ -269,7 +321,15 @@ export function useDeleteWebauthnCredentialsCredentialId(options?: {
   mutation?: {
     onSuccess?: (
       data:
-        | InferResponseType<(typeof client.webauthn.credentials)[':credentialId']['$delete']>
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<(typeof client.webauthn.credentials)[':credentialId']['$delete']>
+                >
+              >
+            >
+          >
         | undefined,
       variables: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$delete']>,
     ) => void
@@ -279,8 +339,15 @@ export function useDeleteWebauthnCredentialsCredentialId(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client.webauthn.credentials)[':credentialId']['$delete']>
-        | undefined
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<(typeof client.webauthn.credentials)[':credentialId']['$delete']>
+                >
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$delete']>,
@@ -312,7 +379,13 @@ export function useDeleteWebauthnCredentialsCredentialId(options?: {
 export function usePatchWebauthnCredentialsCredentialId(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.webauthn.credentials)[':credentialId']['$patch']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.webauthn.credentials)[':credentialId']['$patch']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$patch']>,
     ) => void
     onError?: (
@@ -321,7 +394,13 @@ export function usePatchWebauthnCredentialsCredentialId(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client.webauthn.credentials)[':credentialId']['$patch']>
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.webauthn.credentials)[':credentialId']['$patch']>>
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$patch']>,
@@ -447,7 +526,11 @@ export const getGetWebauthnSettingsRpQueryOptions = (clientOptions?: ClientReque
 export function usePutWebauthnSettingsRp(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.webauthn.settings.rp.$put>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<typeof client.webauthn.settings.rp.$put>>>
+        >
+      >,
       variables: InferRequestType<typeof client.webauthn.settings.rp.$put>,
     ) => void
     onError?: (
@@ -455,7 +538,13 @@ export function usePutWebauthnSettingsRp(options?: {
       variables: InferRequestType<typeof client.webauthn.settings.rp.$put>,
     ) => void
     onSettled?: (
-      data: InferResponseType<typeof client.webauthn.settings.rp.$put> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<typeof client.webauthn.settings.rp.$put>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.webauthn.settings.rp.$put>,
     ) => void

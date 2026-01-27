@@ -25,7 +25,7 @@ export function createGetArray(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetArrayQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetArrayQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**

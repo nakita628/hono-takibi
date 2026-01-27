@@ -1,5 +1,5 @@
-import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/06-headers'
 
@@ -24,7 +24,10 @@ export function createGetResources(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetResourcesQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGetResourcesQueryOptions(args, clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**
@@ -72,7 +75,10 @@ export function createGetResourcesId(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetResourcesIdQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGetResourcesIdQueryOptions(args, clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**
@@ -110,7 +116,11 @@ export const getGetResourcesIdQueryOptions = (
 export function createPutResourcesId(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.resources)[':id']['$put']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.resources)[':id']['$put']>>>
+        >
+      >,
       variables: InferRequestType<(typeof client.resources)[':id']['$put']>,
     ) => void
     onError?: (
@@ -118,7 +128,13 @@ export function createPutResourcesId(options?: {
       variables: InferRequestType<(typeof client.resources)[':id']['$put']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.resources)[':id']['$put']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client.resources)[':id']['$put']>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.resources)[':id']['$put']>,
     ) => void
@@ -129,11 +145,11 @@ export function createPutResourcesId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.resources)[':id']['$put']>) =>
       parseResponse(client.resources[':id'].$put(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -157,7 +173,10 @@ export function createGetDownloadId(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetDownloadIdQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGetDownloadIdQueryOptions(args, clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**

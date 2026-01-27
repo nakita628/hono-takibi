@@ -1,5 +1,5 @@
-import { useQuery, useMutation, queryOptions } from '@tanstack/react-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/edge'
 
@@ -11,12 +11,18 @@ import { client } from '../clients/edge'
 export function usePostPolymorphic(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.polymorphic.$post>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.polymorphic.$post>>>>
+      >,
       variables: InferRequestType<typeof client.polymorphic.$post>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.polymorphic.$post>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.polymorphic.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.polymorphic.$post>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.polymorphic.$post>,
     ) => void
@@ -92,7 +98,13 @@ export const getGetSearchQueryOptions = (
 export function usePutMultiStep(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client)['multi-step']['$put']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client)['multi-step']['$put']>>>
+            >
+          >
+        | undefined,
       variables: InferRequestType<(typeof client)['multi-step']['$put']>,
     ) => void
     onError?: (
@@ -100,7 +112,13 @@ export function usePutMultiStep(options?: {
       variables: InferRequestType<(typeof client)['multi-step']['$put']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client)['multi-step']['$put']> | undefined | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client)['multi-step']['$put']>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client)['multi-step']['$put']>,
     ) => void

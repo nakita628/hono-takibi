@@ -1,7 +1,7 @@
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/05-request-bodies'
 
 /**
@@ -9,7 +9,7 @@ import { client } from '../clients/05-request-bodies'
  */
 export function usePostUsers(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.users.$post>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>,
     Error,
     string,
     InferRequestType<typeof client.users.$post>
@@ -30,7 +30,11 @@ export function usePostUsers(options?: {
  */
 export function usePutUsersUserId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.users)[':userId']['$put']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':userId']['$put']>>>
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.users)[':userId']['$put']>
@@ -53,7 +57,11 @@ export function usePutUsersUserId(options?: {
  */
 export function usePatchUsersUserId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.users)[':userId']['$patch']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':userId']['$patch']>>>
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.users)[':userId']['$patch']>
@@ -76,7 +84,13 @@ export function usePatchUsersUserId(options?: {
  */
 export function usePostUsersUserIdAvatar(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.users)[':userId']['avatar']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.users)[':userId']['avatar']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.users)[':userId']['avatar']['$post']>
@@ -99,7 +113,7 @@ export function usePostUsersUserIdAvatar(options?: {
  */
 export function usePostBulkUsers(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.bulk.users.$post>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.bulk.users.$post>>>>>,
     Error,
     string,
     InferRequestType<typeof client.bulk.users.$post>

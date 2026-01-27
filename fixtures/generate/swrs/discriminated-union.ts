@@ -1,7 +1,7 @@
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/discriminated-union'
 
 /**
@@ -9,7 +9,7 @@ import { client } from '../clients/discriminated-union'
  */
 export function usePostMessages(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.messages.$post>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.messages.$post>>>>>,
     Error,
     string,
     InferRequestType<typeof client.messages.$post>

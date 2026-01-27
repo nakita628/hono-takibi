@@ -1,5 +1,5 @@
-import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/08-links'
 
@@ -9,12 +9,16 @@ import { client } from '../clients/08-links'
 export function createPostOrders(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.orders.$post>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.orders.$post>>>>
+      >,
       variables: InferRequestType<typeof client.orders.$post>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.orders.$post>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.orders.$post> | undefined,
+      data:
+        | Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.orders.$post>>>>>
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.orders.$post>,
     ) => void
@@ -25,11 +29,11 @@ export function createPostOrders(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.orders.$post>) =>
       parseResponse(client.orders.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -53,7 +57,10 @@ export function createGetOrdersOrderId(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetOrdersOrderIdQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGetOrdersOrderIdQueryOptions(args, clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**
@@ -91,7 +98,11 @@ export const getGetOrdersOrderIdQueryOptions = (
 export function createDeleteOrdersOrderId(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.orders)[':orderId']['$delete']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.orders)[':orderId']['$delete']>>>
+        >
+      >,
       variables: InferRequestType<(typeof client.orders)[':orderId']['$delete']>,
     ) => void
     onError?: (
@@ -99,7 +110,15 @@ export function createDeleteOrdersOrderId(options?: {
       variables: InferRequestType<(typeof client.orders)[':orderId']['$delete']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.orders)[':orderId']['$delete']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.orders)[':orderId']['$delete']>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.orders)[':orderId']['$delete']>,
     ) => void
@@ -110,11 +129,11 @@ export function createDeleteOrdersOrderId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.orders)[':orderId']['$delete']>) =>
       parseResponse(client.orders[':orderId'].$delete(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -138,10 +157,10 @@ export function createGetOrdersOrderIdItems(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
+  return createQuery(() => ({
     ...getGetOrdersOrderIdItemsQueryOptions(args, clientOptions),
     ...queryOptions,
-  })
+  }))
 }
 
 /**
@@ -194,10 +213,10 @@ export function createGetCustomersCustomerId(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
+  return createQuery(() => ({
     ...getGetCustomersCustomerIdQueryOptions(args, clientOptions),
     ...queryOptions,
-  })
+  }))
 }
 
 /**
@@ -250,10 +269,10 @@ export function createGetCustomersCustomerIdOrders(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
+  return createQuery(() => ({
     ...getGetCustomersCustomerIdOrdersQueryOptions(args, clientOptions),
     ...queryOptions,
-  })
+  }))
 }
 
 /**
@@ -306,10 +325,10 @@ export function createGetPaymentsPaymentId(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
+  return createQuery(() => ({
     ...getGetPaymentsPaymentIdQueryOptions(args, clientOptions),
     ...queryOptions,
-  })
+  }))
 }
 
 /**

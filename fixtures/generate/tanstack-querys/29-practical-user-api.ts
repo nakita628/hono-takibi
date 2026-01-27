@@ -1,5 +1,5 @@
-import { useQuery, useMutation, queryOptions } from '@tanstack/react-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/29-practical-user-api'
 
@@ -13,12 +13,18 @@ import { client } from '../clients/29-practical-user-api'
 export function usePostAuthRegister(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.auth.register.$post>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.auth.register.$post>>>>
+      >,
       variables: InferRequestType<typeof client.auth.register.$post>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.auth.register.$post>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.auth.register.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.auth.register.$post>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.auth.register.$post>,
     ) => void
@@ -46,12 +52,18 @@ export function usePostAuthRegister(options?: {
 export function usePostAuthLogin(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.auth.login.$post>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.auth.login.$post>>>>
+      >,
       variables: InferRequestType<typeof client.auth.login.$post>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.auth.login.$post>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.auth.login.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.auth.login.$post>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.auth.login.$post>,
     ) => void
@@ -79,12 +91,18 @@ export function usePostAuthLogin(options?: {
 export function usePostAuthRefresh(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.auth.refresh.$post>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.auth.refresh.$post>>>>
+      >,
       variables: InferRequestType<typeof client.auth.refresh.$post>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.auth.refresh.$post>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.auth.refresh.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.auth.refresh.$post>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.auth.refresh.$post>,
     ) => void
@@ -110,12 +128,20 @@ export function usePostAuthRefresh(options?: {
 export function usePostAuthLogout(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.auth.logout.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.auth.logout.$post>>>>
+          >
+        | undefined,
       variables: undefined,
     ) => void
     onError?: (error: Error, variables: undefined) => void
     onSettled?: (
-      data: InferResponseType<typeof client.auth.logout.$post> | undefined | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.auth.logout.$post>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: undefined,
     ) => void
@@ -142,7 +168,11 @@ export function usePostAuthLogout(options?: {
 export function usePostAuthPasswordForgot(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.auth.password.forgot.$post>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<typeof client.auth.password.forgot.$post>>>
+        >
+      >,
       variables: InferRequestType<typeof client.auth.password.forgot.$post>,
     ) => void
     onError?: (
@@ -150,7 +180,13 @@ export function usePostAuthPasswordForgot(options?: {
       variables: InferRequestType<typeof client.auth.password.forgot.$post>,
     ) => void
     onSettled?: (
-      data: InferResponseType<typeof client.auth.password.forgot.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<typeof client.auth.password.forgot.$post>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.auth.password.forgot.$post>,
     ) => void
@@ -176,7 +212,11 @@ export function usePostAuthPasswordForgot(options?: {
 export function usePostAuthPasswordReset(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.auth.password.reset.$post>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<typeof client.auth.password.reset.$post>>>
+        >
+      >,
       variables: InferRequestType<typeof client.auth.password.reset.$post>,
     ) => void
     onError?: (
@@ -184,7 +224,13 @@ export function usePostAuthPasswordReset(options?: {
       variables: InferRequestType<typeof client.auth.password.reset.$post>,
     ) => void
     onSettled?: (
-      data: InferResponseType<typeof client.auth.password.reset.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<typeof client.auth.password.reset.$post>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.auth.password.reset.$post>,
     ) => void
@@ -317,7 +363,13 @@ export const getGetUsersUserIdQueryOptions = (
 export function useDeleteUsersUserId(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.users)[':userId']['$delete']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':userId']['$delete']>>>
+            >
+          >
+        | undefined,
       variables: InferRequestType<(typeof client.users)[':userId']['$delete']>,
     ) => void
     onError?: (
@@ -325,7 +377,13 @@ export function useDeleteUsersUserId(options?: {
       variables: InferRequestType<(typeof client.users)[':userId']['$delete']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.users)[':userId']['$delete']> | undefined | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':userId']['$delete']>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.users)[':userId']['$delete']>,
     ) => void
@@ -351,7 +409,11 @@ export function useDeleteUsersUserId(options?: {
 export function usePatchUsersUserId(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.users)[':userId']['$patch']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':userId']['$patch']>>>
+        >
+      >,
       variables: InferRequestType<(typeof client.users)[':userId']['$patch']>,
     ) => void
     onError?: (
@@ -359,7 +421,13 @@ export function usePatchUsersUserId(options?: {
       variables: InferRequestType<(typeof client.users)[':userId']['$patch']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.users)[':userId']['$patch']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':userId']['$patch']>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.users)[':userId']['$patch']>,
     ) => void
@@ -432,12 +500,18 @@ export const getGetUsersMeQueryOptions = (clientOptions?: ClientRequestOptions) 
 export function usePatchUsersMe(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.users.me.$patch>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.me.$patch>>>>
+      >,
       variables: InferRequestType<typeof client.users.me.$patch>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.users.me.$patch>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.users.me.$patch> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.me.$patch>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.users.me.$patch>,
     ) => void
@@ -463,7 +537,9 @@ export function usePatchUsersMe(options?: {
 export function usePutUsersMePassword(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.users.me.password.$put>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.me.password.$put>>>>
+      >,
       variables: InferRequestType<typeof client.users.me.password.$put>,
     ) => void
     onError?: (
@@ -471,7 +547,13 @@ export function usePutUsersMePassword(options?: {
       variables: InferRequestType<typeof client.users.me.password.$put>,
     ) => void
     onSettled?: (
-      data: InferResponseType<typeof client.users.me.password.$put> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<typeof client.users.me.password.$put>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.users.me.password.$put>,
     ) => void
@@ -497,7 +579,9 @@ export function usePutUsersMePassword(options?: {
 export function usePutUsersMeAvatar(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.users.me.avatar.$put>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.me.avatar.$put>>>>
+      >,
       variables: InferRequestType<typeof client.users.me.avatar.$put>,
     ) => void
     onError?: (
@@ -505,7 +589,13 @@ export function usePutUsersMeAvatar(options?: {
       variables: InferRequestType<typeof client.users.me.avatar.$put>,
     ) => void
     onSettled?: (
-      data: InferResponseType<typeof client.users.me.avatar.$put> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<typeof client.users.me.avatar.$put>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.users.me.avatar.$put>,
     ) => void
@@ -531,12 +621,24 @@ export function usePutUsersMeAvatar(options?: {
 export function useDeleteUsersMeAvatar(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.users.me.avatar.$delete> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<typeof client.users.me.avatar.$delete>>>
+            >
+          >
+        | undefined,
       variables: undefined,
     ) => void
     onError?: (error: Error, variables: undefined) => void
     onSettled?: (
-      data: InferResponseType<typeof client.users.me.avatar.$delete> | undefined | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<typeof client.users.me.avatar.$delete>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: undefined,
     ) => void

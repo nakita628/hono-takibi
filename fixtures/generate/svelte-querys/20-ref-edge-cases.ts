@@ -1,5 +1,5 @@
 import { createQuery, queryOptions } from '@tanstack/svelte-query'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/20-ref-edge-cases'
 
@@ -24,7 +24,7 @@ export function createGetTest(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetTestQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetTestQueryOptions(args, clientOptions), ...queryOptions }))
 }
 
 /**
@@ -69,7 +69,7 @@ export function createGetEmptyRefs(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetEmptyRefsQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetEmptyRefsQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -114,7 +114,7 @@ export function createGetUnicodeRefs(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetUnicodeRefsQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetUnicodeRefsQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -159,7 +159,7 @@ export function createGetSpecialChars(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetSpecialCharsQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetSpecialCharsQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -204,7 +204,7 @@ export function createGetNumericStart(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetNumericStartQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetNumericStartQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -249,7 +249,7 @@ export function createGetRefInAllof(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetRefInAllofQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetRefInAllofQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -294,7 +294,7 @@ export function createGetDeeplyNested(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetDeeplyNestedQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetDeeplyNestedQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -339,7 +339,10 @@ export function createGetSameNameDiffContext(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetSameNameDiffContextQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGetSameNameDiffContextQueryOptions(clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**

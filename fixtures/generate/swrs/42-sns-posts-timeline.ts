@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/42-sns-posts-timeline'
 
 /**
@@ -47,7 +47,7 @@ export function getGetPostsKey(args?: InferRequestType<typeof client.posts.$get>
  */
 export function usePostPosts(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.posts.$post>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.posts.$post>>>>>,
     Error,
     string,
     InferRequestType<typeof client.posts.$post>
@@ -104,7 +104,12 @@ export function getGetPostsPostIdKey(
  */
 export function useDeletePostsPostId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.posts)[':postId']['$delete']> | undefined,
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.posts)[':postId']['$delete']>>>
+        >
+      >
+    | undefined,
     Error,
     string,
     InferRequestType<(typeof client.posts)[':postId']['$delete']>
@@ -339,7 +344,11 @@ export function getGetTimelineHashtagHashtagKey(
  */
 export function usePostPostsPostIdLike(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.posts)[':postId']['like']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client.posts)[':postId']['like']['$post']>>>
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.posts)[':postId']['like']['$post']>
@@ -364,7 +373,13 @@ export function usePostPostsPostIdLike(options?: {
  */
 export function useDeletePostsPostIdLike(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.posts)[':postId']['like']['$delete']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.posts)[':postId']['like']['$delete']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.posts)[':postId']['like']['$delete']>
@@ -389,7 +404,13 @@ export function useDeletePostsPostIdLike(options?: {
  */
 export function usePostPostsPostIdRepost(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.posts)[':postId']['repost']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.posts)[':postId']['repost']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.posts)[':postId']['repost']['$post']>
@@ -414,7 +435,13 @@ export function usePostPostsPostIdRepost(options?: {
  */
 export function useDeletePostsPostIdRepost(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.posts)[':postId']['repost']['$delete']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.posts)[':postId']['repost']['$delete']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.posts)[':postId']['repost']['$delete']>
@@ -439,7 +466,13 @@ export function useDeletePostsPostIdRepost(options?: {
  */
 export function usePostPostsPostIdQuote(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.posts)[':postId']['quote']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.posts)[':postId']['quote']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.posts)[':postId']['quote']['$post']>
@@ -464,7 +497,13 @@ export function usePostPostsPostIdQuote(options?: {
  */
 export function usePostPostsPostIdBookmark(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.posts)[':postId']['bookmark']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.posts)[':postId']['bookmark']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.posts)[':postId']['bookmark']['$post']>
@@ -489,7 +528,13 @@ export function usePostPostsPostIdBookmark(options?: {
  */
 export function useDeletePostsPostIdBookmark(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.posts)[':postId']['bookmark']['$delete']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.posts)[':postId']['bookmark']['$delete']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.posts)[':postId']['bookmark']['$delete']>
@@ -682,7 +727,13 @@ export function getGetPostsPostIdRepliesKey(
  */
 export function usePostPostsPostIdReplies(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.posts)[':postId']['replies']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.posts)[':postId']['replies']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.posts)[':postId']['replies']['$post']>
@@ -707,7 +758,9 @@ export function usePostPostsPostIdReplies(options?: {
  */
 export function usePostMediaUpload(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.media.upload.$post>,
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.media.upload.$post>>>>
+    >,
     Error,
     string,
     InferRequestType<typeof client.media.upload.$post>
@@ -764,7 +817,11 @@ export function getGetMediaMediaIdKey(
  */
 export function usePatchMediaMediaId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.media)[':mediaId']['$patch']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client.media)[':mediaId']['$patch']>>>
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.media)[':mediaId']['$patch']>

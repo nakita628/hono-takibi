@@ -1,5 +1,5 @@
 import { createQuery, queryOptions } from '@tanstack/svelte-query'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/fizz-buzz'
 
@@ -28,7 +28,10 @@ export function createGetFizzbuzz(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetFizzbuzzQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGetFizzbuzzQueryOptions(args, clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**

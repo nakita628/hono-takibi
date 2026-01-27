@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/27-extreme-encoding'
 
 /**
@@ -11,7 +11,11 @@ import { client } from '../clients/27-extreme-encoding'
  */
 export function usePostEncodingTest(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['encoding-test']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client)['encoding-test']['$post']>>>
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client)['encoding-test']['$post']>
@@ -66,7 +70,11 @@ export function getGetContentNegotiationKey(
  */
 export function usePostBinaryVariations(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['binary-variations']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client)['binary-variations']['$post']>>>
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client)['binary-variations']['$post']>
@@ -116,7 +124,7 @@ export function getGetStreamingKey() {
  */
 export function usePostStreaming(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.streaming.$post>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.streaming.$post>>>>>,
     Error,
     string,
     InferRequestType<typeof client.streaming.$post>
@@ -137,7 +145,11 @@ export function usePostStreaming(options?: {
  */
 export function usePostUrlEncodedComplex(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['url-encoded-complex']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client)['url-encoded-complex']['$post']>>>
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client)['url-encoded-complex']['$post']>
@@ -187,7 +199,11 @@ export function getGetResponseEncodingKey() {
  */
 export function usePostSchemaEncoding(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['schema-encoding']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client)['schema-encoding']['$post']>>>
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client)['schema-encoding']['$post']>

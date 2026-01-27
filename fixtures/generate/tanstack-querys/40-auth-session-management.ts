@@ -1,5 +1,5 @@
-import { useQuery, useMutation, queryOptions } from '@tanstack/react-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/40-auth-session-management'
 
@@ -65,12 +65,18 @@ export const getGetSessionsQueryOptions = (
 export function usePostSessions(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.sessions.$post>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.sessions.$post>>>>
+      >,
       variables: InferRequestType<typeof client.sessions.$post>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.sessions.$post>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.sessions.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.sessions.$post>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.sessions.$post>,
     ) => void
@@ -143,12 +149,24 @@ export const getGetSessionsCurrentQueryOptions = (clientOptions?: ClientRequestO
 export function useDeleteSessionsCurrent(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.sessions.current.$delete> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<typeof client.sessions.current.$delete>>>
+            >
+          >
+        | undefined,
       variables: undefined,
     ) => void
     onError?: (error: Error, variables: undefined) => void
     onSettled?: (
-      data: InferResponseType<typeof client.sessions.current.$delete> | undefined | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<typeof client.sessions.current.$delete>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: undefined,
     ) => void
@@ -176,7 +194,11 @@ export function useDeleteSessionsCurrent(options?: {
 export function usePostSessionsCurrentRefresh(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.sessions.current.refresh.$post>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<typeof client.sessions.current.refresh.$post>>>
+        >
+      >,
       variables: InferRequestType<typeof client.sessions.current.refresh.$post>,
     ) => void
     onError?: (
@@ -184,7 +206,15 @@ export function usePostSessionsCurrentRefresh(options?: {
       variables: InferRequestType<typeof client.sessions.current.refresh.$post>,
     ) => void
     onSettled?: (
-      data: InferResponseType<typeof client.sessions.current.refresh.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<typeof client.sessions.current.refresh.$post>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.sessions.current.refresh.$post>,
     ) => void
@@ -212,7 +242,11 @@ export function usePostSessionsCurrentRefresh(options?: {
 export function usePostSessionsCurrentExtend(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.sessions.current.extend.$post>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<typeof client.sessions.current.extend.$post>>>
+        >
+      >,
       variables: InferRequestType<typeof client.sessions.current.extend.$post>,
     ) => void
     onError?: (
@@ -220,7 +254,13 @@ export function usePostSessionsCurrentExtend(options?: {
       variables: InferRequestType<typeof client.sessions.current.extend.$post>,
     ) => void
     onSettled?: (
-      data: InferResponseType<typeof client.sessions.current.extend.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<typeof client.sessions.current.extend.$post>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.sessions.current.extend.$post>,
     ) => void
@@ -248,12 +288,24 @@ export function usePostSessionsCurrentExtend(options?: {
 export function usePostSessionsCurrentActivity(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.sessions.current.activity.$post>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<typeof client.sessions.current.activity.$post>>>
+        >
+      >,
       variables: undefined,
     ) => void
     onError?: (error: Error, variables: undefined) => void
     onSettled?: (
-      data: InferResponseType<typeof client.sessions.current.activity.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<typeof client.sessions.current.activity.$post>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: undefined,
     ) => void
@@ -336,7 +388,15 @@ export const getGetSessionsSessionIdQueryOptions = (
 export function useDeleteSessionsSessionId(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.sessions)[':sessionId']['$delete']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.sessions)[':sessionId']['$delete']>>
+              >
+            >
+          >
+        | undefined,
       variables: InferRequestType<(typeof client.sessions)[':sessionId']['$delete']>,
     ) => void
     onError?: (
@@ -345,8 +405,13 @@ export function useDeleteSessionsSessionId(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client.sessions)[':sessionId']['$delete']>
-        | undefined
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.sessions)[':sessionId']['$delete']>>
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.sessions)[':sessionId']['$delete']>,
@@ -377,7 +442,11 @@ export function useDeleteSessionsSessionId(options?: {
 export function usePostSessionsRevokeAll(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.sessions)['revoke-all']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.sessions)['revoke-all']['$post']>>>
+        >
+      >,
       variables: InferRequestType<(typeof client.sessions)['revoke-all']['$post']>,
     ) => void
     onError?: (
@@ -385,7 +454,15 @@ export function usePostSessionsRevokeAll(options?: {
       variables: InferRequestType<(typeof client.sessions)['revoke-all']['$post']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.sessions)['revoke-all']['$post']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.sessions)['revoke-all']['$post']>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.sessions)['revoke-all']['$post']>,
     ) => void
@@ -415,7 +492,9 @@ export function usePostSessionsRevokeAll(options?: {
 export function usePostSessionsValidate(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.sessions.validate.$post>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.sessions.validate.$post>>>>
+      >,
       variables: InferRequestType<typeof client.sessions.validate.$post>,
     ) => void
     onError?: (
@@ -423,7 +502,13 @@ export function usePostSessionsValidate(options?: {
       variables: InferRequestType<typeof client.sessions.validate.$post>,
     ) => void
     onSettled?: (
-      data: InferResponseType<typeof client.sessions.validate.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<typeof client.sessions.validate.$post>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.sessions.validate.$post>,
     ) => void
@@ -611,7 +696,9 @@ export const getGetSessionsPoliciesQueryOptions = (clientOptions?: ClientRequest
 export function usePutSessionsPolicies(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.sessions.policies.$put>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.sessions.policies.$put>>>>
+      >,
       variables: InferRequestType<typeof client.sessions.policies.$put>,
     ) => void
     onError?: (
@@ -619,7 +706,13 @@ export function usePutSessionsPolicies(options?: {
       variables: InferRequestType<typeof client.sessions.policies.$put>,
     ) => void
     onSettled?: (
-      data: InferResponseType<typeof client.sessions.policies.$put> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<typeof client.sessions.policies.$put>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.sessions.policies.$put>,
     ) => void
@@ -692,7 +785,13 @@ export const getGetSessionsTrustedDevicesQueryOptions = (clientOptions?: ClientR
 export function usePostSessionsTrustedDevices(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.sessions)['trusted-devices']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.sessions)['trusted-devices']['$post']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client.sessions)['trusted-devices']['$post']>,
     ) => void
     onError?: (
@@ -700,7 +799,15 @@ export function usePostSessionsTrustedDevices(options?: {
       variables: InferRequestType<(typeof client.sessions)['trusted-devices']['$post']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.sessions)['trusted-devices']['$post']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.sessions)['trusted-devices']['$post']>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.sessions)['trusted-devices']['$post']>,
     ) => void
@@ -730,7 +837,15 @@ export function useDeleteSessionsTrustedDevicesDeviceId(options?: {
   mutation?: {
     onSuccess?: (
       data:
-        | InferResponseType<(typeof client.sessions)['trusted-devices'][':deviceId']['$delete']>
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<(typeof client.sessions)['trusted-devices'][':deviceId']['$delete']>
+                >
+              >
+            >
+          >
         | undefined,
       variables: InferRequestType<
         (typeof client.sessions)['trusted-devices'][':deviceId']['$delete']
@@ -744,8 +859,15 @@ export function useDeleteSessionsTrustedDevicesDeviceId(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client.sessions)['trusted-devices'][':deviceId']['$delete']>
-        | undefined
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<(typeof client.sessions)['trusted-devices'][':deviceId']['$delete']>
+                >
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<

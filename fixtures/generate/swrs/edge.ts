@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/edge'
 
 /**
@@ -13,7 +13,7 @@ import { client } from '../clients/edge'
  */
 export function usePostPolymorphic(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.polymorphic.$post>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.polymorphic.$post>>>>>,
     Error,
     string,
     InferRequestType<typeof client.polymorphic.$post>
@@ -68,7 +68,10 @@ export function getGetSearchKey(args?: InferRequestType<typeof client.search.$ge
  */
 export function usePutMultiStep(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['multi-step']['$put']> | undefined,
+    | Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['multi-step']['$put']>>>>
+      >
+    | undefined,
     Error,
     string,
     InferRequestType<(typeof client)['multi-step']['$put']>

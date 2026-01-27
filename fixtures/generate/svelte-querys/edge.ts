@@ -1,5 +1,5 @@
-import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/edge'
 
@@ -11,12 +11,18 @@ import { client } from '../clients/edge'
 export function createPostPolymorphic(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.polymorphic.$post>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.polymorphic.$post>>>>
+      >,
       variables: InferRequestType<typeof client.polymorphic.$post>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.polymorphic.$post>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.polymorphic.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.polymorphic.$post>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.polymorphic.$post>,
     ) => void
@@ -27,11 +33,11 @@ export function createPostPolymorphic(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.polymorphic.$post>) =>
       parseResponse(client.polymorphic.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -57,7 +63,7 @@ export function createGetSearch(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetSearchQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetSearchQueryOptions(args, clientOptions), ...queryOptions }))
 }
 
 /**
@@ -92,7 +98,13 @@ export const getGetSearchQueryOptions = (
 export function createPutMultiStep(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client)['multi-step']['$put']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client)['multi-step']['$put']>>>
+            >
+          >
+        | undefined,
       variables: InferRequestType<(typeof client)['multi-step']['$put']>,
     ) => void
     onError?: (
@@ -100,7 +112,13 @@ export function createPutMultiStep(options?: {
       variables: InferRequestType<(typeof client)['multi-step']['$put']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client)['multi-step']['$put']> | undefined | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client)['multi-step']['$put']>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client)['multi-step']['$put']>,
     ) => void
@@ -111,9 +129,9 @@ export function createPutMultiStep(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client)['multi-step']['$put']>) =>
       parseResponse(client['multi-step'].$put(args, clientOptions)),
-  })
+  }))
 }

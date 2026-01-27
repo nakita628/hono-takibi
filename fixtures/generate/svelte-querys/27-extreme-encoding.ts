@@ -1,5 +1,5 @@
-import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/27-extreme-encoding'
 
@@ -9,7 +9,11 @@ import { client } from '../clients/27-extreme-encoding'
 export function createPostEncodingTest(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client)['encoding-test']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client)['encoding-test']['$post']>>>
+        >
+      >,
       variables: InferRequestType<(typeof client)['encoding-test']['$post']>,
     ) => void
     onError?: (
@@ -17,7 +21,13 @@ export function createPostEncodingTest(options?: {
       variables: InferRequestType<(typeof client)['encoding-test']['$post']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client)['encoding-test']['$post']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client)['encoding-test']['$post']>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client)['encoding-test']['$post']>,
     ) => void
@@ -28,11 +38,11 @@ export function createPostEncodingTest(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client)['encoding-test']['$post']>) =>
       parseResponse(client['encoding-test'].$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -56,10 +66,10 @@ export function createGetContentNegotiation(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
+  return createQuery(() => ({
     ...getGetContentNegotiationQueryOptions(args, clientOptions),
     ...queryOptions,
-  })
+  }))
 }
 
 /**
@@ -97,7 +107,11 @@ export const getGetContentNegotiationQueryOptions = (
 export function createPostBinaryVariations(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client)['binary-variations']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client)['binary-variations']['$post']>>>
+        >
+      >,
       variables: InferRequestType<(typeof client)['binary-variations']['$post']>,
     ) => void
     onError?: (
@@ -105,7 +119,15 @@ export function createPostBinaryVariations(options?: {
       variables: InferRequestType<(typeof client)['binary-variations']['$post']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client)['binary-variations']['$post']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client)['binary-variations']['$post']>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client)['binary-variations']['$post']>,
     ) => void
@@ -116,11 +138,11 @@ export function createPostBinaryVariations(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client)['binary-variations']['$post']>) =>
       parseResponse(client['binary-variations'].$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -141,7 +163,7 @@ export function createGetStreaming(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetStreamingQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetStreamingQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -174,12 +196,18 @@ export const getGetStreamingQueryOptions = (clientOptions?: ClientRequestOptions
 export function createPostStreaming(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.streaming.$post>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.streaming.$post>>>>
+      >,
       variables: InferRequestType<typeof client.streaming.$post>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.streaming.$post>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.streaming.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.streaming.$post>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.streaming.$post>,
     ) => void
@@ -190,11 +218,11 @@ export function createPostStreaming(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.streaming.$post>) =>
       parseResponse(client.streaming.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -203,7 +231,11 @@ export function createPostStreaming(options?: {
 export function createPostUrlEncodedComplex(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client)['url-encoded-complex']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client)['url-encoded-complex']['$post']>>>
+        >
+      >,
       variables: InferRequestType<(typeof client)['url-encoded-complex']['$post']>,
     ) => void
     onError?: (
@@ -211,7 +243,15 @@ export function createPostUrlEncodedComplex(options?: {
       variables: InferRequestType<(typeof client)['url-encoded-complex']['$post']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client)['url-encoded-complex']['$post']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client)['url-encoded-complex']['$post']>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client)['url-encoded-complex']['$post']>,
     ) => void
@@ -224,11 +264,11 @@ export function createPostUrlEncodedComplex(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client)['url-encoded-complex']['$post']>) =>
       parseResponse(client['url-encoded-complex'].$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -249,7 +289,10 @@ export function createGetResponseEncoding(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetResponseEncodingQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGetResponseEncodingQueryOptions(clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**
@@ -282,7 +325,11 @@ export const getGetResponseEncodingQueryOptions = (clientOptions?: ClientRequest
 export function createPostSchemaEncoding(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client)['schema-encoding']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client)['schema-encoding']['$post']>>>
+        >
+      >,
       variables: InferRequestType<(typeof client)['schema-encoding']['$post']>,
     ) => void
     onError?: (
@@ -290,7 +337,13 @@ export function createPostSchemaEncoding(options?: {
       variables: InferRequestType<(typeof client)['schema-encoding']['$post']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client)['schema-encoding']['$post']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client)['schema-encoding']['$post']>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client)['schema-encoding']['$post']>,
     ) => void
@@ -301,9 +354,9 @@ export function createPostSchemaEncoding(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client)['schema-encoding']['$post']>) =>
       parseResponse(client['schema-encoding'].$post(args, clientOptions)),
-  })
+  }))
 }

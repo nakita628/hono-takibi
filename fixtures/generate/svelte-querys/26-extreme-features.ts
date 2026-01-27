@@ -1,5 +1,5 @@
-import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/26-extreme-features'
 
@@ -23,7 +23,7 @@ export function createGetStream(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetStreamQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetStreamQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -58,12 +58,18 @@ export const getGetStreamQueryOptions = (clientOptions?: ClientRequestOptions) =
 export function createPostGraphql(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.graphql.$post>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.graphql.$post>>>>
+      >,
       variables: InferRequestType<typeof client.graphql.$post>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.graphql.$post>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.graphql.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.graphql.$post>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.graphql.$post>,
     ) => void
@@ -74,11 +80,11 @@ export function createPostGraphql(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.graphql.$post>) =>
       parseResponse(client.graphql.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -89,7 +95,11 @@ export function createPostGraphql(options?: {
 export function createPostGrpcGateway(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client)['grpc-gateway']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client)['grpc-gateway']['$post']>>>
+        >
+      >,
       variables: InferRequestType<(typeof client)['grpc-gateway']['$post']>,
     ) => void
     onError?: (
@@ -97,7 +107,13 @@ export function createPostGrpcGateway(options?: {
       variables: InferRequestType<(typeof client)['grpc-gateway']['$post']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client)['grpc-gateway']['$post']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client)['grpc-gateway']['$post']>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client)['grpc-gateway']['$post']>,
     ) => void
@@ -108,11 +124,11 @@ export function createPostGrpcGateway(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client)['grpc-gateway']['$post']>) =>
       parseResponse(client['grpc-gateway'].$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -139,7 +155,10 @@ export function createGetDeprecatedEndpoint(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetDeprecatedEndpointQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGetDeprecatedEndpointQueryOptions(clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**

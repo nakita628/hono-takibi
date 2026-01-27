@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/18-multiple-same-refs'
 
 /**
@@ -41,7 +41,7 @@ export function getGetDocumentsKey(args?: InferRequestType<typeof client.documen
  */
 export function usePostDocuments(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.documents.$post>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.documents.$post>>>>>,
     Error,
     string,
     InferRequestType<typeof client.documents.$post>
@@ -94,7 +94,11 @@ export function getGetDocumentsDocumentIdKey(
  */
 export function usePutDocumentsDocumentId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.documents)[':documentId']['$put']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client.documents)[':documentId']['$put']>>>
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.documents)[':documentId']['$put']>
@@ -150,7 +154,13 @@ export function getGetDocumentsDocumentIdVersionsKey(
  */
 export function usePostDocumentsDocumentIdShare(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.documents)[':documentId']['share']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.documents)[':documentId']['share']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.documents)[':documentId']['share']['$post']>
@@ -207,7 +217,7 @@ export function getGetUsersUserIdDocumentsKey(
  */
 export function usePostCompare(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.compare.$post>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.compare.$post>>>>>,
     Error,
     string,
     InferRequestType<typeof client.compare.$post>
@@ -255,7 +265,7 @@ export function getGetTemplatesKey() {
  */
 export function usePostTemplates(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.templates.$post>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.templates.$post>>>>>,
     Error,
     string,
     InferRequestType<typeof client.templates.$post>
@@ -276,7 +286,7 @@ export function usePostTemplates(options?: {
  */
 export function usePostWorkflows(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.workflows.$post>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.workflows.$post>>>>>,
     Error,
     string,
     InferRequestType<typeof client.workflows.$post>

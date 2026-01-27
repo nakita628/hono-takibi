@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/complex-openapi'
 
 /**
@@ -42,7 +42,7 @@ export function getGetUsersKey() {
  */
 export function usePostUsers(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.users.$post>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>,
     Error,
     string,
     InferRequestType<typeof client.users.$post>
@@ -99,7 +99,11 @@ export function getGetUsersUserIdKey(
  */
 export function usePutUsersUserId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.users)[':userId']['$put']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':userId']['$put']>>>
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.users)[':userId']['$put']>
@@ -124,7 +128,12 @@ export function usePutUsersUserId(options?: {
  */
 export function useDeleteUsersUserId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.users)[':userId']['$delete']> | undefined,
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':userId']['$delete']>>>
+        >
+      >
+    | undefined,
     Error,
     string,
     InferRequestType<(typeof client.users)[':userId']['$delete']>
@@ -178,7 +187,7 @@ export function getGetOrdersKey() {
  */
 export function usePostOrders(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.orders.$post>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.orders.$post>>>>>,
     Error,
     string,
     InferRequestType<typeof client.orders.$post>

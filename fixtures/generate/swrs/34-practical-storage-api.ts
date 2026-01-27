@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/34-practical-storage-api'
 
 /**
@@ -45,7 +45,9 @@ export function getGetFilesKey(args?: InferRequestType<typeof client.files.$get>
  */
 export function usePostFilesUpload(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.files.upload.$post>,
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.files.upload.$post>>>>
+    >,
     Error,
     string,
     InferRequestType<typeof client.files.upload.$post>
@@ -70,7 +72,11 @@ export function usePostFilesUpload(options?: {
  */
 export function usePostFilesUploadMultipartInit(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.files.upload.multipart.init.$post>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<typeof client.files.upload.multipart.init.$post>>>
+      >
+    >,
     Error,
     string,
     InferRequestType<typeof client.files.upload.multipart.init.$post>
@@ -95,7 +101,13 @@ export function usePostFilesUploadMultipartInit(options?: {
  */
 export function usePostFilesUploadMultipartUploadIdPart(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.files.upload.multipart)[':uploadId']['part']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.files.upload.multipart)[':uploadId']['part']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.files.upload.multipart)[':uploadId']['part']['$post']>
@@ -124,7 +136,15 @@ export function usePostFilesUploadMultipartUploadIdPart(options?: {
  */
 export function usePostFilesUploadMultipartUploadIdComplete(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.files.upload.multipart)[':uploadId']['complete']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<(typeof client.files.upload.multipart)[':uploadId']['complete']['$post']>
+          >
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.files.upload.multipart)[':uploadId']['complete']['$post']>
@@ -190,7 +210,12 @@ export function getGetFilesFileIdKey(
  */
 export function useDeleteFilesFileId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.files)[':fileId']['$delete']> | undefined,
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.files)[':fileId']['$delete']>>>
+        >
+      >
+    | undefined,
     Error,
     string,
     InferRequestType<(typeof client.files)[':fileId']['$delete']>
@@ -215,7 +240,11 @@ export function useDeleteFilesFileId(options?: {
  */
 export function usePatchFilesFileId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.files)[':fileId']['$patch']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client.files)[':fileId']['$patch']>>>
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.files)[':fileId']['$patch']>
@@ -308,7 +337,11 @@ export function getGetFilesFileIdDownloadUrlKey(
  */
 export function usePostFilesFileIdCopy(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.files)[':fileId']['copy']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client.files)[':fileId']['copy']['$post']>>>
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.files)[':fileId']['copy']['$post']>
@@ -333,7 +366,11 @@ export function usePostFilesFileIdCopy(options?: {
  */
 export function usePostFilesFileIdMove(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.files)[':fileId']['move']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client.files)[':fileId']['move']['$post']>>>
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.files)[':fileId']['move']['$post']>
@@ -392,7 +429,7 @@ export function getGetFilesFileIdThumbnailKey(
  */
 export function usePostFolders(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.folders.$post>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.folders.$post>>>>>,
     Error,
     string,
     InferRequestType<typeof client.folders.$post>
@@ -449,7 +486,12 @@ export function getGetFoldersFolderIdKey(
  */
 export function useDeleteFoldersFolderId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.folders)[':folderId']['$delete']> | undefined,
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.folders)[':folderId']['$delete']>>>
+        >
+      >
+    | undefined,
     Error,
     string,
     InferRequestType<(typeof client.folders)[':folderId']['$delete']>
@@ -474,7 +516,11 @@ export function useDeleteFoldersFolderId(options?: {
  */
 export function usePatchFoldersFolderId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.folders)[':folderId']['$patch']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client.folders)[':folderId']['$patch']>>>
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.folders)[':folderId']['$patch']>
@@ -533,7 +579,13 @@ export function getGetFilesFileIdShareKey(
  */
 export function usePostFilesFileIdShare(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.files)[':fileId']['share']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.files)[':fileId']['share']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.files)[':fileId']['share']['$post']>
@@ -558,7 +610,14 @@ export function usePostFilesFileIdShare(options?: {
  */
 export function useDeleteFilesFileIdShare(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.files)[':fileId']['share']['$delete']> | undefined,
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.files)[':fileId']['share']['$delete']>>
+          >
+        >
+      >
+    | undefined,
     Error,
     string,
     InferRequestType<(typeof client.files)[':fileId']['share']['$delete']>
@@ -583,7 +642,13 @@ export function useDeleteFilesFileIdShare(options?: {
  */
 export function usePostFilesFileIdShareLink(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.files)[':fileId']['share']['link']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.files)[':fileId']['share']['link']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.files)[':fileId']['share']['link']['$post']>
@@ -644,8 +709,16 @@ export function getGetFilesFileIdVersionsKey(
  */
 export function usePostFilesFileIdVersionsVersionIdRestore(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client.files)[':fileId']['versions'][':versionId']['restore']['$post']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client.files)[':fileId']['versions'][':versionId']['restore']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -712,7 +785,8 @@ export function getGetTrashKey(args?: InferRequestType<typeof client.trash.$get>
  */
 export function useDeleteTrash(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.trash.$delete> | undefined,
+    | Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.trash.$delete>>>>>
+    | undefined,
     Error,
     string,
     undefined
@@ -734,7 +808,13 @@ export function useDeleteTrash(options?: {
  */
 export function usePostTrashFileIdRestore(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.trash)[':fileId']['restore']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.trash)[':fileId']['restore']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.trash)[':fileId']['restore']['$post']>

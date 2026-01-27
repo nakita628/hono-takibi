@@ -1,7 +1,7 @@
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/09-callbacks'
 
 /**
@@ -11,7 +11,7 @@ import { client } from '../clients/09-callbacks'
  */
 export function usePostWebhooks(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.webhooks.$post>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.webhooks.$post>>>>>,
     Error,
     string,
     InferRequestType<typeof client.webhooks.$post>
@@ -34,7 +34,9 @@ export function usePostWebhooks(options?: {
  */
 export function usePostSubscriptions(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.subscriptions.$post>,
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.subscriptions.$post>>>>
+    >,
     Error,
     string,
     InferRequestType<typeof client.subscriptions.$post>
@@ -57,7 +59,7 @@ export function usePostSubscriptions(options?: {
  */
 export function usePostJobs(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.jobs.$post>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.jobs.$post>>>>>,
     Error,
     string,
     InferRequestType<typeof client.jobs.$post>
@@ -80,7 +82,13 @@ export function usePostJobs(options?: {
  */
 export function usePostIntegrationsIntegrationIdSync(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.integrations)[':integrationId']['sync']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.integrations)[':integrationId']['sync']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.integrations)[':integrationId']['sync']['$post']>

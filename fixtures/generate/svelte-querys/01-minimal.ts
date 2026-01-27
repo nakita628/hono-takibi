@@ -21,7 +21,7 @@ export function createGetHealth(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetHealthQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetHealthQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**

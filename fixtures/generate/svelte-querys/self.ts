@@ -21,7 +21,7 @@ export function createGetCategories(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetCategoriesQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetCategoriesQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**

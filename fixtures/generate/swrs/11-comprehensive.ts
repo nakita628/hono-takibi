@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/11-comprehensive'
 
 /**
@@ -47,7 +47,7 @@ export function getGetProductsKey(args?: InferRequestType<typeof client.products
  */
 export function usePostProducts(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.products.$post>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.products.$post>>>>>,
     Error,
     string,
     InferRequestType<typeof client.products.$post>
@@ -104,7 +104,11 @@ export function getGetProductsProductIdKey(
  */
 export function usePutProductsProductId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.products)[':productId']['$put']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client.products)[':productId']['$put']>>>
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.products)[':productId']['$put']>
@@ -129,7 +133,14 @@ export function usePutProductsProductId(options?: {
  */
 export function useDeleteProductsProductId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.products)[':productId']['$delete']> | undefined,
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.products)[':productId']['$delete']>>
+          >
+        >
+      >
+    | undefined,
     Error,
     string,
     InferRequestType<(typeof client.products)[':productId']['$delete']>
@@ -154,7 +165,7 @@ export function useDeleteProductsProductId(options?: {
  */
 export function usePostOrders(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.orders.$post>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.orders.$post>>>>>,
     Error,
     string,
     InferRequestType<typeof client.orders.$post>
@@ -177,7 +188,7 @@ export function usePostOrders(options?: {
  */
 export function usePostWebhooks(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.webhooks.$post>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.webhooks.$post>>>>>,
     Error,
     string,
     InferRequestType<typeof client.webhooks.$post>

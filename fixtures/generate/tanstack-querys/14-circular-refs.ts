@@ -1,5 +1,5 @@
-import { useQuery, useMutation, queryOptions } from '@tanstack/react-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/14-circular-refs'
 
@@ -54,12 +54,16 @@ export const getGetTreesQueryOptions = (clientOptions?: ClientRequestOptions) =>
 export function usePostTrees(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.trees.$post>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.trees.$post>>>>
+      >,
       variables: InferRequestType<typeof client.trees.$post>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.trees.$post>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.trees.$post> | undefined,
+      data:
+        | Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.trees.$post>>>>>
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.trees.$post>,
     ) => void

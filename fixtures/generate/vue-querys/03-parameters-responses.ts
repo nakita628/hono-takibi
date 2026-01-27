@@ -1,5 +1,5 @@
-import { useQuery, useMutation, queryOptions } from '@tanstack/vue-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { queryOptions, useMutation, useQuery } from '@tanstack/vue-query'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/03-parameters-responses'
 
@@ -110,7 +110,13 @@ export const getGetItemsItemIdQueryOptions = (
 export function useDeleteItemsItemId(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.items)[':itemId']['$delete']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client.items)[':itemId']['$delete']>>>
+            >
+          >
+        | undefined,
       variables: InferRequestType<(typeof client.items)[':itemId']['$delete']>,
     ) => void
     onError?: (
@@ -118,7 +124,13 @@ export function useDeleteItemsItemId(options?: {
       variables: InferRequestType<(typeof client.items)[':itemId']['$delete']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.items)[':itemId']['$delete']> | undefined | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client.items)[':itemId']['$delete']>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.items)[':itemId']['$delete']>,
     ) => void

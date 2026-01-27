@@ -1,5 +1,5 @@
-import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/07-examples'
 
@@ -21,7 +21,7 @@ export function createGetProducts(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetProductsQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetProductsQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -54,12 +54,18 @@ export const getGetProductsQueryOptions = (clientOptions?: ClientRequestOptions)
 export function createPostProducts(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.products.$post>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.products.$post>>>>
+      >,
       variables: InferRequestType<typeof client.products.$post>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.products.$post>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.products.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.products.$post>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.products.$post>,
     ) => void
@@ -70,11 +76,11 @@ export function createPostProducts(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.products.$post>) =>
       parseResponse(client.products.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -98,10 +104,10 @@ export function createGetProductsProductId(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
+  return createQuery(() => ({
     ...getGetProductsProductIdQueryOptions(args, clientOptions),
     ...queryOptions,
-  })
+  }))
 }
 
 /**

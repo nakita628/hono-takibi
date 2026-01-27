@@ -1,5 +1,5 @@
-import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
-import type { InferResponseType, ClientRequestOptions } from 'hono/client'
+import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
+import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/24-extreme-security'
 
@@ -23,7 +23,7 @@ export function createGetPublic(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetPublicQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetPublicQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -70,7 +70,7 @@ export function createGetSingleAuth(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetSingleAuthQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetSingleAuthQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -117,7 +117,7 @@ export function createGetAnyAuth(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetAnyAuthQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetAnyAuthQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -164,7 +164,7 @@ export function createGetAllAuth(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetAllAuthQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetAllAuthQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -211,7 +211,7 @@ export function createGetComplexAuth(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetComplexAuthQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetComplexAuthQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -258,7 +258,7 @@ export function createGetScopedOauth(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetScopedOauthQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetScopedOauthQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -305,7 +305,10 @@ export function createGetMixedLevelSecurity(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetMixedLevelSecurityQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGetMixedLevelSecurityQueryOptions(clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**
@@ -340,76 +343,23 @@ export const getGetMixedLevelSecurityQueryOptions = (clientOptions?: ClientReque
 export function createPutMixedLevelSecurity(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client)['mixed-level-security']['$put']>,
-      variables: undefined,
-    ) => void
-    onError?: (error: Error, variables: undefined) => void
-    onSettled?: (
-      data: InferResponseType<(typeof client)['mixed-level-security']['$put']> | undefined,
-      error: Error | null,
-      variables: undefined,
-    ) => void
-    onMutate?: (variables: undefined) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
-    ...mutationOptions,
-    mutationFn: async () =>
-      parseResponse(client['mixed-level-security'].$put(undefined, clientOptions)),
-  })
-}
-
-/**
- * POST /mixed-level-security
- *
- * Different security for POST
- */
-export function createPostMixedLevelSecurity(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: InferResponseType<(typeof client)['mixed-level-security']['$post']>,
-      variables: undefined,
-    ) => void
-    onError?: (error: Error, variables: undefined) => void
-    onSettled?: (
-      data: InferResponseType<(typeof client)['mixed-level-security']['$post']> | undefined,
-      error: Error | null,
-      variables: undefined,
-    ) => void
-    onMutate?: (variables: undefined) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
-    ...mutationOptions,
-    mutationFn: async () =>
-      parseResponse(client['mixed-level-security'].$post(undefined, clientOptions)),
-  })
-}
-
-/**
- * DELETE /mixed-level-security
- *
- * Super admin security
- */
-export function createDeleteMixedLevelSecurity(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: InferResponseType<(typeof client)['mixed-level-security']['$delete']> | undefined,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client)['mixed-level-security']['$put']>>>
+        >
+      >,
       variables: undefined,
     ) => void
     onError?: (error: Error, variables: undefined) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client)['mixed-level-security']['$delete']>
-        | undefined
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client)['mixed-level-security']['$put']>>
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: undefined,
@@ -421,11 +371,103 @@ export function createDeleteMixedLevelSecurity(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
+    ...mutationOptions,
+    mutationFn: async () =>
+      parseResponse(client['mixed-level-security'].$put(undefined, clientOptions)),
+  }))
+}
+
+/**
+ * POST /mixed-level-security
+ *
+ * Different security for POST
+ */
+export function createPostMixedLevelSecurity(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['mixed-level-security']['$post']>>
+          >
+        >
+      >,
+      variables: undefined,
+    ) => void
+    onError?: (error: Error, variables: undefined) => void
+    onSettled?: (
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client)['mixed-level-security']['$post']>>
+              >
+            >
+          >
+        | undefined,
+      error: Error | null,
+      variables: undefined,
+    ) => void
+    onMutate?: (variables: undefined) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation(() => ({
+    ...mutationOptions,
+    mutationFn: async () =>
+      parseResponse(client['mixed-level-security'].$post(undefined, clientOptions)),
+  }))
+}
+
+/**
+ * DELETE /mixed-level-security
+ *
+ * Super admin security
+ */
+export function createDeleteMixedLevelSecurity(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client)['mixed-level-security']['$delete']>>
+              >
+            >
+          >
+        | undefined,
+      variables: undefined,
+    ) => void
+    onError?: (error: Error, variables: undefined) => void
+    onSettled?: (
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client)['mixed-level-security']['$delete']>>
+              >
+            >
+          >
+        | undefined,
+      error: Error | null,
+      variables: undefined,
+    ) => void
+    onMutate?: (variables: undefined) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async () =>
       parseResponse(client['mixed-level-security'].$delete(undefined, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -448,7 +490,10 @@ export function createGetOverrideGlobal(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetOverrideGlobalQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGetOverrideGlobalQueryOptions(clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**
@@ -495,7 +540,10 @@ export function createGetOptionalEnhanced(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetOptionalEnhancedQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGetOptionalEnhancedQueryOptions(clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**
@@ -542,7 +590,7 @@ export function createGetMultiTenant(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetMultiTenantQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetMultiTenantQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**

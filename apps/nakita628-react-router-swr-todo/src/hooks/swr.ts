@@ -1,4 +1,4 @@
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
@@ -41,7 +41,7 @@ export function getGetTodoKey(args?: InferRequestType<typeof client.todo.$get>) 
  */
 export function usePostTodo(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.todo.$post>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.todo.$post>>>>>,
     Error,
     string,
     InferRequestType<typeof client.todo.$post>
@@ -96,7 +96,10 @@ export function getGetTodoIdKey(args?: InferRequestType<(typeof client.todo)[':i
  */
 export function usePutTodoId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.todo)[':id']['$put']> | undefined,
+    | Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.todo)[':id']['$put']>>>>
+      >
+    | undefined,
     Error,
     string,
     InferRequestType<(typeof client.todo)[':id']['$put']>
@@ -119,7 +122,12 @@ export function usePutTodoId(options?: {
  */
 export function useDeleteTodoId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.todo)[':id']['$delete']> | undefined,
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.todo)[':id']['$delete']>>>
+        >
+      >
+    | undefined,
     Error,
     string,
     InferRequestType<(typeof client.todo)[':id']['$delete']>

@@ -1,5 +1,5 @@
 import { createQuery, queryOptions } from '@tanstack/svelte-query'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/geojson-example'
 
@@ -25,7 +25,7 @@ export function createGet(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -77,7 +77,10 @@ export function createGetProjects(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetProjectsQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGetProjectsQueryOptions(args, clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**

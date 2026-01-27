@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/12-edge-cases'
 
 /**
@@ -38,7 +38,9 @@ export function getGetAllMethodsKey() {
  */
 export function usePutAllMethods(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['all-methods']['$put']>,
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['all-methods']['$put']>>>>
+    >,
     Error,
     string,
     undefined
@@ -58,7 +60,9 @@ export function usePutAllMethods(options?: {
  */
 export function usePostAllMethods(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['all-methods']['$post']>,
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['all-methods']['$post']>>>>
+    >,
     Error,
     string,
     undefined
@@ -78,7 +82,11 @@ export function usePostAllMethods(options?: {
  */
 export function useDeleteAllMethods(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['all-methods']['$delete']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client)['all-methods']['$delete']>>>
+      >
+    >,
     Error,
     string,
     undefined
@@ -98,7 +106,11 @@ export function useDeleteAllMethods(options?: {
  */
 export function useOptionsAllMethods(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['all-methods']['$options']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client)['all-methods']['$options']>>>
+      >
+    >,
     Error,
     string,
     undefined
@@ -118,7 +130,9 @@ export function useOptionsAllMethods(options?: {
  */
 export function useHeadAllMethods(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['all-methods']['$head']>,
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['all-methods']['$head']>>>>
+    >,
     Error,
     string,
     undefined
@@ -138,7 +152,11 @@ export function useHeadAllMethods(options?: {
  */
 export function usePatchAllMethods(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['all-methods']['$patch']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client)['all-methods']['$patch']>>>
+      >
+    >,
     Error,
     string,
     undefined
@@ -158,7 +176,11 @@ export function usePatchAllMethods(options?: {
  */
 export function useTraceAllMethods(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['all-methods']['$trace']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client)['all-methods']['$trace']>>>
+      >
+    >,
     Error,
     string,
     undefined
@@ -251,7 +273,12 @@ export function getGetParamsTestPathParamKey(
  */
 export function usePostNoContent(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['no-content']['$post']> | undefined,
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client)['no-content']['$post']>>>
+        >
+      >
+    | undefined,
     Error,
     string,
     undefined
@@ -298,7 +325,11 @@ export function getGetMultiContentKey() {
  */
 export function usePostMultiContent(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['multi-content']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client)['multi-content']['$post']>>>
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client)['multi-content']['$post']>
@@ -406,7 +437,9 @@ export function getGetNoOperationIdKey() {
  */
 export function usePostEmptyBody(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['empty-body']['$post']>,
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['empty-body']['$post']>>>>
+    >,
     Error,
     string,
     InferRequestType<(typeof client)['empty-body']['$post']>

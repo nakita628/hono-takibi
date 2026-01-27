@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/41-auth-social-sso'
 
 /**
@@ -87,7 +87,9 @@ export function getGetSocialCallbackProviderKey(
  */
 export function usePostSocialToken(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.social.token.$post>,
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.social.token.$post>>>>
+    >,
     Error,
     string,
     InferRequestType<typeof client.social.token.$post>
@@ -112,7 +114,9 @@ export function usePostSocialToken(options?: {
  */
 export function usePostSocialTokenNative(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.social.token.native.$post>,
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.social.token.native.$post>>>>
+    >,
     Error,
     string,
     InferRequestType<typeof client.social.token.native.$post>
@@ -195,7 +199,9 @@ export function getGetProvidersAdminKey() {
  */
 export function usePostProvidersAdmin(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.providers.admin.$post>,
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.providers.admin.$post>>>>
+    >,
     Error,
     string,
     InferRequestType<typeof client.providers.admin.$post>
@@ -252,7 +258,11 @@ export function getGetProvidersProviderIdKey(
  */
 export function usePutProvidersProviderId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.providers)[':providerId']['$put']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client.providers)[':providerId']['$put']>>>
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.providers)[':providerId']['$put']>
@@ -277,7 +287,14 @@ export function usePutProvidersProviderId(options?: {
  */
 export function useDeleteProvidersProviderId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.providers)[':providerId']['$delete']> | undefined,
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.providers)[':providerId']['$delete']>>
+          >
+        >
+      >
+    | undefined,
     Error,
     string,
     InferRequestType<(typeof client.providers)[':providerId']['$delete']>
@@ -302,7 +319,13 @@ export function useDeleteProvidersProviderId(options?: {
  */
 export function usePostProvidersProviderIdTest(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.providers)[':providerId']['test']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.providers)[':providerId']['test']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.providers)[':providerId']['test']['$post']>
@@ -358,7 +381,13 @@ export function getGetAccountLinkedKey() {
  */
 export function usePostAccountLinkProvider(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.account.link)[':provider']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.account.link)[':provider']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.account.link)[':provider']['$post']>
@@ -383,7 +412,14 @@ export function usePostAccountLinkProvider(options?: {
  */
 export function useDeleteAccountLinkProvider(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.account.link)[':provider']['$delete']> | undefined,
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.account.link)[':provider']['$delete']>>
+          >
+        >
+      >
+    | undefined,
     Error,
     string,
     InferRequestType<(typeof client.account.link)[':provider']['$delete']>
@@ -437,7 +473,9 @@ export function getGetEnterpriseSsoKey() {
  */
 export function usePostEnterpriseSso(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.enterprise.sso.$post>,
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.enterprise.sso.$post>>>>
+    >,
     Error,
     string,
     InferRequestType<typeof client.enterprise.sso.$post>
@@ -494,7 +532,13 @@ export function getGetEnterpriseSsoConfigIdKey(
  */
 export function usePutEnterpriseSsoConfigId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.enterprise.sso)[':configId']['$put']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.enterprise.sso)[':configId']['$put']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.enterprise.sso)[':configId']['$put']>
@@ -519,7 +563,14 @@ export function usePutEnterpriseSsoConfigId(options?: {
  */
 export function useDeleteEnterpriseSsoConfigId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.enterprise.sso)[':configId']['$delete']> | undefined,
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.enterprise.sso)[':configId']['$delete']>>
+          >
+        >
+      >
+    | undefined,
     Error,
     string,
     InferRequestType<(typeof client.enterprise.sso)[':configId']['$delete']>

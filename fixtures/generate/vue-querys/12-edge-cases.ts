@@ -1,5 +1,5 @@
-import { useQuery, useMutation, queryOptions } from '@tanstack/vue-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { queryOptions, useMutation, useQuery } from '@tanstack/vue-query'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/12-edge-cases'
 
@@ -54,12 +54,22 @@ export const getGetAllMethodsQueryOptions = (clientOptions?: ClientRequestOption
 export function usePutAllMethods(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client)['all-methods']['$put']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client)['all-methods']['$put']>>>
+        >
+      >,
       variables: undefined,
     ) => void
     onError?: (error: Error, variables: undefined) => void
     onSettled?: (
-      data: InferResponseType<(typeof client)['all-methods']['$put']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client)['all-methods']['$put']>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: undefined,
     ) => void
@@ -82,12 +92,22 @@ export function usePutAllMethods(options?: {
 export function usePostAllMethods(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client)['all-methods']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client)['all-methods']['$post']>>>
+        >
+      >,
       variables: undefined,
     ) => void
     onError?: (error: Error, variables: undefined) => void
     onSettled?: (
-      data: InferResponseType<(typeof client)['all-methods']['$post']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client)['all-methods']['$post']>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: undefined,
     ) => void
@@ -110,12 +130,22 @@ export function usePostAllMethods(options?: {
 export function useDeleteAllMethods(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client)['all-methods']['$delete']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client)['all-methods']['$delete']>>>
+        >
+      >,
       variables: undefined,
     ) => void
     onError?: (error: Error, variables: undefined) => void
     onSettled?: (
-      data: InferResponseType<(typeof client)['all-methods']['$delete']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client)['all-methods']['$delete']>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: undefined,
     ) => void
@@ -138,12 +168,22 @@ export function useDeleteAllMethods(options?: {
 export function useOptionsAllMethods(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client)['all-methods']['$options']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client)['all-methods']['$options']>>>
+        >
+      >,
       variables: undefined,
     ) => void
     onError?: (error: Error, variables: undefined) => void
     onSettled?: (
-      data: InferResponseType<(typeof client)['all-methods']['$options']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client)['all-methods']['$options']>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: undefined,
     ) => void
@@ -166,12 +206,22 @@ export function useOptionsAllMethods(options?: {
 export function useHeadAllMethods(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client)['all-methods']['$head']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client)['all-methods']['$head']>>>
+        >
+      >,
       variables: undefined,
     ) => void
     onError?: (error: Error, variables: undefined) => void
     onSettled?: (
-      data: InferResponseType<(typeof client)['all-methods']['$head']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client)['all-methods']['$head']>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: undefined,
     ) => void
@@ -194,12 +244,22 @@ export function useHeadAllMethods(options?: {
 export function usePatchAllMethods(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client)['all-methods']['$patch']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client)['all-methods']['$patch']>>>
+        >
+      >,
       variables: undefined,
     ) => void
     onError?: (error: Error, variables: undefined) => void
     onSettled?: (
-      data: InferResponseType<(typeof client)['all-methods']['$patch']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client)['all-methods']['$patch']>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: undefined,
     ) => void
@@ -222,12 +282,22 @@ export function usePatchAllMethods(options?: {
 export function useTraceAllMethods(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client)['all-methods']['$trace']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client)['all-methods']['$trace']>>>
+        >
+      >,
       variables: undefined,
     ) => void
     onError?: (error: Error, variables: undefined) => void
     onSettled?: (
-      data: InferResponseType<(typeof client)['all-methods']['$trace']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client)['all-methods']['$trace']>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: undefined,
     ) => void
@@ -368,12 +438,24 @@ export const getGetParamsTestPathParamQueryOptions = (
 export function usePostNoContent(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client)['no-content']['$post']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client)['no-content']['$post']>>>
+            >
+          >
+        | undefined,
       variables: undefined,
     ) => void
     onError?: (error: Error, variables: undefined) => void
     onSettled?: (
-      data: InferResponseType<(typeof client)['no-content']['$post']> | undefined | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client)['no-content']['$post']>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: undefined,
     ) => void
@@ -441,7 +523,11 @@ export const getGetMultiContentQueryOptions = (clientOptions?: ClientRequestOpti
 export function usePostMultiContent(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client)['multi-content']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client)['multi-content']['$post']>>>
+        >
+      >,
       variables: InferRequestType<(typeof client)['multi-content']['$post']>,
     ) => void
     onError?: (
@@ -449,7 +535,13 @@ export function usePostMultiContent(options?: {
       variables: InferRequestType<(typeof client)['multi-content']['$post']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client)['multi-content']['$post']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client)['multi-content']['$post']>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client)['multi-content']['$post']>,
     ) => void
@@ -612,7 +704,11 @@ export const getGetNoOperationIdQueryOptions = (clientOptions?: ClientRequestOpt
 export function usePostEmptyBody(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client)['empty-body']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client)['empty-body']['$post']>>>
+        >
+      >,
       variables: InferRequestType<(typeof client)['empty-body']['$post']>,
     ) => void
     onError?: (
@@ -620,7 +716,13 @@ export function usePostEmptyBody(options?: {
       variables: InferRequestType<(typeof client)['empty-body']['$post']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client)['empty-body']['$post']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client)['empty-body']['$post']>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client)['empty-body']['$post']>,
     ) => void

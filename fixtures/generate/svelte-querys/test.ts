@@ -25,7 +25,7 @@ export function createGetHono(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetHonoQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetHonoQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -71,7 +71,7 @@ export function createGetHonoX(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetHonoXQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetHonoXQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -120,7 +120,10 @@ export function createGetZodOpenapiHono(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetZodOpenapiHonoQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGetZodOpenapiHonoQueryOptions(clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**

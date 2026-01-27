@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/36-auth-saml-idp'
 
 /**
@@ -49,7 +49,7 @@ export function getGetSamlSsoKey(args?: InferRequestType<typeof client.saml.sso.
  */
 export function usePostSamlSso(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.saml.sso.$post>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.saml.sso.$post>>>>>,
     Error,
     string,
     InferRequestType<typeof client.saml.sso.$post>
@@ -108,7 +108,7 @@ export function getGetSamlSloKey(args?: InferRequestType<typeof client.saml.slo.
  */
 export function usePostSamlSlo(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.saml.slo.$post>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.saml.slo.$post>>>>>,
     Error,
     string,
     InferRequestType<typeof client.saml.slo.$post>
@@ -133,7 +133,7 @@ export function usePostSamlSlo(options?: {
  */
 export function usePostSamlAcs(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.saml.acs.$post>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.saml.acs.$post>>>>>,
     Error,
     string,
     InferRequestType<typeof client.saml.acs.$post>
@@ -221,7 +221,11 @@ export function getGetServiceProvidersKey(
  */
 export function usePostServiceProviders(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['service-providers']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client)['service-providers']['$post']>>>
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client)['service-providers']['$post']>
@@ -280,7 +284,13 @@ export function getGetServiceProvidersSpIdKey(
  */
 export function usePutServiceProvidersSpId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['service-providers'][':spId']['$put']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['service-providers'][':spId']['$put']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client)['service-providers'][':spId']['$put']>
@@ -305,7 +315,14 @@ export function usePutServiceProvidersSpId(options?: {
  */
 export function useDeleteServiceProvidersSpId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['service-providers'][':spId']['$delete']> | undefined,
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['service-providers'][':spId']['$delete']>>
+          >
+        >
+      >
+    | undefined,
     Error,
     string,
     InferRequestType<(typeof client)['service-providers'][':spId']['$delete']>
@@ -366,7 +383,13 @@ export function getGetServiceProvidersSpIdMetadataKey(
  */
 export function usePutServiceProvidersSpIdMetadata(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['service-providers'][':spId']['metadata']['$put']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['service-providers'][':spId']['metadata']['$put']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client)['service-providers'][':spId']['metadata']['$put']>
@@ -431,7 +454,13 @@ export function getGetServiceProvidersSpIdAttributesKey(
  */
 export function usePutServiceProvidersSpIdAttributes(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['service-providers'][':spId']['attributes']['$put']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['service-providers'][':spId']['attributes']['$put']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client)['service-providers'][':spId']['attributes']['$put']>
@@ -518,7 +547,9 @@ export function getGetCertificatesKey() {
  */
 export function usePostCertificates(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.certificates.$post>,
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.certificates.$post>>>>
+    >,
     Error,
     string,
     InferRequestType<typeof client.certificates.$post>
@@ -541,7 +572,14 @@ export function usePostCertificates(options?: {
  */
 export function useDeleteCertificatesCertId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.certificates)[':certId']['$delete']> | undefined,
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.certificates)[':certId']['$delete']>>
+          >
+        >
+      >
+    | undefined,
     Error,
     string,
     InferRequestType<(typeof client.certificates)[':certId']['$delete']>
@@ -566,7 +604,13 @@ export function useDeleteCertificatesCertId(options?: {
  */
 export function usePostCertificatesCertIdActivate(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.certificates)[':certId']['activate']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.certificates)[':certId']['activate']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.certificates)[':certId']['activate']['$post']>
@@ -625,7 +669,14 @@ export function getGetSessionsKey(args?: InferRequestType<typeof client.sessions
  */
 export function useDeleteSessionsSessionId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.sessions)[':sessionId']['$delete']> | undefined,
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.sessions)[':sessionId']['$delete']>>
+          >
+        >
+      >
+    | undefined,
     Error,
     string,
     InferRequestType<(typeof client.sessions)[':sessionId']['$delete']>

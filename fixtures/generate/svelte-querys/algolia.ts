@@ -1,5 +1,5 @@
-import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/algolia'
 
@@ -28,7 +28,7 @@ export function createGetPath(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetPathQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetPathQueryOptions(args, clientOptions), ...queryOptions }))
 }
 
 /**
@@ -65,12 +65,18 @@ export const getGetPathQueryOptions = (
 export function createPutPath(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client)[':path']['$put']>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)[':path']['$put']>>>>
+      >,
       variables: InferRequestType<(typeof client)[':path']['$put']>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<(typeof client)[':path']['$put']>) => void
     onSettled?: (
-      data: InferResponseType<(typeof client)[':path']['$put']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)[':path']['$put']>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client)[':path']['$put']>,
     ) => void
@@ -81,11 +87,11 @@ export function createPutPath(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client)[':path']['$put']>) =>
       parseResponse(client[':path'].$put(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -98,12 +104,18 @@ export function createPutPath(options?: {
 export function createPostPath(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client)[':path']['$post']>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)[':path']['$post']>>>>
+      >,
       variables: InferRequestType<(typeof client)[':path']['$post']>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<(typeof client)[':path']['$post']>) => void
     onSettled?: (
-      data: InferResponseType<(typeof client)[':path']['$post']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)[':path']['$post']>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client)[':path']['$post']>,
     ) => void
@@ -114,11 +126,11 @@ export function createPostPath(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client)[':path']['$post']>) =>
       parseResponse(client[':path'].$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -131,7 +143,9 @@ export function createPostPath(options?: {
 export function createDeletePath(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client)[':path']['$delete']>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)[':path']['$delete']>>>>
+      >,
       variables: InferRequestType<(typeof client)[':path']['$delete']>,
     ) => void
     onError?: (
@@ -139,7 +153,13 @@ export function createDeletePath(options?: {
       variables: InferRequestType<(typeof client)[':path']['$delete']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client)[':path']['$delete']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client)[':path']['$delete']>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client)[':path']['$delete']>,
     ) => void
@@ -150,11 +170,11 @@ export function createDeletePath(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client)[':path']['$delete']>) =>
       parseResponse(client[':path'].$delete(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -170,7 +190,13 @@ export function createDeletePath(options?: {
 export function createPost1IndexesIndexNameQuery(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client)['1']['indexes'][':indexName']['query']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName']['query']['$post']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client)['1']['indexes'][':indexName']['query']['$post']>,
     ) => void
     onError?: (
@@ -179,7 +205,13 @@ export function createPost1IndexesIndexNameQuery(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client)['1']['indexes'][':indexName']['query']['$post']>
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName']['query']['$post']>>
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client)['1']['indexes'][':indexName']['query']['$post']>,
@@ -193,12 +225,12 @@ export function createPost1IndexesIndexNameQuery(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['query']['$post']>,
     ) => parseResponse(client['1'].indexes[':indexName'].query.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -218,7 +250,13 @@ export function createPost1IndexesIndexNameQuery(options?: {
 export function createPost1IndexesQueries(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client)['1']['indexes']['*']['queries']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['1']['indexes']['*']['queries']['$post']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client)['1']['indexes']['*']['queries']['$post']>,
     ) => void
     onError?: (
@@ -226,7 +264,15 @@ export function createPost1IndexesQueries(options?: {
       variables: InferRequestType<(typeof client)['1']['indexes']['*']['queries']['$post']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client)['1']['indexes']['*']['queries']['$post']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client)['1']['indexes']['*']['queries']['$post']>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client)['1']['indexes']['*']['queries']['$post']>,
     ) => void
@@ -239,12 +285,12 @@ export function createPost1IndexesQueries(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client)['1']['indexes']['*']['queries']['$post']>,
     ) => parseResponse(client['1'].indexes['*'].queries.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -261,8 +307,16 @@ export function createPost1IndexesQueries(options?: {
 export function createPost1IndexesIndexNameFacetsFacetNameQuery(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['1']['indexes'][':indexName']['facets'][':facetName']['query']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['1']['indexes'][':indexName']['facets'][':facetName']['query']['$post']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['1']['indexes'][':indexName']['facets'][':facetName']['query']['$post']
@@ -276,8 +330,16 @@ export function createPost1IndexesIndexNameFacetsFacetNameQuery(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['1']['indexes'][':indexName']['facets'][':facetName']['query']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['1']['indexes'][':indexName']['facets'][':facetName']['query']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -296,7 +358,7 @@ export function createPost1IndexesIndexNameFacetsFacetNameQuery(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
@@ -306,7 +368,7 @@ export function createPost1IndexesIndexNameFacetsFacetNameQuery(options?: {
       parseResponse(
         client['1'].indexes[':indexName'].facets[':facetName'].query.$post(args, clientOptions),
       ),
-  })
+  }))
 }
 
 /**
@@ -343,7 +405,13 @@ export function createPost1IndexesIndexNameFacetsFacetNameQuery(options?: {
 export function createPost1IndexesIndexNameBrowse(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client)['1']['indexes'][':indexName']['browse']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName']['browse']['$post']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client)['1']['indexes'][':indexName']['browse']['$post']>,
     ) => void
     onError?: (
@@ -352,7 +420,15 @@ export function createPost1IndexesIndexNameBrowse(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client)['1']['indexes'][':indexName']['browse']['$post']>
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<(typeof client)['1']['indexes'][':indexName']['browse']['$post']>
+                >
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client)['1']['indexes'][':indexName']['browse']['$post']>,
@@ -366,12 +442,12 @@ export function createPost1IndexesIndexNameBrowse(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['browse']['$post']>,
     ) => parseResponse(client['1'].indexes[':indexName'].browse.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -394,7 +470,13 @@ export function createPost1IndexesIndexNameBrowse(options?: {
 export function createPost1IndexesIndexName(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client)['1']['indexes'][':indexName']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName']['$post']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client)['1']['indexes'][':indexName']['$post']>,
     ) => void
     onError?: (
@@ -402,7 +484,15 @@ export function createPost1IndexesIndexName(options?: {
       variables: InferRequestType<(typeof client)['1']['indexes'][':indexName']['$post']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client)['1']['indexes'][':indexName']['$post']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName']['$post']>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client)['1']['indexes'][':indexName']['$post']>,
     ) => void
@@ -415,12 +505,12 @@ export function createPost1IndexesIndexName(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['$post']>,
     ) => parseResponse(client['1'].indexes[':indexName'].$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -439,7 +529,13 @@ export function createPost1IndexesIndexName(options?: {
 export function createDelete1IndexesIndexName(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client)['1']['indexes'][':indexName']['$delete']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName']['$delete']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client)['1']['indexes'][':indexName']['$delete']>,
     ) => void
     onError?: (
@@ -447,7 +543,15 @@ export function createDelete1IndexesIndexName(options?: {
       variables: InferRequestType<(typeof client)['1']['indexes'][':indexName']['$delete']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client)['1']['indexes'][':indexName']['$delete']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName']['$delete']>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client)['1']['indexes'][':indexName']['$delete']>,
     ) => void
@@ -460,12 +564,12 @@ export function createDelete1IndexesIndexName(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['$delete']>,
     ) => parseResponse(client['1'].indexes[':indexName'].$delete(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -495,10 +599,10 @@ export function createGet1IndexesIndexNameObjectID(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
+  return createQuery(() => ({
     ...getGet1IndexesIndexNameObjectIDQueryOptions(args, clientOptions),
     ...queryOptions,
-  })
+  }))
 }
 
 /**
@@ -545,7 +649,13 @@ export const getGet1IndexesIndexNameObjectIDQueryOptions = (
 export function createPut1IndexesIndexNameObjectID(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$put']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$put']>>
+          >
+        >
+      >,
       variables: InferRequestType<
         (typeof client)['1']['indexes'][':indexName'][':objectID']['$put']
       >,
@@ -558,7 +668,15 @@ export function createPut1IndexesIndexNameObjectID(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$put']>
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$put']>
+                >
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -576,12 +694,12 @@ export function createPut1IndexesIndexNameObjectID(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$put']>,
     ) => parseResponse(client['1'].indexes[':indexName'][':objectID'].$put(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -597,8 +715,14 @@ export function createPut1IndexesIndexNameObjectID(options?: {
 export function createDelete1IndexesIndexNameObjectID(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['1']['indexes'][':indexName'][':objectID']['$delete']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$delete']>
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['1']['indexes'][':indexName'][':objectID']['$delete']
@@ -612,7 +736,15 @@ export function createDelete1IndexesIndexNameObjectID(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$delete']>
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$delete']>
+                >
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -630,12 +762,12 @@ export function createDelete1IndexesIndexNameObjectID(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$delete']>,
     ) => parseResponse(client['1'].indexes[':indexName'][':objectID'].$delete(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -655,8 +787,14 @@ export function createDelete1IndexesIndexNameObjectID(options?: {
 export function createPost1IndexesIndexNameDeleteByQuery(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['1']['indexes'][':indexName']['deleteByQuery']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<(typeof client)['1']['indexes'][':indexName']['deleteByQuery']['$post']>
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['1']['indexes'][':indexName']['deleteByQuery']['$post']
@@ -670,7 +808,17 @@ export function createPost1IndexesIndexNameDeleteByQuery(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client)['1']['indexes'][':indexName']['deleteByQuery']['$post']>
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['1']['indexes'][':indexName']['deleteByQuery']['$post']
+                  >
+                >
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -688,14 +836,14 @@ export function createPost1IndexesIndexNameDeleteByQuery(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['1']['indexes'][':indexName']['deleteByQuery']['$post']
       >,
     ) => parseResponse(client['1'].indexes[':indexName'].deleteByQuery.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -709,7 +857,13 @@ export function createPost1IndexesIndexNameDeleteByQuery(options?: {
 export function createPost1IndexesIndexNameClear(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client)['1']['indexes'][':indexName']['clear']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName']['clear']['$post']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client)['1']['indexes'][':indexName']['clear']['$post']>,
     ) => void
     onError?: (
@@ -718,7 +872,13 @@ export function createPost1IndexesIndexNameClear(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client)['1']['indexes'][':indexName']['clear']['$post']>
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName']['clear']['$post']>>
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client)['1']['indexes'][':indexName']['clear']['$post']>,
@@ -732,12 +892,12 @@ export function createPost1IndexesIndexNameClear(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['clear']['$post']>,
     ) => parseResponse(client['1'].indexes[':indexName'].clear.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -776,8 +936,16 @@ export function createPost1IndexesIndexNameClear(options?: {
 export function createPost1IndexesIndexNameObjectIDPartial(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['1']['indexes'][':indexName'][':objectID']['partial']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['1']['indexes'][':indexName'][':objectID']['partial']['$post']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['1']['indexes'][':indexName'][':objectID']['partial']['$post']
@@ -791,8 +959,16 @@ export function createPost1IndexesIndexNameObjectIDPartial(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['1']['indexes'][':indexName'][':objectID']['partial']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['1']['indexes'][':indexName'][':objectID']['partial']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -811,7 +987,7 @@ export function createPost1IndexesIndexNameObjectIDPartial(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
@@ -821,7 +997,7 @@ export function createPost1IndexesIndexNameObjectIDPartial(options?: {
       parseResponse(
         client['1'].indexes[':indexName'][':objectID'].partial.$post(args, clientOptions),
       ),
-  })
+  }))
 }
 
 /**
@@ -841,7 +1017,13 @@ export function createPost1IndexesIndexNameObjectIDPartial(options?: {
 export function createPost1IndexesIndexNameBatch(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client)['1']['indexes'][':indexName']['batch']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName']['batch']['$post']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client)['1']['indexes'][':indexName']['batch']['$post']>,
     ) => void
     onError?: (
@@ -850,7 +1032,13 @@ export function createPost1IndexesIndexNameBatch(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client)['1']['indexes'][':indexName']['batch']['$post']>
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName']['batch']['$post']>>
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client)['1']['indexes'][':indexName']['batch']['$post']>,
@@ -864,12 +1052,12 @@ export function createPost1IndexesIndexNameBatch(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['batch']['$post']>,
     ) => parseResponse(client['1'].indexes[':indexName'].batch.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -887,7 +1075,13 @@ export function createPost1IndexesIndexNameBatch(options?: {
 export function createPost1IndexesBatch(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client)['1']['indexes']['*']['batch']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['1']['indexes']['*']['batch']['$post']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client)['1']['indexes']['*']['batch']['$post']>,
     ) => void
     onError?: (
@@ -895,7 +1089,15 @@ export function createPost1IndexesBatch(options?: {
       variables: InferRequestType<(typeof client)['1']['indexes']['*']['batch']['$post']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client)['1']['indexes']['*']['batch']['$post']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client)['1']['indexes']['*']['batch']['$post']>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client)['1']['indexes']['*']['batch']['$post']>,
     ) => void
@@ -908,12 +1110,12 @@ export function createPost1IndexesBatch(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client)['1']['indexes']['*']['batch']['$post']>,
     ) => parseResponse(client['1'].indexes['*'].batch.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -928,7 +1130,13 @@ export function createPost1IndexesBatch(options?: {
 export function createPost1IndexesObjects(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client)['1']['indexes']['*']['objects']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['1']['indexes']['*']['objects']['$post']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client)['1']['indexes']['*']['objects']['$post']>,
     ) => void
     onError?: (
@@ -936,7 +1144,15 @@ export function createPost1IndexesObjects(options?: {
       variables: InferRequestType<(typeof client)['1']['indexes']['*']['objects']['$post']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client)['1']['indexes']['*']['objects']['$post']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client)['1']['indexes']['*']['objects']['$post']>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client)['1']['indexes']['*']['objects']['$post']>,
     ) => void
@@ -949,12 +1165,12 @@ export function createPost1IndexesObjects(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client)['1']['indexes']['*']['objects']['$post']>,
     ) => parseResponse(client['1'].indexes['*'].objects.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -982,10 +1198,10 @@ export function createGet1IndexesIndexNameSettings(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
+  return createQuery(() => ({
     ...getGet1IndexesIndexNameSettingsQueryOptions(args, clientOptions),
     ...queryOptions,
-  })
+  }))
 }
 
 /**
@@ -1032,7 +1248,13 @@ export const getGet1IndexesIndexNameSettingsQueryOptions = (
 export function createPut1IndexesIndexNameSettings(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client)['1']['indexes'][':indexName']['settings']['$put']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName']['settings']['$put']>>
+          >
+        >
+      >,
       variables: InferRequestType<
         (typeof client)['1']['indexes'][':indexName']['settings']['$put']
       >,
@@ -1045,7 +1267,15 @@ export function createPut1IndexesIndexNameSettings(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client)['1']['indexes'][':indexName']['settings']['$put']>
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<(typeof client)['1']['indexes'][':indexName']['settings']['$put']>
+                >
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -1063,12 +1293,12 @@ export function createPut1IndexesIndexNameSettings(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['settings']['$put']>,
     ) => parseResponse(client['1'].indexes[':indexName'].settings.$put(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -1100,10 +1330,10 @@ export function createGet1IndexesIndexNameSynonymsObjectID(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
+  return createQuery(() => ({
     ...getGet1IndexesIndexNameSynonymsObjectIDQueryOptions(args, clientOptions),
     ...queryOptions,
-  })
+  }))
 }
 
 /**
@@ -1151,8 +1381,16 @@ export const getGet1IndexesIndexNameSynonymsObjectIDQueryOptions = (
 export function createPut1IndexesIndexNameSynonymsObjectID(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$put']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$put']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$put']
@@ -1166,8 +1404,16 @@ export function createPut1IndexesIndexNameSynonymsObjectID(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$put']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$put']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -1186,7 +1432,7 @@ export function createPut1IndexesIndexNameSynonymsObjectID(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
@@ -1196,7 +1442,7 @@ export function createPut1IndexesIndexNameSynonymsObjectID(options?: {
       parseResponse(
         client['1'].indexes[':indexName'].synonyms[':objectID'].$put(args, clientOptions),
       ),
-  })
+  }))
 }
 
 /**
@@ -1210,8 +1456,16 @@ export function createPut1IndexesIndexNameSynonymsObjectID(options?: {
 export function createDelete1IndexesIndexNameSynonymsObjectID(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$delete']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$delete']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$delete']
@@ -1225,8 +1479,16 @@ export function createDelete1IndexesIndexNameSynonymsObjectID(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$delete']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$delete']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -1245,7 +1507,7 @@ export function createDelete1IndexesIndexNameSynonymsObjectID(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
@@ -1255,7 +1517,7 @@ export function createDelete1IndexesIndexNameSynonymsObjectID(options?: {
       parseResponse(
         client['1'].indexes[':indexName'].synonyms[':objectID'].$delete(args, clientOptions),
       ),
-  })
+  }))
 }
 
 /**
@@ -1271,8 +1533,16 @@ export function createDelete1IndexesIndexNameSynonymsObjectID(options?: {
 export function createPost1IndexesIndexNameSynonymsBatch(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['1']['indexes'][':indexName']['synonyms']['batch']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['1']['indexes'][':indexName']['synonyms']['batch']['$post']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['1']['indexes'][':indexName']['synonyms']['batch']['$post']
@@ -1286,8 +1556,16 @@ export function createPost1IndexesIndexNameSynonymsBatch(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['1']['indexes'][':indexName']['synonyms']['batch']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['1']['indexes'][':indexName']['synonyms']['batch']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -1306,14 +1584,14 @@ export function createPost1IndexesIndexNameSynonymsBatch(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['1']['indexes'][':indexName']['synonyms']['batch']['$post']
       >,
     ) => parseResponse(client['1'].indexes[':indexName'].synonyms.batch.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -1326,8 +1604,16 @@ export function createPost1IndexesIndexNameSynonymsBatch(options?: {
 export function createPost1IndexesIndexNameSynonymsClear(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['1']['indexes'][':indexName']['synonyms']['clear']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['1']['indexes'][':indexName']['synonyms']['clear']['$post']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['1']['indexes'][':indexName']['synonyms']['clear']['$post']
@@ -1341,8 +1627,16 @@ export function createPost1IndexesIndexNameSynonymsClear(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['1']['indexes'][':indexName']['synonyms']['clear']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['1']['indexes'][':indexName']['synonyms']['clear']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -1361,14 +1655,14 @@ export function createPost1IndexesIndexNameSynonymsClear(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['1']['indexes'][':indexName']['synonyms']['clear']['$post']
       >,
     ) => parseResponse(client['1'].indexes[':indexName'].synonyms.clear.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -1381,8 +1675,16 @@ export function createPost1IndexesIndexNameSynonymsClear(options?: {
 export function createPost1IndexesIndexNameSynonymsSearch(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['1']['indexes'][':indexName']['synonyms']['search']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['1']['indexes'][':indexName']['synonyms']['search']['$post']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['1']['indexes'][':indexName']['synonyms']['search']['$post']
@@ -1396,8 +1698,16 @@ export function createPost1IndexesIndexNameSynonymsSearch(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['1']['indexes'][':indexName']['synonyms']['search']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['1']['indexes'][':indexName']['synonyms']['search']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -1416,7 +1726,7 @@ export function createPost1IndexesIndexNameSynonymsSearch(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
@@ -1424,7 +1734,7 @@ export function createPost1IndexesIndexNameSynonymsSearch(options?: {
       >,
     ) =>
       parseResponse(client['1'].indexes[':indexName'].synonyms.search.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -1449,7 +1759,7 @@ export function createGet1Keys(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGet1KeysQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGet1KeysQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -1486,7 +1796,9 @@ export const getGet1KeysQueryOptions = (clientOptions?: ClientRequestOptions) =>
 export function createPost1Keys(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client)['1']['keys']['$post']>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['1']['keys']['$post']>>>>
+      >,
       variables: InferRequestType<(typeof client)['1']['keys']['$post']>,
     ) => void
     onError?: (
@@ -1494,7 +1806,13 @@ export function createPost1Keys(options?: {
       variables: InferRequestType<(typeof client)['1']['keys']['$post']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client)['1']['keys']['$post']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client)['1']['keys']['$post']>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client)['1']['keys']['$post']>,
     ) => void
@@ -1505,11 +1823,11 @@ export function createPost1Keys(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client)['1']['keys']['$post']>) =>
       parseResponse(client['1'].keys.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -1541,7 +1859,10 @@ export function createGet1KeysKey(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGet1KeysKeyQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGet1KeysKeyQueryOptions(args, clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**
@@ -1585,7 +1906,11 @@ export const getGet1KeysKeyQueryOptions = (
 export function createPut1KeysKey(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client)['1']['keys'][':key']['$put']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client)['1']['keys'][':key']['$put']>>>
+        >
+      >,
       variables: InferRequestType<(typeof client)['1']['keys'][':key']['$put']>,
     ) => void
     onError?: (
@@ -1593,7 +1918,15 @@ export function createPut1KeysKey(options?: {
       variables: InferRequestType<(typeof client)['1']['keys'][':key']['$put']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client)['1']['keys'][':key']['$put']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client)['1']['keys'][':key']['$put']>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client)['1']['keys'][':key']['$put']>,
     ) => void
@@ -1604,11 +1937,11 @@ export function createPut1KeysKey(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client)['1']['keys'][':key']['$put']>) =>
       parseResponse(client['1'].keys[':key'].$put(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -1621,7 +1954,11 @@ export function createPut1KeysKey(options?: {
 export function createDelete1KeysKey(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client)['1']['keys'][':key']['$delete']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client)['1']['keys'][':key']['$delete']>>>
+        >
+      >,
       variables: InferRequestType<(typeof client)['1']['keys'][':key']['$delete']>,
     ) => void
     onError?: (
@@ -1629,7 +1966,15 @@ export function createDelete1KeysKey(options?: {
       variables: InferRequestType<(typeof client)['1']['keys'][':key']['$delete']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client)['1']['keys'][':key']['$delete']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client)['1']['keys'][':key']['$delete']>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client)['1']['keys'][':key']['$delete']>,
     ) => void
@@ -1642,11 +1987,11 @@ export function createDelete1KeysKey(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client)['1']['keys'][':key']['$delete']>) =>
       parseResponse(client['1'].keys[':key'].$delete(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -1664,7 +2009,13 @@ export function createDelete1KeysKey(options?: {
 export function createPost1KeysKeyRestore(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client)['1']['keys'][':key']['restore']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['1']['keys'][':key']['restore']['$post']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client)['1']['keys'][':key']['restore']['$post']>,
     ) => void
     onError?: (
@@ -1672,7 +2023,15 @@ export function createPost1KeysKeyRestore(options?: {
       variables: InferRequestType<(typeof client)['1']['keys'][':key']['restore']['$post']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client)['1']['keys'][':key']['restore']['$post']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client)['1']['keys'][':key']['restore']['$post']>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client)['1']['keys'][':key']['restore']['$post']>,
     ) => void
@@ -1685,12 +2044,12 @@ export function createPost1KeysKeyRestore(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client)['1']['keys'][':key']['restore']['$post']>,
     ) => parseResponse(client['1'].keys[':key'].restore.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -1721,10 +2080,10 @@ export function createGet1IndexesIndexNameRulesObjectID(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
+  return createQuery(() => ({
     ...getGet1IndexesIndexNameRulesObjectIDQueryOptions(args, clientOptions),
     ...queryOptions,
-  })
+  }))
 }
 
 /**
@@ -1773,8 +2132,16 @@ export const getGet1IndexesIndexNameRulesObjectIDQueryOptions = (
 export function createPut1IndexesIndexNameRulesObjectID(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$put']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$put']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$put']
@@ -1788,8 +2155,16 @@ export function createPut1IndexesIndexNameRulesObjectID(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$put']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$put']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -1808,7 +2183,7 @@ export function createPut1IndexesIndexNameRulesObjectID(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
@@ -1816,7 +2191,7 @@ export function createPut1IndexesIndexNameRulesObjectID(options?: {
       >,
     ) =>
       parseResponse(client['1'].indexes[':indexName'].rules[':objectID'].$put(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -1831,8 +2206,16 @@ export function createPut1IndexesIndexNameRulesObjectID(options?: {
 export function createDelete1IndexesIndexNameRulesObjectID(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$delete']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$delete']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$delete']
@@ -1846,8 +2229,16 @@ export function createDelete1IndexesIndexNameRulesObjectID(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$delete']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$delete']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -1866,7 +2257,7 @@ export function createDelete1IndexesIndexNameRulesObjectID(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
@@ -1876,7 +2267,7 @@ export function createDelete1IndexesIndexNameRulesObjectID(options?: {
       parseResponse(
         client['1'].indexes[':indexName'].rules[':objectID'].$delete(args, clientOptions),
       ),
-  })
+  }))
 }
 
 /**
@@ -1894,8 +2285,14 @@ export function createDelete1IndexesIndexNameRulesObjectID(options?: {
 export function createPost1IndexesIndexNameRulesBatch(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['1']['indexes'][':indexName']['rules']['batch']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<(typeof client)['1']['indexes'][':indexName']['rules']['batch']['$post']>
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['1']['indexes'][':indexName']['rules']['batch']['$post']
@@ -1909,8 +2306,16 @@ export function createPost1IndexesIndexNameRulesBatch(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['1']['indexes'][':indexName']['rules']['batch']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['1']['indexes'][':indexName']['rules']['batch']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -1929,14 +2334,14 @@ export function createPost1IndexesIndexNameRulesBatch(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['1']['indexes'][':indexName']['rules']['batch']['$post']
       >,
     ) => parseResponse(client['1'].indexes[':indexName'].rules.batch.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -1949,8 +2354,14 @@ export function createPost1IndexesIndexNameRulesBatch(options?: {
 export function createPost1IndexesIndexNameRulesClear(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['1']['indexes'][':indexName']['rules']['clear']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<(typeof client)['1']['indexes'][':indexName']['rules']['clear']['$post']>
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['1']['indexes'][':indexName']['rules']['clear']['$post']
@@ -1964,8 +2375,16 @@ export function createPost1IndexesIndexNameRulesClear(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['1']['indexes'][':indexName']['rules']['clear']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['1']['indexes'][':indexName']['rules']['clear']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -1984,14 +2403,14 @@ export function createPost1IndexesIndexNameRulesClear(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['1']['indexes'][':indexName']['rules']['clear']['$post']
       >,
     ) => parseResponse(client['1'].indexes[':indexName'].rules.clear.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -2004,8 +2423,14 @@ export function createPost1IndexesIndexNameRulesClear(options?: {
 export function createPost1IndexesIndexNameRulesSearch(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['1']['indexes'][':indexName']['rules']['search']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<(typeof client)['1']['indexes'][':indexName']['rules']['search']['$post']>
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['1']['indexes'][':indexName']['rules']['search']['$post']
@@ -2019,8 +2444,16 @@ export function createPost1IndexesIndexNameRulesSearch(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['1']['indexes'][':indexName']['rules']['search']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['1']['indexes'][':indexName']['rules']['search']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -2039,14 +2472,14 @@ export function createPost1IndexesIndexNameRulesSearch(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['1']['indexes'][':indexName']['rules']['search']['$post']
       >,
     ) => parseResponse(client['1'].indexes[':indexName'].rules.search.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -2059,8 +2492,14 @@ export function createPost1IndexesIndexNameRulesSearch(options?: {
 export function createPost1DictionariesDictionaryNameBatch(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['1']['dictionaries'][':dictionaryName']['batch']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<(typeof client)['1']['dictionaries'][':dictionaryName']['batch']['$post']>
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['1']['dictionaries'][':dictionaryName']['batch']['$post']
@@ -2074,8 +2513,16 @@ export function createPost1DictionariesDictionaryNameBatch(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['1']['dictionaries'][':dictionaryName']['batch']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['1']['dictionaries'][':dictionaryName']['batch']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -2094,7 +2541,7 @@ export function createPost1DictionariesDictionaryNameBatch(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
@@ -2102,7 +2549,7 @@ export function createPost1DictionariesDictionaryNameBatch(options?: {
       >,
     ) =>
       parseResponse(client['1'].dictionaries[':dictionaryName'].batch.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -2115,8 +2562,14 @@ export function createPost1DictionariesDictionaryNameBatch(options?: {
 export function createPost1DictionariesDictionaryNameSearch(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['1']['dictionaries'][':dictionaryName']['search']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<(typeof client)['1']['dictionaries'][':dictionaryName']['search']['$post']>
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['1']['dictionaries'][':dictionaryName']['search']['$post']
@@ -2130,8 +2583,16 @@ export function createPost1DictionariesDictionaryNameSearch(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['1']['dictionaries'][':dictionaryName']['search']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['1']['dictionaries'][':dictionaryName']['search']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -2150,7 +2611,7 @@ export function createPost1DictionariesDictionaryNameSearch(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
@@ -2158,7 +2619,7 @@ export function createPost1DictionariesDictionaryNameSearch(options?: {
       >,
     ) =>
       parseResponse(client['1'].dictionaries[':dictionaryName'].search.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -2183,7 +2644,10 @@ export function createGet1DictionariesSettings(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGet1DictionariesSettingsQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGet1DictionariesSettingsQueryOptions(clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**
@@ -2220,7 +2684,13 @@ export const getGet1DictionariesSettingsQueryOptions = (clientOptions?: ClientRe
 export function createPut1DictionariesSettings(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client)['1']['dictionaries']['*']['settings']['$put']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['1']['dictionaries']['*']['settings']['$put']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client)['1']['dictionaries']['*']['settings']['$put']>,
     ) => void
     onError?: (
@@ -2229,7 +2699,13 @@ export function createPut1DictionariesSettings(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client)['1']['dictionaries']['*']['settings']['$put']>
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client)['1']['dictionaries']['*']['settings']['$put']>>
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client)['1']['dictionaries']['*']['settings']['$put']>,
@@ -2243,12 +2719,12 @@ export function createPut1DictionariesSettings(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client)['1']['dictionaries']['*']['settings']['$put']>,
     ) => parseResponse(client['1'].dictionaries['*'].settings.$put(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -2273,10 +2749,10 @@ export function createGet1DictionariesLanguages(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
+  return createQuery(() => ({
     ...getGet1DictionariesLanguagesQueryOptions(clientOptions),
     ...queryOptions,
-  })
+  }))
 }
 
 /**
@@ -2331,10 +2807,10 @@ export function createGet1ClustersMapping(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
+  return createQuery(() => ({
     ...getGet1ClustersMappingQueryOptions(args, clientOptions),
     ...queryOptions,
-  })
+  }))
 }
 
 /**
@@ -2378,7 +2854,13 @@ export const getGet1ClustersMappingQueryOptions = (
 export function createPost1ClustersMapping(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client)['1']['clusters']['mapping']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['1']['clusters']['mapping']['$post']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client)['1']['clusters']['mapping']['$post']>,
     ) => void
     onError?: (
@@ -2386,7 +2868,15 @@ export function createPost1ClustersMapping(options?: {
       variables: InferRequestType<(typeof client)['1']['clusters']['mapping']['$post']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client)['1']['clusters']['mapping']['$post']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client)['1']['clusters']['mapping']['$post']>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client)['1']['clusters']['mapping']['$post']>,
     ) => void
@@ -2399,12 +2889,12 @@ export function createPost1ClustersMapping(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client)['1']['clusters']['mapping']['$post']>,
     ) => parseResponse(client['1'].clusters.mapping.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -2419,7 +2909,13 @@ export function createPost1ClustersMapping(options?: {
 export function createPost1ClustersMappingBatch(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client)['1']['clusters']['mapping']['batch']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['1']['clusters']['mapping']['batch']['$post']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client)['1']['clusters']['mapping']['batch']['$post']>,
     ) => void
     onError?: (
@@ -2428,7 +2924,13 @@ export function createPost1ClustersMappingBatch(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client)['1']['clusters']['mapping']['batch']['$post']>
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client)['1']['clusters']['mapping']['batch']['$post']>>
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client)['1']['clusters']['mapping']['batch']['$post']>,
@@ -2442,12 +2944,12 @@ export function createPost1ClustersMappingBatch(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client)['1']['clusters']['mapping']['batch']['$post']>,
     ) => parseResponse(client['1'].clusters.mapping.batch.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -2475,7 +2977,10 @@ export function createGet1ClustersMappingTop(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGet1ClustersMappingTopQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGet1ClustersMappingTopQueryOptions(clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**
@@ -2530,10 +3035,10 @@ export function createGet1ClustersMappingUserID(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
+  return createQuery(() => ({
     ...getGet1ClustersMappingUserIDQueryOptions(args, clientOptions),
     ...queryOptions,
-  })
+  }))
 }
 
 /**
@@ -2575,7 +3080,13 @@ export const getGet1ClustersMappingUserIDQueryOptions = (
 export function createDelete1ClustersMappingUserID(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client)['1']['clusters']['mapping'][':userID']['$delete']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['1']['clusters']['mapping'][':userID']['$delete']>>
+          >
+        >
+      >,
       variables: InferRequestType<
         (typeof client)['1']['clusters']['mapping'][':userID']['$delete']
       >,
@@ -2588,7 +3099,15 @@ export function createDelete1ClustersMappingUserID(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client)['1']['clusters']['mapping'][':userID']['$delete']>
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<(typeof client)['1']['clusters']['mapping'][':userID']['$delete']>
+                >
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -2606,12 +3125,12 @@ export function createDelete1ClustersMappingUserID(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client)['1']['clusters']['mapping'][':userID']['$delete']>,
     ) => parseResponse(client['1'].clusters.mapping[':userID'].$delete(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -2636,7 +3155,7 @@ export function createGet1Clusters(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGet1ClustersQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGet1ClustersQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -2676,7 +3195,13 @@ export const getGet1ClustersQueryOptions = (clientOptions?: ClientRequestOptions
 export function createPost1ClustersMappingSearch(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client)['1']['clusters']['mapping']['search']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['1']['clusters']['mapping']['search']['$post']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client)['1']['clusters']['mapping']['search']['$post']>,
     ) => void
     onError?: (
@@ -2685,7 +3210,13 @@ export function createPost1ClustersMappingSearch(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client)['1']['clusters']['mapping']['search']['$post']>
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client)['1']['clusters']['mapping']['search']['$post']>>
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client)['1']['clusters']['mapping']['search']['$post']>,
@@ -2699,12 +3230,12 @@ export function createPost1ClustersMappingSearch(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client)['1']['clusters']['mapping']['search']['$post']>,
     ) => parseResponse(client['1'].clusters.mapping.search.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -2732,10 +3263,10 @@ export function createGet1ClustersMappingPending(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
+  return createQuery(() => ({
     ...getGet1ClustersMappingPendingQueryOptions(args, clientOptions),
     ...queryOptions,
-  })
+  }))
 }
 
 /**
@@ -2789,7 +3320,10 @@ export function createGet1SecuritySources(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGet1SecuritySourcesQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGet1SecuritySourcesQueryOptions(clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**
@@ -2826,7 +3360,13 @@ export const getGet1SecuritySourcesQueryOptions = (clientOptions?: ClientRequest
 export function createPut1SecuritySources(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client)['1']['security']['sources']['$put']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['1']['security']['sources']['$put']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client)['1']['security']['sources']['$put']>,
     ) => void
     onError?: (
@@ -2834,7 +3374,15 @@ export function createPut1SecuritySources(options?: {
       variables: InferRequestType<(typeof client)['1']['security']['sources']['$put']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client)['1']['security']['sources']['$put']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client)['1']['security']['sources']['$put']>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client)['1']['security']['sources']['$put']>,
     ) => void
@@ -2847,12 +3395,12 @@ export function createPut1SecuritySources(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client)['1']['security']['sources']['$put']>,
     ) => parseResponse(client['1'].security.sources.$put(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -2865,7 +3413,13 @@ export function createPut1SecuritySources(options?: {
 export function createPost1SecuritySourcesAppend(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client)['1']['security']['sources']['append']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['1']['security']['sources']['append']['$post']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client)['1']['security']['sources']['append']['$post']>,
     ) => void
     onError?: (
@@ -2874,7 +3428,13 @@ export function createPost1SecuritySourcesAppend(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client)['1']['security']['sources']['append']['$post']>
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client)['1']['security']['sources']['append']['$post']>>
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client)['1']['security']['sources']['append']['$post']>,
@@ -2888,12 +3448,12 @@ export function createPost1SecuritySourcesAppend(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client)['1']['security']['sources']['append']['$post']>,
     ) => parseResponse(client['1'].security.sources.append.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -2906,7 +3466,13 @@ export function createPost1SecuritySourcesAppend(options?: {
 export function createDelete1SecuritySourcesSource(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client)['1']['security']['sources'][':source']['$delete']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['1']['security']['sources'][':source']['$delete']>>
+          >
+        >
+      >,
       variables: InferRequestType<
         (typeof client)['1']['security']['sources'][':source']['$delete']
       >,
@@ -2919,7 +3485,15 @@ export function createDelete1SecuritySourcesSource(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client)['1']['security']['sources'][':source']['$delete']>
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<(typeof client)['1']['security']['sources'][':source']['$delete']>
+                >
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -2937,12 +3511,12 @@ export function createDelete1SecuritySourcesSource(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client)['1']['security']['sources'][':source']['$delete']>,
     ) => parseResponse(client['1'].security.sources[':source'].$delete(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -2974,7 +3548,7 @@ export function createGet1Logs(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGet1LogsQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGet1LogsQueryOptions(args, clientOptions), ...queryOptions }))
 }
 
 /**
@@ -3026,7 +3600,10 @@ export function createGet1TaskTaskID(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGet1TaskTaskIDQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGet1TaskTaskIDQueryOptions(args, clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**
@@ -3089,10 +3666,10 @@ export function createGet1IndexesIndexNameTaskTaskID(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
+  return createQuery(() => ({
     ...getGet1IndexesIndexNameTaskTaskIDQueryOptions(args, clientOptions),
     ...queryOptions,
-  })
+  }))
 }
 
 /**
@@ -3157,7 +3734,13 @@ export const getGet1IndexesIndexNameTaskTaskIDQueryOptions = (
 export function createPost1IndexesIndexNameOperation(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client)['1']['indexes'][':indexName']['operation']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName']['operation']['$post']>>
+          >
+        >
+      >,
       variables: InferRequestType<
         (typeof client)['1']['indexes'][':indexName']['operation']['$post']
       >,
@@ -3170,7 +3753,15 @@ export function createPost1IndexesIndexNameOperation(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client)['1']['indexes'][':indexName']['operation']['$post']>
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<(typeof client)['1']['indexes'][':indexName']['operation']['$post']>
+                >
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -3188,12 +3779,12 @@ export function createPost1IndexesIndexNameOperation(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['operation']['$post']>,
     ) => parseResponse(client['1'].indexes[':indexName'].operation.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -3223,7 +3814,10 @@ export function createGet1Indexes(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGet1IndexesQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGet1IndexesQueryOptions(args, clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**
@@ -3280,7 +3874,10 @@ export function createGetWaitForApiKey(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetWaitForApiKeyQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGetWaitForApiKeyQueryOptions(args, clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**
@@ -3339,7 +3936,10 @@ export function createGetWaitForTask(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetWaitForTaskQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGetWaitForTaskQueryOptions(args, clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**
@@ -3394,7 +3994,10 @@ export function createGetWaitForAppTask(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetWaitForAppTaskQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGetWaitForAppTaskQueryOptions(args, clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**
@@ -3455,7 +4058,10 @@ export function createGetBrowseObjects(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetBrowseObjectsQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGetBrowseObjectsQueryOptions(args, clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**
@@ -3524,10 +4130,10 @@ export function createGetGenerateSecuredApiKey(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
+  return createQuery(() => ({
     ...getGetGenerateSecuredApiKeyQueryOptions(args, clientOptions),
     ...queryOptions,
-  })
+  }))
 }
 
 /**
@@ -3584,10 +4190,10 @@ export function createGetAccountCopyIndex(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
+  return createQuery(() => ({
     ...getGetAccountCopyIndexQueryOptions(args, clientOptions),
     ...queryOptions,
-  })
+  }))
 }
 
 /**
@@ -3659,10 +4265,10 @@ export function createGetReplaceAllObjects(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
+  return createQuery(() => ({
     ...getGetReplaceAllObjectsQueryOptions(args, clientOptions),
     ...queryOptions,
-  })
+  }))
 }
 
 /**
@@ -3731,10 +4337,10 @@ export function createGetReplaceAllObjectsWithTransformation(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
+  return createQuery(() => ({
     ...getGetReplaceAllObjectsWithTransformationQueryOptions(args, clientOptions),
     ...queryOptions,
-  })
+  }))
 }
 
 /**
@@ -3791,7 +4397,10 @@ export function createGetChunkedBatch(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetChunkedBatchQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGetChunkedBatchQueryOptions(args, clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**
@@ -3848,7 +4457,10 @@ export function createGetSaveObjects(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetSaveObjectsQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGetSaveObjectsQueryOptions(args, clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**
@@ -3903,10 +4515,10 @@ export function createGetSaveObjectsWithTransformation(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
+  return createQuery(() => ({
     ...getGetSaveObjectsWithTransformationQueryOptions(args, clientOptions),
     ...queryOptions,
-  })
+  }))
 }
 
 /**
@@ -3948,12 +4560,18 @@ export const getGetSaveObjectsWithTransformationQueryOptions = (
 export function createPostDeleteObjects(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.deleteObjects.$post>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.deleteObjects.$post>>>>
+      >,
       variables: InferRequestType<typeof client.deleteObjects.$post>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.deleteObjects.$post>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.deleteObjects.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.deleteObjects.$post>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.deleteObjects.$post>,
     ) => void
@@ -3964,11 +4582,11 @@ export function createPostDeleteObjects(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.deleteObjects.$post>) =>
       parseResponse(client.deleteObjects.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -3981,7 +4599,11 @@ export function createPostDeleteObjects(options?: {
 export function createPostPartialUpdateObjects(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.partialUpdateObjects.$post>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<typeof client.partialUpdateObjects.$post>>>
+        >
+      >,
       variables: InferRequestType<typeof client.partialUpdateObjects.$post>,
     ) => void
     onError?: (
@@ -3989,7 +4611,13 @@ export function createPostPartialUpdateObjects(options?: {
       variables: InferRequestType<typeof client.partialUpdateObjects.$post>,
     ) => void
     onSettled?: (
-      data: InferResponseType<typeof client.partialUpdateObjects.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<typeof client.partialUpdateObjects.$post>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.partialUpdateObjects.$post>,
     ) => void
@@ -4000,11 +4628,11 @@ export function createPostPartialUpdateObjects(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.partialUpdateObjects.$post>) =>
       parseResponse(client.partialUpdateObjects.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -4017,7 +4645,13 @@ export function createPostPartialUpdateObjects(options?: {
 export function createPostPartialUpdateObjectsWithTransformation(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.partialUpdateObjectsWithTransformation.$post>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<typeof client.partialUpdateObjectsWithTransformation.$post>>
+          >
+        >
+      >,
       variables: InferRequestType<typeof client.partialUpdateObjectsWithTransformation.$post>,
     ) => void
     onError?: (
@@ -4026,7 +4660,13 @@ export function createPostPartialUpdateObjectsWithTransformation(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<typeof client.partialUpdateObjectsWithTransformation.$post>
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<typeof client.partialUpdateObjectsWithTransformation.$post>>
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.partialUpdateObjectsWithTransformation.$post>,
@@ -4040,12 +4680,12 @@ export function createPostPartialUpdateObjectsWithTransformation(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<typeof client.partialUpdateObjectsWithTransformation.$post>,
     ) => parseResponse(client.partialUpdateObjectsWithTransformation.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -4073,7 +4713,10 @@ export function createGetIndexExists(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetIndexExistsQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGetIndexExistsQueryOptions(args, clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**
@@ -4128,7 +4771,10 @@ export function createGetSetClientApiKey(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetSetClientApiKeyQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGetSetClientApiKeyQueryOptions(args, clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**

@@ -1,5 +1,5 @@
-import { useQuery, useMutation, queryOptions } from '@tanstack/react-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/38-auth-apikey-management'
 
@@ -64,7 +64,9 @@ export const getGetApiKeysQueryOptions = (
 export function usePostApiKeys(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client)['api-keys']['$post']>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['api-keys']['$post']>>>>
+      >,
       variables: InferRequestType<(typeof client)['api-keys']['$post']>,
     ) => void
     onError?: (
@@ -72,7 +74,13 @@ export function usePostApiKeys(options?: {
       variables: InferRequestType<(typeof client)['api-keys']['$post']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client)['api-keys']['$post']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client)['api-keys']['$post']>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client)['api-keys']['$post']>,
     ) => void
@@ -153,7 +161,15 @@ export const getGetApiKeysKeyIdQueryOptions = (
 export function useDeleteApiKeysKeyId(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client)['api-keys'][':keyId']['$delete']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client)['api-keys'][':keyId']['$delete']>>
+              >
+            >
+          >
+        | undefined,
       variables: InferRequestType<(typeof client)['api-keys'][':keyId']['$delete']>,
     ) => void
     onError?: (
@@ -162,8 +178,13 @@ export function useDeleteApiKeysKeyId(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client)['api-keys'][':keyId']['$delete']>
-        | undefined
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client)['api-keys'][':keyId']['$delete']>>
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client)['api-keys'][':keyId']['$delete']>,
@@ -192,7 +213,11 @@ export function useDeleteApiKeysKeyId(options?: {
 export function usePatchApiKeysKeyId(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client)['api-keys'][':keyId']['$patch']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client)['api-keys'][':keyId']['$patch']>>>
+        >
+      >,
       variables: InferRequestType<(typeof client)['api-keys'][':keyId']['$patch']>,
     ) => void
     onError?: (
@@ -200,7 +225,15 @@ export function usePatchApiKeysKeyId(options?: {
       variables: InferRequestType<(typeof client)['api-keys'][':keyId']['$patch']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client)['api-keys'][':keyId']['$patch']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client)['api-keys'][':keyId']['$patch']>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client)['api-keys'][':keyId']['$patch']>,
     ) => void
@@ -228,7 +261,13 @@ export function usePatchApiKeysKeyId(options?: {
 export function usePostApiKeysKeyIdRevoke(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client)['api-keys'][':keyId']['revoke']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['api-keys'][':keyId']['revoke']['$post']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client)['api-keys'][':keyId']['revoke']['$post']>,
     ) => void
     onError?: (
@@ -236,7 +275,15 @@ export function usePostApiKeysKeyIdRevoke(options?: {
       variables: InferRequestType<(typeof client)['api-keys'][':keyId']['revoke']['$post']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client)['api-keys'][':keyId']['revoke']['$post']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client)['api-keys'][':keyId']['revoke']['$post']>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client)['api-keys'][':keyId']['revoke']['$post']>,
     ) => void
@@ -265,7 +312,13 @@ export function usePostApiKeysKeyIdRevoke(options?: {
 export function usePostApiKeysKeyIdRotate(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client)['api-keys'][':keyId']['rotate']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['api-keys'][':keyId']['rotate']['$post']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client)['api-keys'][':keyId']['rotate']['$post']>,
     ) => void
     onError?: (
@@ -273,7 +326,15 @@ export function usePostApiKeysKeyIdRotate(options?: {
       variables: InferRequestType<(typeof client)['api-keys'][':keyId']['rotate']['$post']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client)['api-keys'][':keyId']['rotate']['$post']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client)['api-keys'][':keyId']['rotate']['$post']>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client)['api-keys'][':keyId']['rotate']['$post']>,
     ) => void
@@ -415,7 +476,11 @@ export const getGetApiKeysKeyIdRateLimitCurrentQueryOptions = (
 export function usePostApiKeysVerify(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client)['api-keys']['verify']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client)['api-keys']['verify']['$post']>>>
+        >
+      >,
       variables: InferRequestType<(typeof client)['api-keys']['verify']['$post']>,
     ) => void
     onError?: (
@@ -423,7 +488,15 @@ export function usePostApiKeysVerify(options?: {
       variables: InferRequestType<(typeof client)['api-keys']['verify']['$post']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client)['api-keys']['verify']['$post']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client)['api-keys']['verify']['$post']>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client)['api-keys']['verify']['$post']>,
     ) => void

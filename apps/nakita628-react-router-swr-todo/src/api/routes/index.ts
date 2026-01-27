@@ -1,6 +1,6 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
-export const TodoSchema = z
+const TodoSchema = z
   .object({
     id: z.uuid(),
     content: z.string().min(1).max(140),
@@ -44,8 +44,6 @@ const CreatedSchema = z
   .object({ message: z.string() })
   .openapi({ required: ['message'], example: { status: 201, message: 'Created' } })
   .openapi('Created')
-
-export type Todo = z.infer<typeof TodoSchema>
 
 export const getTodoRoute = createRoute({
   method: 'get',

@@ -1,5 +1,5 @@
-import { useQuery, useMutation, queryOptions } from '@tanstack/react-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/15-cross-component-refs'
 
@@ -57,12 +57,18 @@ export const getGetEntitiesQueryOptions = (
 export function usePostEntities(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.entities.$post>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.entities.$post>>>>
+      >,
       variables: InferRequestType<typeof client.entities.$post>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.entities.$post>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.entities.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.entities.$post>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.entities.$post>,
     ) => void
@@ -139,7 +145,11 @@ export const getGetEntitiesEntityIdQueryOptions = (
 export function usePutEntitiesEntityId(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.entities)[':entityId']['$put']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.entities)[':entityId']['$put']>>>
+        >
+      >,
       variables: InferRequestType<(typeof client.entities)[':entityId']['$put']>,
     ) => void
     onError?: (
@@ -147,7 +157,15 @@ export function usePutEntitiesEntityId(options?: {
       variables: InferRequestType<(typeof client.entities)[':entityId']['$put']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.entities)[':entityId']['$put']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.entities)[':entityId']['$put']>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.entities)[':entityId']['$put']>,
     ) => void
@@ -171,7 +189,15 @@ export function usePutEntitiesEntityId(options?: {
 export function useDeleteEntitiesEntityId(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.entities)[':entityId']['$delete']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.entities)[':entityId']['$delete']>>
+              >
+            >
+          >
+        | undefined,
       variables: InferRequestType<(typeof client.entities)[':entityId']['$delete']>,
     ) => void
     onError?: (
@@ -180,8 +206,13 @@ export function useDeleteEntitiesEntityId(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client.entities)[':entityId']['$delete']>
-        | undefined
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.entities)[':entityId']['$delete']>>
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.entities)[':entityId']['$delete']>,
@@ -264,7 +295,13 @@ export const getGetEntitiesEntityIdRelationshipsQueryOptions = (
 export function usePostEntitiesEntityIdRelationships(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.entities)[':entityId']['relationships']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.entities)[':entityId']['relationships']['$post']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client.entities)[':entityId']['relationships']['$post']>,
     ) => void
     onError?: (
@@ -273,7 +310,13 @@ export function usePostEntitiesEntityIdRelationships(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client.entities)[':entityId']['relationships']['$post']>
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.entities)[':entityId']['relationships']['$post']>>
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.entities)[':entityId']['relationships']['$post']>,
@@ -301,12 +344,16 @@ export function usePostEntitiesEntityIdRelationships(options?: {
 export function usePostBatch(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.batch.$post>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.batch.$post>>>>
+      >,
       variables: InferRequestType<typeof client.batch.$post>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.batch.$post>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.batch.$post> | undefined,
+      data:
+        | Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.batch.$post>>>>>
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.batch.$post>,
     ) => void

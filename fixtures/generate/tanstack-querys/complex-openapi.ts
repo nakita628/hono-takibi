@@ -1,5 +1,5 @@
-import { useQuery, useMutation, queryOptions } from '@tanstack/react-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/complex-openapi'
 
@@ -58,12 +58,16 @@ export const getGetUsersQueryOptions = (clientOptions?: ClientRequestOptions) =>
 export function usePostUsers(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.users.$post>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>
+      >,
       variables: InferRequestType<typeof client.users.$post>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.users.$post>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.users.$post> | undefined,
+      data:
+        | Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.users.$post>,
     ) => void
@@ -144,7 +148,11 @@ export const getGetUsersUserIdQueryOptions = (
 export function usePutUsersUserId(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.users)[':userId']['$put']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':userId']['$put']>>>
+        >
+      >,
       variables: InferRequestType<(typeof client.users)[':userId']['$put']>,
     ) => void
     onError?: (
@@ -152,7 +160,13 @@ export function usePutUsersUserId(options?: {
       variables: InferRequestType<(typeof client.users)[':userId']['$put']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.users)[':userId']['$put']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':userId']['$put']>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.users)[':userId']['$put']>,
     ) => void
@@ -178,7 +192,13 @@ export function usePutUsersUserId(options?: {
 export function useDeleteUsersUserId(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.users)[':userId']['$delete']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':userId']['$delete']>>>
+            >
+          >
+        | undefined,
       variables: InferRequestType<(typeof client.users)[':userId']['$delete']>,
     ) => void
     onError?: (
@@ -186,7 +206,13 @@ export function useDeleteUsersUserId(options?: {
       variables: InferRequestType<(typeof client.users)[':userId']['$delete']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.users)[':userId']['$delete']> | undefined | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':userId']['$delete']>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.users)[':userId']['$delete']>,
     ) => void
@@ -259,12 +285,16 @@ export const getGetOrdersQueryOptions = (clientOptions?: ClientRequestOptions) =
 export function usePostOrders(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.orders.$post>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.orders.$post>>>>
+      >,
       variables: InferRequestType<typeof client.orders.$post>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.orders.$post>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.orders.$post> | undefined,
+      data:
+        | Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.orders.$post>>>>>
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.orders.$post>,
     ) => void

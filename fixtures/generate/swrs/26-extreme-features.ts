@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/26-extreme-features'
 
 /**
@@ -42,7 +42,7 @@ export function getGetStreamKey() {
  */
 export function usePostGraphql(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.graphql.$post>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.graphql.$post>>>>>,
     Error,
     string,
     InferRequestType<typeof client.graphql.$post>
@@ -65,7 +65,11 @@ export function usePostGraphql(options?: {
  */
 export function usePostGrpcGateway(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['grpc-gateway']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client)['grpc-gateway']['$post']>>>
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client)['grpc-gateway']['$post']>

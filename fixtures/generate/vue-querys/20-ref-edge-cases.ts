@@ -1,5 +1,5 @@
-import { useQuery, queryOptions } from '@tanstack/vue-query'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import { queryOptions, useQuery } from '@tanstack/vue-query'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/20-ref-edge-cases'
 

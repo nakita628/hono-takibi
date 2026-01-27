@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/twilio_api_v2010'
 
 /**
@@ -51,7 +51,13 @@ export function getGet20100401AccountsJsonKey(
  */
 export function usePost20100401AccountsJson(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['2010-04-01']['Accounts.json']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['2010-04-01']['Accounts.json']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client)['2010-04-01']['Accounts.json']['$post']>
@@ -115,7 +121,13 @@ export function getGet20100401AccountsSidJsonKey(
  */
 export function usePost20100401AccountsSidJson(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['2010-04-01']['Accounts'][':Sid.json']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['2010-04-01']['Accounts'][':Sid.json']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client)['2010-04-01']['Accounts'][':Sid.json']['$post']>
@@ -181,8 +193,16 @@ export function getGet20100401AccountsAccountSidAddressesJsonKey(
  */
 export function usePost20100401AccountsAccountSidAddressesJson(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses.json']['$post']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -261,8 +281,16 @@ export function getGet20100401AccountsAccountSidAddressesSidJsonKey(
  */
 export function usePost20100401AccountsAccountSidAddressesSidJson(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$post']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -300,8 +328,16 @@ export function usePost20100401AccountsAccountSidAddressesSidJson(options?: {
  */
 export function useDelete20100401AccountsAccountSidAddressesSidJson(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$delete']
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$delete']
+              >
+            >
+          >
+        >
       >
     | undefined,
     Error,
@@ -392,8 +428,16 @@ export function getGet20100401AccountsAccountSidApplicationsJsonKey(
  */
 export function usePost20100401AccountsAccountSidApplicationsJson(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications.json']['$post']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -483,8 +527,16 @@ export function getGet20100401AccountsAccountSidApplicationsSidJsonKey(
  */
 export function usePost20100401AccountsAccountSidApplicationsSidJson(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$post']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -526,8 +578,16 @@ export function usePost20100401AccountsAccountSidApplicationsSidJson(options?: {
  */
 export function useDelete20100401AccountsAccountSidApplicationsSidJson(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$delete']
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$delete']
+              >
+            >
+          >
+        >
       >
     | undefined,
     Error,
@@ -1194,8 +1254,16 @@ export function getGet20100401AccountsAccountSidCallsJsonKey(
  */
 export function usePost20100401AccountsAccountSidCallsJson(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls.json']['$post']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -1278,8 +1346,16 @@ export function getGet20100401AccountsAccountSidCallsSidJsonKey(
  */
 export function usePost20100401AccountsAccountSidCallsSidJson(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$post']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -1318,8 +1394,16 @@ export function usePost20100401AccountsAccountSidCallsSidJson(options?: {
  */
 export function useDelete20100401AccountsAccountSidCallsSidJson(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$delete']
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$delete']
+              >
+            >
+          >
+        >
       >
     | undefined,
     Error,
@@ -1554,8 +1638,16 @@ export function getGet20100401AccountsAccountSidCallsCallSidRecordingsJsonKey(
  */
 export function usePost20100401AccountsAccountSidCallsCallSidRecordingsJson(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings.json']['$post']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -1647,8 +1739,16 @@ export function getGet20100401AccountsAccountSidCallsCallSidRecordingsSidJsonKey
  */
 export function usePost20100401AccountsAccountSidCallsCallSidRecordingsSidJson(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$post']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -1689,8 +1789,16 @@ export function usePost20100401AccountsAccountSidCallsCallSidRecordingsSidJson(o
  */
 export function useDelete20100401AccountsAccountSidCallsCallSidRecordingsSidJson(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$delete']
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$delete']
+              >
+            >
+          >
+        >
       >
     | undefined,
     Error,
@@ -1779,8 +1887,16 @@ export function getGet20100401AccountsAccountSidConferencesSidJsonKey(
  */
 export function usePost20100401AccountsAccountSidConferencesSidJson(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':Sid.json']['$post']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':Sid.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -1974,8 +2090,16 @@ export function getGet20100401AccountsAccountSidConferencesConferenceSidRecordin
  */
 export function usePost20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJson(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$post']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -2016,8 +2140,16 @@ export function usePost20100401AccountsAccountSidConferencesConferenceSidRecordi
  */
 export function useDelete20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJson(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$delete']
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$delete']
+              >
+            >
+          >
+        >
       >
     | undefined,
     Error,
@@ -2110,8 +2242,16 @@ export function getGet20100401AccountsAccountSidConnectAppsSidJsonKey(
  */
 export function usePost20100401AccountsAccountSidConnectAppsSidJson(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$post']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -2153,8 +2293,16 @@ export function usePost20100401AccountsAccountSidConnectAppsSidJson(options?: {
  */
 export function useDelete20100401AccountsAccountSidConnectAppsSidJson(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$delete']
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$delete']
+              >
+            >
+          >
+        >
       >
     | undefined,
     Error,
@@ -2344,8 +2492,16 @@ export function getGet20100401AccountsAccountSidIncomingPhoneNumbersSidJsonKey(
  */
 export function usePost20100401AccountsAccountSidIncomingPhoneNumbersSidJson(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$post']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -2387,8 +2543,16 @@ export function usePost20100401AccountsAccountSidIncomingPhoneNumbersSidJson(opt
  */
 export function useDelete20100401AccountsAccountSidIncomingPhoneNumbersSidJson(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$delete']
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$delete']
+              >
+            >
+          >
+        >
       >
     | undefined,
     Error,
@@ -2482,8 +2646,16 @@ export function getGet20100401AccountsAccountSidIncomingPhoneNumbersJsonKey(
  */
 export function usePost20100401AccountsAccountSidIncomingPhoneNumbersJson(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers.json']['$post']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -2579,8 +2751,16 @@ export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
  */
 export function useDelete20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsSidJson(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':Sid.json']['$delete']
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':Sid.json']['$delete']
+              >
+            >
+          >
+        >
       >
     | undefined,
     Error,
@@ -2674,8 +2854,16 @@ export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
  */
 export function usePost20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsJson(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns.json']['$post']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -2867,8 +3055,16 @@ export function getGet20100401AccountsAccountSidIncomingPhoneNumbersLocalJsonKey
  */
 export function usePost20100401AccountsAccountSidIncomingPhoneNumbersLocalJson(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Local.json']['$post']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Local.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -2953,8 +3149,16 @@ export function getGet20100401AccountsAccountSidIncomingPhoneNumbersMobileJsonKe
  */
 export function usePost20100401AccountsAccountSidIncomingPhoneNumbersMobileJson(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Mobile.json']['$post']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Mobile.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -3039,8 +3243,16 @@ export function getGet20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJson
  */
 export function usePost20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJson(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['TollFree.json']['$post']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['TollFree.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -3118,8 +3330,16 @@ export function getGet20100401AccountsAccountSidKeysSidJsonKey(
  */
 export function usePost20100401AccountsAccountSidKeysSidJson(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$post']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -3154,8 +3374,16 @@ export function usePost20100401AccountsAccountSidKeysSidJson(options?: {
  */
 export function useDelete20100401AccountsAccountSidKeysSidJson(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$delete']
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$delete']
+              >
+            >
+          >
+        >
       >
     | undefined,
     Error,
@@ -3231,8 +3459,16 @@ export function getGet20100401AccountsAccountSidKeysJsonKey(
  */
 export function usePost20100401AccountsAccountSidKeysJson(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys.json']['$post']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -3319,8 +3555,16 @@ export function getGet20100401AccountsAccountSidMessagesMessageSidMediaSidJsonKe
  */
 export function useDelete20100401AccountsAccountSidMessagesMessageSidMediaSidJson(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media'][':Sid.json']['$delete']
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media'][':Sid.json']['$delete']
+              >
+            >
+          >
+        >
       >
     | undefined,
     Error,
@@ -3463,8 +3707,16 @@ export function getGet20100401AccountsAccountSidQueuesQueueSidMembersCallSidJson
  */
 export function usePost20100401AccountsAccountSidQueuesQueueSidMembersCallSidJson(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members'][':CallSid.json']['$post']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members'][':CallSid.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -3600,8 +3852,16 @@ export function getGet20100401AccountsAccountSidMessagesJsonKey(
  */
 export function usePost20100401AccountsAccountSidMessagesJson(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages.json']['$post']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -3688,8 +3948,16 @@ export function getGet20100401AccountsAccountSidMessagesSidJsonKey(
  */
 export function usePost20100401AccountsAccountSidMessagesSidJson(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$post']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -3731,8 +3999,16 @@ export function usePost20100401AccountsAccountSidMessagesSidJson(options?: {
  */
 export function useDelete20100401AccountsAccountSidMessagesSidJson(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$delete']
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$delete']
+              >
+            >
+          >
+        >
       >
     | undefined,
     Error,
@@ -3775,8 +4051,16 @@ export function useDelete20100401AccountsAccountSidMessagesSidJson(options?: {
  */
 export function usePost20100401AccountsAccountSidMessagesMessageSidFeedbackJson(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Feedback.json']['$post']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Feedback.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -3862,8 +4146,16 @@ export function getGet20100401AccountsAccountSidSigningKeysJsonKey(
  */
 export function usePost20100401AccountsAccountSidSigningKeysJson(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys.json']['$post']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -4052,8 +4344,16 @@ export function getGet20100401AccountsAccountSidOutgoingCallerIdsSidJsonKey(
  */
 export function usePost20100401AccountsAccountSidOutgoingCallerIdsSidJson(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$post']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -4095,8 +4395,16 @@ export function usePost20100401AccountsAccountSidOutgoingCallerIdsSidJson(option
  */
 export function useDelete20100401AccountsAccountSidOutgoingCallerIdsSidJson(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$delete']
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$delete']
+              >
+            >
+          >
+        >
       >
     | undefined,
     Error,
@@ -4186,8 +4494,16 @@ export function getGet20100401AccountsAccountSidOutgoingCallerIdsJsonKey(
  */
 export function usePost20100401AccountsAccountSidOutgoingCallerIdsJson(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds.json']['$post']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -4281,8 +4597,16 @@ export function getGet20100401AccountsAccountSidConferencesConferenceSidParticip
  */
 export function usePost20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJson(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$post']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -4323,8 +4647,16 @@ export function usePost20100401AccountsAccountSidConferencesConferenceSidPartici
  */
 export function useDelete20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJson(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$delete']
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$delete']
+              >
+            >
+          >
+        >
       >
     | undefined,
     Error,
@@ -4414,8 +4746,16 @@ export function getGet20100401AccountsAccountSidConferencesConferenceSidParticip
  */
 export function usePost20100401AccountsAccountSidConferencesConferenceSidParticipantsJson(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants.json']['$post']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -4456,8 +4796,16 @@ export function usePost20100401AccountsAccountSidConferencesConferenceSidPartici
  */
 export function usePost20100401AccountsAccountSidCallsCallSidPaymentsJson(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Payments.json']['$post']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Payments.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -4499,8 +4847,16 @@ export function usePost20100401AccountsAccountSidCallsCallSidPaymentsJson(option
  */
 export function usePost20100401AccountsAccountSidCallsCallSidPaymentsSidJson(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Payments'][':Sid.json']['$post']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Payments'][':Sid.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -4590,8 +4946,16 @@ export function getGet20100401AccountsAccountSidQueuesSidJsonKey(
  */
 export function usePost20100401AccountsAccountSidQueuesSidJson(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$post']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -4630,8 +4994,16 @@ export function usePost20100401AccountsAccountSidQueuesSidJson(options?: {
  */
 export function useDelete20100401AccountsAccountSidQueuesSidJson(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$delete']
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$delete']
+              >
+            >
+          >
+        >
       >
     | undefined,
     Error,
@@ -4718,8 +5090,16 @@ export function getGet20100401AccountsAccountSidQueuesJsonKey(
  */
 export function usePost20100401AccountsAccountSidQueuesJson(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues.json']['$post']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -4758,8 +5138,16 @@ export function usePost20100401AccountsAccountSidQueuesJson(options?: {
  */
 export function usePost20100401AccountsAccountSidCallsCallSidTranscriptionsJson(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Transcriptions.json']['$post']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Transcriptions.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -4801,8 +5189,16 @@ export function usePost20100401AccountsAccountSidCallsCallSidTranscriptionsJson(
  */
 export function usePost20100401AccountsAccountSidCallsCallSidTranscriptionsSidJson(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Transcriptions'][':Sid.json']['$post']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Transcriptions'][':Sid.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -4891,8 +5287,16 @@ export function getGet20100401AccountsAccountSidRecordingsSidJsonKey(
  */
 export function useDelete20100401AccountsAccountSidRecordingsSidJson(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':Sid.json']['$delete']
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':Sid.json']['$delete']
+              >
+            >
+          >
+        >
       >
     | undefined,
     Error,
@@ -5032,8 +5436,16 @@ export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
  */
 export function useDelete20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsSidJson(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':Sid.json']['$delete']
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':Sid.json']['$delete']
+              >
+            >
+          >
+        >
       >
     | undefined,
     Error,
@@ -5181,8 +5593,16 @@ export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
  */
 export function useDelete20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsSidJson(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':Sid.json']['$delete']
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':Sid.json']['$delete']
+              >
+            >
+          >
+        >
       >
     | undefined,
     Error,
@@ -5376,8 +5796,16 @@ export function getGet20100401AccountsAccountSidRecordingsRecordingSidTranscript
  */
 export function useDelete20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsSidJson(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions'][':Sid.json']['$delete']
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions'][':Sid.json']['$delete']
+              >
+            >
+          >
+        >
       >
     | undefined,
     Error,
@@ -5518,8 +5946,16 @@ export function getGet20100401AccountsAccountSidSMSShortCodesSidJsonKey(
  */
 export function usePost20100401AccountsAccountSidSMSShortCodesSidJson(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes'][':Sid.json']['$post']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes'][':Sid.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -5652,8 +6088,16 @@ export function getGet20100401AccountsAccountSidSigningKeysSidJsonKey(
  */
 export function usePost20100401AccountsAccountSidSigningKeysSidJson(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$post']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -5691,8 +6135,16 @@ export function usePost20100401AccountsAccountSidSigningKeysSidJson(options?: {
  */
 export function useDelete20100401AccountsAccountSidSigningKeysSidJson(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$delete']
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$delete']
+              >
+            >
+          >
+        >
       >
     | undefined,
     Error,
@@ -5789,8 +6241,16 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCred
  */
 export function usePost20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsJson(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings.json']['$post']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -5885,8 +6345,16 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCred
  */
 export function useDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsSidJson(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings'][':Sid.json']['$delete']
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings'][':Sid.json']['$delete']
+              >
+            >
+          >
+        >
       >
     | undefined,
     Error,
@@ -5982,8 +6450,16 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAc
  */
 export function usePost20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsJson(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings.json']['$post']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -6078,8 +6554,16 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAc
  */
 export function useDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsSidJson(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings'][':Sid.json']['$delete']
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings'][':Sid.json']['$delete']
+              >
+            >
+          >
+        >
       >
     | undefined,
     Error,
@@ -6175,8 +6659,16 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrat
  */
 export function usePost20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsJson(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings.json']['$post']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -6271,8 +6763,16 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrat
  */
 export function useDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsSidJson(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings'][':Sid.json']['$delete']
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings'][':Sid.json']['$delete']
+              >
+            >
+          >
+        >
       >
     | undefined,
     Error,
@@ -6366,8 +6866,16 @@ export function getGet20100401AccountsAccountSidSIPCredentialListsCredentialList
  */
 export function usePost20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsJson(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials.json']['$post']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -6462,8 +6970,16 @@ export function getGet20100401AccountsAccountSidSIPCredentialListsCredentialList
  */
 export function usePost20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJson(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$post']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -6504,8 +7020,16 @@ export function usePost20100401AccountsAccountSidSIPCredentialListsCredentialLis
  */
 export function useDelete20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJson(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$delete']
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$delete']
+              >
+            >
+          >
+        >
       >
     | undefined,
     Error,
@@ -6598,8 +7122,16 @@ export function getGet20100401AccountsAccountSidSIPCredentialListsJsonKey(
  */
 export function usePost20100401AccountsAccountSidSIPCredentialListsJson(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists.json']['$post']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -6692,8 +7224,16 @@ export function getGet20100401AccountsAccountSidSIPCredentialListsSidJsonKey(
  */
 export function usePost20100401AccountsAccountSidSIPCredentialListsSidJson(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$post']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -6735,8 +7275,16 @@ export function usePost20100401AccountsAccountSidSIPCredentialListsSidJson(optio
  */
 export function useDelete20100401AccountsAccountSidSIPCredentialListsSidJson(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$delete']
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$delete']
+              >
+            >
+          >
+        >
       >
     | undefined,
     Error,
@@ -6831,8 +7379,16 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialLis
  */
 export function usePost20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsJson(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings.json']['$post']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -6925,8 +7481,16 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialLis
  */
 export function useDelete20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsSidJson(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings'][':Sid.json']['$delete']
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings'][':Sid.json']['$delete']
+              >
+            >
+          >
+        >
       >
     | undefined,
     Error,
@@ -7016,8 +7580,16 @@ export function getGet20100401AccountsAccountSidSIPDomainsJsonKey(
  */
 export function usePost20100401AccountsAccountSidSIPDomainsJson(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains.json']['$post']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -7107,8 +7679,16 @@ export function getGet20100401AccountsAccountSidSIPDomainsSidJsonKey(
  */
 export function usePost20100401AccountsAccountSidSIPDomainsSidJson(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$post']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -7150,8 +7730,16 @@ export function usePost20100401AccountsAccountSidSIPDomainsSidJson(options?: {
  */
 export function useDelete20100401AccountsAccountSidSIPDomainsSidJson(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$delete']
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$delete']
+              >
+            >
+          >
+        >
       >
     | undefined,
     Error,
@@ -7245,8 +7833,16 @@ export function getGet20100401AccountsAccountSidSIPIpAccessControlListsJsonKey(
  */
 export function usePost20100401AccountsAccountSidSIPIpAccessControlListsJson(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists.json']['$post']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -7339,8 +7935,16 @@ export function getGet20100401AccountsAccountSidSIPIpAccessControlListsSidJsonKe
  */
 export function usePost20100401AccountsAccountSidSIPIpAccessControlListsSidJson(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$post']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -7382,8 +7986,16 @@ export function usePost20100401AccountsAccountSidSIPIpAccessControlListsSidJson(
  */
 export function useDelete20100401AccountsAccountSidSIPIpAccessControlListsSidJson(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$delete']
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$delete']
+              >
+            >
+          >
+        >
       >
     | undefined,
     Error,
@@ -7480,8 +8092,16 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessContr
  */
 export function useDelete20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsSidJson(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings'][':Sid.json']['$delete']
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings'][':Sid.json']['$delete']
+              >
+            >
+          >
+        >
       >
     | undefined,
     Error,
@@ -7575,8 +8195,16 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessContr
  */
 export function usePost20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsJson(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings.json']['$post']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -7671,8 +8299,16 @@ export function getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessC
  */
 export function usePost20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesJson(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses.json']['$post']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -7767,8 +8403,16 @@ export function getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessC
  */
 export function usePost20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJson(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$post']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -7809,8 +8453,16 @@ export function usePost20100401AccountsAccountSidSIPIpAccessControlListsIpAccess
  */
 export function useDelete20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJson(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$delete']
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$delete']
+              >
+            >
+          >
+        >
       >
     | undefined,
     Error,
@@ -7852,8 +8504,16 @@ export function useDelete20100401AccountsAccountSidSIPIpAccessControlListsIpAcce
  */
 export function usePost20100401AccountsAccountSidCallsCallSidSiprecJson(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Siprec.json']['$post']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Siprec.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -7895,8 +8555,16 @@ export function usePost20100401AccountsAccountSidCallsCallSidSiprecJson(options?
  */
 export function usePost20100401AccountsAccountSidCallsCallSidSiprecSidJson(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Siprec'][':Sid.json']['$post']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Siprec'][':Sid.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -7938,8 +8606,16 @@ export function usePost20100401AccountsAccountSidCallsCallSidSiprecSidJson(optio
  */
 export function usePost20100401AccountsAccountSidCallsCallSidStreamsJson(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Streams.json']['$post']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Streams.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -7981,8 +8657,16 @@ export function usePost20100401AccountsAccountSidCallsCallSidStreamsJson(options
  */
 export function usePost20100401AccountsAccountSidCallsCallSidStreamsSidJson(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Streams'][':Sid.json']['$post']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Streams'][':Sid.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -8024,8 +8708,16 @@ export function usePost20100401AccountsAccountSidCallsCallSidStreamsSidJson(opti
  */
 export function usePost20100401AccountsAccountSidTokensJson(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Tokens.json']['$post']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Tokens.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -8115,8 +8807,16 @@ export function getGet20100401AccountsAccountSidTranscriptionsSidJsonKey(
  */
 export function useDelete20100401AccountsAccountSidTranscriptionsSidJson(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions'][':Sid.json']['$delete']
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions'][':Sid.json']['$delete']
+              >
+            >
+          >
+        >
       >
     | undefined,
     Error,
@@ -8682,8 +9382,16 @@ export function getGet20100401AccountsAccountSidUsageTriggersSidJsonKey(
  */
 export function usePost20100401AccountsAccountSidUsageTriggersSidJson(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$post']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -8721,8 +9429,16 @@ export function usePost20100401AccountsAccountSidUsageTriggersSidJson(options?: 
  */
 export function useDelete20100401AccountsAccountSidUsageTriggersSidJson(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$delete']
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$delete']
+              >
+            >
+          >
+        >
       >
     | undefined,
     Error,
@@ -8813,8 +9529,16 @@ export function getGet20100401AccountsAccountSidUsageTriggersJsonKey(
  */
 export function usePost20100401AccountsAccountSidUsageTriggersJson(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers.json']['$post']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -8856,8 +9580,16 @@ export function usePost20100401AccountsAccountSidUsageTriggersJson(options?: {
  */
 export function usePost20100401AccountsAccountSidCallsCallSidUserDefinedMessagesJson(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessages.json']['$post']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessages.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -8898,8 +9630,16 @@ export function usePost20100401AccountsAccountSidCallsCallSidUserDefinedMessages
  */
 export function usePost20100401AccountsAccountSidCallsCallSidUserDefinedMessageSubscriptionsJson(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessageSubscriptions.json']['$post']
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessageSubscriptions.json']['$post']
+            >
+          >
+        >
+      >
     >,
     Error,
     string,
@@ -8940,8 +9680,16 @@ export function usePost20100401AccountsAccountSidCallsCallSidUserDefinedMessageS
  */
 export function useDelete20100401AccountsAccountSidCallsCallSidUserDefinedMessageSubscriptionsSidJson(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessageSubscriptions'][':Sid.json']['$delete']
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessageSubscriptions'][':Sid.json']['$delete']
+              >
+            >
+          >
+        >
       >
     | undefined,
     Error,

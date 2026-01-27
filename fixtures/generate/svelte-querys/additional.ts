@@ -25,7 +25,7 @@ export function createGetPassthrough(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetPassthroughQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetPassthroughQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**

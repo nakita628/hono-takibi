@@ -25,7 +25,7 @@ export function createGetNumber(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetNumberQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetNumberQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**

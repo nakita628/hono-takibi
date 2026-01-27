@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/40-auth-session-management'
 
 /**
@@ -49,7 +49,7 @@ export function getGetSessionsKey(args?: InferRequestType<typeof client.sessions
  */
 export function usePostSessions(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.sessions.$post>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.sessions.$post>>>>>,
     Error,
     string,
     InferRequestType<typeof client.sessions.$post>
@@ -101,7 +101,12 @@ export function getGetSessionsCurrentKey() {
  */
 export function useDeleteSessionsCurrent(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.sessions.current.$delete> | undefined,
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<typeof client.sessions.current.$delete>>>
+        >
+      >
+    | undefined,
     Error,
     string,
     undefined
@@ -125,7 +130,11 @@ export function useDeleteSessionsCurrent(options?: {
  */
 export function usePostSessionsCurrentRefresh(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.sessions.current.refresh.$post>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<typeof client.sessions.current.refresh.$post>>>
+      >
+    >,
     Error,
     string,
     InferRequestType<typeof client.sessions.current.refresh.$post>
@@ -152,7 +161,11 @@ export function usePostSessionsCurrentRefresh(options?: {
  */
 export function usePostSessionsCurrentExtend(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.sessions.current.extend.$post>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<typeof client.sessions.current.extend.$post>>>
+      >
+    >,
     Error,
     string,
     InferRequestType<typeof client.sessions.current.extend.$post>
@@ -179,7 +192,11 @@ export function usePostSessionsCurrentExtend(options?: {
  */
 export function usePostSessionsCurrentActivity(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.sessions.current.activity.$post>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<typeof client.sessions.current.activity.$post>>>
+      >
+    >,
     Error,
     string,
     undefined
@@ -237,7 +254,14 @@ export function getGetSessionsSessionIdKey(
  */
 export function useDeleteSessionsSessionId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.sessions)[':sessionId']['$delete']> | undefined,
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.sessions)[':sessionId']['$delete']>>
+          >
+        >
+      >
+    | undefined,
     Error,
     string,
     InferRequestType<(typeof client.sessions)[':sessionId']['$delete']>
@@ -264,7 +288,11 @@ export function useDeleteSessionsSessionId(options?: {
  */
 export function usePostSessionsRevokeAll(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.sessions)['revoke-all']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client.sessions)['revoke-all']['$post']>>>
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.sessions)['revoke-all']['$post']>
@@ -291,7 +319,9 @@ export function usePostSessionsRevokeAll(options?: {
  */
 export function usePostSessionsValidate(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.sessions.validate.$post>,
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.sessions.validate.$post>>>>
+    >,
     Error,
     string,
     InferRequestType<typeof client.sessions.validate.$post>
@@ -413,7 +443,9 @@ export function getGetSessionsPoliciesKey() {
  */
 export function usePutSessionsPolicies(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.sessions.policies.$put>,
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.sessions.policies.$put>>>>
+    >,
     Error,
     string,
     InferRequestType<typeof client.sessions.policies.$put>
@@ -465,7 +497,13 @@ export function getGetSessionsTrustedDevicesKey() {
  */
 export function usePostSessionsTrustedDevices(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.sessions)['trusted-devices']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.sessions)['trusted-devices']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.sessions)['trusted-devices']['$post']>
@@ -490,7 +528,13 @@ export function usePostSessionsTrustedDevices(options?: {
  */
 export function useDeleteSessionsTrustedDevicesDeviceId(options?: {
   mutation?: SWRMutationConfiguration<
-    | InferResponseType<(typeof client.sessions)['trusted-devices'][':deviceId']['$delete']>
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.sessions)['trusted-devices'][':deviceId']['$delete']>>
+          >
+        >
+      >
     | undefined,
     Error,
     string,

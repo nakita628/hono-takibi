@@ -1,5 +1,5 @@
-import { useQuery, useMutation, queryOptions } from '@tanstack/vue-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { queryOptions, useMutation, useQuery } from '@tanstack/vue-query'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/16-complex-composition'
 
@@ -9,12 +9,18 @@ import { client } from '../clients/16-complex-composition'
 export function usePostMessages(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.messages.$post>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.messages.$post>>>>
+      >,
       variables: InferRequestType<typeof client.messages.$post>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.messages.$post>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.messages.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.messages.$post>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.messages.$post>,
     ) => void
@@ -38,12 +44,16 @@ export function usePostMessages(options?: {
 export function usePostEvents(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.events.$post>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.events.$post>>>>
+      >,
       variables: InferRequestType<typeof client.events.$post>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.events.$post>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.events.$post> | undefined,
+      data:
+        | Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.events.$post>>>>>
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.events.$post>,
     ) => void
@@ -112,12 +122,16 @@ export const getGetConfigsQueryOptions = (clientOptions?: ClientRequestOptions) 
 export function usePutConfigs(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.configs.$put>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.configs.$put>>>>
+      >,
       variables: InferRequestType<typeof client.configs.$put>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.configs.$put>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.configs.$put> | undefined,
+      data:
+        | Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.configs.$put>>>>>
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.configs.$put>,
     ) => void
@@ -141,12 +155,18 @@ export function usePutConfigs(options?: {
 export function usePostResources(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.resources.$post>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.resources.$post>>>>
+      >,
       variables: InferRequestType<typeof client.resources.$post>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.resources.$post>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.resources.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.resources.$post>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.resources.$post>,
     ) => void
@@ -170,12 +190,18 @@ export function usePostResources(options?: {
 export function usePostValidations(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.validations.$post>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.validations.$post>>>>
+      >,
       variables: InferRequestType<typeof client.validations.$post>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.validations.$post>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.validations.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.validations.$post>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.validations.$post>,
     ) => void

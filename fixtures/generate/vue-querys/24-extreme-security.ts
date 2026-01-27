@@ -1,5 +1,5 @@
-import { useQuery, useMutation, queryOptions } from '@tanstack/vue-query'
-import type { InferResponseType, ClientRequestOptions } from 'hono/client'
+import { queryOptions, useMutation, useQuery } from '@tanstack/vue-query'
+import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/24-extreme-security'
 
@@ -340,12 +340,24 @@ export const getGetMixedLevelSecurityQueryOptions = (clientOptions?: ClientReque
 export function usePutMixedLevelSecurity(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client)['mixed-level-security']['$put']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client)['mixed-level-security']['$put']>>>
+        >
+      >,
       variables: undefined,
     ) => void
     onError?: (error: Error, variables: undefined) => void
     onSettled?: (
-      data: InferResponseType<(typeof client)['mixed-level-security']['$put']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client)['mixed-level-security']['$put']>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: undefined,
     ) => void
@@ -371,12 +383,26 @@ export function usePutMixedLevelSecurity(options?: {
 export function usePostMixedLevelSecurity(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client)['mixed-level-security']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['mixed-level-security']['$post']>>
+          >
+        >
+      >,
       variables: undefined,
     ) => void
     onError?: (error: Error, variables: undefined) => void
     onSettled?: (
-      data: InferResponseType<(typeof client)['mixed-level-security']['$post']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client)['mixed-level-security']['$post']>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: undefined,
     ) => void
@@ -402,14 +428,27 @@ export function usePostMixedLevelSecurity(options?: {
 export function useDeleteMixedLevelSecurity(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client)['mixed-level-security']['$delete']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client)['mixed-level-security']['$delete']>>
+              >
+            >
+          >
+        | undefined,
       variables: undefined,
     ) => void
     onError?: (error: Error, variables: undefined) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client)['mixed-level-security']['$delete']>
-        | undefined
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client)['mixed-level-security']['$delete']>>
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: undefined,

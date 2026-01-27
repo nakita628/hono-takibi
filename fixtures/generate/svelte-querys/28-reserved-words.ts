@@ -1,5 +1,5 @@
-import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
-import type { InferResponseType, ClientRequestOptions } from 'hono/client'
+import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
+import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/28-reserved-words'
 
@@ -21,7 +21,7 @@ export function createGetClass(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetClassQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetClassQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -66,7 +66,7 @@ export function createGetInterface(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetInterfaceQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetInterfaceQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -111,7 +111,7 @@ export function createGetType(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetTypeQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetTypeQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -141,12 +141,18 @@ export const getGetTypeQueryOptions = (clientOptions?: ClientRequestOptions) =>
 export function createPostFunction(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.function.$post>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.function.$post>>>>
+      >,
       variables: undefined,
     ) => void
     onError?: (error: Error, variables: undefined) => void
     onSettled?: (
-      data: InferResponseType<typeof client.function.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.function.$post>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: undefined,
     ) => void
@@ -157,10 +163,10 @@ export function createPostFunction(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async () => parseResponse(client.function.$post(undefined, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -181,7 +187,7 @@ export function createGetReturn(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetReturnQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetReturnQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -226,7 +232,7 @@ export function createGetImport(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetImportQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetImportQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -271,7 +277,7 @@ export function createGetExport(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetExportQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetExportQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -316,7 +322,7 @@ export function createGetDefault(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetDefaultQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetDefaultQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -348,10 +354,15 @@ export const getGetDefaultQueryOptions = (clientOptions?: ClientRequestOptions) 
  */
 export function createPostNew(options?: {
   mutation?: {
-    onSuccess?: (data: InferResponseType<typeof client.new.$post>, variables: undefined) => void
+    onSuccess?: (
+      data: Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.new.$post>>>>>,
+      variables: undefined,
+    ) => void
     onError?: (error: Error, variables: undefined) => void
     onSettled?: (
-      data: InferResponseType<typeof client.new.$post> | undefined,
+      data:
+        | Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.new.$post>>>>>
+        | undefined,
       error: Error | null,
       variables: undefined,
     ) => void
@@ -362,10 +373,10 @@ export function createPostNew(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async () => parseResponse(client.new.$post(undefined, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -374,12 +385,18 @@ export function createPostNew(options?: {
 export function createDeleteDelete(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.delete.$delete>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.delete.$delete>>>>
+      >,
       variables: undefined,
     ) => void
     onError?: (error: Error, variables: undefined) => void
     onSettled?: (
-      data: InferResponseType<typeof client.delete.$delete> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.delete.$delete>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: undefined,
     ) => void
@@ -390,10 +407,10 @@ export function createDeleteDelete(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async () => parseResponse(client.delete.$delete(undefined, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -414,7 +431,7 @@ export function createGetVoid(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetVoidQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetVoidQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -456,7 +473,7 @@ export function createGetNull(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetNullQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetNullQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -498,7 +515,7 @@ export function createGetTrue(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetTrueQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetTrueQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -540,7 +557,7 @@ export function createGetFalse(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetFalseQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetFalseQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -585,7 +602,7 @@ export function createGetIf(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetIfQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetIfQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -627,7 +644,7 @@ export function createGetElse(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetElseQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetElseQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -669,7 +686,7 @@ export function createGetFor(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetForQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetForQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -711,7 +728,7 @@ export function createGetWhile(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetWhileQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetWhileQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -756,7 +773,7 @@ export function createGetSwitch(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetSwitchQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetSwitchQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -801,7 +818,7 @@ export function createGetCase(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetCaseQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetCaseQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -843,7 +860,7 @@ export function createGetBreak(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetBreakQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetBreakQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -888,7 +905,7 @@ export function createGetContinue(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetContinueQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetContinueQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -933,7 +950,7 @@ export function createGetTry(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetTryQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetTryQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -975,7 +992,7 @@ export function createGetCatch(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetCatchQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetCatchQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -1020,7 +1037,7 @@ export function createGetFinally(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetFinallyQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetFinallyQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -1065,7 +1082,7 @@ export function createGetThrow(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetThrowQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetThrowQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -1110,7 +1127,7 @@ export function createGetAsync(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetAsyncQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetAsyncQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -1155,7 +1172,7 @@ export function createGetAwait(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetAwaitQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetAwaitQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -1200,7 +1217,7 @@ export function createGetYield(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetYieldQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetYieldQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -1245,7 +1262,7 @@ export function createGetStatic(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetStaticQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetStaticQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -1290,7 +1307,7 @@ export function createGetPublic(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetPublicQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetPublicQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -1335,7 +1352,7 @@ export function createGetPrivate(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetPrivateQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetPrivateQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -1380,7 +1397,7 @@ export function createGetProtected(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetProtectedQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetProtectedQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -1425,7 +1442,7 @@ export function createGetAbstract(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetAbstractQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetAbstractQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -1470,7 +1487,7 @@ export function createGetFinal(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetFinalQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetFinalQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -1515,7 +1532,7 @@ export function createGetExtends(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetExtendsQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetExtendsQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -1560,7 +1577,7 @@ export function createGetImplements(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetImplementsQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetImplementsQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -1605,7 +1622,7 @@ export function createGetPackage(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetPackageQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetPackageQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -1650,7 +1667,7 @@ export function createGetEnum(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetEnumQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetEnumQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -1692,7 +1709,7 @@ export function createGetConst(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetConstQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetConstQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -1737,7 +1754,7 @@ export function createGetLet(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetLetQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetLetQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -1779,7 +1796,7 @@ export function createGetVar(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetVarQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetVarQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -1821,7 +1838,7 @@ export function createGetThis(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetThisQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetThisQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -1863,7 +1880,7 @@ export function createGetSuper(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetSuperQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetSuperQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -1908,7 +1925,7 @@ export function createGetSelf(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetSelfQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetSelfQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -1950,7 +1967,7 @@ export function createGetConstructor(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetConstructorQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetConstructorQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -1995,7 +2012,7 @@ export function createGetPrototype(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetPrototypeQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetPrototypeQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -2040,7 +2057,7 @@ export function createGetToString(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetToStringQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetToStringQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -2085,7 +2102,7 @@ export function createGetValueOf(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetValueOfQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetValueOfQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -2130,7 +2147,10 @@ export function createGetHasOwnProperty(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetHasOwnPropertyQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGetHasOwnPropertyQueryOptions(clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**
@@ -2175,7 +2195,10 @@ export function createGetNameCollisions(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetNameCollisionsQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGetNameCollisionsQueryOptions(clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**

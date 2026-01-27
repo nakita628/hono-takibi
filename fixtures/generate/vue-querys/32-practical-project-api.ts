@@ -1,5 +1,5 @@
-import { useQuery, useMutation, queryOptions } from '@tanstack/vue-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { queryOptions, useMutation, useQuery } from '@tanstack/vue-query'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/32-practical-project-api'
 
@@ -61,12 +61,18 @@ export const getGetProjectsQueryOptions = (
 export function usePostProjects(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.projects.$post>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.projects.$post>>>>
+      >,
       variables: InferRequestType<typeof client.projects.$post>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.projects.$post>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.projects.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.projects.$post>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.projects.$post>,
     ) => void
@@ -147,7 +153,11 @@ export const getGetProjectsProjectIdQueryOptions = (
 export function usePutProjectsProjectId(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.projects)[':projectId']['$put']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.projects)[':projectId']['$put']>>>
+        >
+      >,
       variables: InferRequestType<(typeof client.projects)[':projectId']['$put']>,
     ) => void
     onError?: (
@@ -155,7 +165,15 @@ export function usePutProjectsProjectId(options?: {
       variables: InferRequestType<(typeof client.projects)[':projectId']['$put']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.projects)[':projectId']['$put']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.projects)[':projectId']['$put']>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.projects)[':projectId']['$put']>,
     ) => void
@@ -181,7 +199,15 @@ export function usePutProjectsProjectId(options?: {
 export function useDeleteProjectsProjectId(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.projects)[':projectId']['$delete']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.projects)[':projectId']['$delete']>>
+              >
+            >
+          >
+        | undefined,
       variables: InferRequestType<(typeof client.projects)[':projectId']['$delete']>,
     ) => void
     onError?: (
@@ -190,8 +216,13 @@ export function useDeleteProjectsProjectId(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client.projects)[':projectId']['$delete']>
-        | undefined
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.projects)[':projectId']['$delete']>>
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.projects)[':projectId']['$delete']>,
@@ -278,7 +309,13 @@ export const getGetProjectsProjectIdMembersQueryOptions = (
 export function usePostProjectsProjectIdMembers(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.projects)[':projectId']['members']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.projects)[':projectId']['members']['$post']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client.projects)[':projectId']['members']['$post']>,
     ) => void
     onError?: (
@@ -287,7 +324,13 @@ export function usePostProjectsProjectIdMembers(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client.projects)[':projectId']['members']['$post']>
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.projects)[':projectId']['members']['$post']>>
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.projects)[':projectId']['members']['$post']>,
@@ -375,7 +418,13 @@ export const getGetProjectsProjectIdTasksQueryOptions = (
 export function usePostProjectsProjectIdTasks(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.projects)[':projectId']['tasks']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.projects)[':projectId']['tasks']['$post']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client.projects)[':projectId']['tasks']['$post']>,
     ) => void
     onError?: (
@@ -383,7 +432,15 @@ export function usePostProjectsProjectIdTasks(options?: {
       variables: InferRequestType<(typeof client.projects)[':projectId']['tasks']['$post']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.projects)[':projectId']['tasks']['$post']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.projects)[':projectId']['tasks']['$post']>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.projects)[':projectId']['tasks']['$post']>,
     ) => void
@@ -467,7 +524,11 @@ export const getGetTasksTaskIdQueryOptions = (
 export function usePutTasksTaskId(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.tasks)[':taskId']['$put']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.tasks)[':taskId']['$put']>>>
+        >
+      >,
       variables: InferRequestType<(typeof client.tasks)[':taskId']['$put']>,
     ) => void
     onError?: (
@@ -475,7 +536,13 @@ export function usePutTasksTaskId(options?: {
       variables: InferRequestType<(typeof client.tasks)[':taskId']['$put']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.tasks)[':taskId']['$put']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client.tasks)[':taskId']['$put']>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.tasks)[':taskId']['$put']>,
     ) => void
@@ -501,7 +568,13 @@ export function usePutTasksTaskId(options?: {
 export function useDeleteTasksTaskId(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.tasks)[':taskId']['$delete']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client.tasks)[':taskId']['$delete']>>>
+            >
+          >
+        | undefined,
       variables: InferRequestType<(typeof client.tasks)[':taskId']['$delete']>,
     ) => void
     onError?: (
@@ -509,7 +582,13 @@ export function useDeleteTasksTaskId(options?: {
       variables: InferRequestType<(typeof client.tasks)[':taskId']['$delete']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.tasks)[':taskId']['$delete']> | undefined | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client.tasks)[':taskId']['$delete']>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.tasks)[':taskId']['$delete']>,
     ) => void
@@ -535,7 +614,13 @@ export function useDeleteTasksTaskId(options?: {
 export function usePatchTasksTaskIdStatus(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.tasks)[':taskId']['status']['$patch']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.tasks)[':taskId']['status']['$patch']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client.tasks)[':taskId']['status']['$patch']>,
     ) => void
     onError?: (
@@ -543,7 +628,15 @@ export function usePatchTasksTaskIdStatus(options?: {
       variables: InferRequestType<(typeof client.tasks)[':taskId']['status']['$patch']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.tasks)[':taskId']['status']['$patch']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.tasks)[':taskId']['status']['$patch']>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.tasks)[':taskId']['status']['$patch']>,
     ) => void
@@ -630,7 +723,13 @@ export const getGetTasksTaskIdCommentsQueryOptions = (
 export function usePostTasksTaskIdComments(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.tasks)[':taskId']['comments']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.tasks)[':taskId']['comments']['$post']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client.tasks)[':taskId']['comments']['$post']>,
     ) => void
     onError?: (
@@ -638,7 +737,15 @@ export function usePostTasksTaskIdComments(options?: {
       variables: InferRequestType<(typeof client.tasks)[':taskId']['comments']['$post']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.tasks)[':taskId']['comments']['$post']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.tasks)[':taskId']['comments']['$post']>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.tasks)[':taskId']['comments']['$post']>,
     ) => void
@@ -725,7 +832,13 @@ export const getGetTasksTaskIdTimeEntriesQueryOptions = (
 export function usePostTasksTaskIdTimeEntries(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.tasks)[':taskId']['time-entries']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.tasks)[':taskId']['time-entries']['$post']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client.tasks)[':taskId']['time-entries']['$post']>,
     ) => void
     onError?: (
@@ -734,7 +847,13 @@ export function usePostTasksTaskIdTimeEntries(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client.tasks)[':taskId']['time-entries']['$post']>
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.tasks)[':taskId']['time-entries']['$post']>>
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.tasks)[':taskId']['time-entries']['$post']>,
@@ -822,7 +941,13 @@ export const getGetProjectsProjectIdMilestonesQueryOptions = (
 export function usePostProjectsProjectIdMilestones(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.projects)[':projectId']['milestones']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.projects)[':projectId']['milestones']['$post']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client.projects)[':projectId']['milestones']['$post']>,
     ) => void
     onError?: (
@@ -831,7 +956,13 @@ export function usePostProjectsProjectIdMilestones(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client.projects)[':projectId']['milestones']['$post']>
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.projects)[':projectId']['milestones']['$post']>>
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.projects)[':projectId']['milestones']['$post']>,
@@ -908,12 +1039,16 @@ export const getGetTeamsQueryOptions = (clientOptions?: ClientRequestOptions) =>
 export function usePostTeams(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.teams.$post>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.teams.$post>>>>
+      >,
       variables: InferRequestType<typeof client.teams.$post>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.teams.$post>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.teams.$post> | undefined,
+      data:
+        | Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.teams.$post>>>>>
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.teams.$post>,
     ) => void

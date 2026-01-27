@@ -25,7 +25,7 @@ export function createGetPrimitive(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetPrimitiveQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetPrimitiveQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**

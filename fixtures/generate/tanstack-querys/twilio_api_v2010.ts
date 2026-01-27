@@ -1,5 +1,5 @@
-import { useQuery, useMutation, queryOptions } from '@tanstack/react-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/twilio_api_v2010'
 
@@ -73,7 +73,13 @@ export const getGet20100401AccountsJsonQueryOptions = (
 export function usePost20100401AccountsJson(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client)['2010-04-01']['Accounts.json']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['2010-04-01']['Accounts.json']['$post']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client)['2010-04-01']['Accounts.json']['$post']>,
     ) => void
     onError?: (
@@ -81,7 +87,15 @@ export function usePost20100401AccountsJson(options?: {
       variables: InferRequestType<(typeof client)['2010-04-01']['Accounts.json']['$post']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client)['2010-04-01']['Accounts.json']['$post']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client)['2010-04-01']['Accounts.json']['$post']>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client)['2010-04-01']['Accounts.json']['$post']>,
     ) => void
@@ -172,7 +186,13 @@ export const getGet20100401AccountsSidJsonQueryOptions = (
 export function usePost20100401AccountsSidJson(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client)['2010-04-01']['Accounts'][':Sid.json']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['2010-04-01']['Accounts'][':Sid.json']['$post']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client)['2010-04-01']['Accounts'][':Sid.json']['$post']>,
     ) => void
     onError?: (
@@ -181,7 +201,13 @@ export function usePost20100401AccountsSidJson(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client)['2010-04-01']['Accounts'][':Sid.json']['$post']>
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client)['2010-04-01']['Accounts'][':Sid.json']['$post']>>
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client)['2010-04-01']['Accounts'][':Sid.json']['$post']>,
@@ -271,8 +297,16 @@ export const getGet20100401AccountsAccountSidAddressesJsonQueryOptions = (
 export function usePost20100401AccountsAccountSidAddressesJson(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses.json']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses.json']['$post']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses.json']['$post']
@@ -286,8 +320,16 @@ export function usePost20100401AccountsAccountSidAddressesJson(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses.json']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses.json']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -387,8 +429,16 @@ export const getGet20100401AccountsAccountSidAddressesSidJsonQueryOptions = (
 export function usePost20100401AccountsAccountSidAddressesSidJson(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$post']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$post']
@@ -402,8 +452,16 @@ export function usePost20100401AccountsAccountSidAddressesSidJson(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -445,8 +503,16 @@ export function useDelete20100401AccountsAccountSidAddressesSidJson(options?: {
   mutation?: {
     onSuccess?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$delete']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$delete']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       variables: InferRequestType<
@@ -461,10 +527,17 @@ export function useDelete20100401AccountsAccountSidAddressesSidJson(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$delete']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$delete']
+                  >
+                >
+              >
+            >
           >
-        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -574,8 +647,16 @@ export const getGet20100401AccountsAccountSidApplicationsJsonQueryOptions = (
 export function usePost20100401AccountsAccountSidApplicationsJson(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications.json']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications.json']['$post']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications.json']['$post']
@@ -589,8 +670,16 @@ export function usePost20100401AccountsAccountSidApplicationsJson(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications.json']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications.json']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -701,8 +790,16 @@ export const getGet20100401AccountsAccountSidApplicationsSidJsonQueryOptions = (
 export function usePost20100401AccountsAccountSidApplicationsSidJson(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$post']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$post']
@@ -716,8 +813,16 @@ export function usePost20100401AccountsAccountSidApplicationsSidJson(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -763,8 +868,16 @@ export function useDelete20100401AccountsAccountSidApplicationsSidJson(options?:
   mutation?: {
     onSuccess?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$delete']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$delete']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       variables: InferRequestType<
@@ -779,10 +892,17 @@ export function useDelete20100401AccountsAccountSidApplicationsSidJson(options?:
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$delete']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$delete']
+                  >
+                >
+              >
+            >
           >
-        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -1708,8 +1828,16 @@ export const getGet20100401AccountsAccountSidCallsJsonQueryOptions = (
 export function usePost20100401AccountsAccountSidCallsJson(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls.json']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls.json']['$post']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls.json']['$post']
@@ -1723,8 +1851,16 @@ export function usePost20100401AccountsAccountSidCallsJson(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls.json']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls.json']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -1832,8 +1968,16 @@ export const getGet20100401AccountsAccountSidCallsSidJsonQueryOptions = (
 export function usePost20100401AccountsAccountSidCallsSidJson(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$post']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$post']
@@ -1847,8 +1991,16 @@ export function usePost20100401AccountsAccountSidCallsSidJson(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -1891,8 +2043,16 @@ export function useDelete20100401AccountsAccountSidCallsSidJson(options?: {
   mutation?: {
     onSuccess?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$delete']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$delete']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       variables: InferRequestType<
@@ -1907,10 +2067,17 @@ export function useDelete20100401AccountsAccountSidCallsSidJson(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$delete']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$delete']
+                  >
+                >
+              >
+            >
           >
-        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -2215,8 +2382,16 @@ export const getGet20100401AccountsAccountSidCallsCallSidRecordingsJsonQueryOpti
 export function usePost20100401AccountsAccountSidCallsCallSidRecordingsJson(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings.json']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings.json']['$post']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings.json']['$post']
@@ -2230,8 +2405,16 @@ export function usePost20100401AccountsAccountSidCallsCallSidRecordingsJson(opti
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings.json']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings.json']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -2345,8 +2528,16 @@ export const getGet20100401AccountsAccountSidCallsCallSidRecordingsSidJsonQueryO
 export function usePost20100401AccountsAccountSidCallsCallSidRecordingsSidJson(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$post']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$post']
@@ -2360,8 +2551,16 @@ export function usePost20100401AccountsAccountSidCallsCallSidRecordingsSidJson(o
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -2406,8 +2605,16 @@ export function useDelete20100401AccountsAccountSidCallsCallSidRecordingsSidJson
   mutation?: {
     onSuccess?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$delete']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$delete']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       variables: InferRequestType<
@@ -2422,10 +2629,17 @@ export function useDelete20100401AccountsAccountSidCallsCallSidRecordingsSidJson
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$delete']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$delete']
+                  >
+                >
+              >
+            >
           >
-        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -2530,8 +2744,16 @@ export const getGet20100401AccountsAccountSidConferencesSidJsonQueryOptions = (
 export function usePost20100401AccountsAccountSidConferencesSidJson(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':Sid.json']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':Sid.json']['$post']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':Sid.json']['$post']
@@ -2545,8 +2767,16 @@ export function usePost20100401AccountsAccountSidConferencesSidJson(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':Sid.json']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':Sid.json']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -2801,8 +3031,16 @@ export const getGet20100401AccountsAccountSidConferencesConferenceSidRecordingsS
 export function usePost20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJson(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$post']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$post']
@@ -2816,8 +3054,16 @@ export function usePost20100401AccountsAccountSidConferencesConferenceSidRecordi
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -2862,8 +3108,16 @@ export function useDelete20100401AccountsAccountSidConferencesConferenceSidRecor
   mutation?: {
     onSuccess?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$delete']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$delete']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       variables: InferRequestType<
@@ -2878,10 +3132,17 @@ export function useDelete20100401AccountsAccountSidConferencesConferenceSidRecor
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$delete']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$delete']
+                  >
+                >
+              >
+            >
           >
-        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -2990,8 +3251,16 @@ export const getGet20100401AccountsAccountSidConnectAppsSidJsonQueryOptions = (
 export function usePost20100401AccountsAccountSidConnectAppsSidJson(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$post']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$post']
@@ -3005,8 +3274,16 @@ export function usePost20100401AccountsAccountSidConnectAppsSidJson(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -3052,8 +3329,16 @@ export function useDelete20100401AccountsAccountSidConnectAppsSidJson(options?: 
   mutation?: {
     onSuccess?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$delete']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$delete']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       variables: InferRequestType<
@@ -3068,10 +3353,17 @@ export function useDelete20100401AccountsAccountSidConnectAppsSidJson(options?: 
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$delete']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$delete']
+                  >
+                >
+              >
+            >
           >
-        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -3316,8 +3608,16 @@ export const getGet20100401AccountsAccountSidIncomingPhoneNumbersSidJsonQueryOpt
 export function usePost20100401AccountsAccountSidIncomingPhoneNumbersSidJson(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$post']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$post']
@@ -3331,8 +3631,16 @@ export function usePost20100401AccountsAccountSidIncomingPhoneNumbersSidJson(opt
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -3378,8 +3686,16 @@ export function useDelete20100401AccountsAccountSidIncomingPhoneNumbersSidJson(o
   mutation?: {
     onSuccess?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$delete']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$delete']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       variables: InferRequestType<
@@ -3394,10 +3710,17 @@ export function useDelete20100401AccountsAccountSidIncomingPhoneNumbersSidJson(o
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$delete']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$delete']
+                  >
+                >
+              >
+            >
           >
-        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -3507,8 +3830,16 @@ export const getGet20100401AccountsAccountSidIncomingPhoneNumbersJsonQueryOption
 export function usePost20100401AccountsAccountSidIncomingPhoneNumbersJson(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers.json']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers.json']['$post']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers.json']['$post']
@@ -3522,8 +3853,16 @@ export function usePost20100401AccountsAccountSidIncomingPhoneNumbersJson(option
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers.json']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers.json']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -3647,8 +3986,16 @@ export function useDelete20100401AccountsAccountSidIncomingPhoneNumbersResourceS
   mutation?: {
     onSuccess?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':Sid.json']['$delete']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':Sid.json']['$delete']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       variables: InferRequestType<
@@ -3663,10 +4010,17 @@ export function useDelete20100401AccountsAccountSidIncomingPhoneNumbersResourceS
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':Sid.json']['$delete']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':Sid.json']['$delete']
+                  >
+                >
+              >
+            >
           >
-        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -3784,8 +4138,16 @@ export const getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssi
 export function usePost20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsJson(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns.json']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns.json']['$post']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns.json']['$post']
@@ -3799,8 +4161,16 @@ export function usePost20100401AccountsAccountSidIncomingPhoneNumbersResourceSid
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns.json']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns.json']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -4061,8 +4431,16 @@ export const getGet20100401AccountsAccountSidIncomingPhoneNumbersLocalJsonQueryO
 export function usePost20100401AccountsAccountSidIncomingPhoneNumbersLocalJson(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Local.json']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Local.json']['$post']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Local.json']['$post']
@@ -4076,8 +4454,16 @@ export function usePost20100401AccountsAccountSidIncomingPhoneNumbersLocalJson(o
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Local.json']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Local.json']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -4183,8 +4569,16 @@ export const getGet20100401AccountsAccountSidIncomingPhoneNumbersMobileJsonQuery
 export function usePost20100401AccountsAccountSidIncomingPhoneNumbersMobileJson(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Mobile.json']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Mobile.json']['$post']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Mobile.json']['$post']
@@ -4198,8 +4592,16 @@ export function usePost20100401AccountsAccountSidIncomingPhoneNumbersMobileJson(
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Mobile.json']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Mobile.json']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -4305,8 +4707,16 @@ export const getGet20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJsonQue
 export function usePost20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJson(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['TollFree.json']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['TollFree.json']['$post']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['TollFree.json']['$post']
@@ -4320,8 +4730,16 @@ export function usePost20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJso
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['TollFree.json']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['TollFree.json']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -4424,8 +4842,16 @@ export const getGet20100401AccountsAccountSidKeysSidJsonQueryOptions = (
 export function usePost20100401AccountsAccountSidKeysSidJson(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$post']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$post']
@@ -4439,8 +4865,16 @@ export function usePost20100401AccountsAccountSidKeysSidJson(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -4479,8 +4913,16 @@ export function useDelete20100401AccountsAccountSidKeysSidJson(options?: {
   mutation?: {
     onSuccess?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$delete']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$delete']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       variables: InferRequestType<
@@ -4495,10 +4937,17 @@ export function useDelete20100401AccountsAccountSidKeysSidJson(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$delete']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$delete']
+                  >
+                >
+              >
+            >
           >
-        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -4597,8 +5046,16 @@ export const getGet20100401AccountsAccountSidKeysJsonQueryOptions = (
 export function usePost20100401AccountsAccountSidKeysJson(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys.json']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys.json']['$post']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys.json']['$post']
@@ -4612,8 +5069,16 @@ export function usePost20100401AccountsAccountSidKeysJson(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys.json']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys.json']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -4724,8 +5189,16 @@ export function useDelete20100401AccountsAccountSidMessagesMessageSidMediaSidJso
   mutation?: {
     onSuccess?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media'][':Sid.json']['$delete']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media'][':Sid.json']['$delete']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       variables: InferRequestType<
@@ -4740,10 +5213,17 @@ export function useDelete20100401AccountsAccountSidMessagesMessageSidMediaSidJso
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media'][':Sid.json']['$delete']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media'][':Sid.json']['$delete']
+                  >
+                >
+              >
+            >
           >
-        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -4920,8 +5400,16 @@ export const getGet20100401AccountsAccountSidQueuesQueueSidMembersCallSidJsonQue
 export function usePost20100401AccountsAccountSidQueuesQueueSidMembersCallSidJson(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members'][':CallSid.json']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members'][':CallSid.json']['$post']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members'][':CallSid.json']['$post']
@@ -4935,8 +5423,16 @@ export function usePost20100401AccountsAccountSidQueuesQueueSidMembersCallSidJso
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members'][':CallSid.json']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members'][':CallSid.json']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -5112,8 +5608,16 @@ export const getGet20100401AccountsAccountSidMessagesJsonQueryOptions = (
 export function usePost20100401AccountsAccountSidMessagesJson(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages.json']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages.json']['$post']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages.json']['$post']
@@ -5127,8 +5631,16 @@ export function usePost20100401AccountsAccountSidMessagesJson(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages.json']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages.json']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -5236,8 +5748,16 @@ export const getGet20100401AccountsAccountSidMessagesSidJsonQueryOptions = (
 export function usePost20100401AccountsAccountSidMessagesSidJson(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$post']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$post']
@@ -5251,8 +5771,16 @@ export function usePost20100401AccountsAccountSidMessagesSidJson(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -5298,8 +5826,16 @@ export function useDelete20100401AccountsAccountSidMessagesSidJson(options?: {
   mutation?: {
     onSuccess?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$delete']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$delete']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       variables: InferRequestType<
@@ -5314,10 +5850,17 @@ export function useDelete20100401AccountsAccountSidMessagesSidJson(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$delete']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$delete']
+                  >
+                >
+              >
+            >
           >
-        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -5361,8 +5904,16 @@ export function useDelete20100401AccountsAccountSidMessagesSidJson(options?: {
 export function usePost20100401AccountsAccountSidMessagesMessageSidFeedbackJson(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Feedback.json']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Feedback.json']['$post']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Feedback.json']['$post']
@@ -5376,8 +5927,16 @@ export function usePost20100401AccountsAccountSidMessagesMessageSidFeedbackJson(
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Feedback.json']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Feedback.json']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -5484,8 +6043,16 @@ export const getGet20100401AccountsAccountSidSigningKeysJsonQueryOptions = (
 export function usePost20100401AccountsAccountSidSigningKeysJson(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys.json']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys.json']['$post']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys.json']['$post']
@@ -5499,8 +6066,16 @@ export function usePost20100401AccountsAccountSidSigningKeysJson(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys.json']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys.json']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -5740,8 +6315,16 @@ export const getGet20100401AccountsAccountSidOutgoingCallerIdsSidJsonQueryOption
 export function usePost20100401AccountsAccountSidOutgoingCallerIdsSidJson(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$post']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$post']
@@ -5755,8 +6338,16 @@ export function usePost20100401AccountsAccountSidOutgoingCallerIdsSidJson(option
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -5802,8 +6393,16 @@ export function useDelete20100401AccountsAccountSidOutgoingCallerIdsSidJson(opti
   mutation?: {
     onSuccess?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$delete']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$delete']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       variables: InferRequestType<
@@ -5818,10 +6417,17 @@ export function useDelete20100401AccountsAccountSidOutgoingCallerIdsSidJson(opti
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$delete']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$delete']
+                  >
+                >
+              >
+            >
           >
-        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -5927,8 +6533,16 @@ export const getGet20100401AccountsAccountSidOutgoingCallerIdsJsonQueryOptions =
 export function usePost20100401AccountsAccountSidOutgoingCallerIdsJson(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds.json']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds.json']['$post']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds.json']['$post']
@@ -5942,8 +6556,16 @@ export function usePost20100401AccountsAccountSidOutgoingCallerIdsJson(options?:
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds.json']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds.json']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -6063,8 +6685,16 @@ export const getGet20100401AccountsAccountSidConferencesConferenceSidParticipant
 export function usePost20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJson(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$post']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$post']
@@ -6078,8 +6708,16 @@ export function usePost20100401AccountsAccountSidConferencesConferenceSidPartici
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -6124,8 +6762,16 @@ export function useDelete20100401AccountsAccountSidConferencesConferenceSidParti
   mutation?: {
     onSuccess?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$delete']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$delete']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       variables: InferRequestType<
@@ -6140,10 +6786,17 @@ export function useDelete20100401AccountsAccountSidConferencesConferenceSidParti
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$delete']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$delete']
+                  >
+                >
+              >
+            >
           >
-        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -6255,8 +6908,16 @@ export const getGet20100401AccountsAccountSidConferencesConferenceSidParticipant
 export function usePost20100401AccountsAccountSidConferencesConferenceSidParticipantsJson(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants.json']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants.json']['$post']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants.json']['$post']
@@ -6270,8 +6931,16 @@ export function usePost20100401AccountsAccountSidConferencesConferenceSidPartici
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants.json']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants.json']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -6315,8 +6984,16 @@ export function usePost20100401AccountsAccountSidConferencesConferenceSidPartici
 export function usePost20100401AccountsAccountSidCallsCallSidPaymentsJson(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Payments.json']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Payments.json']['$post']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Payments.json']['$post']
@@ -6330,8 +7007,16 @@ export function usePost20100401AccountsAccountSidCallsCallSidPaymentsJson(option
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Payments.json']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Payments.json']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -6376,8 +7061,16 @@ export function usePost20100401AccountsAccountSidCallsCallSidPaymentsJson(option
 export function usePost20100401AccountsAccountSidCallsCallSidPaymentsSidJson(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Payments'][':Sid.json']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Payments'][':Sid.json']['$post']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Payments'][':Sid.json']['$post']
@@ -6391,8 +7084,16 @@ export function usePost20100401AccountsAccountSidCallsCallSidPaymentsSidJson(opt
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Payments'][':Sid.json']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Payments'][':Sid.json']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -6503,8 +7204,16 @@ export const getGet20100401AccountsAccountSidQueuesSidJsonQueryOptions = (
 export function usePost20100401AccountsAccountSidQueuesSidJson(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$post']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$post']
@@ -6518,8 +7227,16 @@ export function usePost20100401AccountsAccountSidQueuesSidJson(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -6562,8 +7279,16 @@ export function useDelete20100401AccountsAccountSidQueuesSidJson(options?: {
   mutation?: {
     onSuccess?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$delete']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$delete']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       variables: InferRequestType<
@@ -6578,10 +7303,17 @@ export function useDelete20100401AccountsAccountSidQueuesSidJson(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$delete']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$delete']
+                  >
+                >
+              >
+            >
           >
-        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -6691,8 +7423,16 @@ export const getGet20100401AccountsAccountSidQueuesJsonQueryOptions = (
 export function usePost20100401AccountsAccountSidQueuesJson(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues.json']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues.json']['$post']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues.json']['$post']
@@ -6706,8 +7446,16 @@ export function usePost20100401AccountsAccountSidQueuesJson(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues.json']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues.json']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -6749,8 +7497,16 @@ export function usePost20100401AccountsAccountSidQueuesJson(options?: {
 export function usePost20100401AccountsAccountSidCallsCallSidTranscriptionsJson(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Transcriptions.json']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Transcriptions.json']['$post']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Transcriptions.json']['$post']
@@ -6764,8 +7520,16 @@ export function usePost20100401AccountsAccountSidCallsCallSidTranscriptionsJson(
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Transcriptions.json']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Transcriptions.json']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -6810,8 +7574,16 @@ export function usePost20100401AccountsAccountSidCallsCallSidTranscriptionsJson(
 export function usePost20100401AccountsAccountSidCallsCallSidTranscriptionsSidJson(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Transcriptions'][':Sid.json']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Transcriptions'][':Sid.json']['$post']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Transcriptions'][':Sid.json']['$post']
@@ -6825,8 +7597,16 @@ export function usePost20100401AccountsAccountSidCallsCallSidTranscriptionsSidJs
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Transcriptions'][':Sid.json']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Transcriptions'][':Sid.json']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -6937,8 +7717,16 @@ export function useDelete20100401AccountsAccountSidRecordingsSidJson(options?: {
   mutation?: {
     onSuccess?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':Sid.json']['$delete']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':Sid.json']['$delete']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       variables: InferRequestType<
@@ -6953,10 +7741,17 @@ export function useDelete20100401AccountsAccountSidRecordingsSidJson(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':Sid.json']['$delete']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':Sid.json']['$delete']
+                  >
+                >
+              >
+            >
           >
-        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -7140,8 +7935,16 @@ export function useDelete20100401AccountsAccountSidRecordingsReferenceSidAddOnRe
   mutation?: {
     onSuccess?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':Sid.json']['$delete']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':Sid.json']['$delete']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       variables: InferRequestType<
@@ -7156,10 +7959,17 @@ export function useDelete20100401AccountsAccountSidRecordingsReferenceSidAddOnRe
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':Sid.json']['$delete']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':Sid.json']['$delete']
+                  >
+                >
+              >
+            >
           >
-        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -7352,8 +8162,16 @@ export function useDelete20100401AccountsAccountSidRecordingsReferenceSidAddOnRe
   mutation?: {
     onSuccess?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':Sid.json']['$delete']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':Sid.json']['$delete']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       variables: InferRequestType<
@@ -7368,10 +8186,17 @@ export function useDelete20100401AccountsAccountSidRecordingsReferenceSidAddOnRe
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':Sid.json']['$delete']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':Sid.json']['$delete']
+                  >
+                >
+              >
+            >
           >
-        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -7636,8 +8461,16 @@ export function useDelete20100401AccountsAccountSidRecordingsRecordingSidTranscr
   mutation?: {
     onSuccess?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions'][':Sid.json']['$delete']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions'][':Sid.json']['$delete']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       variables: InferRequestType<
@@ -7652,10 +8485,17 @@ export function useDelete20100401AccountsAccountSidRecordingsRecordingSidTranscr
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions'][':Sid.json']['$delete']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions'][':Sid.json']['$delete']
+                  >
+                >
+              >
+            >
           >
-        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -7833,8 +8673,16 @@ export const getGet20100401AccountsAccountSidSMSShortCodesSidJsonQueryOptions = 
 export function usePost20100401AccountsAccountSidSMSShortCodesSidJson(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes'][':Sid.json']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes'][':Sid.json']['$post']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes'][':Sid.json']['$post']
@@ -7848,8 +8696,16 @@ export function usePost20100401AccountsAccountSidSMSShortCodesSidJson(options?: 
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes'][':Sid.json']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes'][':Sid.json']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -8018,8 +8874,16 @@ export const getGet20100401AccountsAccountSidSigningKeysSidJsonQueryOptions = (
 export function usePost20100401AccountsAccountSidSigningKeysSidJson(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$post']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$post']
@@ -8033,8 +8897,16 @@ export function usePost20100401AccountsAccountSidSigningKeysSidJson(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -8076,8 +8948,16 @@ export function useDelete20100401AccountsAccountSidSigningKeysSidJson(options?: 
   mutation?: {
     onSuccess?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$delete']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$delete']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       variables: InferRequestType<
@@ -8092,10 +8972,17 @@ export function useDelete20100401AccountsAccountSidSigningKeysSidJson(options?: 
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$delete']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$delete']
+                  >
+                >
+              >
+            >
           >
-        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -8214,8 +9101,16 @@ export const getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredent
 export function usePost20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsJson(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings.json']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings.json']['$post']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings.json']['$post']
@@ -8229,8 +9124,16 @@ export function usePost20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCre
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings.json']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings.json']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -8353,8 +9256,16 @@ export function useDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsC
   mutation?: {
     onSuccess?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings'][':Sid.json']['$delete']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings'][':Sid.json']['$delete']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       variables: InferRequestType<
@@ -8369,10 +9280,17 @@ export function useDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsC
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings'][':Sid.json']['$delete']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings'][':Sid.json']['$delete']
+                  >
+                >
+              >
+            >
           >
-        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -8490,8 +9408,16 @@ export const getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAcces
 export function usePost20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsJson(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings.json']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings.json']['$post']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings.json']['$post']
@@ -8505,8 +9431,16 @@ export function usePost20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpA
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings.json']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings.json']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -8629,8 +9563,16 @@ export function useDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsI
   mutation?: {
     onSuccess?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings'][':Sid.json']['$delete']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings'][':Sid.json']['$delete']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       variables: InferRequestType<
@@ -8645,10 +9587,17 @@ export function useDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsI
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings'][':Sid.json']['$delete']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings'][':Sid.json']['$delete']
+                  >
+                >
+              >
+            >
           >
-        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -8766,8 +9715,16 @@ export const getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistration
 export function usePost20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsJson(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings.json']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings.json']['$post']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings.json']['$post']
@@ -8781,8 +9738,16 @@ export function usePost20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistra
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings.json']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings.json']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -8905,8 +9870,16 @@ export function useDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthRegist
   mutation?: {
     onSuccess?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings'][':Sid.json']['$delete']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings'][':Sid.json']['$delete']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       variables: InferRequestType<
@@ -8921,10 +9894,17 @@ export function useDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthRegist
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings'][':Sid.json']['$delete']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings'][':Sid.json']['$delete']
+                  >
+                >
+              >
+            >
           >
-        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -9042,8 +10022,16 @@ export const getGet20100401AccountsAccountSidSIPCredentialListsCredentialListSid
 export function usePost20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsJson(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials.json']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials.json']['$post']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials.json']['$post']
@@ -9057,8 +10045,16 @@ export function usePost20100401AccountsAccountSidSIPCredentialListsCredentialLis
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials.json']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials.json']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -9180,8 +10176,16 @@ export const getGet20100401AccountsAccountSidSIPCredentialListsCredentialListSid
 export function usePost20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJson(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$post']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$post']
@@ -9195,8 +10199,16 @@ export function usePost20100401AccountsAccountSidSIPCredentialListsCredentialLis
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -9241,8 +10253,16 @@ export function useDelete20100401AccountsAccountSidSIPCredentialListsCredentialL
   mutation?: {
     onSuccess?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$delete']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$delete']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       variables: InferRequestType<
@@ -9257,10 +10277,17 @@ export function useDelete20100401AccountsAccountSidSIPCredentialListsCredentialL
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$delete']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$delete']
+                  >
+                >
+              >
+            >
           >
-        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -9369,8 +10396,16 @@ export const getGet20100401AccountsAccountSidSIPCredentialListsJsonQueryOptions 
 export function usePost20100401AccountsAccountSidSIPCredentialListsJson(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists.json']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists.json']['$post']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists.json']['$post']
@@ -9384,8 +10419,16 @@ export function usePost20100401AccountsAccountSidSIPCredentialListsJson(options?
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists.json']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists.json']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -9496,8 +10539,16 @@ export const getGet20100401AccountsAccountSidSIPCredentialListsSidJsonQueryOptio
 export function usePost20100401AccountsAccountSidSIPCredentialListsSidJson(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$post']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$post']
@@ -9511,8 +10562,16 @@ export function usePost20100401AccountsAccountSidSIPCredentialListsSidJson(optio
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -9558,8 +10617,16 @@ export function useDelete20100401AccountsAccountSidSIPCredentialListsSidJson(opt
   mutation?: {
     onSuccess?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$delete']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$delete']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       variables: InferRequestType<
@@ -9574,10 +10641,17 @@ export function useDelete20100401AccountsAccountSidSIPCredentialListsSidJson(opt
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$delete']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$delete']
+                  >
+                >
+              >
+            >
           >
-        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -9694,8 +10768,16 @@ export const getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMa
 export function usePost20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsJson(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings.json']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings.json']['$post']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings.json']['$post']
@@ -9709,8 +10791,16 @@ export function usePost20100401AccountsAccountSidSIPDomainsDomainSidCredentialLi
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings.json']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings.json']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -9833,8 +10923,16 @@ export function useDelete20100401AccountsAccountSidSIPDomainsDomainSidCredential
   mutation?: {
     onSuccess?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings'][':Sid.json']['$delete']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings'][':Sid.json']['$delete']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       variables: InferRequestType<
@@ -9849,10 +10947,17 @@ export function useDelete20100401AccountsAccountSidSIPDomainsDomainSidCredential
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings'][':Sid.json']['$delete']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings'][':Sid.json']['$delete']
+                  >
+                >
+              >
+            >
           >
-        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -9961,8 +11066,16 @@ export const getGet20100401AccountsAccountSidSIPDomainsJsonQueryOptions = (
 export function usePost20100401AccountsAccountSidSIPDomainsJson(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains.json']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains.json']['$post']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains.json']['$post']
@@ -9976,8 +11089,16 @@ export function usePost20100401AccountsAccountSidSIPDomainsJson(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains.json']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains.json']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -10085,8 +11206,16 @@ export const getGet20100401AccountsAccountSidSIPDomainsSidJsonQueryOptions = (
 export function usePost20100401AccountsAccountSidSIPDomainsSidJson(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$post']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$post']
@@ -10100,8 +11229,16 @@ export function usePost20100401AccountsAccountSidSIPDomainsSidJson(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -10147,8 +11284,16 @@ export function useDelete20100401AccountsAccountSidSIPDomainsSidJson(options?: {
   mutation?: {
     onSuccess?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$delete']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$delete']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       variables: InferRequestType<
@@ -10163,10 +11308,17 @@ export function useDelete20100401AccountsAccountSidSIPDomainsSidJson(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$delete']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$delete']
+                  >
+                >
+              >
+            >
           >
-        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -10276,8 +11428,16 @@ export const getGet20100401AccountsAccountSidSIPIpAccessControlListsJsonQueryOpt
 export function usePost20100401AccountsAccountSidSIPIpAccessControlListsJson(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists.json']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists.json']['$post']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists.json']['$post']
@@ -10291,8 +11451,16 @@ export function usePost20100401AccountsAccountSidSIPIpAccessControlListsJson(opt
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists.json']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists.json']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -10406,8 +11574,16 @@ export const getGet20100401AccountsAccountSidSIPIpAccessControlListsSidJsonQuery
 export function usePost20100401AccountsAccountSidSIPIpAccessControlListsSidJson(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$post']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$post']
@@ -10421,8 +11597,16 @@ export function usePost20100401AccountsAccountSidSIPIpAccessControlListsSidJson(
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -10468,8 +11652,16 @@ export function useDelete20100401AccountsAccountSidSIPIpAccessControlListsSidJso
   mutation?: {
     onSuccess?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$delete']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$delete']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       variables: InferRequestType<
@@ -10484,10 +11676,17 @@ export function useDelete20100401AccountsAccountSidSIPIpAccessControlListsSidJso
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$delete']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$delete']
+                  >
+                >
+              >
+            >
           >
-        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -10610,8 +11809,16 @@ export function useDelete20100401AccountsAccountSidSIPDomainsDomainSidIpAccessCo
   mutation?: {
     onSuccess?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings'][':Sid.json']['$delete']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings'][':Sid.json']['$delete']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       variables: InferRequestType<
@@ -10626,10 +11833,17 @@ export function useDelete20100401AccountsAccountSidSIPDomainsDomainSidIpAccessCo
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings'][':Sid.json']['$delete']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings'][':Sid.json']['$delete']
+                  >
+                >
+              >
+            >
           >
-        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -10747,8 +11961,16 @@ export const getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlL
 export function usePost20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsJson(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings.json']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings.json']['$post']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings.json']['$post']
@@ -10762,8 +11984,16 @@ export function usePost20100401AccountsAccountSidSIPDomainsDomainSidIpAccessCont
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings.json']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings.json']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -10885,8 +12115,16 @@ export const getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessCont
 export function usePost20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesJson(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses.json']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses.json']['$post']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses.json']['$post']
@@ -10900,8 +12138,16 @@ export function usePost20100401AccountsAccountSidSIPIpAccessControlListsIpAccess
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses.json']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses.json']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -11023,8 +12269,16 @@ export const getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessCont
 export function usePost20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJson(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$post']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$post']
@@ -11038,8 +12292,16 @@ export function usePost20100401AccountsAccountSidSIPIpAccessControlListsIpAccess
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -11084,8 +12346,16 @@ export function useDelete20100401AccountsAccountSidSIPIpAccessControlListsIpAcce
   mutation?: {
     onSuccess?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$delete']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$delete']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       variables: InferRequestType<
@@ -11100,10 +12370,17 @@ export function useDelete20100401AccountsAccountSidSIPIpAccessControlListsIpAcce
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$delete']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$delete']
+                  >
+                >
+              >
+            >
           >
-        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -11146,8 +12423,16 @@ export function useDelete20100401AccountsAccountSidSIPIpAccessControlListsIpAcce
 export function usePost20100401AccountsAccountSidCallsCallSidSiprecJson(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Siprec.json']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Siprec.json']['$post']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Siprec.json']['$post']
@@ -11161,8 +12446,16 @@ export function usePost20100401AccountsAccountSidCallsCallSidSiprecJson(options?
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Siprec.json']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Siprec.json']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -11207,8 +12500,16 @@ export function usePost20100401AccountsAccountSidCallsCallSidSiprecJson(options?
 export function usePost20100401AccountsAccountSidCallsCallSidSiprecSidJson(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Siprec'][':Sid.json']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Siprec'][':Sid.json']['$post']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Siprec'][':Sid.json']['$post']
@@ -11222,8 +12523,16 @@ export function usePost20100401AccountsAccountSidCallsCallSidSiprecSidJson(optio
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Siprec'][':Sid.json']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Siprec'][':Sid.json']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -11268,8 +12577,16 @@ export function usePost20100401AccountsAccountSidCallsCallSidSiprecSidJson(optio
 export function usePost20100401AccountsAccountSidCallsCallSidStreamsJson(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Streams.json']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Streams.json']['$post']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Streams.json']['$post']
@@ -11283,8 +12600,16 @@ export function usePost20100401AccountsAccountSidCallsCallSidStreamsJson(options
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Streams.json']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Streams.json']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -11329,8 +12654,16 @@ export function usePost20100401AccountsAccountSidCallsCallSidStreamsJson(options
 export function usePost20100401AccountsAccountSidCallsCallSidStreamsSidJson(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Streams'][':Sid.json']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Streams'][':Sid.json']['$post']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Streams'][':Sid.json']['$post']
@@ -11344,8 +12677,16 @@ export function usePost20100401AccountsAccountSidCallsCallSidStreamsSidJson(opti
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Streams'][':Sid.json']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Streams'][':Sid.json']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -11390,8 +12731,16 @@ export function usePost20100401AccountsAccountSidCallsCallSidStreamsSidJson(opti
 export function usePost20100401AccountsAccountSidTokensJson(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Tokens.json']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Tokens.json']['$post']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Tokens.json']['$post']
@@ -11405,8 +12754,16 @@ export function usePost20100401AccountsAccountSidTokensJson(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Tokens.json']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Tokens.json']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -11515,8 +12872,16 @@ export function useDelete20100401AccountsAccountSidTranscriptionsSidJson(options
   mutation?: {
     onSuccess?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions'][':Sid.json']['$delete']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions'][':Sid.json']['$delete']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       variables: InferRequestType<
@@ -11531,10 +12896,17 @@ export function useDelete20100401AccountsAccountSidTranscriptionsSidJson(options
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions'][':Sid.json']['$delete']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions'][':Sid.json']['$delete']
+                  >
+                >
+              >
+            >
           >
-        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -12272,8 +13644,16 @@ export const getGet20100401AccountsAccountSidUsageTriggersSidJsonQueryOptions = 
 export function usePost20100401AccountsAccountSidUsageTriggersSidJson(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$post']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$post']
@@ -12287,8 +13667,16 @@ export function usePost20100401AccountsAccountSidUsageTriggersSidJson(options?: 
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -12330,8 +13718,16 @@ export function useDelete20100401AccountsAccountSidUsageTriggersSidJson(options?
   mutation?: {
     onSuccess?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$delete']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$delete']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       variables: InferRequestType<
@@ -12346,10 +13742,17 @@ export function useDelete20100401AccountsAccountSidUsageTriggersSidJson(options?
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$delete']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$delete']
+                  >
+                >
+              >
+            >
           >
-        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -12459,8 +13862,16 @@ export const getGet20100401AccountsAccountSidUsageTriggersJsonQueryOptions = (
 export function usePost20100401AccountsAccountSidUsageTriggersJson(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers.json']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers.json']['$post']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers.json']['$post']
@@ -12474,8 +13885,16 @@ export function usePost20100401AccountsAccountSidUsageTriggersJson(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers.json']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers.json']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -12520,8 +13939,16 @@ export function usePost20100401AccountsAccountSidUsageTriggersJson(options?: {
 export function usePost20100401AccountsAccountSidCallsCallSidUserDefinedMessagesJson(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessages.json']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessages.json']['$post']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessages.json']['$post']
@@ -12535,8 +13962,16 @@ export function usePost20100401AccountsAccountSidCallsCallSidUserDefinedMessages
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessages.json']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessages.json']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -12580,8 +14015,16 @@ export function usePost20100401AccountsAccountSidCallsCallSidUserDefinedMessages
 export function usePost20100401AccountsAccountSidCallsCallSidUserDefinedMessageSubscriptionsJson(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessageSubscriptions.json']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessageSubscriptions.json']['$post']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessageSubscriptions.json']['$post']
@@ -12595,8 +14038,16 @@ export function usePost20100401AccountsAccountSidCallsCallSidUserDefinedMessageS
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessageSubscriptions.json']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessageSubscriptions.json']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -12641,8 +14092,16 @@ export function useDelete20100401AccountsAccountSidCallsCallSidUserDefinedMessag
   mutation?: {
     onSuccess?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessageSubscriptions'][':Sid.json']['$delete']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessageSubscriptions'][':Sid.json']['$delete']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       variables: InferRequestType<
@@ -12657,10 +14116,17 @@ export function useDelete20100401AccountsAccountSidCallsCallSidUserDefinedMessag
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessageSubscriptions'][':Sid.json']['$delete']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessageSubscriptions'][':Sid.json']['$delete']
+                  >
+                >
+              >
+            >
           >
-        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<

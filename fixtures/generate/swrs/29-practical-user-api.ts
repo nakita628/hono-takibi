@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/29-practical-user-api'
 
 /**
@@ -15,7 +15,9 @@ import { client } from '../clients/29-practical-user-api'
  */
 export function usePostAuthRegister(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.auth.register.$post>,
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.auth.register.$post>>>>
+    >,
     Error,
     string,
     InferRequestType<typeof client.auth.register.$post>
@@ -40,7 +42,7 @@ export function usePostAuthRegister(options?: {
  */
 export function usePostAuthLogin(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.auth.login.$post>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.auth.login.$post>>>>>,
     Error,
     string,
     InferRequestType<typeof client.auth.login.$post>
@@ -65,7 +67,9 @@ export function usePostAuthLogin(options?: {
  */
 export function usePostAuthRefresh(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.auth.refresh.$post>,
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.auth.refresh.$post>>>>
+    >,
     Error,
     string,
     InferRequestType<typeof client.auth.refresh.$post>
@@ -88,7 +92,10 @@ export function usePostAuthRefresh(options?: {
  */
 export function usePostAuthLogout(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.auth.logout.$post> | undefined,
+    | Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.auth.logout.$post>>>>
+      >
+    | undefined,
     Error,
     string,
     undefined
@@ -112,7 +119,11 @@ export function usePostAuthLogout(options?: {
  */
 export function usePostAuthPasswordForgot(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.auth.password.forgot.$post>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<typeof client.auth.password.forgot.$post>>>
+      >
+    >,
     Error,
     string,
     InferRequestType<typeof client.auth.password.forgot.$post>
@@ -137,7 +148,9 @@ export function usePostAuthPasswordForgot(options?: {
  */
 export function usePostAuthPasswordReset(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.auth.password.reset.$post>,
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.auth.password.reset.$post>>>>
+    >,
     Error,
     string,
     InferRequestType<typeof client.auth.password.reset.$post>
@@ -230,7 +243,12 @@ export function getGetUsersUserIdKey(
  */
 export function useDeleteUsersUserId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.users)[':userId']['$delete']> | undefined,
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':userId']['$delete']>>>
+        >
+      >
+    | undefined,
     Error,
     string,
     InferRequestType<(typeof client.users)[':userId']['$delete']>
@@ -255,7 +273,11 @@ export function useDeleteUsersUserId(options?: {
  */
 export function usePatchUsersUserId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.users)[':userId']['$patch']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':userId']['$patch']>>>
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.users)[':userId']['$patch']>
@@ -309,7 +331,7 @@ export function getGetUsersMeKey() {
  */
 export function usePatchUsersMe(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.users.me.$patch>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.me.$patch>>>>>,
     Error,
     string,
     InferRequestType<typeof client.users.me.$patch>
@@ -332,7 +354,9 @@ export function usePatchUsersMe(options?: {
  */
 export function usePutUsersMePassword(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.users.me.password.$put>,
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.me.password.$put>>>>
+    >,
     Error,
     string,
     InferRequestType<typeof client.users.me.password.$put>
@@ -355,7 +379,9 @@ export function usePutUsersMePassword(options?: {
  */
 export function usePutUsersMeAvatar(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.users.me.avatar.$put>,
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.me.avatar.$put>>>>
+    >,
     Error,
     string,
     InferRequestType<typeof client.users.me.avatar.$put>
@@ -378,7 +404,10 @@ export function usePutUsersMeAvatar(options?: {
  */
 export function useDeleteUsersMeAvatar(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.users.me.avatar.$delete> | undefined,
+    | Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.me.avatar.$delete>>>>
+      >
+    | undefined,
     Error,
     string,
     undefined

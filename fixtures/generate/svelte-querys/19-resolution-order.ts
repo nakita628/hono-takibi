@@ -1,5 +1,5 @@
-import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/19-resolution-order'
 
@@ -21,7 +21,7 @@ export function createGetEntities(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetEntitiesQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetEntitiesQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -54,12 +54,18 @@ export const getGetEntitiesQueryOptions = (clientOptions?: ClientRequestOptions)
 export function createPostProcess(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.process.$post>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.process.$post>>>>
+      >,
       variables: InferRequestType<typeof client.process.$post>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.process.$post>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.process.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.process.$post>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.process.$post>,
     ) => void
@@ -70,11 +76,11 @@ export function createPostProcess(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.process.$post>) =>
       parseResponse(client.process.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -95,7 +101,7 @@ export function createGetGraph(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetGraphQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetGraphQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -128,12 +134,18 @@ export const getGetGraphQueryOptions = (clientOptions?: ClientRequestOptions) =>
 export function createPostTransform(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.transform.$post>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.transform.$post>>>>
+      >,
       variables: InferRequestType<typeof client.transform.$post>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.transform.$post>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.transform.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.transform.$post>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.transform.$post>,
     ) => void
@@ -144,9 +156,9 @@ export function createPostTransform(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.transform.$post>) =>
       parseResponse(client.transform.$post(args, clientOptions)),
-  })
+  }))
 }

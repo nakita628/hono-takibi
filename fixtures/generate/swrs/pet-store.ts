@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/pet-store'
 
 /**
@@ -15,7 +15,7 @@ import { client } from '../clients/pet-store'
  */
 export function usePutPet(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.pet.$put>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.pet.$put>>>>>,
     Error,
     string,
     InferRequestType<typeof client.pet.$put>
@@ -40,7 +40,7 @@ export function usePutPet(options?: {
  */
 export function usePostPet(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.pet.$post>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.pet.$post>>>>>,
     Error,
     string,
     InferRequestType<typeof client.pet.$post>
@@ -167,7 +167,9 @@ export function getGetPetPetIdKey(args?: InferRequestType<(typeof client.pet)[':
  */
 export function usePostPetPetId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.pet)[':petId']['$post']>,
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.pet)[':petId']['$post']>>>>
+    >,
     Error,
     string,
     InferRequestType<(typeof client.pet)[':petId']['$post']>
@@ -192,7 +194,11 @@ export function usePostPetPetId(options?: {
  */
 export function useDeletePetPetId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.pet)[':petId']['$delete']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client.pet)[':petId']['$delete']>>>
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.pet)[':petId']['$delete']>
@@ -217,7 +223,13 @@ export function useDeletePetPetId(options?: {
  */
 export function usePostPetPetIdUploadImage(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.pet)[':petId']['uploadImage']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.pet)[':petId']['uploadImage']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.pet)[':petId']['uploadImage']['$post']>
@@ -275,7 +287,7 @@ export function getGetStoreInventoryKey() {
  */
 export function usePostStoreOrder(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.store.order.$post>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.store.order.$post>>>>>,
     Error,
     string,
     InferRequestType<typeof client.store.order.$post>
@@ -336,7 +348,13 @@ export function getGetStoreOrderOrderIdKey(
  */
 export function useDeleteStoreOrderOrderId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.store.order)[':orderId']['$delete']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.store.order)[':orderId']['$delete']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.store.order)[':orderId']['$delete']>
@@ -363,7 +381,7 @@ export function useDeleteStoreOrderOrderId(options?: {
  */
 export function usePostUser(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.user.$post>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.user.$post>>>>>,
     Error,
     string,
     InferRequestType<typeof client.user.$post>
@@ -388,7 +406,9 @@ export function usePostUser(options?: {
  */
 export function usePostUserCreateWithList(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.user.createWithList.$post>,
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.user.createWithList.$post>>>>
+    >,
     Error,
     string,
     InferRequestType<typeof client.user.createWithList.$post>
@@ -510,7 +530,11 @@ export function getGetUserUsernameKey(
  */
 export function usePutUserUsername(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.user)[':username']['$put']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client.user)[':username']['$put']>>>
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.user)[':username']['$put']>
@@ -537,7 +561,11 @@ export function usePutUserUsername(options?: {
  */
 export function useDeleteUserUsername(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.user)[':username']['$delete']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client.user)[':username']['$delete']>>>
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.user)[':username']['$delete']>

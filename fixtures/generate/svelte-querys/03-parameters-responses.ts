@@ -1,5 +1,5 @@
-import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/03-parameters-responses'
 
@@ -24,7 +24,7 @@ export function createGetItems(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetItemsQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetItemsQueryOptions(args, clientOptions), ...queryOptions }))
 }
 
 /**
@@ -72,7 +72,10 @@ export function createGetItemsItemId(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetItemsItemIdQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGetItemsItemIdQueryOptions(args, clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**
@@ -110,7 +113,13 @@ export const getGetItemsItemIdQueryOptions = (
 export function createDeleteItemsItemId(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.items)[':itemId']['$delete']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client.items)[':itemId']['$delete']>>>
+            >
+          >
+        | undefined,
       variables: InferRequestType<(typeof client.items)[':itemId']['$delete']>,
     ) => void
     onError?: (
@@ -118,7 +127,13 @@ export function createDeleteItemsItemId(options?: {
       variables: InferRequestType<(typeof client.items)[':itemId']['$delete']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.items)[':itemId']['$delete']> | undefined | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client.items)[':itemId']['$delete']>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.items)[':itemId']['$delete']>,
     ) => void
@@ -129,9 +144,9 @@ export function createDeleteItemsItemId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.items)[':itemId']['$delete']>) =>
       parseResponse(client.items[':itemId'].$delete(args, clientOptions)),
-  })
+  }))
 }

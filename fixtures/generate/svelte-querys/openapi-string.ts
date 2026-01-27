@@ -25,7 +25,7 @@ export function createGetString(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetStringQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetStringQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**

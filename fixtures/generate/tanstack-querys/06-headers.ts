@@ -1,5 +1,5 @@
-import { useQuery, useMutation, queryOptions } from '@tanstack/react-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/06-headers'
 
@@ -110,7 +110,11 @@ export const getGetResourcesIdQueryOptions = (
 export function usePutResourcesId(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.resources)[':id']['$put']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.resources)[':id']['$put']>>>
+        >
+      >,
       variables: InferRequestType<(typeof client.resources)[':id']['$put']>,
     ) => void
     onError?: (
@@ -118,7 +122,13 @@ export function usePutResourcesId(options?: {
       variables: InferRequestType<(typeof client.resources)[':id']['$put']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.resources)[':id']['$put']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client.resources)[':id']['$put']>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.resources)[':id']['$put']>,
     ) => void

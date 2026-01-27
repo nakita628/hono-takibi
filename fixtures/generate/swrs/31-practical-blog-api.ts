@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/31-practical-blog-api'
 
 /**
@@ -45,7 +45,7 @@ export function getGetPostsKey(args?: InferRequestType<typeof client.posts.$get>
  */
 export function usePostPosts(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.posts.$post>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.posts.$post>>>>>,
     Error,
     string,
     InferRequestType<typeof client.posts.$post>
@@ -102,7 +102,11 @@ export function getGetPostsPostIdKey(
  */
 export function usePutPostsPostId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.posts)[':postId']['$put']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client.posts)[':postId']['$put']>>>
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.posts)[':postId']['$put']>
@@ -127,7 +131,12 @@ export function usePutPostsPostId(options?: {
  */
 export function useDeletePostsPostId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.posts)[':postId']['$delete']> | undefined,
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.posts)[':postId']['$delete']>>>
+        >
+      >
+    | undefined,
     Error,
     string,
     InferRequestType<(typeof client.posts)[':postId']['$delete']>
@@ -186,7 +195,13 @@ export function getGetPostsSlugSlugKey(
  */
 export function usePostPostsPostIdPublish(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.posts)[':postId']['publish']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.posts)[':postId']['publish']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.posts)[':postId']['publish']['$post']>
@@ -211,7 +226,13 @@ export function usePostPostsPostIdPublish(options?: {
  */
 export function usePostPostsPostIdUnpublish(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.posts)[':postId']['unpublish']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.posts)[':postId']['unpublish']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.posts)[':postId']['unpublish']['$post']>
@@ -270,7 +291,13 @@ export function getGetPostsPostIdCommentsKey(
  */
 export function usePostPostsPostIdComments(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.posts)[':postId']['comments']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.posts)[':postId']['comments']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.posts)[':postId']['comments']['$post']>
@@ -295,7 +322,14 @@ export function usePostPostsPostIdComments(options?: {
  */
 export function useDeleteCommentsCommentId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.comments)[':commentId']['$delete']> | undefined,
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.comments)[':commentId']['$delete']>>
+          >
+        >
+      >
+    | undefined,
     Error,
     string,
     InferRequestType<(typeof client.comments)[':commentId']['$delete']>
@@ -320,7 +354,13 @@ export function useDeleteCommentsCommentId(options?: {
  */
 export function usePostCommentsCommentIdApprove(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.comments)[':commentId']['approve']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.comments)[':commentId']['approve']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.comments)[':commentId']['approve']['$post']>
@@ -376,7 +416,7 @@ export function getGetCategoriesKey() {
  */
 export function usePostCategories(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.categories.$post>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.categories.$post>>>>>,
     Error,
     string,
     InferRequestType<typeof client.categories.$post>
@@ -433,7 +473,11 @@ export function getGetCategoriesCategoryIdKey(
  */
 export function usePutCategoriesCategoryId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.categories)[':categoryId']['$put']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client.categories)[':categoryId']['$put']>>>
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.categories)[':categoryId']['$put']>
@@ -458,7 +502,14 @@ export function usePutCategoriesCategoryId(options?: {
  */
 export function useDeleteCategoriesCategoryId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.categories)[':categoryId']['$delete']> | undefined,
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.categories)[':categoryId']['$delete']>>
+          >
+        >
+      >
+    | undefined,
     Error,
     string,
     InferRequestType<(typeof client.categories)[':categoryId']['$delete']>
@@ -511,7 +562,7 @@ export function getGetTagsKey(args?: InferRequestType<typeof client.tags.$get>) 
  */
 export function usePostTags(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.tags.$post>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.tags.$post>>>>>,
     Error,
     string,
     InferRequestType<typeof client.tags.$post>
@@ -566,7 +617,7 @@ export function getGetMediaKey(args?: InferRequestType<typeof client.media.$get>
  */
 export function usePostMedia(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.media.$post>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.media.$post>>>>>,
     Error,
     string,
     InferRequestType<typeof client.media.$post>
@@ -623,7 +674,11 @@ export function getGetMediaMediaIdKey(
  */
 export function usePutMediaMediaId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.media)[':mediaId']['$put']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client.media)[':mediaId']['$put']>>>
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.media)[':mediaId']['$put']>
@@ -648,7 +703,12 @@ export function usePutMediaMediaId(options?: {
  */
 export function useDeleteMediaMediaId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.media)[':mediaId']['$delete']> | undefined,
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.media)[':mediaId']['$delete']>>>
+        >
+      >
+    | undefined,
     Error,
     string,
     InferRequestType<(typeof client.media)[':mediaId']['$delete']>

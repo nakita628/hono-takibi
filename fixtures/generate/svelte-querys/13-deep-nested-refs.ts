@@ -1,5 +1,5 @@
-import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/13-deep-nested-refs'
 
@@ -26,10 +26,10 @@ export function createGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
+  return createQuery(() => ({
     ...getGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersQueryOptions(args, clientOptions),
     ...queryOptions,
-  })
+  }))
 }
 
 /**
@@ -71,8 +71,16 @@ export const getGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersQueryOpt
 export function createPostOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<
-        (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$post']
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$post']
+              >
+            >
+          >
+        >
       >,
       variables: InferRequestType<
         (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$post']
@@ -86,8 +94,16 @@ export function createPostOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<
-            (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$post']
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$post']
+                  >
+                >
+              >
+            >
           >
         | undefined,
       error: Error | null,
@@ -106,7 +122,7 @@ export function createPostOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
@@ -119,7 +135,7 @@ export function createPostOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(
           clientOptions,
         ),
       ),
-  })
+  }))
 }
 
 /**
@@ -140,10 +156,10 @@ export function createGetReportsOrganizationSummary(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
+  return createQuery(() => ({
     ...getGetReportsOrganizationSummaryQueryOptions(clientOptions),
     ...queryOptions,
-  })
+  }))
 }
 
 /**

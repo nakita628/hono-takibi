@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/45-sns-settings-moderation'
 
 /**
@@ -42,7 +42,9 @@ export function getGetSettingsAccountKey() {
  */
 export function usePutSettingsAccount(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.settings.account.$put>,
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.settings.account.$put>>>>
+    >,
     Error,
     string,
     InferRequestType<typeof client.settings.account.$put>
@@ -128,7 +130,9 @@ export function getGetSettingsPrivacyKey() {
  */
 export function usePutSettingsPrivacy(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.settings.privacy.$put>,
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.settings.privacy.$put>>>>
+    >,
     Error,
     string,
     InferRequestType<typeof client.settings.privacy.$put>
@@ -181,7 +185,13 @@ export function getGetSettingsContentPreferencesKey() {
  */
 export function usePutSettingsContentPreferences(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.settings)['content-preferences']['$put']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.settings)['content-preferences']['$put']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.settings)['content-preferences']['$put']>
@@ -235,7 +245,11 @@ export function getGetSettingsMutedWordsKey() {
  */
 export function usePostSettingsMutedWords(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.settings)['muted-words']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client.settings)['muted-words']['$post']>>>
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.settings)['muted-words']['$post']>
@@ -260,7 +274,14 @@ export function usePostSettingsMutedWords(options?: {
  */
 export function useDeleteSettingsMutedWordsWordId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.settings)['muted-words'][':wordId']['$delete']> | undefined,
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.settings)['muted-words'][':wordId']['$delete']>>
+          >
+        >
+      >
+    | undefined,
     Error,
     string,
     InferRequestType<(typeof client.settings)['muted-words'][':wordId']['$delete']>
@@ -316,7 +337,14 @@ export function getGetSettingsSessionsKey() {
  */
 export function useDeleteSettingsSessionsSessionId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.settings.sessions)[':sessionId']['$delete']> | undefined,
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.settings.sessions)[':sessionId']['$delete']>>
+          >
+        >
+      >
+    | undefined,
     Error,
     string,
     InferRequestType<(typeof client.settings.sessions)[':sessionId']['$delete']>
@@ -372,7 +400,14 @@ export function getGetSettingsConnectedAppsKey() {
  */
 export function useDeleteSettingsConnectedAppsAppId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.settings)['connected-apps'][':appId']['$delete']> | undefined,
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.settings)['connected-apps'][':appId']['$delete']>>
+          >
+        >
+      >
+    | undefined,
     Error,
     string,
     InferRequestType<(typeof client.settings)['connected-apps'][':appId']['$delete']>
@@ -399,7 +434,11 @@ export function useDeleteSettingsConnectedAppsAppId(options?: {
  */
 export function usePostSettingsDataExport(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.settings)['data-export']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client.settings)['data-export']['$post']>>>
+      >
+    >,
     Error,
     string,
     undefined
@@ -457,7 +496,9 @@ export function getGetSettingsDataExportRequestIdKey(
  */
 export function usePostSettingsDeactivate(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.settings.deactivate.$post>,
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.settings.deactivate.$post>>>>
+    >,
     Error,
     string,
     InferRequestType<typeof client.settings.deactivate.$post>
@@ -482,7 +523,7 @@ export function usePostSettingsDeactivate(options?: {
  */
 export function usePostReports(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.reports.$post>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.reports.$post>>>>>,
     Error,
     string,
     InferRequestType<typeof client.reports.$post>
@@ -609,7 +650,13 @@ export function getGetModerationItemsItemIdKey(
  */
 export function usePostModerationItemsItemIdAction(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.moderation.items)[':itemId']['action']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.moderation.items)[':itemId']['action']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.moderation.items)[':itemId']['action']['$post']>
@@ -672,7 +719,13 @@ export function getGetModerationUsersUserIdHistoryKey(
  */
 export function usePostModerationUsersUserIdSuspend(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.moderation.users)[':userId']['suspend']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.moderation.users)[':userId']['suspend']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.moderation.users)[':userId']['suspend']['$post']>
@@ -699,7 +752,13 @@ export function usePostModerationUsersUserIdSuspend(options?: {
  */
 export function usePostModerationUsersUserIdUnsuspend(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.moderation.users)[':userId']['unsuspend']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.moderation.users)[':userId']['unsuspend']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.moderation.users)[':userId']['unsuspend']['$post']>

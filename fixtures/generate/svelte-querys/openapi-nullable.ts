@@ -25,7 +25,7 @@ export function createGetNullable(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetNullableQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetNullableQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**

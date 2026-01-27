@@ -1,5 +1,5 @@
-import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/39-auth-webauthn-passkey'
 
@@ -13,7 +13,11 @@ import { client } from '../clients/39-auth-webauthn-passkey'
 export function createPostWebauthnRegisterOptions(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.webauthn.register.options.$post>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<typeof client.webauthn.register.options.$post>>>
+        >
+      >,
       variables: InferRequestType<typeof client.webauthn.register.options.$post>,
     ) => void
     onError?: (
@@ -21,7 +25,15 @@ export function createPostWebauthnRegisterOptions(options?: {
       variables: InferRequestType<typeof client.webauthn.register.options.$post>,
     ) => void
     onSettled?: (
-      data: InferResponseType<typeof client.webauthn.register.options.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<typeof client.webauthn.register.options.$post>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.webauthn.register.options.$post>,
     ) => void
@@ -32,11 +44,11 @@ export function createPostWebauthnRegisterOptions(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.webauthn.register.options.$post>) =>
       parseResponse(client.webauthn.register.options.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -49,7 +61,11 @@ export function createPostWebauthnRegisterOptions(options?: {
 export function createPostWebauthnRegisterVerify(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.webauthn.register.verify.$post>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<typeof client.webauthn.register.verify.$post>>>
+        >
+      >,
       variables: InferRequestType<typeof client.webauthn.register.verify.$post>,
     ) => void
     onError?: (
@@ -57,7 +73,15 @@ export function createPostWebauthnRegisterVerify(options?: {
       variables: InferRequestType<typeof client.webauthn.register.verify.$post>,
     ) => void
     onSettled?: (
-      data: InferResponseType<typeof client.webauthn.register.verify.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<typeof client.webauthn.register.verify.$post>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.webauthn.register.verify.$post>,
     ) => void
@@ -68,11 +92,11 @@ export function createPostWebauthnRegisterVerify(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.webauthn.register.verify.$post>) =>
       parseResponse(client.webauthn.register.verify.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -85,7 +109,13 @@ export function createPostWebauthnRegisterVerify(options?: {
 export function createPostWebauthnAuthenticateOptions(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.webauthn.authenticate.options.$post>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<typeof client.webauthn.authenticate.options.$post>>
+          >
+        >
+      >,
       variables: InferRequestType<typeof client.webauthn.authenticate.options.$post>,
     ) => void
     onError?: (
@@ -93,7 +123,15 @@ export function createPostWebauthnAuthenticateOptions(options?: {
       variables: InferRequestType<typeof client.webauthn.authenticate.options.$post>,
     ) => void
     onSettled?: (
-      data: InferResponseType<typeof client.webauthn.authenticate.options.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<typeof client.webauthn.authenticate.options.$post>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.webauthn.authenticate.options.$post>,
     ) => void
@@ -106,11 +144,11 @@ export function createPostWebauthnAuthenticateOptions(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.webauthn.authenticate.options.$post>) =>
       parseResponse(client.webauthn.authenticate.options.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -123,7 +161,13 @@ export function createPostWebauthnAuthenticateOptions(options?: {
 export function createPostWebauthnAuthenticateVerify(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.webauthn.authenticate.verify.$post>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<typeof client.webauthn.authenticate.verify.$post>>
+          >
+        >
+      >,
       variables: InferRequestType<typeof client.webauthn.authenticate.verify.$post>,
     ) => void
     onError?: (
@@ -131,7 +175,15 @@ export function createPostWebauthnAuthenticateVerify(options?: {
       variables: InferRequestType<typeof client.webauthn.authenticate.verify.$post>,
     ) => void
     onSettled?: (
-      data: InferResponseType<typeof client.webauthn.authenticate.verify.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<typeof client.webauthn.authenticate.verify.$post>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.webauthn.authenticate.verify.$post>,
     ) => void
@@ -144,11 +196,11 @@ export function createPostWebauthnAuthenticateVerify(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.webauthn.authenticate.verify.$post>) =>
       parseResponse(client.webauthn.authenticate.verify.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -173,7 +225,10 @@ export function createGetWebauthnCredentials(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetWebauthnCredentialsQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGetWebauthnCredentialsQueryOptions(clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**
@@ -223,10 +278,10 @@ export function createGetWebauthnCredentialsCredentialId(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
+  return createQuery(() => ({
     ...getGetWebauthnCredentialsCredentialIdQueryOptions(args, clientOptions),
     ...queryOptions,
-  })
+  }))
 }
 
 /**
@@ -269,7 +324,15 @@ export function createDeleteWebauthnCredentialsCredentialId(options?: {
   mutation?: {
     onSuccess?: (
       data:
-        | InferResponseType<(typeof client.webauthn.credentials)[':credentialId']['$delete']>
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<(typeof client.webauthn.credentials)[':credentialId']['$delete']>
+                >
+              >
+            >
+          >
         | undefined,
       variables: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$delete']>,
     ) => void
@@ -279,8 +342,15 @@ export function createDeleteWebauthnCredentialsCredentialId(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client.webauthn.credentials)[':credentialId']['$delete']>
-        | undefined
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<(typeof client.webauthn.credentials)[':credentialId']['$delete']>
+                >
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$delete']>,
@@ -294,12 +364,12 @@ export function createDeleteWebauthnCredentialsCredentialId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$delete']>,
     ) => parseResponse(client.webauthn.credentials[':credentialId'].$delete(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -312,7 +382,13 @@ export function createDeleteWebauthnCredentialsCredentialId(options?: {
 export function createPatchWebauthnCredentialsCredentialId(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.webauthn.credentials)[':credentialId']['$patch']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.webauthn.credentials)[':credentialId']['$patch']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$patch']>,
     ) => void
     onError?: (
@@ -321,7 +397,13 @@ export function createPatchWebauthnCredentialsCredentialId(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client.webauthn.credentials)[':credentialId']['$patch']>
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.webauthn.credentials)[':credentialId']['$patch']>>
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$patch']>,
@@ -335,12 +417,12 @@ export function createPatchWebauthnCredentialsCredentialId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$patch']>,
     ) => parseResponse(client.webauthn.credentials[':credentialId'].$patch(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -365,7 +447,10 @@ export function createGetWebauthnSettings(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetWebauthnSettingsQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGetWebauthnSettingsQueryOptions(clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**
@@ -412,7 +497,10 @@ export function createGetWebauthnSettingsRp(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetWebauthnSettingsRpQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGetWebauthnSettingsRpQueryOptions(clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**
@@ -447,7 +535,11 @@ export const getGetWebauthnSettingsRpQueryOptions = (clientOptions?: ClientReque
 export function createPutWebauthnSettingsRp(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.webauthn.settings.rp.$put>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<typeof client.webauthn.settings.rp.$put>>>
+        >
+      >,
       variables: InferRequestType<typeof client.webauthn.settings.rp.$put>,
     ) => void
     onError?: (
@@ -455,7 +547,13 @@ export function createPutWebauthnSettingsRp(options?: {
       variables: InferRequestType<typeof client.webauthn.settings.rp.$put>,
     ) => void
     onSettled?: (
-      data: InferResponseType<typeof client.webauthn.settings.rp.$put> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<typeof client.webauthn.settings.rp.$put>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.webauthn.settings.rp.$put>,
     ) => void
@@ -466,11 +564,11 @@ export function createPutWebauthnSettingsRp(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.webauthn.settings.rp.$put>) =>
       parseResponse(client.webauthn.settings.rp.$put(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -495,10 +593,10 @@ export function createGetWebauthnAuthenticators(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
+  return createQuery(() => ({
     ...getGetWebauthnAuthenticatorsQueryOptions(clientOptions),
     ...queryOptions,
-  })
+  }))
 }
 
 /**

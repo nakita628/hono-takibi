@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/not-schema'
 
@@ -9,12 +9,18 @@ import { client } from '../clients/not-schema'
 export function usePostValidate(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.validate.$post>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.validate.$post>>>>
+      >,
       variables: InferRequestType<typeof client.validate.$post>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.validate.$post>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.validate.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.validate.$post>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.validate.$post>,
     ) => void

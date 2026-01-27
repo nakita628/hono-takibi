@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/17-mixed-inline-refs'
 
 /**
@@ -41,7 +41,7 @@ export function getGetUsersKey(args?: InferRequestType<typeof client.users.$get>
  */
 export function usePostUsers(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.users.$post>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>,
     Error,
     string,
     InferRequestType<typeof client.users.$post>
@@ -94,7 +94,7 @@ export function getGetUsersUserIdKey(
  */
 export function usePostOrders(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.orders.$post>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.orders.$post>>>>>,
     Error,
     string,
     InferRequestType<typeof client.orders.$post>
@@ -147,7 +147,9 @@ export function getGetProductsProductIdVariantsKey(
  */
 export function usePostReportsGenerate(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.reports.generate.$post>,
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.reports.generate.$post>>>>
+    >,
     Error,
     string,
     InferRequestType<typeof client.reports.generate.$post>
@@ -168,7 +170,9 @@ export function usePostReportsGenerate(options?: {
  */
 export function usePostWebhooksTest(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.webhooks.test.$post>,
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.webhooks.test.$post>>>>
+    >,
     Error,
     string,
     InferRequestType<typeof client.webhooks.test.$post>

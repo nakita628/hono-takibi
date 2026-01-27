@@ -72,6 +72,8 @@ export async function svelteQuery(
 ): Promise<
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {
+  // Svelte Query v5+ requires thunk pattern: createQuery(() => options)
+  // @see https://tanstack.com/query/v5/docs/framework/svelte/reactivity
   const config = {
     packageName: '@tanstack/svelte-query',
     frameworkName: 'Svelte Query',
@@ -79,6 +81,7 @@ export async function svelteQuery(
     queryFn: 'createQuery',
     mutationFn: 'createMutation',
     queryOptionsHelper: 'queryOptions',
+    useThunk: true,
   }
   return makeQueryHooks(openAPI, output, importPath, config, split, clientName)
 }

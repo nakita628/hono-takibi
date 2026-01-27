@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/24-extreme-security'
 
 /**
@@ -216,7 +216,11 @@ export function getGetMixedLevelSecurityKey() {
  */
 export function usePutMixedLevelSecurity(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['mixed-level-security']['$put']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client)['mixed-level-security']['$put']>>>
+      >
+    >,
     Error,
     string,
     undefined
@@ -238,7 +242,11 @@ export function usePutMixedLevelSecurity(options?: {
  */
 export function usePostMixedLevelSecurity(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['mixed-level-security']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client)['mixed-level-security']['$post']>>>
+      >
+    >,
     Error,
     string,
     undefined
@@ -260,7 +268,14 @@ export function usePostMixedLevelSecurity(options?: {
  */
 export function useDeleteMixedLevelSecurity(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['mixed-level-security']['$delete']> | undefined,
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['mixed-level-security']['$delete']>>
+          >
+        >
+      >
+    | undefined,
     Error,
     string,
     undefined

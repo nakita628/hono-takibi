@@ -1,5 +1,5 @@
-import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/spotify'
 
@@ -28,7 +28,7 @@ export function createGetAlbums(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetAlbumsQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetAlbumsQueryOptions(args, clientOptions), ...queryOptions }))
 }
 
 /**
@@ -80,7 +80,10 @@ export function createGetAlbumsId(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetAlbumsIdQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGetAlbumsIdQueryOptions(args, clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**
@@ -138,7 +141,10 @@ export function createGetAlbumsIdTracks(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetAlbumsIdTracksQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGetAlbumsIdTracksQueryOptions(args, clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**
@@ -195,7 +201,7 @@ export function createGetArtists(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetArtistsQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetArtistsQueryOptions(args, clientOptions), ...queryOptions }))
 }
 
 /**
@@ -247,7 +253,10 @@ export function createGetArtistsId(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetArtistsIdQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGetArtistsIdQueryOptions(args, clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**
@@ -304,7 +313,10 @@ export function createGetArtistsIdAlbums(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetArtistsIdAlbumsQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGetArtistsIdAlbumsQueryOptions(args, clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**
@@ -361,10 +373,10 @@ export function createGetArtistsIdRelatedArtists(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
+  return createQuery(() => ({
     ...getGetArtistsIdRelatedArtistsQueryOptions(args, clientOptions),
     ...queryOptions,
-  })
+  }))
 }
 
 /**
@@ -421,10 +433,10 @@ export function createGetArtistsIdTopTracks(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
+  return createQuery(() => ({
     ...getGetArtistsIdTopTracksQueryOptions(args, clientOptions),
     ...queryOptions,
-  })
+  }))
 }
 
 /**
@@ -481,7 +493,10 @@ export function createGetAudioAnalysisId(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetAudioAnalysisIdQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGetAudioAnalysisIdQueryOptions(args, clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**
@@ -538,7 +553,10 @@ export function createGetAudioFeatures(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetAudioFeaturesQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGetAudioFeaturesQueryOptions(args, clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**
@@ -596,7 +614,10 @@ export function createGetAudioFeaturesId(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetAudioFeaturesIdQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGetAudioFeaturesIdQueryOptions(args, clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**
@@ -654,7 +675,10 @@ export function createGetAudiobooks(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetAudiobooksQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGetAudiobooksQueryOptions(args, clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**
@@ -710,7 +734,10 @@ export function createGetAudiobooksId(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetAudiobooksIdQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGetAudiobooksIdQueryOptions(args, clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**
@@ -768,10 +795,10 @@ export function createGetAudiobooksIdChapters(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
+  return createQuery(() => ({
     ...getGetAudiobooksIdChaptersQueryOptions(args, clientOptions),
     ...queryOptions,
-  })
+  }))
 }
 
 /**
@@ -828,10 +855,10 @@ export function createGetBrowseCategories(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
+  return createQuery(() => ({
     ...getGetBrowseCategoriesQueryOptions(args, clientOptions),
     ...queryOptions,
-  })
+  }))
 }
 
 /**
@@ -888,10 +915,10 @@ export function createGetBrowseCategoriesCategoryId(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
+  return createQuery(() => ({
     ...getGetBrowseCategoriesCategoryIdQueryOptions(args, clientOptions),
     ...queryOptions,
-  })
+  }))
 }
 
 /**
@@ -948,10 +975,10 @@ export function createGetBrowseCategoriesCategoryIdPlaylists(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
+  return createQuery(() => ({
     ...getGetBrowseCategoriesCategoryIdPlaylistsQueryOptions(args, clientOptions),
     ...queryOptions,
-  })
+  }))
 }
 
 /**
@@ -1008,10 +1035,10 @@ export function createGetBrowseFeaturedPlaylists(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
+  return createQuery(() => ({
     ...getGetBrowseFeaturedPlaylistsQueryOptions(args, clientOptions),
     ...queryOptions,
-  })
+  }))
 }
 
 /**
@@ -1068,10 +1095,10 @@ export function createGetBrowseNewReleases(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
+  return createQuery(() => ({
     ...getGetBrowseNewReleasesQueryOptions(args, clientOptions),
     ...queryOptions,
-  })
+  }))
 }
 
 /**
@@ -1129,7 +1156,10 @@ export function createGetChapters(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetChaptersQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGetChaptersQueryOptions(args, clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**
@@ -1182,7 +1212,10 @@ export function createGetChaptersId(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetChaptersIdQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGetChaptersIdQueryOptions(args, clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**
@@ -1239,7 +1272,10 @@ export function createGetEpisodes(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetEpisodesQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGetEpisodesQueryOptions(args, clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**
@@ -1292,7 +1328,10 @@ export function createGetEpisodesId(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetEpisodesIdQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGetEpisodesIdQueryOptions(args, clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**
@@ -1346,7 +1385,7 @@ export function createGetMarkets(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetMarketsQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetMarketsQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -1396,7 +1435,7 @@ export function createGetMe(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetMeQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetMeQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -1445,7 +1484,10 @@ export function createGetMeAlbums(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetMeAlbumsQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGetMeAlbumsQueryOptions(args, clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**
@@ -1482,12 +1524,18 @@ export const getGetMeAlbumsQueryOptions = (
 export function createPutMeAlbums(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.me.albums.$put>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.albums.$put>>>>
+      >,
       variables: InferRequestType<typeof client.me.albums.$put>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.me.albums.$put>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.me.albums.$put> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.albums.$put>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.me.albums.$put>,
     ) => void
@@ -1498,11 +1546,11 @@ export function createPutMeAlbums(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.me.albums.$put>) =>
       parseResponse(client.me.albums.$put(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -1515,12 +1563,18 @@ export function createPutMeAlbums(options?: {
 export function createDeleteMeAlbums(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.me.albums.$delete>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.albums.$delete>>>>
+      >,
       variables: InferRequestType<typeof client.me.albums.$delete>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.me.albums.$delete>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.me.albums.$delete> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.albums.$delete>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.me.albums.$delete>,
     ) => void
@@ -1531,11 +1585,11 @@ export function createDeleteMeAlbums(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.me.albums.$delete>) =>
       parseResponse(client.me.albums.$delete(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -1563,10 +1617,10 @@ export function createGetMeAlbumsContains(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
+  return createQuery(() => ({
     ...getGetMeAlbumsContainsQueryOptions(args, clientOptions),
     ...queryOptions,
-  })
+  }))
 }
 
 /**
@@ -1623,7 +1677,10 @@ export function createGetMeAudiobooks(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetMeAudiobooksQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGetMeAudiobooksQueryOptions(args, clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**
@@ -1665,12 +1722,18 @@ export const getGetMeAudiobooksQueryOptions = (
 export function createPutMeAudiobooks(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.me.audiobooks.$put>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.audiobooks.$put>>>>
+      >,
       variables: InferRequestType<typeof client.me.audiobooks.$put>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.me.audiobooks.$put>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.me.audiobooks.$put> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.audiobooks.$put>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.me.audiobooks.$put>,
     ) => void
@@ -1681,11 +1744,11 @@ export function createPutMeAudiobooks(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.me.audiobooks.$put>) =>
       parseResponse(client.me.audiobooks.$put(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -1698,7 +1761,9 @@ export function createPutMeAudiobooks(options?: {
 export function createDeleteMeAudiobooks(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.me.audiobooks.$delete>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.audiobooks.$delete>>>>
+      >,
       variables: InferRequestType<typeof client.me.audiobooks.$delete>,
     ) => void
     onError?: (
@@ -1706,7 +1771,13 @@ export function createDeleteMeAudiobooks(options?: {
       variables: InferRequestType<typeof client.me.audiobooks.$delete>,
     ) => void
     onSettled?: (
-      data: InferResponseType<typeof client.me.audiobooks.$delete> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<typeof client.me.audiobooks.$delete>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.me.audiobooks.$delete>,
     ) => void
@@ -1717,11 +1788,11 @@ export function createDeleteMeAudiobooks(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.me.audiobooks.$delete>) =>
       parseResponse(client.me.audiobooks.$delete(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -1749,10 +1820,10 @@ export function createGetMeAudiobooksContains(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
+  return createQuery(() => ({
     ...getGetMeAudiobooksContainsQueryOptions(args, clientOptions),
     ...queryOptions,
-  })
+  }))
 }
 
 /**
@@ -1810,7 +1881,10 @@ export function createGetMeEpisodes(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetMeEpisodesQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGetMeEpisodesQueryOptions(args, clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**
@@ -1851,12 +1925,18 @@ export const getGetMeEpisodesQueryOptions = (
 export function createPutMeEpisodes(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.me.episodes.$put>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.episodes.$put>>>>
+      >,
       variables: InferRequestType<typeof client.me.episodes.$put>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.me.episodes.$put>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.me.episodes.$put> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.episodes.$put>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.me.episodes.$put>,
     ) => void
@@ -1867,11 +1947,11 @@ export function createPutMeEpisodes(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.me.episodes.$put>) =>
       parseResponse(client.me.episodes.$put(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -1885,12 +1965,18 @@ export function createPutMeEpisodes(options?: {
 export function createDeleteMeEpisodes(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.me.episodes.$delete>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.episodes.$delete>>>>
+      >,
       variables: InferRequestType<typeof client.me.episodes.$delete>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.me.episodes.$delete>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.me.episodes.$delete> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.episodes.$delete>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.me.episodes.$delete>,
     ) => void
@@ -1901,11 +1987,11 @@ export function createDeleteMeEpisodes(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.me.episodes.$delete>) =>
       parseResponse(client.me.episodes.$delete(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -1934,10 +2020,10 @@ export function createGetMeEpisodesContains(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
+  return createQuery(() => ({
     ...getGetMeEpisodesContainsQueryOptions(args, clientOptions),
     ...queryOptions,
-  })
+  }))
 }
 
 /**
@@ -1994,7 +2080,10 @@ export function createGetMeFollowing(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetMeFollowingQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGetMeFollowingQueryOptions(args, clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**
@@ -2034,12 +2123,20 @@ export const getGetMeFollowingQueryOptions = (
 export function createPutMeFollowing(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.me.following.$put> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.following.$put>>>>
+          >
+        | undefined,
       variables: InferRequestType<typeof client.me.following.$put>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.me.following.$put>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.me.following.$put> | undefined | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.following.$put>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.me.following.$put>,
     ) => void
@@ -2050,11 +2147,11 @@ export function createPutMeFollowing(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.me.following.$put>) =>
       parseResponse(client.me.following.$put(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -2067,7 +2164,9 @@ export function createPutMeFollowing(options?: {
 export function createDeleteMeFollowing(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.me.following.$delete>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.following.$delete>>>>
+      >,
       variables: InferRequestType<typeof client.me.following.$delete>,
     ) => void
     onError?: (
@@ -2075,7 +2174,13 @@ export function createDeleteMeFollowing(options?: {
       variables: InferRequestType<typeof client.me.following.$delete>,
     ) => void
     onSettled?: (
-      data: InferResponseType<typeof client.me.following.$delete> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<typeof client.me.following.$delete>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.me.following.$delete>,
     ) => void
@@ -2086,11 +2191,11 @@ export function createDeleteMeFollowing(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.me.following.$delete>) =>
       parseResponse(client.me.following.$delete(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -2118,10 +2223,10 @@ export function createGetMeFollowingContains(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
+  return createQuery(() => ({
     ...getGetMeFollowingContainsQueryOptions(args, clientOptions),
     ...queryOptions,
-  })
+  }))
 }
 
 /**
@@ -2178,7 +2283,10 @@ export function createGetMePlayer(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetMePlayerQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGetMePlayerQueryOptions(args, clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**
@@ -2215,12 +2323,20 @@ export const getGetMePlayerQueryOptions = (
 export function createPutMePlayer(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.me.player.$put> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.player.$put>>>>
+          >
+        | undefined,
       variables: InferRequestType<typeof client.me.player.$put>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.me.player.$put>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.me.player.$put> | undefined | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.player.$put>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.me.player.$put>,
     ) => void
@@ -2231,11 +2347,11 @@ export function createPutMePlayer(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.me.player.$put>) =>
       parseResponse(client.me.player.$put(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -2263,10 +2379,10 @@ export function createGetMePlayerCurrentlyPlaying(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
+  return createQuery(() => ({
     ...getGetMePlayerCurrentlyPlayingQueryOptions(args, clientOptions),
     ...queryOptions,
-  })
+  }))
 }
 
 /**
@@ -2320,7 +2436,10 @@ export function createGetMePlayerDevices(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetMePlayerDevicesQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGetMePlayerDevicesQueryOptions(clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**
@@ -2357,7 +2476,13 @@ export const getGetMePlayerDevicesQueryOptions = (clientOptions?: ClientRequestO
 export function createPostMePlayerNext(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.me.player.next.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<typeof client.me.player.next.$post>>>
+            >
+          >
+        | undefined,
       variables: InferRequestType<typeof client.me.player.next.$post>,
     ) => void
     onError?: (
@@ -2365,7 +2490,13 @@ export function createPostMePlayerNext(options?: {
       variables: InferRequestType<typeof client.me.player.next.$post>,
     ) => void
     onSettled?: (
-      data: InferResponseType<typeof client.me.player.next.$post> | undefined | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<typeof client.me.player.next.$post>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.me.player.next.$post>,
     ) => void
@@ -2376,11 +2507,11 @@ export function createPostMePlayerNext(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.me.player.next.$post>) =>
       parseResponse(client.me.player.next.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -2393,7 +2524,13 @@ export function createPostMePlayerNext(options?: {
 export function createPutMePlayerPause(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.me.player.pause.$put> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<typeof client.me.player.pause.$put>>>
+            >
+          >
+        | undefined,
       variables: InferRequestType<typeof client.me.player.pause.$put>,
     ) => void
     onError?: (
@@ -2401,7 +2538,13 @@ export function createPutMePlayerPause(options?: {
       variables: InferRequestType<typeof client.me.player.pause.$put>,
     ) => void
     onSettled?: (
-      data: InferResponseType<typeof client.me.player.pause.$put> | undefined | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<typeof client.me.player.pause.$put>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.me.player.pause.$put>,
     ) => void
@@ -2412,11 +2555,11 @@ export function createPutMePlayerPause(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.me.player.pause.$put>) =>
       parseResponse(client.me.player.pause.$put(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -2429,12 +2572,20 @@ export function createPutMePlayerPause(options?: {
 export function createPutMePlayerPlay(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.me.player.play.$put> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.player.play.$put>>>>
+          >
+        | undefined,
       variables: InferRequestType<typeof client.me.player.play.$put>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.me.player.play.$put>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.me.player.play.$put> | undefined | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.player.play.$put>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.me.player.play.$put>,
     ) => void
@@ -2445,11 +2596,11 @@ export function createPutMePlayerPlay(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.me.player.play.$put>) =>
       parseResponse(client.me.player.play.$put(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -2462,7 +2613,13 @@ export function createPutMePlayerPlay(options?: {
 export function createPostMePlayerPrevious(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.me.player.previous.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<typeof client.me.player.previous.$post>>>
+            >
+          >
+        | undefined,
       variables: InferRequestType<typeof client.me.player.previous.$post>,
     ) => void
     onError?: (
@@ -2470,7 +2627,13 @@ export function createPostMePlayerPrevious(options?: {
       variables: InferRequestType<typeof client.me.player.previous.$post>,
     ) => void
     onSettled?: (
-      data: InferResponseType<typeof client.me.player.previous.$post> | undefined | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<typeof client.me.player.previous.$post>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.me.player.previous.$post>,
     ) => void
@@ -2481,11 +2644,11 @@ export function createPostMePlayerPrevious(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.me.player.previous.$post>) =>
       parseResponse(client.me.player.previous.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -2510,7 +2673,7 @@ export function createGetMePlayerQueue(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetMePlayerQueueQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetMePlayerQueueQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -2547,7 +2710,13 @@ export const getGetMePlayerQueueQueryOptions = (clientOptions?: ClientRequestOpt
 export function createPostMePlayerQueue(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.me.player.queue.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<typeof client.me.player.queue.$post>>>
+            >
+          >
+        | undefined,
       variables: InferRequestType<typeof client.me.player.queue.$post>,
     ) => void
     onError?: (
@@ -2555,7 +2724,13 @@ export function createPostMePlayerQueue(options?: {
       variables: InferRequestType<typeof client.me.player.queue.$post>,
     ) => void
     onSettled?: (
-      data: InferResponseType<typeof client.me.player.queue.$post> | undefined | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<typeof client.me.player.queue.$post>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.me.player.queue.$post>,
     ) => void
@@ -2566,11 +2741,11 @@ export function createPostMePlayerQueue(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.me.player.queue.$post>) =>
       parseResponse(client.me.player.queue.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -2599,10 +2774,10 @@ export function createGetMePlayerRecentlyPlayed(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
+  return createQuery(() => ({
     ...getGetMePlayerRecentlyPlayedQueryOptions(args, clientOptions),
     ...queryOptions,
-  })
+  }))
 }
 
 /**
@@ -2645,7 +2820,13 @@ export const getGetMePlayerRecentlyPlayedQueryOptions = (
 export function createPutMePlayerRepeat(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.me.player.repeat.$put> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<typeof client.me.player.repeat.$put>>>
+            >
+          >
+        | undefined,
       variables: InferRequestType<typeof client.me.player.repeat.$put>,
     ) => void
     onError?: (
@@ -2653,7 +2834,13 @@ export function createPutMePlayerRepeat(options?: {
       variables: InferRequestType<typeof client.me.player.repeat.$put>,
     ) => void
     onSettled?: (
-      data: InferResponseType<typeof client.me.player.repeat.$put> | undefined | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<typeof client.me.player.repeat.$put>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.me.player.repeat.$put>,
     ) => void
@@ -2664,11 +2851,11 @@ export function createPutMePlayerRepeat(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.me.player.repeat.$put>) =>
       parseResponse(client.me.player.repeat.$put(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -2681,12 +2868,20 @@ export function createPutMePlayerRepeat(options?: {
 export function createPutMePlayerSeek(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.me.player.seek.$put> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.player.seek.$put>>>>
+          >
+        | undefined,
       variables: InferRequestType<typeof client.me.player.seek.$put>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.me.player.seek.$put>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.me.player.seek.$put> | undefined | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.player.seek.$put>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.me.player.seek.$put>,
     ) => void
@@ -2697,11 +2892,11 @@ export function createPutMePlayerSeek(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.me.player.seek.$put>) =>
       parseResponse(client.me.player.seek.$put(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -2714,7 +2909,13 @@ export function createPutMePlayerSeek(options?: {
 export function createPutMePlayerShuffle(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.me.player.shuffle.$put> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<typeof client.me.player.shuffle.$put>>>
+            >
+          >
+        | undefined,
       variables: InferRequestType<typeof client.me.player.shuffle.$put>,
     ) => void
     onError?: (
@@ -2722,7 +2923,13 @@ export function createPutMePlayerShuffle(options?: {
       variables: InferRequestType<typeof client.me.player.shuffle.$put>,
     ) => void
     onSettled?: (
-      data: InferResponseType<typeof client.me.player.shuffle.$put> | undefined | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<typeof client.me.player.shuffle.$put>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.me.player.shuffle.$put>,
     ) => void
@@ -2733,11 +2940,11 @@ export function createPutMePlayerShuffle(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.me.player.shuffle.$put>) =>
       parseResponse(client.me.player.shuffle.$put(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -2750,7 +2957,13 @@ export function createPutMePlayerShuffle(options?: {
 export function createPutMePlayerVolume(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.me.player.volume.$put> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<typeof client.me.player.volume.$put>>>
+            >
+          >
+        | undefined,
       variables: InferRequestType<typeof client.me.player.volume.$put>,
     ) => void
     onError?: (
@@ -2758,7 +2971,13 @@ export function createPutMePlayerVolume(options?: {
       variables: InferRequestType<typeof client.me.player.volume.$put>,
     ) => void
     onSettled?: (
-      data: InferResponseType<typeof client.me.player.volume.$put> | undefined | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<typeof client.me.player.volume.$put>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.me.player.volume.$put>,
     ) => void
@@ -2769,11 +2988,11 @@ export function createPutMePlayerVolume(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.me.player.volume.$put>) =>
       parseResponse(client.me.player.volume.$put(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -2802,7 +3021,10 @@ export function createGetMePlaylists(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetMePlaylistsQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGetMePlaylistsQueryOptions(args, clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**
@@ -2857,7 +3079,7 @@ export function createGetMeShows(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetMeShowsQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetMeShowsQueryOptions(args, clientOptions), ...queryOptions }))
 }
 
 /**
@@ -2894,12 +3116,18 @@ export const getGetMeShowsQueryOptions = (
 export function createPutMeShows(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.me.shows.$put>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.shows.$put>>>>
+      >,
       variables: InferRequestType<typeof client.me.shows.$put>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.me.shows.$put>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.me.shows.$put> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.shows.$put>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.me.shows.$put>,
     ) => void
@@ -2910,11 +3138,11 @@ export function createPutMeShows(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.me.shows.$put>) =>
       parseResponse(client.me.shows.$put(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -2927,12 +3155,18 @@ export function createPutMeShows(options?: {
 export function createDeleteMeShows(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.me.shows.$delete>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.shows.$delete>>>>
+      >,
       variables: InferRequestType<typeof client.me.shows.$delete>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.me.shows.$delete>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.me.shows.$delete> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.shows.$delete>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.me.shows.$delete>,
     ) => void
@@ -2943,11 +3177,11 @@ export function createDeleteMeShows(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.me.shows.$delete>) =>
       parseResponse(client.me.shows.$delete(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -2975,7 +3209,10 @@ export function createGetMeShowsContains(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetMeShowsContainsQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGetMeShowsContainsQueryOptions(args, clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**
@@ -3032,7 +3269,10 @@ export function createGetMeTopType(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetMeTopTypeQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGetMeTopTypeQueryOptions(args, clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**
@@ -3089,7 +3329,10 @@ export function createGetMeTracks(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetMeTracksQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGetMeTracksQueryOptions(args, clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**
@@ -3126,12 +3369,18 @@ export const getGetMeTracksQueryOptions = (
 export function createPutMeTracks(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.me.tracks.$put>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.tracks.$put>>>>
+      >,
       variables: InferRequestType<typeof client.me.tracks.$put>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.me.tracks.$put>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.me.tracks.$put> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.tracks.$put>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.me.tracks.$put>,
     ) => void
@@ -3142,11 +3391,11 @@ export function createPutMeTracks(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.me.tracks.$put>) =>
       parseResponse(client.me.tracks.$put(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -3159,12 +3408,18 @@ export function createPutMeTracks(options?: {
 export function createDeleteMeTracks(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.me.tracks.$delete>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.tracks.$delete>>>>
+      >,
       variables: InferRequestType<typeof client.me.tracks.$delete>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.me.tracks.$delete>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.me.tracks.$delete> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.tracks.$delete>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.me.tracks.$delete>,
     ) => void
@@ -3175,11 +3430,11 @@ export function createDeleteMeTracks(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.me.tracks.$delete>) =>
       parseResponse(client.me.tracks.$delete(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -3207,10 +3462,10 @@ export function createGetMeTracksContains(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
+  return createQuery(() => ({
     ...getGetMeTracksContainsQueryOptions(args, clientOptions),
     ...queryOptions,
-  })
+  }))
 }
 
 /**
@@ -3267,10 +3522,10 @@ export function createGetPlaylistsPlaylistId(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
+  return createQuery(() => ({
     ...getGetPlaylistsPlaylistIdQueryOptions(args, clientOptions),
     ...queryOptions,
-  })
+  }))
 }
 
 /**
@@ -3313,7 +3568,13 @@ export const getGetPlaylistsPlaylistIdQueryOptions = (
 export function createPutPlaylistsPlaylistId(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.playlists)[':playlist_id']['$put']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.playlists)[':playlist_id']['$put']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client.playlists)[':playlist_id']['$put']>,
     ) => void
     onError?: (
@@ -3321,7 +3582,15 @@ export function createPutPlaylistsPlaylistId(options?: {
       variables: InferRequestType<(typeof client.playlists)[':playlist_id']['$put']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.playlists)[':playlist_id']['$put']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.playlists)[':playlist_id']['$put']>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.playlists)[':playlist_id']['$put']>,
     ) => void
@@ -3334,11 +3603,11 @@ export function createPutPlaylistsPlaylistId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.playlists)[':playlist_id']['$put']>) =>
       parseResponse(client.playlists[':playlist_id'].$put(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -3351,7 +3620,13 @@ export function createPutPlaylistsPlaylistId(options?: {
 export function createPutPlaylistsPlaylistIdFollowers(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.playlists)[':playlist_id']['followers']['$put']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.playlists)[':playlist_id']['followers']['$put']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client.playlists)[':playlist_id']['followers']['$put']>,
     ) => void
     onError?: (
@@ -3360,7 +3635,13 @@ export function createPutPlaylistsPlaylistIdFollowers(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client.playlists)[':playlist_id']['followers']['$put']>
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.playlists)[':playlist_id']['followers']['$put']>>
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.playlists)[':playlist_id']['followers']['$put']>,
@@ -3374,12 +3655,12 @@ export function createPutPlaylistsPlaylistIdFollowers(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.playlists)[':playlist_id']['followers']['$put']>,
     ) => parseResponse(client.playlists[':playlist_id'].followers.$put(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -3392,7 +3673,13 @@ export function createPutPlaylistsPlaylistIdFollowers(options?: {
 export function createDeletePlaylistsPlaylistIdFollowers(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.playlists)[':playlist_id']['followers']['$delete']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.playlists)[':playlist_id']['followers']['$delete']>>
+          >
+        >
+      >,
       variables: InferRequestType<
         (typeof client.playlists)[':playlist_id']['followers']['$delete']
       >,
@@ -3405,7 +3692,15 @@ export function createDeletePlaylistsPlaylistIdFollowers(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client.playlists)[':playlist_id']['followers']['$delete']>
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<(typeof client.playlists)[':playlist_id']['followers']['$delete']>
+                >
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -3423,12 +3718,12 @@ export function createDeletePlaylistsPlaylistIdFollowers(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.playlists)[':playlist_id']['followers']['$delete']>,
     ) => parseResponse(client.playlists[':playlist_id'].followers.$delete(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -3458,10 +3753,10 @@ export function createGetPlaylistsPlaylistIdFollowersContains(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
+  return createQuery(() => ({
     ...getGetPlaylistsPlaylistIdFollowersContainsQueryOptions(args, clientOptions),
     ...queryOptions,
-  })
+  }))
 }
 
 /**
@@ -3522,10 +3817,10 @@ export function createGetPlaylistsPlaylistIdImages(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
+  return createQuery(() => ({
     ...getGetPlaylistsPlaylistIdImagesQueryOptions(args, clientOptions),
     ...queryOptions,
-  })
+  }))
 }
 
 /**
@@ -3567,7 +3862,13 @@ export const getGetPlaylistsPlaylistIdImagesQueryOptions = (
 export function createPutPlaylistsPlaylistIdImages(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.playlists)[':playlist_id']['images']['$put']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.playlists)[':playlist_id']['images']['$put']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$put']>,
     ) => void
     onError?: (
@@ -3576,7 +3877,13 @@ export function createPutPlaylistsPlaylistIdImages(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client.playlists)[':playlist_id']['images']['$put']>
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.playlists)[':playlist_id']['images']['$put']>>
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$put']>,
@@ -3590,12 +3897,12 @@ export function createPutPlaylistsPlaylistIdImages(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$put']>,
     ) => parseResponse(client.playlists[':playlist_id'].images.$put(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -3623,10 +3930,10 @@ export function createGetPlaylistsPlaylistIdTracks(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
+  return createQuery(() => ({
     ...getGetPlaylistsPlaylistIdTracksQueryOptions(args, clientOptions),
     ...queryOptions,
-  })
+  }))
 }
 
 /**
@@ -3674,7 +3981,13 @@ export const getGetPlaylistsPlaylistIdTracksQueryOptions = (
 export function createPutPlaylistsPlaylistIdTracks(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.playlists)[':playlist_id']['tracks']['$put']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.playlists)[':playlist_id']['tracks']['$put']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$put']>,
     ) => void
     onError?: (
@@ -3683,7 +3996,13 @@ export function createPutPlaylistsPlaylistIdTracks(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client.playlists)[':playlist_id']['tracks']['$put']>
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.playlists)[':playlist_id']['tracks']['$put']>>
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$put']>,
@@ -3697,12 +4016,12 @@ export function createPutPlaylistsPlaylistIdTracks(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$put']>,
     ) => parseResponse(client.playlists[':playlist_id'].tracks.$put(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -3715,7 +4034,13 @@ export function createPutPlaylistsPlaylistIdTracks(options?: {
 export function createPostPlaylistsPlaylistIdTracks(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.playlists)[':playlist_id']['tracks']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.playlists)[':playlist_id']['tracks']['$post']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$post']>,
     ) => void
     onError?: (
@@ -3724,7 +4049,13 @@ export function createPostPlaylistsPlaylistIdTracks(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client.playlists)[':playlist_id']['tracks']['$post']>
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.playlists)[':playlist_id']['tracks']['$post']>>
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$post']>,
@@ -3738,12 +4069,12 @@ export function createPostPlaylistsPlaylistIdTracks(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$post']>,
     ) => parseResponse(client.playlists[':playlist_id'].tracks.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -3756,7 +4087,13 @@ export function createPostPlaylistsPlaylistIdTracks(options?: {
 export function createDeletePlaylistsPlaylistIdTracks(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.playlists)[':playlist_id']['tracks']['$delete']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.playlists)[':playlist_id']['tracks']['$delete']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$delete']>,
     ) => void
     onError?: (
@@ -3765,7 +4102,13 @@ export function createDeletePlaylistsPlaylistIdTracks(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client.playlists)[':playlist_id']['tracks']['$delete']>
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.playlists)[':playlist_id']['tracks']['$delete']>>
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$delete']>,
@@ -3779,12 +4122,12 @@ export function createDeletePlaylistsPlaylistIdTracks(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$delete']>,
     ) => parseResponse(client.playlists[':playlist_id'].tracks.$delete(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -3814,7 +4157,10 @@ export function createGetRecommendations(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetRecommendationsQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGetRecommendationsQueryOptions(args, clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**
@@ -3868,10 +4214,10 @@ export function createGetRecommendationsAvailableGenreSeeds(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
+  return createQuery(() => ({
     ...getGetRecommendationsAvailableGenreSeedsQueryOptions(clientOptions),
     ...queryOptions,
-  })
+  }))
 }
 
 /**
@@ -3927,7 +4273,7 @@ export function createGetSearch(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetSearchQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetSearchQueryOptions(args, clientOptions), ...queryOptions }))
 }
 
 /**
@@ -3979,7 +4325,7 @@ export function createGetShows(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetShowsQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetShowsQueryOptions(args, clientOptions), ...queryOptions }))
 }
 
 /**
@@ -4032,7 +4378,7 @@ export function createGetShowsId(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetShowsIdQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetShowsIdQueryOptions(args, clientOptions), ...queryOptions }))
 }
 
 /**
@@ -4089,7 +4435,10 @@ export function createGetShowsIdEpisodes(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetShowsIdEpisodesQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGetShowsIdEpisodesQueryOptions(args, clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**
@@ -4146,7 +4495,7 @@ export function createGetTracks(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetTracksQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetTracksQueryOptions(args, clientOptions), ...queryOptions }))
 }
 
 /**
@@ -4199,7 +4548,10 @@ export function createGetTracksId(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetTracksIdQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGetTracksIdQueryOptions(args, clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**
@@ -4256,7 +4608,10 @@ export function createGetUsersUserId(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetUsersUserIdQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGetUsersUserIdQueryOptions(args, clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**
@@ -4313,10 +4668,10 @@ export function createGetUsersUserIdPlaylists(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
+  return createQuery(() => ({
     ...getGetUsersUserIdPlaylistsQueryOptions(args, clientOptions),
     ...queryOptions,
-  })
+  }))
 }
 
 /**
@@ -4359,7 +4714,13 @@ export const getGetUsersUserIdPlaylistsQueryOptions = (
 export function createPostUsersUserIdPlaylists(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.users)[':user_id']['playlists']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.users)[':user_id']['playlists']['$post']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client.users)[':user_id']['playlists']['$post']>,
     ) => void
     onError?: (
@@ -4367,7 +4728,15 @@ export function createPostUsersUserIdPlaylists(options?: {
       variables: InferRequestType<(typeof client.users)[':user_id']['playlists']['$post']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.users)[':user_id']['playlists']['$post']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.users)[':user_id']['playlists']['$post']>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.users)[':user_id']['playlists']['$post']>,
     ) => void
@@ -4380,10 +4749,10 @@ export function createPostUsersUserIdPlaylists(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.users)[':user_id']['playlists']['$post']>,
     ) => parseResponse(client.users[':user_id'].playlists.$post(args, clientOptions)),
-  })
+  }))
 }

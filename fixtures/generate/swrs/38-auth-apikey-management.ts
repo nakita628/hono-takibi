@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/38-auth-apikey-management'
 
 /**
@@ -45,7 +45,9 @@ export function getGetApiKeysKey(args?: InferRequestType<(typeof client)['api-ke
  */
 export function usePostApiKeys(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['api-keys']['$post']>,
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['api-keys']['$post']>>>>
+    >,
     Error,
     string,
     InferRequestType<(typeof client)['api-keys']['$post']>
@@ -102,7 +104,14 @@ export function getGetApiKeysKeyIdKey(
  */
 export function useDeleteApiKeysKeyId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['api-keys'][':keyId']['$delete']> | undefined,
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['api-keys'][':keyId']['$delete']>>
+          >
+        >
+      >
+    | undefined,
     Error,
     string,
     InferRequestType<(typeof client)['api-keys'][':keyId']['$delete']>
@@ -127,7 +136,11 @@ export function useDeleteApiKeysKeyId(options?: {
  */
 export function usePatchApiKeysKeyId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['api-keys'][':keyId']['$patch']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client)['api-keys'][':keyId']['$patch']>>>
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client)['api-keys'][':keyId']['$patch']>
@@ -152,7 +165,13 @@ export function usePatchApiKeysKeyId(options?: {
  */
 export function usePostApiKeysKeyIdRevoke(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['api-keys'][':keyId']['revoke']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['api-keys'][':keyId']['revoke']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client)['api-keys'][':keyId']['revoke']['$post']>
@@ -177,7 +196,13 @@ export function usePostApiKeysKeyIdRevoke(options?: {
  */
 export function usePostApiKeysKeyIdRotate(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['api-keys'][':keyId']['rotate']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['api-keys'][':keyId']['rotate']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client)['api-keys'][':keyId']['rotate']['$post']>
@@ -272,7 +297,11 @@ export function getGetApiKeysKeyIdRateLimitCurrentKey(
  */
 export function usePostApiKeysVerify(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['api-keys']['verify']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client)['api-keys']['verify']['$post']>>>
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client)['api-keys']['verify']['$post']>

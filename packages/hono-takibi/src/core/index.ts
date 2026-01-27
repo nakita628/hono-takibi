@@ -5,9 +5,7 @@
  */
 
 // Shared query module
-export {
-  makeQueryHooks,
-} from '../helper/query.js'
+export { makeQueryHooks } from '../helper/query.js'
 export * from './components/index.js'
 // Generation functions
 export { route } from './route/index.js'

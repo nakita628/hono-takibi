@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/30-practical-ecommerce-api'
 
 /**
@@ -45,7 +45,7 @@ export function getGetProductsKey(args?: InferRequestType<typeof client.products
  */
 export function usePostProducts(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.products.$post>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.products.$post>>>>>,
     Error,
     string,
     InferRequestType<typeof client.products.$post>
@@ -102,7 +102,11 @@ export function getGetProductsProductIdKey(
  */
 export function usePutProductsProductId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.products)[':productId']['$put']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client.products)[':productId']['$put']>>>
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.products)[':productId']['$put']>
@@ -127,7 +131,14 @@ export function usePutProductsProductId(options?: {
  */
 export function useDeleteProductsProductId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.products)[':productId']['$delete']> | undefined,
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.products)[':productId']['$delete']>>
+          >
+        >
+      >
+    | undefined,
     Error,
     string,
     InferRequestType<(typeof client.products)[':productId']['$delete']>
@@ -152,7 +163,13 @@ export function useDeleteProductsProductId(options?: {
  */
 export function usePostProductsProductIdImages(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.products)[':productId']['images']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.products)[':productId']['images']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.products)[':productId']['images']['$post']>
@@ -206,7 +223,7 @@ export function getGetCategoriesKey() {
  */
 export function usePostCategories(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.categories.$post>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.categories.$post>>>>>,
     Error,
     string,
     InferRequestType<typeof client.categories.$post>
@@ -258,7 +275,8 @@ export function getGetCartKey() {
  */
 export function useDeleteCart(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.cart.$delete> | undefined,
+    | Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.cart.$delete>>>>>
+    | undefined,
     Error,
     string,
     undefined
@@ -280,7 +298,7 @@ export function useDeleteCart(options?: {
  */
 export function usePostCartItems(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.cart.items.$post>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.cart.items.$post>>>>>,
     Error,
     string,
     InferRequestType<typeof client.cart.items.$post>
@@ -303,7 +321,11 @@ export function usePostCartItems(options?: {
  */
 export function usePutCartItemsItemId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.cart.items)[':itemId']['$put']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client.cart.items)[':itemId']['$put']>>>
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.cart.items)[':itemId']['$put']>
@@ -328,7 +350,11 @@ export function usePutCartItemsItemId(options?: {
  */
 export function useDeleteCartItemsItemId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.cart.items)[':itemId']['$delete']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client.cart.items)[':itemId']['$delete']>>>
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.cart.items)[':itemId']['$delete']>
@@ -387,7 +413,7 @@ export function getGetOrdersKey(args?: InferRequestType<typeof client.orders.$ge
  */
 export function usePostOrders(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.orders.$post>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.orders.$post>>>>>,
     Error,
     string,
     InferRequestType<typeof client.orders.$post>
@@ -444,7 +470,13 @@ export function getGetOrdersOrderIdKey(
  */
 export function usePostOrdersOrderIdCancel(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.orders)[':orderId']['cancel']['$post']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.orders)[':orderId']['cancel']['$post']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.orders)[':orderId']['cancel']['$post']>
@@ -503,7 +535,11 @@ export function getGetInventoryProductIdKey(
  */
 export function usePutInventoryProductId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.inventory)[':productId']['$put']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client.inventory)[':productId']['$put']>>>
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.inventory)[':productId']['$put']>

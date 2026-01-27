@@ -1,5 +1,5 @@
 import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '@/lib'
 
@@ -54,14 +54,6 @@ export const getGetTodoQueryOptions = (
   })
 
 /**
- * Returns TanStack Query mutation options for POST /todo
- */
-export const getPostTodoMutationOptions = (clientOptions?: ClientRequestOptions) => ({
-  mutationFn: async (args: InferRequestType<typeof client.todo.$post>) =>
-    parseResponse(client.todo.$post(args, clientOptions)),
-})
-
-/**
  * POST /todo
  *
  * Create a new post
@@ -69,12 +61,16 @@ export const getPostTodoMutationOptions = (clientOptions?: ClientRequestOptions)
 export function usePostTodo(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.todo.$post>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.todo.$post>>>>
+      >,
       variables: InferRequestType<typeof client.todo.$post>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.todo.$post>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.todo.$post> | undefined,
+      data:
+        | Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.todo.$post>>>>>
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.todo.$post>,
     ) => void
@@ -146,14 +142,6 @@ export const getGetTodoIdQueryOptions = (
   })
 
 /**
- * Returns TanStack Query mutation options for PUT /todo/{id}
- */
-export const getPutTodoIdMutationOptions = (clientOptions?: ClientRequestOptions) => ({
-  mutationFn: async (args: InferRequestType<(typeof client.todo)[':id']['$put']>) =>
-    parseResponse(client.todo[':id'].$put(args, clientOptions)),
-})
-
-/**
  * PUT /todo/{id}
  *
  * Update an existing todo
@@ -161,7 +149,13 @@ export const getPutTodoIdMutationOptions = (clientOptions?: ClientRequestOptions
 export function usePutTodoId(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.todo)[':id']['$put']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client.todo)[':id']['$put']>>>
+            >
+          >
+        | undefined,
       variables: InferRequestType<(typeof client.todo)[':id']['$put']>,
     ) => void
     onError?: (
@@ -169,7 +163,13 @@ export function usePutTodoId(options?: {
       variables: InferRequestType<(typeof client.todo)[':id']['$put']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.todo)[':id']['$put']> | undefined | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client.todo)[':id']['$put']>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.todo)[':id']['$put']>,
     ) => void
@@ -188,14 +188,6 @@ export function usePutTodoId(options?: {
 }
 
 /**
- * Returns TanStack Query mutation options for DELETE /todo/{id}
- */
-export const getDeleteTodoIdMutationOptions = (clientOptions?: ClientRequestOptions) => ({
-  mutationFn: async (args: InferRequestType<(typeof client.todo)[':id']['$delete']>) =>
-    parseResponse(client.todo[':id'].$delete(args, clientOptions)),
-})
-
-/**
  * DELETE /todo/{id}
  *
  * Delete a todo
@@ -203,7 +195,13 @@ export const getDeleteTodoIdMutationOptions = (clientOptions?: ClientRequestOpti
 export function useDeleteTodoId(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.todo)[':id']['$delete']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client.todo)[':id']['$delete']>>>
+            >
+          >
+        | undefined,
       variables: InferRequestType<(typeof client.todo)[':id']['$delete']>,
     ) => void
     onError?: (
@@ -211,7 +209,13 @@ export function useDeleteTodoId(options?: {
       variables: InferRequestType<(typeof client.todo)[':id']['$delete']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.todo)[':id']['$delete']> | undefined | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client.todo)[':id']['$delete']>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.todo)[':id']['$delete']>,
     ) => void

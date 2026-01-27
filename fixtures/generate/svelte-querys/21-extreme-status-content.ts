@@ -1,5 +1,5 @@
-import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/21-extreme-status-content'
 
@@ -21,7 +21,10 @@ export function createGetExtremeResponses(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetExtremeResponsesQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGetExtremeResponsesQueryOptions(clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**
@@ -54,7 +57,13 @@ export const getGetExtremeResponsesQueryOptions = (clientOptions?: ClientRequest
 export function createPostMultipartVariations(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client)['multipart-variations']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['multipart-variations']['$post']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client)['multipart-variations']['$post']>,
     ) => void
     onError?: (
@@ -62,7 +71,15 @@ export function createPostMultipartVariations(options?: {
       variables: InferRequestType<(typeof client)['multipart-variations']['$post']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client)['multipart-variations']['$post']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client)['multipart-variations']['$post']>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client)['multipart-variations']['$post']>,
     ) => void
@@ -75,11 +92,11 @@ export function createPostMultipartVariations(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client)['multipart-variations']['$post']>) =>
       parseResponse(client['multipart-variations'].$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -88,7 +105,11 @@ export function createPostMultipartVariations(options?: {
 export function createPostCharsetVariations(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client)['charset-variations']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client)['charset-variations']['$post']>>>
+        >
+      >,
       variables: InferRequestType<(typeof client)['charset-variations']['$post']>,
     ) => void
     onError?: (
@@ -96,7 +117,15 @@ export function createPostCharsetVariations(options?: {
       variables: InferRequestType<(typeof client)['charset-variations']['$post']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client)['charset-variations']['$post']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client)['charset-variations']['$post']>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client)['charset-variations']['$post']>,
     ) => void
@@ -107,9 +136,9 @@ export function createPostCharsetVariations(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client)['charset-variations']['$post']>) =>
       parseResponse(client['charset-variations'].$post(args, clientOptions)),
-  })
+  }))
 }

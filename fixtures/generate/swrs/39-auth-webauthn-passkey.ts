@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/39-auth-webauthn-passkey'
 
 /**
@@ -15,7 +15,11 @@ import { client } from '../clients/39-auth-webauthn-passkey'
  */
 export function usePostWebauthnRegisterOptions(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.webauthn.register.options.$post>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<typeof client.webauthn.register.options.$post>>>
+      >
+    >,
     Error,
     string,
     InferRequestType<typeof client.webauthn.register.options.$post>
@@ -42,7 +46,11 @@ export function usePostWebauthnRegisterOptions(options?: {
  */
 export function usePostWebauthnRegisterVerify(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.webauthn.register.verify.$post>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<typeof client.webauthn.register.verify.$post>>>
+      >
+    >,
     Error,
     string,
     InferRequestType<typeof client.webauthn.register.verify.$post>
@@ -69,7 +77,11 @@ export function usePostWebauthnRegisterVerify(options?: {
  */
 export function usePostWebauthnAuthenticateOptions(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.webauthn.authenticate.options.$post>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<typeof client.webauthn.authenticate.options.$post>>>
+      >
+    >,
     Error,
     string,
     InferRequestType<typeof client.webauthn.authenticate.options.$post>
@@ -96,7 +108,11 @@ export function usePostWebauthnAuthenticateOptions(options?: {
  */
 export function usePostWebauthnAuthenticateVerify(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.webauthn.authenticate.verify.$post>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<typeof client.webauthn.authenticate.verify.$post>>>
+      >
+    >,
     Error,
     string,
     InferRequestType<typeof client.webauthn.authenticate.verify.$post>
@@ -190,7 +206,14 @@ export function getGetWebauthnCredentialsCredentialIdKey(
  */
 export function useDeleteWebauthnCredentialsCredentialId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.webauthn.credentials)[':credentialId']['$delete']> | undefined,
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.webauthn.credentials)[':credentialId']['$delete']>>
+          >
+        >
+      >
+    | undefined,
     Error,
     string,
     InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$delete']>
@@ -221,7 +244,13 @@ export function useDeleteWebauthnCredentialsCredentialId(options?: {
  */
 export function usePatchWebauthnCredentialsCredentialId(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.webauthn.credentials)[':credentialId']['$patch']>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.webauthn.credentials)[':credentialId']['$patch']>>
+        >
+      >
+    >,
     Error,
     string,
     InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$patch']>
@@ -308,7 +337,9 @@ export function getGetWebauthnSettingsRpKey() {
  */
 export function usePutWebauthnSettingsRp(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.webauthn.settings.rp.$put>,
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.webauthn.settings.rp.$put>>>>
+    >,
     Error,
     string,
     InferRequestType<typeof client.webauthn.settings.rp.$put>

@@ -1,5 +1,5 @@
-import { useQuery, useMutation, queryOptions } from '@tanstack/react-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/08-links'
 
@@ -9,12 +9,16 @@ import { client } from '../clients/08-links'
 export function usePostOrders(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.orders.$post>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.orders.$post>>>>
+      >,
       variables: InferRequestType<typeof client.orders.$post>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.orders.$post>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.orders.$post> | undefined,
+      data:
+        | Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.orders.$post>>>>>
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.orders.$post>,
     ) => void
@@ -91,7 +95,11 @@ export const getGetOrdersOrderIdQueryOptions = (
 export function useDeleteOrdersOrderId(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.orders)[':orderId']['$delete']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.orders)[':orderId']['$delete']>>>
+        >
+      >,
       variables: InferRequestType<(typeof client.orders)[':orderId']['$delete']>,
     ) => void
     onError?: (
@@ -99,7 +107,15 @@ export function useDeleteOrdersOrderId(options?: {
       variables: InferRequestType<(typeof client.orders)[':orderId']['$delete']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.orders)[':orderId']['$delete']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.orders)[':orderId']['$delete']>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.orders)[':orderId']['$delete']>,
     ) => void

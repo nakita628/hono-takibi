@@ -1,4 +1,4 @@
-import { useQuery, queryOptions } from '@tanstack/react-query'
+import { queryOptions, useQuery } from '@tanstack/react-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/openapi-array'

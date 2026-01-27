@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/05-request-bodies'
 
@@ -9,12 +9,16 @@ import { client } from '../clients/05-request-bodies'
 export function usePostUsers(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.users.$post>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>
+      >,
       variables: InferRequestType<typeof client.users.$post>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.users.$post>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.users.$post> | undefined,
+      data:
+        | Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.users.$post>,
     ) => void
@@ -38,7 +42,11 @@ export function usePostUsers(options?: {
 export function usePutUsersUserId(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.users)[':userId']['$put']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':userId']['$put']>>>
+        >
+      >,
       variables: InferRequestType<(typeof client.users)[':userId']['$put']>,
     ) => void
     onError?: (
@@ -46,7 +54,13 @@ export function usePutUsersUserId(options?: {
       variables: InferRequestType<(typeof client.users)[':userId']['$put']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.users)[':userId']['$put']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':userId']['$put']>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.users)[':userId']['$put']>,
     ) => void
@@ -70,7 +84,11 @@ export function usePutUsersUserId(options?: {
 export function usePatchUsersUserId(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.users)[':userId']['$patch']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':userId']['$patch']>>>
+        >
+      >,
       variables: InferRequestType<(typeof client.users)[':userId']['$patch']>,
     ) => void
     onError?: (
@@ -78,7 +96,13 @@ export function usePatchUsersUserId(options?: {
       variables: InferRequestType<(typeof client.users)[':userId']['$patch']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.users)[':userId']['$patch']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':userId']['$patch']>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.users)[':userId']['$patch']>,
     ) => void
@@ -102,7 +126,13 @@ export function usePatchUsersUserId(options?: {
 export function usePostUsersUserIdAvatar(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.users)[':userId']['avatar']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.users)[':userId']['avatar']['$post']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client.users)[':userId']['avatar']['$post']>,
     ) => void
     onError?: (
@@ -110,7 +140,15 @@ export function usePostUsersUserIdAvatar(options?: {
       variables: InferRequestType<(typeof client.users)[':userId']['avatar']['$post']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.users)[':userId']['avatar']['$post']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.users)[':userId']['avatar']['$post']>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.users)[':userId']['avatar']['$post']>,
     ) => void
@@ -137,12 +175,18 @@ export function usePostUsersUserIdAvatar(options?: {
 export function usePostBulkUsers(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.bulk.users.$post>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.bulk.users.$post>>>>
+      >,
       variables: InferRequestType<typeof client.bulk.users.$post>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.bulk.users.$post>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.bulk.users.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.bulk.users.$post>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.bulk.users.$post>,
     ) => void

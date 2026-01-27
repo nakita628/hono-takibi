@@ -25,8 +25,8 @@ import path from 'node:path'
 import type { HttpMethod, OperationDeps, PathItemLike } from '../../helper/index.js'
 import {
   buildInferRequestType,
-  buildInferResponseType,
   buildOperationDocs,
+  buildParseResponseType,
   core,
   createOperationDeps,
   formatPath,
@@ -123,7 +123,8 @@ const makeHookCode = (
   const isQuery = method === 'get'
 
   const inferRequestType = buildInferRequestType(deps.client, pathResult, method)
-  const inferResponseType = buildInferResponseType(deps.client, pathResult, method)
+  // Use parseResponse return type for accurate type inference
+  const parseResponseType = buildParseResponseType(deps.client, pathResult, method)
   const hasNoContent = hasNoContentResponse(op)
 
   // Convert {param} to :param for key path display
@@ -162,8 +163,8 @@ ${keyGetterCode}`
 
     // Only add | undefined when there are 204/205 No Content responses
     const responseTypeWithUndefined = hasNoContent
-      ? `${inferResponseType}|undefined`
-      : inferResponseType
+      ? `${parseResponseType}|undefined`
+      : parseResponseType
     const mutationConfigType = `SWRMutationConfiguration<${responseTypeWithUndefined},Error,string,${variablesType}>`
 
     if (hasArgs) {
@@ -237,10 +238,9 @@ const makeHeader = (
 
   // Hono client imports
   // InferRequestType: needed when operation has args
-  // InferResponseType: needed for mutation SWRMutationConfiguration type parameter
+  // InferResponseType: no longer needed - using parseResponse return type instead
   const typeImportParts: string[] = []
   if (hasArgs) typeImportParts.push('InferRequestType')
-  if (hasMutation) typeImportParts.push('InferResponseType')
   typeImportParts.push('ClientRequestOptions')
   lines.push(`import type{${typeImportParts.join(',')}}from'hono/client'`)
   lines.push("import{parseResponse}from'hono/client'")

@@ -1,5 +1,5 @@
-import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/35-auth-oauth2-server'
 
@@ -29,7 +29,10 @@ export function createGetOauthAuthorize(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetOauthAuthorizeQueryOptions(args, clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGetOauthAuthorizeQueryOptions(args, clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**
@@ -72,12 +75,18 @@ export const getGetOauthAuthorizeQueryOptions = (
 export function createPostOauthToken(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.oauth.token.$post>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.oauth.token.$post>>>>
+      >,
       variables: InferRequestType<typeof client.oauth.token.$post>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.oauth.token.$post>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.oauth.token.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.oauth.token.$post>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.oauth.token.$post>,
     ) => void
@@ -88,11 +97,11 @@ export function createPostOauthToken(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.oauth.token.$post>) =>
       parseResponse(client.oauth.token.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -105,12 +114,18 @@ export function createPostOauthToken(options?: {
 export function createPostOauthRevoke(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.oauth.revoke.$post>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.oauth.revoke.$post>>>>
+      >,
       variables: InferRequestType<typeof client.oauth.revoke.$post>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.oauth.revoke.$post>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.oauth.revoke.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.oauth.revoke.$post>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.oauth.revoke.$post>,
     ) => void
@@ -121,11 +136,11 @@ export function createPostOauthRevoke(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.oauth.revoke.$post>) =>
       parseResponse(client.oauth.revoke.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -138,7 +153,9 @@ export function createPostOauthRevoke(options?: {
 export function createPostOauthIntrospect(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.oauth.introspect.$post>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.oauth.introspect.$post>>>>
+      >,
       variables: InferRequestType<typeof client.oauth.introspect.$post>,
     ) => void
     onError?: (
@@ -146,7 +163,13 @@ export function createPostOauthIntrospect(options?: {
       variables: InferRequestType<typeof client.oauth.introspect.$post>,
     ) => void
     onSettled?: (
-      data: InferResponseType<typeof client.oauth.introspect.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<typeof client.oauth.introspect.$post>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.oauth.introspect.$post>,
     ) => void
@@ -157,11 +180,11 @@ export function createPostOauthIntrospect(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.oauth.introspect.$post>) =>
       parseResponse(client.oauth.introspect.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -174,7 +197,9 @@ export function createPostOauthIntrospect(options?: {
 export function createPostOauthDeviceCode(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.oauth.device.code.$post>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.oauth.device.code.$post>>>>
+      >,
       variables: InferRequestType<typeof client.oauth.device.code.$post>,
     ) => void
     onError?: (
@@ -182,7 +207,13 @@ export function createPostOauthDeviceCode(options?: {
       variables: InferRequestType<typeof client.oauth.device.code.$post>,
     ) => void
     onSettled?: (
-      data: InferResponseType<typeof client.oauth.device.code.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<typeof client.oauth.device.code.$post>>>
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.oauth.device.code.$post>,
     ) => void
@@ -193,11 +224,11 @@ export function createPostOauthDeviceCode(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.oauth.device.code.$post>) =>
       parseResponse(client.oauth.device.code.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -222,7 +253,7 @@ export function createGetOauthUserinfo(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetOauthUserinfoQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetOauthUserinfoQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -271,10 +302,10 @@ export function createGetWellKnownOpenidConfiguration(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
+  return createQuery(() => ({
     ...getGetWellKnownOpenidConfigurationQueryOptions(clientOptions),
     ...queryOptions,
-  })
+  }))
 }
 
 /**
@@ -325,7 +356,10 @@ export function createGetWellKnownJwksJson(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetWellKnownJwksJsonQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({
+    ...getGetWellKnownJwksJsonQueryOptions(clientOptions),
+    ...queryOptions,
+  }))
 }
 
 /**
@@ -372,7 +406,7 @@ export function createGetOauthClients(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetOauthClientsQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetOauthClientsQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -407,12 +441,18 @@ export const getGetOauthClientsQueryOptions = (clientOptions?: ClientRequestOpti
 export function createPostOauthClients(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<typeof client.oauth.clients.$post>,
+      data: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.oauth.clients.$post>>>>
+      >,
       variables: InferRequestType<typeof client.oauth.clients.$post>,
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.oauth.clients.$post>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.oauth.clients.$post> | undefined,
+      data:
+        | Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.oauth.clients.$post>>>>
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.oauth.clients.$post>,
     ) => void
@@ -423,11 +463,11 @@ export function createPostOauthClients(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.oauth.clients.$post>) =>
       parseResponse(client.oauth.clients.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -453,10 +493,10 @@ export function createGetOauthClientsClientId(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
+  return createQuery(() => ({
     ...getGetOauthClientsClientIdQueryOptions(args, clientOptions),
     ...queryOptions,
-  })
+  }))
 }
 
 /**
@@ -496,7 +536,13 @@ export const getGetOauthClientsClientIdQueryOptions = (
 export function createPutOauthClientsClientId(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.oauth.clients)[':clientId']['$put']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.oauth.clients)[':clientId']['$put']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client.oauth.clients)[':clientId']['$put']>,
     ) => void
     onError?: (
@@ -504,7 +550,15 @@ export function createPutOauthClientsClientId(options?: {
       variables: InferRequestType<(typeof client.oauth.clients)[':clientId']['$put']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.oauth.clients)[':clientId']['$put']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.oauth.clients)[':clientId']['$put']>>
+              >
+            >
+          >
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.oauth.clients)[':clientId']['$put']>,
     ) => void
@@ -517,12 +571,12 @@ export function createPutOauthClientsClientId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.oauth.clients)[':clientId']['$put']>,
     ) => parseResponse(client.oauth.clients[':clientId'].$put(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -533,7 +587,15 @@ export function createPutOauthClientsClientId(options?: {
 export function createDeleteOauthClientsClientId(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.oauth.clients)[':clientId']['$delete']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.oauth.clients)[':clientId']['$delete']>>
+              >
+            >
+          >
+        | undefined,
       variables: InferRequestType<(typeof client.oauth.clients)[':clientId']['$delete']>,
     ) => void
     onError?: (
@@ -542,8 +604,13 @@ export function createDeleteOauthClientsClientId(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client.oauth.clients)[':clientId']['$delete']>
-        | undefined
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.oauth.clients)[':clientId']['$delete']>>
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.oauth.clients)[':clientId']['$delete']>,
@@ -557,12 +624,12 @@ export function createDeleteOauthClientsClientId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.oauth.clients)[':clientId']['$delete']>,
     ) => parseResponse(client.oauth.clients[':clientId'].$delete(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -573,7 +640,13 @@ export function createDeleteOauthClientsClientId(options?: {
 export function createPostOauthClientsClientIdSecret(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.oauth.clients)[':clientId']['secret']['$post']>,
+      data: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.oauth.clients)[':clientId']['secret']['$post']>>
+          >
+        >
+      >,
       variables: InferRequestType<(typeof client.oauth.clients)[':clientId']['secret']['$post']>,
     ) => void
     onError?: (
@@ -582,7 +655,13 @@ export function createPostOauthClientsClientIdSecret(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client.oauth.clients)[':clientId']['secret']['$post']>
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.oauth.clients)[':clientId']['secret']['$post']>>
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.oauth.clients)[':clientId']['secret']['$post']>,
@@ -596,12 +675,12 @@ export function createPostOauthClientsClientIdSecret(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.oauth.clients)[':clientId']['secret']['$post']>,
     ) => parseResponse(client.oauth.clients[':clientId'].secret.$post(args, clientOptions)),
-  })
+  }))
 }
 
 /**
@@ -626,7 +705,7 @@ export function createGetOauthConsents(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({ ...getGetOauthConsentsQueryOptions(clientOptions), ...queryOptions })
+  return createQuery(() => ({ ...getGetOauthConsentsQueryOptions(clientOptions), ...queryOptions }))
 }
 
 /**
@@ -663,7 +742,15 @@ export const getGetOauthConsentsQueryOptions = (clientOptions?: ClientRequestOpt
 export function createDeleteOauthConsentsClientId(options?: {
   mutation?: {
     onSuccess?: (
-      data: InferResponseType<(typeof client.oauth.consents)[':clientId']['$delete']> | undefined,
+      data:
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.oauth.consents)[':clientId']['$delete']>>
+              >
+            >
+          >
+        | undefined,
       variables: InferRequestType<(typeof client.oauth.consents)[':clientId']['$delete']>,
     ) => void
     onError?: (
@@ -672,8 +759,13 @@ export function createDeleteOauthConsentsClientId(options?: {
     ) => void
     onSettled?: (
       data:
-        | InferResponseType<(typeof client.oauth.consents)[':clientId']['$delete']>
-        | undefined
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.oauth.consents)[':clientId']['$delete']>>
+              >
+            >
+          >
         | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.oauth.consents)[':clientId']['$delete']>,
@@ -687,10 +779,10 @@ export function createDeleteOauthConsentsClientId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation({
+  return createMutation(() => ({
     ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.oauth.consents)[':clientId']['$delete']>,
     ) => parseResponse(client.oauth.consents[':clientId'].$delete(args, clientOptions)),
-  })
+  }))
 }

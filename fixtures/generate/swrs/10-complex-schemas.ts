@@ -1,7 +1,7 @@
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/10-complex-schemas'
 
 /**
@@ -9,7 +9,7 @@ import { client } from '../clients/10-complex-schemas'
  */
 export function usePostEvents(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.events.$post>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.events.$post>>>>>,
     Error,
     string,
     InferRequestType<typeof client.events.$post>
@@ -30,7 +30,9 @@ export function usePostEvents(options?: {
  */
 export function usePostNotifications(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.notifications.$post>,
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.notifications.$post>>>>
+    >,
     Error,
     string,
     InferRequestType<typeof client.notifications.$post>
@@ -51,7 +53,7 @@ export function usePostNotifications(options?: {
  */
 export function usePostShapes(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.shapes.$post>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.shapes.$post>>>>>,
     Error,
     string,
     InferRequestType<typeof client.shapes.$post>
@@ -72,7 +74,7 @@ export function usePostShapes(options?: {
  */
 export function usePostDocuments(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.documents.$post>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.documents.$post>>>>>,
     Error,
     string,
     InferRequestType<typeof client.documents.$post>
@@ -93,7 +95,7 @@ export function usePostDocuments(options?: {
  */
 export function usePostMixed(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.mixed.$post>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mixed.$post>>>>>,
     Error,
     string,
     InferRequestType<typeof client.mixed.$post>
