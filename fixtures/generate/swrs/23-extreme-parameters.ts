@@ -36,7 +36,7 @@ export function useGetAP1BP2CP3DP4EP5FP6GP7HP8IP9JP10(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetAP1BP2CP3DP4EP5FP6GP7HP8IP9JP10Key(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetAP1BP2CP3DP4EP5FP6GP7HP8IP9JP10Key(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -75,7 +75,7 @@ export function useGetQueryStyles(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetQueryStylesKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetQueryStylesKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -109,7 +109,7 @@ export function useGetPathStylesSimpleLabelMatrix(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetPathStylesSimpleLabelMatrixKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetPathStylesSimpleLabelMatrixKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -146,7 +146,7 @@ export function useGetHeaderStyles(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetHeaderStylesKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetHeaderStylesKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -180,7 +180,7 @@ export function useGetCookieStyles(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetCookieStylesKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetCookieStylesKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -214,7 +214,7 @@ export function useGetManyQueryParams(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetManyQueryParamsKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetManyQueryParamsKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -248,7 +248,7 @@ export function useGetParameterContent(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetParameterContentKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetParameterContentKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -282,7 +282,7 @@ export function useGetDeprecatedParams(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetDeprecatedParamsKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetDeprecatedParamsKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -316,7 +316,7 @@ export function useGetExamplesParams(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetExamplesParamsKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetExamplesParamsKey(args)) : null
   return {
     swrKey,
     ...useSWR(

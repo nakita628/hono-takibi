@@ -31,7 +31,7 @@ export function useGetPosts(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetPostsKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetPostsKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -103,7 +103,7 @@ export function useGetPostsPostId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetPostsPostIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetPostsPostIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -184,7 +184,7 @@ export function useGetPostsPostIdThread(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetPostsPostIdThreadKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetPostsPostIdThreadKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -222,7 +222,7 @@ export function useGetPostsPostIdContext(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetPostsPostIdContextKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetPostsPostIdContextKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -258,7 +258,7 @@ export function useGetTimelineHome(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetTimelineHomeKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetTimelineHomeKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -296,7 +296,7 @@ export function useGetTimelineForYou(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetTimelineForYouKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetTimelineForYouKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -332,7 +332,7 @@ export function useGetTimelineUserUserId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetTimelineUserUserIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetTimelineUserUserIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -368,7 +368,7 @@ export function useGetTimelineHashtagHashtag(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetTimelineHashtagHashtagKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetTimelineHashtagHashtagKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -708,7 +708,7 @@ export function useGetBookmarks(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetBookmarksKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetBookmarksKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -744,7 +744,7 @@ export function useGetPostsPostIdLikes(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetPostsPostIdLikesKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetPostsPostIdLikesKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -780,7 +780,7 @@ export function useGetPostsPostIdReposts(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetPostsPostIdRepostsKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetPostsPostIdRepostsKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -816,7 +816,7 @@ export function useGetPostsPostIdQuotes(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetPostsPostIdQuotesKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetPostsPostIdQuotesKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -852,7 +852,7 @@ export function useGetPostsPostIdReplies(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetPostsPostIdRepliesKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetPostsPostIdRepliesKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -970,7 +970,7 @@ export function useGetMediaMediaId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetMediaMediaIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetMediaMediaIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(

@@ -22,7 +22,7 @@ export function useGetCategories(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetCategoriesKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetCategoriesKey()) : null
   return {
     swrKey,
     ...useSWR(

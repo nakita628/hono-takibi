@@ -65,7 +65,7 @@ export function useGetUsers(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetUsersKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetUsersKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -137,7 +137,7 @@ export function useGetUsersUserId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetUsersUserIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetUsersUserIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -215,7 +215,7 @@ export function useGetCompaniesCompanyId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetCompaniesCompanyIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetCompaniesCompanyIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -249,7 +249,7 @@ export function useGetOrders(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetOrdersKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetOrdersKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -321,7 +321,7 @@ export function useGetOrdersOrderId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetOrdersOrderIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetOrdersOrderIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -357,7 +357,7 @@ export function useGetFilesFileId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetFilesFileIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetFilesFileIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(

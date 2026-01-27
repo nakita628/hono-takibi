@@ -26,7 +26,7 @@ export function useGetNumber(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetNumberKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetNumberKey()) : null
   return {
     swrKey,
     ...useSWR(

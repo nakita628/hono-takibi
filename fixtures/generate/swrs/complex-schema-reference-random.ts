@@ -24,7 +24,7 @@ export function useGetTest(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetTestKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetTestKey()) : null
   return {
     swrKey,
     ...useSWR(

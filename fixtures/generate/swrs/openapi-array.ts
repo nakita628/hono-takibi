@@ -26,7 +26,7 @@ export function useGetArray(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetArrayKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetArrayKey()) : null
   return {
     swrKey,
     ...useSWR(

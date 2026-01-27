@@ -26,7 +26,7 @@ export function useGetStream(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetStreamKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetStreamKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -139,7 +139,7 @@ export function useGetDeprecatedEndpoint(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetDeprecatedEndpointKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetDeprecatedEndpointKey()) : null
   return {
     swrKey,
     ...useSWR(

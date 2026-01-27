@@ -26,7 +26,7 @@ export function useGetPrimitive(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetPrimitiveKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetPrimitiveKey()) : null
   return {
     swrKey,
     ...useSWR(

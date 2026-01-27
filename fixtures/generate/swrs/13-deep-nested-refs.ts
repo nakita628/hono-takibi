@@ -38,9 +38,9 @@ export function useGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled ? getGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -140,7 +140,7 @@ export function useGetReportsOrganizationSummary(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetReportsOrganizationSummaryKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetReportsOrganizationSummaryKey()) : null
   return {
     swrKey,
     ...useSWR(

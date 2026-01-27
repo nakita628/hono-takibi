@@ -26,7 +26,7 @@ export function useGetHono(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetHonoKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetHonoKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -59,7 +59,7 @@ export function useGetHonoX(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetHonoXKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetHonoXKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -92,7 +92,7 @@ export function useGetZodOpenapiHono(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetZodOpenapiHonoKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetZodOpenapiHonoKey()) : null
   return {
     swrKey,
     ...useSWR(

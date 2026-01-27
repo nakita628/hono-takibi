@@ -29,7 +29,7 @@ export function useGetFizzbuzz(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetFizzbuzzKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetFizzbuzzKey(args)) : null
   return {
     swrKey,
     ...useSWR(

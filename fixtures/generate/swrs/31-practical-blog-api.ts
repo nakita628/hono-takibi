@@ -29,7 +29,7 @@ export function useGetPosts(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetPostsKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetPostsKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -101,7 +101,7 @@ export function useGetPostsPostId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetPostsPostIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetPostsPostIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -222,7 +222,7 @@ export function useGetPostsSlugSlug(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetPostsSlugSlugKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetPostsSlugSlugKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -346,7 +346,7 @@ export function useGetPostsPostIdComments(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetPostsPostIdCommentsKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetPostsPostIdCommentsKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -512,7 +512,7 @@ export function useGetCategories(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetCategoriesKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetCategoriesKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -584,7 +584,7 @@ export function useGetCategoriesCategoryId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetCategoriesCategoryIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetCategoriesCategoryIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -705,7 +705,7 @@ export function useGetTags(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetTagsKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetTagsKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -775,7 +775,7 @@ export function useGetMedia(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetMediaKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetMediaKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -847,7 +847,7 @@ export function useGetMediaMediaId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetMediaMediaIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetMediaMediaIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -963,7 +963,7 @@ export function useGetAuthors(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetAuthorsKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetAuthorsKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -999,7 +999,7 @@ export function useGetAuthorsAuthorId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetAuthorsAuthorIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetAuthorsAuthorIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(

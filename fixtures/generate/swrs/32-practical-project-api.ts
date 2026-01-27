@@ -29,7 +29,7 @@ export function useGetProjects(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetProjectsKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetProjectsKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -101,7 +101,7 @@ export function useGetProjectsProjectId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetProjectsProjectIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetProjectsProjectIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -224,7 +224,7 @@ export function useGetProjectsProjectIdMembers(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetProjectsProjectIdMembersKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetProjectsProjectIdMembersKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -306,7 +306,7 @@ export function useGetProjectsProjectIdTasks(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetProjectsProjectIdTasksKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetProjectsProjectIdTasksKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -388,7 +388,7 @@ export function useGetTasksTaskId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetTasksTaskIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetTasksTaskIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -553,7 +553,7 @@ export function useGetTasksTaskIdComments(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetTasksTaskIdCommentsKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetTasksTaskIdCommentsKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -633,7 +633,7 @@ export function useGetTasksTaskIdTimeEntries(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetTasksTaskIdTimeEntriesKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetTasksTaskIdTimeEntriesKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -715,7 +715,7 @@ export function useGetProjectsProjectIdMilestones(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetProjectsProjectIdMilestonesKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetProjectsProjectIdMilestonesKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -792,7 +792,7 @@ export function useGetTeams(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetTeamsKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetTeamsKey()) : null
   return {
     swrKey,
     ...useSWR(

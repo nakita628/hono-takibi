@@ -28,7 +28,7 @@ export function useGet(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -64,7 +64,7 @@ export function useGetPosts(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetPostsKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetPostsKey(args)) : null
   return {
     swrKey,
     ...useSWR(

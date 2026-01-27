@@ -24,7 +24,7 @@ export function useGetEntities(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetEntitiesKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetEntitiesKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -87,7 +87,7 @@ export function useGetGraph(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetGraphKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetGraphKey()) : null
   return {
     swrKey,
     ...useSWR(

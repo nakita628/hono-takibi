@@ -31,7 +31,7 @@ export function useGetPath(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetPathKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetPathKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -548,7 +548,7 @@ export function useGet1IndexesIndexNameObjectID(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGet1IndexesIndexNameObjectIDKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGet1IndexesIndexNameObjectIDKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -1053,7 +1053,7 @@ export function useGet1IndexesIndexNameSettings(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGet1IndexesIndexNameSettingsKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGet1IndexesIndexNameSettingsKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -1153,7 +1153,7 @@ export function useGet1IndexesIndexNameSynonymsObjectID(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGet1IndexesIndexNameSynonymsObjectIDKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGet1IndexesIndexNameSynonymsObjectIDKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -1480,7 +1480,7 @@ export function useGet1Keys(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGet1KeysKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGet1KeysKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -1562,7 +1562,7 @@ export function useGet1KeysKey(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGet1KeysKeyKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGet1KeysKeyKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -1748,7 +1748,7 @@ export function useGet1IndexesIndexNameRulesObjectID(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGet1IndexesIndexNameRulesObjectIDKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGet1IndexesIndexNameRulesObjectIDKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -2182,7 +2182,7 @@ export function useGet1DictionariesSettings(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGet1DictionariesSettingsKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGet1DictionariesSettingsKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -2264,7 +2264,7 @@ export function useGet1DictionariesLanguages(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGet1DictionariesLanguagesKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGet1DictionariesLanguagesKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -2306,7 +2306,7 @@ export function useGet1ClustersMapping(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGet1ClustersMappingKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGet1ClustersMappingKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -2440,7 +2440,7 @@ export function useGet1ClustersMappingTop(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGet1ClustersMappingTopKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGet1ClustersMappingTopKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -2481,7 +2481,7 @@ export function useGet1ClustersMappingUserID(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGet1ClustersMappingUserIDKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGet1ClustersMappingUserIDKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -2564,7 +2564,7 @@ export function useGet1Clusters(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGet1ClustersKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGet1ClustersKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -2655,7 +2655,7 @@ export function useGet1ClustersMappingPending(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGet1ClustersMappingPendingKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGet1ClustersMappingPendingKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -2688,7 +2688,7 @@ export function useGet1SecuritySources(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGet1SecuritySourcesKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGet1SecuritySourcesKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -2874,7 +2874,7 @@ export function useGet1Logs(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGet1LogsKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGet1LogsKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -2912,7 +2912,7 @@ export function useGet1TaskTaskID(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGet1TaskTaskIDKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGet1TaskTaskIDKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -2956,7 +2956,7 @@ export function useGet1IndexesIndexNameTaskTaskID(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGet1IndexesIndexNameTaskTaskIDKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGet1IndexesIndexNameTaskTaskIDKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -3068,7 +3068,7 @@ export function useGet1Indexes(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGet1IndexesKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGet1IndexesKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -3104,7 +3104,7 @@ export function useGetWaitForApiKey(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetWaitForApiKeyKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetWaitForApiKeyKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -3142,7 +3142,7 @@ export function useGetWaitForTask(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetWaitForTaskKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetWaitForTaskKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -3178,7 +3178,7 @@ export function useGetWaitForAppTask(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetWaitForAppTaskKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetWaitForAppTaskKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -3218,7 +3218,7 @@ export function useGetBrowseObjects(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetBrowseObjectsKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetBrowseObjectsKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -3268,7 +3268,7 @@ export function useGetGenerateSecuredApiKey(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetGenerateSecuredApiKeyKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetGenerateSecuredApiKeyKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -3306,7 +3306,7 @@ export function useGetAccountCopyIndex(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetAccountCopyIndexKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetAccountCopyIndexKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -3359,7 +3359,7 @@ export function useGetReplaceAllObjects(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetReplaceAllObjectsKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetReplaceAllObjectsKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -3414,8 +3414,9 @@ export function useGetReplaceAllObjectsWithTransformation(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ?? (isEnabled ? getGetReplaceAllObjectsWithTransformationKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGetReplaceAllObjectsWithTransformationKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -3452,7 +3453,7 @@ export function useGetChunkedBatch(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetChunkedBatchKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetChunkedBatchKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -3488,7 +3489,7 @@ export function useGetSaveObjects(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetSaveObjectsKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetSaveObjectsKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -3526,7 +3527,7 @@ export function useGetSaveObjectsWithTransformation(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetSaveObjectsWithTransformationKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetSaveObjectsWithTransformationKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -3698,7 +3699,7 @@ export function useGetIndexExists(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetIndexExistsKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetIndexExistsKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -3736,7 +3737,7 @@ export function useGetSetClientApiKey(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetSetClientApiKeyKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetSetClientApiKeyKey(args)) : null
   return {
     swrKey,
     ...useSWR(

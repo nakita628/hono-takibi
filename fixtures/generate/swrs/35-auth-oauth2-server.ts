@@ -34,7 +34,7 @@ export function useGetOauthAuthorize(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetOauthAuthorizeKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetOauthAuthorizeKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -226,7 +226,7 @@ export function useGetOauthUserinfo(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetOauthUserinfoKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetOauthUserinfoKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -259,7 +259,7 @@ export function useGetWellKnownOpenidConfiguration(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetWellKnownOpenidConfigurationKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetWellKnownOpenidConfigurationKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -293,7 +293,7 @@ export function useGetWellKnownJwksJson(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetWellKnownJwksJsonKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetWellKnownJwksJsonKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -324,7 +324,7 @@ export function useGetOauthClients(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetOauthClientsKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetOauthClientsKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -398,7 +398,7 @@ export function useGetOauthClientsClientId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetOauthClientsClientIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetOauthClientsClientIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -566,7 +566,7 @@ export function useGetOauthConsents(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetOauthConsentsKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetOauthConsentsKey()) : null
   return {
     swrKey,
     ...useSWR(

@@ -4,6 +4,8 @@ export default defineConfig({
   input: 'typespec/main.tsp',
   'zod-openapi': {
     output: 'src/api/routes/index.ts',
+    exportSchemas: true,
+    exportSchemasTypes: true,
   },
   swr: {
     output: 'src/hooks/swr.ts',
@@ -12,7 +14,7 @@ export default defineConfig({
   },
   rpc: {
     output: 'src/rpc/index.ts',
-    import: '../lib',
+    import: '@/lib',
     client: 'client',
   },
 })

@@ -31,7 +31,7 @@ export function useGetUsersUserId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetUsersUserIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetUsersUserIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -67,7 +67,7 @@ export function useGetUsersByUsernameUsername(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetUsersByUsernameUsernameKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetUsersByUsernameUsernameKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -101,7 +101,7 @@ export function useGetUsersSearch(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetUsersSearchKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetUsersSearchKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -135,7 +135,7 @@ export function useGetUsersLookup(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetUsersLookupKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetUsersLookupKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -166,7 +166,7 @@ export function useGetMe(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetMeKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetMeKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -474,7 +474,7 @@ export function useGetUsersUserIdFollowers(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetUsersUserIdFollowersKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetUsersUserIdFollowersKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -510,7 +510,7 @@ export function useGetUsersUserIdFollowing(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetUsersUserIdFollowingKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetUsersUserIdFollowingKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -594,7 +594,7 @@ export function useGetRelationships(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetRelationshipsKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetRelationshipsKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -632,7 +632,7 @@ export function useGetFollowRequests(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetFollowRequestsKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetFollowRequestsKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -936,7 +936,7 @@ export function useGetBlocks(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetBlocksKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetBlocksKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -970,7 +970,7 @@ export function useGetMutes(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetMutesKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetMutesKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -1001,7 +1001,7 @@ export function useGetLists(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetListsKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetListsKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -1073,7 +1073,7 @@ export function useGetListsListId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetListsListIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetListsListIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -1194,7 +1194,7 @@ export function useGetListsListIdMembers(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetListsListIdMembersKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetListsListIdMembersKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -1323,7 +1323,7 @@ export function useGetListsListIdTimeline(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetListsListIdTimelineKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetListsListIdTimelineKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -1359,7 +1359,7 @@ export function useGetUsersUserIdLists(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetUsersUserIdListsKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetUsersUserIdListsKey(args)) : null
   return {
     swrKey,
     ...useSWR(

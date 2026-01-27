@@ -24,7 +24,7 @@ export function useGetExample(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetExampleKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetExampleKey()) : null
   return {
     swrKey,
     ...useSWR(

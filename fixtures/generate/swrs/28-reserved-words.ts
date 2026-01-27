@@ -24,7 +24,7 @@ export function useGetClass(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetClassKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetClassKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -53,7 +53,7 @@ export function useGetInterface(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetInterfaceKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetInterfaceKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -82,7 +82,7 @@ export function useGetType(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetTypeKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetTypeKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -144,7 +144,7 @@ export function useGetReturn(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetReturnKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetReturnKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -173,7 +173,7 @@ export function useGetImport(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetImportKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetImportKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -202,7 +202,7 @@ export function useGetExport(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetExportKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetExportKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -231,7 +231,7 @@ export function useGetDefault(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetDefaultKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetDefaultKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -326,7 +326,7 @@ export function useGetVoid(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetVoidKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetVoidKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -355,7 +355,7 @@ export function useGetNull(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetNullKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetNullKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -384,7 +384,7 @@ export function useGetTrue(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetTrueKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetTrueKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -413,7 +413,7 @@ export function useGetFalse(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetFalseKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetFalseKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -442,7 +442,7 @@ export function useGetIf(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetIfKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetIfKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -471,7 +471,7 @@ export function useGetElse(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetElseKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetElseKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -500,7 +500,7 @@ export function useGetFor(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetForKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetForKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -529,7 +529,7 @@ export function useGetWhile(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetWhileKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetWhileKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -558,7 +558,7 @@ export function useGetSwitch(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetSwitchKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetSwitchKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -587,7 +587,7 @@ export function useGetCase(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetCaseKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetCaseKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -616,7 +616,7 @@ export function useGetBreak(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetBreakKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetBreakKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -645,7 +645,7 @@ export function useGetContinue(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetContinueKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetContinueKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -674,7 +674,7 @@ export function useGetTry(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetTryKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetTryKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -703,7 +703,7 @@ export function useGetCatch(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetCatchKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetCatchKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -732,7 +732,7 @@ export function useGetFinally(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetFinallyKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetFinallyKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -761,7 +761,7 @@ export function useGetThrow(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetThrowKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetThrowKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -790,7 +790,7 @@ export function useGetAsync(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetAsyncKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetAsyncKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -819,7 +819,7 @@ export function useGetAwait(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetAwaitKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetAwaitKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -848,7 +848,7 @@ export function useGetYield(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetYieldKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetYieldKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -877,7 +877,7 @@ export function useGetStatic(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetStaticKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetStaticKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -906,7 +906,7 @@ export function useGetPublic(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetPublicKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetPublicKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -935,7 +935,7 @@ export function useGetPrivate(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetPrivateKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetPrivateKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -964,7 +964,7 @@ export function useGetProtected(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetProtectedKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetProtectedKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -993,7 +993,7 @@ export function useGetAbstract(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetAbstractKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetAbstractKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -1022,7 +1022,7 @@ export function useGetFinal(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetFinalKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetFinalKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -1051,7 +1051,7 @@ export function useGetExtends(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetExtendsKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetExtendsKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -1080,7 +1080,7 @@ export function useGetImplements(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetImplementsKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetImplementsKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -1109,7 +1109,7 @@ export function useGetPackage(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetPackageKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetPackageKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -1138,7 +1138,7 @@ export function useGetEnum(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetEnumKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetEnumKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -1167,7 +1167,7 @@ export function useGetConst(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetConstKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetConstKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -1196,7 +1196,7 @@ export function useGetLet(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetLetKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetLetKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -1225,7 +1225,7 @@ export function useGetVar(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetVarKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetVarKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -1254,7 +1254,7 @@ export function useGetThis(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetThisKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetThisKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -1283,7 +1283,7 @@ export function useGetSuper(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetSuperKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetSuperKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -1312,7 +1312,7 @@ export function useGetSelf(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetSelfKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetSelfKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -1341,7 +1341,7 @@ export function useGetConstructor(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetConstructorKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetConstructorKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -1370,7 +1370,7 @@ export function useGetPrototype(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetPrototypeKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetPrototypeKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -1399,7 +1399,7 @@ export function useGetToString(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetToStringKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetToStringKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -1428,7 +1428,7 @@ export function useGetValueOf(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetValueOfKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetValueOfKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -1457,7 +1457,7 @@ export function useGetHasOwnProperty(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetHasOwnPropertyKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetHasOwnPropertyKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -1486,7 +1486,7 @@ export function useGetNameCollisions(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetNameCollisionsKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetNameCollisionsKey()) : null
   return {
     swrKey,
     ...useSWR(

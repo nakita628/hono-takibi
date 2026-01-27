@@ -69,7 +69,7 @@ export function useGetContentNegotiation(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetContentNegotiationKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetContentNegotiationKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -138,7 +138,7 @@ export function useGetStreaming(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetStreamingKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetStreamingKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -241,7 +241,7 @@ export function useGetResponseEncoding(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetResponseEncodingKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetResponseEncodingKey()) : null
   return {
     swrKey,
     ...useSWR(

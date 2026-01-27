@@ -31,7 +31,7 @@ export function useGetAlbums(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetAlbumsKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetAlbumsKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -67,7 +67,7 @@ export function useGetAlbumsId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetAlbumsIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetAlbumsIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -106,7 +106,7 @@ export function useGetAlbumsIdTracks(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetAlbumsIdTracksKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetAlbumsIdTracksKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -142,7 +142,7 @@ export function useGetArtists(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetArtistsKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetArtistsKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -178,7 +178,7 @@ export function useGetArtistsId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetArtistsIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetArtistsIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -216,7 +216,7 @@ export function useGetArtistsIdAlbums(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetArtistsIdAlbumsKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetArtistsIdAlbumsKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -254,7 +254,7 @@ export function useGetArtistsIdRelatedArtists(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetArtistsIdRelatedArtistsKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetArtistsIdRelatedArtistsKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -292,7 +292,7 @@ export function useGetArtistsIdTopTracks(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetArtistsIdTopTracksKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetArtistsIdTopTracksKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -330,7 +330,7 @@ export function useGetAudioAnalysisId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetAudioAnalysisIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetAudioAnalysisIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -368,7 +368,7 @@ export function useGetAudioFeatures(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetAudioFeaturesKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetAudioFeaturesKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -407,7 +407,7 @@ export function useGetAudioFeaturesId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetAudioFeaturesIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetAudioFeaturesIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -444,7 +444,7 @@ export function useGetAudiobooks(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetAudiobooksKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetAudiobooksKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -483,7 +483,7 @@ export function useGetAudiobooksId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetAudiobooksIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetAudiobooksIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -522,7 +522,7 @@ export function useGetAudiobooksIdChapters(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetAudiobooksIdChaptersKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetAudiobooksIdChaptersKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -560,7 +560,7 @@ export function useGetBrowseCategories(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetBrowseCategoriesKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetBrowseCategoriesKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -598,7 +598,7 @@ export function useGetBrowseCategoriesCategoryId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetBrowseCategoriesCategoryIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetBrowseCategoriesCategoryIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -636,8 +636,9 @@ export function useGetBrowseCategoriesCategoryIdPlaylists(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ?? (isEnabled ? getGetBrowseCategoriesCategoryIdPlaylistsKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGetBrowseCategoriesCategoryIdPlaylistsKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -676,7 +677,7 @@ export function useGetBrowseFeaturedPlaylists(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetBrowseFeaturedPlaylistsKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetBrowseFeaturedPlaylistsKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -714,7 +715,7 @@ export function useGetBrowseNewReleases(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetBrowseNewReleasesKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetBrowseNewReleasesKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -751,7 +752,7 @@ export function useGetChapters(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetChaptersKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetChaptersKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -790,7 +791,7 @@ export function useGetChaptersId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetChaptersIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetChaptersIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -826,7 +827,7 @@ export function useGetEpisodes(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetEpisodesKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetEpisodesKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -865,7 +866,7 @@ export function useGetEpisodesId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetEpisodesIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetEpisodesIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -898,7 +899,7 @@ export function useGetMarkets(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetMarketsKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetMarketsKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -932,7 +933,7 @@ export function useGetMe(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetMeKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetMeKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -968,7 +969,7 @@ export function useGetMeAlbums(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetMeAlbumsKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetMeAlbumsKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -1082,7 +1083,7 @@ export function useGetMeAlbumsContains(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetMeAlbumsContainsKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetMeAlbumsContainsKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -1118,7 +1119,7 @@ export function useGetMeAudiobooks(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetMeAudiobooksKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetMeAudiobooksKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -1236,7 +1237,7 @@ export function useGetMeAudiobooksContains(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetMeAudiobooksContainsKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetMeAudiobooksContainsKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -1273,7 +1274,7 @@ export function useGetMeEpisodes(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetMeEpisodesKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetMeEpisodesKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -1392,7 +1393,7 @@ export function useGetMeEpisodesContains(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetMeEpisodesContainsKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetMeEpisodesContainsKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -1428,7 +1429,7 @@ export function useGetMeFollowing(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetMeFollowingKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetMeFollowingKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -1547,7 +1548,7 @@ export function useGetMeFollowingContains(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetMeFollowingContainsKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetMeFollowingContainsKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -1583,7 +1584,7 @@ export function useGetMePlayer(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetMePlayerKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetMePlayerKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -1660,7 +1661,7 @@ export function useGetMePlayerCurrentlyPlaying(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetMePlayerCurrentlyPlayingKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetMePlayerCurrentlyPlayingKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -1693,7 +1694,7 @@ export function useGetMePlayerDevices(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetMePlayerDevicesKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetMePlayerDevicesKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -1892,7 +1893,7 @@ export function useGetMePlayerQueue(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetMePlayerQueueKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetMePlayerQueueKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -1972,7 +1973,7 @@ export function useGetMePlayerRecentlyPlayed(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetMePlayerRecentlyPlayedKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetMePlayerRecentlyPlayedKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -2174,7 +2175,7 @@ export function useGetMePlaylists(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetMePlaylistsKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetMePlaylistsKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -2210,7 +2211,7 @@ export function useGetMeShows(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetMeShowsKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetMeShowsKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -2324,7 +2325,7 @@ export function useGetMeShowsContains(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetMeShowsContainsKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetMeShowsContainsKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -2362,7 +2363,7 @@ export function useGetMeTopType(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetMeTopTypeKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetMeTopTypeKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -2398,7 +2399,7 @@ export function useGetMeTracks(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetMeTracksKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetMeTracksKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -2512,7 +2513,7 @@ export function useGetMeTracksContains(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetMeTracksContainsKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetMeTracksContainsKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -2550,7 +2551,7 @@ export function useGetPlaylistsPlaylistId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetPlaylistsPlaylistIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetPlaylistsPlaylistIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -2737,8 +2738,9 @@ export function useGetPlaylistsPlaylistIdFollowersContains(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ?? (isEnabled ? getGetPlaylistsPlaylistIdFollowersContainsKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGetPlaylistsPlaylistIdFollowersContainsKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -2779,7 +2781,7 @@ export function useGetPlaylistsPlaylistIdImages(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetPlaylistsPlaylistIdImagesKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetPlaylistsPlaylistIdImagesKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -2865,7 +2867,7 @@ export function useGetPlaylistsPlaylistIdTracks(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetPlaylistsPlaylistIdTracksKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetPlaylistsPlaylistIdTracksKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -3057,7 +3059,7 @@ export function useGetRecommendations(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetRecommendationsKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetRecommendationsKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -3090,7 +3092,7 @@ export function useGetRecommendationsAvailableGenreSeeds(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetRecommendationsAvailableGenreSeedsKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetRecommendationsAvailableGenreSeedsKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -3131,7 +3133,7 @@ export function useGetSearch(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetSearchKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetSearchKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -3167,7 +3169,7 @@ export function useGetShows(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetShowsKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetShowsKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -3204,7 +3206,7 @@ export function useGetShowsId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetShowsIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetShowsIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -3242,7 +3244,7 @@ export function useGetShowsIdEpisodes(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetShowsIdEpisodesKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetShowsIdEpisodesKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -3278,7 +3280,7 @@ export function useGetTracks(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetTracksKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetTracksKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -3315,7 +3317,7 @@ export function useGetTracksId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetTracksIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetTracksIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -3353,7 +3355,7 @@ export function useGetUsersUserId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetUsersUserIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetUsersUserIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -3391,7 +3393,7 @@ export function useGetUsersUserIdPlaylists(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetUsersUserIdPlaylistsKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetUsersUserIdPlaylistsKey(args)) : null
   return {
     swrKey,
     ...useSWR(

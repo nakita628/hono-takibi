@@ -33,7 +33,7 @@ export function useGetSocialAuthorizeProvider(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetSocialAuthorizeProviderKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetSocialAuthorizeProviderKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -71,7 +71,7 @@ export function useGetSocialCallbackProvider(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetSocialCallbackProviderKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetSocialCallbackProviderKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -182,7 +182,7 @@ export function useGetProviders(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetProvidersKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetProvidersKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -213,7 +213,7 @@ export function useGetProvidersAdmin(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetProvidersAdminKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetProvidersAdminKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -287,7 +287,7 @@ export function useGetProvidersProviderId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetProvidersProviderIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetProvidersProviderIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -451,7 +451,7 @@ export function useGetAccountLinked(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetAccountLinkedKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetAccountLinkedKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -573,7 +573,7 @@ export function useGetEnterpriseSso(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetEnterpriseSsoKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetEnterpriseSsoKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -647,7 +647,7 @@ export function useGetEnterpriseSsoConfigId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetEnterpriseSsoConfigIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetEnterpriseSsoConfigIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -772,7 +772,7 @@ export function useGetEnterpriseSsoDomainLookup(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetEnterpriseSsoDomainLookupKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetEnterpriseSsoDomainLookupKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -810,7 +810,7 @@ export function useGetEnterpriseSsoConfigIdMetadata(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetEnterpriseSsoConfigIdMetadataKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetEnterpriseSsoConfigIdMetadataKey(args)) : null
   return {
     swrKey,
     ...useSWR(

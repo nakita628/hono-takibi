@@ -29,7 +29,7 @@ export function useGetNotifications(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetNotificationsKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetNotificationsKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -60,7 +60,7 @@ export function useGetNotificationsUnreadCount(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetNotificationsUnreadCountKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetNotificationsUnreadCountKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -136,7 +136,7 @@ export function useGetNotificationsSettings(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetNotificationsSettingsKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetNotificationsSettingsKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -214,7 +214,7 @@ export function useGetDmConversations(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetDmConversationsKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetDmConversationsKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -288,7 +288,7 @@ export function useGetDmConversationsConversationId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetDmConversationsConversationIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetDmConversationsConversationIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -374,8 +374,9 @@ export function useGetDmConversationsConversationIdMessages(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ?? (isEnabled ? getGetDmConversationsConversationIdMessagesKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGetDmConversationsConversationIdMessagesKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -708,7 +709,7 @@ export function useGetDmUnreadCount(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetDmUnreadCountKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetDmUnreadCountKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -742,7 +743,7 @@ export function useGetSearchPosts(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetSearchPostsKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetSearchPostsKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -776,7 +777,7 @@ export function useGetSearchUsers(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetSearchUsersKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetSearchUsersKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -812,7 +813,7 @@ export function useGetSearchHashtags(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetSearchHashtagsKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetSearchHashtagsKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -843,7 +844,7 @@ export function useGetSearchRecent(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetSearchRecentKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetSearchRecentKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -915,7 +916,7 @@ export function useGetTrends(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetTrendsKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetTrendsKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -946,7 +947,7 @@ export function useGetTrendsLocations(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetTrendsLocationsKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetTrendsLocationsKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -982,7 +983,7 @@ export function useGetSuggestionsUsers(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetSuggestionsUsersKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetSuggestionsUsersKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -1059,7 +1060,7 @@ export function useGetSuggestionsTopics(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetSuggestionsTopicsKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetSuggestionsTopicsKey()) : null
   return {
     swrKey,
     ...useSWR(

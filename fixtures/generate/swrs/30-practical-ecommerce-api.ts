@@ -29,7 +29,7 @@ export function useGetProducts(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetProductsKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetProductsKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -101,7 +101,7 @@ export function useGetProductsProductId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetProductsProductIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetProductsProductIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -265,7 +265,7 @@ export function useGetCategories(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetCategoriesKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetCategoriesKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -332,7 +332,7 @@ export function useGetCart(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetCartKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetCartKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -522,7 +522,7 @@ export function useGetOrders(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetOrdersKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetOrdersKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -596,7 +596,7 @@ export function useGetOrdersOrderId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetOrdersOrderIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetOrdersOrderIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -676,7 +676,7 @@ export function useGetInventoryProductId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetInventoryProductIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetInventoryProductIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(

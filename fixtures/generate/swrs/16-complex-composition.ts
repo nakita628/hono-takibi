@@ -92,7 +92,7 @@ export function useGetConfigs(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetConfigsKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetConfigsKey()) : null
   return {
     swrKey,
     ...useSWR(

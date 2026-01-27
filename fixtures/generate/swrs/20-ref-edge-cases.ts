@@ -25,7 +25,7 @@ export function useGetTest(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetTestKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetTestKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -54,7 +54,7 @@ export function useGetEmptyRefs(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetEmptyRefsKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetEmptyRefsKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -83,7 +83,7 @@ export function useGetUnicodeRefs(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetUnicodeRefsKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetUnicodeRefsKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -112,7 +112,7 @@ export function useGetSpecialChars(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetSpecialCharsKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetSpecialCharsKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -141,7 +141,7 @@ export function useGetNumericStart(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetNumericStartKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetNumericStartKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -170,7 +170,7 @@ export function useGetRefInAllof(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetRefInAllofKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetRefInAllofKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -199,7 +199,7 @@ export function useGetDeeplyNested(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetDeeplyNestedKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetDeeplyNestedKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -228,7 +228,7 @@ export function useGetSameNameDiffContext(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetSameNameDiffContextKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetSameNameDiffContextKey()) : null
   return {
     swrKey,
     ...useSWR(

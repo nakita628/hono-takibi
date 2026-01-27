@@ -22,7 +22,7 @@ export function useGetHealth(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetHealthKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetHealthKey()) : null
   return {
     swrKey,
     ...useSWR(

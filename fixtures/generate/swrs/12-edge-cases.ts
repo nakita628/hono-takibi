@@ -24,7 +24,7 @@ export function useGetAllMethods(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetAllMethodsKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetAllMethodsKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -315,8 +315,9 @@ export function useGetUsersUserIdPostsPostIdCommentsCommentId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ?? (isEnabled ? getGetUsersUserIdPostsPostIdCommentsCommentIdKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGetUsersUserIdPostsPostIdCommentsCommentIdKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -353,7 +354,7 @@ export function useGetParamsTestPathParam(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetParamsTestPathParamKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetParamsTestPathParamKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -420,7 +421,7 @@ export function useGetMultiContent(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetMultiContentKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetMultiContentKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -489,7 +490,7 @@ export function useGetResponseRanges(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetResponseRangesKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetResponseRangesKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -520,7 +521,7 @@ export function useGetDeprecated(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetDeprecatedKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetDeprecatedKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -551,7 +552,7 @@ export function useGetNoOperationId(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetNoOperationIdKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetNoOperationIdKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -616,7 +617,7 @@ export function useGetCircular(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetCircularKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetCircularKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -645,7 +646,7 @@ export function useGetDeepNesting(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetDeepNestingKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetDeepNestingKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -679,7 +680,7 @@ export function useGetArrayParams(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetArrayParamsKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetArrayParamsKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -713,7 +714,7 @@ export function useGetObjectParam(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetObjectParamKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetObjectParamKey(args)) : null
   return {
     swrKey,
     ...useSWR(

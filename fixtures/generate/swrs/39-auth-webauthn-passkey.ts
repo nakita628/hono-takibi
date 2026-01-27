@@ -204,7 +204,7 @@ export function useGetWebauthnCredentials(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetWebauthnCredentialsKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetWebauthnCredentialsKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -240,7 +240,7 @@ export function useGetWebauthnCredentialsCredentialId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetWebauthnCredentialsCredentialIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetWebauthnCredentialsCredentialIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -375,7 +375,7 @@ export function useGetWebauthnSettings(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetWebauthnSettingsKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetWebauthnSettingsKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -406,7 +406,7 @@ export function useGetWebauthnSettingsRp(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetWebauthnSettingsRpKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetWebauthnSettingsRpKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -477,7 +477,7 @@ export function useGetWebauthnAuthenticators(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetWebauthnAuthenticatorsKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetWebauthnAuthenticatorsKey()) : null
   return {
     swrKey,
     ...useSWR(

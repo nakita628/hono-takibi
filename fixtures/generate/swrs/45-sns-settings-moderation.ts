@@ -26,7 +26,7 @@ export function useGetSettingsAccount(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetSettingsAccountKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetSettingsAccountKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -100,7 +100,7 @@ export function useGetSettingsUsernameCheck(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetSettingsUsernameCheckKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetSettingsUsernameCheckKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -131,7 +131,7 @@ export function useGetSettingsPrivacy(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetSettingsPrivacyKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetSettingsPrivacyKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -200,7 +200,7 @@ export function useGetSettingsContentPreferences(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetSettingsContentPreferencesKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetSettingsContentPreferencesKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -276,7 +276,7 @@ export function useGetSettingsMutedWords(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetSettingsMutedWordsKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetSettingsMutedWordsKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -396,7 +396,7 @@ export function useGetSettingsSessions(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetSettingsSessionsKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetSettingsSessionsKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -474,7 +474,7 @@ export function useGetSettingsConnectedApps(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetSettingsConnectedAppsKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetSettingsConnectedAppsKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -598,7 +598,7 @@ export function useGetSettingsDataExportRequestId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetSettingsDataExportRequestIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetSettingsDataExportRequestIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -709,7 +709,7 @@ export function useGetReportsReportId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetReportsReportIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetReportsReportIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -747,7 +747,7 @@ export function useGetModerationQueue(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetModerationQueueKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetModerationQueueKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -783,7 +783,7 @@ export function useGetModerationItemsItemId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetModerationItemsItemIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetModerationItemsItemIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -867,7 +867,7 @@ export function useGetModerationUsersUserIdHistory(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetModerationUsersUserIdHistoryKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetModerationUsersUserIdHistoryKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -1000,7 +1000,7 @@ export function useGetAnalyticsPostsPostId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetAnalyticsPostsPostIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetAnalyticsPostsPostIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -1036,7 +1036,7 @@ export function useGetAnalyticsAccount(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetAnalyticsAccountKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetAnalyticsAccountKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -1072,7 +1072,7 @@ export function useGetAnalyticsFollowers(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetAnalyticsFollowersKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetAnalyticsFollowersKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -1108,7 +1108,7 @@ export function useGetAnalyticsTopPosts(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetAnalyticsTopPostsKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetAnalyticsTopPostsKey(args)) : null
   return {
     swrKey,
     ...useSWR(

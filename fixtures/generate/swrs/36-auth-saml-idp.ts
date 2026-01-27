@@ -31,7 +31,7 @@ export function useGetSamlSso(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetSamlSsoKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetSamlSsoKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -105,7 +105,7 @@ export function useGetSamlSlo(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetSamlSloKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetSamlSloKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -214,7 +214,7 @@ export function useGetSamlMetadata(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetSamlMetadataKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetSamlMetadataKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -250,7 +250,7 @@ export function useGetServiceProviders(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetServiceProvidersKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetServiceProvidersKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -328,7 +328,7 @@ export function useGetServiceProvidersSpId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetServiceProvidersSpIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetServiceProvidersSpIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -455,7 +455,7 @@ export function useGetServiceProvidersSpIdMetadata(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetServiceProvidersSpIdMetadataKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetServiceProvidersSpIdMetadataKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -540,7 +540,7 @@ export function useGetServiceProvidersSpIdAttributes(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetServiceProvidersSpIdAttributesKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetServiceProvidersSpIdAttributesKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -620,7 +620,7 @@ export function useGetAttributes(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetAttributesKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetAttributesKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -651,7 +651,7 @@ export function useGetCertificates(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetCertificatesKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetCertificatesKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -814,7 +814,7 @@ export function useGetSessions(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetSessionsKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetSessionsKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -893,7 +893,7 @@ export function useGetAuditLogs(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetAuditLogsKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetAuditLogsKey(args)) : null
   return {
     swrKey,
     ...useSWR(

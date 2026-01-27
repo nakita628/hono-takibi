@@ -22,7 +22,7 @@ export function useGetPublic(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetPublicKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetPublicKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -51,7 +51,7 @@ export function useGetProtected(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetProtectedKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetProtectedKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -80,7 +80,7 @@ export function useGetAdmin(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetAdminKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetAdminKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -109,7 +109,7 @@ export function useGetOauthResource(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetOauthResourceKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetOauthResourceKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -138,7 +138,7 @@ export function useGetMultiAuth(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetMultiAuthKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetMultiAuthKey()) : null
   return {
     swrKey,
     ...useSWR(

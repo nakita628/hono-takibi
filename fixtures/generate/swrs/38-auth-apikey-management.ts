@@ -29,7 +29,7 @@ export function useGetApiKeys(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetApiKeysKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetApiKeysKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -103,7 +103,7 @@ export function useGetApiKeysKeyId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetApiKeysKeyIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetApiKeysKeyIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -318,7 +318,7 @@ export function useGetApiKeysKeyIdUsage(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetApiKeysKeyIdUsageKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetApiKeysKeyIdUsageKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -354,7 +354,7 @@ export function useGetApiKeysKeyIdRateLimitCurrent(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetApiKeysKeyIdRateLimitCurrentKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetApiKeysKeyIdRateLimitCurrentKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -428,7 +428,7 @@ export function useGetScopes(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetScopesKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetScopesKey()) : null
   return {
     swrKey,
     ...useSWR(

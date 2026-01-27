@@ -31,7 +31,7 @@ export function useGetProducts(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetProductsKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetProductsKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -103,7 +103,7 @@ export function useGetProductsProductId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetProductsProductIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetProductsProductIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(

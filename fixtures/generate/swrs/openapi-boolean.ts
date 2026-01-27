@@ -26,7 +26,7 @@ export function useGetBoolean(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetBooleanKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetBooleanKey()) : null
   return {
     swrKey,
     ...useSWR(

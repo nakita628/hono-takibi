@@ -26,7 +26,7 @@ export function useGetMfaStatus(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetMfaStatusKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetMfaStatusKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -57,7 +57,7 @@ export function useGetMfaMethods(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetMfaMethodsKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetMfaMethodsKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -526,7 +526,7 @@ export function useGetMfaWebauthnCredentials(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetMfaWebauthnCredentialsKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetMfaWebauthnCredentialsKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -708,7 +708,7 @@ export function useGetMfaBackupCodesStatus(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetMfaBackupCodesStatusKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetMfaBackupCodesStatusKey()) : null
   return {
     swrKey,
     ...useSWR(

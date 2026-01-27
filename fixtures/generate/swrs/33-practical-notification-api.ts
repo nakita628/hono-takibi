@@ -29,7 +29,7 @@ export function useGetNotifications(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetNotificationsKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetNotificationsKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -65,7 +65,7 @@ export function useGetNotificationsNotificationId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetNotificationsNotificationIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetNotificationsNotificationIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -232,7 +232,7 @@ export function useGetNotificationsUnreadCount(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetNotificationsUnreadCountKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetNotificationsUnreadCountKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -351,7 +351,7 @@ export function useGetMessagesMessageId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetMessagesMessageIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetMessagesMessageIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -385,7 +385,7 @@ export function useGetTemplates(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetTemplatesKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetTemplatesKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -457,7 +457,7 @@ export function useGetTemplatesTemplateId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetTemplatesTemplateIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetTemplatesTemplateIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -621,7 +621,7 @@ export function useGetChannelsPreferences(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetChannelsPreferencesKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetChannelsPreferencesKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -690,7 +690,7 @@ export function useGetChannelsDevices(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetChannelsDevicesKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetChannelsDevicesKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -806,7 +806,7 @@ export function useGetWebhooks(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetWebhooksKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetWebhooksKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -878,7 +878,7 @@ export function useGetWebhooksWebhookId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetWebhooksWebhookIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetWebhooksWebhookIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(

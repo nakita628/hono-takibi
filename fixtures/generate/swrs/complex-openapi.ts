@@ -26,7 +26,7 @@ export function useGetUsers(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetUsersKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetUsersKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -98,7 +98,7 @@ export function useGetUsersUserId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetUsersUserIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetUsersUserIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -214,7 +214,7 @@ export function useGetOrders(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetOrdersKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetOrdersKey()) : null
   return {
     swrKey,
     ...useSWR(

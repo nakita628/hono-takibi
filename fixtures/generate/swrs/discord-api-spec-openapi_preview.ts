@@ -24,7 +24,7 @@ export function useGetApplicationsMe(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetApplicationsMeKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetApplicationsMeKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -98,7 +98,7 @@ export function useGetApplicationsApplicationId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetApplicationsApplicationIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetApplicationsApplicationIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -185,9 +185,9 @@ export function useGetApplicationsApplicationIdActivityInstancesInstanceId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled ? getGetApplicationsApplicationIdActivityInstancesInstanceIdKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGetApplicationsApplicationIdActivityInstancesInstanceIdKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -278,7 +278,7 @@ export function useGetApplicationsApplicationIdCommands(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetApplicationsApplicationIdCommandsKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetApplicationsApplicationIdCommandsKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -416,8 +416,9 @@ export function useGetApplicationsApplicationIdCommandsCommandId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ?? (isEnabled ? getGetApplicationsApplicationIdCommandsCommandIdKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGetApplicationsApplicationIdCommandsCommandIdKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -572,7 +573,7 @@ export function useGetApplicationsApplicationIdEmojis(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetApplicationsApplicationIdEmojisKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetApplicationsApplicationIdEmojisKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -657,8 +658,9 @@ export function useGetApplicationsApplicationIdEmojisEmojiId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ?? (isEnabled ? getGetApplicationsApplicationIdEmojisEmojiIdKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGetApplicationsApplicationIdEmojisEmojiIdKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -810,8 +812,9 @@ export function useGetApplicationsApplicationIdEntitlements(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ?? (isEnabled ? getGetApplicationsApplicationIdEntitlementsKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGetApplicationsApplicationIdEntitlementsKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -910,9 +913,9 @@ export function useGetApplicationsApplicationIdEntitlementsEntitlementId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled ? getGetApplicationsApplicationIdEntitlementsEntitlementIdKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGetApplicationsApplicationIdEntitlementsEntitlementIdKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -1093,8 +1096,9 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommands(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ?? (isEnabled ? getGetApplicationsApplicationIdGuildsGuildIdCommandsKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGetApplicationsApplicationIdGuildsGuildIdCommandsKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -1267,9 +1271,9 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommandsPermissions(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled ? getGetApplicationsApplicationIdGuildsGuildIdCommandsPermissionsKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGetApplicationsApplicationIdGuildsGuildIdCommandsPermissionsKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -1318,9 +1322,9 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommandsCommandId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled ? getGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -1499,11 +1503,10 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPer
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled
-      ? getGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPermissionsKey(args)
-      : null)
+  const swrKey = isEnabled
+    ? (customKey ??
+      getGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPermissionsKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -1616,9 +1619,9 @@ export function useGetApplicationsApplicationIdRoleConnectionsMetadata(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled ? getGetApplicationsApplicationIdRoleConnectionsMetadataKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGetApplicationsApplicationIdRoleConnectionsMetadataKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -1718,7 +1721,7 @@ export function useGetChannelsChannelId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetChannelsChannelIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetChannelsChannelIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -1878,7 +1881,7 @@ export function useGetChannelsChannelIdInvites(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetChannelsChannelIdInvitesKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetChannelsChannelIdInvitesKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -1957,7 +1960,7 @@ export function useGetChannelsChannelIdMessages(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetChannelsChannelIdMessagesKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetChannelsChannelIdMessagesKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -2091,7 +2094,7 @@ export function useGetChannelsChannelIdMessagesPins(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetChannelsChannelIdMessagesPinsKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetChannelsChannelIdMessagesPinsKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -2246,7 +2249,7 @@ export function useGetChannelsChannelIdMessagesMessageId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetChannelsChannelIdMessagesMessageIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetChannelsChannelIdMessagesMessageIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -2522,9 +2525,9 @@ export function useGetChannelsChannelIdMessagesMessageIdReactionsEmojiName(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled ? getGetChannelsChannelIdMessagesMessageIdReactionsEmojiNameKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGetChannelsChannelIdMessagesMessageIdReactionsEmojiNameKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -2998,7 +3001,7 @@ export function useGetChannelsChannelIdPins(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetChannelsChannelIdPinsKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetChannelsChannelIdPinsKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -3147,8 +3150,9 @@ export function useGetChannelsChannelIdPollsMessageIdAnswersAnswerId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ?? (isEnabled ? getGetChannelsChannelIdPollsMessageIdAnswersAnswerIdKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGetChannelsChannelIdPollsMessageIdAnswersAnswerIdKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -3409,7 +3413,7 @@ export function useGetChannelsChannelIdThreadMembers(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetChannelsChannelIdThreadMembersKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetChannelsChannelIdThreadMembersKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -3558,8 +3562,9 @@ export function useGetChannelsChannelIdThreadMembersUserId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ?? (isEnabled ? getGetChannelsChannelIdThreadMembersUserIdKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGetChannelsChannelIdThreadMembersUserIdKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -3758,8 +3763,9 @@ export function useGetChannelsChannelIdThreadsArchivedPrivate(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ?? (isEnabled ? getGetChannelsChannelIdThreadsArchivedPrivateKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGetChannelsChannelIdThreadsArchivedPrivateKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -3800,8 +3806,9 @@ export function useGetChannelsChannelIdThreadsArchivedPublic(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ?? (isEnabled ? getGetChannelsChannelIdThreadsArchivedPublicKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGetChannelsChannelIdThreadsArchivedPublicKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -3838,7 +3845,7 @@ export function useGetChannelsChannelIdThreadsSearch(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetChannelsChannelIdThreadsSearchKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetChannelsChannelIdThreadsSearchKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -3927,8 +3934,9 @@ export function useGetChannelsChannelIdUsersMeThreadsArchivedPrivate(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ?? (isEnabled ? getGetChannelsChannelIdUsersMeThreadsArchivedPrivateKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGetChannelsChannelIdUsersMeThreadsArchivedPrivateKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -3968,7 +3976,7 @@ export function useGetChannelsChannelIdWebhooks(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetChannelsChannelIdWebhooksKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetChannelsChannelIdWebhooksKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -4041,7 +4049,7 @@ export function useGetGateway(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetGatewayKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetGatewayKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -4070,7 +4078,7 @@ export function useGetGatewayBot(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetGatewayBotKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetGatewayBotKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -4104,7 +4112,7 @@ export function useGetGuildsTemplatesCode(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetGuildsTemplatesCodeKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetGuildsTemplatesCodeKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -4138,7 +4146,7 @@ export function useGetGuildsGuildId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetGuildsGuildIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetGuildsGuildIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -4212,7 +4220,7 @@ export function useGetGuildsGuildIdAuditLogs(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetGuildsGuildIdAuditLogsKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetGuildsGuildIdAuditLogsKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -4246,7 +4254,7 @@ export function useGetGuildsGuildIdAutoModerationRules(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetGuildsGuildIdAutoModerationRulesKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetGuildsGuildIdAutoModerationRulesKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -4340,8 +4348,9 @@ export function useGetGuildsGuildIdAutoModerationRulesRuleId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ?? (isEnabled ? getGetGuildsGuildIdAutoModerationRulesRuleIdKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGetGuildsGuildIdAutoModerationRulesRuleIdKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -4499,7 +4508,7 @@ export function useGetGuildsGuildIdBans(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetGuildsGuildIdBansKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetGuildsGuildIdBansKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -4533,7 +4542,7 @@ export function useGetGuildsGuildIdBansUserId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetGuildsGuildIdBansUserIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetGuildsGuildIdBansUserIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -4706,7 +4715,7 @@ export function useGetGuildsGuildIdChannels(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetGuildsGuildIdChannelsKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetGuildsGuildIdChannelsKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -4829,7 +4838,7 @@ export function useGetGuildsGuildIdEmojis(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetGuildsGuildIdEmojisKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetGuildsGuildIdEmojisKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -4905,7 +4914,7 @@ export function useGetGuildsGuildIdEmojisEmojiId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetGuildsGuildIdEmojisEmojiIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetGuildsGuildIdEmojisEmojiIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -5040,7 +5049,7 @@ export function useGetGuildsGuildIdIntegrations(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetGuildsGuildIdIntegrationsKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetGuildsGuildIdIntegrationsKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -5132,7 +5141,7 @@ export function useGetGuildsGuildIdInvites(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetGuildsGuildIdInvitesKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetGuildsGuildIdInvitesKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -5166,7 +5175,7 @@ export function useGetGuildsGuildIdMembers(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetGuildsGuildIdMembersKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetGuildsGuildIdMembersKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -5246,7 +5255,7 @@ export function useGetGuildsGuildIdMembersSearch(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetGuildsGuildIdMembersSearchKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetGuildsGuildIdMembersSearchKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -5281,7 +5290,7 @@ export function useGetGuildsGuildIdMembersUserId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetGuildsGuildIdMembersUserIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetGuildsGuildIdMembersUserIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -5585,7 +5594,7 @@ export function useGetGuildsGuildIdMessagesSearch(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetGuildsGuildIdMessagesSearchKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetGuildsGuildIdMessagesSearchKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -5620,7 +5629,7 @@ export function useGetGuildsGuildIdNewMemberWelcome(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetGuildsGuildIdNewMemberWelcomeKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetGuildsGuildIdNewMemberWelcomeKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -5655,7 +5664,7 @@ export function useGetGuildsGuildIdOnboarding(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetGuildsGuildIdOnboardingKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetGuildsGuildIdOnboardingKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -5733,7 +5742,7 @@ export function useGetGuildsGuildIdPreview(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetGuildsGuildIdPreviewKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetGuildsGuildIdPreviewKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -5767,7 +5776,7 @@ export function useGetGuildsGuildIdPrune(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetGuildsGuildIdPruneKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetGuildsGuildIdPruneKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -5843,7 +5852,7 @@ export function useGetGuildsGuildIdRegions(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetGuildsGuildIdRegionsKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetGuildsGuildIdRegionsKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -5877,7 +5886,7 @@ export function useGetGuildsGuildIdRoles(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetGuildsGuildIdRolesKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetGuildsGuildIdRolesKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -5995,7 +6004,7 @@ export function useGetGuildsGuildIdRolesMemberCounts(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetGuildsGuildIdRolesMemberCountsKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetGuildsGuildIdRolesMemberCountsKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -6030,7 +6039,7 @@ export function useGetGuildsGuildIdRolesRoleId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetGuildsGuildIdRolesRoleIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetGuildsGuildIdRolesRoleIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -6158,7 +6167,7 @@ export function useGetGuildsGuildIdScheduledEvents(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetGuildsGuildIdScheduledEventsKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetGuildsGuildIdScheduledEventsKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -6248,9 +6257,9 @@ export function useGetGuildsGuildIdScheduledEventsGuildScheduledEventId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled ? getGetGuildsGuildIdScheduledEventsGuildScheduledEventIdKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGetGuildsGuildIdScheduledEventsGuildScheduledEventIdKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -6429,9 +6438,9 @@ export function useGetGuildsGuildIdScheduledEventsGuildScheduledEventIdUsers(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled ? getGetGuildsGuildIdScheduledEventsGuildScheduledEventIdUsersKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGetGuildsGuildIdScheduledEventsGuildScheduledEventIdUsersKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -6471,7 +6480,7 @@ export function useGetGuildsGuildIdSoundboardSounds(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetGuildsGuildIdSoundboardSoundsKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetGuildsGuildIdSoundboardSoundsKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -6556,8 +6565,9 @@ export function useGetGuildsGuildIdSoundboardSoundsSoundId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ?? (isEnabled ? getGetGuildsGuildIdSoundboardSoundsSoundIdKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGetGuildsGuildIdSoundboardSoundsSoundIdKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -6709,7 +6719,7 @@ export function useGetGuildsGuildIdStickers(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetGuildsGuildIdStickersKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetGuildsGuildIdStickersKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -6787,7 +6797,7 @@ export function useGetGuildsGuildIdStickersStickerId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetGuildsGuildIdStickersStickerIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetGuildsGuildIdStickersStickerIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -6929,7 +6939,7 @@ export function useGetGuildsGuildIdTemplates(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetGuildsGuildIdTemplatesKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetGuildsGuildIdTemplatesKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -7147,7 +7157,7 @@ export function useGetGuildsGuildIdThreadsActive(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetGuildsGuildIdThreadsActiveKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetGuildsGuildIdThreadsActiveKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -7182,7 +7192,7 @@ export function useGetGuildsGuildIdVanityUrl(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetGuildsGuildIdVanityUrlKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetGuildsGuildIdVanityUrlKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -7216,7 +7226,7 @@ export function useGetGuildsGuildIdVoiceStatesMe(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetGuildsGuildIdVoiceStatesMeKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetGuildsGuildIdVoiceStatesMeKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -7303,7 +7313,7 @@ export function useGetGuildsGuildIdVoiceStatesUserId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetGuildsGuildIdVoiceStatesUserIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetGuildsGuildIdVoiceStatesUserIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -7394,7 +7404,7 @@ export function useGetGuildsGuildIdWebhooks(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetGuildsGuildIdWebhooksKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetGuildsGuildIdWebhooksKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -7428,7 +7438,7 @@ export function useGetGuildsGuildIdWelcomeScreen(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetGuildsGuildIdWelcomeScreenKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetGuildsGuildIdWelcomeScreenKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -7509,7 +7519,7 @@ export function useGetGuildsGuildIdWidget(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetGuildsGuildIdWidgetKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetGuildsGuildIdWidgetKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -7585,7 +7595,7 @@ export function useGetGuildsGuildIdWidgetJson(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetGuildsGuildIdWidgetJsonKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetGuildsGuildIdWidgetJsonKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -7620,7 +7630,7 @@ export function useGetGuildsGuildIdWidgetPng(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetGuildsGuildIdWidgetPngKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetGuildsGuildIdWidgetPngKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -7719,7 +7729,7 @@ export function useGetInvitesCode(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetInvitesCodeKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetInvitesCodeKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -7861,7 +7871,7 @@ export function useGetLobbiesLobbyId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetLobbiesLobbyIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetLobbiesLobbyIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -8280,7 +8290,7 @@ export function useGetLobbiesLobbyIdMessages(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetLobbiesLobbyIdMessagesKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetLobbiesLobbyIdMessagesKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -8353,7 +8363,7 @@ export function useGetOauth2Me(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetOauth2MeKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetOauth2MeKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -8382,7 +8392,7 @@ export function useGetOauth2ApplicationsMe(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetOauth2ApplicationsMeKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetOauth2ApplicationsMeKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -8411,7 +8421,7 @@ export function useGetOauth2Keys(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetOauth2KeysKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetOauth2KeysKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -8440,7 +8450,7 @@ export function useGetOauth2Userinfo(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetOauth2UserinfoKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetOauth2UserinfoKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -8663,7 +8673,7 @@ export function useGetSoundboardDefaultSounds(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetSoundboardDefaultSoundsKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetSoundboardDefaultSoundsKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -8737,7 +8747,7 @@ export function useGetStageInstancesChannelId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetStageInstancesChannelIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetStageInstancesChannelIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -8855,7 +8865,7 @@ export function useGetStickerPacks(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetStickerPacksKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetStickerPacksKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -8889,7 +8899,7 @@ export function useGetStickerPacksPackId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetStickerPacksPackIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetStickerPacksPackIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -8923,7 +8933,7 @@ export function useGetStickersStickerId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetStickersStickerIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetStickersStickerIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -8952,7 +8962,7 @@ export function useGetUsersMe(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetUsersMeKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetUsersMeKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -9026,8 +9036,9 @@ export function useGetUsersMeApplicationsApplicationIdEntitlements(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ?? (isEnabled ? getGetUsersMeApplicationsApplicationIdEntitlementsKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGetUsersMeApplicationsApplicationIdEntitlementsKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -9071,8 +9082,9 @@ export function useGetUsersMeApplicationsApplicationIdRoleConnection(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ?? (isEnabled ? getGetUsersMeApplicationsApplicationIdRoleConnectionKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGetUsersMeApplicationsApplicationIdRoleConnectionKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -9268,7 +9280,7 @@ export function useGetUsersMeConnections(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetUsersMeConnectionsKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetUsersMeConnectionsKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -9302,7 +9314,7 @@ export function useGetUsersMeGuilds(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetUsersMeGuildsKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetUsersMeGuildsKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -9383,7 +9395,7 @@ export function useGetUsersMeGuildsGuildIdMember(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetUsersMeGuildsGuildIdMemberKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetUsersMeGuildsGuildIdMemberKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -9418,7 +9430,7 @@ export function useGetUsersUserId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetUsersUserIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetUsersUserIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -9447,7 +9459,7 @@ export function useGetVoiceRegions(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetVoiceRegionsKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetVoiceRegionsKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -9481,7 +9493,7 @@ export function useGetWebhooksWebhookId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetWebhooksWebhookIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetWebhooksWebhookIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -9598,7 +9610,7 @@ export function useGetWebhooksWebhookIdWebhookToken(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetWebhooksWebhookIdWebhookTokenKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetWebhooksWebhookIdWebhookTokenKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -9845,8 +9857,9 @@ export function useGetWebhooksWebhookIdWebhookTokenMessagesOriginal(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ?? (isEnabled ? getGetWebhooksWebhookIdWebhookTokenMessagesOriginalKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGetWebhooksWebhookIdWebhookTokenMessagesOriginalKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -10016,8 +10029,9 @@ export function useGetWebhooksWebhookIdWebhookTokenMessagesMessageId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ?? (isEnabled ? getGetWebhooksWebhookIdWebhookTokenMessagesMessageIdKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGetWebhooksWebhookIdWebhookTokenMessagesMessageIdKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(

@@ -26,7 +26,7 @@ export function useGetPublic(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetPublicKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetPublicKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -57,7 +57,7 @@ export function useGetSingleAuth(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetSingleAuthKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetSingleAuthKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -88,7 +88,7 @@ export function useGetAnyAuth(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetAnyAuthKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetAnyAuthKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -119,7 +119,7 @@ export function useGetAllAuth(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetAllAuthKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetAllAuthKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -150,7 +150,7 @@ export function useGetComplexAuth(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetComplexAuthKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetComplexAuthKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -181,7 +181,7 @@ export function useGetScopedOauth(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetScopedOauthKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetScopedOauthKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -212,7 +212,7 @@ export function useGetMixedLevelSecurity(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetMixedLevelSecurityKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetMixedLevelSecurityKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -363,7 +363,7 @@ export function useGetOverrideGlobal(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetOverrideGlobalKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetOverrideGlobalKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -394,7 +394,7 @@ export function useGetOptionalEnhanced(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetOptionalEnhancedKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetOptionalEnhancedKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -425,7 +425,7 @@ export function useGetMultiTenant(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetMultiTenantKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetMultiTenantKey()) : null
   return {
     swrKey,
     ...useSWR(

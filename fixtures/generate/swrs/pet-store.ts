@@ -109,7 +109,7 @@ export function useGetPetFindByStatus(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetPetFindByStatusKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetPetFindByStatusKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -145,7 +145,7 @@ export function useGetPetFindByTags(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetPetFindByTagsKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetPetFindByTagsKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -181,7 +181,7 @@ export function useGetPetPetId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetPetPetIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetPetPetIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -340,7 +340,7 @@ export function useGetStoreInventory(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetStoreInventoryKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetStoreInventoryKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -416,7 +416,7 @@ export function useGetStoreOrderOrderId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetStoreOrderOrderIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetStoreOrderOrderIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -574,7 +574,7 @@ export function useGetUserLogin(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetUserLoginKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetUserLoginKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -605,7 +605,7 @@ export function useGetUserLogout(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetUserLogoutKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetUserLogoutKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -641,7 +641,7 @@ export function useGetUserUsername(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetUserUsernameKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetUserUsernameKey(args)) : null
   return {
     swrKey,
     ...useSWR(

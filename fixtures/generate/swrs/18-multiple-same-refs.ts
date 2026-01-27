@@ -27,7 +27,7 @@ export function useGetDocuments(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetDocumentsKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetDocumentsKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -95,7 +95,7 @@ export function useGetDocumentsDocumentId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetDocumentsDocumentIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetDocumentsDocumentIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -169,7 +169,7 @@ export function useGetDocumentsDocumentIdVersions(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetDocumentsDocumentIdVersionsKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetDocumentsDocumentIdVersionsKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -247,7 +247,7 @@ export function useGetUsersUserIdDocuments(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetUsersUserIdDocumentsKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetUsersUserIdDocumentsKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -310,7 +310,7 @@ export function useGetTemplates(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetTemplatesKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetTemplatesKey()) : null
   return {
     swrKey,
     ...useSWR(

@@ -63,7 +63,7 @@ export function useGetOrdersOrderId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetOrdersOrderIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetOrdersOrderIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -137,7 +137,7 @@ export function useGetOrdersOrderIdItems(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetOrdersOrderIdItemsKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetOrdersOrderIdItemsKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -171,7 +171,7 @@ export function useGetCustomersCustomerId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetCustomersCustomerIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetCustomersCustomerIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -205,7 +205,7 @@ export function useGetCustomersCustomerIdOrders(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetCustomersCustomerIdOrdersKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetCustomersCustomerIdOrdersKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -239,7 +239,7 @@ export function useGetPaymentsPaymentId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetPaymentsPaymentIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetPaymentsPaymentIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(

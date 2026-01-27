@@ -27,7 +27,7 @@ export function useGetEntities(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetEntitiesKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetEntitiesKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -95,7 +95,7 @@ export function useGetEntitiesEntityId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetEntitiesEntityIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetEntitiesEntityIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -212,7 +212,7 @@ export function useGetEntitiesEntityIdRelationships(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetEntitiesEntityIdRelationshipsKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetEntitiesEntityIdRelationshipsKey(args)) : null
   return {
     swrKey,
     ...useSWR(

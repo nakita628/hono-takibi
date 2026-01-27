@@ -183,7 +183,7 @@ const makeHookCode = (
     hookCode = `${keyGetterCode}
 
 ${docs}
-export function ${hookName}(${argsSig}${optionsSig}){const{swr:swrOptions,client:clientOptions}=options??{};const{swrKey:customKey,enabled,...restSwrOptions}=swrOptions??{};const isEnabled=enabled!==false;const swrKey=customKey??(isEnabled?${keyCall}:null);return{swrKey,...useSWR(swrKey,async()=>${fetcherBody},restSwrOptions)}}`
+export function ${hookName}(${argsSig}${optionsSig}){const{swr:swrOptions,client:clientOptions}=options??{};const{swrKey:customKey,enabled,...restSwrOptions}=swrOptions??{};const isEnabled=enabled!==false;const swrKey=isEnabled?(customKey??${keyCall}):null;return{swrKey,...useSWR(swrKey,async()=>${fetcherBody},restSwrOptions)}}`
   } else {
     // useSWRMutation hook for POST/PUT/DELETE/PATCH
     // Option A: Simple template key pattern

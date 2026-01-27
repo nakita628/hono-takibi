@@ -24,7 +24,7 @@ export function useGetTrees(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetTreesKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetTreesKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -87,7 +87,7 @@ export function useGetGraphs(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetGraphsKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetGraphsKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -116,7 +116,7 @@ export function useGetLinkedLists(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetLinkedListsKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetLinkedListsKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -145,7 +145,7 @@ export function useGetSocialNetwork(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetSocialNetworkKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetSocialNetworkKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -174,7 +174,7 @@ export function useGetFileSystem(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetFileSystemKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetFileSystemKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -203,7 +203,7 @@ export function useGetComments(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetCommentsKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetCommentsKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -232,7 +232,7 @@ export function useGetPolymorphic(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetPolymorphicKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetPolymorphicKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -261,7 +261,7 @@ export function useGetCategories(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetCategoriesKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetCategoriesKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -290,7 +290,7 @@ export function useGetWorkflow(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetWorkflowKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetWorkflowKey()) : null
   return {
     swrKey,
     ...useSWR(

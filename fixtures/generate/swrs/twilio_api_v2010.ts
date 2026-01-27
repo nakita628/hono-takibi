@@ -33,7 +33,7 @@ export function useGet20100401AccountsJson(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGet20100401AccountsJsonKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGet20100401AccountsJsonKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -117,7 +117,7 @@ export function useGet20100401AccountsSidJson(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGet20100401AccountsSidJsonKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGet20100401AccountsSidJsonKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -206,8 +206,9 @@ export function useGet20100401AccountsAccountSidAddressesJson(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ?? (isEnabled ? getGet20100401AccountsAccountSidAddressesJsonKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidAddressesJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -310,8 +311,9 @@ export function useGet20100401AccountsAccountSidAddressesSidJson(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ?? (isEnabled ? getGet20100401AccountsAccountSidAddressesSidJsonKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidAddressesSidJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -480,8 +482,9 @@ export function useGet20100401AccountsAccountSidApplicationsJson(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ?? (isEnabled ? getGet20100401AccountsAccountSidApplicationsJsonKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidApplicationsJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -598,8 +601,9 @@ export function useGet20100401AccountsAccountSidApplicationsSidJson(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ?? (isEnabled ? getGet20100401AccountsAccountSidApplicationsSidJsonKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidApplicationsSidJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -785,11 +789,9 @@ export function useGet20100401AccountsAccountSidAuthorizedConnectAppsConnectAppS
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidAuthorizedConnectAppsConnectAppSidJsonKey(args)
-      : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidAuthorizedConnectAppsConnectAppSidJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -841,9 +843,9 @@ export function useGet20100401AccountsAccountSidAuthorizedConnectAppsJson(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidAuthorizedConnectAppsJsonKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidAuthorizedConnectAppsJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -892,9 +894,9 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersJson(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidAvailablePhoneNumbersJsonKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidAvailablePhoneNumbersJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -943,11 +945,9 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeJsonKey(args)
-      : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -995,11 +995,10 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeLocalJsonKey(args)
-      : null)
+  const swrKey = isEnabled
+    ? (customKey ??
+      getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeLocalJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -1047,13 +1046,10 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMachineToMachineJsonKey(
-          args,
-        )
-      : null)
+  const swrKey = isEnabled
+    ? (customKey ??
+      getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMachineToMachineJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -1101,11 +1097,10 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMobileJsonKey(args)
-      : null)
+  const swrKey = isEnabled
+    ? (customKey ??
+      getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMobileJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -1153,11 +1148,10 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeNationalJsonKey(args)
-      : null)
+  const swrKey = isEnabled
+    ? (customKey ??
+      getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeNationalJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -1205,11 +1199,10 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeSharedCostJsonKey(args)
-      : null)
+  const swrKey = isEnabled
+    ? (customKey ??
+      getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeSharedCostJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -1257,11 +1250,10 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeTollFreeJsonKey(args)
-      : null)
+  const swrKey = isEnabled
+    ? (customKey ??
+      getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeTollFreeJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -1309,11 +1301,10 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeVoipJsonKey(args)
-      : null)
+  const swrKey = isEnabled
+    ? (customKey ??
+      getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeVoipJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -1360,8 +1351,9 @@ export function useGet20100401AccountsAccountSidBalanceJson(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ?? (isEnabled ? getGet20100401AccountsAccountSidBalanceJsonKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidBalanceJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -1406,8 +1398,9 @@ export function useGet20100401AccountsAccountSidCallsJson(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ?? (isEnabled ? getGet20100401AccountsAccountSidCallsJsonKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidCallsJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -1513,8 +1506,9 @@ export function useGet20100401AccountsAccountSidCallsSidJson(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ?? (isEnabled ? getGet20100401AccountsAccountSidCallsSidJsonKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidCallsSidJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -1690,9 +1684,9 @@ export function useGet20100401AccountsAccountSidCallsCallSidEventsJson(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidCallsCallSidEventsJsonKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidCallsCallSidEventsJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -1741,9 +1735,9 @@ export function useGet20100401AccountsAccountSidCallsCallSidNotificationsSidJson
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidCallsCallSidNotificationsSidJsonKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidCallsCallSidNotificationsSidJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -1791,9 +1785,9 @@ export function useGet20100401AccountsAccountSidCallsCallSidNotificationsJson(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidCallsCallSidNotificationsJsonKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidCallsCallSidNotificationsJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -1846,9 +1840,9 @@ export function useGet20100401AccountsAccountSidCallsCallSidRecordingsJson(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidCallsCallSidRecordingsJsonKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidCallsCallSidRecordingsJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -1970,9 +1964,9 @@ export function useGet20100401AccountsAccountSidCallsCallSidRecordingsSidJson(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidCallsCallSidRecordingsSidJsonKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidCallsCallSidRecordingsSidJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -2161,8 +2155,9 @@ export function useGet20100401AccountsAccountSidConferencesSidJson(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ?? (isEnabled ? getGet20100401AccountsAccountSidConferencesSidJsonKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidConferencesSidJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -2270,8 +2265,9 @@ export function useGet20100401AccountsAccountSidConferencesJson(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ?? (isEnabled ? getGet20100401AccountsAccountSidConferencesJsonKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidConferencesJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -2324,11 +2320,9 @@ export function useGet20100401AccountsAccountSidConferencesConferenceSidRecordin
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidConferencesConferenceSidRecordingsJsonKey(args)
-      : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidConferencesConferenceSidRecordingsJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -2380,11 +2374,10 @@ export function useGet20100401AccountsAccountSidConferencesConferenceSidRecordin
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJsonKey(args)
-      : null)
+  const swrKey = isEnabled
+    ? (customKey ??
+      getGet20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -2575,8 +2568,9 @@ export function useGet20100401AccountsAccountSidConnectAppsSidJson(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ?? (isEnabled ? getGet20100401AccountsAccountSidConnectAppsSidJsonKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidConnectAppsSidJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -2753,8 +2747,9 @@ export function useGet20100401AccountsAccountSidConnectAppsJson(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ?? (isEnabled ? getGet20100401AccountsAccountSidConnectAppsJsonKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidConnectAppsJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -2803,11 +2798,10 @@ export function useGet20100401AccountsAccountSidAddressesAddressSidDependentPhon
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidAddressesAddressSidDependentPhoneNumbersJsonKey(args)
-      : null)
+  const swrKey = isEnabled
+    ? (customKey ??
+      getGet20100401AccountsAccountSidAddressesAddressSidDependentPhoneNumbersJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -2859,9 +2853,9 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersSidJson(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidIncomingPhoneNumbersSidJsonKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidIncomingPhoneNumbersSidJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -3053,9 +3047,9 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersJson(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidIncomingPhoneNumbersJsonKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidIncomingPhoneNumbersJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -3176,13 +3170,10 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsSidJsonKey(
-          args,
-        )
-      : null)
+  const swrKey = isEnabled
+    ? (customKey ??
+      getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsSidJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -3304,11 +3295,10 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsJsonKey(args)
-      : null)
+  const swrKey = isEnabled
+    ? (customKey ??
+      getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -3429,13 +3419,12 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsAssignedAddOnSidExtensionsSidJsonKey(
-          args,
-        )
-      : null)
+  const swrKey = isEnabled
+    ? (customKey ??
+      getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsAssignedAddOnSidExtensionsSidJsonKey(
+        args,
+      ))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -3487,13 +3476,12 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsAssignedAddOnSidExtensionsJsonKey(
-          args,
-        )
-      : null)
+  const swrKey = isEnabled
+    ? (customKey ??
+      getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsAssignedAddOnSidExtensionsJsonKey(
+        args,
+      ))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -3541,9 +3529,9 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersLocalJson(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidIncomingPhoneNumbersLocalJsonKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidIncomingPhoneNumbersLocalJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -3657,9 +3645,9 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersMobileJson(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidIncomingPhoneNumbersMobileJsonKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidIncomingPhoneNumbersMobileJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -3773,9 +3761,9 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJson
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJsonKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -3884,8 +3872,9 @@ export function useGet20100401AccountsAccountSidKeysSidJson(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ?? (isEnabled ? getGet20100401AccountsAccountSidKeysSidJsonKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidKeysSidJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -4044,7 +4033,7 @@ export function useGet20100401AccountsAccountSidKeysJson(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGet20100401AccountsAccountSidKeysJsonKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGet20100401AccountsAccountSidKeysJsonKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -4149,9 +4138,9 @@ export function useGet20100401AccountsAccountSidMessagesMessageSidMediaSidJson(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidMessagesMessageSidMediaSidJsonKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidMessagesMessageSidMediaSidJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -4272,9 +4261,9 @@ export function useGet20100401AccountsAccountSidMessagesMessageSidMediaJson(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidMessagesMessageSidMediaJsonKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidMessagesMessageSidMediaJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -4327,9 +4316,9 @@ export function useGet20100401AccountsAccountSidQueuesQueueSidMembersCallSidJson
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidQueuesQueueSidMembersCallSidJsonKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidQueuesQueueSidMembersCallSidJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -4449,9 +4438,9 @@ export function useGet20100401AccountsAccountSidQueuesQueueSidMembersJson(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidQueuesQueueSidMembersJsonKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidQueuesQueueSidMembersJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -4499,8 +4488,9 @@ export function useGet20100401AccountsAccountSidMessagesJson(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ?? (isEnabled ? getGet20100401AccountsAccountSidMessagesJsonKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidMessagesJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -4606,8 +4596,9 @@ export function useGet20100401AccountsAccountSidMessagesSidJson(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ?? (isEnabled ? getGet20100401AccountsAccountSidMessagesSidJsonKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidMessagesSidJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -4848,8 +4839,9 @@ export function useGet20100401AccountsAccountSidSigningKeysJson(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ?? (isEnabled ? getGet20100401AccountsAccountSidSigningKeysJsonKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidSigningKeysJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -4966,8 +4958,9 @@ export function useGet20100401AccountsAccountSidNotificationsSidJson(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ?? (isEnabled ? getGet20100401AccountsAccountSidNotificationsSidJsonKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidNotificationsSidJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -5015,8 +5008,9 @@ export function useGet20100401AccountsAccountSidNotificationsJson(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ?? (isEnabled ? getGet20100401AccountsAccountSidNotificationsJsonKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidNotificationsJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -5069,9 +5063,9 @@ export function useGet20100401AccountsAccountSidOutgoingCallerIdsSidJson(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidOutgoingCallerIdsSidJsonKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidOutgoingCallerIdsSidJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -5262,8 +5256,9 @@ export function useGet20100401AccountsAccountSidOutgoingCallerIdsJson(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ?? (isEnabled ? getGet20100401AccountsAccountSidOutgoingCallerIdsJsonKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidOutgoingCallerIdsJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -5376,11 +5371,10 @@ export function useGet20100401AccountsAccountSidConferencesConferenceSidParticip
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJsonKey(args)
-      : null)
+  const swrKey = isEnabled
+    ? (customKey ??
+      getGet20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -5571,11 +5565,10 @@ export function useGet20100401AccountsAccountSidConferencesConferenceSidParticip
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidConferencesConferenceSidParticipantsJsonKey(args)
-      : null)
+  const swrKey = isEnabled
+    ? (customKey ??
+      getGet20100401AccountsAccountSidConferencesConferenceSidParticipantsJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -5823,8 +5816,9 @@ export function useGet20100401AccountsAccountSidQueuesSidJson(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ?? (isEnabled ? getGet20100401AccountsAccountSidQueuesSidJsonKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidQueuesSidJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -6001,8 +5995,9 @@ export function useGet20100401AccountsAccountSidQueuesJson(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ?? (isEnabled ? getGet20100401AccountsAccountSidQueuesJsonKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidQueuesJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -6249,8 +6244,9 @@ export function useGet20100401AccountsAccountSidRecordingsSidJson(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ?? (isEnabled ? getGet20100401AccountsAccountSidRecordingsSidJsonKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidRecordingsSidJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -6363,8 +6359,9 @@ export function useGet20100401AccountsAccountSidRecordingsJson(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ?? (isEnabled ? getGet20100401AccountsAccountSidRecordingsJsonKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidRecordingsJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -6414,11 +6411,10 @@ export function useGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsSidJsonKey(args)
-      : null)
+  const swrKey = isEnabled
+    ? (customKey ??
+      getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsSidJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -6540,11 +6536,9 @@ export function useGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsJsonKey(args)
-      : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -6596,13 +6590,12 @@ export function useGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsSidJsonKey(
-          args,
-        )
-      : null)
+  const swrKey = isEnabled
+    ? (customKey ??
+      getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsSidJsonKey(
+        args,
+      ))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -6724,13 +6717,12 @@ export function useGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsJsonKey(
-          args,
-        )
-      : null)
+  const swrKey = isEnabled
+    ? (customKey ??
+      getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsJsonKey(
+        args,
+      ))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -6782,13 +6774,12 @@ export function useGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsPayloadSidDataJsonKey(
-          args,
-        )
-      : null)
+  const swrKey = isEnabled
+    ? (customKey ??
+      getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsPayloadSidDataJsonKey(
+        args,
+      ))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -6836,11 +6827,10 @@ export function useGet20100401AccountsAccountSidRecordingsRecordingSidTranscript
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsSidJsonKey(args)
-      : null)
+  const swrKey = isEnabled
+    ? (customKey ??
+      getGet20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsSidJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -6954,11 +6944,10 @@ export function useGet20100401AccountsAccountSidRecordingsRecordingSidTranscript
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsJsonKey(args)
-      : null)
+  const swrKey = isEnabled
+    ? (customKey ??
+      getGet20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -7010,8 +6999,9 @@ export function useGet20100401AccountsAccountSidSMSShortCodesSidJson(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ?? (isEnabled ? getGet20100401AccountsAccountSidSMSShortCodesSidJsonKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidSMSShortCodesSidJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -7132,8 +7122,9 @@ export function useGet20100401AccountsAccountSidSMSShortCodesJson(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ?? (isEnabled ? getGet20100401AccountsAccountSidSMSShortCodesJsonKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidSMSShortCodesJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -7182,8 +7173,9 @@ export function useGet20100401AccountsAccountSidSigningKeysSidJson(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ?? (isEnabled ? getGet20100401AccountsAccountSidSigningKeysSidJsonKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidSigningKeysSidJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -7357,13 +7349,12 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCred
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsJsonKey(
-          args,
-        )
-      : null)
+  const swrKey = isEnabled
+    ? (customKey ??
+      getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsJsonKey(
+        args,
+      ))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -7484,13 +7475,12 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCred
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsSidJsonKey(
-          args,
-        )
-      : null)
+  const swrKey = isEnabled
+    ? (customKey ??
+      getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsSidJsonKey(
+        args,
+      ))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -7612,13 +7602,12 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAc
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsJsonKey(
-          args,
-        )
-      : null)
+  const swrKey = isEnabled
+    ? (customKey ??
+      getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsJsonKey(
+        args,
+      ))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -7739,13 +7728,12 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAc
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsSidJsonKey(
-          args,
-        )
-      : null)
+  const swrKey = isEnabled
+    ? (customKey ??
+      getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsSidJsonKey(
+        args,
+      ))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -7867,13 +7855,12 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrat
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsJsonKey(
-          args,
-        )
-      : null)
+  const swrKey = isEnabled
+    ? (customKey ??
+      getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsJsonKey(
+        args,
+      ))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -7994,13 +7981,12 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrat
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsSidJsonKey(
-          args,
-        )
-      : null)
+  const swrKey = isEnabled
+    ? (customKey ??
+      getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsSidJsonKey(
+        args,
+      ))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -8122,11 +8108,10 @@ export function useGet20100401AccountsAccountSidSIPCredentialListsCredentialList
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsJsonKey(args)
-      : null)
+  const swrKey = isEnabled
+    ? (customKey ??
+      getGet20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -8247,13 +8232,12 @@ export function useGet20100401AccountsAccountSidSIPCredentialListsCredentialList
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJsonKey(
-          args,
-        )
-      : null)
+  const swrKey = isEnabled
+    ? (customKey ??
+      getGet20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJsonKey(
+        args,
+      ))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -8444,9 +8428,9 @@ export function useGet20100401AccountsAccountSidSIPCredentialListsJson(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidSIPCredentialListsJsonKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidSIPCredentialListsJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -8567,9 +8551,9 @@ export function useGet20100401AccountsAccountSidSIPCredentialListsSidJson(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidSIPCredentialListsSidJsonKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidSIPCredentialListsSidJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -8761,11 +8745,10 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialLis
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsJsonKey(args)
-      : null)
+  const swrKey = isEnabled
+    ? (customKey ??
+      getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -8886,11 +8869,10 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialLis
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsSidJsonKey(args)
-      : null)
+  const swrKey = isEnabled
+    ? (customKey ??
+      getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsSidJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -9007,8 +8989,9 @@ export function useGet20100401AccountsAccountSidSIPDomainsJson(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ?? (isEnabled ? getGet20100401AccountsAccountSidSIPDomainsJsonKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidSIPDomainsJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -9125,8 +9108,9 @@ export function useGet20100401AccountsAccountSidSIPDomainsSidJson(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ?? (isEnabled ? getGet20100401AccountsAccountSidSIPDomainsSidJsonKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidSIPDomainsSidJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -9308,9 +9292,9 @@ export function useGet20100401AccountsAccountSidSIPIpAccessControlListsJson(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidSIPIpAccessControlListsJsonKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidSIPIpAccessControlListsJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -9432,9 +9416,9 @@ export function useGet20100401AccountsAccountSidSIPIpAccessControlListsSidJson(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidSIPIpAccessControlListsSidJsonKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidSIPIpAccessControlListsSidJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -9625,13 +9609,12 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessContr
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsSidJsonKey(
-          args,
-        )
-      : null)
+  const swrKey = isEnabled
+    ? (customKey ??
+      getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsSidJsonKey(
+        args,
+      ))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -9753,11 +9736,10 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessContr
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsJsonKey(args)
-      : null)
+  const swrKey = isEnabled
+    ? (customKey ??
+      getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -9878,13 +9860,12 @@ export function useGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessC
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesJsonKey(
-          args,
-        )
-      : null)
+  const swrKey = isEnabled
+    ? (customKey ??
+      getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesJsonKey(
+        args,
+      ))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -10005,13 +9986,12 @@ export function useGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessC
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled
-      ? getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJsonKey(
-          args,
-        )
-      : null)
+  const swrKey = isEnabled
+    ? (customKey ??
+      getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJsonKey(
+        args,
+      ))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -10537,8 +10517,9 @@ export function useGet20100401AccountsAccountSidTranscriptionsSidJson(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ?? (isEnabled ? getGet20100401AccountsAccountSidTranscriptionsSidJsonKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidTranscriptionsSidJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -10660,8 +10641,9 @@ export function useGet20100401AccountsAccountSidTranscriptionsJson(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ?? (isEnabled ? getGet20100401AccountsAccountSidTranscriptionsJsonKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidTranscriptionsJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -10709,8 +10691,9 @@ export function useGet20100401AccountsAccountSidUsageRecordsJson(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ?? (isEnabled ? getGet20100401AccountsAccountSidUsageRecordsJsonKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidUsageRecordsJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -10759,9 +10742,9 @@ export function useGet20100401AccountsAccountSidUsageRecordsAllTimeJson(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidUsageRecordsAllTimeJsonKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidUsageRecordsAllTimeJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -10810,8 +10793,9 @@ export function useGet20100401AccountsAccountSidUsageRecordsDailyJson(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ?? (isEnabled ? getGet20100401AccountsAccountSidUsageRecordsDailyJsonKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidUsageRecordsDailyJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -10860,9 +10844,9 @@ export function useGet20100401AccountsAccountSidUsageRecordsLastMonthJson(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidUsageRecordsLastMonthJsonKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidUsageRecordsLastMonthJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -10911,9 +10895,9 @@ export function useGet20100401AccountsAccountSidUsageRecordsMonthlyJson(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidUsageRecordsMonthlyJsonKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidUsageRecordsMonthlyJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -10962,9 +10946,9 @@ export function useGet20100401AccountsAccountSidUsageRecordsThisMonthJson(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidUsageRecordsThisMonthJsonKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidUsageRecordsThisMonthJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -11013,8 +10997,9 @@ export function useGet20100401AccountsAccountSidUsageRecordsTodayJson(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ?? (isEnabled ? getGet20100401AccountsAccountSidUsageRecordsTodayJsonKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidUsageRecordsTodayJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -11063,9 +11048,9 @@ export function useGet20100401AccountsAccountSidUsageRecordsYearlyJson(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidUsageRecordsYearlyJsonKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidUsageRecordsYearlyJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -11114,9 +11099,9 @@ export function useGet20100401AccountsAccountSidUsageRecordsYesterdayJson(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidUsageRecordsYesterdayJsonKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidUsageRecordsYesterdayJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -11169,8 +11154,9 @@ export function useGet20100401AccountsAccountSidUsageTriggersSidJson(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ?? (isEnabled ? getGet20100401AccountsAccountSidUsageTriggersSidJsonKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidUsageTriggersSidJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(
@@ -11356,8 +11342,9 @@ export function useGet20100401AccountsAccountSidUsageTriggersJson(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey =
-    customKey ?? (isEnabled ? getGet20100401AccountsAccountSidUsageTriggersJsonKey(args) : null)
+  const swrKey = isEnabled
+    ? (customKey ?? getGet20100401AccountsAccountSidUsageTriggersJsonKey(args))
+    : null
   return {
     swrKey,
     ...useSWR(

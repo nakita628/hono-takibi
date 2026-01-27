@@ -26,7 +26,7 @@ export function useGet(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -62,7 +62,7 @@ export function useGetProjects(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetProjectsKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetProjectsKey(args)) : null
   return {
     swrKey,
     ...useSWR(

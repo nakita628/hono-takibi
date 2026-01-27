@@ -29,7 +29,7 @@ export function useGetFiles(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetFilesKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetFilesKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -252,7 +252,7 @@ export function useGetFilesFileId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetFilesFileIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetFilesFileIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -373,7 +373,7 @@ export function useGetFilesFileIdDownload(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetFilesFileIdDownloadKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetFilesFileIdDownloadKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -409,7 +409,7 @@ export function useGetFilesFileIdDownloadUrl(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetFilesFileIdDownloadUrlKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetFilesFileIdDownloadUrlKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -529,7 +529,7 @@ export function useGetFilesFileIdThumbnail(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetFilesFileIdThumbnailKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetFilesFileIdThumbnailKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -601,7 +601,7 @@ export function useGetFoldersFolderId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetFoldersFolderIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetFoldersFolderIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -722,7 +722,7 @@ export function useGetFilesFileIdShare(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetFilesFileIdShareKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetFilesFileIdShareKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -893,7 +893,7 @@ export function useGetFilesFileIdVersions(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetFilesFileIdVersionsKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetFilesFileIdVersionsKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -984,7 +984,7 @@ export function useGetTrash(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetTrashKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetTrashKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -1095,7 +1095,7 @@ export function useGetStorageUsage(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetStorageUsageKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetStorageUsageKey()) : null
   return {
     swrKey,
     ...useSWR(

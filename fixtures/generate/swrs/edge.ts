@@ -65,7 +65,7 @@ export function useGetSearch(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetSearchKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetSearchKey(args)) : null
   return {
     swrKey,
     ...useSWR(

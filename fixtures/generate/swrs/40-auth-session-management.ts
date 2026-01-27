@@ -31,7 +31,7 @@ export function useGetSessions(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetSessionsKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetSessionsKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -100,7 +100,7 @@ export function useGetSessionsCurrent(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetSessionsCurrentKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetSessionsCurrentKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -305,7 +305,7 @@ export function useGetSessionsSessionId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetSessionsSessionIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetSessionsSessionIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -472,7 +472,7 @@ export function useGetSessionsHistory(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetSessionsHistoryKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetSessionsHistoryKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -510,7 +510,7 @@ export function useGetSessionsSecurityEvents(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetSessionsSecurityEventsKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetSessionsSecurityEventsKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -541,7 +541,7 @@ export function useGetSessionsPolicies(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetSessionsPoliciesKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetSessionsPoliciesKey()) : null
   return {
     swrKey,
     ...useSWR(
@@ -610,7 +610,7 @@ export function useGetSessionsTrustedDevices(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetSessionsTrustedDevicesKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetSessionsTrustedDevicesKey()) : null
   return {
     swrKey,
     ...useSWR(

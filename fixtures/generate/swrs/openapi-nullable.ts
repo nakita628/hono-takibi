@@ -26,7 +26,7 @@ export function useGetNullable(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetNullableKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetNullableKey()) : null
   return {
     swrKey,
     ...useSWR(

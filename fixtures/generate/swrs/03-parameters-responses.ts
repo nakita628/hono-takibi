@@ -27,7 +27,7 @@ export function useGetItems(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetItemsKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetItemsKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -61,7 +61,7 @@ export function useGetItemsItemId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetItemsItemIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetItemsItemIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(

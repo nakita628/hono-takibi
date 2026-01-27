@@ -26,7 +26,7 @@ export function useGetPassthrough(options?: {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetPassthroughKey() : null)
+  const swrKey = isEnabled ? (customKey ?? getGetPassthroughKey()) : null
   return {
     swrKey,
     ...useSWR(

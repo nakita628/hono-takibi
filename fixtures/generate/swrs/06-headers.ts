@@ -27,7 +27,7 @@ export function useGetResources(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetResourcesKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetResourcesKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -61,7 +61,7 @@ export function useGetResourcesId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetResourcesIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetResourcesIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(
@@ -135,7 +135,7 @@ export function useGetDownloadId(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = customKey ?? (isEnabled ? getGetDownloadIdKey(args) : null)
+  const swrKey = isEnabled ? (customKey ?? getGetDownloadIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(
