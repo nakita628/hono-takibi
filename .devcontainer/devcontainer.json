@@ -7,19 +7,9 @@
     "dockerfile": "Dockerfile",
     "context": "."
   },
-
   "customizations": {
     "vscode": {
       "extensions": ["typespec.typespec-vscode", "Hono.hono", "ms-playwright.playwright"]
     }
-  },
-
-  // Use 'forwardPorts' to make a list of ports inside the container available locally.
-  "forwardPorts": [3000, 5173, 8787],
-
-  // Use 'postCreateCommand' to run commands after the container is created.
-  "postCreateCommand": "pnpm install && npx playwright install chromium"
-
-  // Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
-  // "remoteUser": "root"
+  }
 }
