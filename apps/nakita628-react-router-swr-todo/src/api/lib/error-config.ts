@@ -1,8 +1,5 @@
 import { z } from '@hono/zod-openapi'
 
-/**
- * RFC 7807 Problem Details error response structure.
- */
 type ProblemDetails = {
   type: string
   title: string
@@ -11,34 +8,16 @@ type ProblemDetails = {
   errors?: ValidationError[]
 }
 
-/**
- * Individual field validation error.
- */
 type ValidationError = {
   field: string
   message: string
 }
 
-/**
- * Converts Zod error to RFC 7807 Problem Details format.
- *
- * @param error - Zod validation error
- * @returns Array of validation errors with field paths and messages
- */
-export function makeZodErrors(error: z.ZodError): ValidationError[] {
-  return error.issues.map((issue) => ({
+export function formatZodErrors(result: { error: z.ZodError }): ProblemDetails {
+  const errors = result.error.issues.map((issue) => ({
     field: issue.path.join('.') || 'body',
     message: issue.message,
   }))
-}
-
-/**
- * Creates a RFC 7807 Problem Details response for validation errors.
- *
- * @param errors - Array of validation errors
- * @returns Problem Details object
- */
-export function makeProblemDetails(errors: ValidationError[]): ProblemDetails {
   return {
     type: 'about:blank',
     title: 'Unprocessable Entity',
@@ -48,13 +27,6 @@ export function makeProblemDetails(errors: ValidationError[]): ProblemDetails {
   }
 }
 
-/**
- * Configures custom error messages for Zod validation.
- *
- * @remarks
- * Sets up user-friendly error messages for common validation failures.
- * Messages follow REST API best practices for clarity and actionability.
- */
 export function configureCustomErrors(): void {
   z.config({
     customError: (issue) => {

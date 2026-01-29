@@ -12,7 +12,6 @@
     "paths": {
       "@/*": ["./src/*"]
     },
-    "types": ["vite/client", "./worker-configuration.d.ts"]
-  },
-  "exclude": ["vite.config.ts"]
+    "types": ["vite/client", "@cloudflare/workers-types"]
+  }
 }
