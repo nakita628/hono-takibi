@@ -10,10 +10,6 @@ export default defineConfig(({ mode }) => {
   if (mode === 'client') {
     return {
       plugins: [
-        tanstackRouter({
-          target: 'react',
-          autoCodeSplitting: true,
-        }),
         tailwindcss(),
         tsconfigPaths(),
       ],
