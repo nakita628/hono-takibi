@@ -1,39 +1,27 @@
-import { z } from '@hono/zod-openapi'
 import { desc, eq } from 'drizzle-orm'
 import { err, ok, ResultAsync } from 'neverthrow'
-import type { Database } from '@/api/db'
-import { todos } from '@/api/db'
-import { DatabaseError, DataNotFoundError, ValidationError } from '@/api/domain/error'
-import { TodoSchema } from '@/api/routes'
+import { db, todos } from '@/api/db'
+import { DatabaseError, DataNotFoundError } from '@/api/domain'
 
-export function readAll(db: Database, limit?: number, offset?: number) {
-  const TodoArraySchema = z.array(TodoSchema)
-  const baseQuery = db
-    .select({
-      id: todos.id,
-      content: todos.content,
-      completed: todos.completed,
-      createdAt: todos.createdAt,
-      updatedAt: todos.updatedAt,
-    })
-    .from(todos)
-    .orderBy(desc(todos.createdAt))
-
-  const queryWithLimit = limit !== undefined ? baseQuery.limit(limit) : baseQuery
-  const queryWithOffset = offset !== undefined ? queryWithLimit.offset(offset) : queryWithLimit
-
-  return ResultAsync.fromPromise(queryWithOffset, (e) =>
-    e instanceof Error ? new DatabaseError(e.message, e) : new DatabaseError('Database error', e),
-  ).andThen((results) => {
-    const parsed = TodoArraySchema.safeParse(results)
-    if (!parsed.success) {
-      return err(new ValidationError('Invalid data from database'))
-    }
-    return ok(parsed.data)
-  })
+export function readAll(limit = 10, offset = 0) {
+  return ResultAsync.fromPromise(
+    db
+      .select({
+        id: todos.id,
+        content: todos.content,
+        completed: todos.completed,
+        createdAt: todos.createdAt,
+        updatedAt: todos.updatedAt,
+      })
+      .from(todos)
+      .orderBy(desc(todos.createdAt))
+      .limit(limit)
+      .offset(offset),
+    (e) => new DatabaseError(e instanceof Error ? e.message : 'Database error', e),
+  )
 }
 
-export function readById(db: Database, id: string) {
+export function readById(id: string) {
   return ResultAsync.fromPromise(
     db
       .select({
@@ -46,41 +34,32 @@ export function readById(db: Database, id: string) {
       .from(todos)
       .where(eq(todos.id, id))
       .get(),
-    (e) =>
-      e instanceof Error ? new DatabaseError(e.message, e) : new DatabaseError('Database error', e),
-  ).andThen((result) => {
-    if (!result) {
-      return err(new DataNotFoundError('Todo not found'))
-    }
-    const parsed = TodoSchema.safeParse(result)
-    if (!parsed.success) {
-      return err(new ValidationError('Invalid data from database'))
-    }
-    return ok(parsed.data)
-  })
+    (e) => new DatabaseError(e instanceof Error ? e.message : 'Database error', e),
+  ).andThen((result) => (result ? ok(result) : err(new DataNotFoundError('Todo not found'))))
 }
 
-export function create(db: Database, content: string) {
+export function create(content: string) {
   const id = crypto.randomUUID()
-  return ResultAsync.fromPromise(db.insert(todos).values({ id, content }).run(), (e) =>
-    e instanceof Error ? new DatabaseError(e.message, e) : new DatabaseError('Database error', e),
+  return ResultAsync.fromPromise(
+    db.insert(todos).values({ id, content }).run(),
+    (e) => new DatabaseError(e instanceof Error ? e.message : 'Database error', e),
   ).map(() => undefined)
 }
 
-export function update(db: Database, id: string, data: { content?: string; completed?: number }) {
+export function update(id: string, data: { content?: string; completed?: number }) {
   return ResultAsync.fromPromise(
     db
       .update(todos)
       .set({ ...data, updatedAt: new Date().toISOString() })
       .where(eq(todos.id, id))
       .run(),
-    (e) =>
-      e instanceof Error ? new DatabaseError(e.message, e) : new DatabaseError('Database error', e),
+    (e) => new DatabaseError(e instanceof Error ? e.message : 'Database error', e),
   ).map(() => undefined)
 }
 
-export function remove(db: Database, id: string) {
-  return ResultAsync.fromPromise(db.delete(todos).where(eq(todos.id, id)).run(), (e) =>
-    e instanceof Error ? new DatabaseError(e.message, e) : new DatabaseError('Database error', e),
+export function remove(id: string) {
+  return ResultAsync.fromPromise(
+    db.delete(todos).where(eq(todos.id, id)).run(),
+    (e) => new DatabaseError(e instanceof Error ? e.message : 'Database error', e),
   ).map(() => undefined)
 }

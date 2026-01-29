@@ -1,45 +1,8 @@
-import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
-import { createFileRoute, Link, useSearch } from '@tanstack/react-router'
 import { memo, useCallback, useState } from 'react'
+import { Link } from 'react-router'
+import { useSWRConfig } from 'swr'
 import type { Todo } from '@/api/routes'
-import {
-  getGetTodoQueryKey,
-  getGetTodoQueryOptions,
-  getPostTodoMutationOptions,
-  getPutTodoIdMutationOptions,
-  getDeleteTodoIdMutationOptions,
-} from '@/hooks/query'
-
-export const Route = createFileRoute('/')({
-  validateSearch: (search: Record<string, unknown>) => ({
-    page: Number(search.page) || 0,
-  }),
-  loaderDeps: ({ search: { page } }) => ({ page }),
-  loader: ({ context: { queryClient }, deps: { page } }) =>
-    queryClient.ensureQueryData(getGetTodoQueryOptions({ query: { offset: page * 10 } })),
-  component: HomePage,
-  pendingComponent: () => (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-100 flex items-center justify-center">
-      <div className="text-gray-600 text-lg">Loading...</div>
-    </div>
-  ),
-  errorComponent: ({ error }) => (
-    <div className="min-h-screen bg-gradient-to-br from-red-50 to-orange-100 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-xl p-8 max-w-lg w-full text-center">
-        <div className="text-6xl mb-4">😵</div>
-        <h1 className="text-2xl font-bold text-gray-800 mb-2">Failed to load todos</h1>
-        <p className="text-gray-600 mb-4">{error.message}</p>
-        <button
-          type="button"
-          onClick={() => window.location.reload()}
-          className="inline-block bg-orange-500 hover:bg-orange-600 text-white font-semibold px-6 py-3 rounded-lg transition-colors"
-        >
-          Try Again
-        </button>
-      </div>
-    </div>
-  ),
-})
+import { getGetTodoKey, useDeleteTodoId, useGetTodo, usePostTodo, usePutTodoId } from '@/hooks/swr'
 
 const TodoItem = memo(function TodoItem({
   todo,
@@ -67,8 +30,7 @@ const TodoItem = memo(function TodoItem({
         className="w-5 h-5 text-orange-500 rounded focus:ring-orange-500 cursor-pointer accent-orange-500"
       />
       <Link
-        to="/$id"
-        params={{ id: todo.id }}
+        to={`/${todo.id}`}
         className={`flex-1 ${
           todo.completed === 1 ? 'line-through text-gray-400' : 'text-gray-800'
         } hover:text-orange-600 transition-colors`}
@@ -86,66 +48,49 @@ const TodoItem = memo(function TodoItem({
   )
 })
 
-function HomePage() {
+export function HomePage() {
   const [newContent, setNewContent] = useState('')
-  const { page } = useSearch({ from: '/' })
-  const navigate = Route.useNavigate()
-  const queryClient = useQueryClient()
+  const [page, setPage] = useState(0)
+  const { mutate } = useSWRConfig()
 
   const offset = page * 10
-  const { data: todos } = useSuspenseQuery(
-    getGetTodoQueryOptions({ query: { offset } }),
-  )
+  const { data: todos = [], isLoading } = useGetTodo({ query: { offset } })
   const hasMore = todos.length === 10
 
-  const invalidateTodos = useCallback(() => {
-    queryClient.invalidateQueries({
-      queryKey: getGetTodoQueryKey({ query: { offset } }),
-    })
-  }, [queryClient, offset])
+  const { trigger: createTodo } = usePostTodo()
+  const { trigger: updateTodo } = usePutTodoId()
+  const { trigger: deleteTodo } = useDeleteTodoId()
 
-  const createMutation = useMutation({
-    ...getPostTodoMutationOptions(),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: getGetTodoQueryKey({ query: { offset: 0 } }),
-      })
-      navigate({ to: '/', search: { page: 0 } })
-    },
-  })
-
-  const updateMutation = useMutation({
-    ...getPutTodoIdMutationOptions(),
-    onSuccess: invalidateTodos,
-  })
-
-  const deleteMutation = useMutation({
-    ...getDeleteTodoIdMutationOptions(),
-    onSuccess: invalidateTodos,
-  })
+  const revalidate = useCallback(() => {
+    mutate(getGetTodoKey({ query: { offset } }))
+  }, [mutate, offset])
 
   const handleAddTodo = useCallback(async () => {
     const trimmed = newContent.trim()
     if (!trimmed) return
-    await createMutation.mutateAsync({ json: { content: trimmed } })
+    await createTodo({ json: { content: trimmed } })
     setNewContent('')
-  }, [newContent, createMutation])
+    setPage(0)
+    mutate(getGetTodoKey({ query: { offset: 0 } }))
+  }, [newContent, createTodo, mutate])
 
   const handleToggleTodo = useCallback(
     async (id: string, completed: number) => {
-      await updateMutation.mutateAsync({
+      await updateTodo({
         param: { id },
         json: { completed: completed === 0 ? 1 : 0 },
       })
+      revalidate()
     },
-    [updateMutation],
+    [updateTodo, revalidate],
   )
 
   const handleRemoveTodo = useCallback(
     async (id: string) => {
-      await deleteMutation.mutateAsync({ param: { id } })
+      await deleteTodo({ param: { id } })
+      revalidate()
     },
-    [deleteMutation],
+    [deleteTodo, revalidate],
   )
 
   const handleKeyDown = useCallback(
@@ -157,19 +102,27 @@ function HomePage() {
   )
 
   const handlePrevPage = useCallback(() => {
-    navigate({ to: '/', search: { page: Math.max(0, page - 1) } })
-  }, [navigate, page])
+    setPage((p) => Math.max(0, p - 1))
+  }, [])
 
   const handleNextPage = useCallback(() => {
-    navigate({ to: '/', search: { page: page + 1 } })
-  }, [navigate, page])
+    setPage((p) => p + 1)
+  }, [])
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-100 flex items-center justify-center">
+        <div className="text-gray-600 text-lg">Loading...</div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-100 py-8 px-4">
       <div className="max-w-2xl mx-auto">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-800 mb-2">Hono + TanStack</h1>
-          <p className="text-gray-600">Todo App with TanStack Router & Query + Drizzle</p>
+          <h1 className="text-4xl font-bold text-gray-800 mb-2">Hono + SWR</h1>
+          <p className="text-gray-600">Todo App with React Router & Kysely</p>
         </div>
 
         <div className="bg-white rounded-2xl shadow-xl p-6">
@@ -186,8 +139,8 @@ function HomePage() {
             <button
               type="button"
               onClick={handleAddTodo}
-              disabled={!newContent.trim()}
               className="bg-orange-500 hover:bg-orange-600 text-white font-semibold px-6 py-3 rounded-lg transition-colors disabled:opacity-50"
+              disabled={!newContent.trim()}
             >
               Add
             </button>

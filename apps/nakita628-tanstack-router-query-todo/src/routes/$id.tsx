@@ -9,9 +9,6 @@ import {
   getDeleteTodoIdMutationOptions,
 } from '@/hooks/query'
 
-/**
- * Formats an ISO date string into a human-readable format.
- */
 function formatDate(dateString: string): string {
   const date = new Date(dateString)
   return date.toLocaleString('en-US', {
@@ -23,7 +20,7 @@ function formatDate(dateString: string): string {
   })
 }
 
-export const Route = createFileRoute('/todos/$id')({
+export const Route = createFileRoute('/$id' as const)({
   loader: ({ context: { queryClient }, params: { id } }) =>
     queryClient.ensureQueryData(getGetTodoIdQueryOptions({ param: { id } })),
   component: TodoDetailPage,
@@ -67,12 +64,11 @@ function TodoDetailPage() {
     ...getDeleteTodoIdMutationOptions(),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: getGetTodoQueryKey({ query: {} }) })
-      navigate({ to: '/todos' })
+      navigate({ to: '/', search: { page: 0 } })
     },
   })
 
   const handleStartEdit = useCallback(() => {
-    if (!todo || 'message' in todo) return
     setEditContent(todo.content)
     setIsEditing(true)
   }, [todo])
@@ -92,7 +88,6 @@ function TodoDetailPage() {
   }, [id, editContent, updateMutation])
 
   const handleToggleCompleted = useCallback(async () => {
-    if (!todo || 'message' in todo) return
     await updateMutation.mutateAsync({
       param: { id },
       json: { completed: todo.completed === 0 ? 1 : 0 },
@@ -103,35 +98,16 @@ function TodoDetailPage() {
     await deleteMutation.mutateAsync({ param: { id } })
   }, [id, deleteMutation])
 
-  if (!todo || 'message' in todo) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-100 py-8 px-4">
-        <div className="max-w-2xl mx-auto">
-          <div className="mb-6">
-            <Link
-              to="/todos"
-              className="inline-flex items-center text-orange-600 hover:text-orange-700 font-medium"
-            >
-              <span className="mr-1">←</span> Back to Todos
-            </Link>
-          </div>
-          <div className="bg-white rounded-2xl shadow-xl p-6">
-            <p className="text-red-500 text-center">Todo not found</p>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-100 py-8 px-4">
       <div className="max-w-2xl mx-auto">
         <div className="mb-6">
           <Link
-            to="/todos"
+            to="/"
+            search={{ page: 0 }}
             className="inline-flex items-center text-orange-600 hover:text-orange-700 font-medium"
           >
-            <span className="mr-1">←</span> Back to Todos
+            <span className="mr-1">←</span> Back
           </Link>
         </div>
 
