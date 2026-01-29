@@ -1,17 +1,8 @@
-import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
-import { createFileRoute, Link } from '@tanstack/react-router'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import {
-  getGetTodoIdQueryKey,
-  getGetTodoIdQueryOptions,
-  getGetTodoQueryKey,
-  getPutTodoIdMutationOptions,
-  getDeleteTodoIdMutationOptions,
-} from '@/hooks/query'
+import { Link, useNavigate, useParams } from 'react-router'
+import { useSWRConfig } from 'swr'
+import { getGetTodoKey, useDeleteTodoId, useGetTodoId, usePutTodoId } from '@/hooks/swr'
 
-/**
- * Formats an ISO date string into a human-readable format.
- */
 function formatDate(dateString: string): string {
   const date = new Date(dateString)
   return date.toLocaleString('en-US', {
@@ -23,22 +14,10 @@ function formatDate(dateString: string): string {
   })
 }
 
-export const Route = createFileRoute('/todos/$id')({
-  loader: ({ context: { queryClient }, params: { id } }) =>
-    queryClient.ensureQueryData(getGetTodoIdQueryOptions({ param: { id } })),
-  component: TodoDetailPage,
-  pendingComponent: () => (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-100 flex items-center justify-center">
-      <div className="text-gray-600 text-lg">Loading...</div>
-    </div>
-  ),
-})
-
-function TodoDetailPage() {
-  const { id } = Route.useParams()
-  const navigate = Route.useNavigate()
-  const queryClient = useQueryClient()
-  const { data: todo } = useSuspenseQuery(getGetTodoIdQueryOptions({ param: { id } }))
+export function TodoDetailPage() {
+  const { id } = useParams<{ id: string }>()
+  const navigate = useNavigate()
+  const { mutate } = useSWRConfig()
 
   const [isEditing, setIsEditing] = useState(false)
   const [editContent, setEditContent] = useState('')
@@ -50,29 +29,22 @@ function TodoDetailPage() {
     }
   }, [isEditing])
 
-  const invalidateQueries = useCallback(() => {
-    queryClient.invalidateQueries({ queryKey: getGetTodoQueryKey({ query: {} }) })
-    queryClient.invalidateQueries({ queryKey: getGetTodoIdQueryKey({ param: { id } }) })
-  }, [queryClient, id])
+  const {
+    data: todo,
+    isLoading,
+    error,
+    swrKey,
+  } = useGetTodoId({ param: { id: id ?? '' } }, { swr: { enabled: !!id } })
+  const { trigger: updateTodo, isMutating: isUpdating } = usePutTodoId()
+  const { trigger: deleteTodo, isMutating: isDeleting } = useDeleteTodoId()
 
-  const updateMutation = useMutation({
-    ...getPutTodoIdMutationOptions(),
-    onSuccess: () => {
-      invalidateQueries()
-      setIsEditing(false)
-    },
-  })
-
-  const deleteMutation = useMutation({
-    ...getDeleteTodoIdMutationOptions(),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: getGetTodoQueryKey({ query: {} }) })
-      navigate({ to: '/todos' })
-    },
-  })
+  const revalidate = useCallback(() => {
+    if (swrKey) mutate(swrKey)
+    mutate(getGetTodoKey({ query: {} }))
+  }, [mutate, swrKey])
 
   const handleStartEdit = useCallback(() => {
-    if (!todo || 'message' in todo) return
+    if (!todo) return
     setEditContent(todo.content)
     setIsEditing(true)
   }, [todo])
@@ -83,36 +55,48 @@ function TodoDetailPage() {
   }, [])
 
   const handleSaveEdit = useCallback(async () => {
+    if (!id) return
     const trimmed = editContent.trim()
     if (!trimmed) return
-    await updateMutation.mutateAsync({
-      param: { id },
-      json: { content: trimmed },
-    })
-  }, [id, editContent, updateMutation])
+    await updateTodo({ param: { id }, json: { content: trimmed } })
+    setIsEditing(false)
+    revalidate()
+  }, [id, editContent, updateTodo, revalidate])
 
   const handleToggleCompleted = useCallback(async () => {
-    if (!todo || 'message' in todo) return
-    await updateMutation.mutateAsync({
+    if (!(id && todo)) return
+    await updateTodo({
       param: { id },
       json: { completed: todo.completed === 0 ? 1 : 0 },
     })
-  }, [id, todo, updateMutation])
+    revalidate()
+  }, [id, todo, updateTodo, revalidate])
 
   const handleDelete = useCallback(async () => {
-    await deleteMutation.mutateAsync({ param: { id } })
-  }, [id, deleteMutation])
+    if (!id) return
+    await deleteTodo({ param: { id } })
+    mutate(getGetTodoKey({ query: {} }))
+    navigate('/')
+  }, [id, deleteTodo, mutate, navigate])
 
-  if (!todo || 'message' in todo) {
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-100 flex items-center justify-center">
+        <div className="text-gray-600 text-lg">Loading...</div>
+      </div>
+    )
+  }
+
+  if (error || !todo) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-100 py-8 px-4">
         <div className="max-w-2xl mx-auto">
           <div className="mb-6">
             <Link
-              to="/todos"
+              to="/"
               className="inline-flex items-center text-orange-600 hover:text-orange-700 font-medium"
             >
-              <span className="mr-1">←</span> Back to Todos
+              <span className="mr-1">←</span> Back
             </Link>
           </div>
           <div className="bg-white rounded-2xl shadow-xl p-6">
@@ -128,10 +112,10 @@ function TodoDetailPage() {
       <div className="max-w-2xl mx-auto">
         <div className="mb-6">
           <Link
-            to="/todos"
+            to="/"
             className="inline-flex items-center text-orange-600 hover:text-orange-700 font-medium"
           >
-            <span className="mr-1">←</span> Back to Todos
+            <span className="mr-1">←</span> Back
           </Link>
         </div>
 
@@ -151,10 +135,10 @@ function TodoDetailPage() {
               <button
                 type="button"
                 onClick={handleDelete}
-                disabled={deleteMutation.isPending}
+                disabled={isDeleting}
                 className="px-4 py-2 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
               >
-                {deleteMutation.isPending ? 'Deleting...' : 'Delete'}
+                {isDeleting ? 'Deleting...' : 'Delete'}
               </button>
             </div>
           </div>
@@ -183,15 +167,15 @@ function TodoDetailPage() {
                     <button
                       type="button"
                       onClick={handleSaveEdit}
-                      disabled={updateMutation.isPending || !editContent.trim()}
+                      disabled={isUpdating || !editContent.trim()}
                       className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white font-medium rounded-lg transition-colors disabled:opacity-50"
                     >
-                      {updateMutation.isPending ? 'Saving...' : 'Save'}
+                      {isUpdating ? 'Saving...' : 'Save'}
                     </button>
                     <button
                       type="button"
                       onClick={handleCancelEdit}
-                      disabled={updateMutation.isPending}
+                      disabled={isUpdating}
                       className="px-4 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 font-medium rounded-lg transition-colors"
                     >
                       Cancel
@@ -208,7 +192,7 @@ function TodoDetailPage() {
               <button
                 type="button"
                 onClick={handleToggleCompleted}
-                disabled={updateMutation.isPending}
+                disabled={isUpdating}
                 className={`inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium cursor-pointer transition-colors hover:opacity-80 disabled:opacity-50 ${
                   todo.completed === 1
                     ? 'bg-green-100 text-green-700'

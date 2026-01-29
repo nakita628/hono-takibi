@@ -17,11 +17,7 @@ import {
 
 configureCustomErrors()
 
-const app = new OpenAPIHono<{
-  Bindings: {
-    DB: D1Database
-  }
-}>({
+const app = new OpenAPIHono({
   defaultHook: (result, c) => {
     if (!result.success) {
       return c.json(formatZodErrors(result), 422)

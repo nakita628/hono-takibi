@@ -1,6 +1,5 @@
 import type { RouteHandler } from '@hono/zod-openapi'
-import { createDb } from '@/api/db'
-import { DatabaseError, DataNotFoundError } from '@/api/domain/error'
+import { DatabaseError, DataNotFoundError } from '@/api/domain'
 import {
   deleteTodoIdRoute,
   getTodoIdRoute,
@@ -10,91 +9,47 @@ import {
 } from '@/api/routes'
 import * as TodoService from '@/api/services/todo'
 
-export const getTodoRouteHandler: RouteHandler<
-  typeof getTodoRoute,
-  { Bindings: { DB: D1Database } }
-> = async (c) => {
+export const getTodoRouteHandler: RouteHandler<typeof getTodoRoute> = async (c) => {
   const { limit, offset } = c.req.valid('query')
-  const db = createDb(c.env.DB)
-  return TodoService.readAll(db, limit, offset).match(
-    (value) => c.json(value, 200),
-    (e) => {
-      if (e instanceof DatabaseError) {
-        return c.json({ message: e.message }, 503)
-      }
-      return c.json({ message: 'Internal server error' }, 500)
-    },
+  return TodoService.readAll(limit, offset).match(
+    (todos) => c.json(todos, 200),
+    (e) => c.json({ message: e.message }, e instanceof DatabaseError ? 503 : 500),
   )
 }
 
-export const postTodoRouteHandler: RouteHandler<
-  typeof postTodoRoute,
-  { Bindings: { DB: D1Database } }
-> = async (c) => {
+export const postTodoRouteHandler: RouteHandler<typeof postTodoRoute> = async (c) => {
   const { content } = c.req.valid('json')
-  const db = createDb(c.env.DB)
-  return TodoService.create(db, content).match(
+  return TodoService.create(content).match(
     () => c.json({ message: 'Created' }, 201),
-    (e) => {
-      if (e instanceof DatabaseError) {
-        return c.json({ message: e.message }, 503)
-      }
-      return c.json({ message: 'Internal server error' }, 500)
-    },
+    (e) => c.json({ message: e.message }, e instanceof DatabaseError ? 503 : 500),
   )
 }
 
-export const getTodoIdRouteHandler: RouteHandler<
-  typeof getTodoIdRoute,
-  { Bindings: { DB: D1Database } }
-> = async (c) => {
+export const getTodoIdRouteHandler: RouteHandler<typeof getTodoIdRoute> = async (c) => {
   const { id } = c.req.valid('param')
-  const db = createDb(c.env.DB)
-  return TodoService.readById(db, id).match(
-    (value) => c.json(value, 200),
+  return TodoService.readById(id).match(
+    (todo) => c.json(todo, 200),
     (e) => {
-      if (e instanceof DataNotFoundError) {
-        return c.json({ message: e.message }, 404)
-      }
-      if (e instanceof DatabaseError) {
-        return c.json({ message: e.message }, 503)
-      }
+      if (e instanceof DataNotFoundError) return c.json({ message: e.message }, 404)
+      if (e instanceof DatabaseError) return c.json({ message: e.message }, 503)
       return c.json({ message: 'Internal server error' }, 500)
     },
   )
 }
 
-export const putTodoIdRouteHandler: RouteHandler<
-  typeof putTodoIdRoute,
-  { Bindings: { DB: D1Database } }
-> = async (c) => {
+export const putTodoIdRouteHandler: RouteHandler<typeof putTodoIdRoute> = async (c) => {
   const { id } = c.req.valid('param')
   const body = c.req.valid('json')
-  const db = createDb(c.env.DB)
-  return TodoService.update(db, id, body).match(
+  return TodoService.update(id, body).match(
     () => c.body(null, 204),
-    (e) => {
-      if (e instanceof DatabaseError) {
-        return c.json({ message: e.message }, 503)
-      }
-      return c.json({ message: 'Internal server error' }, 500)
-    },
+    (e) => c.json({ message: e.message }, e instanceof DatabaseError ? 503 : 500),
   )
 }
 
-export const deleteTodoIdRouteHandler: RouteHandler<
-  typeof deleteTodoIdRoute,
-  { Bindings: { DB: D1Database } }
-> = async (c) => {
+export const deleteTodoIdRouteHandler: RouteHandler<typeof deleteTodoIdRoute> = async (c) => {
   const { id } = c.req.valid('param')
-  const db = createDb(c.env.DB)
-  return TodoService.remove(db, id).match(
+  return TodoService.remove(id).match(
     () => c.body(null, 204),
-    (e) => {
-      if (e instanceof DatabaseError) {
-        return c.json({ message: e.message }, 503)
-      }
-      return c.json({ message: 'Internal server error' }, 500)
-    },
+    (e) => c.json({ message: e.message }, e instanceof DatabaseError ? 503 : 500),
   )
 }
