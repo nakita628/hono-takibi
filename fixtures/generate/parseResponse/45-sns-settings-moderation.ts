@@ -1,0 +1,332 @@
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
+import { client } from '../clients/45-sns-settings-moderation'
+
+/**
+ * GET /settings/account
+ *
+ * アカウント設定取得
+ */
+export async function getSettingsAccount(options?: ClientRequestOptions) {
+  return await parseResponse(client.settings.account.$get(undefined, options))
+}
+
+/**
+ * PUT /settings/account
+ *
+ * アカウント設定更新
+ */
+export async function putSettingsAccount(
+  args: InferRequestType<typeof client.settings.account.$put>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.settings.account.$put(args, options))
+}
+
+/**
+ * GET /settings/username/check
+ *
+ * ユーザー名利用可能確認
+ */
+export async function getSettingsUsernameCheck(
+  args: InferRequestType<typeof client.settings.username.check.$get>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.settings.username.check.$get(args, options))
+}
+
+/**
+ * GET /settings/privacy
+ *
+ * プライバシー設定取得
+ */
+export async function getSettingsPrivacy(options?: ClientRequestOptions) {
+  return await parseResponse(client.settings.privacy.$get(undefined, options))
+}
+
+/**
+ * PUT /settings/privacy
+ *
+ * プライバシー設定更新
+ */
+export async function putSettingsPrivacy(
+  args: InferRequestType<typeof client.settings.privacy.$put>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.settings.privacy.$put(args, options))
+}
+
+/**
+ * GET /settings/content-preferences
+ *
+ * コンテンツ設定取得
+ */
+export async function getSettingsContentPreferences(options?: ClientRequestOptions) {
+  return await parseResponse(client.settings['content-preferences'].$get(undefined, options))
+}
+
+/**
+ * PUT /settings/content-preferences
+ *
+ * コンテンツ設定更新
+ */
+export async function putSettingsContentPreferences(
+  args: InferRequestType<(typeof client.settings)['content-preferences']['$put']>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.settings['content-preferences'].$put(args, options))
+}
+
+/**
+ * GET /settings/muted-words
+ *
+ * ミュートワード一覧取得
+ */
+export async function getSettingsMutedWords(options?: ClientRequestOptions) {
+  return await parseResponse(client.settings['muted-words'].$get(undefined, options))
+}
+
+/**
+ * POST /settings/muted-words
+ *
+ * ミュートワード追加
+ */
+export async function postSettingsMutedWords(
+  args: InferRequestType<(typeof client.settings)['muted-words']['$post']>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.settings['muted-words'].$post(args, options))
+}
+
+/**
+ * DELETE /settings/muted-words/{wordId}
+ *
+ * ミュートワード削除
+ */
+export async function deleteSettingsMutedWordsWordId(
+  args: InferRequestType<(typeof client.settings)['muted-words'][':wordId']['$delete']>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.settings['muted-words'][':wordId'].$delete(args, options))
+}
+
+/**
+ * GET /settings/sessions
+ *
+ * ログインセッション一覧
+ */
+export async function getSettingsSessions(options?: ClientRequestOptions) {
+  return await parseResponse(client.settings.sessions.$get(undefined, options))
+}
+
+/**
+ * DELETE /settings/sessions/{sessionId}
+ *
+ * セッション無効化
+ */
+export async function deleteSettingsSessionsSessionId(
+  args: InferRequestType<(typeof client.settings.sessions)[':sessionId']['$delete']>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.settings.sessions[':sessionId'].$delete(args, options))
+}
+
+/**
+ * GET /settings/connected-apps
+ *
+ * 連携アプリ一覧
+ */
+export async function getSettingsConnectedApps(options?: ClientRequestOptions) {
+  return await parseResponse(client.settings['connected-apps'].$get(undefined, options))
+}
+
+/**
+ * DELETE /settings/connected-apps/{appId}
+ *
+ * 連携アプリ解除
+ */
+export async function deleteSettingsConnectedAppsAppId(
+  args: InferRequestType<(typeof client.settings)['connected-apps'][':appId']['$delete']>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.settings['connected-apps'][':appId'].$delete(args, options))
+}
+
+/**
+ * POST /settings/data-export
+ *
+ * データエクスポートリクエスト
+ */
+export async function postSettingsDataExport(options?: ClientRequestOptions) {
+  return await parseResponse(client.settings['data-export'].$post(undefined, options))
+}
+
+/**
+ * GET /settings/data-export/{requestId}
+ *
+ * データエクスポート状況確認
+ */
+export async function getSettingsDataExportRequestId(
+  args: InferRequestType<(typeof client.settings)['data-export'][':requestId']['$get']>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.settings['data-export'][':requestId'].$get(args, options))
+}
+
+/**
+ * POST /settings/deactivate
+ *
+ * アカウント一時停止
+ */
+export async function postSettingsDeactivate(
+  args: InferRequestType<typeof client.settings.deactivate.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.settings.deactivate.$post(args, options))
+}
+
+/**
+ * POST /reports
+ *
+ * 通報作成
+ */
+export async function postReports(
+  args: InferRequestType<typeof client.reports.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.reports.$post(args, options))
+}
+
+/**
+ * GET /reports/{reportId}
+ *
+ * 通報詳細取得
+ */
+export async function getReportsReportId(
+  args: InferRequestType<(typeof client.reports)[':reportId']['$get']>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.reports[':reportId'].$get(args, options))
+}
+
+/**
+ * GET /moderation/queue
+ *
+ * モデレーションキュー取得
+ *
+ * モデレーター用
+ */
+export async function getModerationQueue(
+  args: InferRequestType<typeof client.moderation.queue.$get>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.moderation.queue.$get(args, options))
+}
+
+/**
+ * GET /moderation/items/{itemId}
+ *
+ * モデレーションアイテム詳細
+ */
+export async function getModerationItemsItemId(
+  args: InferRequestType<(typeof client.moderation.items)[':itemId']['$get']>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.moderation.items[':itemId'].$get(args, options))
+}
+
+/**
+ * POST /moderation/items/{itemId}/action
+ *
+ * モデレーションアクション実行
+ */
+export async function postModerationItemsItemIdAction(
+  args: InferRequestType<(typeof client.moderation.items)[':itemId']['action']['$post']>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.moderation.items[':itemId'].action.$post(args, options))
+}
+
+/**
+ * GET /moderation/users/{userId}/history
+ *
+ * ユーザーのモデレーション履歴
+ */
+export async function getModerationUsersUserIdHistory(
+  args: InferRequestType<(typeof client.moderation.users)[':userId']['history']['$get']>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.moderation.users[':userId'].history.$get(args, options))
+}
+
+/**
+ * POST /moderation/users/{userId}/suspend
+ *
+ * ユーザー凍結
+ */
+export async function postModerationUsersUserIdSuspend(
+  args: InferRequestType<(typeof client.moderation.users)[':userId']['suspend']['$post']>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.moderation.users[':userId'].suspend.$post(args, options))
+}
+
+/**
+ * POST /moderation/users/{userId}/unsuspend
+ *
+ * ユーザー凍結解除
+ */
+export async function postModerationUsersUserIdUnsuspend(
+  args: InferRequestType<(typeof client.moderation.users)[':userId']['unsuspend']['$post']>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.moderation.users[':userId'].unsuspend.$post(args, options))
+}
+
+/**
+ * GET /analytics/posts/{postId}
+ *
+ * 投稿分析取得
+ */
+export async function getAnalyticsPostsPostId(
+  args: InferRequestType<(typeof client.analytics.posts)[':postId']['$get']>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.analytics.posts[':postId'].$get(args, options))
+}
+
+/**
+ * GET /analytics/account
+ *
+ * アカウント分析取得
+ */
+export async function getAnalyticsAccount(
+  args: InferRequestType<typeof client.analytics.account.$get>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.analytics.account.$get(args, options))
+}
+
+/**
+ * GET /analytics/followers
+ *
+ * フォロワー分析取得
+ */
+export async function getAnalyticsFollowers(
+  args: InferRequestType<typeof client.analytics.followers.$get>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.analytics.followers.$get(args, options))
+}
+
+/**
+ * GET /analytics/top-posts
+ *
+ * トップ投稿取得
+ */
+export async function getAnalyticsTopPosts(
+  args: InferRequestType<(typeof client.analytics)['top-posts']['$get']>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.analytics['top-posts'].$get(args, options))
+}

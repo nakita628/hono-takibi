@@ -132,6 +132,7 @@ const runGenerator = async (task: GenerationTask): Promise<Result<string>> => {
     }
     case 'parseResponse': {
       const output = join(__dirname, '../parseResponse', `${baseName}.ts`)
+      // rpc with parseResponse: true
       const result = await rpc(openAPI, output, `../clients/${baseName}`, false, 'client', true)
       return result.ok
         ? { ok: true, value: label }
