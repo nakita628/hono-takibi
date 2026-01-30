@@ -52,6 +52,7 @@ const makeOperationCode = (
   method: HttpMethod,
   item: PathItemLike,
   deps: OperationDeps,
+  useParseResponse?: boolean,
 ): GeneratedOperation => {
   const op = item[method]
   if (!isOperationLike(op)) return null
@@ -65,9 +66,10 @@ const makeOperationCode = (
   const argSig = hasArgs
     ? `args:${inferType},options?:ClientRequestOptions`
     : 'options?:ClientRequestOptions'
-  const call = hasArgs
+  const clientCall = hasArgs
     ? `${deps.client}${pathResult.runtimePath}.$${method}(args,options)`
     : `${deps.client}${pathResult.runtimePath}.$${method}(undefined,options)`
+  const call = useParseResponse ? `parseResponse(${clientCall})` : clientCall
 
   const summary = typeof op.summary === 'string' ? op.summary : ''
   const description = typeof op.description === 'string' ? op.description : ''
@@ -81,13 +83,17 @@ const makeOperationCode = (
 /**
  * Builds operation codes from OpenAPI paths.
  */
-const makeOperationCodes = (paths: OpenAPIPaths, deps: OperationDeps): OperationCode[] =>
+const makeOperationCodes = (
+  paths: OpenAPIPaths,
+  deps: OperationDeps,
+  useParseResponse?: boolean,
+): OperationCode[] =>
   Object.entries(paths)
     .filter((entry): entry is [string, Record<string, unknown>] => isRecord(entry[1]))
     .flatMap(([p, rawItem]) => {
       const pathItem = parsePathItem(rawItem)
       return HTTP_METHODS.map((method) => {
-        const result = makeOperationCode(p, method, pathItem, deps)
+        const result = makeOperationCode(p, method, pathItem, deps, useParseResponse)
         return result
           ? { funcName: methodPath(method, p), code: result.code, hasArgs: result.hasArgs }
           : null
@@ -100,11 +106,13 @@ const makeHeader = (
   importPath: string,
   needsInferRequestType: boolean,
   clientName: string,
+  useParseResponse?: boolean,
 ): string => {
   const typeImports = needsInferRequestType
     ? 'InferRequestType,ClientRequestOptions'
     : 'ClientRequestOptions'
-  return `import type{${typeImports}}from'hono/client'\nimport{${clientName}}from'${importPath}'\n\n`
+  const parseResponseImport = useParseResponse ? `import{parseResponse}from'hono/client'\n` : ''
+  return `import type{${typeImports}}from'hono/client'\n${parseResponseImport}import{${clientName}}from'${importPath}'\n\n`
 }
 
 /* ─────────────────────────────── Entry ─────────────────────────────── */
@@ -150,6 +158,7 @@ export async function rpc(
   importPath: string,
   split?: boolean,
   clientName = 'client',
+  useParseResponse?: boolean,
 ): Promise<
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {
@@ -162,13 +171,13 @@ export async function rpc(
   const componentsRequestBodies = openAPI.components?.requestBodies ?? {}
   const deps = createOperationDeps(clientName, componentsParameters, componentsRequestBodies)
 
-  const operationCodes = makeOperationCodes(pathsMaybe, deps)
+  const operationCodes = makeOperationCodes(pathsMaybe, deps, useParseResponse)
 
   // Non-split: write single file
   if (!split) {
     const body = operationCodes.map(({ code }) => code).join('\n\n')
     const needsInferRequestType = operationCodes.some(({ hasArgs }) => hasArgs)
-    const header = makeHeader(importPath, needsInferRequestType, clientName)
+    const header = makeHeader(importPath, needsInferRequestType, clientName, useParseResponse)
     const code = `${header}${body}${operationCodes.length ? '\n' : ''}`
     const coreResult = await core(code, path.dirname(output), output)
     if (!coreResult.ok) return { ok: false, error: coreResult.error }
@@ -185,7 +194,7 @@ export async function rpc(
 
   const allResults = await Promise.all([
     ...operationCodes.map(({ funcName, code, hasArgs }) => {
-      const header = makeHeader(importPath, hasArgs, clientName)
+      const header = makeHeader(importPath, hasArgs, clientName, useParseResponse)
       const fileSrc = `${header}${code}\n`
       const filePath = path.join(outDir, `${funcName}.ts`)
       return core(fileSrc, path.dirname(filePath), filePath)

@@ -1200,3 +1200,106 @@ export * from './getAllOptional'
     }
   })
 })
+
+describe('rpc (parseResponse: true)', () => {
+  it('should generate code with parseResponse wrapper', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-rpc-parseResponse-'))
+    try {
+      const out = path.join(dir, 'index.ts')
+      const simpleOpenAPI: OpenAPI = {
+        openapi: '3.0.3',
+        info: { title: 'Test', version: '1.0.0' },
+        paths: {
+          '/health': {
+            get: {
+              summary: 'Health check',
+              responses: { '200': { description: 'OK' } },
+            },
+          },
+        },
+      }
+
+      const result = await rpc(simpleOpenAPI, out, '../client', false, 'client', true)
+
+      if (!result.ok) {
+        throw new Error(result.error)
+      }
+
+      const code = fs.readFileSync(out, 'utf-8')
+      expect(code).toContain("import { parseResponse } from 'hono/client'")
+      expect(code).toContain('return await parseResponse(client.health.$get(undefined, options))')
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+
+  it('should generate code with parseResponse for operations with args', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-rpc-parseResponse-args-'))
+    try {
+      const out = path.join(dir, 'index.ts')
+      const openAPIWithArgs: OpenAPI = {
+        openapi: '3.0.3',
+        info: { title: 'Test', version: '1.0.0' },
+        paths: {
+          '/users/{id}': {
+            get: {
+              summary: 'Get user by ID',
+              parameters: [
+                {
+                  name: 'id',
+                  in: 'path',
+                  required: true,
+                  schema: { type: 'string' },
+                },
+              ],
+              responses: { '200': { description: 'OK' } },
+            },
+          },
+        },
+      }
+
+      const result = await rpc(openAPIWithArgs, out, '../client', false, 'client', true)
+
+      if (!result.ok) {
+        throw new Error(result.error)
+      }
+
+      const code = fs.readFileSync(out, 'utf-8')
+      expect(code).toContain("import { parseResponse } from 'hono/client'")
+      expect(code).toContain("return await parseResponse(client.users[':id'].$get(args, options))")
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+
+  it('should generate split files with parseResponse', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-rpc-parseResponse-split-'))
+    try {
+      const out = path.join(dir, 'rpc')
+      const simpleOpenAPI: OpenAPI = {
+        openapi: '3.0.3',
+        info: { title: 'Test', version: '1.0.0' },
+        paths: {
+          '/health': {
+            get: {
+              summary: 'Health check',
+              responses: { '200': { description: 'OK' } },
+            },
+          },
+        },
+      }
+
+      const result = await rpc(simpleOpenAPI, out, '../client', true, 'client', true)
+
+      if (!result.ok) {
+        throw new Error(result.error)
+      }
+
+      const code = fs.readFileSync(path.join(dir, 'rpc', 'getHealth.ts'), 'utf-8')
+      expect(code).toContain("import { parseResponse } from 'hono/client'")
+      expect(code).toContain('return await parseResponse(client.health.$get(undefined, options))')
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+})

@@ -93,6 +93,7 @@ type Config = {
     readonly import: string
     readonly split?: boolean
     readonly client?: string
+    readonly parseResponse?: boolean
   }
   readonly swr?: {
     readonly output: string | `${string}.ts`
@@ -401,6 +402,12 @@ export function parseConfig(
     }
     if (config.rpc.client !== undefined && typeof config.rpc.client !== 'string') {
       return { ok: false, error: `Invalid client format for rpc: ${String(config.rpc.client)}` }
+    }
+    if (config.rpc.parseResponse !== undefined && typeof config.rpc.parseResponse !== 'boolean') {
+      return {
+        ok: false,
+        error: `Invalid parseResponse format for rpc: ${String(config.rpc.parseResponse)}`,
+      }
     }
     // split: true requires directory (no .ts)
     if (config.rpc.split === true && isTs(config.rpc.output)) {

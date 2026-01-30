@@ -1,6 +1,6 @@
-import type { CreateQueryOptions, QueryFunctionContext } from '@tanstack/svelte-query'
 import { createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import type { CreateQueryOptions, QueryFunctionContext } from '@tanstack/svelte-query'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/geojson-example'
 

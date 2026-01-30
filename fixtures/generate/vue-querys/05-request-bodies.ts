@@ -1,6 +1,6 @@
-import type { UseMutationOptions } from '@tanstack/vue-query'
 import { useMutation } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import type { UseMutationOptions } from '@tanstack/vue-query'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/05-request-bodies'
 
