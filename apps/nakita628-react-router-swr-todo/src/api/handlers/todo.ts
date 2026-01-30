@@ -10,7 +10,9 @@ import {
 import * as TodoService from '@/api/services/todo'
 
 export const getTodoRouteHandler: RouteHandler<typeof getTodoRoute> = async (c) => {
-  const { limit, offset } = c.req.valid('query')
+  const { page = 1, rows = 10 } = c.req.valid('query')
+  const limit = rows
+  const offset = (page - 1) * rows
   return TodoService.readAll(limit, offset).match(
     (todos) => c.json(todos, 200),
     (e) => c.json({ message: e.message }, e instanceof DatabaseError ? 503 : 500),
@@ -41,7 +43,7 @@ export const putTodoIdRouteHandler: RouteHandler<typeof putTodoIdRoute> = async 
   const { id } = c.req.valid('param')
   const body = c.req.valid('json')
   return TodoService.update(id, body).match(
-    () => c.body(null, 204),
+    () => new Response(null, { status: 204 }),
     (e) => c.json({ message: e.message }, e instanceof DatabaseError ? 503 : 500),
   )
 }
@@ -49,7 +51,7 @@ export const putTodoIdRouteHandler: RouteHandler<typeof putTodoIdRoute> = async 
 export const deleteTodoIdRouteHandler: RouteHandler<typeof deleteTodoIdRoute> = async (c) => {
   const { id } = c.req.valid('param')
   return TodoService.remove(id).match(
-    () => c.body(null, 204),
+    () => new Response(null, { status: 204 }),
     (e) => c.json({ message: e.message }, e instanceof DatabaseError ? 503 : 500),
   )
 }

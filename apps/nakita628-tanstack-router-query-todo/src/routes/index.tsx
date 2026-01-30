@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute, Link, useSearch } from '@tanstack/react-router'
-import { memo, useCallback, useState } from 'react'
+import { memo } from 'react'
 import type { Todo } from '@/api/routes'
 import {
   getGetTodoQueryKey,
@@ -9,14 +9,17 @@ import {
   getPutTodoIdMutationOptions,
   getDeleteTodoIdMutationOptions,
 } from '@/hooks/query'
+import { formatDate } from '@/utils'
+
+const rows = 10
 
 export const Route = createFileRoute('/')({
   validateSearch: (search: Record<string, unknown>) => ({
-    page: Number(search.page) || 0,
+    page: Number(search.page) || 1,
   }),
   loaderDeps: ({ search: { page } }) => ({ page }),
   loader: ({ context: { queryClient }, deps: { page } }) =>
-    queryClient.ensureQueryData(getGetTodoQueryOptions({ query: { offset: page * 10 } })),
+    queryClient.ensureQueryData(getGetTodoQueryOptions({ query: { page, rows } })),
   component: HomePage,
   pendingComponent: () => (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-100 flex items-center justify-center">
@@ -32,7 +35,7 @@ export const Route = createFileRoute('/')({
         <button
           type="button"
           onClick={() => window.location.reload()}
-          className="inline-block bg-orange-500 hover:bg-orange-600 text-white font-semibold px-6 py-3 rounded-lg transition-colors"
+          className="bg-orange-500 hover:bg-orange-600 text-white font-semibold px-6 py-3 rounded-lg transition-colors"
         >
           Try Again
         </button>
@@ -50,34 +53,29 @@ const TodoItem = memo(function TodoItem({
   onToggle: (id: string, completed: number) => void
   onDelete: (id: string) => void
 }) {
-  const handleToggle = useCallback(() => {
-    onToggle(todo.id, todo.completed)
-  }, [todo.id, todo.completed, onToggle])
-
-  const handleDelete = useCallback(() => {
-    onDelete(todo.id)
-  }, [todo.id, onDelete])
-
   return (
     <li className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl hover:bg-orange-50 transition-colors group">
       <input
         type="checkbox"
         checked={todo.completed === 1}
-        onChange={handleToggle}
+        onChange={() => onToggle(todo.id, todo.completed)}
         className="w-5 h-5 text-orange-500 rounded focus:ring-orange-500 cursor-pointer accent-orange-500"
       />
-      <Link
-        to="/$id"
-        params={{ id: todo.id }}
-        className={`flex-1 ${
-          todo.completed === 1 ? 'line-through text-gray-400' : 'text-gray-800'
-        } hover:text-orange-600 transition-colors`}
-      >
-        {todo.content}
-      </Link>
+      <div className="flex-1 min-w-0">
+        <Link
+          to="/$id"
+          params={{ id: todo.id }}
+          className={`block truncate ${
+            todo.completed === 1 ? 'line-through text-gray-400' : 'text-gray-800'
+          } hover:text-orange-600 transition-colors`}
+        >
+          {todo.content}
+        </Link>
+        <span className="text-xs text-gray-400">{formatDate(todo.createdAt)}</span>
+      </div>
       <button
         type="button"
-        onClick={handleDelete}
+        onClick={() => onDelete(todo.id)}
         className="text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity px-2 py-1"
       >
         Delete
@@ -87,82 +85,53 @@ const TodoItem = memo(function TodoItem({
 })
 
 function HomePage() {
-  const [newContent, setNewContent] = useState('')
   const { page } = useSearch({ from: '/' })
   const navigate = Route.useNavigate()
   const queryClient = useQueryClient()
 
-  const offset = page * 10
   const { data: todos } = useSuspenseQuery(
-    getGetTodoQueryOptions({ query: { offset } }),
+    getGetTodoQueryOptions({ query: { page, rows } }),
   )
-  const hasMore = todos.length === 10
+  const hasMore = todos.length === rows
 
-  const invalidateTodos = useCallback(() => {
-    queryClient.invalidateQueries({
-      queryKey: getGetTodoQueryKey({ query: { offset } }),
-    })
-  }, [queryClient, offset])
+  const revalidate = () =>
+    queryClient.invalidateQueries({ queryKey: getGetTodoQueryKey({ query: { page, rows } }) })
 
   const createMutation = useMutation({
     ...getPostTodoMutationOptions(),
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: getGetTodoQueryKey({ query: { offset: 0 } }),
-      })
-      navigate({ to: '/', search: { page: 0 } })
+      queryClient.invalidateQueries({ queryKey: getGetTodoQueryKey({ query: { page: 1, rows } }) })
+      navigate({ to: '/', search: { page: 1 } })
     },
   })
 
   const updateMutation = useMutation({
     ...getPutTodoIdMutationOptions(),
-    onSuccess: invalidateTodos,
+    onSuccess: revalidate,
   })
 
   const deleteMutation = useMutation({
     ...getDeleteTodoIdMutationOptions(),
-    onSuccess: invalidateTodos,
+    onSuccess: revalidate,
   })
 
-  const handleAddTodo = useCallback(async () => {
-    const trimmed = newContent.trim()
+  const handleAddTodo = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    const form = e.currentTarget
+    const input = form.elements.namedItem('content') as HTMLInputElement
+    const trimmed = input.value.trim()
     if (!trimmed) return
     await createMutation.mutateAsync({ json: { content: trimmed } })
-    setNewContent('')
-  }, [newContent, createMutation])
+    input.value = ''
+  }
 
-  const handleToggleTodo = useCallback(
-    async (id: string, completed: number) => {
-      await updateMutation.mutateAsync({
-        param: { id },
-        json: { completed: completed === 0 ? 1 : 0 },
-      })
-    },
-    [updateMutation],
-  )
+  const handleToggle = async (id: string, completed: number) => {
+    await updateMutation.mutateAsync({ param: { id }, json: { completed: completed === 0 ? 1 : 0 } })
+  }
 
-  const handleRemoveTodo = useCallback(
-    async (id: string) => {
-      await deleteMutation.mutateAsync({ param: { id } })
-    },
-    [deleteMutation],
-  )
-
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.key !== 'Enter') return
-      handleAddTodo()
-    },
-    [handleAddTodo],
-  )
-
-  const handlePrevPage = useCallback(() => {
-    navigate({ to: '/', search: { page: Math.max(0, page - 1) } })
-  }, [navigate, page])
-
-  const handleNextPage = useCallback(() => {
-    navigate({ to: '/', search: { page: page + 1 } })
-  }, [navigate, page])
+  const handleDelete = async (id: string) => {
+    await deleteMutation.mutateAsync({ param: { id } })
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-100 py-8 px-4">
@@ -173,27 +142,23 @@ function HomePage() {
         </div>
 
         <div className="bg-white rounded-2xl shadow-xl p-6">
-          <div className="flex gap-2 mb-6">
+          <form onSubmit={handleAddTodo} className="flex gap-2 mb-6">
             <input
               type="text"
-              value={newContent}
-              onChange={(e) => setNewContent(e.target.value)}
-              onKeyDown={handleKeyDown}
+              name="content"
               placeholder="Add a new task..."
               className="flex-1 border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-shadow"
               maxLength={140}
             />
             <button
-              type="button"
-              onClick={handleAddTodo}
-              disabled={!newContent.trim()}
-              className="bg-orange-500 hover:bg-orange-600 text-white font-semibold px-6 py-3 rounded-lg transition-colors disabled:opacity-50"
+              type="submit"
+              className="bg-orange-500 hover:bg-orange-600 text-white font-semibold px-6 py-3 rounded-lg transition-colors"
             >
               Add
             </button>
-          </div>
+          </form>
 
-          {todos.length === 0 && page === 0 ? (
+          {todos.length === 0 && page === 1 ? (
             <div className="text-center py-12">
               <p className="text-gray-400 text-lg">No todos yet</p>
               <p className="text-gray-400 text-sm mt-1">Add your first task above</p>
@@ -205,8 +170,8 @@ function HomePage() {
                   <TodoItem
                     key={todo.id}
                     todo={todo}
-                    onToggle={handleToggleTodo}
-                    onDelete={handleRemoveTodo}
+                    onToggle={handleToggle}
+                    onDelete={handleDelete}
                   />
                 ))}
               </ul>
@@ -214,16 +179,16 @@ function HomePage() {
               <div className="mt-6 pt-4 border-t border-gray-100 flex items-center justify-between">
                 <button
                   type="button"
-                  onClick={handlePrevPage}
-                  disabled={page === 0}
+                  onClick={() => navigate({ to: '/', search: { page: Math.max(1, page - 1) } })}
+                  disabled={page === 1}
                   className="px-4 py-2 text-sm font-medium text-orange-600 hover:bg-orange-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Previous
                 </button>
-                <span className="text-gray-500 text-sm">Page {page + 1}</span>
+                <span className="text-gray-500 text-sm">Page {page}</span>
                 <button
                   type="button"
-                  onClick={handleNextPage}
+                  onClick={() => navigate({ to: '/', search: { page: page + 1 } })}
                   disabled={!hasMore}
                   className="px-4 py-2 text-sm font-medium text-orange-600 hover:bg-orange-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >

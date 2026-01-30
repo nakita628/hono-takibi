@@ -17,7 +17,7 @@ export function getGetTodoKey(args: InferRequestType<typeof client.todo.$get>) {
 /**
  * GET /todo
  *
- * Retrieve a list of posts
+ * Retrieve a list of todos
  */
 export function useGetTodo(
   args: InferRequestType<typeof client.todo.$get>,
@@ -51,7 +51,7 @@ export function getPostTodoMutationKey() {
 /**
  * POST /todo
  *
- * Create a new post
+ * Create a new todo
  */
 export function usePostTodo(options?: {
   mutation?: SWRMutationConfiguration<

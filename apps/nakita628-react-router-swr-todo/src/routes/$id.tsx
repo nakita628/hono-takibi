@@ -1,18 +1,8 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router'
 import { useSWRConfig } from 'swr'
 import { getGetTodoKey, useDeleteTodoId, useGetTodoId, usePutTodoId } from '@/hooks/swr'
-
-function formatDate(dateString: string): string {
-  const date = new Date(dateString)
-  return date.toLocaleString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
-}
+import { formatDate } from '@/utils'
 
 export function TodoDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -24,9 +14,7 @@ export function TodoDetailPage() {
   const editInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
-    if (isEditing) {
-      editInputRef.current?.focus()
-    }
+    if (isEditing) editInputRef.current?.focus()
   }, [isEditing])
 
   const {
@@ -38,46 +26,43 @@ export function TodoDetailPage() {
   const { trigger: updateTodo, isMutating: isUpdating } = usePutTodoId()
   const { trigger: deleteTodo, isMutating: isDeleting } = useDeleteTodoId()
 
-  const revalidate = useCallback(() => {
+  const revalidate = () => {
     if (swrKey) mutate(swrKey)
     mutate(getGetTodoKey({ query: {} }))
-  }, [mutate, swrKey])
+  }
 
-  const handleStartEdit = useCallback(() => {
+  const handleStartEdit = () => {
     if (!todo) return
     setEditContent(todo.content)
     setIsEditing(true)
-  }, [todo])
+  }
 
-  const handleCancelEdit = useCallback(() => {
+  const handleCancelEdit = () => {
     setIsEditing(false)
     setEditContent('')
-  }, [])
+  }
 
-  const handleSaveEdit = useCallback(async () => {
+  const handleSaveEdit = async () => {
     if (!id) return
     const trimmed = editContent.trim()
     if (!trimmed) return
     await updateTodo({ param: { id }, json: { content: trimmed } })
     setIsEditing(false)
     revalidate()
-  }, [id, editContent, updateTodo, revalidate])
+  }
 
-  const handleToggleCompleted = useCallback(async () => {
+  const handleToggleCompleted = async () => {
     if (!(id && todo)) return
-    await updateTodo({
-      param: { id },
-      json: { completed: todo.completed === 0 ? 1 : 0 },
-    })
+    await updateTodo({ param: { id }, json: { completed: todo.completed === 0 ? 1 : 0 } })
     revalidate()
-  }, [id, todo, updateTodo, revalidate])
+  }
 
-  const handleDelete = useCallback(async () => {
+  const handleDelete = async () => {
     if (!id) return
     await deleteTodo({ param: { id } })
     mutate(getGetTodoKey({ query: {} }))
     navigate('/')
-  }, [id, deleteTodo, mutate, navigate])
+  }
 
   if (isLoading) {
     return (
@@ -92,10 +77,7 @@ export function TodoDetailPage() {
       <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-100 py-8 px-4">
         <div className="max-w-2xl mx-auto">
           <div className="mb-6">
-            <Link
-              to="/"
-              className="inline-flex items-center text-orange-600 hover:text-orange-700 font-medium"
-            >
+            <Link to="/" className="inline-flex items-center text-orange-600 hover:text-orange-700 font-medium">
               <span className="mr-1">←</span> Back
             </Link>
           </div>
@@ -111,10 +93,7 @@ export function TodoDetailPage() {
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-100 py-8 px-4">
       <div className="max-w-2xl mx-auto">
         <div className="mb-6">
-          <Link
-            to="/"
-            className="inline-flex items-center text-orange-600 hover:text-orange-700 font-medium"
-          >
+          <Link to="/" className="inline-flex items-center text-orange-600 hover:text-orange-700 font-medium">
             <span className="mr-1">←</span> Back
           </Link>
         </div>
@@ -146,9 +125,7 @@ export function TodoDetailPage() {
           <div className="space-y-6">
             <div>
               <span className="block text-sm font-medium text-gray-500 mb-2">ID</span>
-              <p className="text-gray-700 font-mono text-sm bg-gray-50 p-3 rounded-lg break-all">
-                {todo.id}
-              </p>
+              <p className="text-gray-700 font-mono text-sm bg-gray-50 p-3 rounded-lg break-all">{todo.id}</p>
             </div>
 
             <div>
@@ -194,16 +171,10 @@ export function TodoDetailPage() {
                 onClick={handleToggleCompleted}
                 disabled={isUpdating}
                 className={`inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium cursor-pointer transition-colors hover:opacity-80 disabled:opacity-50 ${
-                  todo.completed === 1
-                    ? 'bg-green-100 text-green-700'
-                    : 'bg-orange-100 text-orange-700'
+                  todo.completed === 1 ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'
                 }`}
               >
-                <span
-                  className={`w-2 h-2 rounded-full mr-2 ${
-                    todo.completed === 1 ? 'bg-green-500' : 'bg-orange-500'
-                  }`}
-                />
+                <span className={`w-2 h-2 rounded-full mr-2 ${todo.completed === 1 ? 'bg-green-500' : 'bg-orange-500'}`} />
                 {todo.completed === 1 ? 'Completed' : 'Pending'}
                 <span className="ml-2 text-xs opacity-60">(click to toggle)</span>
               </button>

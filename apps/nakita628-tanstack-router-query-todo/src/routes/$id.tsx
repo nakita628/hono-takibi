@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   getGetTodoIdQueryKey,
   getGetTodoIdQueryOptions,
@@ -8,17 +8,7 @@ import {
   getPutTodoIdMutationOptions,
   getDeleteTodoIdMutationOptions,
 } from '@/hooks/query'
-
-function formatDate(dateString: string): string {
-  const date = new Date(dateString)
-  return date.toLocaleString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
-}
+import { formatDate } from '@/utils'
 
 export const Route = createFileRoute('/$id' as const)({
   loader: ({ context: { queryClient }, params: { id } }) =>
@@ -42,15 +32,13 @@ function TodoDetailPage() {
   const editInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
-    if (isEditing) {
-      editInputRef.current?.focus()
-    }
+    if (isEditing) editInputRef.current?.focus()
   }, [isEditing])
 
-  const invalidateQueries = useCallback(() => {
+  const invalidateQueries = () => {
     queryClient.invalidateQueries({ queryKey: getGetTodoQueryKey({ query: {} }) })
     queryClient.invalidateQueries({ queryKey: getGetTodoIdQueryKey({ param: { id } }) })
-  }, [queryClient, id])
+  }
 
   const updateMutation = useMutation({
     ...getPutTodoIdMutationOptions(),
@@ -64,39 +52,33 @@ function TodoDetailPage() {
     ...getDeleteTodoIdMutationOptions(),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: getGetTodoQueryKey({ query: {} }) })
-      navigate({ to: '/', search: { page: 0 } })
+      navigate({ to: '/', search: { page: 1 } })
     },
   })
 
-  const handleStartEdit = useCallback(() => {
+  const handleStartEdit = () => {
     setEditContent(todo.content)
     setIsEditing(true)
-  }, [todo])
+  }
 
-  const handleCancelEdit = useCallback(() => {
+  const handleCancelEdit = () => {
     setIsEditing(false)
     setEditContent('')
-  }, [])
+  }
 
-  const handleSaveEdit = useCallback(async () => {
+  const handleSaveEdit = async () => {
     const trimmed = editContent.trim()
     if (!trimmed) return
-    await updateMutation.mutateAsync({
-      param: { id },
-      json: { content: trimmed },
-    })
-  }, [id, editContent, updateMutation])
+    await updateMutation.mutateAsync({ param: { id }, json: { content: trimmed } })
+  }
 
-  const handleToggleCompleted = useCallback(async () => {
-    await updateMutation.mutateAsync({
-      param: { id },
-      json: { completed: todo.completed === 0 ? 1 : 0 },
-    })
-  }, [id, todo, updateMutation])
+  const handleToggleCompleted = async () => {
+    await updateMutation.mutateAsync({ param: { id }, json: { completed: todo.completed === 0 ? 1 : 0 } })
+  }
 
-  const handleDelete = useCallback(async () => {
+  const handleDelete = async () => {
     await deleteMutation.mutateAsync({ param: { id } })
-  }, [id, deleteMutation])
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-100 py-8 px-4">
@@ -104,7 +86,7 @@ function TodoDetailPage() {
         <div className="mb-6">
           <Link
             to="/"
-            search={{ page: 0 }}
+            search={{ page: 1 }}
             className="inline-flex items-center text-orange-600 hover:text-orange-700 font-medium"
           >
             <span className="mr-1">←</span> Back
@@ -138,9 +120,7 @@ function TodoDetailPage() {
           <div className="space-y-6">
             <div>
               <span className="block text-sm font-medium text-gray-500 mb-2">ID</span>
-              <p className="text-gray-700 font-mono text-sm bg-gray-50 p-3 rounded-lg break-all">
-                {todo.id}
-              </p>
+              <p className="text-gray-700 font-mono text-sm bg-gray-50 p-3 rounded-lg break-all">{todo.id}</p>
             </div>
 
             <div>
@@ -186,16 +166,10 @@ function TodoDetailPage() {
                 onClick={handleToggleCompleted}
                 disabled={updateMutation.isPending}
                 className={`inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium cursor-pointer transition-colors hover:opacity-80 disabled:opacity-50 ${
-                  todo.completed === 1
-                    ? 'bg-green-100 text-green-700'
-                    : 'bg-orange-100 text-orange-700'
+                  todo.completed === 1 ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'
                 }`}
               >
-                <span
-                  className={`w-2 h-2 rounded-full mr-2 ${
-                    todo.completed === 1 ? 'bg-green-500' : 'bg-orange-500'
-                  }`}
-                />
+                <span className={`w-2 h-2 rounded-full mr-2 ${todo.completed === 1 ? 'bg-green-500' : 'bg-orange-500'}`} />
                 {todo.completed === 1 ? 'Completed' : 'Pending'}
                 <span className="ml-2 text-xs opacity-60">(click to toggle)</span>
               </button>
