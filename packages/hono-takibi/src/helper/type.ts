@@ -1,3 +1,4 @@
+import { isSchemaArray } from '../guard/index.js'
 import type { Schema } from '../openapi/index.js'
 import { toIdentifierPascalCase } from '../utils/index.js'
 
@@ -142,9 +143,6 @@ function makeSingleTypeString(
 
   return 'unknown'
 }
-
-const isSchemaArray = (items: Schema | readonly Schema[]): items is readonly Schema[] =>
-  Array.isArray(items)
 
 /**
  * Wraps a type in parentheses if it needs grouping for array syntax.

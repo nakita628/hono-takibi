@@ -79,11 +79,12 @@ function makeFetcher(clientCall: string): string {
  *
  * @param method - HTTP method
  * @param pathStr - API path
- * @returns Query key getter function name (e.g., "getGetUsersQueryKey")
+ * @param isSWR - Whether to use SWR naming (no "Query" suffix)
+ * @returns Query key getter function name (e.g., "getGetUsersQueryKey" or "getGetUsersKey")
  */
-function makeQueryKeyGetterName(method: string, pathStr: string): string {
+function makeQueryKeyGetterName(method: string, pathStr: string, isSWR?: boolean): string {
   const funcName = methodPath(method, pathStr)
-  return `get${upperFirst(funcName)}QueryKey`
+  return isSWR ? `get${upperFirst(funcName)}Key` : `get${upperFirst(funcName)}QueryKey`
 }
 
 /* ─────────────────────────────── Query Options Getter ─────────────────────────────── */
@@ -122,6 +123,7 @@ function makeQueryOptionsGetterName(method: string, pathStr: string): string {
  * @param config - Framework configuration
  * @returns Query key getter function code
  * @see https://tanstack.com/query/latest/docs/framework/react/guides/query-keys
+ * @see https://swr.vercel.app/docs/arguments
  */
 function makeQueryKeyGetterCode(
   keyGetterName: string,
@@ -129,7 +131,7 @@ function makeQueryKeyGetterCode(
   inferRequestType: string,
   honoPath: string,
   _clientPath: string,
-  config: { frameworkName: string; isVueQuery?: boolean },
+  config: { frameworkName: string; isVueQuery?: boolean; isSWR?: boolean },
 ): string {
   const safeCommentPath = escapeCommentEnd(honoPath.replace(/:([^/]+)/g, '{$1}'))
   const safeCommentPathNoParam = escapeCommentEnd(honoPath)
@@ -227,6 +229,39 @@ export const ${optionsGetterName}=(args:${inferRequestType},clientOptions?:Clien
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export const ${optionsGetterName}=(clientOptions?:ClientRequestOptions)=>({queryKey:${queryKeyCall},queryFn:({signal}:QueryFunctionContext)=>${fetcherBody}})`
+}
+
+/* ─────────────────────────────── SWR Query Hook Code ─────────────────────────────── */
+
+/**
+ * Generates SWR query hook code.
+ *
+ * SWR pattern: useSWR(key, fetcher, options)
+ * - key: null to disable, otherwise the cache key
+ * - fetcher: async function returning data
+ * - options: SWRConfiguration
+ */
+function makeSWRQueryHookCode(
+  hookName: string,
+  keyGetterName: string,
+  hasArgs: boolean,
+  inferRequestType: string,
+  clientPath: string,
+  method: string,
+  docs: string,
+): string {
+  const argsSig = hasArgs ? `args:${inferRequestType},` : ''
+  const swrConfigType = 'SWRConfiguration&{swrKey?:Key;enabled?:boolean}'
+  const optionsSig = `options?:{swr?:${swrConfigType};client?:ClientRequestOptions}`
+
+  const keyCall = hasArgs ? `${keyGetterName}(args)` : `${keyGetterName}()`
+  const clientCall = hasArgs
+    ? `${clientPath}.$${method}(args,clientOptions)`
+    : `${clientPath}.$${method}(undefined,clientOptions)`
+  const fetcherBody = makeFetcher(clientCall)
+
+  return `${docs}
+export function ${hookName}(${argsSig}${optionsSig}){const{swr:swrOptions,client:clientOptions}=options??{};const{swrKey:customKey,enabled,...restSwrOptions}=swrOptions??{};const isEnabled=enabled!==false;const swrKey=isEnabled?(customKey??${keyCall}):null;return{swrKey,...useSWR(swrKey,async()=>${fetcherBody},restSwrOptions)}}`
 }
 
 /* ─────────────────────────────── Query Hook Code ─────────────────────────────── */
@@ -391,6 +426,87 @@ export const ${optionsGetterName}=(clientOptions?:ClientRequestOptions)=>({mutat
 export const ${optionsGetterName}=(clientOptions?:ClientRequestOptions)=>({mutationKey:${keyGetterName}(),mutationFn:async()=>${fetcherBody}})`
 }
 
+/* ─────────────────────────────── SWR Header ─────────────────────────────── */
+
+/**
+ * Generates the import header for SWR hook files.
+ */
+function makeSWRHeader(
+  importPath: string,
+  hasQuery: boolean,
+  hasMutation: boolean,
+  needsInferRequestType: boolean,
+  clientName: string,
+): string {
+  const lines: string[] = []
+
+  // SWR imports - Key is needed for both query and mutation
+  if (hasQuery) {
+    lines.push("import useSWR from'swr'")
+    lines.push("import type{Key,SWRConfiguration}from'swr'")
+  } else if (hasMutation) {
+    // Mutation needs Key type from 'swr'
+    lines.push("import type{Key}from'swr'")
+  }
+  if (hasMutation) {
+    lines.push("import useSWRMutation from'swr/mutation'")
+    lines.push("import type{SWRMutationConfiguration}from'swr/mutation'")
+  }
+
+  // Hono client imports
+  const typeImportParts: string[] = []
+  if (needsInferRequestType) typeImportParts.push('InferRequestType')
+  typeImportParts.push('ClientRequestOptions')
+  lines.push(`import type{${typeImportParts.join(',')}}from'hono/client'`)
+  lines.push("import{parseResponse}from'hono/client'")
+  lines.push(`import{${clientName}}from'${importPath}'`)
+
+  return `${lines.join('\n')}\n\n`
+}
+
+/* ─────────────────────────────── SWR Mutation Hook Code ─────────────────────────────── */
+
+/**
+ * Generates SWR mutation hook code.
+ *
+ * SWR pattern: useSWRMutation(key, fetcher, options)
+ * - key: mutation key for state tracking
+ * - fetcher: (_: Key, { arg }) => Promise<Data>
+ * - options: SWRMutationConfiguration
+ */
+function makeSWRMutationHookCode(
+  hookName: string,
+  keyGetterName: string,
+  hasArgs: boolean,
+  inferRequestType: string,
+  parseResponseType: string,
+  clientPath: string,
+  method: string,
+  docs: string,
+  hasNoContent: boolean,
+): string {
+  const variablesType = hasArgs ? inferRequestType : 'undefined'
+  const responseTypeWithUndefined = hasNoContent
+    ? `${parseResponseType}|undefined`
+    : parseResponseType
+  const mutationConfigType = `SWRMutationConfiguration<${responseTypeWithUndefined},Error,Key,${variablesType}>`
+
+  if (hasArgs) {
+    const clientCall = `${clientPath}.$${method}(arg,clientOptions)`
+    const fetcherBody = makeFetcher(clientCall)
+    const optionsSig = `options?:{mutation?:${mutationConfigType}&{swrKey?:Key};client?:ClientRequestOptions}`
+    return `${docs}
+export function ${hookName}(${optionsSig}){const{mutation:mutationOptions,client:clientOptions}=options??{};const{swrKey:customKey,...restMutationOptions}=mutationOptions??{};const swrKey=customKey??${keyGetterName}();return{swrKey,...useSWRMutation(swrKey,async(_:Key,{arg}:{arg:${inferRequestType}})=>${fetcherBody},restMutationOptions)}}`
+  }
+
+  // No args - simpler pattern
+  const clientCall = `${clientPath}.$${method}(undefined,clientOptions)`
+  const fetcherBody = makeFetcher(clientCall)
+  const optionsSig = `options?:{mutation?:${mutationConfigType}&{swrKey?:Key};client?:ClientRequestOptions}`
+  return `${docs}
+export function ${hookName}(${optionsSig}){const{mutation:mutationOptions,client:clientOptions}=options??{};const{swrKey:customKey,...restMutationOptions}=mutationOptions??{};const swrKey=customKey??${keyGetterName}();return{swrKey,...useSWRMutation(swrKey,async()=>${fetcherBody},restMutationOptions)}}`
+}
+
 /* ─────────────────────────────── Mutation Hook Code ─────────────────────────────── */
 
 function makeMutationHookCode(
@@ -449,6 +565,7 @@ function makeHookCode(
     useMutationOptionsType: string
     usePartialOmit?: boolean
     isVueQuery?: boolean
+    isSWR?: boolean
   },
 ): { code: string; isQuery: boolean; hasArgs: boolean } | null {
   const op = item[method]
@@ -473,6 +590,55 @@ function makeHookCode(
   const description = typeof op.description === 'string' ? op.description : ''
   const docs = buildOperationDocs(method, pathStr, summary || undefined, description || undefined)
 
+  // SWR: simpler pattern without options getter
+  if (config.isSWR) {
+    if (isQuery) {
+      const keyGetterName = makeQueryKeyGetterName(method, pathStr, true)
+      const keyGetterCode = makeQueryKeyGetterCode(
+        keyGetterName,
+        hasArgs,
+        inferRequestType,
+        honoPath,
+        clientPath,
+        config,
+      )
+      const hookCode = makeSWRQueryHookCode(
+        hookName,
+        keyGetterName,
+        hasArgs,
+        inferRequestType,
+        clientPath,
+        method,
+        docs,
+      )
+      return {
+        code: `${keyGetterCode}\n\n${hookCode}`,
+        isQuery: true,
+        hasArgs,
+      }
+    }
+    // SWR mutation
+    const keyGetterName = makeMutationKeyGetterName(method, pathStr)
+    const keyGetterCode = makeMutationKeyGetterCode(keyGetterName, honoPath, method, config)
+    const hookCode = makeSWRMutationHookCode(
+      hookName,
+      keyGetterName,
+      hasArgs,
+      inferRequestType,
+      parseResponseType,
+      clientPath,
+      method,
+      docs,
+      hasNoContent,
+    )
+    return {
+      code: `${keyGetterCode}\n\n${hookCode}`,
+      isQuery: false,
+      hasArgs,
+    }
+  }
+
+  // TanStack Query / Vue Query / Svelte Query
   if (isQuery) {
     const keyGetterName = makeQueryKeyGetterName(method, pathStr)
     const optionsGetterName = makeQueryOptionsGetterName(method, pathStr)
@@ -559,6 +725,7 @@ function makeHookCodes(
     useMutationOptionsType: string
     usePartialOmit?: boolean
     isVueQuery?: boolean
+    isSWR?: boolean
   },
 ): { hookName: string; code: string; isQuery: boolean; hasArgs: boolean }[] {
   return Object.entries(paths)
@@ -606,9 +773,15 @@ function makeHeader(
     useQueryOptionsType: string
     useMutationOptionsType: string
     isVueQuery?: boolean
+    isSWR?: boolean
   },
   hasQueryWithArgs = false,
 ): string {
+  // SWR has different import structure
+  if (config.isSWR) {
+    return makeSWRHeader(importPath, hasQuery, hasMutation, needsInferRequestType, clientName)
+  }
+
   const queryImports = [
     ...(hasQuery ? [config.queryFn] : []),
     ...(hasMutation ? [config.mutationFn] : []),
@@ -704,6 +877,7 @@ export async function makeQueryHooks(
     useMutationOptionsType: string
     usePartialOmit?: boolean
     isVueQuery?: boolean
+    isSWR?: boolean
   },
   split?: boolean,
   clientName = 'client',
