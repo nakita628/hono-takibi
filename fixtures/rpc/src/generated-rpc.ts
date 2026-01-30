@@ -10,7 +10,7 @@
  * }
  * ```
  */
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 

@@ -115,9 +115,7 @@ describe('generated-rpc (parseResponse: true)', () => {
 
   describe('error handling', () => {
     it('getError400 throws DetailedError', async () => {
-      await expect(
-        parseResponse(client['error-400'].$get(undefined, undefined)),
-      ).rejects.toThrow()
+      await expect(parseResponse(client['error-400'].$get(undefined, undefined))).rejects.toThrow()
 
       try {
         await parseResponse(client['error-400'].$get(undefined, undefined))
@@ -129,9 +127,7 @@ describe('generated-rpc (parseResponse: true)', () => {
     })
 
     it('getError404 throws DetailedError', async () => {
-      await expect(
-        parseResponse(client['error-404'].$get(undefined, undefined)),
-      ).rejects.toThrow()
+      await expect(parseResponse(client['error-404'].$get(undefined, undefined))).rejects.toThrow()
 
       try {
         await parseResponse(client['error-404'].$get(undefined, undefined))
@@ -143,9 +139,7 @@ describe('generated-rpc (parseResponse: true)', () => {
     })
 
     it('getError500 throws DetailedError', async () => {
-      await expect(
-        parseResponse(client['error-500'].$get(undefined, undefined)),
-      ).rejects.toThrow()
+      await expect(parseResponse(client['error-500'].$get(undefined, undefined))).rejects.toThrow()
 
       try {
         await parseResponse(client['error-500'].$get(undefined, undefined))

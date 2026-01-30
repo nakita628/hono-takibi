@@ -1,3 +1,28 @@
+/**
+ * TypeScript type string generation from OpenAPI schemas.
+ *
+ * Converts OpenAPI schema definitions to TypeScript type string representations,
+ * handling complex constructs like unions, intersections, and recursive references.
+ *
+ * ```mermaid
+ * flowchart TD
+ *   A["makeTypeString(schema)"] --> B{"Has $ref?"}
+ *   B -->|Yes| C["makeRefTypeString()"]
+ *   B -->|No| D{"oneOf/anyOf?"}
+ *   D -->|Yes| E["Union type (|)"]
+ *   D -->|No| F{"allOf?"}
+ *   F -->|Yes| G["Intersection type (&)"]
+ *   F -->|No| H{"enum?"}
+ *   H -->|Yes| I["Literal union"]
+ *   H -->|No| J["makeSingleTypeString()"]
+ *   J --> K{"type?"}
+ *   K -->|array| L["makeArrayTypeString()"]
+ *   K -->|object| M["makeObjectTypeString()"]
+ *   K -->|primitive| N["string/number/boolean"]
+ * ```
+ *
+ * @module helper/type
+ */
 import { isSchemaArray } from '../guard/index.js'
 import type { Schema } from '../openapi/index.js'
 import { toIdentifierPascalCase } from '../utils/index.js'
