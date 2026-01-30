@@ -106,7 +106,7 @@ describe('honoTakibi', () => {
 
     expect(result).toEqual({
       ok: true,
-      value: 'Generated code written to zod-openapi-hono.ts',
+      value: '🔥 Generated code written to zod-openapi-hono.ts',
     })
 
     const generatedCode = fs.readFileSync('zod-openapi-hono.ts', 'utf-8')

@@ -229,7 +229,7 @@ describe('templateCode (sandbox)', () => {
       expect(fs.existsSync(path.join(srcDir, 'handlers', 'zodOpenapiHono.test.ts'))).toBe(true)
       expect(result).toStrictEqual({
         ok: true,
-        value: 'Generated code and template files written',
+        value: '🔥 Generated code and template files written',
       })
     } finally {
       fs.rmSync(dir, { recursive: true, force: true })
@@ -256,7 +256,7 @@ describe('templateCode (sandbox)', () => {
       expect(fs.existsSync(path.join(srcDir, 'handlers', 'zodOpenapiHono.ts'))).toBe(true)
       expect(result).toStrictEqual({
         ok: true,
-        value: 'Generated code and template files written',
+        value: '🔥 Generated code and template files written',
       })
     } finally {
       fs.rmSync(dir, { recursive: true, force: true })
@@ -294,7 +294,7 @@ describe('templateCode (sandbox)', () => {
 
       expect(result).toStrictEqual({
         ok: true,
-        value: 'Generated code and template files written',
+        value: '🔥 Generated code and template files written',
       })
     } finally {
       fs.rmSync(dir, { recursive: true, force: true })
@@ -329,7 +329,7 @@ describe('templateCode (sandbox)', () => {
 
       expect(result).toStrictEqual({
         ok: true,
-        value: 'Generated code and template files written',
+        value: '🔥 Generated code and template files written',
       })
     } finally {
       fs.rmSync(dir, { recursive: true, force: true })
@@ -375,7 +375,7 @@ describe('--template mode strict content tests', () => {
 
       expect(result).toStrictEqual({
         ok: true,
-        value: 'Generated code and template files written',
+        value: '🔥 Generated code and template files written',
       })
 
       const indexContent = fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf-8')
@@ -526,7 +526,7 @@ export default app
 
       expect(result).toStrictEqual({
         ok: true,
-        value: 'Generated code and template files written',
+        value: '🔥 Generated code and template files written',
       })
 
       expect(fs.existsSync(path.join(dir, 'route.ts'))).toBe(true)

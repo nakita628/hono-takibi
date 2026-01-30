@@ -92,11 +92,11 @@ export async function takibi(
       if (!appResult.ok) return { ok: false, error: appResult.error }
       if (!zodOpenAPIHonoHandlerResult.ok)
         return { ok: false, error: zodOpenAPIHonoHandlerResult.error }
-      return { ok: true, value: 'Generated code and template files written' }
+      return { ok: true, value: '🔥 Generated code and template files written' }
     }
     return {
       ok: true,
-      value: `Generated code written to ${output}`,
+      value: `🔥 Generated code written to ${output}`,
     }
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : String(e) }
