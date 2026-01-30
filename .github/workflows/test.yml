@@ -5,24 +5,26 @@ on:
     branches:
       - main
   pull_request:
-    types: [opened, synchronize, reopened] 
+
+permissions:
+  contents: read
 
 jobs:
   test:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20.x'
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v4
         with:
           version: 10
 
-      - name: Install Dependencies
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'pnpm'
+
+      - name: Install dependencies
         run: pnpm -F hono-takibi deps
 
       - name: Check
@@ -34,5 +36,5 @@ jobs:
       - name: Build
         run: pnpm -F hono-takibi build
 
-      - name: Run Coverage
+      - name: Test
         run: pnpm vitest run packages/hono-takibi --coverage
