@@ -68,7 +68,7 @@
   "scripts": {
     "dev": "vite --host",
     "deps": "rm -rf node_modules && pnpm install",
-    "build": "rm -rf ./dist/* && tsc",
+    "build": "tsdown",
     "typecheck": "tsc --noEmit",
     "release": "pnpm build && pnpm publish"
   },
@@ -84,6 +84,7 @@
     "@types/node": "^25.0.9",
     "@typespec/http": "^1.8.0",
     "@typespec/rest": "^0.78.0",
-    "@typespec/versioning": "^0.78.0"
+    "@typespec/versioning": "^0.78.0",
+    "tsdown": "^0.20.1"
   }
 }

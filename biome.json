@@ -22,7 +22,7 @@
       "!**/fixtures/type/*.ts",
       "!**/routeTree.gen.ts",
       "!**/orval",
-      "!**/fixtures/generate/**"
+      "!**/fixtures/generate"
     ]
   },
   "formatter": {
