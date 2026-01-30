@@ -19,8 +19,7 @@
   "bugs": {
     "url": "https://github.com/nakita628/hono-takibi/issues"
   },
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "sideEffects": false,
   "files": [
     "dist"
   ],
