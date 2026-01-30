@@ -203,6 +203,7 @@ export default defineConfig({
     import: '../client',
     split: true,
     client: 'client',
+    parseResponse: true, // Wrap calls with parseResponse() for type-safe response parsing
   },
   // Client library integrations
   'tanstack-query': {
