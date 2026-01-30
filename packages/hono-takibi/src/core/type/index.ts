@@ -18,6 +18,7 @@
  * @module core/type
  */
 import path from 'node:path'
+import { isHttpMethod, isSchemaArray } from '../../guard/index.js'
 import { core } from '../../helper/index.js'
 import type {
   Components,
@@ -29,7 +30,7 @@ import type {
   Responses,
   Schema,
 } from '../../openapi/index.js'
-import { isHttpMethod, makeSafeKey } from '../../utils/index.js'
+import { makeSafeKey } from '../../utils/index.js'
 
 // ============================================================================
 // Type Guards
@@ -63,10 +64,6 @@ function isMediaWithSchema(m: unknown): m is { schema: Schema } {
 
 function hasStringRef(p: object): p is { $ref: string } {
   return '$ref' in p && typeof p.$ref === 'string'
-}
-
-function isSchemaArray(items: Schema | readonly Schema[]): items is readonly Schema[] {
-  return Array.isArray(items)
 }
 
 function isParameterArray(params: unknown): params is readonly Parameter[] | readonly Reference[] {

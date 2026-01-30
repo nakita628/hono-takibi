@@ -1,6 +1,6 @@
-import type { CreateMutationOptions } from '@tanstack/svelte-query'
 import { createMutation } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import type { CreateMutationOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/22-extreme-validation'
 

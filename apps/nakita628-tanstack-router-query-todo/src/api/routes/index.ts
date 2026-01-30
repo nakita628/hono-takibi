@@ -3,8 +3,8 @@ import { createRoute, z } from '@hono/zod-openapi'
 export const TodoSchema = z
   .object({
     id: z.uuid(),
-    content: z.string().min(1).max(140),
-    completed: z.int32().openapi({ description: '0 = not completed, 1 = completed' }),
+    content: z.string().min(0).max(140),
+    completed: z.int32().min(0).max(1).openapi({ description: '0 = not completed, 1 = completed' }),
     createdAt: z.iso.datetime(),
     updatedAt: z.iso.datetime(),
   })
@@ -61,31 +61,33 @@ export const getTodoRoute = createRoute({
   method: 'get',
   path: '/todo',
   tags: ['Todos'],
-  summary: 'Retrieve a list of posts',
+  summary: 'Retrieve a list of todos',
   operationId: 'Todos_list',
   request: {
     query: z.object({
-      limit: z.coerce
-        .number()
+      page: z
+        .int32()
+        .default(1)
         .exactOptional()
         .openapi({
           param: {
-            name: 'limit',
+            name: 'page',
             in: 'query',
             required: false,
-            schema: { type: 'number' },
+            schema: { type: 'integer', format: 'int32', default: 1 },
             explode: false,
           },
         }),
-      offset: z.coerce
-        .number()
+      rows: z
+        .int32()
+        .default(10)
         .exactOptional()
         .openapi({
           param: {
-            name: 'offset',
+            name: 'rows',
             in: 'query',
             required: false,
-            schema: { type: 'number' },
+            schema: { type: 'integer', format: 'int32', default: 10 },
             explode: false,
           },
         }),
@@ -119,15 +121,13 @@ export const postTodoRoute = createRoute({
   method: 'post',
   path: '/todo',
   tags: ['Todos'],
-  summary: 'Create a new post',
+  summary: 'Create a new todo',
   operationId: 'Todos_create',
   request: {
     body: {
       content: {
         'application/json': {
-          schema: z
-            .object({ content: z.string().min(1).max(140) })
-            .openapi({ required: ['content'] }),
+          schema: z.object({ content: z.string() }).openapi({ required: ['content'] }),
         },
       },
       required: true,
@@ -162,15 +162,8 @@ export const getTodoIdRoute = createRoute({
   request: {
     params: z.object({
       id: z
-        .uuid()
-        .openapi({
-          param: {
-            name: 'id',
-            in: 'path',
-            required: true,
-            schema: { type: 'string', format: 'uuid' },
-          },
-        }),
+        .string()
+        .openapi({ param: { name: 'id', in: 'path', required: true, schema: { type: 'string' } } }),
     }),
   },
   responses: {
@@ -206,25 +199,15 @@ export const putTodoIdRoute = createRoute({
   request: {
     params: z.object({
       id: z
-        .uuid()
-        .openapi({
-          param: {
-            name: 'id',
-            in: 'path',
-            required: true,
-            schema: { type: 'string', format: 'uuid' },
-          },
-        }),
+        .string()
+        .openapi({ param: { name: 'id', in: 'path', required: true, schema: { type: 'string' } } }),
     }),
     body: {
       content: {
         'application/json': {
           schema: z.object({
-            content: z.string().min(1).max(140).exactOptional(),
-            completed: z
-              .int32()
-              .exactOptional()
-              .openapi({ description: '0 = not completed, 1 = completed' }),
+            content: z.string().exactOptional(),
+            completed: z.int32().exactOptional(),
           }),
         },
       },
@@ -263,15 +246,8 @@ export const deleteTodoIdRoute = createRoute({
   request: {
     params: z.object({
       id: z
-        .uuid()
-        .openapi({
-          param: {
-            name: 'id',
-            in: 'path',
-            required: true,
-            schema: { type: 'string', format: 'uuid' },
-          },
-        }),
+        .string()
+        .openapi({ param: { name: 'id', in: 'path', required: true, schema: { type: 'string' } } }),
     }),
   },
   responses: {

@@ -1,8 +1,46 @@
+/**
+ * Configuration module for hono-takibi.
+ *
+ * Provides configuration type definitions and utilities for loading
+ * and validating hono-takibi configuration files.
+ *
+ * ```mermaid
+ * flowchart TD
+ *   A["hono-takibi.config.ts"] --> B["readConfig()"]
+ *   B --> C["parseConfig()"]
+ *   C --> D{"Valid?"}
+ *   D -->|Yes| E["Normalized Config"]
+ *   D -->|No| F["Error message"]
+ * ```
+ *
+ * @module config
+ */
 import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { register } from 'tsx/esm/api'
 
+/**
+ * Configuration type for hono-takibi code generation.
+ *
+ * Defines input source and output targets for generating TypeScript code
+ * from OpenAPI specifications.
+ *
+ * @example
+ * ```ts
+ * const config: Config = {
+ *   input: 'openapi.yaml',
+ *   'zod-openapi': {
+ *     output: 'src/generated/schema.ts',
+ *     exportSchemas: true,
+ *   },
+ *   rpc: {
+ *     output: 'src/generated/client.ts',
+ *     import: './schema',
+ *   },
+ * }
+ * ```
+ */
 type Config = {
   readonly input: `${string}.yaml` | `${string}.json` | `${string}.tsp`
   readonly 'zod-openapi'?: {
@@ -25,58 +63,49 @@ type Config = {
       readonly split?: boolean
     }
     readonly components?: {
-      // # Reusable schemas (data models)
       readonly schemas?: {
         readonly output: string | `${string}.ts`
         readonly exportTypes?: boolean
         readonly split?: boolean
         readonly import?: string
       }
-      // # Reusable path, query, header and cookie parameters
       readonly parameters?: {
         readonly output: string | `${string}.ts`
         readonly exportTypes?: boolean
         readonly split?: boolean
         readonly import?: string
       }
-      // # Security scheme definitions (see Authentication)
       readonly securitySchemes?: {
         readonly output: string | `${string}.ts`
         readonly split?: boolean
         readonly import?: string
       }
-      // # Reusable request bodies
       readonly requestBodies?: {
         readonly output: string | `${string}.ts`
         readonly split?: boolean
         readonly import?: string
       }
-      // # Reusable responses, such as 401 Unauthorized or 400 Bad Request
       readonly responses?: {
         readonly output: string | `${string}.ts`
         readonly split?: boolean
         readonly import?: string
       }
-      // # Reusable response headers
       readonly headers?: {
         readonly output: string | `${string}.ts`
         readonly exportTypes?: boolean
         readonly split?: boolean
         readonly import?: string
       }
-      // # Reusable examples
       readonly examples?: {
         readonly output: string | `${string}.ts`
         readonly split?: boolean
         readonly import?: string
       }
-      // # Reusable links
       readonly links?: {
         readonly output: string | `${string}.ts`
         readonly split?: boolean
         readonly import?: string
       }
-      // # Reusable callbacks
       readonly callbacks?: {
         readonly output: string | `${string}.ts`
         readonly split?: boolean
@@ -93,6 +122,7 @@ type Config = {
     readonly import: string
     readonly split?: boolean
     readonly client?: string
+    readonly parseResponse?: boolean
   }
   readonly swr?: {
     readonly output: string | `${string}.ts`
@@ -401,6 +431,12 @@ export function parseConfig(
     }
     if (config.rpc.client !== undefined && typeof config.rpc.client !== 'string') {
       return { ok: false, error: `Invalid client format for rpc: ${String(config.rpc.client)}` }
+    }
+    if (config.rpc.parseResponse !== undefined && typeof config.rpc.parseResponse !== 'boolean') {
+      return {
+        ok: false,
+        error: `Invalid parseResponse format for rpc: ${String(config.rpc.parseResponse)}`,
+      }
     }
     // split: true requires directory (no .ts)
     if (config.rpc.split === true && isTs(config.rpc.output)) {

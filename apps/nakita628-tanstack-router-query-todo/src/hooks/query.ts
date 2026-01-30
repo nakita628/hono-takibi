@@ -35,7 +35,7 @@ export const getGetTodoQueryOptions = (
 /**
  * GET /todo
  *
- * Retrieve a list of posts
+ * Retrieve a list of todos
  */
 export function useGetTodo(
   args: InferRequestType<typeof client.todo.$get>,
@@ -74,7 +74,7 @@ export const getPostTodoMutationOptions = (clientOptions?: ClientRequestOptions)
 /**
  * POST /todo
  *
- * Create a new post
+ * Create a new todo
  */
 export function usePostTodo(options?: {
   mutation?: UseMutationOptions<

@@ -9,10 +9,7 @@ export type {
   FormatPathResult,
   HttpMethod,
   OperationDeps,
-  OperationLike,
-  ParameterLike,
   PathItemLike,
-  RefObject,
 } from './hono-rpc.js'
 export {
   buildInferRequestType,

@@ -363,6 +363,7 @@ export async function honoTakibi(): Promise<
           config.rpc.import,
           config.rpc.split ?? false,
           config.rpc.client ?? 'client',
+          config.rpc.parseResponse ?? false,
         )
       : Promise.resolve(undefined),
     config.swr

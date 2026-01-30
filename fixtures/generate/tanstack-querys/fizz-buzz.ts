@@ -1,6 +1,6 @@
-import type { QueryFunctionContext, UseQueryOptions } from '@tanstack/react-query'
 import { useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import type { UseQueryOptions, QueryFunctionContext } from '@tanstack/react-query'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/fizz-buzz'
 

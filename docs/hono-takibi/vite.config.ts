@@ -189,7 +189,6 @@ function typeDocVitePlugin(): PluginOption {
         '**/tests/**',
         '**/coverage/**',
       ],
-      out: 'public',
       skipErrorChecking: true,
       tsconfig: 'tsconfig.json',
       plugin: ['typedoc-plugin-mermaid'],

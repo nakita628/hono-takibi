@@ -29,7 +29,15 @@ type Result<T> =
   | { readonly ok: true; readonly value: T }
   | { readonly ok: false; readonly error: string }
 
-type GeneratorKind = 'type' | 'rpc' | 'swr' | 'tanstack' | 'svelte' | 'vue' | 'client'
+type GeneratorKind =
+  | 'type'
+  | 'rpc'
+  | 'parseResponse'
+  | 'swr'
+  | 'tanstack'
+  | 'svelte'
+  | 'vue'
+  | 'client'
 
 type GenerationTask = {
   readonly file: string
@@ -118,6 +126,13 @@ const runGenerator = async (task: GenerationTask): Promise<Result<string>> => {
     case 'rpc': {
       const output = join(__dirname, '../rpcs', `${baseName}.ts`)
       const result = await rpc(openAPI, output, `../clients/${baseName}`, false)
+      return result.ok
+        ? { ok: true, value: label }
+        : { ok: false, error: `${label}: ${result.error}` }
+    }
+    case 'parseResponse': {
+      const output = join(__dirname, '../parseResponse', `${baseName}.ts`)
+      const result = await rpc(openAPI, output, `../clients/${baseName}`, false, 'client', true)
       return result.ok
         ? { ok: true, value: label }
         : { ok: false, error: `${label}: ${result.error}` }
@@ -237,10 +252,19 @@ async function main() {
   }
 
   // Phase 3: Generate all files in fully parallel manner
-  // Total tasks: files × 7 kinds (type, rpc, swr, tanstack, svelte, vue, client)
+  // Total tasks: files × 8 kinds (type, rpc, parseResponse, swr, tanstack, svelte, vue, client)
   console.log('\n[Phase 3] Generating all hook files (fully parallel)...')
 
-  const kinds: GeneratorKind[] = ['type', 'rpc', 'swr', 'tanstack', 'svelte', 'vue', 'client']
+  const kinds: GeneratorKind[] = [
+    'type',
+    'rpc',
+    'parseResponse',
+    'swr',
+    'tanstack',
+    'svelte',
+    'vue',
+    'client',
+  ]
   const allTasks: GenerationTask[] = []
 
   for (const file of files) {
@@ -269,6 +293,7 @@ async function main() {
   console.log(`  - ${files.length} routes`)
   console.log(`  - ${files.length} types`)
   console.log(`  - ${files.length} rpcs`)
+  console.log(`  - ${files.length} parseResponse`)
   console.log(`  - ${files.length} swrs`)
   console.log(`  - ${files.length} tanstack-querys`)
   console.log(`  - ${files.length} svelte-querys`)

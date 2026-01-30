@@ -225,7 +225,7 @@ const debounce = (delayMilliseconds: number, callback: () => void): (() => void)
  */
 const runAllGenerationTasks = async (configuration: Configuration): Promise<{ logs: string[] }> => {
   const openAPIResult = await parseOpenAPI(configuration.input)
-  if (!openAPIResult.ok) return { logs: [`✗ parseOpenAPI: ${openAPIResult.error}`] }
+  if (!openAPIResult.ok) return { logs: [`❌ parseOpenAPI: ${openAPIResult.error}`] }
   const openAPI = openAPIResult.value
 
   const makeZodOpenAPIJob = (): Promise<string> | undefined => {
@@ -242,7 +242,7 @@ const runAllGenerationTasks = async (configuration: Configuration): Promise<{ lo
     const outputPath = toAbsolutePath(configuration['zod-openapi'].output)
     return (async () => {
       if (!isTypeScriptFile(outputPath))
-        return `✗ zod-openapi: Invalid output format: ${outputPath}`
+        return `❌ zod-openapi: Invalid output format: ${outputPath}`
       const result = await takibi(openAPI, outputPath, false, false, '/', {
         exportSchemasTypes: configuration['zod-openapi']?.exportSchemasTypes ?? false,
         exportSchemas: configuration['zod-openapi']?.exportSchemas ?? false,
@@ -257,7 +257,7 @@ const runAllGenerationTasks = async (configuration: Configuration): Promise<{ lo
         exportLinks: configuration['zod-openapi']?.exportLinks ?? false,
         exportCallbacks: configuration['zod-openapi']?.exportCallbacks ?? false,
       })
-      return result.ok ? `✓ zod-openapi -> ${outputPath}` : `✗ zod-openapi: ${result.error}`
+      return result.ok ? `✅ zod-openapi -> ${outputPath}` : `❌ zod-openapi: ${result.error}`
     })()
   }
 
@@ -275,10 +275,10 @@ const runAllGenerationTasks = async (configuration: Configuration): Promise<{ lo
           true,
           schemaConfig.exportTypes === true,
         )
-        if (!schemaResult.ok) return `✗ schemas(split): ${schemaResult.error}`
+        if (!schemaResult.ok) return `❌ schemas(split): ${schemaResult.error}`
         return beforeFiles.length > 0
-          ? `✓ schemas(split) -> ${outputDirectory}/*.ts (cleaned ${beforeFiles.length})`
-          : `✓ schemas(split) -> ${outputDirectory}/*.ts`
+          ? `✅ schemas(split) -> ${outputDirectory}/*.ts (cleaned ${beforeFiles.length})`
+          : `✅ schemas(split) -> ${outputDirectory}/*.ts`
       }
       const outputPath = toAbsolutePath(schemaConfig.output)
       const schemaResult = await schemas(
@@ -287,7 +287,7 @@ const runAllGenerationTasks = async (configuration: Configuration): Promise<{ lo
         false,
         schemaConfig.exportTypes === true,
       )
-      return schemaResult.ok ? `✓ schemas -> ${outputPath}` : `✗ schemas: ${schemaResult.error}`
+      return schemaResult.ok ? `✅ schemas -> ${outputPath}` : `❌ schemas: ${schemaResult.error}`
     })()
   }
 
@@ -306,8 +306,8 @@ const runAllGenerationTasks = async (configuration: Configuration): Promise<{ lo
         parametersConfig.exportTypes === true,
         configuration['zod-openapi']?.components,
       )
-      if (!parameterResult.ok) return `✗ parameters: ${parameterResult.error}`
-      return `✓ parameters${parametersConfig.split === true ? '(split)' : ''} -> ${outputDirectory}`
+      if (!parameterResult.ok) return `❌ parameters: ${parameterResult.error}`
+      return `✅ parameters${parametersConfig.split === true ? '(split)' : ''} -> ${outputDirectory}`
     })()
   }
 
@@ -326,8 +326,8 @@ const runAllGenerationTasks = async (configuration: Configuration): Promise<{ lo
         headersConfig.exportTypes === true,
         configuration['zod-openapi']?.components,
       )
-      if (!headersResult.ok) return `✗ headers: ${headersResult.error}`
-      return `✓ headers${headersConfig.split === true ? '(split)' : ''} -> ${outputDirectory}`
+      if (!headersResult.ok) return `❌ headers: ${headersResult.error}`
+      return `✅ headers${headersConfig.split === true ? '(split)' : ''} -> ${outputDirectory}`
     })()
   }
 
@@ -344,8 +344,8 @@ const runAllGenerationTasks = async (configuration: Configuration): Promise<{ lo
         outputDirectory,
         examplesConfig.split === true,
       )
-      if (!examplesResult.ok) return `✗ examples: ${examplesResult.error}`
-      return `✓ examples${examplesConfig.split === true ? '(split)' : ''} -> ${outputDirectory}`
+      if (!examplesResult.ok) return `❌ examples: ${examplesResult.error}`
+      return `✅ examples${examplesConfig.split === true ? '(split)' : ''} -> ${outputDirectory}`
     })()
   }
 
@@ -362,8 +362,8 @@ const runAllGenerationTasks = async (configuration: Configuration): Promise<{ lo
         outputDirectory,
         linksConfig.split === true,
       )
-      if (!linksResult.ok) return `✗ links: ${linksResult.error}`
-      return `✓ links${linksConfig.split === true ? '(split)' : ''} -> ${outputDirectory}`
+      if (!linksResult.ok) return `❌ links: ${linksResult.error}`
+      return `✅ links${linksConfig.split === true ? '(split)' : ''} -> ${outputDirectory}`
     })()
   }
 
@@ -380,8 +380,8 @@ const runAllGenerationTasks = async (configuration: Configuration): Promise<{ lo
         outputDirectory,
         callbacksConfig.split === true,
       )
-      if (!callbacksResult.ok) return `✗ callbacks: ${callbacksResult.error}`
-      return `✓ callbacks${callbacksConfig.split === true ? '(split)' : ''} -> ${outputDirectory}`
+      if (!callbacksResult.ok) return `❌ callbacks: ${callbacksResult.error}`
+      return `✅ callbacks${callbacksConfig.split === true ? '(split)' : ''} -> ${outputDirectory}`
     })()
   }
 
@@ -400,8 +400,8 @@ const runAllGenerationTasks = async (configuration: Configuration): Promise<{ lo
         outputDirectory,
         securitySchemesConfig.split === true,
       )
-      if (!securitySchemesResult.ok) return `✗ securitySchemes: ${securitySchemesResult.error}`
-      return `✓ securitySchemes${securitySchemesConfig.split === true ? '(split)' : ''} -> ${outputDirectory}`
+      if (!securitySchemesResult.ok) return `❌ securitySchemes: ${securitySchemesResult.error}`
+      return `✅ securitySchemes${securitySchemesConfig.split === true ? '(split)' : ''} -> ${outputDirectory}`
     })()
   }
 
@@ -419,8 +419,8 @@ const runAllGenerationTasks = async (configuration: Configuration): Promise<{ lo
         requestBodiesConfig.split === true,
         configuration['zod-openapi']?.components,
       )
-      if (!requestBodiesResult.ok) return `✗ requestBodies: ${requestBodiesResult.error}`
-      return `✓ requestBodies${requestBodiesConfig.split === true ? '(split)' : ''} -> ${outputDirectory}`
+      if (!requestBodiesResult.ok) return `❌ requestBodies: ${requestBodiesResult.error}`
+      return `✅ requestBodies${requestBodiesConfig.split === true ? '(split)' : ''} -> ${outputDirectory}`
     })()
   }
 
@@ -438,8 +438,8 @@ const runAllGenerationTasks = async (configuration: Configuration): Promise<{ lo
         responsesConfig.split === true,
         configuration['zod-openapi']?.components,
       )
-      if (!responsesResult.ok) return `✗ responses: ${responsesResult.error}`
-      return `✓ responses${responsesConfig.split === true ? '(split)' : ''} -> ${outputDirectory}`
+      if (!responsesResult.ok) return `❌ responses: ${responsesResult.error}`
+      return `✅ responses${responsesConfig.split === true ? '(split)' : ''} -> ${outputDirectory}`
     })()
   }
 
@@ -456,8 +456,8 @@ const runAllGenerationTasks = async (configuration: Configuration): Promise<{ lo
         { output: outputPath, split: routesConfig.split ?? false },
         configuration['zod-openapi']?.components,
       )
-      if (!routeResult.ok) return `✗ routes: ${routeResult.error}`
-      return `✓ routes${routesConfig.split === true ? '(split)' : ''} -> ${outputPath}`
+      if (!routeResult.ok) return `❌ routes: ${routeResult.error}`
+      return `✅ routes${routesConfig.split === true ? '(split)' : ''} -> ${outputPath}`
     })()
   }
 
@@ -466,9 +466,9 @@ const runAllGenerationTasks = async (configuration: Configuration): Promise<{ lo
     if (!typeConfig) return undefined
     return (async () => {
       const outputPath = toAbsolutePath(typeConfig.output)
-      if (!isTypeScriptFile(outputPath)) return `✗ type: Invalid output format: ${outputPath}`
+      if (!isTypeScriptFile(outputPath)) return `❌ type: Invalid output format: ${outputPath}`
       const typeResult = await type(openAPI, outputPath)
-      return typeResult.ok ? `✓ type -> ${outputPath}` : `✗ type: ${typeResult.error}`
+      return typeResult.ok ? `✅ type -> ${outputPath}` : `❌ type: ${typeResult.error}`
     })()
   }
 
@@ -487,10 +487,10 @@ const runAllGenerationTasks = async (configuration: Configuration): Promise<{ lo
           true,
           rpcConfig.client ?? 'client',
         )
-        if (!rpcResult.ok) return `✗ rpc(split): ${rpcResult.error}`
+        if (!rpcResult.ok) return `❌ rpc(split): ${rpcResult.error}`
         return beforeFiles.length > 0
-          ? `✓ rpc(split) -> ${outputDirectory}/*.ts (cleaned ${beforeFiles.length})`
-          : `✓ rpc(split) -> ${outputDirectory}/*.ts`
+          ? `✅ rpc(split) -> ${outputDirectory}/*.ts (cleaned ${beforeFiles.length})`
+          : `✅ rpc(split) -> ${outputDirectory}/*.ts`
       }
       const outputPath = toAbsolutePath(rpcConfig.output)
       const rpcResult = await rpc(
@@ -500,7 +500,7 @@ const runAllGenerationTasks = async (configuration: Configuration): Promise<{ lo
         false,
         rpcConfig.client ?? 'client',
       )
-      return rpcResult.ok ? `✓ rpc -> ${outputPath}` : `✗ rpc: ${rpcResult.error}`
+      return rpcResult.ok ? `✅ rpc -> ${outputPath}` : `❌ rpc: ${rpcResult.error}`
     })()
   }
 
@@ -519,10 +519,10 @@ const runAllGenerationTasks = async (configuration: Configuration): Promise<{ lo
           true,
           swrConfig.client ?? 'client',
         )
-        if (!swrResult.ok) return `✗ swr(split): ${swrResult.error}`
+        if (!swrResult.ok) return `❌ swr(split): ${swrResult.error}`
         return beforeFiles.length > 0
-          ? `✓ swr(split) -> ${outputDirectory}/*.ts (cleaned ${beforeFiles.length})`
-          : `✓ swr(split) -> ${outputDirectory}/*.ts`
+          ? `✅ swr(split) -> ${outputDirectory}/*.ts (cleaned ${beforeFiles.length})`
+          : `✅ swr(split) -> ${outputDirectory}/*.ts`
       }
       const outputPath = toAbsolutePath(swrConfig.output)
       const swrResult = await swr(
@@ -532,7 +532,7 @@ const runAllGenerationTasks = async (configuration: Configuration): Promise<{ lo
         false,
         swrConfig.client ?? 'client',
       )
-      return swrResult.ok ? `✓ swr -> ${outputPath}` : `✗ swr: ${swrResult.error}`
+      return swrResult.ok ? `✅ swr -> ${outputPath}` : `❌ swr: ${swrResult.error}`
     })()
   }
 
@@ -551,10 +551,10 @@ const runAllGenerationTasks = async (configuration: Configuration): Promise<{ lo
           true,
           tanstackQueryConfig.client ?? 'client',
         )
-        if (!tanstackQueryResult.ok) return `✗ tanstack-query(split): ${tanstackQueryResult.error}`
+        if (!tanstackQueryResult.ok) return `❌ tanstack-query(split): ${tanstackQueryResult.error}`
         return beforeFiles.length > 0
-          ? `✓ tanstack-query(split) -> ${outputDirectory}/*.ts (cleaned ${beforeFiles.length})`
-          : `✓ tanstack-query(split) -> ${outputDirectory}/*.ts`
+          ? `✅ tanstack-query(split) -> ${outputDirectory}/*.ts (cleaned ${beforeFiles.length})`
+          : `✅ tanstack-query(split) -> ${outputDirectory}/*.ts`
       }
       const outputPath = toAbsolutePath(tanstackQueryConfig.output)
       const tanstackQueryResult = await tanstackQuery(
@@ -565,8 +565,8 @@ const runAllGenerationTasks = async (configuration: Configuration): Promise<{ lo
         tanstackQueryConfig.client ?? 'client',
       )
       return tanstackQueryResult.ok
-        ? `✓ tanstack-query -> ${outputPath}`
-        : `✗ tanstack-query: ${tanstackQueryResult.error}`
+        ? `✅ tanstack-query -> ${outputPath}`
+        : `❌ tanstack-query: ${tanstackQueryResult.error}`
     })()
   }
 
@@ -585,10 +585,10 @@ const runAllGenerationTasks = async (configuration: Configuration): Promise<{ lo
           true,
           svelteQueryConfig.client ?? 'client',
         )
-        if (!svelteQueryResult.ok) return `✗ svelte-query(split): ${svelteQueryResult.error}`
+        if (!svelteQueryResult.ok) return `❌ svelte-query(split): ${svelteQueryResult.error}`
         return beforeFiles.length > 0
-          ? `✓ svelte-query(split) -> ${outputDirectory}/*.ts (cleaned ${beforeFiles.length})`
-          : `✓ svelte-query(split) -> ${outputDirectory}/*.ts`
+          ? `✅ svelte-query(split) -> ${outputDirectory}/*.ts (cleaned ${beforeFiles.length})`
+          : `✅ svelte-query(split) -> ${outputDirectory}/*.ts`
       }
       const outputPath = toAbsolutePath(svelteQueryConfig.output)
       const svelteQueryResult = await svelteQuery(
@@ -599,8 +599,8 @@ const runAllGenerationTasks = async (configuration: Configuration): Promise<{ lo
         svelteQueryConfig.client ?? 'client',
       )
       return svelteQueryResult.ok
-        ? `✓ svelte-query -> ${outputPath}`
-        : `✗ svelte-query: ${svelteQueryResult.error}`
+        ? `✅ svelte-query -> ${outputPath}`
+        : `❌ svelte-query: ${svelteQueryResult.error}`
     })()
   }
 
@@ -619,10 +619,10 @@ const runAllGenerationTasks = async (configuration: Configuration): Promise<{ lo
           true,
           vueQueryConfig.client ?? 'client',
         )
-        if (!vueQueryResult.ok) return `✗ vue-query(split): ${vueQueryResult.error}`
+        if (!vueQueryResult.ok) return `❌ vue-query(split): ${vueQueryResult.error}`
         return beforeFiles.length > 0
-          ? `✓ vue-query(split) -> ${outputDirectory}/*.ts (cleaned ${beforeFiles.length})`
-          : `✓ vue-query(split) -> ${outputDirectory}/*.ts`
+          ? `✅ vue-query(split) -> ${outputDirectory}/*.ts (cleaned ${beforeFiles.length})`
+          : `✅ vue-query(split) -> ${outputDirectory}/*.ts`
       }
       const outputPath = toAbsolutePath(vueQueryConfig.output)
       const vueQueryResult = await vueQuery(
@@ -633,8 +633,8 @@ const runAllGenerationTasks = async (configuration: Configuration): Promise<{ lo
         vueQueryConfig.client ?? 'client',
       )
       return vueQueryResult.ok
-        ? `✓ vue-query -> ${outputPath}`
-        : `✗ vue-query: ${vueQueryResult.error}`
+        ? `✅ vue-query -> ${outputPath}`
+        : `❌ vue-query: ${vueQueryResult.error}`
     })()
   }
 
@@ -826,8 +826,9 @@ export function honoTakibiVite(): any {
 
   const runGeneration = async () => {
     if (!pluginState.current) return
+    console.log('🔥 hono-takibi')
     const { logs } = await runAllGenerationTasks(pluginState.current)
-    for (const logMessage of logs) console.log(`[hono-takibi] ${logMessage}`)
+    for (const logMessage of logs) console.log(logMessage)
   }
 
   const runGenerationAndReload = async (server?: ViteDevServer) => {
@@ -838,13 +839,13 @@ export function honoTakibiVite(): any {
   const handleConfigurationChange = async (server: ViteDevServer) => {
     const nextConfiguration = await loadConfigurationWithHotReload(server)
     if (!nextConfiguration.ok) {
-      console.error(`[hono-takibi] ✗ config: ${nextConfiguration.error}`)
+      console.error(`❌ config: ${nextConfiguration.error}`)
       return
     }
 
     if (pluginState.current) {
       const cleanedPaths = await cleanupStaleOutputs(pluginState.current, nextConfiguration.value)
-      for (const cleanedPath of cleanedPaths) console.log(`[hono-takibi] ✓ cleanup: ${cleanedPath}`)
+      for (const cleanedPath of cleanedPaths) console.log(`✅ cleanup: ${cleanedPath}`)
     }
 
     pluginState.previous = pluginState.current
@@ -862,9 +863,9 @@ export function honoTakibiVite(): any {
     handleHotUpdate(context: { file: string; server: ViteDevServer }) {
       const absoluteFilePath = path.resolve(context.file)
       if (absoluteFilePath === path.resolve(process.cwd(), 'hono-takibi.config.ts')) {
-        console.log('[hono-takibi] config changed (hot-update)')
+        console.log('config changed (hot-update)')
         handleConfigurationChange(context.server).catch((error) =>
-          console.error('[hono-takibi] hot-update error:', error),
+          console.error('❌ hot-update error:', error),
         )
         return []
       }
@@ -879,7 +880,7 @@ export function honoTakibiVite(): any {
       ;(async () => {
         const initialConfiguration = await loadConfigurationWithHotReload(server)
         if (!initialConfiguration.ok) {
-          console.error(`[hono-takibi] ✗ config: ${initialConfiguration.error}`)
+          console.error(`❌ config: ${initialConfiguration.error}`)
           return
         }
         pluginState.current = initialConfiguration.value
@@ -895,7 +896,7 @@ export function honoTakibiVite(): any {
         server.watcher.on('all', async (_eventType, filePath) => {
           const absoluteChangedPath = path.resolve(filePath)
           if (absoluteChangedPath === absoluteConfigFilePath) {
-            console.log('[hono-takibi] config changed (watch)')
+            console.log('config changed (watch)')
             await handleConfigurationChange(server)
             return
           }
@@ -908,7 +909,7 @@ export function honoTakibiVite(): any {
         })
 
         await runGenerationAndReload(server)
-      })().catch((error) => console.error('[hono-takibi] watch error:', error))
+      })().catch((error) => console.error('❌ watch error:', error))
     },
   }
 

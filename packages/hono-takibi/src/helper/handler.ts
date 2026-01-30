@@ -1,3 +1,27 @@
+/**
+ * Route handler generation module.
+ *
+ * Generates skeleton handler files for Hono routes based on OpenAPI operations.
+ *
+ * ```mermaid
+ * flowchart TD
+ *   A["zodOpenAPIHonoHandler(openapi, output, test)"] --> B["Extract paths and methods"]
+ *   B --> C["Group by first path segment"]
+ *   C --> D["Create handlers directory"]
+ *   D --> E["For each handler file"]
+ *   E --> F["Generate RouteHandler type imports"]
+ *   F --> G["Generate empty handler functions"]
+ *   G --> H["Write handler file"]
+ *   H --> I{"Generate test file?"}
+ *   I -->|Yes| J["Write empty test file"]
+ *   I -->|No| K["Continue"]
+ *   J --> K
+ *   K --> L["Write index.ts barrel"]
+ *   L --> M["Return result"]
+ * ```
+ *
+ * @module helper/handler
+ */
 import { fmt } from '../format/index.js'
 import { mkdir, writeFile } from '../fsp/index.js'
 import type { OpenAPI } from '../openapi/index.js'

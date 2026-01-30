@@ -1,8 +1,8 @@
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
-import { parseResponse } from 'hono/client'
 import type { Key } from 'swr'
-import type { SWRMutationConfiguration } from 'swr/mutation'
 import useSWRMutation from 'swr/mutation'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
 import { client } from '../clients/09-callbacks'
 
 /**

@@ -1,7 +1,7 @@
 {
   "name": "hono-takibi",
   "description": "Hono Takibi is a code generator from OpenAPI to @hono/zod-openapi",
-  "version": "0.9.80",
+  "version": "0.9.81",
   "type": "module",
   "license": "MIT",
   "keywords": [
@@ -19,8 +19,7 @@
   "bugs": {
     "url": "https://github.com/nakita628/hono-takibi/issues"
   },
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "sideEffects": false,
   "files": [
     "dist"
   ],
@@ -68,7 +67,7 @@
   "scripts": {
     "dev": "vite --host",
     "deps": "rm -rf node_modules && pnpm install",
-    "build": "rm -rf ./dist/* && tsc",
+    "build": "tsdown",
     "typecheck": "tsc --noEmit",
     "release": "pnpm build && pnpm publish"
   },
@@ -76,14 +75,15 @@
     "@apidevtools/swagger-parser": "^12.1.0",
     "@typespec/compiler": "^1.8.0",
     "@typespec/openapi3": "^1.8.0",
-    "oxfmt": "^0.24.0",
+    "oxfmt": "^0.27.0",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   },
   "devDependencies": {
-    "@types/node": "^25.0.9",
+    "@types/node": "^25.1.0",
     "@typespec/http": "^1.8.0",
     "@typespec/rest": "^0.78.0",
-    "@typespec/versioning": "^0.78.0"
+    "@typespec/versioning": "^0.78.0",
+    "tsdown": "^0.20.1"
   }
 }

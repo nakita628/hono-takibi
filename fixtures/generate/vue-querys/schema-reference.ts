@@ -1,5 +1,5 @@
-import type { QueryFunctionContext, UseQueryOptions } from '@tanstack/vue-query'
 import { useQuery } from '@tanstack/vue-query'
+import type { UseQueryOptions, QueryFunctionContext } from '@tanstack/vue-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/schema-reference'

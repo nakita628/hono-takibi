@@ -2,6 +2,7 @@
   "compilerOptions": {
     "target": "ESNext",
     "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "rootDir": "./src",
     "outDir": "./dist",
     "strict": true,
@@ -11,5 +12,5 @@
     "declaration": true,
     "exactOptionalPropertyTypes": true
   },
-  "exclude": ["**/src/**/*.test.ts"]
+  "exclude": ["**/src/**/*.test.ts", "tsdown.config.ts"]
 }

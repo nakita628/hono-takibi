@@ -1,3 +1,6 @@
+// Re-export guards for backward compatibility
+export { isHttpMethod, isRecord } from '../guard/index.js'
+
 /**
  * Normalize a JSON Schema `type` value into an array of type strings.
  *
@@ -20,45 +23,6 @@ export function normalizeTypes(
       ],
 ) {
   return t === undefined ? [] : Array.isArray(t) ? t : [t]
-}
-
-/**
- * Checks if a value is a non-null object (record-like).
- *
- * @param value - The value to check.
- * @returns `true` if the value is a non-null object.
- *
- * @example
- * ```ts
- * isRecord({ key: 'value' }) // true
- * isRecord(null)             // false
- * isRecord('text')           // false
- * isRecord([])               // true (arrays are objects)
- * ```
- */
-export function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null
-}
-
-/**
- * Checks if a string is a valid HTTP method.
- *
- * @param method - The HTTP method to check.
- * @returns `true` if the method is a valid HTTP method; otherwise `false`.
- */
-export function isHttpMethod(
-  method: string,
-): method is 'get' | 'put' | 'post' | 'delete' | 'patch' | 'options' | 'head' | 'trace' {
-  return (
-    method === 'get' ||
-    method === 'put' ||
-    method === 'post' ||
-    method === 'delete' ||
-    method === 'patch' ||
-    method === 'options' ||
-    method === 'head' ||
-    method === 'trace'
-  )
 }
 
 /**
