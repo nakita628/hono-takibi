@@ -197,7 +197,7 @@ function typeDocVitePlugin(): PluginOption {
     const project = await app.convert()
     if (!project) throw new Error('convert failed')
 
-    await app.generateDocs(project, 'public')
+    await app.generateDocs(project, 'docs')
     serverRef.current?.ws.send({ type: 'full-reload' })
   }
 
@@ -323,9 +323,9 @@ function typeDocVitePlugin(): PluginOption {
        *
        * @remarks
        * Handles requests for:
-       * - `/` → `public/index.html`
-       * - `/*.html` → `public/*.html`
-       * - `/path/` → `public/path/index.html`
+       * - `/` → `docs/index.html`
+       * - `/*.html` → `docs/*.html`
+       * - `/path/` → `docs/path/index.html`
        *
        * Includes path traversal protection to prevent
        * access outside the public directory.
@@ -344,7 +344,7 @@ function typeDocVitePlugin(): PluginOption {
                 ? `${urlPath}index.html`.replace(/^\//, '')
                 : urlPath.replace(/^\//, '')
 
-          const publicRoot = path.join(server.config.root, 'public')
+          const publicRoot = path.join(server.config.root, 'docs')
           const file = path.join(publicRoot, rel)
 
           const normalized = path.normalize(file)
