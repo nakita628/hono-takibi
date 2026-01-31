@@ -1,9 +1,9 @@
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
-import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
 import { client } from '@/lib'
 
 /**
@@ -18,6 +18,8 @@ export function getGetTodoKey(args: InferRequestType<typeof client.todo.$get>) {
  * GET /todo
  *
  * Retrieve a list of todos
+ *
+ * Retrieve a list of todos with pagination
  */
 export function useGetTodo(
   args: InferRequestType<typeof client.todo.$get>,
@@ -52,6 +54,8 @@ export function getPostTodoMutationKey() {
  * POST /todo
  *
  * Create a new todo
+ *
+ * Create a new todo item
  */
 export function usePostTodo(options?: {
   mutation?: SWRMutationConfiguration<
@@ -88,6 +92,8 @@ export function getGetTodoIdKey(args: InferRequestType<(typeof client.todo)[':id
  * GET /todo/{id}
  *
  * Get a single todo
+ *
+ * Get a single todo by ID
  */
 export function useGetTodoId(
   args: InferRequestType<(typeof client.todo)[':id']['$get']>,
@@ -120,6 +126,8 @@ export function getPutTodoIdMutationKey() {
 
 /**
  * PUT /todo/{id}
+ *
+ * Update an existing todo
  *
  * Update an existing todo
  */
@@ -159,6 +167,8 @@ export function getDeleteTodoIdMutationKey() {
 
 /**
  * DELETE /todo/{id}
+ *
+ * Delete a todo
  *
  * Delete a todo
  */

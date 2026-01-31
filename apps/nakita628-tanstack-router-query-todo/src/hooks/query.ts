@@ -1,10 +1,10 @@
+import { useQuery, useMutation } from '@tanstack/react-query'
 import type {
+  UseQueryOptions,
   QueryFunctionContext,
   UseMutationOptions,
-  UseQueryOptions,
 } from '@tanstack/react-query'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '@/lib'
 
@@ -36,6 +36,8 @@ export const getGetTodoQueryOptions = (
  * GET /todo
  *
  * Retrieve a list of todos
+ *
+ * Retrieve a list of todos with pagination
  */
 export function useGetTodo(
   args: InferRequestType<typeof client.todo.$get>,
@@ -75,6 +77,8 @@ export const getPostTodoMutationOptions = (clientOptions?: ClientRequestOptions)
  * POST /todo
  *
  * Create a new todo
+ *
+ * Create a new todo item
  */
 export function usePostTodo(options?: {
   mutation?: UseMutationOptions<
@@ -117,6 +121,8 @@ export const getGetTodoIdQueryOptions = (
  * GET /todo/{id}
  *
  * Get a single todo
+ *
+ * Get a single todo by ID
  */
 export function useGetTodoId(
   args: InferRequestType<(typeof client.todo)[':id']['$get']>,
@@ -158,6 +164,8 @@ export const getPutTodoIdMutationOptions = (clientOptions?: ClientRequestOptions
  * PUT /todo/{id}
  *
  * Update an existing todo
+ *
+ * Update an existing todo
  */
 export function usePutTodoId(options?: {
   mutation?: UseMutationOptions<
@@ -196,6 +204,8 @@ export const getDeleteTodoIdMutationOptions = (clientOptions?: ClientRequestOpti
 
 /**
  * DELETE /todo/{id}
+ *
+ * Delete a todo
  *
  * Delete a todo
  */
