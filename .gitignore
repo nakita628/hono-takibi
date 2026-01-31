@@ -1,6 +1,5 @@
 .pnpm-store
 node_modules
-pnpm-lock.yaml
 dist
 coverage
 .env
@@ -31,3 +30,4 @@ worker-configuration.d.ts
 orval
 drizzle
 takibi-idea
+docs/hono-takibi/docs
