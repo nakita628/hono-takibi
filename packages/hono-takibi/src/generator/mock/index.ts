@@ -188,7 +188,7 @@ function filterToJsonContentTypes(openapi: OpenAPI): OpenAPI {
     filteredPaths[path] = filteredPathItem as typeof pathItem
   }
 
-  return { ...openapi, paths: filteredPaths }
+  return { ...openapi, paths: filteredPaths } as OpenAPI
 }
 
 export function generateMockServer(
@@ -323,13 +323,7 @@ export function generateMockServer(
 import type { RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'`
 
-  const appCode = `const app = new OpenAPIHono({
-  defaultHook: (result, c) => {
-    if (!result.success) {
-      return c.json({ success: false, error: result.error }, 400)
-    }
-  }
-})${basePath !== '/' ? `.basePath('${basePath}')` : ''}
+  const appCode = `const app = new OpenAPIHono()${basePath !== '/' ? `.basePath('${basePath}')` : ''}
 
 export const api = app
   ${appSetup}

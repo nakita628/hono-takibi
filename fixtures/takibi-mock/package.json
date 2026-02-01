@@ -1,0 +1,24 @@
+{
+  "name": "@fixtures/takibi-mock",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "generate": "hono-takibi openapi.yaml -o src/mock.ts --mock --test",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@faker-js/faker": "^9.0.0",
+    "@hono/zod-openapi": "^1.1.0",
+    "hono": "^4.0.0",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "@hono/cli": "^0.1.10",
+    "@types/node": "^22.0.0",
+    "hono-takibi": "workspace:*",
+    "typescript": "^5.9.0",
+    "vitest": "^4.0.0"
+  }
+}

@@ -22,6 +22,7 @@ interface TestCase {
   successStatus: number
   errorStatuses: number[]
   security: SecurityRequirement[]
+  usedSchemaRefs: string[]
 }
 
 function extractSecurityRequirements(
@@ -119,16 +120,27 @@ export function extractTestCases(spec: OpenAPI): TestCase[] {
       }
 
       // Extract request body
-      let requestBody: TestCase['requestBody']
-      if (op.requestBody?.content) {
-        const jsonContent = op.requestBody.content['application/json']
+      const requestBody: TestCase['requestBody'] = (() => {
+        const jsonContent = op.requestBody?.content?.['application/json']
         if (jsonContent?.schema) {
-          requestBody = {
-            fakerCode: schemaToFaker(jsonContent.schema),
-            contentType: 'application/json',
+          return { fakerCode: schemaToFaker(jsonContent.schema), contentType: 'application/json' }
+        }
+        return undefined
+      })()
+
+      // Extract used schema references from request body
+      const usedSchemaRefs: string[] = (() => {
+        const refs: string[] = []
+        const jsonContent = op.requestBody?.content?.['application/json']
+        if (jsonContent?.schema) {
+          const ref = (jsonContent.schema as { $ref?: string }).$ref
+          if (ref) {
+            const schemaName = ref.replace('#/components/schemas/', '')
+            refs.push(schemaName)
           }
         }
-      }
+        return refs
+      })()
 
       // Extract response status codes
       const responseKeys = Object.keys(op.responses || {})
@@ -160,6 +172,7 @@ export function extractTestCases(spec: OpenAPI): TestCase[] {
         successStatus,
         errorStatuses,
         security,
+        usedSchemaRefs,
       })
     }
   }
@@ -167,24 +180,25 @@ export function extractTestCases(spec: OpenAPI): TestCase[] {
   return testCases
 }
 
-function generateMockFunctions(spec: OpenAPI): string {
-  if (!spec.components?.schemas) return ''
+function generateMockFunctions(spec: OpenAPI, usedSchemaNames: Set<string>): string {
+  if (!spec.components?.schemas || usedSchemaNames.size === 0) return ''
 
-  let code = ''
-  for (const [name, schema] of Object.entries(spec.components.schemas)) {
-    const fakerCode = schemaToFaker(schema as Schema)
-    code += `function mock${name}() {\n  return ${fakerCode}\n}\n\n`
-  }
-  return code
+  return Object.entries(spec.components.schemas)
+    .filter(([name]) => usedSchemaNames.has(name))
+    .map(([name, schema]) => {
+      const fakerCode = schemaToFaker(schema as Schema)
+      return `function mock${name}() {\n  return ${fakerCode}\n}\n\n`
+    })
+    .join('')
 }
 
 function generateAuthHeader(sec: SecurityRequirement): string {
   switch (sec.type) {
     case 'bearer':
     case 'oauth2':
-      return `'Authorization': 'Bearer ' + faker.string.alphanumeric(32)`
+      return "'Authorization': `Bearer ${faker.string.alphanumeric(32)}`"
     case 'basic':
-      return `'Authorization': 'Basic ' + btoa(faker.internet.username() + ':' + faker.internet.password())`
+      return "'Authorization': `Basic ${btoa(`${faker.internet.username()}:${faker.internet.password()}`)}`"
     case 'apiKey':
       if (sec.in === 'header') {
         return `'${sec.name}': faker.string.alphanumeric(32)`
@@ -196,48 +210,40 @@ function generateAuthHeader(sec: SecurityRequirement): string {
 }
 
 function generateTestCase(tc: TestCase): string {
-  let code = ''
+  const testPath = tc.pathParams.reduce(
+    (path, param) => path.replace(`{${param.name}}`, `\${${param.name}}`),
+    tc.path,
+  )
+  const pathSetup = tc.pathParams.map((param) => `const ${param.name} = ${param.fakerCode}`)
 
-  let testPath = tc.path
-  const pathSetup: string[] = []
-
-  for (const param of tc.pathParams) {
-    pathSetup.push(`const ${param.name} = ${param.fakerCode}`)
-    testPath = testPath.replace(`{${param.name}}`, `\${${param.name}}`)
-  }
-
-  const querySetup: string[] = []
-  const queryParts: string[] = []
-  for (const param of tc.queryParams.filter((p) => p.required)) {
-    querySetup.push(`const ${param.name} = ${param.fakerCode}`)
-    queryParts.push(`${param.name}=\${encodeURIComponent(String(${param.name}))}`)
-  }
-
+  const requiredQueryParams = tc.queryParams.filter((p) => p.required)
+  const querySetup = requiredQueryParams.map((param) => `const ${param.name} = ${param.fakerCode}`)
+  const queryParts = requiredQueryParams.map(
+    (param) => `${param.name}=\${encodeURIComponent(String(${param.name}))}`,
+  )
   const queryString = queryParts.length > 0 ? `?${queryParts.join('&')}` : ''
 
-  const headerSetup: string[] = []
-  const headers: string[] = []
-  for (const param of tc.headerParams.filter((p) => p.required)) {
-    headerSetup.push(`const ${param.name} = ${param.fakerCode}`)
-    headers.push(`'${param.name}': String(${param.name})`)
-  }
+  const requiredHeaderParams = tc.headerParams.filter((p) => p.required)
+  const headerSetup = requiredHeaderParams.map(
+    (param) => `const ${param.name} = ${param.fakerCode}`,
+  )
+  const headerEntries = requiredHeaderParams.map(
+    (param) => `'${param.name}': String(${param.name})`,
+  )
 
-  // Add auth headers
-  const authHeaders: string[] = []
-  for (const sec of tc.security) {
-    const authHeader = generateAuthHeader(sec)
-    if (authHeader) authHeaders.push(authHeader)
-  }
+  const authHeaders = tc.security.map(generateAuthHeader).filter(Boolean)
 
-  let bodySetup = ''
-  let bodyOption = ''
-  if (tc.requestBody) {
-    bodySetup = `const body = ${tc.requestBody.fakerCode}`
-    bodyOption = ',\n          body: JSON.stringify(body)'
-    headers.push("'Content-Type': 'application/json'")
-  }
+  const { bodySetup, bodyOption, contentTypeHeader } = tc.requestBody
+    ? {
+        bodySetup: `const body = ${tc.requestBody.fakerCode}`,
+        bodyOption: ',\n          body: JSON.stringify(body)',
+        contentTypeHeader: "'Content-Type': 'application/json'",
+      }
+    : { bodySetup: '', bodyOption: '', contentTypeHeader: '' }
 
+  const headers = [...headerEntries, ...(contentTypeHeader ? [contentTypeHeader] : [])]
   const allHeaders = [...headers, ...authHeaders]
+
   const headersOption =
     allHeaders.length > 0
       ? `,\n          headers: {\n            ${allHeaders.join(',\n            ')}\n          }`
@@ -253,7 +259,7 @@ function generateTestCase(tc: TestCase): string {
     .filter(Boolean)
     .join('\n        ')
 
-  code += `
+  const mainTest = `
     describe('${tc.method} ${tc.path}', () => {
       it('${escapeString(summary)}', async () => {
         ${setupCode}
@@ -265,9 +271,9 @@ function generateTestCase(tc: TestCase): string {
         expect(res.status).toBe(${tc.successStatus})
       })`
 
-  // Add unauthorized test if security is required
-  if (tc.security.length > 0) {
-    code += `
+  const unauthorizedTest =
+    tc.security.length > 0
+      ? `
 
       it('should return 401 without auth', async () => {
         ${setupCode}
@@ -278,28 +284,11 @@ function generateTestCase(tc: TestCase): string {
 
         expect(res.status).toBe(401)
       })`
-  }
+      : ''
 
-  code += `
+  return `${mainTest}${unauthorizedTest}
     })
 `
-  return code
-}
-
-function getErrorDescription(status: number): string {
-  const descriptions: Record<number, string> = {
-    400: 'Bad Request',
-    401: 'Unauthorized',
-    403: 'Forbidden',
-    404: 'Not Found',
-    405: 'Method Not Allowed',
-    409: 'Conflict',
-    422: 'Unprocessable Entity',
-    500: 'Internal Server Error',
-    502: 'Bad Gateway',
-    503: 'Service Unavailable',
-  }
-  return descriptions[status] || 'Error'
 }
 
 function escapeString(s: string): string {
@@ -310,47 +299,38 @@ export function generateTestFile(spec: OpenAPI, appImportPath: string = './app')
   const testCases = extractTestCases(spec)
   const apiTitle = spec.info?.title || 'API'
 
-  // Group by tag
-  const byTag = new Map<string, TestCase[]>()
-  for (const tc of testCases) {
-    const tag = tc.tag || 'default'
-    if (!byTag.has(tag)) {
-      byTag.set(tag, [])
-    }
-    byTag.get(tag)!.push(tc)
-  }
+  // Collect all used schema names from test cases
+  const usedSchemaNames = new Set(testCases.flatMap((tc) => tc.usedSchemaRefs))
 
-  let code = `import { describe, it, expect } from 'vitest'
+  // Group by tag using reduce
+  const byTag = testCases.reduce((acc, tc) => {
+    const tag = tc.tag || 'default'
+    return acc.set(tag, [...(acc.get(tag) || []), tc])
+  }, new Map<string, TestCase[]>())
+
+  const imports = `import { describe, it, expect } from 'vitest'
 import { faker } from '@faker-js/faker'
 import app from '${appImportPath}'
 
 `
 
-  code += generateMockFunctions(spec)
+  const mockFunctions = generateMockFunctions(spec, usedSchemaNames)
 
-  code += `describe('${escapeString(apiTitle)}', () => {\n`
+  const tagDescribes = Array.from(byTag.entries())
+    .map(([tag, cases]) => {
+      const tagInfo = spec.tags?.find((t) => t.name === tag)
+      const tagDescription = tagInfo?.description || tag
+      const testCasesCode = cases.map((tc) => generateTestCase(tc)).join('')
+      return `\n  describe('${escapeString(tagDescription)}', () => {\n${testCasesCode}  })\n`
+    })
+    .join('')
 
-  for (const [tag, cases] of byTag) {
-    const tagInfo = spec.tags?.find((t) => t.name === tag)
-    const tagDescription = tagInfo?.description || tag
-
-    code += `\n  describe('${escapeString(tagDescription)}', () => {\n`
-
-    for (const tc of cases) {
-      code += generateTestCase(tc)
-    }
-
-    code += '  })\n'
-  }
-
-  code += '})\n'
-
-  return code
+  return `${imports}${mockFunctions}describe('${escapeString(apiTitle)}', () => {\n${tagDescribes}})\n`
 }
 
 export function generateHandlerTestCode(
   spec: OpenAPI,
-  handlerPath: string,
+  _handlerPath: string,
   routeNames: string[],
   importFrom: string,
 ): string {
@@ -363,17 +343,17 @@ export function generateHandlerTestCode(
     return ''
   }
 
-  let code = `import { describe, it, expect } from 'vitest'
+  // Collect used schema names only from relevant cases
+  const usedSchemaNames = new Set(relevantCases.flatMap((tc) => tc.usedSchemaRefs))
+
+  const imports = `import { describe, it, expect } from 'vitest'
 import { faker } from '@faker-js/faker'
 import app from '${importFrom}'
 
 `
 
-  code += generateMockFunctions(spec)
+  const mockFunctions = generateMockFunctions(spec, usedSchemaNames)
+  const testCasesCode = relevantCases.map((tc) => generateTestCase(tc)).join('')
 
-  for (const tc of relevantCases) {
-    code += generateTestCase(tc)
-  }
-
-  return code
+  return `${imports}${mockFunctions}${testCasesCode}`
 }
