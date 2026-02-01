@@ -61,11 +61,11 @@ describe('parseOpenAPI', () => {
 // TypeSpec test
 describe('parseOpenAPI TypeSpec', () => {
   beforeEach(() => {
-    fs.rmSync('packages/hono-takibi/tmp-spec.tsp', { force: true })
+    fs.rmSync('tmp-spec.tsp', { force: true })
     fs.rmSync('packages/hono-takibi/tmp', { recursive: true, force: true })
   })
   afterEach(() => {
-    fs.rmSync('packages/hono-takibi/tmp-spec.tsp', { force: true })
+    fs.rmSync('tmp-spec.tsp', { force: true })
     fs.rmSync('packages/hono-takibi/tmp', { recursive: true, force: true })
   })
   it('typeSpecToOpenAPI not Error', { timeout: 30000 }, async () => {
@@ -112,8 +112,8 @@ model Error {
 
 @get op read(@path id: string): Widget | Error;
 `
-    fs.writeFileSync('packages/hono-takibi/tmp-spec.tsp', tmpTsp)
-    const result = await parseOpenAPI('packages/hono-takibi/tmp-spec.tsp')
+    fs.writeFileSync('tmp-spec.tsp', tmpTsp)
+    const result = await parseOpenAPI('tmp-spec.tsp')
     expect(result.ok).toBe(true)
   })
 
@@ -161,16 +161,16 @@ model Error {
 
 @get op read(@path id: string): Widget | Error;
 `
-    fs.mkdirSync('packages/hono-takibi/tmp', { recursive: true })
-    fs.writeFileSync('packages/hono-takibi/tmp/tmp-spec.tsp', tmpTsp)
-    const result = await parseOpenAPI('packages/hono-takibi/tmp/tmp-spec.tsp')
+    fs.mkdirSync('tmp', { recursive: true })
+    fs.writeFileSync('tmp/tmp-spec.tsp', tmpTsp)
+    const result = await parseOpenAPI('tmp/tmp-spec.tsp')
     expect(result.ok).toBe(true)
   })
 
   it('typeSpecToOpenAPI Error', { timeout: 10000 }, async () => {
     const tmpTsp = `import "@typespec`
-    fs.writeFileSync('packages/hono-takibi/tmp-spec.tsp', tmpTsp)
-    const result = await parseOpenAPI('packages/hono-takibi/tmp-spec.tsp')
+    fs.writeFileSync('tmp-spec.tsp', tmpTsp)
+    const result = await parseOpenAPI('tmp-spec.tsp')
     expect(result.ok).toBe(false)
   })
 })

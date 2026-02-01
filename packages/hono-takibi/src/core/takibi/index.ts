@@ -1,6 +1,4 @@
 import path from 'node:path'
-import { generateMockServer } from '../../generator/mock/index.js'
-import { generateTestFile } from '../../generator/test/index.js'
 import { app } from '../../generator/zod-openapi-hono/app/index.js'
 import { zodOpenAPIHono } from '../../generator/zod-openapi-hono/openapi/index.js'
 import { zodOpenAPIHonoHandler } from '../../helper/handler.js'
@@ -49,7 +47,6 @@ export async function takibi(
   openAPI: OpenAPI,
   output: `${string}.ts`,
   template: boolean,
-  mock: boolean,
   test: boolean,
   basePath: string,
   componentsOptions: {
@@ -78,27 +75,6 @@ export async function takibi(
     }
 > {
   try {
-    // --mock: Generate single-file mock server
-    if (mock) {
-      const mockCode = generateMockServer(openAPI, basePath, {
-        readonly: componentsOptions.readonly,
-      })
-      const coreResult = await core(mockCode, path.dirname(output), output)
-      if (!coreResult.ok) return { ok: false, error: coreResult.error }
-
-      // --test: Generate single-file test
-      if (test) {
-        const basename = path.basename(output, '.ts')
-        const testCode = generateTestFile(openAPI, `./${basename}`)
-        const testOutput = output.replace(/\.ts$/, '.test.ts') as `${string}.ts`
-        const testResult = await core(testCode, path.dirname(output), testOutput)
-        if (!testResult.ok) return { ok: false, error: testResult.error }
-        return { ok: true, value: `🔥 Generated mock server and test written to ${output}` }
-      }
-
-      return { ok: true, value: `🔥 Generated mock server written to ${output}` }
-    }
-
     // Normal generation (routes.ts)
     const coreResult = await core(
       zodOpenAPIHono(openAPI, componentsOptions),

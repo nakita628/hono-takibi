@@ -148,6 +148,15 @@ type Config = {
     readonly split?: boolean
     readonly client?: string
   }
+  readonly test?: {
+    readonly output: string | `${string}.ts`
+    readonly import: string
+    readonly split?: boolean
+  }
+  readonly mock?: {
+    readonly output: string | `${string}.ts`
+    readonly split?: boolean
+  }
 }
 
 /**
@@ -590,6 +599,41 @@ export function parseConfig(
     }
   }
 
+  // test
+  if (config.test !== undefined) {
+    if (typeof config.test.output !== 'string') {
+      return { ok: false, error: `Invalid output format for test: ${String(config.test.output)}` }
+    }
+    if (typeof config.test.import !== 'string') {
+      return { ok: false, error: `Invalid import format for test: ${String(config.test.import)}` }
+    }
+    if (config.test.split !== undefined && typeof config.test.split !== 'boolean') {
+      return { ok: false, error: `Invalid split format for test: ${String(config.test.split)}` }
+    }
+    if (config.test.split === true && isTs(config.test.output)) {
+      return {
+        ok: false,
+        error: `Invalid test output path for split mode (must be a directory, not .ts): ${config.test.output}`,
+      }
+    }
+  }
+
+  // mock
+  if (config.mock !== undefined) {
+    if (typeof config.mock.output !== 'string') {
+      return { ok: false, error: `Invalid output format for mock: ${String(config.mock.output)}` }
+    }
+    if (config.mock.split !== undefined && typeof config.mock.split !== 'boolean') {
+      return { ok: false, error: `Invalid split format for mock: ${String(config.mock.split)}` }
+    }
+    if (config.mock.split === true && isTs(config.mock.output)) {
+      return {
+        ok: false,
+        error: `Invalid mock output path for split mode (must be a directory, not .ts): ${config.mock.output}`,
+      }
+    }
+  }
+
   const result = {
     ...config,
     ...(config['zod-openapi'] && {
@@ -745,6 +789,24 @@ export function parseConfig(
           config['vue-query'].split !== true && !isTs(config['vue-query'].output)
             ? `${config['vue-query'].output}/index.ts`
             : config['vue-query'].output,
+      },
+    }),
+    ...(config.test && {
+      test: {
+        ...config.test,
+        output:
+          config.test.split !== true && !isTs(config.test.output)
+            ? `${config.test.output}/index.ts`
+            : config.test.output,
+      },
+    }),
+    ...(config.mock && {
+      mock: {
+        ...config.mock,
+        output:
+          config.mock.split !== true && !isTs(config.mock.output)
+            ? `${config.mock.output}/index.ts`
+            : config.mock.output,
       },
     }),
   }

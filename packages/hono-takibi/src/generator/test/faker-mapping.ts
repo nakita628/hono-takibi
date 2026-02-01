@@ -14,7 +14,7 @@ import type { Schema } from '../../openapi/index.js'
 /**
  * OpenAPI format to faker method mapping
  */
-export const FORMAT_TO_FAKER: Record<string, string> = {
+export const FORMAT_TO_FAKER: { [key: string]: string } = {
   // Date/Time
   date: 'faker.date.past().toISOString().slice(0, 10)',
   'date-time': 'faker.date.past().toISOString()',
@@ -64,7 +64,7 @@ export const FORMAT_TO_FAKER: Record<string, string> = {
 /**
  * OpenAPI type to faker method mapping (fallback when no format specified)
  */
-export const TYPE_TO_FAKER: Record<string, string> = {
+export const TYPE_TO_FAKER: { [key: string]: string } = {
   string: 'faker.string.alpha({ length: { min: 5, max: 20 } })',
   number: 'faker.number.float({ min: 0, max: 1000, fractionDigits: 2 })',
   integer: 'faker.number.int({ min: 1, max: 1000 })',
@@ -75,7 +75,7 @@ export const TYPE_TO_FAKER: Record<string, string> = {
 /**
  * Property name heuristics (when property name suggests a format)
  */
-export const PROPERTY_NAME_TO_FAKER: Record<string, string> = {
+export const PROPERTY_NAME_TO_FAKER: { [key: string]: string } = {
   id: 'faker.number.int({ min: 1, max: 99999 })',
   uuid: 'faker.string.uuid()',
   email: 'faker.internet.email()',
@@ -107,15 +107,11 @@ export const PROPERTY_NAME_TO_FAKER: Record<string, string> = {
   age: 'faker.number.int({ min: 1, max: 120 })',
 }
 
-export interface SchemaToFakerOptions {
-  /**
-   * Use example values from OpenAPI schema when available
-   */
+export type SchemaToFakerOptions = {
+  /** Use example values from OpenAPI schema when available */
   useExamples?: boolean
-  /**
-   * Resolved schemas map for $ref resolution
-   */
-  schemas?: Record<string, Schema>
+  /** Resolved schemas map for $ref resolution */
+  schemas?: { [key: string]: Schema }
 }
 
 /**

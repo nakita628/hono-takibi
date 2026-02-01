@@ -81,33 +81,24 @@ const runTakibi = async (
   output: `${string}.ts`,
   options: {
     readonly template: boolean
-    readonly mock?: boolean
     readonly test: boolean
     readonly basePath?: string
   },
 ) =>
-  takibi(
-    openapi,
-    output,
-    options.template,
-    options.mock ?? false,
-    options.test,
-    options.basePath ?? '/',
-    {
-      exportSchemasTypes: true,
-      exportSchemas: true,
-      exportParametersTypes: false,
-      exportParameters: false,
-      exportSecuritySchemes: false,
-      exportRequestBodies: false,
-      exportResponses: false,
-      exportHeadersTypes: false,
-      exportHeaders: false,
-      exportExamples: false,
-      exportLinks: false,
-      exportCallbacks: false,
-    },
-  )
+  takibi(openapi, output, options.template, options.test, options.basePath ?? '/', {
+    exportSchemasTypes: true,
+    exportSchemas: true,
+    exportParametersTypes: false,
+    exportParameters: false,
+    exportSecuritySchemes: false,
+    exportRequestBodies: false,
+    exportResponses: false,
+    exportHeadersTypes: false,
+    exportHeaders: false,
+    exportExamples: false,
+    exportLinks: false,
+    exportCallbacks: false,
+  })
 
 describe('takibi generate (sandbox)', () => {
   it('should generate Hono app with OpenAPI routes (no template/test)', async () => {
@@ -497,15 +488,11 @@ export const getTestRoute = createRoute({
       expect(testContent).toBe(`import { describe, it, expect } from 'vitest'
 import { faker } from '@faker-js/faker'
 import app from '../index'
-
 describe('Test', () => {
   describe('default', () => {
     describe('GET /test', () => {
       it('GET /test', async () => {
-        const res = await app.request(\`/test\`, {
-          method: 'GET',
-        })
-
+        const res = await app.request(\`/test\`, { method: 'GET' })
         expect(res.status).toBe(200)
       })
     })

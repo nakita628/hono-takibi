@@ -27,6 +27,7 @@ import {
   examples,
   headers,
   links,
+  mock,
   parameters,
   requestBodies,
   responses,
@@ -38,6 +39,7 @@ import {
   swr,
   takibi,
   tanstackQuery,
+  test,
   type,
   vueQuery,
 } from '../core/index.js'
@@ -60,8 +62,7 @@ Options:
   --export-callbacks          export callbacks
   --readonly                  make schemas immutable (adds .readonly() and 'as const')
   --template                  generate app file and handler stubs
-  --mock                      generate handlers with faker.js mock responses
-  --test                      generate vitest test files
+  --test                      generate empty *.test.ts files
   --base-path <path>          api prefix (default: /)
   -h, --help                  display help for command`
 
@@ -130,7 +131,6 @@ function parseCli(args: readonly string[]):
         readonly input: `${string}.yaml` | `${string}.json` | `${string}.tsp`
         readonly output: `${string}.ts`
         readonly template: boolean
-        readonly mock: boolean
         readonly test: boolean
         readonly basePath: string
         readonly componentsOptions: {
@@ -180,9 +180,8 @@ function parseCli(args: readonly string[]):
       input,
       output,
       template: args.includes('--template'),
-      mock: args.includes('--mock'),
       test: args.includes('--test'),
-      basePath: getFlagValue(args, '--base-path') ?? '/', // default: /
+      basePath: getFlagValue(args, '--base-path') ?? '/',
       componentsOptions: {
         readonly: args.includes('--readonly'),
         exportSchemas: args.includes('--export-schemas'),
@@ -216,19 +215,11 @@ export async function honoTakibi(): Promise<
     const cliResult = parseCli(args)
     if (!cliResult.ok) return { ok: false, error: cliResult.error }
     const value = cliResult.value
-    const { input, output, template, mock, test, basePath, componentsOptions } = value
+    const { input, output, template, test, basePath, componentsOptions } = value
     const openAPIResult = await parseOpenAPI(input)
     if (!openAPIResult.ok) return { ok: false, error: openAPIResult.error }
     const openAPI = openAPIResult.value
-    const takibiResult = await takibi(
-      openAPI,
-      output,
-      template,
-      mock,
-      test,
-      basePath,
-      componentsOptions,
-    )
+    const takibiResult = await takibi(openAPI, output, template, test, basePath, componentsOptions)
     if (!takibiResult.ok) return { ok: false, error: takibiResult.error }
     return { ok: true, value: takibiResult.value }
   }
@@ -259,9 +250,11 @@ export async function honoTakibi(): Promise<
     tanstackQueryResult,
     svelteQueryResult,
     vueQueryResult,
+    testResult,
+    mockResult,
   ] = await Promise.all([
     config['zod-openapi']?.output
-      ? takibi(openAPI, config['zod-openapi'].output, false, false, false, '/', {
+      ? takibi(openAPI, config['zod-openapi'].output, false, false, '/', {
           readonly: config['zod-openapi'].readonly,
           exportSchemasTypes: config['zod-openapi'].exportSchemasTypes ?? false,
           exportSchemas: config['zod-openapi'].exportSchemas ?? false,
@@ -413,6 +406,12 @@ export async function honoTakibi(): Promise<
           config['vue-query'].client ?? 'client',
         )
       : Promise.resolve(undefined),
+    config.test
+      ? test(openAPI, config.test.output, config.test.import, config.test.split ?? false)
+      : Promise.resolve(undefined),
+    config.mock
+      ? mock(openAPI, config.mock.output, config.mock.split ?? false, config['zod-openapi']?.readonly)
+      : Promise.resolve(undefined),
   ])
 
   if (takibiResult && !takibiResult.ok) return { ok: false, error: takibiResult.error }
@@ -436,6 +435,8 @@ export async function honoTakibi(): Promise<
   if (svelteQueryResult && !svelteQueryResult.ok)
     return { ok: false, error: svelteQueryResult.error }
   if (vueQueryResult && !vueQueryResult.ok) return { ok: false, error: vueQueryResult.error }
+  if (testResult && !testResult.ok) return { ok: false, error: testResult.error }
+  if (mockResult && !mockResult.ok) return { ok: false, error: mockResult.error }
 
   const results = [
     takibiResult?.value,
@@ -455,6 +456,8 @@ export async function honoTakibi(): Promise<
     tanstackQueryResult?.value,
     svelteQueryResult?.value,
     vueQueryResult?.value,
+    testResult?.value,
+    mockResult?.value,
   ].filter((v) => v !== undefined)
 
   return { ok: true, value: results.join('\n') }
