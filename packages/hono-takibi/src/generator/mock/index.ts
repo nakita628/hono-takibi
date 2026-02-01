@@ -15,6 +15,7 @@ import { schemaToFaker } from '../test/faker-mapping.js'
 import { componentsCode } from '../zod-openapi-hono/openapi/components/index.js'
 import { routeCode } from '../zod-openapi-hono/openapi/routes/index.js'
 
+
 function isOperation(value: unknown): value is Operation {
   return typeof value === 'object' && value !== null && 'responses' in value
 }
@@ -227,6 +228,7 @@ export function generateMockServer(
       const successResponse = op.responses?.['200'] ?? op.responses?.['201'] ?? op.responses?.['204']
       const responseSchema = successResponse?.content?.['application/json']?.schema
 
+      // Determine response status: prefer 200 OK, then 201 Created, fallback to 204 No Content
       const handlerBody = (() => {
         if (responseSchema) {
           collectRefs(responseSchema, allRefs)
@@ -238,6 +240,7 @@ export function generateMockServer(
         return `return c.body(null, ${statusCode})`
       })()
 
+      // Generate auth check code if endpoint requires authentication
       const authCheck = (() => {
         if (!requiresAuth) return ''
         const authChecks = security.flatMap((sec) => {
@@ -321,9 +324,9 @@ export default app`
     '',
     routes,
     '',
-    ...mockFunctions,
+    mockFunctions.join('\n\n'),
     '',
-    ...handlers,
+    handlers.join('\n\n'),
     '',
     appCode,
   ].join('\n')

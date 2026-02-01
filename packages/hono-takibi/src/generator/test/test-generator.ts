@@ -2,6 +2,7 @@ import type { OpenAPI, Operation, Schema } from '../../openapi/index.js'
 import { isHttpMethod } from '../../utils/index.js'
 import { schemaToFaker } from './faker-mapping.js'
 
+
 function isOperation(value: unknown): value is Operation {
   return typeof value === 'object' && value !== null && 'responses' in value
 }
@@ -13,6 +14,51 @@ function hasContent(body: unknown): body is { content?: { [key: string]: { schem
 function getSecurityArray(security: unknown): { [key: string]: string[] }[] | undefined {
   if (!Array.isArray(security)) return undefined
   return security
+}
+
+/**
+ * Recursively collect all schema $ref names from a schema and its nested properties
+ * Returns unique schema names that need mock functions generated
+ */
+function collectSchemaRefs(schema: Schema, schemas?: { [key: string]: Schema }, visited = new Set<string>()): string[] {
+  const refs: string[] = []
+  // Handle direct $ref
+  if (schema.$ref) {
+    const refName = schema.$ref.replace('#/components/schemas/', '')
+    if (!visited.has(refName)) {
+      visited.add(refName)
+      refs.push(refName)
+      // Recursively collect refs from the referenced schema
+      const referencedSchema = schemas?.[refName]
+      if (referencedSchema) {
+        refs.push(...collectSchemaRefs(referencedSchema, schemas, visited))
+      }
+    }
+    return refs
+  }
+  // Handle object properties
+  if (schema.properties) {
+    for (const prop of Object.values(schema.properties)) {
+      refs.push(...collectSchemaRefs(prop, schemas, visited))
+    }
+  }
+  // Handle array items
+  if (schema.items) {
+    const items = Array.isArray(schema.items) ? schema.items : [schema.items]
+    for (const item of items) {
+      refs.push(...collectSchemaRefs(item, schemas, visited))
+    }
+  }
+  // Handle allOf/oneOf/anyOf
+  for (const compositeKey of ['allOf', 'oneOf', 'anyOf'] as const) {
+    const composite = schema[compositeKey]
+    if (composite) {
+      for (const subSchema of composite) {
+        refs.push(...collectSchemaRefs(subSchema, schemas, visited))
+      }
+    }
+  }
+  return refs
 }
 
 type SecurityRequirement = {
@@ -96,16 +142,16 @@ export function extractTestCases(spec: OpenAPI): TestCase[] {
         return undefined
       })()
       const usedSchemaRefs: string[] = (() => {
-        const refs: string[] = []
-        if (!op.requestBody || !hasContent(op.requestBody)) return refs
+        if (!op.requestBody || !hasContent(op.requestBody)) return []
         const jsonContent = op.requestBody.content?.['application/json']
-        if (jsonContent?.schema?.$ref) {
-          refs.push(jsonContent.schema.$ref.replace('#/components/schemas/', ''))
-        }
-        return refs
+        if (!jsonContent?.schema) return []
+        // Recursively collect all schema refs from the request body
+        return collectSchemaRefs(jsonContent.schema, spec.components?.schemas)
       })()
       const responseKeys = Object.keys(op.responses || {})
+      // Extract success status (2xx), sort to get lowest, default to 200 if none defined
       const successStatus = responseKeys.filter((s) => s.startsWith('2')).map((s) => Number.parseInt(s, 10)).sort()[0] ?? 200
+      // Extract error statuses (4xx client errors, 5xx server errors), exclude 'default' which is a wildcard in OpenAPI
       const errorStatuses = responseKeys.filter((s) => s.startsWith('4') || s.startsWith('5')).filter((s) => s !== 'default').map((s) => Number.parseInt(s, 10)).sort()
       const security = extractSecurityRequirements(getSecurityArray(op.security), getSecurityArray(spec.security), securitySchemes)
       testCases.push({
@@ -131,7 +177,31 @@ export function extractTestCases(spec: OpenAPI): TestCase[] {
 
 function generateMockFunctions(spec: OpenAPI, usedSchemaNames: Set<string>): string {
   if (!spec.components?.schemas || usedSchemaNames.size === 0) return ''
-  return Object.entries(spec.components.schemas).filter(([name]) => usedSchemaNames.has(name)).map(([name, schema]) => `function mock${name}(){return ${schemaToFaker(schema)}}\n`).join('')
+  const schemas = spec.components.schemas
+  // Topological sort: generate dependencies first
+  const sorted: string[] = []
+  const visiting = new Set<string>()
+  const visited = new Set<string>()
+  const visit = (name: string) => {
+    if (visited.has(name) || !usedSchemaNames.has(name)) return
+    if (visiting.has(name)) return // circular dependency, skip
+    visiting.add(name)
+    const schema = schemas[name]
+    if (schema) {
+      // Find direct dependencies of this schema
+      const deps = collectSchemaRefs(schema, schemas, new Set([name]))
+      for (const dep of deps) {
+        visit(dep)
+      }
+    }
+    visiting.delete(name)
+    visited.add(name)
+    sorted.push(name)
+  }
+  for (const name of usedSchemaNames) {
+    visit(name)
+  }
+  return sorted.map((name) => `function mock${name}() {\n  return ${schemaToFaker(schemas[name])}\n}`).join('\n\n')
 }
 
 function generateAuthHeader(sec: SecurityRequirement): string {
@@ -192,7 +262,8 @@ export function generateTestFile(spec: OpenAPI, appImportPath: string = './app')
     const testCasesCode = cases.map((tc) => generateTestCase(tc)).join('')
     return `describe('${escapeString(tagDescription)}',()=>{${testCasesCode}})\n`
   }).join('')
-  return `${imports}${mockFunctions}describe('${escapeString(apiTitle)}',()=>{${tagDescribes}})\n`
+  const mockSection = mockFunctions ? `${mockFunctions}\n\n` : ''
+  return `${imports}\n${mockSection}describe('${escapeString(apiTitle)}',()=>{${tagDescribes}})\n`
 }
 
 export function generateHandlerTestCode(spec: OpenAPI, _handlerPath: string, routeNames: string[], importFrom: string): string {
@@ -203,5 +274,6 @@ export function generateHandlerTestCode(spec: OpenAPI, _handlerPath: string, rou
   const imports = `import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'${importFrom}'\n`
   const mockFunctions = generateMockFunctions(spec, usedSchemaNames)
   const testCasesCode = relevantCases.map((tc) => generateTestCase(tc)).join('')
-  return `${imports}${mockFunctions}${testCasesCode}`
+  const mockSection = mockFunctions ? `${mockFunctions}\n\n` : ''
+  return `${imports}\n${mockSection}${testCasesCode}`
 }
