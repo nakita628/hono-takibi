@@ -34,7 +34,8 @@ Options:
   --export-callbacks          export callbacks
   --readonly                  make schemas immutable (adds .readonly() and 'as const')
   --template                  generate app file and handler stubs
-  --test                      generate empty *.test.ts files
+  --mock                      generate handlers with faker.js mock responses
+  --test                      generate vitest test files
   --base-path <path>          api prefix (default: /)
   -h, --help                  display help for command
 `)
@@ -61,7 +62,8 @@ Options:
   --export-callbacks          export callbacks
   --readonly                  make schemas immutable (adds .readonly() and 'as const')
   --template                  generate app file and handler stubs
-  --test                      generate empty *.test.ts files
+  --mock                      generate handlers with faker.js mock responses
+  --test                      generate vitest test files
   --base-path <path>          api prefix (default: /)
   -h, --help                  display help for command
 `)
@@ -921,7 +923,7 @@ export const getUsersRouteHandler: RouteHandler<typeof getUsersRoute> = async (c
 
     // Verify handler index file
     const handlerIndexFile = fs.readFileSync(path.join(testDir, 'src/handlers/index.ts'), 'utf-8')
-    expect(handlerIndexFile).toBe(`export * from './users.ts'
+    expect(handlerIndexFile).toBe(`export * from './users'
 `)
   })
 
@@ -945,7 +947,7 @@ export const getUsersRouteHandler: RouteHandler<typeof getUsersRoute> = async (c
       `node ${path.resolve('packages/hono-takibi/dist/index.js')} ${path.join(testDir, 'openapi.json')} -o ${path.join(testDir, 'src/routes.ts')} --template --test`,
     )
 
-    // Verify test file exists and is empty
+    // Verify test file exists and contains vitest code
     const testFileExists = fs.existsSync(path.join(testDir, 'src/handlers/items.test.ts'))
     expect(testFileExists).toBe(true)
 
@@ -953,7 +955,24 @@ export const getUsersRouteHandler: RouteHandler<typeof getUsersRoute> = async (c
       path.join(testDir, 'src/handlers/items.test.ts'),
       'utf-8',
     )
-    expect(testFileContent).toBe('')
+    expect(testFileContent).toBe(`import { describe, it, expect } from 'vitest'
+import { faker } from '@faker-js/faker'
+import app from '../index'
+
+describe('Test API', () => {
+  describe('default', () => {
+    describe('POST /items', () => {
+      it('POST /items', async () => {
+        const res = await app.request(\`/items\`, {
+          method: 'POST',
+        })
+
+        expect(res.status).toBe(201)
+      })
+    })
+  })
+})
+`)
   })
 
   it('generates handlers for multiple routes on same path', () => {

@@ -243,7 +243,7 @@ const runAllGenerationTasks = async (configuration: Configuration): Promise<{ lo
     return (async () => {
       if (!isTypeScriptFile(outputPath))
         return `❌ zod-openapi: Invalid output format: ${outputPath}`
-      const result = await takibi(openAPI, outputPath, false, false, '/', {
+      const result = await takibi(openAPI, outputPath, false, false, false, '/', {
         exportSchemasTypes: configuration['zod-openapi']?.exportSchemasTypes ?? false,
         exportSchemas: configuration['zod-openapi']?.exportSchemas ?? false,
         exportParametersTypes: configuration['zod-openapi']?.exportParametersTypes ?? false,

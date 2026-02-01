@@ -60,7 +60,8 @@ Options:
   --export-callbacks          export callbacks
   --readonly                  make schemas immutable (adds .readonly() and 'as const')
   --template                  generate app file and handler stubs
-  --test                      generate empty *.test.ts files
+  --mock                      generate handlers with faker.js mock responses
+  --test                      generate vitest test files
   --base-path <path>          api prefix (default: /)
   -h, --help                  display help for command`
 
@@ -129,6 +130,7 @@ function parseCli(args: readonly string[]):
         readonly input: `${string}.yaml` | `${string}.json` | `${string}.tsp`
         readonly output: `${string}.ts`
         readonly template: boolean
+        readonly mock: boolean
         readonly test: boolean
         readonly basePath: string
         readonly componentsOptions: {
@@ -178,6 +180,7 @@ function parseCli(args: readonly string[]):
       input,
       output,
       template: args.includes('--template'),
+      mock: args.includes('--mock'),
       test: args.includes('--test'),
       basePath: getFlagValue(args, '--base-path') ?? '/', // default: /
       componentsOptions: {
@@ -213,11 +216,19 @@ export async function honoTakibi(): Promise<
     const cliResult = parseCli(args)
     if (!cliResult.ok) return { ok: false, error: cliResult.error }
     const value = cliResult.value
-    const { input, output, template, test, basePath, componentsOptions } = value
+    const { input, output, template, mock, test, basePath, componentsOptions } = value
     const openAPIResult = await parseOpenAPI(input)
     if (!openAPIResult.ok) return { ok: false, error: openAPIResult.error }
     const openAPI = openAPIResult.value
-    const takibiResult = await takibi(openAPI, output, template, test, basePath, componentsOptions)
+    const takibiResult = await takibi(
+      openAPI,
+      output,
+      template,
+      mock,
+      test,
+      basePath,
+      componentsOptions,
+    )
     if (!takibiResult.ok) return { ok: false, error: takibiResult.error }
     return { ok: true, value: takibiResult.value }
   }
@@ -250,7 +261,7 @@ export async function honoTakibi(): Promise<
     vueQueryResult,
   ] = await Promise.all([
     config['zod-openapi']?.output
-      ? takibi(openAPI, config['zod-openapi'].output, false, false, '/', {
+      ? takibi(openAPI, config['zod-openapi'].output, false, false, false, '/', {
           readonly: config['zod-openapi'].readonly,
           exportSchemasTypes: config['zod-openapi'].exportSchemasTypes ?? false,
           exportSchemas: config['zod-openapi'].exportSchemas ?? false,

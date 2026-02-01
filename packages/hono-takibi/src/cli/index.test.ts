@@ -203,7 +203,8 @@ Options:
   --export-callbacks          export callbacks
   --readonly                  make schemas immutable (adds .readonly() and 'as const')
   --template                  generate app file and handler stubs
-  --test                      generate empty *.test.ts files
+  --mock                      generate handlers with faker.js mock responses
+  --test                      generate vitest test files
   --base-path <path>          api prefix (default: /)
   -h, --help                  display help for command`,
     })
@@ -236,7 +237,8 @@ Options:
   --export-callbacks          export callbacks
   --readonly                  make schemas immutable (adds .readonly() and 'as const')
   --template                  generate app file and handler stubs
-  --test                      generate empty *.test.ts files
+  --mock                      generate handlers with faker.js mock responses
+  --test                      generate vitest test files
   --base-path <path>          api prefix (default: /)
   -h, --help                  display help for command`,
     })

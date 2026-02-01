@@ -79,22 +79,35 @@ const openapi: OpenAPI = {
 const runTakibi = async (
   openapi: OpenAPI,
   output: `${string}.ts`,
-  options: { readonly template: boolean; readonly test: boolean; readonly basePath?: string },
+  options: {
+    readonly template: boolean
+    readonly mock?: boolean
+    readonly test: boolean
+    readonly basePath?: string
+  },
 ) =>
-  takibi(openapi, output, options.template, options.test, options.basePath ?? '/', {
-    exportSchemasTypes: true,
-    exportSchemas: true,
-    exportParametersTypes: false,
-    exportParameters: false,
-    exportSecuritySchemes: false,
-    exportRequestBodies: false,
-    exportResponses: false,
-    exportHeadersTypes: false,
-    exportHeaders: false,
-    exportExamples: false,
-    exportLinks: false,
-    exportCallbacks: false,
-  })
+  takibi(
+    openapi,
+    output,
+    options.template,
+    options.mock ?? false,
+    options.test,
+    options.basePath ?? '/',
+    {
+      exportSchemasTypes: true,
+      exportSchemas: true,
+      exportParametersTypes: false,
+      exportParameters: false,
+      exportSecuritySchemes: false,
+      exportRequestBodies: false,
+      exportResponses: false,
+      exportHeadersTypes: false,
+      exportHeaders: false,
+      exportExamples: false,
+      exportLinks: false,
+      exportCallbacks: false,
+    },
+  )
 
 describe('takibi generate (sandbox)', () => {
   it('should generate Hono app with OpenAPI routes (no template/test)', async () => {
@@ -410,7 +423,7 @@ export default app
         path.join(srcDir, 'handlers', 'index.ts'),
         'utf-8',
       )
-      const expectedHandlersIndex = `export * from './test.ts'
+      const expectedHandlersIndex = `export * from './test'
 `
       expect(handlersIndexContent).toBe(expectedHandlersIndex)
     } finally {
@@ -470,7 +483,7 @@ export const getTestRoute = createRoute({
     }
   })
 
-  it('verifies test file is empty when --test is true', async () => {
+  it('verifies test file is generated when --test is true', async () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-strict-'))
     try {
       const srcDir = path.join(dir, 'src')
@@ -481,7 +494,24 @@ export const getTestRoute = createRoute({
 
       expect(fs.existsSync(path.join(srcDir, 'handlers', 'test.test.ts'))).toBe(true)
       const testContent = fs.readFileSync(path.join(srcDir, 'handlers', 'test.test.ts'), 'utf-8')
-      expect(testContent).toBe('')
+      expect(testContent).toBe(`import { describe, it, expect } from 'vitest'
+import { faker } from '@faker-js/faker'
+import app from '../index'
+
+describe('Test', () => {
+  describe('default', () => {
+    describe('GET /test', () => {
+      it('GET /test', async () => {
+        const res = await app.request(\`/test\`, {
+          method: 'GET',
+        })
+
+        expect(res.status).toBe(200)
+      })
+    })
+  })
+})
+`)
     } finally {
       fs.rmSync(dir, { recursive: true, force: true })
     }
