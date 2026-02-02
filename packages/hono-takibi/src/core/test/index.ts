@@ -7,7 +7,6 @@ export async function test(
   openAPI: OpenAPI,
   output: string,
   importPath: string,
-  split: boolean,
 ): Promise<{ readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }> {
   try {
     const testCode = generateTestFile(openAPI, importPath)

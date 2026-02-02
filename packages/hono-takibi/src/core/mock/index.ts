@@ -6,7 +6,6 @@ import type { OpenAPI } from '../../openapi/index.js'
 export async function mock(
   openAPI: OpenAPI,
   output: string,
-  split: boolean,
   readonly?: boolean,
 ): Promise<{ readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }> {
   try {
