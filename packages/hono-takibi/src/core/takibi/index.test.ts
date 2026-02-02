@@ -488,6 +488,7 @@ export const getTestRoute = createRoute({
       expect(testContent).toBe(`import { describe, it, expect } from 'vitest'
 import { faker } from '@faker-js/faker'
 import app from '../index'
+
 describe('Test', () => {
   describe('default', () => {
     describe('GET /test', () => {

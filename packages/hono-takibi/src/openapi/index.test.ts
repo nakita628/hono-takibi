@@ -59,14 +59,19 @@ describe('parseOpenAPI', () => {
 })
 
 // TypeSpec test
+// Files are created in packages/hono-takibi/ to resolve TypeSpec libraries from node_modules
+const TSP_TEST_DIR = 'packages/hono-takibi'
+const TSP_TEST_FILE = `${TSP_TEST_DIR}/tmp-spec.tsp`
+const TSP_TEST_SUBDIR = `${TSP_TEST_DIR}/tmp`
+
 describe('parseOpenAPI TypeSpec', () => {
   beforeEach(() => {
-    fs.rmSync('tmp-spec.tsp', { force: true })
-    fs.rmSync('packages/hono-takibi/tmp', { recursive: true, force: true })
+    fs.rmSync(TSP_TEST_FILE, { force: true })
+    fs.rmSync(TSP_TEST_SUBDIR, { recursive: true, force: true })
   })
   afterEach(() => {
-    fs.rmSync('tmp-spec.tsp', { force: true })
-    fs.rmSync('packages/hono-takibi/tmp', { recursive: true, force: true })
+    fs.rmSync(TSP_TEST_FILE, { force: true })
+    fs.rmSync(TSP_TEST_SUBDIR, { recursive: true, force: true })
   })
   it('typeSpecToOpenAPI not Error', { timeout: 30000 }, async () => {
     const tmpTsp = `import "@typespec/http";
@@ -112,8 +117,11 @@ model Error {
 
 @get op read(@path id: string): Widget | Error;
 `
-    fs.writeFileSync('tmp-spec.tsp', tmpTsp)
-    const result = await parseOpenAPI('tmp-spec.tsp')
+    fs.writeFileSync(TSP_TEST_FILE, tmpTsp)
+    const result = await parseOpenAPI(TSP_TEST_FILE)
+    if (!result.ok) {
+      console.error('TypeSpec error:', result.error)
+    }
     expect(result.ok).toBe(true)
   })
 
@@ -161,16 +169,16 @@ model Error {
 
 @get op read(@path id: string): Widget | Error;
 `
-    fs.mkdirSync('tmp', { recursive: true })
-    fs.writeFileSync('tmp/tmp-spec.tsp', tmpTsp)
-    const result = await parseOpenAPI('tmp/tmp-spec.tsp')
+    fs.mkdirSync(TSP_TEST_SUBDIR, { recursive: true })
+    fs.writeFileSync(`${TSP_TEST_SUBDIR}/tmp-spec.tsp`, tmpTsp)
+    const result = await parseOpenAPI(`${TSP_TEST_SUBDIR}/tmp-spec.tsp`)
     expect(result.ok).toBe(true)
   })
 
   it('typeSpecToOpenAPI Error', { timeout: 10000 }, async () => {
     const tmpTsp = `import "@typespec`
-    fs.writeFileSync('tmp-spec.tsp', tmpTsp)
-    const result = await parseOpenAPI('tmp-spec.tsp')
+    fs.writeFileSync(TSP_TEST_FILE, tmpTsp)
+    const result = await parseOpenAPI(TSP_TEST_FILE)
     expect(result.ok).toBe(false)
   })
 })
