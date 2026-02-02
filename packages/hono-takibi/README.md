@@ -230,6 +230,14 @@ export default defineConfig({
     split: true,
     client: 'client',
   },
+  // Testing & Mock
+  test: {
+    output: './src/test.ts',
+    import: '../index',
+  },
+  mock: {
+    output: './src/mock.ts',
+  },
 })
 ```
 
@@ -308,6 +316,41 @@ export function usePutPet(options?: {
   return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 ```
+
+## Test & Mock Generation
+
+### Test Generation
+
+Generate Vitest test files for your API endpoints:
+
+```ts
+export default defineConfig({
+  input: 'openapi.yaml',
+  'zod-openapi': { output: './src/routes.ts' },
+  test: {
+    output: './src/test.ts',
+    import: '../index', // Path to import the Hono app
+  },
+})
+```
+
+Generated test files use `@faker-js/faker` to generate mock data based on your OpenAPI schemas.
+
+### Mock Server Generation
+
+Generate a Hono mock server that returns fake data:
+
+```ts
+export default defineConfig({
+  input: 'openapi.yaml',
+  'zod-openapi': { output: './src/routes.ts', readonly: true },
+  mock: {
+    output: './src/mock.ts',
+  },
+})
+```
+
+The mock server generates realistic responses using `@faker-js/faker` based on your OpenAPI response schemas.
 
 ## Vite Plugin
 
