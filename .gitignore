@@ -29,5 +29,4 @@ worker-configuration.d.ts
 .wrangler
 orval
 drizzle
-takibi-idea
 docs/hono-takibi/docs

@@ -91,6 +91,49 @@ type Pagination = z.infer<typeof PaginationSchema>`
     expect(result).toContain('User')
     expect(result).toContain('Pagination')
   })
+
+  it.concurrent('should preserve both const and type when name ends with Schema', () => {
+    // Bug fix: When schema name ends with "Schema", both const and type should be preserved
+    // Previously, topoSort used only name as Map key, causing type to overwrite const
+    const input = `export const MergedSchema = z.object({
+  id: z.string(),
+  name: z.string()
+}).openapi('Merged')
+
+export type MergedSchema = z.infer<typeof MergedSchema>`
+    const result = ast(input)
+    // Both const and type should be present
+    expect(result).toContain('export const MergedSchema')
+    expect(result).toContain('export type MergedSchema')
+    // const should come before type (since type depends on const)
+    expect(result.indexOf('const MergedSchema')).toBeLessThan(result.indexOf('type MergedSchema'))
+  })
+
+  it.concurrent('should handle multiple schema names ending with Schema', () => {
+    // Multiple schemas with names ending in "Schema"
+    const input = `export const DataSchema = z.object({ value: z.string() }).openapi('Data')
+export type DataSchema = z.infer<typeof DataSchema>
+export const UserSchema = z.object({ name: z.string() }).openapi('User')
+export type UserSchema = z.infer<typeof UserSchema>
+export const ConfigSchema = z.object({ DataSchema, UserSchema }).openapi('Config')
+export type ConfigSchema = z.infer<typeof ConfigSchema>`
+    const result = ast(input)
+    // All 6 declarations should be present
+    expect((result.match(/export const/g) || []).length).toBe(3)
+    expect((result.match(/export type/g) || []).length).toBe(3)
+    // Dependencies should be sorted correctly
+    expect(result.indexOf('const DataSchema')).toBeLessThan(result.indexOf('const ConfigSchema'))
+    expect(result.indexOf('const UserSchema')).toBeLessThan(result.indexOf('const ConfigSchema'))
+  })
+
+  it.concurrent('should sort const before type when type references const with same name', () => {
+    // Type references its own const with same name
+    const input = `export type TestSchema = z.infer<typeof TestSchema>
+export const TestSchema = z.string()`
+    const result = ast(input)
+    // const should come before type
+    expect(result.indexOf('const TestSchema')).toBeLessThan(result.indexOf('type TestSchema'))
+  })
 })
 
 describe('analyzeCircularSchemas', () => {

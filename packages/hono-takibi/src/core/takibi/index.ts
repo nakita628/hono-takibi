@@ -75,25 +75,28 @@ export async function takibi(
     }
 > {
   try {
+    // Normal generation (routes.ts)
     const coreResult = await core(
       zodOpenAPIHono(openAPI, componentsOptions),
       path.dirname(output),
       output,
     )
     if (!coreResult.ok) return { ok: false, error: coreResult.error }
-    /** template */
+
+    // --template: Generate app + handlers
     if (template) {
       const dir = path.dirname(output)
       const target = path.join(dir, 'index.ts')
       const [appResult, zodOpenAPIHonoHandlerResult] = await Promise.all([
         core(app(openAPI, output, basePath), dir, target),
-        zodOpenAPIHonoHandler(openAPI, output, test),
+        zodOpenAPIHonoHandler(openAPI, output, false, test),
       ])
       if (!appResult.ok) return { ok: false, error: appResult.error }
       if (!zodOpenAPIHonoHandlerResult.ok)
         return { ok: false, error: zodOpenAPIHonoHandlerResult.error }
       return { ok: true, value: '🔥 Generated code and template files written' }
     }
+
     return {
       ok: true,
       value: `🔥 Generated code written to ${output}`,

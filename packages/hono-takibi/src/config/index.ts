@@ -148,6 +148,13 @@ type Config = {
     readonly split?: boolean
     readonly client?: string
   }
+  readonly test?: {
+    readonly output: string | `${string}.ts`
+    readonly import: string
+  }
+  readonly mock?: {
+    readonly output: string | `${string}.ts`
+  }
 }
 
 /**
@@ -590,6 +597,23 @@ export function parseConfig(
     }
   }
 
+  // test
+  if (config.test !== undefined) {
+    if (typeof config.test.output !== 'string') {
+      return { ok: false, error: `Invalid output format for test: ${String(config.test.output)}` }
+    }
+    if (typeof config.test.import !== 'string') {
+      return { ok: false, error: `Invalid import format for test: ${String(config.test.import)}` }
+    }
+  }
+
+  // mock
+  if (config.mock !== undefined) {
+    if (typeof config.mock.output !== 'string') {
+      return { ok: false, error: `Invalid output format for mock: ${String(config.mock.output)}` }
+    }
+  }
+
   const result = {
     ...config,
     ...(config['zod-openapi'] && {
@@ -745,6 +769,18 @@ export function parseConfig(
           config['vue-query'].split !== true && !isTs(config['vue-query'].output)
             ? `${config['vue-query'].output}/index.ts`
             : config['vue-query'].output,
+      },
+    }),
+    ...(config.test && {
+      test: {
+        ...config.test,
+        output: !isTs(config.test.output) ? `${config.test.output}/index.ts` : config.test.output,
+      },
+    }),
+    ...(config.mock && {
+      mock: {
+        ...config.mock,
+        output: !isTs(config.mock.output) ? `${config.mock.output}/index.ts` : config.mock.output,
       },
     }),
   }

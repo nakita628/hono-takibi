@@ -152,11 +152,11 @@ export async function parseOpenAPI(input: string): Promise<
         noEmit: true,
       })
       if (program.diagnostics.length) {
-        // logDiagnostics(program.diagnostics, program.host.logSink)
-        console.log(JSON.stringify(program.diagnostics, null, 2))
+        // Extract error messages from diagnostics (avoid circular reference in JSON.stringify)
+        const errors = program.diagnostics.map((d) => d.message).join('\n')
         return {
           ok: false,
-          error: 'TypeSpec compile failed',
+          error: `TypeSpec compile failed:\n${errors}`,
         }
       }
       const [record] = await getOpenAPI3(program)

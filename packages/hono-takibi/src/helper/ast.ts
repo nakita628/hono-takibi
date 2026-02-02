@@ -280,10 +280,18 @@ export function analyzeCircularSchemas(
 // AST-based dependency sorting
 // =============================================================================
 
-const createDeclaration = (name: string, fullText: string, refs: readonly string[]) => ({
+type DeclarationKind = 'variable' | 'type' | 'interface'
+
+const createDeclaration = (
+  name: string,
+  fullText: string,
+  refs: readonly string[],
+  kind: DeclarationKind,
+) => ({
   name,
   fullText,
   refs,
+  kind,
 })
 
 const getDeclarationName = (statement: ts.Statement): string | undefined => {
@@ -300,6 +308,13 @@ const getDeclarationName = (statement: ts.Statement): string | undefined => {
   return undefined
 }
 
+const getDeclarationKind = (statement: ts.Statement): DeclarationKind | undefined => {
+  if (ts.isVariableStatement(statement)) return 'variable'
+  if (ts.isTypeAliasDeclaration(statement)) return 'type'
+  if (ts.isInterfaceDeclaration(statement)) return 'interface'
+  return undefined
+}
+
 const isLazySchema = (statement: ts.Statement): boolean => {
   if (!ts.isVariableStatement(statement)) return false
   const declaration = statement.declarationList.declarations[0]
@@ -313,11 +328,25 @@ const getStatementReferences = (
   statement: ts.Statement,
   declNames: ReadonlySet<string>,
   selfName: string,
+  selfKind: DeclarationKind,
 ): readonly string[] => {
   if (isLazySchema(statement)) return []
 
   const identifiers = collectIdentifiers(statement)
-  return [...new Set(identifiers.filter((id) => declNames.has(id) && id !== selfName))]
+  // Filter out self-references, but allow references to same-named declarations of different kind
+  // e.g., type TestSchema can reference const TestSchema
+  return [...new Set(identifiers.filter((id) => {
+    if (!declNames.has(id)) return false
+    // If same name but different kind (e.g., type referencing variable), allow it
+    // For self-reference check, we only exclude if it's exactly the same declaration
+    // However, at this point we don't have kind info for the referenced decl
+    // So we need to check if this is a type/interface referencing a variable with same name
+    if (id === selfName && (selfKind === 'type' || selfKind === 'interface')) {
+      // Type/interface can reference variable with same name, so don't exclude
+      return true
+    }
+    return id !== selfName
+  }))]
 }
 
 const parseStatements = (
@@ -335,12 +364,13 @@ const parseStatements = (
   return statements
     .map((statement): ReturnType<typeof createDeclaration> | undefined => {
       const name = getDeclarationName(statement)
-      if (!name) return undefined
+      const kind = getDeclarationKind(statement)
+      if (!name || !kind) return undefined
 
       const fullText = statement.getText(sourceFile)
-      const refs = getStatementReferences(statement, declNames, name)
+      const refs = getStatementReferences(statement, declNames, name, kind)
 
-      return createDeclaration(name, fullText, refs)
+      return createDeclaration(name, fullText, refs, kind)
     })
     .filter((d): d is ReturnType<typeof createDeclaration> => d !== undefined)
 }
@@ -348,34 +378,41 @@ const parseStatements = (
 const topoSort = (
   decls: readonly ReturnType<typeof createDeclaration>[],
 ): readonly ReturnType<typeof createDeclaration>[] => {
-  const map = new Map(decls.map((d) => [d.name, d]))
+  // Use composite key (kind:name) to distinguish const and type with same name
+  const makeKey = (kind: DeclarationKind, name: string): string => `${kind}:${name}`
+  const map = new Map(decls.map((d) => [makeKey(d.kind, d.name), d]))
+
+  // For dependency resolution, prefer variable declarations (since types reference variables)
+  const findByName = (name: string): ReturnType<typeof createDeclaration> | undefined =>
+    map.get(makeKey('variable', name)) ?? map.get(makeKey('type', name)) ?? map.get(makeKey('interface', name))
 
   const visit = (
-    name: string,
+    key: string,
     state: {
       readonly sorted: readonly ReturnType<typeof createDeclaration>[]
       readonly perm: ReadonlySet<string>
       readonly temp: ReadonlySet<string>
     },
   ): typeof state => {
-    if (state.perm.has(name) || state.temp.has(name)) return state
-    const decl = map.get(name)
+    if (state.perm.has(key) || state.temp.has(key)) return state
+    const decl = map.get(key)
     if (!decl) return state
 
-    const withTemp: typeof state = { ...state, temp: new Set([...state.temp, name]) }
+    const withTemp: typeof state = { ...state, temp: new Set([...state.temp, key]) }
     const afterRefs = decl.refs
-      .filter((ref) => map.has(ref))
-      .reduce((s, ref) => visit(ref, s), withTemp)
+      .map((ref) => findByName(ref))
+      .filter((d): d is ReturnType<typeof createDeclaration> => d !== undefined)
+      .reduce((s, d) => visit(makeKey(d.kind, d.name), s), withTemp)
 
     return {
       sorted: [...afterRefs.sorted, decl],
-      perm: new Set([...afterRefs.perm, name]),
-      temp: new Set([...afterRefs.temp].filter((t) => t !== name)),
+      perm: new Set([...afterRefs.perm, key]),
+      temp: new Set([...afterRefs.temp].filter((t) => t !== key)),
     }
   }
 
   const initial: Parameters<typeof visit>[1] = { sorted: [], perm: new Set(), temp: new Set() }
-  return decls.reduce((state, d) => visit(d.name, state), initial).sorted
+  return decls.reduce((state, d) => visit(makeKey(d.kind, d.name), state), initial).sorted
 }
 
 /**

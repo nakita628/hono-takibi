@@ -27,6 +27,7 @@ import {
   examples,
   headers,
   links,
+  mock,
   parameters,
   requestBodies,
   responses,
@@ -38,6 +39,7 @@ import {
   swr,
   takibi,
   tanstackQuery,
+  test,
   type,
   vueQuery,
 } from '../core/index.js'
@@ -179,7 +181,7 @@ function parseCli(args: readonly string[]):
       output,
       template: args.includes('--template'),
       test: args.includes('--test'),
-      basePath: getFlagValue(args, '--base-path') ?? '/', // default: /
+      basePath: getFlagValue(args, '--base-path') ?? '/',
       componentsOptions: {
         readonly: args.includes('--readonly'),
         exportSchemas: args.includes('--export-schemas'),
@@ -248,6 +250,8 @@ export async function honoTakibi(): Promise<
     tanstackQueryResult,
     svelteQueryResult,
     vueQueryResult,
+    testResult,
+    mockResult,
   ] = await Promise.all([
     config['zod-openapi']?.output
       ? takibi(openAPI, config['zod-openapi'].output, false, false, '/', {
@@ -402,6 +406,12 @@ export async function honoTakibi(): Promise<
           config['vue-query'].client ?? 'client',
         )
       : Promise.resolve(undefined),
+    config.test
+      ? test(openAPI, config.test.output, config.test.import)
+      : Promise.resolve(undefined),
+    config.mock
+      ? mock(openAPI, config.mock.output, config['zod-openapi']?.readonly)
+      : Promise.resolve(undefined),
   ])
 
   if (takibiResult && !takibiResult.ok) return { ok: false, error: takibiResult.error }
@@ -425,6 +435,8 @@ export async function honoTakibi(): Promise<
   if (svelteQueryResult && !svelteQueryResult.ok)
     return { ok: false, error: svelteQueryResult.error }
   if (vueQueryResult && !vueQueryResult.ok) return { ok: false, error: vueQueryResult.error }
+  if (testResult && !testResult.ok) return { ok: false, error: testResult.error }
+  if (mockResult && !mockResult.ok) return { ok: false, error: mockResult.error }
 
   const results = [
     takibiResult?.value,
@@ -444,6 +456,8 @@ export async function honoTakibi(): Promise<
     tanstackQueryResult?.value,
     svelteQueryResult?.value,
     vueQueryResult?.value,
+    testResult?.value,
+    mockResult?.value,
   ].filter((v) => v !== undefined)
 
   return { ok: true, value: results.join('\n') }
