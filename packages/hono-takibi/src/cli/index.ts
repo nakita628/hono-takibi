@@ -29,6 +29,7 @@ import {
   links,
   mock,
   parameters,
+  pathItems,
   requestBodies,
   responses,
   route,
@@ -42,6 +43,7 @@ import {
   test,
   type,
   vueQuery,
+  webhooks,
 } from '../core/index.js'
 import { parseOpenAPI } from '../openapi/index.js'
 
@@ -60,6 +62,7 @@ Options:
   --export-examples           export examples
   --export-links              export links
   --export-callbacks          export callbacks
+  --export-path-items         export pathItems
   --readonly                  make schemas immutable (adds .readonly() and 'as const')
   --template                  generate app file and handler stubs
   --test                      generate test files with vitest and faker.js
@@ -147,6 +150,7 @@ function parseCli(args: readonly string[]):
           readonly exportExamples: boolean
           readonly exportLinks: boolean
           readonly exportCallbacks: boolean
+          readonly exportPathItems: boolean
         }
       }
     }
@@ -196,6 +200,7 @@ function parseCli(args: readonly string[]):
         exportExamples: args.includes('--export-examples'),
         exportLinks: args.includes('--export-links'),
         exportCallbacks: args.includes('--export-callbacks'),
+        exportPathItems: args.includes('--export-path-items'),
       },
     },
   }
@@ -240,6 +245,8 @@ export async function honoTakibi(): Promise<
     examplesResult,
     linksResult,
     callbacksResult,
+    pathItemsResult,
+    webhooksResult,
     securitySchemesResult,
     requestBodiesResult,
     responsesResult,
@@ -268,6 +275,7 @@ export async function honoTakibi(): Promise<
           exportExamples: config['zod-openapi'].exportExamples ?? false,
           exportLinks: config['zod-openapi'].exportLinks ?? false,
           exportCallbacks: config['zod-openapi'].exportCallbacks ?? false,
+          exportPathItems: config['zod-openapi'].exportPathItems ?? false,
         })
       : Promise.resolve(undefined),
     config['zod-openapi']?.components?.schemas
@@ -320,6 +328,22 @@ export async function honoTakibi(): Promise<
           openAPI.components?.callbacks,
           config['zod-openapi']?.components?.callbacks?.output,
           config['zod-openapi']?.components?.callbacks?.split ?? false,
+          config['zod-openapi']?.readonly,
+        )
+      : Promise.resolve(undefined),
+    config['zod-openapi']?.components?.pathItems
+      ? pathItems(
+          openAPI.components?.pathItems,
+          config['zod-openapi']?.components?.pathItems?.output,
+          config['zod-openapi']?.components?.pathItems?.split ?? false,
+          config['zod-openapi']?.readonly,
+        )
+      : Promise.resolve(undefined),
+    config['zod-openapi']?.components?.webhooks
+      ? webhooks(
+          openAPI,
+          config['zod-openapi']?.components?.webhooks?.output,
+          config['zod-openapi']?.components?.webhooks?.split ?? false,
           config['zod-openapi']?.readonly,
         )
       : Promise.resolve(undefined),
@@ -421,6 +445,8 @@ export async function honoTakibi(): Promise<
   if (examplesResult && !examplesResult.ok) return { ok: false, error: examplesResult.error }
   if (linksResult && !linksResult.ok) return { ok: false, error: linksResult.error }
   if (callbacksResult && !callbacksResult.ok) return { ok: false, error: callbacksResult.error }
+  if (pathItemsResult && !pathItemsResult.ok) return { ok: false, error: pathItemsResult.error }
+  if (webhooksResult && !webhooksResult.ok) return { ok: false, error: webhooksResult.error }
   if (securitySchemesResult && !securitySchemesResult.ok)
     return { ok: false, error: securitySchemesResult.error }
   if (requestBodiesResult && !requestBodiesResult.ok)
@@ -446,6 +472,8 @@ export async function honoTakibi(): Promise<
     examplesResult?.value,
     linksResult?.value,
     callbacksResult?.value,
+    pathItemsResult?.value,
+    webhooksResult?.value,
     securitySchemesResult?.value,
     requestBodiesResult?.value,
     responsesResult?.value,

@@ -58,6 +58,7 @@ type Config = {
     readonly exportExamples?: boolean
     readonly exportLinks?: boolean
     readonly exportCallbacks?: boolean
+    readonly exportPathItems?: boolean
     readonly routes?: {
       readonly output: string | `${string}.ts`
       readonly split?: boolean
@@ -110,6 +111,15 @@ type Config = {
         readonly output: string | `${string}.ts`
         readonly split?: boolean
         readonly import?: string
+      }
+      readonly pathItems?: {
+        readonly output: string | `${string}.ts`
+        readonly split?: boolean
+        readonly import?: string
+      }
+      readonly webhooks?: {
+        readonly output: string | `${string}.ts`
+        readonly split?: boolean
       }
     }
   }
@@ -373,6 +383,15 @@ export function parseConfig(
       return {
         ok: false,
         error: `Invalid exportCallbacks format for zod-openapi: ${String(config['zod-openapi'].exportCallbacks)}`,
+      }
+    }
+    if (
+      config['zod-openapi'].exportPathItems !== undefined &&
+      typeof config['zod-openapi'].exportPathItems !== 'boolean'
+    ) {
+      return {
+        ok: false,
+        error: `Invalid exportPathItems format for zod-openapi: ${String(config['zod-openapi'].exportPathItems)}`,
       }
     }
   }

@@ -80,6 +80,7 @@ export function zodOpenAPIHono(
     readonly exportExamples: boolean
     readonly exportLinks: boolean
     readonly exportCallbacks: boolean
+    readonly exportPathItems: boolean
   },
 ): string {
   const components = openapi.components ? componentsCode(openapi.components, options) : ''

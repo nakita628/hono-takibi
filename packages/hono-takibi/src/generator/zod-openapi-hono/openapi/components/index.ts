@@ -5,6 +5,7 @@ import { examplesCode } from './examples.js'
 import { headersCode } from './headers.js'
 import { linksCode } from './links.js'
 import { parametersCode } from './parameters.js'
+import { pathItemsCode } from './pathItems.js'
 import { requestBodiesCode } from './request-bodies.js'
 import { responsesCode } from './responses.js'
 import { schemasCode } from './schemas.js'
@@ -39,6 +40,7 @@ export function componentsCode(
     readonly exportExamples: boolean
     readonly exportLinks: boolean
     readonly exportCallbacks: boolean
+    readonly exportPathItems: boolean
   },
 ): string {
   const code = [
@@ -56,6 +58,7 @@ export function componentsCode(
     examplesCode(components, options.exportExamples, options.readonly),
     linksCode(components, options.exportLinks, options.readonly),
     callbacksCode(components, options.exportCallbacks, options.readonly),
+    pathItemsCode(components, options.exportPathItems, options.readonly),
   ]
     .filter(Boolean)
     .join('\n\n')

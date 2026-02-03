@@ -63,6 +63,7 @@ export async function takibi(
     readonly exportExamples: boolean
     readonly exportLinks: boolean
     readonly exportCallbacks: boolean
+    readonly exportPathItems: boolean
   },
 ): Promise<
   | {

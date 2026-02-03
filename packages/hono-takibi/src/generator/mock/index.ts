@@ -291,6 +291,7 @@ export function generateMockServer(
         exportExamples: false,
         exportLinks: false,
         exportCallbacks: false,
+        exportPathItems: false,
         readonly: options.readonly,
       })
     : ''

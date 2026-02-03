@@ -9,6 +9,8 @@
 // JSON output functions
 export { callbacks } from './callbacks.js'
 export { examples } from './examples.js'
+export { pathItems } from './pathItems.js'
+export { webhooks } from './webhooks.js'
 // Zod generation functions
 export { headers } from './headers.js'
 export { links } from './links.js'
