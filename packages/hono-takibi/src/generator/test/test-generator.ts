@@ -121,7 +121,7 @@ export function extractTestCases(spec: OpenAPI): TestCase[] {
     for (const [method, operation] of Object.entries(pathItem)) {
       if (!isHttpMethod(method) || !isOperation(operation)) continue
       const op = operation
-      const pathParams: { name: string; fakerCode: string }[] = []
+      const pathParams: { name: string; fakerCode: string; schema?: Schema }[] = []
       const queryParams: { name: string; fakerCode: string; required: boolean }[] = []
       const headerParams: { name: string; fakerCode: string; required: boolean }[] = []
       for (const param of op.parameters || []) {
