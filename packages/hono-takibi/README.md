@@ -105,7 +105,7 @@ Options:
   --export-callbacks          export callbacks
   --readonly                  make schemas immutable (adds .readonly() and 'as const')
   --template                  generate app file and handler stubs
-  --test                      generate empty *.test.ts files
+  --test                      generate test files with vitest and faker.js
   --base-path <path>          api prefix (default: /)
   -h, --help                  display help for command
 ```

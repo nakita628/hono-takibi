@@ -425,10 +425,14 @@ function makeSchemaTypeString(
     return makeAllOfTypeString(schema.allOf, components, visited)
   }
   if (schema.enum && schema.enum.length > 0) {
-    return schema.enum.map((v) => (typeof v === 'string' ? `'${v}'` : String(v))).join('|')
+    return schema.enum
+      .map((v) => (typeof v === 'string' ? `'${v.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'` : String(v)))
+      .join('|')
   }
   if (schema.const !== undefined) {
-    return typeof schema.const === 'string' ? `'${schema.const}'` : String(schema.const)
+    return typeof schema.const === 'string'
+      ? `'${String(schema.const).replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`
+      : String(schema.const)
   }
   const types = makeNormalizedTypes(schema)
   const isNullable = schema.nullable === true || types.includes('null')

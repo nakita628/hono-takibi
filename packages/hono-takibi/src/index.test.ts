@@ -34,7 +34,7 @@ Options:
   --export-callbacks          export callbacks
   --readonly                  make schemas immutable (adds .readonly() and 'as const')
   --template                  generate app file and handler stubs
-  --test                      generate empty *.test.ts files
+  --test                      generate test files with vitest and faker.js
   --base-path <path>          api prefix (default: /)
   -h, --help                  display help for command
 `)
@@ -61,7 +61,7 @@ Options:
   --export-callbacks          export callbacks
   --readonly                  make schemas immutable (adds .readonly() and 'as const')
   --template                  generate app file and handler stubs
-  --test                      generate empty *.test.ts files
+  --test                      generate test files with vitest and faker.js
   --base-path <path>          api prefix (default: /)
   -h, --help                  display help for command
 `)
@@ -955,15 +955,13 @@ export const getUsersRouteHandler: RouteHandler<typeof getUsersRoute> = async (c
     )
     expect(testFileContent).toBe(`import { describe, it, expect } from 'vitest'
 import { faker } from '@faker-js/faker'
-import app from '../index'
+import app from '..'
 
-describe('Test API', () => {
-  describe('default', () => {
-    describe('POST /items', () => {
-      it('POST /items', async () => {
-        const res = await app.request(\`/items\`, { method: 'POST' })
-        expect(res.status).toBe(201)
-      })
+describe('Items', () => {
+  describe('POST /items', () => {
+    it('POST /items', async () => {
+      const res = await app.request(\`/items\`, { method: 'POST' })
+      expect(res.status).toBe(201)
     })
   })
 })
