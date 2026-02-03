@@ -74,7 +74,7 @@ type TestCase = {
   summary: string
   description: string
   tag: string | undefined
-  pathParams: { name: string; fakerCode: string }[]
+  pathParams: { name: string; fakerCode: string; schema?: Schema }[]
   queryParams: { name: string; fakerCode: string; required: boolean }[]
   headerParams: { name: string; fakerCode: string; required: boolean }[]
   requestBody: { fakerCode: string; contentType: string } | undefined
@@ -126,9 +126,10 @@ export function extractTestCases(spec: OpenAPI): TestCase[] {
       const headerParams: { name: string; fakerCode: string; required: boolean }[] = []
       for (const param of op.parameters || []) {
         if (param.$ref) continue
-        const fakerCode = schemaToFaker(param.schema || { type: 'string' }, param.name)
+        const schema = param.schema || { type: 'string' }
+        const fakerCode = schemaToFaker(schema, param.name)
         if (param.in === 'path') {
-          pathParams.push({ name: param.name, fakerCode })
+          pathParams.push({ name: param.name, fakerCode, schema })
         } else if (param.in === 'query') {
           queryParams.push({ name: param.name, fakerCode, required: param.required ?? false })
         } else if (param.in === 'header') {
@@ -204,6 +205,17 @@ function generateMockFunctions(spec: OpenAPI, usedSchemaNames: Set<string>): str
   return sorted.map((name) => `function mock${name}() {\n  return ${schemaToFaker(schemas[name])}\n}`).join('\n\n')
 }
 
+/**
+ * Generate a non-existent value for 404 testing based on the schema type
+ * Returns raw value without quotes (for URL path insertion)
+ */
+function getNonExistentValue(schema?: Schema): string {
+  if (!schema) return '__non_existent__'
+  if (schema.type === 'integer' || schema.type === 'number') return '-1'
+  if (schema.format === 'uuid') return '00000000-0000-0000-0000-000000000000'
+  return '__non_existent__'
+}
+
 function generateAuthHeader(sec: SecurityRequirement): string {
   switch (sec.type) {
     case 'bearer':
@@ -222,9 +234,9 @@ function generateAuthHeader(sec: SecurityRequirement): string {
 function generateTestCase(tc: TestCase): string {
   const testPath = tc.pathParams.reduce((path, param) => path.replace(`{${param.name}}`, `\${${param.name}}`), tc.path)
   const pathSetup = tc.pathParams.map((param) => `const ${param.name}=${param.fakerCode}`)
-  const requiredQueryParams = tc.queryParams.filter((p) => p.required)
-  const querySetup = requiredQueryParams.map((param) => `const ${param.name}=${param.fakerCode}`)
-  const queryParts = requiredQueryParams.map((param) => `${param.name}=\${encodeURIComponent(String(${param.name}))}`)
+  // Include all query parameters (both required and optional) for comprehensive testing
+  const querySetup = tc.queryParams.map((param) => `const ${param.name}=${param.fakerCode}`)
+  const queryParts = tc.queryParams.map((param) => `${param.name}=\${encodeURIComponent(String(${param.name}))}`)
   const queryString = queryParts.length > 0 ? `?${queryParts.join('&')}` : ''
   const requiredHeaderParams = tc.headerParams.filter((p) => p.required)
   const headerSetup = requiredHeaderParams.map((param) => `const ${param.name}=${param.fakerCode}`)
@@ -239,7 +251,14 @@ function generateTestCase(tc: TestCase): string {
   const setupCode = [...pathSetup, ...querySetup, ...headerSetup, bodySetup].filter(Boolean).join('\n')
   const mainTest = `describe('${tc.method} ${tc.path}',()=>{it('${escapeString(summary)}',async()=>{${setupCode}\nconst res=await app.request(\`${testPath}${queryString}\`,{method:'${tc.method}'${headersOption}${bodyOption}})\nexpect(res.status).toBe(${tc.successStatus})})`
   const unauthorizedTest = tc.security.length > 0 ? `\nit('should return 401 without auth',async()=>{${setupCode}\nconst res=await app.request(\`${testPath}${queryString}\`,{method:'${tc.method}'${headersWithoutAuth}${bodyOption}})\nexpect(res.status).toBe(401)})` : ''
-  return `${mainTest}${unauthorizedTest}})\n`
+  // Generate 404 test if: has path params AND 404 is defined in OpenAPI responses
+  const notFoundTest = tc.pathParams.length > 0 && tc.errorStatuses.includes(404) ? (() => {
+    const notFoundPath = tc.pathParams.reduce((path, param) => path.replace(`{${param.name}}`, getNonExistentValue(param.schema)), tc.path)
+    const notFoundQuerySetup = tc.queryParams.map((param) => `const ${param.name}=${param.fakerCode}`)
+    const notFoundSetupCode = [...notFoundQuerySetup, ...headerSetup, bodySetup].filter(Boolean).join('\n')
+    return `\nit('should return 404 for non-existent resource',async()=>{${notFoundSetupCode}\nconst res=await app.request(\`${notFoundPath}${queryString}\`,{method:'${tc.method}'${headersOption}${bodyOption}})\nexpect(res.status).toBe(404)})`
+  })() : ''
+  return `${mainTest}${unauthorizedTest}${notFoundTest}})\n`
 }
 
 function escapeString(s: string): string {
@@ -266,14 +285,38 @@ export function generateTestFile(spec: OpenAPI, appImportPath: string = './app')
   return `${imports}\n${mockSection}describe('${escapeString(apiTitle)}',()=>{${tagDescribes}})\n`
 }
 
-export function generateHandlerTestCode(spec: OpenAPI, _handlerPath: string, routeNames: string[], importFrom: string): string {
+/**
+ * Extract the first path segment from an API path.
+ * e.g., "/users/{id}" → "users", "/products" → "products", "/" → "__root"
+ */
+function getPathFirstSegment(path: string): string {
+  const rawSegment = path.replace(/^\/+/, '').split('/')[0] ?? ''
+  const sanitized = rawSegment
+    .replace(/\{([^}]+)\}/g, '$1')
+    .replace(/[^0-9A-Za-z._-]/g, '_')
+    .replace(/^[._-]+|[._-]+$/g, '')
+    .replace(/__+/g, '_')
+    .replace(/[-._](\w)/g, (_, c: string) => c.toUpperCase())
+  return sanitized === '' ? '__root' : sanitized
+}
+
+export function generateHandlerTestCode(spec: OpenAPI, handlerPath: string, _routeNames: string[], importFrom: string): string {
+  // Extract handler name from path (e.g., "handlers/users.ts" → "users")
+  const handlerFileName = handlerPath.split('/').pop()?.replace(/\.ts$/, '') ?? ''
+
   const testCases = extractTestCases(spec)
-  const relevantCases = testCases.filter((tc) => routeNames.some((r) => r.toLowerCase().includes(tc.operationId.toLowerCase())))
+  // Filter test cases by matching the first path segment with handler file name
+  const relevantCases = testCases.filter((tc) => {
+    const pathSegment = getPathFirstSegment(tc.path)
+    return pathSegment === handlerFileName
+  })
   if (relevantCases.length === 0) return ''
   const usedSchemaNames = new Set(relevantCases.flatMap((tc) => tc.usedSchemaRefs))
   const imports = `import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'${importFrom}'\n`
   const mockFunctions = generateMockFunctions(spec, usedSchemaNames)
   const testCasesCode = relevantCases.map((tc) => generateTestCase(tc)).join('')
   const mockSection = mockFunctions ? `${mockFunctions}\n\n` : ''
-  return `${imports}\n${mockSection}${testCasesCode}`
+  // Capitalize resource name for describe block (e.g., "users" → "Users")
+  const resourceName = handlerFileName.charAt(0).toUpperCase() + handlerFileName.slice(1)
+  return `${imports}\n${mockSection}describe('${resourceName}',()=>{${testCasesCode}})\n`
 }

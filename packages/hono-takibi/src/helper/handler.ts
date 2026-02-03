@@ -28,7 +28,7 @@
 import { fmt } from '../format/index.js'
 import { mkdir, writeFile } from '../fsp/index.js'
 import { schemaToFaker } from '../generator/test/faker-mapping.js'
-import { generateTestFile } from '../generator/test/index.js'
+import { generateHandlerTestCode } from '../generator/test/index.js'
 import type { OpenAPI, Schema } from '../openapi/index.js'
 import { isHttpMethod, methodPath } from '../utils/index.js'
 
@@ -262,14 +262,22 @@ export async function zodOpenAPIHonoHandler(
       if (!writeResult.ok) return { ok: false, error: writeResult.error } as const
 
       if (test) {
-        // Generate test file with faker.js mocks
+        // Generate test file with faker.js mocks for this specific handler
         // app is exported from index.ts, not routes.ts
-        const appImportPath = '../index'
-        const testContent = generateTestFile(openapi, appImportPath)
-        const testFmtResult = await fmt(testContent)
-        const testCode = testFmtResult.ok ? testFmtResult.value : testContent
-        const testWriteResult = await writeFile(`${handlerPath}/${handler.testFileName}`, testCode)
-        if (!testWriteResult.ok) return { ok: false, error: testWriteResult.error } as const
+        const appImportPath = '..'
+        const testContent = generateHandlerTestCode(
+          openapi,
+          `${handlerPath}/${handler.fileName}`,
+          handler.routeNames,
+          appImportPath,
+        )
+        // Skip writing if no relevant test cases were found
+        if (testContent) {
+          const testFmtResult = await fmt(testContent)
+          const testCode = testFmtResult.ok ? testFmtResult.value : testContent
+          const testWriteResult = await writeFile(`${handlerPath}/${handler.testFileName}`, testCode)
+          if (!testWriteResult.ok) return { ok: false, error: testWriteResult.error } as const
+        }
       }
       return { ok: true, value: undefined } as const
     }),

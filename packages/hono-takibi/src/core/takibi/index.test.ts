@@ -487,15 +487,13 @@ export const getTestRoute = createRoute({
       const testContent = fs.readFileSync(path.join(srcDir, 'handlers', 'test.test.ts'), 'utf-8')
       expect(testContent).toBe(`import { describe, it, expect } from 'vitest'
 import { faker } from '@faker-js/faker'
-import app from '../index'
+import app from '..'
 
 describe('Test', () => {
-  describe('default', () => {
-    describe('GET /test', () => {
-      it('GET /test', async () => {
-        const res = await app.request(\`/test\`, { method: 'GET' })
-        expect(res.status).toBe(200)
-      })
+  describe('GET /test', () => {
+    it('GET /test', async () => {
+      const res = await app.request(\`/test\`, { method: 'GET' })
+      expect(res.status).toBe(200)
     })
   })
 })
