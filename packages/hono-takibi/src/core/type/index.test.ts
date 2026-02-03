@@ -273,4 +273,50 @@ describe('type', () => {
       fs.rmSync(dir, { recursive: true, force: true })
     }
   })
+
+  it('should escape single quotes in enum values', { timeout: 10000 }, async () => {
+    const openapi: OpenAPI = {
+      openapi: '3.0.0',
+      info: { title: 'Test API', version: '1.0.0' },
+      paths: {
+        '/test': {
+          get: {
+            responses: {
+              '422': {
+                description: 'Validation Error',
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        message: {
+                          type: 'string',
+                          enum: [
+                            "Should have one of the required properties 'contours_minutes' or 'contours_meters'",
+                            'contours_minutes must be an integer between 1 and 60',
+                          ],
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+    const dir = fs.mkdtempSync(nodePath.join(os.tmpdir(), 'takibi-type-'))
+    try {
+      const out = nodePath.join(dir, 'index.d.ts') as `${string}.ts`
+      const result = await type(openapi, out)
+      expect(result.ok).toBe(true)
+      const content = fs.readFileSync(out, 'utf-8')
+      expect(content).toBe(
+        "declare const routes: import('@hono/zod-openapi').OpenAPIHono<\n  import('hono/types').Env,\n  {\n    '/test': {\n      $get: {\n        input: {}\n        output: {\n          message?:\n            | \"Should have one of the required properties 'contours_minutes' or 'contours_meters'\"\n            | 'contours_minutes must be an integer between 1 and 60'\n            | undefined\n        }\n        outputFormat: 'json'\n        status: 422\n      }\n    }\n  },\n  '/'\n>\nexport default routes\n",
+      )
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
 })
