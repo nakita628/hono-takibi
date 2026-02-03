@@ -275,7 +275,10 @@ export async function zodOpenAPIHonoHandler(
         if (testContent) {
           const testFmtResult = await fmt(testContent)
           const testCode = testFmtResult.ok ? testFmtResult.value : testContent
-          const testWriteResult = await writeFile(`${handlerPath}/${handler.testFileName}`, testCode)
+          const testWriteResult = await writeFile(
+            `${handlerPath}/${handler.testFileName}`,
+            testCode,
+          )
           if (!testWriteResult.ok) return { ok: false, error: testWriteResult.error } as const
         }
       }

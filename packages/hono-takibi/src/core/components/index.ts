@@ -9,13 +9,13 @@
 // JSON output functions
 export { callbacks } from './callbacks.js'
 export { examples } from './examples.js'
-export { pathItems } from './pathItems.js'
-export { webhooks } from './webhooks.js'
 // Zod generation functions
 export { headers } from './headers.js'
 export { links } from './links.js'
 export { parameters } from './parameters.js'
+export { pathItems } from './pathItems.js'
 export { requestBodies } from './requestBodies.js'
 export { responses } from './responses.js'
 export { schemas } from './schemas.js'
 export { securitySchemes } from './securitySchemes.js'
+export { webhooks } from './webhooks.js'

@@ -2,7 +2,6 @@ import type { OpenAPI, Operation, Schema } from '../../openapi/index.js'
 import { isHttpMethod } from '../../utils/index.js'
 import { schemaToFaker } from './faker-mapping.js'
 
-
 function isOperation(value: unknown): value is Operation {
   return typeof value === 'object' && value !== null && 'responses' in value
 }
@@ -20,7 +19,11 @@ function getSecurityArray(security: unknown): { [key: string]: string[] }[] | un
  * Recursively collect all schema $ref names from a schema and its nested properties
  * Returns unique schema names that need mock functions generated
  */
-function collectSchemaRefs(schema: Schema, schemas?: { [key: string]: Schema }, visited = new Set<string>()): string[] {
+function collectSchemaRefs(
+  schema: Schema,
+  schemas?: { [key: string]: Schema },
+  visited = new Set<string>(),
+): string[] {
   const refs: string[] = []
   // Handle direct $ref
   if (schema.$ref) {
@@ -84,7 +87,9 @@ type TestCase = {
   usedSchemaRefs: string[]
 }
 
-function isSecurityScheme(value: unknown): value is { type?: string; scheme?: string; name?: string; in?: string } {
+function isSecurityScheme(
+  value: unknown,
+): value is { type?: string; scheme?: string; name?: string; in?: string } {
   return typeof value === 'object' && value !== null && !('$ref' in value)
 }
 
@@ -98,13 +103,16 @@ function extractSecurityRequirements(
   for (const secDef of securityDefs) {
     for (const schemeName of Object.keys(secDef)) {
       const scheme = securitySchemes?.[schemeName]
-      if (!scheme || !isSecurityScheme(scheme)) continue
+      if (!(scheme && isSecurityScheme(scheme))) continue
       if (scheme.type === 'http' && scheme.scheme === 'bearer') {
         requirements.push({ type: 'bearer', name: 'Authorization' })
       } else if (scheme.type === 'http' && scheme.scheme === 'basic') {
         requirements.push({ type: 'basic', name: 'Authorization' })
       } else if (scheme.type === 'apiKey') {
-        const inLocation = scheme.in === 'header' || scheme.in === 'query' || scheme.in === 'cookie' ? scheme.in : 'header'
+        const inLocation =
+          scheme.in === 'header' || scheme.in === 'query' || scheme.in === 'cookie'
+            ? scheme.in
+            : 'header'
         requirements.push({ type: 'apiKey', name: scheme.name || 'X-API-Key', in: inLocation })
       } else if (scheme.type === 'oauth2') {
         requirements.push({ type: 'oauth2', name: 'Authorization' })
@@ -119,7 +127,7 @@ export function extractTestCases(spec: OpenAPI): TestCase[] {
   const securitySchemes = spec.components?.securitySchemes
   for (const [path, pathItem] of Object.entries(spec.paths)) {
     for (const [method, operation] of Object.entries(pathItem)) {
-      if (!isHttpMethod(method) || !isOperation(operation)) continue
+      if (!(isHttpMethod(method) && isOperation(operation))) continue
       const op = operation
       const pathParams: { name: string; fakerCode: string; schema?: Schema }[] = []
       const queryParams: { name: string; fakerCode: string; required: boolean }[] = []
@@ -137,13 +145,14 @@ export function extractTestCases(spec: OpenAPI): TestCase[] {
         }
       }
       const requestBody: TestCase['requestBody'] = (() => {
-        if (!op.requestBody || !hasContent(op.requestBody)) return undefined
+        if (!(op.requestBody && hasContent(op.requestBody))) return undefined
         const jsonContent = op.requestBody.content?.['application/json']
-        if (jsonContent?.schema) return { fakerCode: schemaToFaker(jsonContent.schema), contentType: 'application/json' }
+        if (jsonContent?.schema)
+          return { fakerCode: schemaToFaker(jsonContent.schema), contentType: 'application/json' }
         return undefined
       })()
       const usedSchemaRefs: string[] = (() => {
-        if (!op.requestBody || !hasContent(op.requestBody)) return []
+        if (!(op.requestBody && hasContent(op.requestBody))) return []
         const jsonContent = op.requestBody.content?.['application/json']
         if (!jsonContent?.schema) return []
         // Recursively collect all schema refs from the request body
@@ -151,10 +160,22 @@ export function extractTestCases(spec: OpenAPI): TestCase[] {
       })()
       const responseKeys = Object.keys(op.responses || {})
       // Extract success status (2xx), sort to get lowest, default to 200 if none defined
-      const successStatus = responseKeys.filter((s) => s.startsWith('2')).map((s) => Number.parseInt(s, 10)).sort()[0] ?? 200
+      const successStatus =
+        responseKeys
+          .filter((s) => s.startsWith('2'))
+          .map((s) => Number.parseInt(s, 10))
+          .sort()[0] ?? 200
       // Extract error statuses (4xx client errors, 5xx server errors), exclude 'default' which is a wildcard in OpenAPI
-      const errorStatuses = responseKeys.filter((s) => s.startsWith('4') || s.startsWith('5')).filter((s) => s !== 'default').map((s) => Number.parseInt(s, 10)).sort()
-      const security = extractSecurityRequirements(getSecurityArray(op.security), getSecurityArray(spec.security), securitySchemes)
+      const errorStatuses = responseKeys
+        .filter((s) => s.startsWith('4') || s.startsWith('5'))
+        .filter((s) => s !== 'default')
+        .map((s) => Number.parseInt(s, 10))
+        .sort()
+      const security = extractSecurityRequirements(
+        getSecurityArray(op.security),
+        getSecurityArray(spec.security),
+        securitySchemes,
+      )
       testCases.push({
         operationId: op.operationId || `${method}${path.replace(/\//g, '_')}`,
         method: method.toUpperCase(),
@@ -202,7 +223,9 @@ function generateMockFunctions(spec: OpenAPI, usedSchemaNames: Set<string>): str
   for (const name of usedSchemaNames) {
     visit(name)
   }
-  return sorted.map((name) => `function mock${name}() {\n  return ${schemaToFaker(schemas[name])}\n}`).join('\n\n')
+  return sorted
+    .map((name) => `function mock${name}() {\n  return ${schemaToFaker(schemas[name])}\n}`)
+    .join('\n\n')
 }
 
 /**
@@ -232,32 +255,58 @@ function generateAuthHeader(sec: SecurityRequirement): string {
 }
 
 function generateTestCase(tc: TestCase): string {
-  const testPath = tc.pathParams.reduce((path, param) => path.replace(`{${param.name}}`, `\${${param.name}}`), tc.path)
+  const testPath = tc.pathParams.reduce(
+    (path, param) => path.replace(`{${param.name}}`, `\${${param.name}}`),
+    tc.path,
+  )
   const pathSetup = tc.pathParams.map((param) => `const ${param.name}=${param.fakerCode}`)
   // Include all query parameters (both required and optional) for comprehensive testing
   const querySetup = tc.queryParams.map((param) => `const ${param.name}=${param.fakerCode}`)
-  const queryParts = tc.queryParams.map((param) => `${param.name}=\${encodeURIComponent(String(${param.name}))}`)
+  const queryParts = tc.queryParams.map(
+    (param) => `${param.name}=\${encodeURIComponent(String(${param.name}))}`,
+  )
   const queryString = queryParts.length > 0 ? `?${queryParts.join('&')}` : ''
   const requiredHeaderParams = tc.headerParams.filter((p) => p.required)
   const headerSetup = requiredHeaderParams.map((param) => `const ${param.name}=${param.fakerCode}`)
   const headerEntries = requiredHeaderParams.map((param) => `'${param.name}':String(${param.name})`)
   const authHeaders = tc.security.map(generateAuthHeader).filter(Boolean)
-  const { bodySetup, bodyOption, contentTypeHeader } = tc.requestBody ? { bodySetup: `const body=${tc.requestBody.fakerCode}`, bodyOption: ',body:JSON.stringify(body)', contentTypeHeader: "'Content-Type':'application/json'" } : { bodySetup: '', bodyOption: '', contentTypeHeader: '' }
+  const { bodySetup, bodyOption, contentTypeHeader } = tc.requestBody
+    ? {
+        bodySetup: `const body=${tc.requestBody.fakerCode}`,
+        bodyOption: ',body:JSON.stringify(body)',
+        contentTypeHeader: "'Content-Type':'application/json'",
+      }
+    : { bodySetup: '', bodyOption: '', contentTypeHeader: '' }
   const headers = [...headerEntries, ...(contentTypeHeader ? [contentTypeHeader] : [])]
   const allHeaders = [...headers, ...authHeaders]
   const headersOption = allHeaders.length > 0 ? `,headers:{${allHeaders.join(',')}}` : ''
   const headersWithoutAuth = headers.length > 0 ? `,headers:{${headers.join(',')}}` : ''
   const summary = tc.summary || `${tc.method} ${tc.path}`
-  const setupCode = [...pathSetup, ...querySetup, ...headerSetup, bodySetup].filter(Boolean).join('\n')
+  const setupCode = [...pathSetup, ...querySetup, ...headerSetup, bodySetup]
+    .filter(Boolean)
+    .join('\n')
   const mainTest = `describe('${tc.method} ${tc.path}',()=>{it('${escapeString(summary)}',async()=>{${setupCode}\nconst res=await app.request(\`${testPath}${queryString}\`,{method:'${tc.method}'${headersOption}${bodyOption}})\nexpect(res.status).toBe(${tc.successStatus})})`
-  const unauthorizedTest = tc.security.length > 0 ? `\nit('should return 401 without auth',async()=>{${setupCode}\nconst res=await app.request(\`${testPath}${queryString}\`,{method:'${tc.method}'${headersWithoutAuth}${bodyOption}})\nexpect(res.status).toBe(401)})` : ''
+  const unauthorizedTest =
+    tc.security.length > 0
+      ? `\nit('should return 401 without auth',async()=>{${setupCode}\nconst res=await app.request(\`${testPath}${queryString}\`,{method:'${tc.method}'${headersWithoutAuth}${bodyOption}})\nexpect(res.status).toBe(401)})`
+      : ''
   // Generate 404 test if: has path params AND 404 is defined in OpenAPI responses
-  const notFoundTest = tc.pathParams.length > 0 && tc.errorStatuses.includes(404) ? (() => {
-    const notFoundPath = tc.pathParams.reduce((path, param) => path.replace(`{${param.name}}`, getNonExistentValue(param.schema)), tc.path)
-    const notFoundQuerySetup = tc.queryParams.map((param) => `const ${param.name}=${param.fakerCode}`)
-    const notFoundSetupCode = [...notFoundQuerySetup, ...headerSetup, bodySetup].filter(Boolean).join('\n')
-    return `\nit('should return 404 for non-existent resource',async()=>{${notFoundSetupCode}\nconst res=await app.request(\`${notFoundPath}${queryString}\`,{method:'${tc.method}'${headersOption}${bodyOption}})\nexpect(res.status).toBe(404)})`
-  })() : ''
+  const notFoundTest =
+    tc.pathParams.length > 0 && tc.errorStatuses.includes(404)
+      ? (() => {
+          const notFoundPath = tc.pathParams.reduce(
+            (path, param) => path.replace(`{${param.name}}`, getNonExistentValue(param.schema)),
+            tc.path,
+          )
+          const notFoundQuerySetup = tc.queryParams.map(
+            (param) => `const ${param.name}=${param.fakerCode}`,
+          )
+          const notFoundSetupCode = [...notFoundQuerySetup, ...headerSetup, bodySetup]
+            .filter(Boolean)
+            .join('\n')
+          return `\nit('should return 404 for non-existent resource',async()=>{${notFoundSetupCode}\nconst res=await app.request(\`${notFoundPath}${queryString}\`,{method:'${tc.method}'${headersOption}${bodyOption}})\nexpect(res.status).toBe(404)})`
+        })()
+      : ''
   return `${mainTest}${unauthorizedTest}${notFoundTest}})\n`
 }
 
@@ -275,12 +324,14 @@ export function generateTestFile(spec: OpenAPI, appImportPath: string = './app')
   }, new Map<string, TestCase[]>())
   const imports = `import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'${appImportPath}'\n`
   const mockFunctions = generateMockFunctions(spec, usedSchemaNames)
-  const tagDescribes = Array.from(byTag.entries()).map(([tag, cases]) => {
-    const tagInfo = spec.tags?.find((t) => t.name === tag)
-    const tagDescription = tagInfo?.description || tag
-    const testCasesCode = cases.map((tc) => generateTestCase(tc)).join('')
-    return `describe('${escapeString(tagDescription)}',()=>{${testCasesCode}})\n`
-  }).join('')
+  const tagDescribes = Array.from(byTag.entries())
+    .map(([tag, cases]) => {
+      const tagInfo = spec.tags?.find((t) => t.name === tag)
+      const tagDescription = tagInfo?.description || tag
+      const testCasesCode = cases.map((tc) => generateTestCase(tc)).join('')
+      return `describe('${escapeString(tagDescription)}',()=>{${testCasesCode}})\n`
+    })
+    .join('')
   const mockSection = mockFunctions ? `${mockFunctions}\n\n` : ''
   return `${imports}\n${mockSection}describe('${escapeString(apiTitle)}',()=>{${tagDescribes}})\n`
 }
@@ -300,7 +351,12 @@ function getPathFirstSegment(path: string): string {
   return sanitized === '' ? '__root' : sanitized
 }
 
-export function generateHandlerTestCode(spec: OpenAPI, handlerPath: string, _routeNames: string[], importFrom: string): string {
+export function generateHandlerTestCode(
+  spec: OpenAPI,
+  handlerPath: string,
+  _routeNames: string[],
+  importFrom: string,
+): string {
   // Extract handler name from path (e.g., "handlers/users.ts" → "users")
   const handlerFileName = handlerPath.split('/').pop()?.replace(/\.ts$/, '') ?? ''
 

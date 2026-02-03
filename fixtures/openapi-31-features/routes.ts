@@ -63,22 +63,25 @@ const UserEventSchema = z
   .openapi('UserEvent')
 
 const ResourceCrudPathItem = {
-    parameters: [
-      {
-        name: 'id',
-        in: 'path',
-        required: true,
-        schema: { type: 'string', format: 'uuid' },
-      },
-    ],
-    get: {
-      operationId: 'getResource',
-      summary: 'Get a resource by ID',
-      responses: {
-        '200': { description: 'Resource found', content: { 'application/json': { schema: ResourceSchema } } },
+  parameters: [
+    {
+      name: 'id',
+      in: 'path',
+      required: true,
+      schema: { type: 'string', format: 'uuid' },
+    },
+  ],
+  get: {
+    operationId: 'getResource',
+    summary: 'Get a resource by ID',
+    responses: {
+      '200': {
+        description: 'Resource found',
+        content: { 'application/json': { schema: ResourceSchema } },
       },
     },
-  }
+  },
+}
 
 export const getHealthRoute = createRoute({
   method: 'get',
@@ -95,17 +98,15 @@ export const getUsersIdRoute = createRoute({
   operationId: 'getResource',
   request: {
     params: z.object({
-      id: z
-        .uuid()
-        .openapi({
-          param: {
-            name: 'id',
-            in: 'path',
-            required: true,
-            schema: { type: 'string', format: 'uuid' },
-            description: 'Resource ID',
-          },
-        }),
+      id: z.uuid().openapi({
+        param: {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+          description: 'Resource ID',
+        },
+      }),
     }),
   },
   responses: {
@@ -124,17 +125,15 @@ export const putUsersIdRoute = createRoute({
   operationId: 'updateResource',
   request: {
     params: z.object({
-      id: z
-        .uuid()
-        .openapi({
-          param: {
-            name: 'id',
-            in: 'path',
-            required: true,
-            schema: { type: 'string', format: 'uuid' },
-            description: 'Resource ID',
-          },
-        }),
+      id: z.uuid().openapi({
+        param: {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+          description: 'Resource ID',
+        },
+      }),
     }),
     body: { content: { 'application/json': { schema: ResourceUpdateSchema } }, required: true },
   },
@@ -153,17 +152,15 @@ export const deleteUsersIdRoute = createRoute({
   operationId: 'deleteResource',
   request: {
     params: z.object({
-      id: z
-        .uuid()
-        .openapi({
-          param: {
-            name: 'id',
-            in: 'path',
-            required: true,
-            schema: { type: 'string', format: 'uuid' },
-            description: 'Resource ID',
-          },
-        }),
+      id: z.uuid().openapi({
+        param: {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+          description: 'Resource ID',
+        },
+      }),
     }),
   },
   responses: { 204: { description: 'Resource deleted' } },
@@ -176,17 +173,15 @@ export const getProductsIdRoute = createRoute({
   operationId: 'getResource',
   request: {
     params: z.object({
-      id: z
-        .uuid()
-        .openapi({
-          param: {
-            name: 'id',
-            in: 'path',
-            required: true,
-            schema: { type: 'string', format: 'uuid' },
-            description: 'Resource ID',
-          },
-        }),
+      id: z.uuid().openapi({
+        param: {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+          description: 'Resource ID',
+        },
+      }),
     }),
   },
   responses: {
@@ -205,17 +200,15 @@ export const putProductsIdRoute = createRoute({
   operationId: 'updateResource',
   request: {
     params: z.object({
-      id: z
-        .uuid()
-        .openapi({
-          param: {
-            name: 'id',
-            in: 'path',
-            required: true,
-            schema: { type: 'string', format: 'uuid' },
-            description: 'Resource ID',
-          },
-        }),
+      id: z.uuid().openapi({
+        param: {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+          description: 'Resource ID',
+        },
+      }),
     }),
     body: { content: { 'application/json': { schema: ResourceUpdateSchema } }, required: true },
   },
@@ -234,17 +227,15 @@ export const deleteProductsIdRoute = createRoute({
   operationId: 'deleteResource',
   request: {
     params: z.object({
-      id: z
-        .uuid()
-        .openapi({
-          param: {
-            name: 'id',
-            in: 'path',
-            required: true,
-            schema: { type: 'string', format: 'uuid' },
-            description: 'Resource ID',
-          },
-        }),
+      id: z.uuid().openapi({
+        param: {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+          description: 'Resource ID',
+        },
+      }),
     }),
   },
   responses: { 204: { description: 'Resource deleted' } },

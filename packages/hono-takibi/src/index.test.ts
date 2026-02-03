@@ -32,6 +32,7 @@ Options:
   --export-examples           export examples
   --export-links              export links
   --export-callbacks          export callbacks
+  --export-path-items         export pathItems
   --readonly                  make schemas immutable (adds .readonly() and 'as const')
   --template                  generate app file and handler stubs
   --test                      generate test files with vitest and faker.js
@@ -59,6 +60,7 @@ Options:
   --export-examples           export examples
   --export-links              export links
   --export-callbacks          export callbacks
+  --export-path-items         export pathItems
   --readonly                  make schemas immutable (adds .readonly() and 'as const')
   --template                  generate app file and handler stubs
   --test                      generate test files with vitest and faker.js
@@ -2586,10 +2588,7 @@ export const postUsersRoute = createRoute({
       },
     }
 
-    fs.writeFileSync(
-      path.join(testDir, 'openapi.json'),
-      JSON.stringify(openAPI, null, 2),
-    )
+    fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI, null, 2))
 
     execSync(
       `node ${path.resolve('packages/hono-takibi/dist/index.js')} openapi.json -o routes.ts`,

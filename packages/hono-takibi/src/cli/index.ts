@@ -342,8 +342,8 @@ export async function honoTakibi(): Promise<
     config['zod-openapi']?.components?.webhooks
       ? webhooks(
           openAPI,
-          config['zod-openapi']?.components?.webhooks?.output,
-          config['zod-openapi']?.components?.webhooks?.split ?? false,
+          config['zod-openapi']?.components?.webhooks,
+          config['zod-openapi']?.components,
           config['zod-openapi']?.readonly,
         )
       : Promise.resolve(undefined),

@@ -1,8 +1,4 @@
-import {
-  makeCallbacks,
-  makeOperationResponses,
-  makeRequest,
-} from '../../../../helper/index.js'
+import { makeCallbacks, makeOperationResponses, makeRequest } from '../../../../helper/index.js'
 import type { Operation } from '../../../../openapi/index.js'
 import { toIdentifierPascalCase } from '../../../../utils/index.js'
 

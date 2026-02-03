@@ -426,7 +426,9 @@ function makeSchemaTypeString(
   }
   if (schema.enum && schema.enum.length > 0) {
     return schema.enum
-      .map((v) => (typeof v === 'string' ? `'${v.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'` : String(v)))
+      .map((v) =>
+        typeof v === 'string' ? `'${v.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'` : String(v),
+      )
       .join('|')
   }
   if (schema.const !== undefined) {
