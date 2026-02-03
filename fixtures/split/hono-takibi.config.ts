@@ -47,6 +47,14 @@ export default defineConfig({
         output: 'src/callbacks',
         split: true,
       },
+      pathItems: {
+        output: 'src/pathItems',
+        split: true,
+      },
+      webhooks: {
+        output: 'src/webhooks',
+        split: true,
+      },
     },
   },
 })

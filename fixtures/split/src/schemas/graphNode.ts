@@ -1,7 +1,7 @@
 import { z } from '@hono/zod-openapi'
-import { EntityRefSchema } from './entityRef'
-import { GraphEdgeSchema } from './graphEdge'
 import { IdSchema } from './id'
+import { GraphEdgeSchema } from './graphEdge'
+import { EntityRefSchema } from './entityRef'
 
 type GraphNodeType = {
   id: z.infer<typeof IdSchema>

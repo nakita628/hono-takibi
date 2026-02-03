@@ -1,9 +1,9 @@
 import { z } from '@hono/zod-openapi'
+import { UserSchema } from './user'
 import { CompanySchema } from './company'
 import { OrderSchema } from './order'
-import { PersonSchema } from './person'
 import { ProductSchema } from './product'
-import { UserSchema } from './user'
+import { PersonSchema } from './person'
 
 type EntityRefType =
   | z.infer<typeof UserSchema>
