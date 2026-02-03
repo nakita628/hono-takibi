@@ -569,6 +569,8 @@ export type Schema = {
   }
   readonly required?: readonly string[]
   readonly items?: Schema | readonly Schema[]
+  /** JSON Schema 2020-12: Tuple validation */
+  readonly prefixItems?: readonly Schema[]
   readonly enum?: readonly (
     | string
     | number

@@ -1,4 +1,4 @@
-import type { OpenAPI, Parameter } from '../../../../openapi/index.js'
+import type { OpenAPI, Parameter, PathItem } from '../../../../openapi/index.js'
 import { createRoute } from './create-route.js'
 
 /**
@@ -20,7 +20,10 @@ import { createRoute } from './create-route.js'
 export function routeCode(openapi: OpenAPI, readonly?: boolean): string {
   const isParameterRef = (r: string): r is `#/components/parameters/${string}` =>
     r.startsWith('#/components/parameters/')
-  const resolve = (p: Parameter | { readonly $ref?: string }): Parameter | undefined => {
+  const isPathItemRef = (r: string): r is `#/components/pathItems/${string}` =>
+    r.startsWith('#/components/pathItems/')
+
+  const resolveParameter = (p: Parameter | { readonly $ref?: string }): Parameter | undefined => {
     if ('name' in p && 'in' in p) return p
     const ref = '$ref' in p ? p.$ref : undefined
     if (!ref || !isParameterRef(ref)) return undefined
@@ -30,25 +33,39 @@ export function routeCode(openapi: OpenAPI, readonly?: boolean): string {
     return { ...resolved, $ref: ref }
   }
 
+  const resolvePathItem = (pathItem: PathItem): PathItem => {
+    // If pathItem has $ref to components/pathItems, resolve it
+    if (pathItem.$ref && isPathItemRef(pathItem.$ref)) {
+      const name = pathItem.$ref.slice(pathItem.$ref.lastIndexOf('/') + 1)
+      const resolved = openapi.components?.pathItems?.[name]
+      if (resolved) {
+        // Merge resolved pathItem with any sibling properties (OpenAPI 3.1 allows this)
+        const { $ref: _, ...siblings } = pathItem
+        return { ...resolved, ...siblings }
+      }
+    }
+    return pathItem
+  }
+
   return Object.entries(openapi.paths)
-    .flatMap(([path, pathItem]) =>
-      pathItem
-        ? (['get', 'put', 'post', 'delete', 'patch', 'options', 'head', 'trace'] as const)
-            .filter((m) => pathItem[m]?.responses)
-            .map((method) => {
-              const operation = pathItem[method]!
-              const params = [...(pathItem.parameters ?? []), ...(operation.parameters ?? [])]
-                .map(resolve)
-                .filter((p) => p !== undefined)
-              return createRoute(
-                path,
-                method,
-                params.length > 0 ? { ...operation, parameters: params } : operation,
-                readonly,
-              )
-            })
-        : [],
-    )
+    .flatMap(([path, pathItem]) => {
+      if (!pathItem) return []
+      const resolved = resolvePathItem(pathItem)
+      return (['get', 'put', 'post', 'delete', 'patch', 'options', 'head', 'trace'] as const)
+        .filter((m) => resolved[m]?.responses)
+        .map((method) => {
+          const operation = resolved[method]!
+          const params = [...(resolved.parameters ?? []), ...(operation.parameters ?? [])]
+            .map(resolveParameter)
+            .filter((p) => p !== undefined)
+          return createRoute(
+            path,
+            method,
+            params.length > 0 ? { ...operation, parameters: params } : operation,
+            readonly,
+          )
+        })
+    })
     .filter(Boolean)
     .join('\n\n')
 }

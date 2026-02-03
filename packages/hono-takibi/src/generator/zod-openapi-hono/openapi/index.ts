@@ -8,10 +8,13 @@
  * flowchart TD
  *   A["zodOpenAPIHono(openapi, options)"] --> B["componentsCode()"]
  *   A --> C["routeCode()"]
+ *   A --> W["webhookCode()"]
  *   B --> D["Schemas + Parameters + Headers + ..."]
  *   C --> E["Route definitions"]
+ *   W --> V["Webhook definitions"]
  *   D --> F["Combined output"]
  *   E --> F
+ *   V --> F
  * ```
  *
  * @module generator/zod-openapi-hono
@@ -19,6 +22,7 @@
 import type { OpenAPI } from '../../../openapi/index.js'
 import { componentsCode } from './components/index.js'
 import { routeCode } from './routes/index.js'
+import { webhookCode } from './webhooks/index.js'
 
 /**
  * Generates Hono-compatible TypeScript code from an OpenAPI specification.
@@ -27,6 +31,7 @@ import { routeCode } from './routes/index.js'
  * - Zod schemas for all component schemas
  * - Parameter validators
  * - Route definitions with request/response types
+ * - Webhook definitions (OpenAPI 3.1+)
  *
  * ```mermaid
  * flowchart LR
@@ -37,10 +42,12 @@ import { routeCode } from './routes/index.js'
  *     B["import { createRoute, z } from '@hono/zod-openapi'"]
  *     C["// Component schemas"]
  *     D["// Route definitions"]
+ *     E["// Webhook definitions"]
  *   end
  *   A --> B
  *   A --> C
  *   A --> D
+ *   A --> E
  * ```
  *
  * @param openapi - The OpenAPI specification object
@@ -76,5 +83,8 @@ export function zodOpenAPIHono(
   },
 ): string {
   const components = openapi.components ? componentsCode(openapi.components, options) : ''
-  return `import{createRoute,z}from'@hono/zod-openapi'\n\n${components}\n\n${routeCode(openapi, options.readonly)}`
+  const routes = routeCode(openapi, options.readonly)
+  const webhooks = webhookCode(openapi, options.readonly)
+  const output = [components, routes, webhooks].filter((s) => s.length > 0).join('\n\n')
+  return `import{createRoute,z}from'@hono/zod-openapi'\n\n${output}`
 }

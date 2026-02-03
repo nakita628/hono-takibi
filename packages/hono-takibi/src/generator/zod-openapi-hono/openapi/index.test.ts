@@ -457,4 +457,53 @@ describe('zodOpenAPIHono', () => {
       exportCallbacks: false,
     })
   })
+
+  it.concurrent('generates webhooks from OpenAPI 3.1 webhooks section', async () => {
+    const { expect } = await import('vitest')
+    const openapiWithWebhooks: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Webhook API', version: '1.0.0' },
+      paths: {
+        '/orders': {
+          get: {
+            operationId: 'getOrders',
+            responses: {
+              200: { description: 'OK' },
+            },
+          },
+        },
+      },
+      webhooks: {
+        orderStatusChanged: {
+          post: {
+            operationId: 'onOrderStatusChanged',
+            responses: {
+              200: { description: 'Webhook received' },
+            },
+          },
+        },
+      },
+    }
+
+    const result = zodOpenAPIHono(openapiWithWebhooks, {
+      exportSchemasTypes: false,
+      exportSchemas: false,
+      exportParametersTypes: false,
+      exportParameters: false,
+      exportSecuritySchemes: false,
+      exportRequestBodies: false,
+      exportResponses: false,
+      exportHeadersTypes: false,
+      exportHeaders: false,
+      exportExamples: false,
+      exportLinks: false,
+      exportCallbacks: false,
+    })
+
+    expect(result).toBe(`import{createRoute,z}from'@hono/zod-openapi'
+
+export const getOrdersRoute=createRoute({method:'get',path:'/orders',operationId:'getOrders',responses:{200:{description:"OK"}}})
+
+export const orderStatusChangedPostWebhook={method:'post',path:'/orderStatusChanged',operationId:'onOrderStatusChanged',responses:{200:{description:"Webhook received"}}}`)
+  })
 })

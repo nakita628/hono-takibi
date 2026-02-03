@@ -30,6 +30,8 @@ describe('openapi helper', () => {
       ['#/components/examples/Test', 'TestExample'],
       ['#/components/links/Test', 'TestLink'],
       ['#/components/callbacks/Test', 'TestCallback'],
+      ['#/components/pathItems/Test', 'TestPathItem'],
+      ['#/components/pathItems/UserOperations', 'UserOperationsPathItem'],
       ['#/components/schemas/Test%20Name', 'TestNameSchema'],
       ['', 'Schema'],
       ['#/components/schemas/TestSchema', 'TestSchema'],

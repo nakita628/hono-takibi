@@ -2535,4 +2535,104 @@ export const postUsersRoute = createRoute({
 })
 `)
   })
+
+  it('generates webhooks from OpenAPI 3.1 webhooks section', () => {
+    const openAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Webhook API', version: '1.0.0' },
+      paths: {
+        '/orders': {
+          get: {
+            operationId: 'getOrders',
+            responses: {
+              200: { description: 'OK' },
+            },
+          },
+        },
+      },
+      webhooks: {
+        orderStatusChanged: {
+          post: {
+            operationId: 'onOrderStatusChanged',
+            summary: 'Order status changed',
+            requestBody: {
+              required: true,
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      orderId: { type: 'string' },
+                      status: { type: 'string' },
+                    },
+                    required: ['orderId', 'status'],
+                  },
+                },
+              },
+            },
+            responses: {
+              200: { description: 'Webhook received' },
+            },
+          },
+        },
+        paymentReceived: {
+          post: {
+            operationId: 'onPaymentReceived',
+            responses: {
+              200: { description: 'OK' },
+            },
+          },
+        },
+      },
+    }
+
+    fs.writeFileSync(
+      path.join(testDir, 'openapi.json'),
+      JSON.stringify(openAPI, null, 2),
+    )
+
+    execSync(
+      `node ${path.resolve('packages/hono-takibi/dist/index.js')} openapi.json -o routes.ts`,
+      { cwd: path.resolve(testDir) },
+    )
+
+    const result = fs.readFileSync(path.join(testDir, 'routes.ts'), 'utf-8')
+
+    expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
+
+export const getOrdersRoute = createRoute({
+  method: 'get',
+  path: '/orders',
+  operationId: 'getOrders',
+  responses: { 200: { description: 'OK' } },
+})
+
+export const orderStatusChangedPostWebhook = {
+  method: 'post',
+  path: '/orderStatusChanged',
+  summary: 'Order status changed',
+  operationId: 'onOrderStatusChanged',
+  request: {
+    body: {
+      content: {
+        'application/json': {
+          schema: z
+            .object({ orderId: z.string(), status: z.string() })
+            .openapi({ required: ['orderId', 'status'] }),
+        },
+      },
+      required: true,
+    },
+  },
+  responses: { 200: { description: 'Webhook received' } },
+}
+
+export const paymentReceivedPostWebhook = {
+  method: 'post',
+  path: '/paymentReceived',
+  operationId: 'onPaymentReceived',
+  responses: { 200: { description: 'OK' } },
+}
+`)
+  })
 })

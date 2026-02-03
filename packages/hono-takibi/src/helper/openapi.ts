@@ -67,6 +67,7 @@ import {
  * makeRef('#/components/schemas/User')      // → 'UserSchema'
  * makeRef('#/components/parameters/UserId') // → 'UserIdParamsSchema'
  * makeRef('#/components/headers/Auth')      // → 'AuthHeaderSchema'
+ * makeRef('#/components/pathItems/User')    // → 'UserPathItem'
  * ```
  */
 export function makeRef($ref: string): string {
@@ -87,6 +88,7 @@ export function makeRef($ref: string): string {
     { prefix: '#/components/examples/', suffix: 'Example' },
     { prefix: '#/components/links/', suffix: 'Link' },
     { prefix: '#/components/callbacks/', suffix: 'Callback' },
+    { prefix: '#/components/pathItems/', suffix: 'PathItem' },
   ]
 
   /** Converts name to PascalCase variable name with suffix */
