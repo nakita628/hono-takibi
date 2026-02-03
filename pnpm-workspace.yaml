@@ -3,5 +3,3 @@ packages:
   - packages/*
   - docs/*
   - fixtures/*
-onlyBuiltDependencies:
-  - esbuild
