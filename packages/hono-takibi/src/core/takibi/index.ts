@@ -37,9 +37,9 @@ import type { OpenAPI } from '../../openapi/index.js'
  *   Y --> Z["writeResult2 = writeFile(target, appResult.value)"]
  *   Z --> ZA{"writeResult2.ok ?"}
  *   ZA -->|No| ZB["return { ok:false, error: writeResult2.error }"]
- *   ZA -->|Yes| ZC["zodOpenAPIHonoHandlerResult = zodOpenAPIHonoHandler(openAPI, output, test)"]
- *   ZC --> ZD{"zodOpenAPIHonoHandlerResult.ok ?"}
- *   ZD -->|No| ZE["return { ok:false, error: zodOpenAPIHonoHandlerResult.error }"]
+ *   ZA -->|Yes| ZC["stubHandlersResult = makeStubHandlers(openAPI, output, test)"]
+ *   ZC --> ZD{"stubHandlersResult.ok ?"}
+ *   ZD -->|No| ZE["return { ok:false, error: stubHandlersResult.error }"]
  *   ZD -->|Yes| ZF["return { ok:true, value: 'Generated code and template files written' }"]
  * ```
  */

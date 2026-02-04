@@ -103,6 +103,7 @@ Options:
   --export-examples           export examples
   --export-links              export links
   --export-callbacks          export callbacks
+  --export-path-items         export pathItems
   --readonly                  make schemas immutable (adds .readonly() and 'as const')
   --template                  generate app file and handler stubs
   --test                      generate test files with vitest and faker.js
@@ -139,6 +140,7 @@ export default defineConfig({
     exportExamples: true,
     exportLinks: true,
     exportCallbacks: true,
+    exportPathItems: true,
     routes: {
       output: './src/routes',
       split: true,
@@ -191,6 +193,15 @@ export default defineConfig({
         output: './src/callbacks',
         split: true,
         import: '../callbacks',
+      },
+      pathItems: {
+        output: './src/pathItems',
+        split: true,
+        import: '../pathItems',
+      },
+      webhooks: {
+        output: './src/webhooks',
+        split: true,
       },
     },
   },
