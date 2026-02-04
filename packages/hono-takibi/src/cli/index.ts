@@ -27,6 +27,7 @@ import {
   examples,
   headers,
   links,
+  mediaTypes,
   mock,
   parameters,
   pathItems,
@@ -50,19 +51,20 @@ import { parseOpenAPI } from '../openapi/index.js'
 const HELP_TEXT = `Usage: hono-takibi <input.{yaml,json,tsp}> -o <routes.ts> [options]
 
 Options:
-  --export-schemas-types      export schemas types
   --export-schemas            export schemas
-  --export-parameters-types   export parameters types
-  --export-parameters         export parameters
-  --export-security-schemes   export securitySchemes
-  --export-request-bodies     export requestBodies
+  --export-schemas-types      export schemas types
   --export-responses          export responses
-  --export-headers-types      export headers types
-  --export-headers            export headers
+  --export-parameters         export parameters
+  --export-parameters-types   export parameters types
   --export-examples           export examples
+  --export-request-bodies     export requestBodies
+  --export-headers            export headers
+  --export-headers-types      export headers types
+  --export-security-schemes   export securitySchemes
   --export-links              export links
   --export-callbacks          export callbacks
   --export-path-items         export pathItems
+  --export-media-types        export mediaTypes
   --readonly                  make schemas immutable (adds .readonly() and 'as const')
   --template                  generate app file and handler stubs
   --test                      generate test files with vitest and faker.js
@@ -140,17 +142,18 @@ function parseCli(args: readonly string[]):
           readonly readonly: boolean
           readonly exportSchemas: boolean
           readonly exportSchemasTypes: boolean
+          readonly exportResponses: boolean
           readonly exportParameters: boolean
           readonly exportParametersTypes: boolean
-          readonly exportSecuritySchemes: boolean
+          readonly exportExamples: boolean
           readonly exportRequestBodies: boolean
-          readonly exportResponses: boolean
           readonly exportHeaders: boolean
           readonly exportHeadersTypes: boolean
-          readonly exportExamples: boolean
+          readonly exportSecuritySchemes: boolean
           readonly exportLinks: boolean
           readonly exportCallbacks: boolean
           readonly exportPathItems: boolean
+          readonly exportMediaTypes: boolean
         }
       }
     }
@@ -188,19 +191,21 @@ function parseCli(args: readonly string[]):
       basePath: getFlagValue(args, '--base-path') ?? '/',
       componentsOptions: {
         readonly: args.includes('--readonly'),
+        // OpenAPI Components Object order
         exportSchemas: args.includes('--export-schemas'),
         exportSchemasTypes: args.includes('--export-schemas-types'),
+        exportResponses: args.includes('--export-responses'),
         exportParameters: args.includes('--export-parameters'),
         exportParametersTypes: args.includes('--export-parameters-types'),
-        exportSecuritySchemes: args.includes('--export-security-schemes'),
+        exportExamples: args.includes('--export-examples'),
         exportRequestBodies: args.includes('--export-request-bodies'),
-        exportResponses: args.includes('--export-responses'),
         exportHeaders: args.includes('--export-headers'),
         exportHeadersTypes: args.includes('--export-headers-types'),
-        exportExamples: args.includes('--export-examples'),
+        exportSecuritySchemes: args.includes('--export-security-schemes'),
         exportLinks: args.includes('--export-links'),
         exportCallbacks: args.includes('--export-callbacks'),
         exportPathItems: args.includes('--export-path-items'),
+        exportMediaTypes: args.includes('--export-media-types'),
       },
     },
   }
@@ -246,6 +251,7 @@ export async function honoTakibi(): Promise<
     linksResult,
     callbacksResult,
     pathItemsResult,
+    mediaTypesResult,
     webhooksResult,
     securitySchemesResult,
     requestBodiesResult,
@@ -263,19 +269,21 @@ export async function honoTakibi(): Promise<
     config['zod-openapi']?.output
       ? takibi(openAPI, config['zod-openapi'].output, false, false, '/', {
           readonly: config['zod-openapi'].readonly,
-          exportSchemasTypes: config['zod-openapi'].exportSchemasTypes ?? false,
+          // OpenAPI Components Object order
           exportSchemas: config['zod-openapi'].exportSchemas ?? false,
-          exportParametersTypes: config['zod-openapi'].exportParametersTypes ?? false,
-          exportParameters: config['zod-openapi'].exportParameters ?? false,
-          exportSecuritySchemes: config['zod-openapi'].exportSecuritySchemes ?? false,
-          exportRequestBodies: config['zod-openapi'].exportRequestBodies ?? false,
+          exportSchemasTypes: config['zod-openapi'].exportSchemasTypes ?? false,
           exportResponses: config['zod-openapi'].exportResponses ?? false,
-          exportHeadersTypes: config['zod-openapi'].exportHeadersTypes ?? false,
-          exportHeaders: config['zod-openapi'].exportHeaders ?? false,
+          exportParameters: config['zod-openapi'].exportParameters ?? false,
+          exportParametersTypes: config['zod-openapi'].exportParametersTypes ?? false,
           exportExamples: config['zod-openapi'].exportExamples ?? false,
+          exportRequestBodies: config['zod-openapi'].exportRequestBodies ?? false,
+          exportHeaders: config['zod-openapi'].exportHeaders ?? false,
+          exportHeadersTypes: config['zod-openapi'].exportHeadersTypes ?? false,
+          exportSecuritySchemes: config['zod-openapi'].exportSecuritySchemes ?? false,
           exportLinks: config['zod-openapi'].exportLinks ?? false,
           exportCallbacks: config['zod-openapi'].exportCallbacks ?? false,
           exportPathItems: config['zod-openapi'].exportPathItems ?? false,
+          exportMediaTypes: config['zod-openapi'].exportMediaTypes ?? false,
         })
       : Promise.resolve(undefined),
     config['zod-openapi']?.components?.schemas
@@ -336,6 +344,14 @@ export async function honoTakibi(): Promise<
           openAPI.components ?? {},
           config['zod-openapi']?.components?.pathItems,
           config['zod-openapi']?.components,
+          config['zod-openapi']?.readonly,
+        )
+      : Promise.resolve(undefined),
+    config['zod-openapi']?.components?.mediaTypes
+      ? mediaTypes(
+          openAPI.components?.mediaTypes,
+          config['zod-openapi']?.components?.mediaTypes?.output,
+          config['zod-openapi']?.components?.mediaTypes?.split ?? false,
           config['zod-openapi']?.readonly,
         )
       : Promise.resolve(undefined),
@@ -446,6 +462,7 @@ export async function honoTakibi(): Promise<
   if (linksResult && !linksResult.ok) return { ok: false, error: linksResult.error }
   if (callbacksResult && !callbacksResult.ok) return { ok: false, error: callbacksResult.error }
   if (pathItemsResult && !pathItemsResult.ok) return { ok: false, error: pathItemsResult.error }
+  if (mediaTypesResult && !mediaTypesResult.ok) return { ok: false, error: mediaTypesResult.error }
   if (webhooksResult && !webhooksResult.ok) return { ok: false, error: webhooksResult.error }
   if (securitySchemesResult && !securitySchemesResult.ok)
     return { ok: false, error: securitySchemesResult.error }
@@ -473,6 +490,7 @@ export async function honoTakibi(): Promise<
     linksResult?.value,
     callbacksResult?.value,
     pathItemsResult?.value,
+    mediaTypesResult?.value,
     webhooksResult?.value,
     securitySchemesResult?.value,
     requestBodiesResult?.value,

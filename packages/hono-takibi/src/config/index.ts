@@ -36,19 +36,21 @@ const ConfigSchema = z
           })
           .exactOptional(),
         readonly: z.boolean().exactOptional(),
+        // OpenAPI Components Object order
         exportSchemas: z.boolean().exactOptional(),
         exportSchemasTypes: z.boolean().exactOptional(),
+        exportResponses: z.boolean().exactOptional(),
         exportParameters: z.boolean().exactOptional(),
         exportParametersTypes: z.boolean().exactOptional(),
-        exportSecuritySchemes: z.boolean().exactOptional(),
+        exportExamples: z.boolean().exactOptional(),
         exportRequestBodies: z.boolean().exactOptional(),
-        exportResponses: z.boolean().exactOptional(),
         exportHeaders: z.boolean().exactOptional(),
         exportHeadersTypes: z.boolean().exactOptional(),
-        exportExamples: z.boolean().exactOptional(),
+        exportSecuritySchemes: z.boolean().exactOptional(),
         exportLinks: z.boolean().exactOptional(),
         exportCallbacks: z.boolean().exactOptional(),
         exportPathItems: z.boolean().exactOptional(),
+        exportMediaTypes: z.boolean().exactOptional(),
         routes: z
           .object({
             output: z.custom<string | `${string}.ts`>((v) => typeof v === 'string'),
@@ -154,6 +156,16 @@ const ConfigSchema = z
               })
               .exactOptional(),
             pathItems: z
+              .object({
+                output: z.custom<string | `${string}.ts`>((v) => typeof v === 'string'),
+                split: z.boolean().exactOptional(),
+                import: z.string().exactOptional(),
+              })
+              .refine((v) => !(v.split === true && v.output.endsWith('.ts')), {
+                message: 'split mode requires directory, not .ts file',
+              })
+              .exactOptional(),
+            mediaTypes: z
               .object({
                 output: z.custom<string | `${string}.ts`>((v) => typeof v === 'string'),
                 split: z.boolean().exactOptional(),
@@ -356,6 +368,15 @@ const ConfigSchema = z
                   output: normalize(
                     config['zod-openapi'].components.pathItems.output,
                     config['zod-openapi'].components.pathItems.split,
+                  ),
+                },
+              }),
+              ...(config['zod-openapi'].components.mediaTypes && {
+                mediaTypes: {
+                  ...config['zod-openapi'].components.mediaTypes,
+                  output: normalize(
+                    config['zod-openapi'].components.mediaTypes.output,
+                    config['zod-openapi'].components.mediaTypes.split,
                   ),
                 },
               }),

@@ -51,19 +51,21 @@ export async function takibi(
   basePath: string,
   componentsOptions: {
     readonly readonly?: boolean | undefined
+    // OpenAPI Components Object order
     readonly exportSchemas: boolean
     readonly exportSchemasTypes: boolean
+    readonly exportResponses: boolean
     readonly exportParameters: boolean
     readonly exportParametersTypes: boolean
-    readonly exportSecuritySchemes: boolean
+    readonly exportExamples: boolean
     readonly exportRequestBodies: boolean
-    readonly exportResponses: boolean
     readonly exportHeaders: boolean
     readonly exportHeadersTypes: boolean
-    readonly exportExamples: boolean
+    readonly exportSecuritySchemes: boolean
     readonly exportLinks: boolean
     readonly exportCallbacks: boolean
     readonly exportPathItems: boolean
+    readonly exportMediaTypes: boolean
   },
 ): Promise<
   | {

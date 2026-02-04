@@ -68,19 +68,21 @@ export function zodOpenAPIHono(
   openapi: OpenAPI,
   options: {
     readonly readonly?: boolean | undefined
-    readonly exportSchemasTypes: boolean
+    // OpenAPI Components Object order
     readonly exportSchemas: boolean
-    readonly exportParametersTypes: boolean
-    readonly exportParameters: boolean
-    readonly exportSecuritySchemes: boolean
-    readonly exportRequestBodies: boolean
+    readonly exportSchemasTypes: boolean
     readonly exportResponses: boolean
-    readonly exportHeadersTypes: boolean
-    readonly exportHeaders: boolean
+    readonly exportParameters: boolean
+    readonly exportParametersTypes: boolean
     readonly exportExamples: boolean
+    readonly exportRequestBodies: boolean
+    readonly exportHeaders: boolean
+    readonly exportHeadersTypes: boolean
+    readonly exportSecuritySchemes: boolean
     readonly exportLinks: boolean
     readonly exportCallbacks: boolean
     readonly exportPathItems: boolean
+    readonly exportMediaTypes: boolean
   },
 ): string {
   const components = openapi.components ? componentsCode(openapi.components, options) : ''

@@ -4,6 +4,7 @@ import { callbacksCode } from './callbacks.js'
 import { examplesCode } from './examples.js'
 import { headersCode } from './headers.js'
 import { linksCode } from './links.js'
+import { mediaTypesCode } from './mediaTypes.js'
 import { parametersCode } from './parameters.js'
 import { pathItemsCode } from './pathItems.js'
 import { requestBodiesCode } from './request-bodies.js'
@@ -22,43 +23,51 @@ import { securitySchemesCode } from './securitySchemes.js'
  * - Resolves schema dependency order to avoid reference errors.
  * - Skips generation if no schemas are defined.
  * - Uses `zodToOpenAPI` and `zodToOpenAPISchema` for code generation.
- * - Order follows OpenAPI Specification: schemas, parameters, securitySchemes, requestBodies, responses, headers, examples, links, callbacks
+ * - Order follows OpenAPI Components Object specification:
+ *   schemas, responses, parameters, examples, requestBodies,
+ *   headers, securitySchemes, links, callbacks, pathItems, mediaTypes
+ *
+ * @see https://spec.openapis.org/oas/v3.1.0.html#components-object
  */
 export function componentsCode(
   components: Components,
   options: {
     readonly readonly?: boolean | undefined
-    readonly exportSchemasTypes: boolean
+    // OpenAPI Components Object order
     readonly exportSchemas: boolean
-    readonly exportParametersTypes: boolean
-    readonly exportParameters: boolean
-    readonly exportSecuritySchemes: boolean
-    readonly exportRequestBodies: boolean
+    readonly exportSchemasTypes: boolean
     readonly exportResponses: boolean
-    readonly exportHeadersTypes: boolean
-    readonly exportHeaders: boolean
+    readonly exportParameters: boolean
+    readonly exportParametersTypes: boolean
     readonly exportExamples: boolean
+    readonly exportRequestBodies: boolean
+    readonly exportHeaders: boolean
+    readonly exportHeadersTypes: boolean
+    readonly exportSecuritySchemes: boolean
     readonly exportLinks: boolean
     readonly exportCallbacks: boolean
     readonly exportPathItems: boolean
+    readonly exportMediaTypes: boolean
   },
 ): string {
+  // OpenAPI Components Object order
   const code = [
     schemasCode(components, options.exportSchemas, options.exportSchemasTypes, options.readonly),
+    responsesCode(components, options.exportResponses, options.readonly),
     parametersCode(
       components,
       options.exportParameters,
       options.exportParametersTypes,
       options.readonly,
     ),
-    securitySchemesCode(components, options.exportSecuritySchemes, options.readonly),
-    requestBodiesCode(components, options.exportRequestBodies, options.readonly),
-    responsesCode(components, options.exportResponses, options.readonly),
-    headersCode(components, options.exportHeaders, options.exportHeadersTypes, options.readonly),
     examplesCode(components, options.exportExamples, options.readonly),
+    requestBodiesCode(components, options.exportRequestBodies, options.readonly),
+    headersCode(components, options.exportHeaders, options.exportHeadersTypes, options.readonly),
+    securitySchemesCode(components, options.exportSecuritySchemes, options.readonly),
     linksCode(components, options.exportLinks, options.readonly),
     callbacksCode(components, options.exportCallbacks, options.readonly),
     pathItemsCode(components, options.exportPathItems, options.readonly),
+    mediaTypesCode(components, options.exportMediaTypes, options.readonly),
   ]
     .filter(Boolean)
     .join('\n\n')
