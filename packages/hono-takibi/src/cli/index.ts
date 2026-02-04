@@ -57,14 +57,15 @@ Options:
   --export-parameters         export parameters
   --export-parameters-types   export parameters types
   --export-examples           export examples
-  --export-request-bodies     export requestBodies
+  --export-requestBodies      export requestBodies
   --export-headers            export headers
   --export-headers-types      export headers types
-  --export-security-schemes   export securitySchemes
+  --export-securitySchemes    export securitySchemes
   --export-links              export links
   --export-callbacks          export callbacks
-  --export-path-items         export pathItems
-  --export-media-types        export mediaTypes
+  --export-pathItems          export pathItems
+  --export-mediaTypes         export mediaTypes
+  --export-mediaTypes-types   export mediaTypes types
   --readonly                  make schemas immutable (adds .readonly() and 'as const')
   --template                  generate app file and handler stubs
   --test                      generate test files with vitest and faker.js
@@ -154,6 +155,7 @@ function parseCli(args: readonly string[]):
           readonly exportCallbacks: boolean
           readonly exportPathItems: boolean
           readonly exportMediaTypes: boolean
+          readonly exportMediaTypesTypes: boolean
         }
       }
     }
@@ -198,14 +200,15 @@ function parseCli(args: readonly string[]):
         exportParameters: args.includes('--export-parameters'),
         exportParametersTypes: args.includes('--export-parameters-types'),
         exportExamples: args.includes('--export-examples'),
-        exportRequestBodies: args.includes('--export-request-bodies'),
+        exportRequestBodies: args.includes('--export-requestBodies'),
         exportHeaders: args.includes('--export-headers'),
         exportHeadersTypes: args.includes('--export-headers-types'),
-        exportSecuritySchemes: args.includes('--export-security-schemes'),
+        exportSecuritySchemes: args.includes('--export-securitySchemes'),
         exportLinks: args.includes('--export-links'),
         exportCallbacks: args.includes('--export-callbacks'),
-        exportPathItems: args.includes('--export-path-items'),
-        exportMediaTypes: args.includes('--export-media-types'),
+        exportPathItems: args.includes('--export-pathItems'),
+        exportMediaTypes: args.includes('--export-mediaTypes'),
+        exportMediaTypesTypes: args.includes('--export-mediaTypes-types'),
       },
     },
   }
@@ -284,6 +287,7 @@ export async function honoTakibi(): Promise<
           exportCallbacks: config['zod-openapi'].exportCallbacks ?? false,
           exportPathItems: config['zod-openapi'].exportPathItems ?? false,
           exportMediaTypes: config['zod-openapi'].exportMediaTypes ?? false,
+          exportMediaTypesTypes: config['zod-openapi'].exportMediaTypesTypes ?? false,
         })
       : Promise.resolve(undefined),
     config['zod-openapi']?.components?.schemas
@@ -336,6 +340,7 @@ export async function honoTakibi(): Promise<
           openAPI.components?.callbacks,
           config['zod-openapi']?.components?.callbacks?.output,
           config['zod-openapi']?.components?.callbacks?.split ?? false,
+          config['zod-openapi']?.components,
           config['zod-openapi']?.readonly,
         )
       : Promise.resolve(undefined),

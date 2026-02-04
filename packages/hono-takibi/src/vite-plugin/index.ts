@@ -257,6 +257,8 @@ const runAllGenerationTasks = async (configuration: Configuration): Promise<{ lo
         exportLinks: configuration['zod-openapi']?.exportLinks ?? false,
         exportCallbacks: configuration['zod-openapi']?.exportCallbacks ?? false,
         exportPathItems: configuration['zod-openapi']?.exportPathItems ?? false,
+        exportMediaTypes: configuration['zod-openapi']?.exportMediaTypes ?? false,
+        exportMediaTypesTypes: configuration['zod-openapi']?.exportMediaTypesTypes ?? false,
       })
       return result.ok ? `✅ zod-openapi -> ${outputPath}` : `❌ zod-openapi: ${result.error}`
     })()

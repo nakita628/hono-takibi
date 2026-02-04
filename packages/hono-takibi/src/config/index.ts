@@ -51,6 +51,7 @@ const ConfigSchema = z
         exportCallbacks: z.boolean().exactOptional(),
         exportPathItems: z.boolean().exactOptional(),
         exportMediaTypes: z.boolean().exactOptional(),
+        exportMediaTypesTypes: z.boolean().exactOptional(),
         routes: z
           .object({
             output: z.custom<string | `${string}.ts`>((v) => typeof v === 'string'),
@@ -168,6 +169,7 @@ const ConfigSchema = z
             mediaTypes: z
               .object({
                 output: z.custom<string | `${string}.ts`>((v) => typeof v === 'string'),
+                exportTypes: z.boolean().exactOptional(),
                 split: z.boolean().exactOptional(),
                 import: z.string().exactOptional(),
               })

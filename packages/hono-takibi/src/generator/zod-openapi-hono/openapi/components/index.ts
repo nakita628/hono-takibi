@@ -48,6 +48,7 @@ export function componentsCode(
     readonly exportCallbacks: boolean
     readonly exportPathItems: boolean
     readonly exportMediaTypes: boolean
+    readonly exportMediaTypesTypes: boolean
   },
 ): string {
   // OpenAPI Components Object order
@@ -67,7 +68,12 @@ export function componentsCode(
     linksCode(components, options.exportLinks, options.readonly),
     callbacksCode(components, options.exportCallbacks, options.readonly),
     pathItemsCode(components, options.exportPathItems, options.readonly),
-    mediaTypesCode(components, options.exportMediaTypes, options.readonly),
+    mediaTypesCode(
+      components,
+      options.exportMediaTypes,
+      options.exportMediaTypesTypes,
+      options.readonly,
+    ),
   ]
     .filter(Boolean)
     .join('\n\n')

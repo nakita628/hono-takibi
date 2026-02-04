@@ -20,19 +20,21 @@ describe('CLI options test with string matching', () => {
     expect(result).toBe(`Usage: hono-takibi <input.{yaml,json,tsp}> -o <routes.ts> [options]
 
 Options:
-  --export-schemas-types      export schemas types
   --export-schemas            export schemas
-  --export-parameters-types   export parameters types
-  --export-parameters         export parameters
-  --export-security-schemes   export securitySchemes
-  --export-request-bodies     export requestBodies
+  --export-schemas-types      export schemas types
   --export-responses          export responses
-  --export-headers-types      export headers types
-  --export-headers            export headers
+  --export-parameters         export parameters
+  --export-parameters-types   export parameters types
   --export-examples           export examples
+  --export-requestBodies      export requestBodies
+  --export-headers            export headers
+  --export-headers-types      export headers types
+  --export-securitySchemes    export securitySchemes
   --export-links              export links
   --export-callbacks          export callbacks
-  --export-path-items         export pathItems
+  --export-pathItems          export pathItems
+  --export-mediaTypes         export mediaTypes
+  --export-mediaTypes-types   export mediaTypes types
   --readonly                  make schemas immutable (adds .readonly() and 'as const')
   --template                  generate app file and handler stubs
   --test                      generate test files with vitest and faker.js
@@ -48,19 +50,21 @@ Options:
     expect(result).toBe(`Usage: hono-takibi <input.{yaml,json,tsp}> -o <routes.ts> [options]
 
 Options:
-  --export-schemas-types      export schemas types
   --export-schemas            export schemas
-  --export-parameters-types   export parameters types
-  --export-parameters         export parameters
-  --export-security-schemes   export securitySchemes
-  --export-request-bodies     export requestBodies
+  --export-schemas-types      export schemas types
   --export-responses          export responses
-  --export-headers-types      export headers types
-  --export-headers            export headers
+  --export-parameters         export parameters
+  --export-parameters-types   export parameters types
   --export-examples           export examples
+  --export-requestBodies      export requestBodies
+  --export-headers            export headers
+  --export-headers-types      export headers types
+  --export-securitySchemes    export securitySchemes
   --export-links              export links
   --export-callbacks          export callbacks
-  --export-path-items         export pathItems
+  --export-pathItems          export pathItems
+  --export-mediaTypes         export mediaTypes
+  --export-mediaTypes-types   export mediaTypes types
   --readonly                  make schemas immutable (adds .readonly() and 'as const')
   --template                  generate app file and handler stubs
   --test                      generate test files with vitest and faker.js
@@ -263,7 +267,7 @@ export const getItemsIdRoute = createRoute({
 `)
   })
 
-  it('--export-security-schemes exports security schemes with export keyword', () => {
+  it('--export-securitySchemes exports security schemes with export keyword', () => {
     const securityOpenAPI = {
       openapi: '3.0.3',
       info: { title: 'Security API', version: '1.0.0' },
@@ -287,7 +291,7 @@ export const getItemsIdRoute = createRoute({
     }
     fs.writeFileSync('tmp-cli-test/security.json', JSON.stringify(securityOpenAPI))
     execSync(
-      `node ${path.resolve('packages/hono-takibi/dist/index.js')} tmp-cli-test/security.json -o tmp-cli-test/output.ts --export-security-schemes`,
+      `node ${path.resolve('packages/hono-takibi/dist/index.js')} tmp-cli-test/security.json -o tmp-cli-test/output.ts --export-securitySchemes`,
     )
     const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
     expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
@@ -304,7 +308,7 @@ export const getSecureRoute = createRoute({
 `)
   })
 
-  it('--export-request-bodies exports request bodies with export keyword', () => {
+  it('--export-requestBodies exports request bodies with export keyword', () => {
     const requestBodyOpenAPI = {
       openapi: '3.0.3',
       info: { title: 'RequestBody API', version: '1.0.0' },
@@ -332,7 +336,7 @@ export const getSecureRoute = createRoute({
     }
     fs.writeFileSync('tmp-cli-test/requestbody.json', JSON.stringify(requestBodyOpenAPI))
     execSync(
-      `node ${path.resolve('packages/hono-takibi/dist/index.js')} tmp-cli-test/requestbody.json -o tmp-cli-test/output.ts --export-request-bodies`,
+      `node ${path.resolve('packages/hono-takibi/dist/index.js')} tmp-cli-test/requestbody.json -o tmp-cli-test/output.ts --export-requestBodies`,
     )
     const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
     expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
@@ -738,7 +742,7 @@ export const postSubscribeRoute = createRoute({
     }
     fs.writeFileSync('tmp-cli-test/all-options.json', JSON.stringify(allOptionsOpenAPI))
     execSync(
-      `node ${path.resolve('packages/hono-takibi/dist/index.js')} tmp-cli-test/all-options.json -o tmp-cli-test/output.ts --export-schemas-types --export-schemas --export-parameters-types --export-parameters --export-security-schemes --export-request-bodies --export-responses --export-headers-types --export-headers --export-examples --export-links --export-callbacks`,
+      `node ${path.resolve('packages/hono-takibi/dist/index.js')} tmp-cli-test/all-options.json -o tmp-cli-test/output.ts --export-schemas-types --export-schemas --export-parameters-types --export-parameters --export-securitySchemes --export-requestBodies --export-responses --export-headers-types --export-headers --export-examples --export-links --export-callbacks`,
     )
     const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
     expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
@@ -748,19 +752,6 @@ export const ItemSchema = z
   .openapi('Item')
 
 export type Item = z.infer<typeof ItemSchema>
-
-export const ItemIdParamsSchema = z
-  .string()
-  .openapi({ param: { name: 'id', in: 'path', required: true, schema: { type: 'string' } } })
-
-export type ItemIdParams = z.infer<typeof ItemIdParamsSchema>
-
-export const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer' }
-
-export const ItemBodyRequestBody = {
-  content: { 'application/json': { schema: ItemSchema } },
-  required: true,
-}
 
 export const RateLimitHeaderSchema = z.int().exactOptional().openapi({ description: 'Rate limit' })
 
@@ -776,9 +767,22 @@ export const ItemResponse = {
   links: { GetRelated: GetRelatedLink },
 }
 
-export type RateLimitHeader = z.infer<typeof RateLimitHeaderSchema>
+export const ItemIdParamsSchema = z
+  .string()
+  .openapi({ param: { name: 'id', in: 'path', required: true, schema: { type: 'string' } } })
+
+export type ItemIdParams = z.infer<typeof ItemIdParamsSchema>
 
 export const ItemExample = { summary: 'Item example', value: { id: 1, name: 'Test' } }
+
+export const ItemBodyRequestBody = {
+  content: { 'application/json': { schema: ItemSchema } },
+  required: true,
+}
+
+export type RateLimitHeader = z.infer<typeof RateLimitHeaderSchema>
+
+export const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer' }
 
 export const OnCreatedCallback = {
   '{$request.body#/callbackUrl}': { post: { responses: { 200: { description: 'OK' } } } },
@@ -2634,6 +2638,206 @@ export const paymentReceivedPostWebhook = {
   operationId: 'onPaymentReceived',
   responses: { 200: { description: 'OK' } },
 }
+`)
+  })
+
+  it('generates split mediaTypes with path alias', () => {
+    const openAPI = {
+      openapi: '3.1.0',
+      info: { title: 'MediaTypes API', version: '1.0.0' },
+      paths: {
+        '/upload': {
+          post: {
+            operationId: 'uploadFile',
+            responses: {
+              200: { description: 'OK' },
+            },
+          },
+        },
+      },
+      components: {
+        mediaTypes: {
+          JsonContent: {
+            schema: {
+              type: 'object',
+              properties: {
+                data: { type: 'string' },
+                timestamp: { type: 'string', format: 'date-time' },
+              },
+              required: ['data'],
+            },
+          },
+          XmlContent: {
+            schema: {
+              type: 'object',
+              properties: {
+                root: { type: 'string' },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const config = `export default {
+  input: 'openapi.json',
+  'zod-openapi': {
+    routes: { output: 'src/routes', split: true },
+    components: {
+      mediaTypes: { output: 'src/mediaTypes', split: true, import: '@/mediaTypes' },
+    },
+  },
+}`
+
+    fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI))
+    fs.writeFileSync(path.join(testDir, 'hono-takibi.config.ts'), config)
+
+    execSync(`node ${path.resolve('packages/hono-takibi/dist/index.js')}`, {
+      cwd: path.resolve(testDir),
+    })
+
+    // Verify mediaTypes split output
+    const mediaTypesIndex = fs.readFileSync(path.join(testDir, 'src/mediaTypes/index.ts'), 'utf-8')
+    expect(mediaTypesIndex).toBe(`export * from './jsonContent.ts'
+export * from './xmlContent.ts'
+`)
+
+    const jsonContent = fs.readFileSync(
+      path.join(testDir, 'src/mediaTypes/jsonContent.ts'),
+      'utf-8',
+    )
+    expect(jsonContent).toBe(`import { z } from '@hono/zod-openapi'
+
+export const JsonContentSchema = z
+  .object({ data: z.string(), timestamp: z.iso.datetime().exactOptional() })
+  .openapi({ required: ['data'] })
+`)
+
+    const xmlContent = fs.readFileSync(path.join(testDir, 'src/mediaTypes/xmlContent.ts'), 'utf-8')
+    expect(xmlContent).toBe(`import { z } from '@hono/zod-openapi'
+
+export const XmlContentSchema = z.object({ root: z.string().exactOptional() })
+`)
+  })
+
+  it('generates single file mediaTypes output', () => {
+    const openAPI = {
+      openapi: '3.1.0',
+      info: { title: 'MediaTypes API', version: '1.0.0' },
+      paths: {
+        '/data': {
+          get: {
+            operationId: 'getData',
+            responses: {
+              200: { description: 'OK' },
+            },
+          },
+        },
+      },
+      components: {
+        mediaTypes: {
+          BinaryContent: {
+            schema: {
+              type: 'string',
+              format: 'binary',
+            },
+          },
+        },
+      },
+    }
+
+    const config = `export default {
+  input: 'openapi.json',
+  'zod-openapi': {
+    output: 'src/routes.ts',
+    exportMediaTypes: true,
+  },
+}`
+
+    fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI))
+    fs.writeFileSync(path.join(testDir, 'hono-takibi.config.ts'), config)
+
+    execSync(`node ${path.resolve('packages/hono-takibi/dist/index.js')}`, {
+      cwd: path.resolve(testDir),
+    })
+
+    const result = fs.readFileSync(path.join(testDir, 'src/routes.ts'), 'utf-8')
+
+    expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
+
+export const BinaryContentSchema = z.file()
+
+export const getDataRoute = createRoute({
+  method: 'get',
+  path: '/data',
+  operationId: 'getData',
+  responses: { 200: { description: 'OK' } },
+})
+`)
+  })
+
+  it('generates mediaTypes with type exports using exportMediaTypesTypes', () => {
+    const openAPI = {
+      openapi: '3.1.0',
+      info: { title: 'MediaTypes API', version: '1.0.0' },
+      paths: {
+        '/data': {
+          get: {
+            operationId: 'getData',
+            responses: {
+              200: { description: 'OK' },
+            },
+          },
+        },
+      },
+      components: {
+        mediaTypes: {
+          JsonPayload: {
+            schema: {
+              type: 'object',
+              properties: {
+                id: { type: 'integer' },
+                name: { type: 'string' },
+              },
+              required: ['id', 'name'],
+            },
+          },
+        },
+      },
+    }
+
+    const config = `export default {
+  input: 'openapi.json',
+  'zod-openapi': {
+    output: 'src/routes.ts',
+    exportMediaTypes: true,
+    exportMediaTypesTypes: true,
+  },
+}`
+
+    fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI))
+    fs.writeFileSync(path.join(testDir, 'hono-takibi.config.ts'), config)
+
+    execSync(`node ${path.resolve('packages/hono-takibi/dist/index.js')}`, {
+      cwd: path.resolve(testDir),
+    })
+
+    const result = fs.readFileSync(path.join(testDir, 'src/routes.ts'), 'utf-8')
+
+    expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
+
+export const JsonPayloadSchema = z
+  .object({ id: z.int(), name: z.string() })
+  .openapi({ required: ['id', 'name'] })
+
+export type JsonPayload = z.infer<typeof JsonPayloadSchema>
+
+export const getDataRoute = createRoute({
+  method: 'get',
+  path: '/data',
+  operationId: 'getData',
+  responses: { 200: { description: 'OK' } },
+})
 `)
   })
 })

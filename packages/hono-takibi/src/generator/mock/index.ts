@@ -316,6 +316,8 @@ export function generateMockServer(
         exportLinks: false,
         exportCallbacks: false,
         exportPathItems: false,
+        exportMediaTypes: false,
+        exportMediaTypesTypes: false,
         readonly: options.readonly,
       })
     : ''

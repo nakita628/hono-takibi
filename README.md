@@ -97,14 +97,15 @@ Options:
   --export-parameters         export parameters
   --export-parameters-types   export parameters types
   --export-examples           export examples
-  --export-request-bodies     export requestBodies
+  --export-requestBodies      export requestBodies
   --export-headers            export headers
   --export-headers-types      export headers types
-  --export-security-schemes   export securitySchemes
+  --export-securitySchemes    export securitySchemes
   --export-links              export links
   --export-callbacks          export callbacks
-  --export-path-items         export pathItems
-  --export-media-types        export mediaTypes
+  --export-pathItems          export pathItems
+  --export-mediaTypes         export mediaTypes
+  --export-mediaTypes-types   export mediaTypes types
   --readonly                  make schemas immutable (adds .readonly() and 'as const')
   --template                  generate app file and handler stubs
   --test                      generate test files with vitest and faker.js
@@ -144,6 +145,7 @@ export default defineConfig({
     exportCallbacks: true,
     exportPathItems: true,
     exportMediaTypes: true,
+    exportMediaTypesTypes: true,
     routes: {
       output: './src/routes',
       split: true,
@@ -205,6 +207,7 @@ export default defineConfig({
       },
       mediaTypes: {
         output: './src/mediaTypes',
+        exportTypes: true,
         split: true,
         import: '../mediaTypes',
       },
