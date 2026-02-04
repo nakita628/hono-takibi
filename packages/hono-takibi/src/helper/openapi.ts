@@ -465,22 +465,16 @@ export function makeCallbacks(
         }
       },
 ): string {
-  const isRef = (v: unknown): v is { $ref: string } => {
-    if (typeof v !== 'object' || v === null || !('$ref' in v)) return false
-    const obj = v as Record<string, unknown>
-    return typeof obj.$ref === 'string'
-  }
-  const isPathItem = (v: unknown): v is PathItem => typeof v === 'object' && v !== null
   const isParameter = (v: unknown): v is Parameter =>
-    typeof v === 'object' && v !== null && 'name' in v && 'in' in v && 'schema' in v
+    isRecord(v) && 'name' in v && 'in' in v && 'schema' in v
 
   return Object.entries(callbacks)
     .map(([callbackKey, pathItem]) => {
       // Handle $ref to components/callbacks
-      if (isRef(pathItem)) {
+      if (isRefObject(pathItem)) {
         return `${JSON.stringify(callbackKey)}:${makeRef(pathItem.$ref)}`
       }
-      if (!isPathItem(pathItem)) return undefined
+      if (!isRecord(pathItem)) return undefined
       const methods = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'] as const
       const pathItemCode = methods
         .map((method) => {
@@ -558,15 +552,12 @@ export function makeCallbacks(
 export function makeContent(
   content: Content | { readonly [k: string]: Media | Reference },
 ): string[] {
-  const isMedia = (v: unknown): v is Media => typeof v === 'object' && v !== null && 'schema' in v
-
-  const isReference = (v: unknown): v is Reference =>
-    typeof v === 'object' && v !== null && '$ref' in v
+  const isMedia = (v: unknown): v is Media => isRecord(v) && 'schema' in v
 
   return Object.entries(content)
     .map(([contentType, mediaOrRef]) => {
-      // Referenc
-      if (isReference(mediaOrRef) && mediaOrRef.$ref) {
+      // Reference
+      if (isRefObject(mediaOrRef)) {
         return `'${contentType}':${makeRef(mediaOrRef.$ref)}`
       }
       // Media
@@ -822,7 +813,7 @@ export function makePathParameters(parameters: readonly (Parameter | Reference)[
 }
 
 export function makeOperation(operation: Operation) {
-  return [
+  const result = [
     operation.tags ? `tags:${JSON.stringify(operation.tags)}` : undefined,
     operation.summary ? `summary:${JSON.stringify(operation.summary)}` : undefined,
     operation.description ? `description:${JSON.stringify(operation.description)}` : undefined,
@@ -838,9 +829,17 @@ export function makeOperation(operation: Operation) {
   ]
     .filter((v) => v !== undefined)
     .join(',')
+  return `{${result}}`
 }
 
 export function makePathItem(pathItem: PathItem) {
+  // Generate additionalOperations code
+  const additionalOpsCode = pathItem.additionalOperations
+    ? Object.entries(pathItem.additionalOperations)
+        .map(([opName, op]) => `${JSON.stringify(opName)}:${makeOperation(op)}`)
+        .join(',')
+    : undefined
+
   const results = [
     pathItem.$ref ? `$ref:${makeRef(pathItem.$ref)}` : undefined,
     pathItem.summary ? `summary:${JSON.stringify(pathItem.summary)}` : undefined,
@@ -853,8 +852,8 @@ export function makePathItem(pathItem: PathItem) {
     pathItem.head ? `head:${makeOperation(pathItem.head)}` : undefined,
     pathItem.patch ? `patch:${makeOperation(pathItem.patch)}` : undefined,
     pathItem.trace ? `trace:${makeOperation(pathItem.trace)}` : undefined,
-    // query comming soon
-    // additionalOperations comming soon
+    pathItem.query ? `query:${makeOperation(pathItem.query)}` : undefined,
+    additionalOpsCode ? `additionalOperations:{${additionalOpsCode}}` : undefined,
     pathItem.servers ? `servers:${JSON.stringify(pathItem.servers)}` : undefined,
     pathItem.parameters ? `parameters:${makePathParameters(pathItem.parameters)}` : undefined,
   ]
