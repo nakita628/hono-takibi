@@ -9,8 +9,8 @@
 import path from 'node:path'
 import { makeConst } from '../../helper/code.js'
 import { core, makeBarrel, makeCallback, makeImports } from '../../helper/index.js'
-import { ensureSuffix, lowerFirst, toIdentifierPascalCase } from '../../utils/index.js'
 import type { Callbacks, Components } from '../../openapi/index.js'
+import { ensureSuffix, lowerFirst, toIdentifierPascalCase } from '../../utils/index.js'
 
 /**
  * Generates callback component files with $ref resolution.

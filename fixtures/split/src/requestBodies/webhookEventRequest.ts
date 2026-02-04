@@ -1,5 +1,5 @@
-import { WebhookEventSchema } from '../schemas'
 import { WebhookEventExample } from '../examples'
+import { WebhookEventSchema } from '../schemas'
 
 export const WebhookEventRequestRequestBody = {
   content: {

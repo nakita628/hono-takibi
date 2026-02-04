@@ -1082,13 +1082,10 @@ const ValidationErrorResponse = {
   },
 }
 
-const WwwAuthenticateHeaderHeaderSchema = z
-  .string()
-  .exactOptional()
-  .openapi({
-    description: 'WWW-Authenticate for Bearer',
-    example: 'Bearer realm="inferno", error="invalid_token"',
-  })
+const WwwAuthenticateHeaderHeaderSchema = z.string().exactOptional().openapi({
+  description: 'WWW-Authenticate for Bearer',
+  example: 'Bearer realm="inferno", error="invalid_token"',
+})
 
 const ProblemUnauthorizedExample = {
   value: {

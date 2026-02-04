@@ -1,7 +1,7 @@
 import path from 'node:path'
 import { app } from '../../generator/zod-openapi-hono/app/index.js'
 import { zodOpenAPIHono } from '../../generator/zod-openapi-hono/openapi/index.js'
-import { zodOpenAPIHonoHandler } from '../../helper/handler.js'
+import { makeStubHandlers } from '../../helper/handler.js'
 import { core } from '../../helper/index.js'
 import type { OpenAPI } from '../../openapi/index.js'
 
@@ -88,13 +88,12 @@ export async function takibi(
     if (template) {
       const dir = path.dirname(output)
       const target = path.join(dir, 'index.ts')
-      const [appResult, zodOpenAPIHonoHandlerResult] = await Promise.all([
+      const [appResult, stubHandlersResult] = await Promise.all([
         core(app(openAPI, output, basePath), dir, target),
-        zodOpenAPIHonoHandler(openAPI, output, false, test),
+        makeStubHandlers(openAPI, output, test),
       ])
       if (!appResult.ok) return { ok: false, error: appResult.error }
-      if (!zodOpenAPIHonoHandlerResult.ok)
-        return { ok: false, error: zodOpenAPIHonoHandlerResult.error }
+      if (!stubHandlersResult.ok) return { ok: false, error: stubHandlersResult.error }
       return { ok: true, value: '🔥 Generated code and template files written' }
     }
 

@@ -1,7 +1,7 @@
 import { z } from '@hono/zod-openapi'
-import { ProblemDetailsSchema } from '../schemas'
-import { TraceIdHeaderHeaderSchema } from '../headers'
 import { ProblemGenericExample } from '../examples'
+import { TraceIdHeaderHeaderSchema } from '../headers'
+import { ProblemDetailsSchema } from '../schemas'
 
 export const DefaultErrorResponse = {
   description: 'Default error wrapper -> points to ProblemDetails',

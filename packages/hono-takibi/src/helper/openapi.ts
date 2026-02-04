@@ -237,7 +237,9 @@ export function makeExamples(examples: {
  * // → '{200:{description:"Success",content:{...}},"default":{description:"Error"}}'
  * ```
  */
-export function makeOperationResponses(responses: Operation['responses'] | Record<string, unknown>) {
+export function makeOperationResponses(
+  responses: Operation['responses'] | Record<string, unknown>,
+) {
   const result = Object.entries(responses)
     .map(
       ([statusCode, res]) =>
@@ -498,6 +500,7 @@ export function makeCallbacks(
         .map((method) => {
           const operation = pathItemRecord[method]
           if (!isOperation(operation)) return undefined
+          // OpenAPI spec: parameters is [Parameter Object | Reference Object]
           const params =
             operation.parameters && operation.parameters.length > 0
               ? operation.parameters
@@ -533,9 +536,7 @@ export function makeCallbacks(
             operation.callbacks
               ? `callbacks:${makeOperationCallbacks(operation.callbacks)}`
               : undefined,
-            operation.deprecated
-              ? `deprecated:${JSON.stringify(operation.deprecated)}`
-              : undefined,
+            operation.deprecated ? `deprecated:${JSON.stringify(operation.deprecated)}` : undefined,
             operation.security ? `security:${JSON.stringify(operation.security)}` : undefined,
             operation.servers ? `servers:${JSON.stringify(operation.servers)}` : undefined,
           ]
@@ -800,6 +801,18 @@ export function makeRequestParams(parameters: readonly Parameter[]) {
   return paramsArray.length > 0 ? paramsArray.join(',') : undefined
 }
 
+/**
+ * Generates code for path-level parameters array.
+ *
+ * Per OpenAPI 3.x specification, `parameters` is an array of Parameter Object or Reference Object.
+ * This function outputs the array format: `[ParamSchema1, ParamSchema2, ...]`
+ *
+ * @see https://spec.openapis.org/oas/v3.1.0.html#parameter-object
+ * @see https://spec.openapis.org/oas/v3.1.0.html#path-item-object (parameters field)
+ *
+ * @param parameters - Array of Parameter or Reference objects
+ * @returns Array literal string like `[Schema1, Schema2]`
+ */
 export function makePathParameters(parameters: readonly (Parameter | Reference)[]) {
   const serializeValue = (value: unknown): string => {
     if (value === null) return 'null'
@@ -839,6 +852,7 @@ export function makeOperation(operation: Operation) {
     operation.description ? `description:${JSON.stringify(operation.description)}` : undefined,
     operation.externalDocs ? `externalDocs:${JSON.stringify(operation.externalDocs)}` : undefined,
     operation.operationId ? `operationId:'${operation.operationId}'` : undefined,
+    // OpenAPI spec: parameters is [Parameter Object | Reference Object]
     operation.parameters ? `parameters:${makePathParameters(operation.parameters)}` : undefined,
     operation.requestBody ? `requestBody:${makeRequestBody(operation.requestBody)}` : undefined,
     operation.responses ? `responses:${makeOperationResponses(operation.responses)}` : undefined,
@@ -875,6 +889,7 @@ export function makePathItem(pathItem: PathItem) {
     pathItem.query ? `query:${makeOperation(pathItem.query)}` : undefined,
     additionalOpsCode ? `additionalOperations:{${additionalOpsCode}}` : undefined,
     pathItem.servers ? `servers:${JSON.stringify(pathItem.servers)}` : undefined,
+    // OpenAPI spec: parameters is [Parameter Object | Reference Object]
     pathItem.parameters ? `parameters:${makePathParameters(pathItem.parameters)}` : undefined,
   ]
     .filter((v) => v !== undefined)
