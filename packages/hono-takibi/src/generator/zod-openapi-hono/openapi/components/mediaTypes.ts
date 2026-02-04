@@ -46,7 +46,14 @@ export function mediaTypesCode(
       if (!isMedia(v)) return undefined
       const name = toIdentifierPascalCase(ensureSuffix(k, 'Schema'))
       const zodCode = zodToOpenAPI(v.schema)
-      return zodToOpenAPISchema(name, zodCode, exportMediaTypes, exportMediaTypesTypes, true, readonly)
+      return zodToOpenAPISchema(
+        name,
+        zodCode,
+        exportMediaTypes,
+        exportMediaTypesTypes,
+        true,
+        readonly,
+      )
     })
     .filter((v) => v !== undefined)
     .join('\n\n')
