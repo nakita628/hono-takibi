@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest'
 import { faker } from '@faker-js/faker'
+import { describe, expect, it } from 'vitest'
 import app from './mock'
 
 function mockRegisterInput() {
@@ -88,7 +88,7 @@ describe('E-Commerce API', () => {
   describe('Health check endpoints', () => {
     describe('GET /health', () => {
       it('Check API health status', async () => {
-        const res = await app.request(`/health`, { method: 'GET' })
+        const res = await app.request('/health', { method: 'GET' })
         expect(res.status).toBe(200)
       })
     })
@@ -97,7 +97,7 @@ describe('E-Commerce API', () => {
     describe('POST /auth/register', () => {
       it('Register a new user', async () => {
         const body = mockRegisterInput()
-        const res = await app.request(`/auth/register`, {
+        const res = await app.request('/auth/register', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(body),
@@ -108,7 +108,7 @@ describe('E-Commerce API', () => {
     describe('POST /auth/login', () => {
       it('User login', async () => {
         const body = mockLoginInput()
-        const res = await app.request(`/auth/login`, {
+        const res = await app.request('/auth/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(body),
@@ -118,14 +118,14 @@ describe('E-Commerce API', () => {
     })
     describe('POST /auth/refresh', () => {
       it('Refresh access token', async () => {
-        const res = await app.request(`/auth/refresh`, {
+        const res = await app.request('/auth/refresh', {
           method: 'POST',
           headers: { Authorization: `Bearer ${faker.string.alphanumeric(32)}` },
         })
         expect(res.status).toBe(200)
       })
       it('should return 401 without auth', async () => {
-        const res = await app.request(`/auth/refresh`, { method: 'POST' })
+        const res = await app.request('/auth/refresh', { method: 'POST' })
         expect(res.status).toBe(401)
       })
     })
@@ -133,21 +133,21 @@ describe('E-Commerce API', () => {
   describe('User management', () => {
     describe('GET /users/me', () => {
       it('Get current user profile', async () => {
-        const res = await app.request(`/users/me`, {
+        const res = await app.request('/users/me', {
           method: 'GET',
           headers: { Authorization: `Bearer ${faker.string.alphanumeric(32)}` },
         })
         expect(res.status).toBe(200)
       })
       it('should return 401 without auth', async () => {
-        const res = await app.request(`/users/me`, { method: 'GET' })
+        const res = await app.request('/users/me', { method: 'GET' })
         expect(res.status).toBe(401)
       })
     })
     describe('PATCH /users/me', () => {
       it('Update current user profile', async () => {
         const body = mockUpdateUserInput()
-        const res = await app.request(`/users/me`, {
+        const res = await app.request('/users/me', {
           method: 'PATCH',
           headers: {
             'Content-Type': 'application/json',
@@ -159,7 +159,7 @@ describe('E-Commerce API', () => {
       })
       it('should return 401 without auth', async () => {
         const body = mockUpdateUserInput()
-        const res = await app.request(`/users/me`, {
+        const res = await app.request('/users/me', {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(body),
@@ -169,14 +169,14 @@ describe('E-Commerce API', () => {
     })
     describe('GET /users', () => {
       it('List all users (admin only)', async () => {
-        const res = await app.request(`/users`, {
+        const res = await app.request('/users', {
           method: 'GET',
           headers: { 'X-API-Key': faker.string.alphanumeric(32) },
         })
         expect(res.status).toBe(200)
       })
       it('should return 401 without auth', async () => {
-        const res = await app.request(`/users`, { method: 'GET' })
+        const res = await app.request('/users', { method: 'GET' })
         expect(res.status).toBe(401)
       })
     })
@@ -184,14 +184,14 @@ describe('E-Commerce API', () => {
   describe('Product catalog', () => {
     describe('GET /products', () => {
       it('List products', async () => {
-        const res = await app.request(`/products`, { method: 'GET' })
+        const res = await app.request('/products', { method: 'GET' })
         expect(res.status).toBe(200)
       })
     })
     describe('POST /products', () => {
       it('Create a product (admin only)', async () => {
         const body = mockCreateProductInput()
-        const res = await app.request(`/products`, {
+        const res = await app.request('/products', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -203,7 +203,7 @@ describe('E-Commerce API', () => {
       })
       it('should return 401 without auth', async () => {
         const body = mockCreateProductInput()
-        const res = await app.request(`/products`, {
+        const res = await app.request('/products', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(body),
@@ -262,21 +262,21 @@ describe('E-Commerce API', () => {
   describe('Order management', () => {
     describe('GET /orders', () => {
       it('List user orders', async () => {
-        const res = await app.request(`/orders`, {
+        const res = await app.request('/orders', {
           method: 'GET',
           headers: { Authorization: `Bearer ${faker.string.alphanumeric(32)}` },
         })
         expect(res.status).toBe(200)
       })
       it('should return 401 without auth', async () => {
-        const res = await app.request(`/orders`, { method: 'GET' })
+        const res = await app.request('/orders', { method: 'GET' })
         expect(res.status).toBe(401)
       })
     })
     describe('POST /orders', () => {
       it('Create a new order', async () => {
         const body = mockCreateOrderInput()
-        const res = await app.request(`/orders`, {
+        const res = await app.request('/orders', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -288,7 +288,7 @@ describe('E-Commerce API', () => {
       })
       it('should return 401 without auth', async () => {
         const body = mockCreateOrderInput()
-        const res = await app.request(`/orders`, {
+        const res = await app.request('/orders', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(body),

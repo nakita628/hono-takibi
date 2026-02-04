@@ -10,7 +10,7 @@ import path from 'node:path'
 import { responsesCode } from '../../generator/zod-openapi-hono/openapi/components/responses.js'
 import { core, makeBarrel, makeImports } from '../../helper/index.js'
 import type { Components } from '../../openapi/index.js'
-import { lowerFirst, renderNamedImport } from '../../utils/index.js'
+import { lowerFirst } from '../../utils/index.js'
 
 /**
  * Generates response component files.
@@ -85,11 +85,9 @@ export async function responses(
     }
   }
 
-  const importCode = renderNamedImport(['z'], '@hono/zod-openapi')
   const responseDefinitions = responsesCode({ responses }, true, readonly)
-  const responseDefinitionsCode = `${importCode}\n\n${responseDefinitions}`
   const coreResult = await core(
-    toFileCode(responseDefinitionsCode, output),
+    toFileCode(responseDefinitions, output),
     path.dirname(output),
     output,
   )

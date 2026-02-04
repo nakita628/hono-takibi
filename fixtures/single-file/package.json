@@ -1,0 +1,12 @@
+{
+  "name": "single-file-fixture",
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "generate": "hono-takibi"
+  },
+  "dependencies": {
+    "hono-takibi": "workspace:*",
+    "@hono/zod-openapi": "^0.19.6"
+  }
+}

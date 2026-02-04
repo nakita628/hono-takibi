@@ -10,7 +10,7 @@ import path from 'node:path'
 import { parametersCode } from '../../generator/zod-openapi-hono/openapi/components/parameters.js'
 import { core, makeBarrel, makeImports } from '../../helper/index.js'
 import type { Components } from '../../openapi/index.js'
-import { lowerFirst, renderNamedImport } from '../../utils/index.js'
+import { lowerFirst } from '../../utils/index.js'
 
 /**
  * Generates parameter component files.
@@ -89,11 +89,9 @@ export async function parameters(
     }
   }
 
-  const importCode = renderNamedImport(['z'], '@hono/zod-openapi')
   const parameterDefinitions = parametersCode({ parameters }, true, exportType, readonly)
-  const parameterDefinitionsCode = `${importCode}\n\n${parameterDefinitions}`
   const coreResult = await core(
-    toFileCode(parameterDefinitionsCode, output),
+    toFileCode(parameterDefinitions, output),
     path.dirname(output),
     output,
   )

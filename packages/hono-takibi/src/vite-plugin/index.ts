@@ -256,6 +256,9 @@ const runAllGenerationTasks = async (configuration: Configuration): Promise<{ lo
         exportExamples: configuration['zod-openapi']?.exportExamples ?? false,
         exportLinks: configuration['zod-openapi']?.exportLinks ?? false,
         exportCallbacks: configuration['zod-openapi']?.exportCallbacks ?? false,
+        exportPathItems: configuration['zod-openapi']?.exportPathItems ?? false,
+        exportMediaTypes: configuration['zod-openapi']?.exportMediaTypes ?? false,
+        exportMediaTypesTypes: configuration['zod-openapi']?.exportMediaTypesTypes ?? false,
       })
       return result.ok ? `✅ zod-openapi -> ${outputPath}` : `❌ zod-openapi: ${result.error}`
     })()
@@ -379,6 +382,7 @@ const runAllGenerationTasks = async (configuration: Configuration): Promise<{ lo
         openAPI.components?.callbacks,
         outputDirectory,
         callbacksConfig.split === true,
+        configuration['zod-openapi']?.components,
       )
       if (!callbacksResult.ok) return `❌ callbacks: ${callbacksResult.error}`
       return `✅ callbacks${callbacksConfig.split === true ? '(split)' : ''} -> ${outputDirectory}`

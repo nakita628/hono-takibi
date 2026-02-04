@@ -7,7 +7,9 @@ export async function test(
   openAPI: OpenAPI,
   output: string,
   importPath: string,
-): Promise<{ readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }> {
+): Promise<
+  { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
+> {
   try {
     const testCode = generateTestFile(openAPI, importPath)
     const coreResult = await core(testCode, path.dirname(output), output)

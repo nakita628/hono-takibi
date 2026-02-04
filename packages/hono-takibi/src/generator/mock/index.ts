@@ -15,7 +15,6 @@ import { schemaToFaker } from '../test/faker-mapping.js'
 import { componentsCode } from '../zod-openapi-hono/openapi/components/index.js'
 import { routeCode } from '../zod-openapi-hono/openapi/routes/index.js'
 
-
 function isOperation(value: unknown): value is Operation {
   return typeof value === 'object' && value !== null && 'responses' in value
 }
@@ -114,7 +113,9 @@ function getSecurityArray(security: unknown): { [key: string]: string[] }[] | un
   return security
 }
 
-function isSecurityScheme(value: unknown): value is { type?: string; scheme?: string; name?: string; in?: string } {
+function isSecurityScheme(
+  value: unknown,
+): value is { type?: string; scheme?: string; name?: string; in?: string } {
   return typeof value === 'object' && value !== null && !('$ref' in value)
 }
 
@@ -128,13 +129,16 @@ function extractSecurityInfo(
   for (const secDef of securityDefs) {
     for (const schemeName of Object.keys(secDef)) {
       const scheme = securitySchemes?.[schemeName]
-      if (!scheme || !isSecurityScheme(scheme)) continue
+      if (!(scheme && isSecurityScheme(scheme))) continue
       if (scheme.type === 'http' && scheme.scheme === 'bearer') {
         infos.push({ type: 'bearer', name: 'Authorization' })
       } else if (scheme.type === 'http' && scheme.scheme === 'basic') {
         infos.push({ type: 'basic', name: 'Authorization' })
       } else if (scheme.type === 'apiKey') {
-        const inLocation = scheme.in === 'header' || scheme.in === 'query' || scheme.in === 'cookie' ? scheme.in : 'header'
+        const inLocation =
+          scheme.in === 'header' || scheme.in === 'query' || scheme.in === 'cookie'
+            ? scheme.in
+            : 'header'
         infos.push({
           type: 'apiKey',
           name: scheme.name || 'X-API-Key',
@@ -161,11 +165,17 @@ function generateAuthMiddleware(): string {
 }`
 }
 
-function hasRequestBodyContent(op: unknown): op is { requestBody: { content: { [key: string]: unknown } } } {
-  return typeof op === 'object' && op !== null &&
-    'requestBody' in op && typeof (op as { requestBody?: unknown }).requestBody === 'object' &&
+function hasRequestBodyContent(
+  op: unknown,
+): op is { requestBody: { content: { [key: string]: unknown } } } {
+  return (
+    typeof op === 'object' &&
+    op !== null &&
+    'requestBody' in op &&
+    typeof (op as { requestBody?: unknown }).requestBody === 'object' &&
     (op as { requestBody: { content?: unknown } }).requestBody !== null &&
     'content' in ((op as { requestBody: { content?: unknown } }).requestBody ?? {})
+  )
 }
 
 /**
@@ -182,11 +192,17 @@ function filterToJsonContentTypes(openapi: OpenAPI): OpenAPI {
           if (!hasRequestBodyContent(value)) return [key, value]
           const jsonContent = value.requestBody.content['application/json']
           if (!jsonContent) return [key, value]
-          return [key, { ...value, requestBody: { ...value.requestBody, content: { 'application/json': jsonContent } } }]
-        })
+          return [
+            key,
+            {
+              ...value,
+              requestBody: { ...value.requestBody, content: { 'application/json': jsonContent } },
+            },
+          ]
+        }),
       )
       return [path, filteredPathItem]
-    })
+    }),
   )
   return { ...openapi, paths: filteredPaths }
 }
@@ -210,22 +226,28 @@ export function generateMockServer(
   const allRefs = new Set<string>()
 
   // Generate route names and handlers
-  const routeEntries: { routeId: string; method: string; path: string; requiresAuth: boolean }[] = []
+  const routeEntries: { routeId: string; method: string; path: string; requiresAuth: boolean }[] =
+    []
   const handlers: string[] = []
 
   for (const [p, pathItem] of Object.entries(paths)) {
     for (const [method, operation] of Object.entries(pathItem)) {
-      if (!isHttpMethod(method) || !isOperation(operation)) continue
+      if (!(isHttpMethod(method) && isOperation(operation))) continue
 
       const routeId = methodPath(method, p)
       const op = operation
 
-      const security = extractSecurityInfo(getSecurityArray(op.security), getSecurityArray(openapi.security), securitySchemes)
+      const security = extractSecurityInfo(
+        getSecurityArray(op.security),
+        getSecurityArray(openapi.security),
+        securitySchemes,
+      )
       const requiresAuth = security.length > 0
 
       routeEntries.push({ routeId, method, path: p, requiresAuth })
 
-      const successResponse = op.responses?.['200'] ?? op.responses?.['201'] ?? op.responses?.['204']
+      const successResponse =
+        op.responses?.['200'] ?? op.responses?.['201'] ?? op.responses?.['204']
       const responseSchema = successResponse?.content?.['application/json']?.schema
 
       // Determine response status: prefer 200 OK, then 201 Created, fallback to 204 No Content
@@ -258,7 +280,9 @@ export function generateMockServer(
         return `if (!(${authChecks.join(' || ')})) {\n    return c.json({ message: 'Unauthorized' }, 401)\n  }\n  `
       })()
 
-      handlers.push(`const ${routeId}RouteHandler: RouteHandler<typeof ${routeId}Route> = async (c) => {\n  ${authCheck}${handlerBody}\n}`)
+      handlers.push(
+        `const ${routeId}RouteHandler: RouteHandler<typeof ${routeId}Route> = async (c) => {\n  ${authCheck}${handlerBody}\n}`,
+      )
     }
   }
 
@@ -291,6 +315,9 @@ export function generateMockServer(
         exportExamples: false,
         exportLinks: false,
         exportCallbacks: false,
+        exportPathItems: false,
+        exportMediaTypes: false,
+        exportMediaTypesTypes: false,
         readonly: options.readonly,
       })
     : ''

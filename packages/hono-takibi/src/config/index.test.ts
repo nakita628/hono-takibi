@@ -282,7 +282,7 @@ describe('parseConfig()', () => {
       })
       expect(result.ok).toBe(false)
       if (!result.ok) {
-        expect(result.error).toMatch(/split mode.*must be a directory/)
+        expect(result.error).toMatch(/split mode requires directory/)
       }
     })
 
@@ -293,7 +293,7 @@ describe('parseConfig()', () => {
       })
       expect(result.ok).toBe(false)
       if (!result.ok) {
-        expect(result.error).toMatch(/split mode.*must be a directory/)
+        expect(result.error).toMatch(/split mode requires directory/)
       }
     })
 
@@ -303,7 +303,7 @@ describe('parseConfig()', () => {
       })
       expect(result.ok).toBe(false)
       if (!result.ok) {
-        expect(result.error).toMatch(/Invalid input/)
+        expect(result.error).toMatch(/must be \.yaml \| \.json \| \.tsp/)
       }
     })
 
@@ -325,7 +325,7 @@ describe('parseConfig()', () => {
       })
       expect(result.ok).toBe(false)
       if (!result.ok) {
-        expect(result.error).toMatch(/Invalid client format for rpc/)
+        expect(result.error).toMatch(/rpc\.client.*expected string/)
       }
     })
   })

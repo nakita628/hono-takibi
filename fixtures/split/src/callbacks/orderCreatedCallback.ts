@@ -1,25 +1,27 @@
+import { z } from '@hono/zod-openapi'
+import { WebhookEventSchema } from '../schemas'
+import { WebhookEventRequestRequestBody } from '../requestBodies'
+import { DefaultErrorResponse } from '../responses'
+
 export const OrderCreatedCallback = {
   '{$request.body#/buyer/company/primaryContact/employer/meta/links/self/href}': {
     post: {
-      operationId: 'onOrderCreatedEvent',
       summary: 'Order created callback (path expression is intentionally absurd)',
-      requestBody: { $ref: '#/components/requestBodies/WebhookEventRequest' },
+      operationId: 'onOrderCreatedEvent',
+      requestBody: WebhookEventRequestRequestBody,
       responses: {
-        '200': {
+        200: {
           description: 'Ack',
           content: {
             'application/json': {
-              schema: {
-                type: 'object',
-                properties: {
-                  ok: { type: 'boolean' },
-                  echo: { $ref: '#/components/schemas/WebhookEvent' },
-                },
-              },
+              schema: z.object({
+                ok: z.boolean().exactOptional(),
+                echo: WebhookEventSchema.exactOptional(),
+              }),
             },
           },
         },
-        default: { $ref: '#/components/responses/DefaultError' },
+        default: DefaultErrorResponse,
       },
     },
   },

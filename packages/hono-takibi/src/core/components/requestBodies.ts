@@ -10,7 +10,7 @@ import path from 'node:path'
 import { requestBodiesCode } from '../../generator/zod-openapi-hono/openapi/components/request-bodies.js'
 import { core, makeBarrel, makeImports } from '../../helper/index.js'
 import type { Components } from '../../openapi/index.js'
-import { lowerFirst, renderNamedImport } from '../../utils/index.js'
+import { lowerFirst } from '../../utils/index.js'
 
 /**
  * Generates requestBody component files.
@@ -85,14 +85,8 @@ export async function requestBodies(
     }
   }
 
-  const importCode = renderNamedImport(['z'], '@hono/zod-openapi')
   const bodyDefinitions = requestBodiesCode({ requestBodies }, true, readonly)
-  const bodyDefinitionsCode = `${importCode}\n\n${bodyDefinitions}`
-  const coreResult = await core(
-    toFileCode(bodyDefinitionsCode, output),
-    path.dirname(output),
-    output,
-  )
+  const coreResult = await core(toFileCode(bodyDefinitions, output), path.dirname(output), output)
   if (!coreResult.ok) return { ok: false, error: coreResult.error }
   return { ok: true, value: `Generated requestBodies code written to ${output}` }
 }

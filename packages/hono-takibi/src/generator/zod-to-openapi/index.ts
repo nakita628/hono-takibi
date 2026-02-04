@@ -219,6 +219,14 @@ export function zodToOpenAPI(
   if (t.includes('boolean')) return wrap('z.boolean()', schema, meta)
   /* array */
   if (t.includes('array')) {
+    // JSON Schema 2020-12: prefixItems for tuple validation
+    if (schema.prefixItems !== undefined && Array.isArray(schema.prefixItems)) {
+      const tupleItems = schema.prefixItems.map((item) =>
+        item.$ref ? makeRef(item.$ref) : zodToOpenAPI(item, innerMeta),
+      )
+      const z = `z.tuple([${tupleItems.join(',')}])`
+      return wrap(z, schema, meta)
+    }
     // items can be Schema or readonly Schema[] (JSON Schema draft-04 tuple validation)
     const rawItems = schema.items
     const itemSchema: Schema | undefined = Array.isArray(rawItems) ? rawItems[0] : rawItems

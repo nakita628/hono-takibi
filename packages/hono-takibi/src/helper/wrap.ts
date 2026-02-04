@@ -75,7 +75,6 @@ export function wrap(
     'if',
     'then',
     'else',
-    'prefixItems',
     'propertyNames',
     'contentSchema',
     'contentEncoding',
@@ -180,6 +179,7 @@ export function wrap(
     'nullable',
     'const',
     '$ref',
+    'prefixItems',
   ])
 
   const baseArgs = Object.fromEntries(

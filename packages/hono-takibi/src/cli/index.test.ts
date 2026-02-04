@@ -189,18 +189,21 @@ describe('honoTakibi --help', () => {
       value: `Usage: hono-takibi <input.{yaml,json,tsp}> -o <routes.ts> [options]
 
 Options:
-  --export-schemas-types      export schemas types
   --export-schemas            export schemas
-  --export-parameters-types   export parameters types
-  --export-parameters         export parameters
-  --export-security-schemes   export securitySchemes
-  --export-request-bodies     export requestBodies
+  --export-schemas-types      export schemas types
   --export-responses          export responses
-  --export-headers-types      export headers types
-  --export-headers            export headers
+  --export-parameters         export parameters
+  --export-parameters-types   export parameters types
   --export-examples           export examples
+  --export-requestBodies      export requestBodies
+  --export-headers            export headers
+  --export-headers-types      export headers types
+  --export-securitySchemes    export securitySchemes
   --export-links              export links
   --export-callbacks          export callbacks
+  --export-pathItems          export pathItems
+  --export-mediaTypes         export mediaTypes
+  --export-mediaTypes-types   export mediaTypes types
   --readonly                  make schemas immutable (adds .readonly() and 'as const')
   --template                  generate app file and handler stubs
   --test                      generate test files with vitest and faker.js
@@ -222,18 +225,21 @@ describe('honoTakibi -h', () => {
       value: `Usage: hono-takibi <input.{yaml,json,tsp}> -o <routes.ts> [options]
 
 Options:
-  --export-schemas-types      export schemas types
   --export-schemas            export schemas
-  --export-parameters-types   export parameters types
-  --export-parameters         export parameters
-  --export-security-schemes   export securitySchemes
-  --export-request-bodies     export requestBodies
+  --export-schemas-types      export schemas types
   --export-responses          export responses
-  --export-headers-types      export headers types
-  --export-headers            export headers
+  --export-parameters         export parameters
+  --export-parameters-types   export parameters types
   --export-examples           export examples
+  --export-requestBodies      export requestBodies
+  --export-headers            export headers
+  --export-headers-types      export headers types
+  --export-securitySchemes    export securitySchemes
   --export-links              export links
   --export-callbacks          export callbacks
+  --export-pathItems          export pathItems
+  --export-mediaTypes         export mediaTypes
+  --export-mediaTypes-types   export mediaTypes types
   --readonly                  make schemas immutable (adds .readonly() and 'as const')
   --template                  generate app file and handler stubs
   --test                      generate test files with vitest and faker.js

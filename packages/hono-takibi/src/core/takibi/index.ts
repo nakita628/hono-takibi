@@ -1,7 +1,7 @@
 import path from 'node:path'
 import { app } from '../../generator/zod-openapi-hono/app/index.js'
 import { zodOpenAPIHono } from '../../generator/zod-openapi-hono/openapi/index.js'
-import { zodOpenAPIHonoHandler } from '../../helper/handler.js'
+import { makeStubHandlers } from '../../helper/handler.js'
 import { core } from '../../helper/index.js'
 import type { OpenAPI } from '../../openapi/index.js'
 
@@ -37,9 +37,9 @@ import type { OpenAPI } from '../../openapi/index.js'
  *   Y --> Z["writeResult2 = writeFile(target, appResult.value)"]
  *   Z --> ZA{"writeResult2.ok ?"}
  *   ZA -->|No| ZB["return { ok:false, error: writeResult2.error }"]
- *   ZA -->|Yes| ZC["zodOpenAPIHonoHandlerResult = zodOpenAPIHonoHandler(openAPI, output, test)"]
- *   ZC --> ZD{"zodOpenAPIHonoHandlerResult.ok ?"}
- *   ZD -->|No| ZE["return { ok:false, error: zodOpenAPIHonoHandlerResult.error }"]
+ *   ZA -->|Yes| ZC["stubHandlersResult = makeStubHandlers(openAPI, output, test)"]
+ *   ZC --> ZD{"stubHandlersResult.ok ?"}
+ *   ZD -->|No| ZE["return { ok:false, error: stubHandlersResult.error }"]
  *   ZD -->|Yes| ZF["return { ok:true, value: 'Generated code and template files written' }"]
  * ```
  */
@@ -51,18 +51,22 @@ export async function takibi(
   basePath: string,
   componentsOptions: {
     readonly readonly?: boolean | undefined
+    // OpenAPI Components Object order
     readonly exportSchemas: boolean
     readonly exportSchemasTypes: boolean
+    readonly exportResponses: boolean
     readonly exportParameters: boolean
     readonly exportParametersTypes: boolean
-    readonly exportSecuritySchemes: boolean
+    readonly exportExamples: boolean
     readonly exportRequestBodies: boolean
-    readonly exportResponses: boolean
     readonly exportHeaders: boolean
     readonly exportHeadersTypes: boolean
-    readonly exportExamples: boolean
+    readonly exportSecuritySchemes: boolean
     readonly exportLinks: boolean
     readonly exportCallbacks: boolean
+    readonly exportPathItems: boolean
+    readonly exportMediaTypes: boolean
+    readonly exportMediaTypesTypes: boolean
   },
 ): Promise<
   | {
@@ -87,13 +91,12 @@ export async function takibi(
     if (template) {
       const dir = path.dirname(output)
       const target = path.join(dir, 'index.ts')
-      const [appResult, zodOpenAPIHonoHandlerResult] = await Promise.all([
+      const [appResult, stubHandlersResult] = await Promise.all([
         core(app(openAPI, output, basePath), dir, target),
-        zodOpenAPIHonoHandler(openAPI, output, false, test),
+        makeStubHandlers(openAPI, output, test),
       ])
       if (!appResult.ok) return { ok: false, error: appResult.error }
-      if (!zodOpenAPIHonoHandlerResult.ok)
-        return { ok: false, error: zodOpenAPIHonoHandlerResult.error }
+      if (!stubHandlersResult.ok) return { ok: false, error: stubHandlersResult.error }
       return { ok: true, value: '🔥 Generated code and template files written' }
     }
 

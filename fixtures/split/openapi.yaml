@@ -1677,3 +1677,194 @@ components:
                         $ref: "#/components/schemas/WebhookEvent" # callback echoes event -> recursion
             default:
               $ref: "#/components/responses/DefaultError"
+
+  pathItems:
+    UserPathItem:
+      get:
+        tags: [Users]
+        operationId: getUserByIdPathItem
+        summary: Get user by id (reusable pathItem)
+        parameters:
+          - $ref: "#/components/parameters/UserIdPathParam"
+          - $ref: "#/components/parameters/TraceIdHeaderParam"
+        responses:
+          "200":
+            $ref: "#/components/responses/UserResponse"
+          "404":
+            $ref: "#/components/responses/NotFound"
+          default:
+            $ref: "#/components/responses/DefaultError"
+      patch:
+        tags: [Users]
+        operationId: updateUserPathItem
+        summary: Update user (reusable pathItem)
+        parameters:
+          - $ref: "#/components/parameters/UserIdPathParam"
+          - $ref: "#/components/parameters/TraceIdHeaderParam"
+        requestBody:
+          $ref: "#/components/requestBodies/UpdateUserRequest"
+        responses:
+          "200":
+            $ref: "#/components/responses/UserResponse"
+          "400":
+            $ref: "#/components/responses/ValidationError"
+          "404":
+            $ref: "#/components/responses/NotFound"
+          default:
+            $ref: "#/components/responses/DefaultError"
+      delete:
+        tags: [Users]
+        operationId: deleteUserPathItem
+        summary: Delete user (reusable pathItem)
+        parameters:
+          - $ref: "#/components/parameters/UserIdPathParam"
+          - $ref: "#/components/parameters/TraceIdHeaderParam"
+        responses:
+          "204":
+            description: Deleted
+          "404":
+            $ref: "#/components/responses/NotFound"
+          default:
+            $ref: "#/components/responses/DefaultError"
+
+    OrderPathItem:
+      get:
+        tags: [Orders]
+        operationId: getOrderByIdPathItem
+        summary: Get order by id (reusable pathItem)
+        parameters:
+          - $ref: "#/components/parameters/OrderIdPathParam"
+          - $ref: "#/components/parameters/TraceIdHeaderParam"
+        responses:
+          "200":
+            $ref: "#/components/responses/OrderResponse"
+          "404":
+            $ref: "#/components/responses/NotFound"
+          default:
+            $ref: "#/components/responses/DefaultError"
+      patch:
+        tags: [Orders]
+        operationId: updateOrderPathItem
+        summary: Update order status (reusable pathItem)
+        parameters:
+          - $ref: "#/components/parameters/OrderIdPathParam"
+          - $ref: "#/components/parameters/TraceIdHeaderParam"
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    $ref: "#/components/schemas/OrderStatus"
+        responses:
+          "200":
+            $ref: "#/components/responses/OrderResponse"
+          "400":
+            $ref: "#/components/responses/ValidationError"
+          "404":
+            $ref: "#/components/responses/NotFound"
+          default:
+            $ref: "#/components/responses/DefaultError"
+
+webhooks:
+  newUserRegistered:
+    post:
+      operationId: onNewUserRegistered
+      summary: New user registered webhook
+      tags: [Webhooks]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserEventPayload"
+            examples:
+              userCreated:
+                $ref: "#/components/examples/UserFull"
+      responses:
+        "200":
+          description: Webhook acknowledged
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  received:
+                    type: boolean
+        default:
+          $ref: "#/components/responses/DefaultError"
+
+  orderStatusChanged:
+    post:
+      operationId: onOrderStatusChanged
+      summary: Order status changed webhook
+      tags: [Webhooks]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrderEventPayload"
+            examples:
+              orderShipped:
+                value:
+                  order:
+                    id: "01J1K9N3E6R6ZK7Z6B0Q9Q3H3J"
+                    meta:
+                      createdAt: "2026-01-04T00:00:00Z"
+                    buyer:
+                      id: "01J1K9N3E6R6ZK7Z6B0Q9Q3H3J"
+                      meta:
+                        createdAt: "2026-01-04T00:00:00Z"
+                      name: "Minimal User"
+                      email: "min@example.com"
+                    status: shipped
+                    items: []
+                  previousStatus: paid
+      responses:
+        "200":
+          description: Webhook acknowledged
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  received:
+                    type: boolean
+                  processedAt:
+                    type: string
+                    format: date-time
+        default:
+          $ref: "#/components/responses/DefaultError"
+
+  systemAlert:
+    post:
+      operationId: onSystemAlert
+      summary: System alert webhook
+      tags: [Webhooks]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SystemEventPayload"
+      responses:
+        "200":
+          description: Alert acknowledged
+          headers:
+            x-trace-id:
+              $ref: "#/components/headers/TraceIdHeader"
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [acknowledged]
+                properties:
+                  acknowledged:
+                    type: boolean
+                  alertId:
+                    $ref: "#/components/schemas/Id"
+        default:
+          $ref: "#/components/responses/DefaultError"

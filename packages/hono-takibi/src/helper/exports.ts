@@ -36,7 +36,9 @@ export async function makeExports(
     | 'Header'
     | 'Example'
     | 'Link'
-    | 'Callback',
+    | 'Callback'
+    | 'PathItem'
+    | 'Webhook',
   output: string,
   readonly?: boolean | undefined,
 ): Promise<

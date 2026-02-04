@@ -1,0 +1,2057 @@
+openapi: 3.1.0
+info:
+  title: Inferno Reference API
+  version: 0.0.1
+  description: |
+    参照が地獄のように絡み合うOpenAPI定義（生成器・参照解決・循環参照のテスト用）。
+    - components の全セクションを使用
+    - schemas / parameters / requestBodies / responses / headers / examples / links / callbacks が相互に $ref し合う
+    - 自己参照・相互循環参照・oneOf/anyOf/allOf を多用
+servers:
+  - url: https://api.inferno.example/v1
+security:
+  - OAuth2: [inferno.read]
+  - ApiKeyAuth: []
+tags:
+  - name: Users
+  - name: Companies
+  - name: Orders
+  - name: Files
+  - name: Auth
+  - name: Subscriptions
+
+paths:
+  /auth/token:
+    post:
+      tags: [Auth]
+      operationId: issueToken
+      summary: Issue access token
+      security: [] # token endpoint is public
+      requestBody:
+        $ref: "#/components/requestBodies/TokenRequest"
+      responses:
+        "200":
+          $ref: "#/components/responses/TokenResponse"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        default:
+          $ref: "#/components/responses/DefaultError"
+
+  /users:
+    get:
+      tags: [Users]
+      operationId: listUsers
+      summary: List users
+      parameters:
+        - $ref: "#/components/parameters/TraceIdHeaderParam"
+        - $ref: "#/components/parameters/LimitQueryParam"
+        - $ref: "#/components/parameters/CursorQueryParam"
+        - $ref: "#/components/parameters/IncludeQueryParam"
+        - $ref: "#/components/parameters/SearchFilterQueryParam"
+      responses:
+        "200":
+          $ref: "#/components/responses/UserListResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        default:
+          $ref: "#/components/responses/DefaultError"
+
+    post:
+      tags: [Users]
+      operationId: createUser
+      summary: Create user
+      parameters:
+        - $ref: "#/components/parameters/TraceIdHeaderParam"
+      requestBody:
+        $ref: "#/components/requestBodies/CreateUserRequest"
+      responses:
+        "201":
+          $ref: "#/components/responses/UserResponse"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        default:
+          $ref: "#/components/responses/DefaultError"
+
+  /users/{userId}:
+    get:
+      tags: [Users]
+      operationId: getUserById
+      summary: Get user by id
+      parameters:
+        - $ref: "#/components/parameters/UserIdPathParam"
+        - $ref: "#/components/parameters/TraceIdHeaderParam"
+        - $ref: "#/components/parameters/IncludeQueryParam"
+      responses:
+        "200":
+          $ref: "#/components/responses/UserResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/DefaultError"
+
+    patch:
+      tags: [Users]
+      operationId: updateUser
+      summary: Update user (partial)
+      parameters:
+        - $ref: "#/components/parameters/UserIdPathParam"
+        - $ref: "#/components/parameters/TraceIdHeaderParam"
+      requestBody:
+        $ref: "#/components/requestBodies/UpdateUserRequest"
+      responses:
+        "200":
+          $ref: "#/components/responses/UserResponse"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/DefaultError"
+
+  /companies/{companyId}:
+    get:
+      tags: [Companies]
+      operationId: getCompanyById
+      summary: Get company by id
+      parameters:
+        - $ref: "#/components/parameters/CompanyIdPathParam"
+        - $ref: "#/components/parameters/TraceIdHeaderParam"
+        - $ref: "#/components/parameters/IncludeQueryParam"
+      responses:
+        "200":
+          $ref: "#/components/responses/CompanyResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/DefaultError"
+
+  /orders:
+    get:
+      tags: [Orders]
+      operationId: listOrders
+      summary: List orders
+      parameters:
+        - $ref: "#/components/parameters/TraceIdHeaderParam"
+        - $ref: "#/components/parameters/LimitQueryParam"
+        - $ref: "#/components/parameters/CursorQueryParam"
+        - $ref: "#/components/parameters/BuyerIdQueryParam"
+        - $ref: "#/components/parameters/IncludeQueryParam"
+        - $ref: "#/components/parameters/SearchFilterQueryParam"
+      responses:
+        "200":
+          $ref: "#/components/responses/OrderListResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        default:
+          $ref: "#/components/responses/DefaultError"
+
+    post:
+      tags: [Orders]
+      operationId: createOrder
+      summary: Create order (and optionally trigger callback)
+      parameters:
+        - $ref: "#/components/parameters/TraceIdHeaderParam"
+      requestBody:
+        $ref: "#/components/requestBodies/CreateOrderRequest"
+      callbacks:
+        orderEvents:
+          $ref: "#/components/callbacks/OrderCreatedCallback"
+      responses:
+        "201":
+          $ref: "#/components/responses/OrderResponse"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        default:
+          $ref: "#/components/responses/DefaultError"
+
+  /orders/{orderId}:
+    get:
+      tags: [Orders]
+      operationId: getOrderById
+      summary: Get order by id
+      parameters:
+        - $ref: "#/components/parameters/OrderIdPathParam"
+        - $ref: "#/components/parameters/TraceIdHeaderParam"
+        - $ref: "#/components/parameters/IncludeQueryParam"
+      responses:
+        "200":
+          $ref: "#/components/responses/OrderResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/DefaultError"
+
+  /files/{fileId}:
+    get:
+      tags: [Files]
+      operationId: getFileById
+      summary: Get file metadata
+      parameters:
+        - $ref: "#/components/parameters/FileIdPathParam"
+        - $ref: "#/components/parameters/TraceIdHeaderParam"
+      responses:
+        "200":
+          $ref: "#/components/responses/FileResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/DefaultError"
+
+  /subscriptions:
+    post:
+      tags: [Subscriptions]
+      operationId: createSubscription
+      summary: Create webhook subscription
+      parameters:
+        - $ref: "#/components/parameters/TraceIdHeaderParam"
+      requestBody:
+        $ref: "#/components/requestBodies/SubscriptionRequest"
+      callbacks:
+        subscriptionEvents:
+          $ref: "#/components/callbacks/SubscriptionLifecycleCallback"
+      responses:
+        "201":
+          $ref: "#/components/responses/SubscriptionResponse"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        default:
+          $ref: "#/components/responses/DefaultError"
+
+components:
+  schemas:
+    # ---- primitives & ids ----
+    Id:
+      description: Primary identifier (uuid or ulid) - used everywhere
+      oneOf:
+        - $ref: "#/components/schemas/Uuid"
+        - $ref: "#/components/schemas/Ulid"
+    Uuid:
+      type: string
+      format: uuid
+      examples:
+        - "f3b1b6d8-4c8c-4f1a-9b6f-1c7e6d8b9a01"
+    Ulid:
+      type: string
+      pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"
+      examples:
+        - "01J1K9N3E6R6ZK7Z6B0Q9Q3H3J"
+    TraceId:
+      type: string
+      description: Correlation id for tracing; also appears as header/parameter/example
+      minLength: 8
+      maxLength: 128
+    Cursor:
+      type: string
+      description: Pagination cursor (opaque)
+    Locale:
+      type: string
+      pattern: "^[a-z]{2}(-[A-Z]{2})?$"
+      examples: ["ja-JP", "en-US"]
+
+    # ---- base & meta ----
+    Entity:
+      type: object
+      required: [id, meta]
+      properties:
+        id:
+          $ref: "#/components/schemas/Id"
+        meta:
+          $ref: "#/components/schemas/Meta"
+    Meta:
+      type: object
+      required: [createdAt]
+      properties:
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        trace:
+          $ref: "#/components/schemas/TraceContext" # recursion entry
+        links:
+          $ref: "#/components/schemas/ResourceLinks" # links schema
+    TraceContext:
+      type: object
+      required: [traceId]
+      properties:
+        traceId:
+          $ref: "#/components/schemas/TraceId"
+        parent:
+          $ref: "#/components/schemas/TraceContext" # self recursion
+        baggage:
+          type: object
+          additionalProperties:
+            type: string
+
+    # ---- hypermedia-like ----
+    ResourceLinks:
+      type: object
+      additionalProperties:
+        $ref: "#/components/schemas/Link"
+    Link:
+      type: object
+      required: [href]
+      properties:
+        href:
+          type: string
+          format: uri-reference
+        rel:
+          type: string
+        meta:
+          $ref: "#/components/schemas/Meta" # meta -> trace -> tracecontext -> parent -> ...
+        next:
+          $ref: "#/components/schemas/Link" # self recursion again
+
+    # ---- geo graph recursion ----
+    GeoPoint:
+      type: object
+      required: [lat, lng]
+      properties:
+        lat:
+          type: number
+          minimum: -90
+          maximum: 90
+        lng:
+          type: number
+          minimum: -180
+          maximum: 180
+        graph:
+          $ref: "#/components/schemas/GeoGraph"
+    GeoGraph:
+      type: object
+      required: [nodes]
+      properties:
+        nodes:
+          type: array
+          items:
+            $ref: "#/components/schemas/GraphNode"
+    GraphNode:
+      type: object
+      required: [id]
+      properties:
+        id:
+          $ref: "#/components/schemas/Id"
+        edges:
+          type: array
+          items:
+            $ref: "#/components/schemas/GraphEdge"
+        entity:
+          $ref: "#/components/schemas/EntityRef" # node points to entity union
+    GraphEdge:
+      type: object
+      required: [to]
+      properties:
+        to:
+          $ref: "#/components/schemas/GraphNode" # mutual recursion
+        weight:
+          type: number
+        meta:
+          $ref: "#/components/schemas/Meta"
+
+    # ---- money/product/order recursion ----
+    Currency:
+      type: string
+      enum: [JPY, USD, EUR]
+    Money:
+      type: object
+      required: [currency, amount]
+      properties:
+        currency:
+          $ref: "#/components/schemas/Currency"
+        amount:
+          type: number
+          multipleOf: 0.01
+        trace:
+          $ref: "#/components/schemas/TraceContext"
+
+    Product:
+      allOf:
+        - $ref: "#/components/schemas/Entity"
+        - type: object
+          required: [name]
+          properties:
+            name:
+              type: string
+            supplier:
+              $ref: "#/components/schemas/Company"
+            relatedProducts:
+              type: array
+              items:
+                $ref: "#/components/schemas/Product" # self recursion
+            price:
+              $ref: "#/components/schemas/Money"
+
+    OrderItem:
+      type: object
+      required: [product, quantity]
+      properties:
+        product:
+          $ref: "#/components/schemas/Product"
+        quantity:
+          type: integer
+          minimum: 1
+        unitPrice:
+          $ref: "#/components/schemas/Money"
+
+    OrderStatus:
+      type: string
+      enum: [pending, paid, shipped, cancelled]
+
+    Order:
+      allOf:
+        - $ref: "#/components/schemas/Entity"
+        - type: object
+          required: [buyer, status, items]
+          properties:
+            buyer:
+              $ref: "#/components/schemas/User"
+            status:
+              $ref: "#/components/schemas/OrderStatus"
+            items:
+              type: array
+              items:
+                $ref: "#/components/schemas/OrderItem"
+            shippingAddress:
+              $ref: "#/components/schemas/Address"
+            billingAddress:
+              $ref: "#/components/schemas/Address"
+            auditTrail:
+              type: array
+              items:
+                $ref: "#/components/schemas/AuditLog" # order -> audit -> event -> entityref -> order...
+            links:
+              $ref: "#/components/schemas/ResourceLinks"
+
+    # ---- people/company/user circular references ----
+    Address:
+      type: object
+      required: [line1, city]
+      properties:
+        line1:
+          type: string
+        line2:
+          type: string
+        city:
+          type: string
+        country:
+          type: string
+        geo:
+          $ref: "#/components/schemas/GeoPoint"
+        resident:
+          oneOf:
+            - $ref: "#/components/schemas/User"
+            - $ref: "#/components/schemas/Person"
+
+    Person:
+      allOf:
+        - $ref: "#/components/schemas/Entity"
+        - type: object
+          required: [displayName]
+          properties:
+            displayName:
+              type: string
+            employer:
+              $ref: "#/components/schemas/Company"
+            homeAddress:
+              $ref: "#/components/schemas/Address"
+            friends:
+              type: array
+              items:
+                $ref: "#/components/schemas/Person" # recursion
+
+    Company:
+      allOf:
+        - $ref: "#/components/schemas/Entity"
+        - type: object
+          required: [name]
+          properties:
+            name:
+              type: string
+            headquarters:
+              $ref: "#/components/schemas/Address"
+            parent:
+              $ref: "#/components/schemas/Company" # recursion
+            subsidiaries:
+              type: array
+              items:
+                $ref: "#/components/schemas/Company"
+            employees:
+              type: array
+              items:
+                $ref: "#/components/schemas/User" # company -> user -> company ...
+            primaryContact:
+              $ref: "#/components/schemas/Person"
+
+    UserPreferences:
+      type: object
+      properties:
+        locale:
+          $ref: "#/components/schemas/Locale"
+        marketingOptIn:
+          type: boolean
+        theme:
+          type: string
+          enum: [light, dark, system]
+        shadowProfile:
+          $ref: "#/components/schemas/User" # preferences -> user recursion (evil)
+
+    User:
+      allOf:
+        - $ref: "#/components/schemas/Entity"
+        - type: object
+          required: [name, email]
+          properties:
+            name:
+              type: string
+            email:
+              type: string
+              format: email
+            company:
+              $ref: "#/components/schemas/Company"
+            manager:
+              $ref: "#/components/schemas/User" # self recursion
+            reports:
+              type: array
+              items:
+                $ref: "#/components/schemas/User"
+            addresses:
+              type: array
+              items:
+                $ref: "#/components/schemas/Address"
+            preferences:
+              $ref: "#/components/schemas/UserPreferences"
+            recentOrders:
+              type: array
+              items:
+                $ref: "#/components/schemas/Order"
+            links:
+              $ref: "#/components/schemas/ResourceLinks"
+
+    # ---- union ref used by graph/audit/event ----
+    EntityRef:
+      description: A union that can point back to everything (more hell)
+      oneOf:
+        - $ref: "#/components/schemas/User"
+        - $ref: "#/components/schemas/Company"
+        - $ref: "#/components/schemas/Order"
+        - $ref: "#/components/schemas/Product"
+        - $ref: "#/components/schemas/Person"
+
+    # ---- events & audit loops ----
+    EventType:
+      type: string
+      enum: [user.created, user.updated, order.created, order.shipped, system.alert]
+
+    Event:
+      type: object
+      required: [type, payload]
+      properties:
+        type:
+          $ref: "#/components/schemas/EventType"
+        payload:
+          oneOf:
+            - $ref: "#/components/schemas/UserEventPayload"
+            - $ref: "#/components/schemas/OrderEventPayload"
+            - $ref: "#/components/schemas/SystemEventPayload"
+        causedBy:
+          type: array
+          items:
+            $ref: "#/components/schemas/Event" # recursion
+        trace:
+          $ref: "#/components/schemas/TraceContext"
+
+    UserEventPayload:
+      type: object
+      required: [user]
+      properties:
+        user:
+          $ref: "#/components/schemas/User"
+        previous:
+          $ref: "#/components/schemas/User" # for update diff
+
+    OrderEventPayload:
+      type: object
+      required: [order]
+      properties:
+        order:
+          $ref: "#/components/schemas/Order"
+        previousStatus:
+          $ref: "#/components/schemas/OrderStatus"
+
+    SystemEventPayload:
+      type: object
+      required: [message]
+      properties:
+        message:
+          type: string
+        related:
+          $ref: "#/components/schemas/EntityRef" # points back into union
+
+    AuditLog:
+      type: object
+      required: [entity, event]
+      properties:
+        entity:
+          $ref: "#/components/schemas/EntityRef"
+        event:
+          $ref: "#/components/schemas/Event"
+        meta:
+          $ref: "#/components/schemas/Meta"
+
+    # ---- file schema ----
+    File:
+      allOf:
+        - $ref: "#/components/schemas/Entity"
+        - type: object
+          required: [name, size]
+          properties:
+            name:
+              type: string
+            size:
+              type: integer
+              minimum: 0
+            contentType:
+              type: string
+            download:
+              $ref: "#/components/schemas/Link"
+            owner:
+              $ref: "#/components/schemas/User"
+
+    # ---- subscription / secret recursion ----
+    SecretRotation:
+      type: object
+      properties:
+        next:
+          $ref: "#/components/schemas/SecretRef"
+        previous:
+          $ref: "#/components/schemas/SecretRef"
+        meta:
+          $ref: "#/components/schemas/Meta"
+
+    SecretRef:
+      type: object
+      required: [secretId]
+      properties:
+        secretId:
+          type: string
+        rotation:
+          $ref: "#/components/schemas/SecretRotation"
+
+    WebhookSubscription:
+      allOf:
+        - $ref: "#/components/schemas/Entity"
+        - type: object
+          required: [callbackUrl, events]
+          properties:
+            callbackUrl:
+              type: string
+              format: uri
+            events:
+              type: array
+              items:
+                $ref: "#/components/schemas/EventType"
+            secret:
+              $ref: "#/components/schemas/SecretRef"
+            lastEvent:
+              $ref: "#/components/schemas/Event" # loops into event graph
+
+    WebhookEvent:
+      type: object
+      required: [subscription, event]
+      properties:
+        subscription:
+          $ref: "#/components/schemas/WebhookSubscription"
+        event:
+          $ref: "#/components/schemas/Event"
+
+    # ---- auth schemas ----
+    TokenRequest:
+      type: object
+      required: [grantType]
+      properties:
+        grantType:
+          type: string
+          enum: [client_credentials, refresh_token]
+        clientId:
+          type: string
+        clientSecret:
+          type: string
+        refreshToken:
+          type: string
+        trace:
+          $ref: "#/components/schemas/TraceContext"
+
+    TokenResponse:
+      type: object
+      required: [accessToken, tokenType]
+      properties:
+        accessToken:
+          type: string
+        tokenType:
+          type: string
+          enum: [Bearer]
+        expiresIn:
+          type: integer
+        refreshToken:
+          type: string
+        scope:
+          type: string
+        meta:
+          $ref: "#/components/schemas/Meta"
+
+    # ---- errors (ProblemDetails recursion) ----
+    ProblemDetails:
+      type: object
+      required: [type, title, status]
+      properties:
+        type:
+          type: string
+          format: uri
+        title:
+          type: string
+        status:
+          type: integer
+        detail:
+          type: string
+        instance:
+          type: string
+          format: uri-reference
+        traceId:
+          $ref: "#/components/schemas/TraceId"
+        causes:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProblemDetails" # recursion
+
+    FieldError:
+      type: object
+      required: [path, message]
+      properties:
+        path:
+          type: string
+        message:
+          type: string
+        nested:
+          $ref: "#/components/schemas/FieldError" # recursion
+        problem:
+          $ref: "#/components/schemas/ProblemDetails"
+
+    ValidationProblemDetails:
+      allOf:
+        - $ref: "#/components/schemas/ProblemDetails"
+        - type: object
+          required: [errors]
+          properties:
+            errors:
+              type: array
+              items:
+                $ref: "#/components/schemas/FieldError"
+
+    # ---- query filter schema (used by parameter content) ----
+    SearchFilter:
+      description: Query filter represented as JSON in a query param (evil)
+      oneOf:
+        - $ref: "#/components/schemas/UserFilter"
+        - $ref: "#/components/schemas/OrderFilter"
+        - $ref: "#/components/schemas/CompanyFilter"
+      discriminator:
+        propertyName: kind
+        mapping:
+          user: "#/components/schemas/UserFilter"
+          order: "#/components/schemas/OrderFilter"
+          company: "#/components/schemas/CompanyFilter"
+
+    UserFilter:
+      type: object
+      required: [kind]
+      properties:
+        kind:
+          type: string
+          const: user
+        email:
+          type: string
+          format: email
+        company:
+          $ref: "#/components/schemas/Company" # filter contains full object ref (why not)
+        manager:
+          $ref: "#/components/schemas/User" # recursion
+
+    OrderFilter:
+      type: object
+      required: [kind]
+      properties:
+        kind:
+          type: string
+          const: order
+        status:
+          $ref: "#/components/schemas/OrderStatus"
+        buyer:
+          $ref: "#/components/schemas/User"
+        minTotal:
+          $ref: "#/components/schemas/Money"
+
+    CompanyFilter:
+      type: object
+      required: [kind]
+      properties:
+        kind:
+          type: string
+          const: company
+        name:
+          type: string
+        parent:
+          $ref: "#/components/schemas/Company"
+
+  parameters:
+    TraceIdHeaderParam:
+      name: x-trace-id
+      in: header
+      required: false
+      description: Correlation id (parameter) - schema refs TraceId
+      schema:
+        $ref: "#/components/schemas/TraceId"
+      example: "trace-01J1K9N3E6R6ZK7Z6B0Q9Q3H3J"
+
+    UserIdPathParam:
+      name: userId
+      in: path
+      required: true
+      schema:
+        $ref: "#/components/schemas/Id"
+      examples:
+        uuid:
+          $ref: "#/components/examples/UserIdUuid"
+        ulid:
+          $ref: "#/components/examples/UserIdUlid"
+
+    CompanyIdPathParam:
+      name: companyId
+      in: path
+      required: true
+      schema:
+        $ref: "#/components/schemas/Id"
+
+    OrderIdPathParam:
+      name: orderId
+      in: path
+      required: true
+      schema:
+        $ref: "#/components/schemas/Id"
+
+    FileIdPathParam:
+      name: fileId
+      in: path
+      required: true
+      schema:
+        $ref: "#/components/schemas/Id"
+
+    LimitQueryParam:
+      name: limit
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 200
+      example: 50
+
+    CursorQueryParam:
+      name: cursor
+      in: query
+      required: false
+      schema:
+        $ref: "#/components/schemas/Cursor"
+
+    BuyerIdQueryParam:
+      name: buyerId
+      in: query
+      required: false
+      schema:
+        $ref: "#/components/schemas/Id"
+
+    IncludeQueryParam:
+      name: include
+      in: query
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+          enum:
+            - company
+            - manager
+            - reports
+            - orders
+            - auditTrail
+            - graph
+      style: form
+      explode: true
+
+    SearchFilterQueryParam:
+      name: filter
+      in: query
+      required: false
+      description: |
+        JSON-encoded filter object in query param (content-based parameter).
+        参照地獄: content -> schema -> unions -> full objects -> recursion
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/SearchFilter"
+          examples:
+            userFilter:
+              $ref: "#/components/examples/UserFilterExample"
+            orderFilter:
+              $ref: "#/components/examples/OrderFilterExample"
+
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      description: OAuth2 (authorizationCode) - scopes used by top-level security
+      flows:
+        authorizationCode:
+          authorizationUrl: https://auth.inferno.example/oauth/authorize
+          tokenUrl: https://auth.inferno.example/oauth/token
+          scopes:
+            inferno.read: read everything
+            inferno.write: write everything
+    ApiKeyAuth:
+      type: apiKey
+      name: x-api-key
+      in: header
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  requestBodies:
+    TokenRequest:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/TokenRequest"
+          examples:
+            clientCredentials:
+              $ref: "#/components/examples/TokenRequestClientCredentials"
+            refreshToken:
+              $ref: "#/components/examples/TokenRequestRefresh"
+
+    CreateUserRequest:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/User"
+          examples:
+            full:
+              $ref: "#/components/examples/UserFull"
+            minimal:
+              $ref: "#/components/examples/UserMinimal"
+
+    UpdateUserRequest:
+      required: true
+      content:
+        application/json:
+          schema:
+            anyOf:
+              - $ref: "#/components/schemas/User"
+              - $ref: "#/components/schemas/UserPreferences"
+              - type: object
+                properties:
+                  patch:
+                    $ref: "#/components/schemas/ProblemDetails" # why would a patch include problem? hell.
+          examples:
+            prefs:
+              $ref: "#/components/examples/UserPrefsExample"
+
+    CreateOrderRequest:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Order"
+          examples:
+            sample:
+              $ref: "#/components/examples/OrderExample"
+
+    SubscriptionRequest:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/WebhookSubscription"
+          examples:
+            create:
+              $ref: "#/components/examples/SubscriptionExample"
+
+    WebhookEventRequest:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/WebhookEvent"
+          examples:
+            event:
+              $ref: "#/components/examples/WebhookEventExample"
+
+  responses:
+    # ---- common errors ----
+    DefaultError:
+      description: Default error wrapper -> points to ProblemDetails
+      headers:
+        x-trace-id:
+          $ref: "#/components/headers/TraceIdHeader"
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/ProblemDetails"
+          examples:
+            generic:
+              $ref: "#/components/examples/ProblemGeneric"
+
+    ValidationError:
+      description: Validation error -> points to ValidationProblemDetails
+      headers:
+        x-trace-id:
+          $ref: "#/components/headers/TraceIdHeader"
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/ValidationProblemDetails"
+          examples:
+            invalid:
+              $ref: "#/components/examples/ProblemValidation"
+
+    Unauthorized:
+      description: Unauthorized
+      headers:
+        x-trace-id:
+          $ref: "#/components/headers/TraceIdHeader"
+        www-authenticate:
+          $ref: "#/components/headers/WwwAuthenticateHeader"
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/ProblemDetails"
+          examples:
+            unauthorized:
+              $ref: "#/components/examples/ProblemUnauthorized"
+
+    Conflict:
+      description: Conflict
+      headers:
+        x-trace-id:
+          $ref: "#/components/headers/TraceIdHeader"
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/ProblemDetails"
+
+    NotFound:
+      description: Not Found
+      headers:
+        x-trace-id:
+          $ref: "#/components/headers/TraceIdHeader"
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/ProblemDetails"
+          examples:
+            notFound:
+              $ref: "#/components/examples/ProblemNotFound"
+
+    RateLimited:
+      description: Too Many Requests
+      headers:
+        x-trace-id:
+          $ref: "#/components/headers/TraceIdHeader"
+        x-ratelimit-limit:
+          $ref: "#/components/headers/RateLimitLimitHeader"
+        x-ratelimit-remaining:
+          $ref: "#/components/headers/RateLimitRemainingHeader"
+        x-ratelimit-reset:
+          $ref: "#/components/headers/RateLimitResetHeader"
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/ProblemDetails"
+          examples:
+            rateLimited:
+              $ref: "#/components/examples/ProblemRateLimited"
+
+    # ---- success responses ----
+    TokenResponse:
+      description: Token issued
+      headers:
+        x-trace-id:
+          $ref: "#/components/headers/TraceIdHeader"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/TokenResponse"
+          examples:
+            token:
+              $ref: "#/components/examples/TokenResponseExample"
+      links:
+        me:
+          $ref: "#/components/links/ListUsersLink" # lol: token links to users list
+
+    UserResponse:
+      description: A user
+      headers:
+        x-trace-id:
+          $ref: "#/components/headers/TraceIdHeader"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/User"
+          examples:
+            full:
+              $ref: "#/components/examples/UserFull"
+      links:
+        self:
+          $ref: "#/components/links/GetUserLink"
+        company:
+          $ref: "#/components/links/GetCompanyFromUserLink"
+        orders:
+          $ref: "#/components/links/ListOrdersForUserLink"
+
+    UserListResponse:
+      description: Users list (paged)
+      headers:
+        x-trace-id:
+          $ref: "#/components/headers/TraceIdHeader"
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [items]
+            properties:
+              items:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+              nextCursor:
+                $ref: "#/components/schemas/Cursor"
+              meta:
+                $ref: "#/components/schemas/Meta"
+          examples:
+            list:
+              $ref: "#/components/examples/UserListExample"
+      links:
+        next:
+          $ref: "#/components/links/ListUsersNextPageLink"
+
+    CompanyResponse:
+      description: A company
+      headers:
+        x-trace-id:
+          $ref: "#/components/headers/TraceIdHeader"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Company"
+          examples:
+            company:
+              $ref: "#/components/examples/CompanyExample"
+      links:
+        self:
+          $ref: "#/components/links/GetCompanyLink"
+
+    OrderResponse:
+      description: An order
+      headers:
+        x-trace-id:
+          $ref: "#/components/headers/TraceIdHeader"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Order"
+          examples:
+            order:
+              $ref: "#/components/examples/OrderExample"
+      links:
+        self:
+          $ref: "#/components/links/GetOrderLink"
+        buyer:
+          $ref: "#/components/links/GetUserFromOrderLink"
+
+    OrderListResponse:
+      description: Orders list (paged)
+      headers:
+        x-trace-id:
+          $ref: "#/components/headers/TraceIdHeader"
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [items]
+            properties:
+              items:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Order"
+              nextCursor:
+                $ref: "#/components/schemas/Cursor"
+              meta:
+                $ref: "#/components/schemas/Meta"
+          examples:
+            list:
+              $ref: "#/components/examples/OrderListExample"
+      links:
+        next:
+          $ref: "#/components/links/ListOrdersNextPageLink"
+
+    FileResponse:
+      description: A file
+      headers:
+        x-trace-id:
+          $ref: "#/components/headers/TraceIdHeader"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/File"
+          examples:
+            file:
+              $ref: "#/components/examples/FileExample"
+      links:
+        owner:
+          $ref: "#/components/links/GetUserFromFileLink"
+
+    SubscriptionResponse:
+      description: A webhook subscription
+      headers:
+        x-trace-id:
+          $ref: "#/components/headers/TraceIdHeader"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/WebhookSubscription"
+          examples:
+            subscription:
+              $ref: "#/components/examples/SubscriptionExample"
+
+  headers:
+    TraceIdHeader:
+      description: Trace id header component (same concept as parameter)
+      schema:
+        $ref: "#/components/schemas/TraceId"
+      example: "trace-01J1K9N3E6R6ZK7Z6B0Q9Q3H3J"
+
+    WwwAuthenticateHeader:
+      description: WWW-Authenticate for Bearer
+      schema:
+        type: string
+      example: 'Bearer realm="inferno", error="invalid_token"'
+
+    RateLimitLimitHeader:
+      description: Rate limit total
+      schema:
+        type: integer
+      example: 1000
+
+    RateLimitRemainingHeader:
+      description: Rate limit remaining
+      schema:
+        type: integer
+      example: 998
+
+    RateLimitResetHeader:
+      description: Rate limit reset epoch seconds
+      schema:
+        type: integer
+      example: 1735689600
+
+  examples:
+    TraceIdExample:
+      summary: TraceId example
+      value: "trace-01J1K9N3E6R6ZK7Z6B0Q9Q3H3J"
+
+    UserIdUuid:
+      summary: userId uuid
+      value: "f3b1b6d8-4c8c-4f1a-9b6f-1c7e6d8b9a01"
+    UserIdUlid:
+      summary: userId ulid
+      value: "01J1K9N3E6R6ZK7Z6B0Q9Q3H3J"
+
+    TokenRequestClientCredentials:
+      value:
+        grantType: client_credentials
+        clientId: "client_123"
+        clientSecret: "secret_abc"
+        trace:
+          traceId: "trace-01J1K9N3E6R6ZK7Z6B0Q9Q3H3J"
+
+    TokenRequestRefresh:
+      value:
+        grantType: refresh_token
+        refreshToken: "refresh_xxx"
+        trace:
+          traceId: "trace-01J1K9N3E6R6ZK7Z6B0Q9Q3H3J"
+
+    TokenResponseExample:
+      value:
+        accessToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        tokenType: Bearer
+        expiresIn: 3600
+        scope: "inferno.read"
+        meta:
+          createdAt: "2026-01-04T00:00:00Z"
+          trace:
+            traceId: "trace-01J1K9N3E6R6ZK7Z6B0Q9Q3H3J"
+
+    UserMinimal:
+      value:
+        id: "01J1K9N3E6R6ZK7Z6B0Q9Q3H3J"
+        meta:
+          createdAt: "2026-01-04T00:00:00Z"
+        name: "Minimal User"
+        email: "min@example.com"
+
+    UserFull:
+      value:
+        id: "f3b1b6d8-4c8c-4f1a-9b6f-1c7e6d8b9a01"
+        meta:
+          createdAt: "2026-01-04T00:00:00Z"
+          trace:
+            traceId: "trace-01J1K9N3E6R6ZK7Z6B0Q9Q3H3J"
+        name: "Inferno Taro"
+        email: "taro@inferno.example"
+        company:
+          id: "01J1K9N3E6R6ZK7Z6B0Q9Q3H3J"
+          meta:
+            createdAt: "2026-01-04T00:00:00Z"
+          name: "Inferno Inc."
+        manager:
+          id: "01J1K9N3E6R6ZK7Z6B0Q9Q3H3J"
+          meta:
+            createdAt: "2026-01-04T00:00:00Z"
+          name: "Minimal User"
+          email: "min@example.com"
+        addresses:
+          - line1: "1-2-3 Hell St"
+            city: "Tokyo"
+            country: "JP"
+            geo:
+              lat: 35.6895
+              lng: 139.6917
+              graph:
+                nodes:
+                  - id: "01J1K9N3E6R6ZK7Z6B0Q9Q3H3J"
+                    edges:
+                      - to:
+                          id: "01J1K9N3E6R6ZK7Z6B0Q9Q3H3J"
+                        weight: 0.666
+
+    UserPrefsExample:
+      value:
+        locale: "ja-JP"
+        marketingOptIn: false
+        shadowProfile:
+          id: "01J1K9N3E6R6ZK7Z6B0Q9Q3H3J"
+          meta:
+            createdAt: "2026-01-04T00:00:00Z"
+          name: "Shadow"
+          email: "shadow@inferno.example"
+
+    CompanyExample:
+      value:
+        id: "01J1K9N3E6R6ZK7Z6B0Q9Q3H3J"
+        meta:
+          createdAt: "2026-01-04T00:00:00Z"
+        name: "Inferno Inc."
+        employees:
+          - id: "01J1K9N3E6R6ZK7Z6B0Q9Q3H3J"
+            meta:
+              createdAt: "2026-01-04T00:00:00Z"
+            name: "Minimal User"
+            email: "min@example.com"
+
+    OrderExample:
+      value:
+        id: "01J1K9N3E6R6ZK7Z6B0Q9Q3H3J"
+        meta:
+          createdAt: "2026-01-04T00:00:00Z"
+        buyer:
+          id: "01J1K9N3E6R6ZK7Z6B0Q9Q3H3J"
+          meta:
+            createdAt: "2026-01-04T00:00:00Z"
+          name: "Minimal User"
+          email: "min@example.com"
+        status: paid
+        items:
+          - product:
+              id: "01J1K9N3E6R6ZK7Z6B0Q9Q3H3J"
+              meta:
+                createdAt: "2026-01-04T00:00:00Z"
+              name: "Flame Keyboard"
+              price:
+                currency: JPY
+                amount: 19999
+            quantity: 1
+        auditTrail:
+          - entity:
+              id: "01J1K9N3E6R6ZK7Z6B0Q9Q3H3J"
+              meta:
+                createdAt: "2026-01-04T00:00:00Z"
+              name: "Minimal User"
+              email: "min@example.com"
+            event:
+              type: order.created
+              payload:
+                orderId: "01J1K9N3E6R6ZK7Z6B0Q9Q3H3J"
+            meta:
+              createdAt: "2026-01-04T00:00:00Z"
+
+    UserListExample:
+      value:
+        items:
+          - id: "01J1K9N3E6R6ZK7Z6B0Q9Q3H3J"
+            meta:
+              createdAt: "2026-01-04T00:00:00Z"
+            name: "Minimal User"
+            email: "min@example.com"
+        nextCursor: "cursor_opaque_123"
+        meta:
+          createdAt: "2026-01-04T00:00:00Z"
+
+    OrderListExample:
+      value:
+        items:
+          - id: "01J1K9N3E6R6ZK7Z6B0Q9Q3H3J"
+            meta:
+              createdAt: "2026-01-04T00:00:00Z"
+            buyer:
+              id: "01J1K9N3E6R6ZK7Z6B0Q9Q3H3J"
+              meta:
+                createdAt: "2026-01-04T00:00:00Z"
+              name: "Minimal User"
+              email: "min@example.com"
+            status: paid
+        nextCursor: "cursor_opaque_orders_123"
+        meta:
+          createdAt: "2026-01-04T00:00:00Z"
+
+    FileExample:
+      value:
+        id: "01J1K9N3E6R6ZK7Z6B0Q9Q3H3J"
+        meta:
+          createdAt: "2026-01-04T00:00:00Z"
+        name: "inferno.png"
+        size: 123456
+        contentType: "image/png"
+        download:
+          href: "/files/01J1K9N3E6R6ZK7Z6B0Q9Q3H3J/download"
+        owner:
+          id: "01J1K9N3E6R6ZK7Z6B0Q9Q3H3J"
+          meta:
+            createdAt: "2026-01-04T00:00:00Z"
+          name: "Minimal User"
+          email: "min@example.com"
+
+    SubscriptionExample:
+      value:
+        id: "01J1K9N3E6R6ZK7Z6B0Q9Q3H3J"
+        meta:
+          createdAt: "2026-01-04T00:00:00Z"
+        callbackUrl: "https://client.example/webhook"
+        events: [order.created, user.updated]
+        secret:
+          secretId: "sec_123"
+          rotation:
+            next:
+              secretId: "sec_456"
+
+    WebhookEventExample:
+      value:
+        subscription:
+          id: "01J1K9N3E6R6ZK7Z6B0Q9Q3H3J"
+          meta:
+            createdAt: "2026-01-04T00:00:00Z"
+          callbackUrl: "https://client.example/webhook"
+          events: [order.created, user.updated]
+          secret:
+            secretId: "sec_123"
+            rotation:
+              next:
+                secretId: "sec_456"
+        event:
+          type: order.created
+          payload:
+            orderId: "01J1K9N3E6R6ZK7Z6B0Q9Q3H3J"
+
+    UserFilterExample:
+      value:
+        kind: user
+        email: "taro@inferno.example"
+        manager:
+          id: "01J1K9N3E6R6ZK7Z6B0Q9Q3H3J"
+          meta:
+            createdAt: "2026-01-04T00:00:00Z"
+          name: "Minimal User"
+          email: "min@example.com"
+
+    OrderFilterExample:
+      value:
+        kind: order
+        status: paid
+        buyer:
+          id: "01J1K9N3E6R6ZK7Z6B0Q9Q3H3J"
+          meta:
+            createdAt: "2026-01-04T00:00:00Z"
+          name: "Minimal User"
+          email: "min@example.com"
+        minTotal:
+          currency: JPY
+          amount: 1000
+
+    ProblemGeneric:
+      value:
+        type: "https://errors.inferno.example/problem/generic"
+        title: "Something went wrong"
+        status: 500
+        traceId: "trace-01J1K9N3E6R6ZK7Z6B0Q9Q3H3J"
+        causes:
+          - type: "https://errors.inferno.example/problem/inner"
+            title: "Inner failure"
+            status: 500
+
+    ProblemValidation:
+      value:
+        type: "https://errors.inferno.example/problem/validation"
+        title: "Validation error"
+        status: 400
+        traceId: "trace-01J1K9N3E6R6ZK7Z6B0Q9Q3H3J"
+        errors:
+          - path: "email"
+            message: "Invalid email"
+            nested:
+              path: "email.domain"
+              message: "Domain is not allowed"
+
+    ProblemUnauthorized:
+      value:
+        type: "https://errors.inferno.example/problem/unauthorized"
+        title: "Unauthorized"
+        status: 401
+        traceId: "trace-01J1K9N3E6R6ZK7Z6B0Q9Q3H3J"
+
+    ProblemNotFound:
+      value:
+        type: "https://errors.inferno.example/problem/notfound"
+        title: "Not found"
+        status: 404
+        traceId: "trace-01J1K9N3E6R6ZK7Z6B0Q9Q3H3J"
+
+    ProblemRateLimited:
+      value:
+        type: "https://errors.inferno.example/problem/ratelimited"
+        title: "Too many requests"
+        status: 429
+        traceId: "trace-01J1K9N3E6R6ZK7Z6B0Q9Q3H3J"
+
+    # Examples that reference other examples
+    UserFullAlias:
+      $ref: "#/components/examples/UserFull"
+
+    DefaultUserExample:
+      $ref: "#/components/examples/UserMinimal"
+
+    ChainedUserExample:
+      $ref: "#/components/examples/DefaultUserExample"
+
+  links:
+    # NOTE: links refer to operationId; parameters can be runtime expressions.
+    GetUserLink:
+      operationId: getUserById
+      parameters:
+        userId: "$response.body#/id"
+      description: Follow to get the same user
+
+    GetCompanyLink:
+      operationId: getCompanyById
+      parameters:
+        companyId: "$response.body#/id"
+
+    GetOrderLink:
+      operationId: getOrderById
+      parameters:
+        orderId: "$response.body#/id"
+
+    ListUsersLink:
+      operationId: listUsers
+      description: Jump to users list after token
+
+    ListUsersNextPageLink:
+      operationId: listUsers
+      parameters:
+        cursor: "$response.body#/nextCursor"
+
+    ListOrdersNextPageLink:
+      operationId: listOrders
+      parameters:
+        cursor: "$response.body#/nextCursor"
+
+    GetCompanyFromUserLink:
+      operationId: getCompanyById
+      parameters:
+        companyId: "$response.body#/company/id"
+      description: Resolve user's company
+
+    ListOrdersForUserLink:
+      operationId: listOrders
+      parameters:
+        buyerId: "$response.body#/id"
+      description: List orders by user id
+
+    GetUserFromOrderLink:
+      operationId: getUserById
+      parameters:
+        userId: "$response.body#/buyer/id"
+      description: Resolve order buyer
+
+    GetUserFromFileLink:
+      operationId: getUserById
+      parameters:
+        userId: "$response.body#/owner/id"
+      description: Resolve file owner
+
+  callbacks:
+    SubscriptionLifecycleCallback:
+      "{$request.body#/callbackUrl}":
+        post:
+          operationId: onSubscriptionEvent
+          summary: Subscription lifecycle callback
+          parameters:
+            - $ref: "#/components/parameters/TraceIdHeaderParam" # callback also uses params
+          requestBody:
+            $ref: "#/components/requestBodies/WebhookEventRequest"
+          responses:
+            "200":
+              description: Ack
+              headers:
+                x-trace-id:
+                  $ref: "#/components/headers/TraceIdHeader"
+              content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      ok:
+                        type: boolean
+                      next:
+                        $ref: "#/components/schemas/Link"
+                  examples:
+                    ack:
+                      value:
+                        ok: true
+                        next:
+                          href: "/subscriptions"
+            default:
+              $ref: "#/components/responses/DefaultError"
+
+    OrderCreatedCallback:
+      "{$request.body#/buyer/company/primaryContact/employer/meta/links/self/href}":
+        post:
+          operationId: onOrderCreatedEvent
+          summary: Order created callback (path expression is intentionally absurd)
+          requestBody:
+            $ref: "#/components/requestBodies/WebhookEventRequest"
+          responses:
+            "200":
+              description: Ack
+              content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      ok:
+                        type: boolean
+                      echo:
+                        $ref: "#/components/schemas/WebhookEvent" # callback echoes event -> recursion
+            default:
+              $ref: "#/components/responses/DefaultError"
+
+  pathItems:
+    UserPathItem:
+      get:
+        tags: [Users]
+        operationId: getUserByIdPathItem
+        summary: Get user by id (reusable pathItem)
+        parameters:
+          - $ref: "#/components/parameters/UserIdPathParam"
+          - $ref: "#/components/parameters/TraceIdHeaderParam"
+        responses:
+          "200":
+            $ref: "#/components/responses/UserResponse"
+          "404":
+            $ref: "#/components/responses/NotFound"
+          default:
+            $ref: "#/components/responses/DefaultError"
+      patch:
+        tags: [Users]
+        operationId: updateUserPathItem
+        summary: Update user (reusable pathItem)
+        parameters:
+          - $ref: "#/components/parameters/UserIdPathParam"
+          - $ref: "#/components/parameters/TraceIdHeaderParam"
+        requestBody:
+          $ref: "#/components/requestBodies/UpdateUserRequest"
+        responses:
+          "200":
+            $ref: "#/components/responses/UserResponse"
+          "400":
+            $ref: "#/components/responses/ValidationError"
+          "404":
+            $ref: "#/components/responses/NotFound"
+          default:
+            $ref: "#/components/responses/DefaultError"
+      delete:
+        tags: [Users]
+        operationId: deleteUserPathItem
+        summary: Delete user (reusable pathItem)
+        parameters:
+          - $ref: "#/components/parameters/UserIdPathParam"
+          - $ref: "#/components/parameters/TraceIdHeaderParam"
+        responses:
+          "204":
+            description: Deleted
+          "404":
+            $ref: "#/components/responses/NotFound"
+          default:
+            $ref: "#/components/responses/DefaultError"
+
+    OrderPathItem:
+      get:
+        tags: [Orders]
+        operationId: getOrderByIdPathItem
+        summary: Get order by id (reusable pathItem)
+        parameters:
+          - $ref: "#/components/parameters/OrderIdPathParam"
+          - $ref: "#/components/parameters/TraceIdHeaderParam"
+        responses:
+          "200":
+            $ref: "#/components/responses/OrderResponse"
+          "404":
+            $ref: "#/components/responses/NotFound"
+          default:
+            $ref: "#/components/responses/DefaultError"
+      patch:
+        tags: [Orders]
+        operationId: updateOrderPathItem
+        summary: Update order status (reusable pathItem)
+        parameters:
+          - $ref: "#/components/parameters/OrderIdPathParam"
+          - $ref: "#/components/parameters/TraceIdHeaderParam"
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    $ref: "#/components/schemas/OrderStatus"
+        responses:
+          "200":
+            $ref: "#/components/responses/OrderResponse"
+          "400":
+            $ref: "#/components/responses/ValidationError"
+          "404":
+            $ref: "#/components/responses/NotFound"
+          default:
+            $ref: "#/components/responses/DefaultError"
+
+    # Complex PathItem for testing edge cases
+    ComplexPathItem:
+      summary: Complex pathItem for testing all features
+      description: This pathItem tests query, additionalOperations, and various edge cases
+      parameters:
+        - $ref: "#/components/parameters/TraceIdHeaderParam"
+        - name: include
+          in: query
+          description: Fields to include
+          schema:
+            type: array
+            items:
+              type: string
+              enum: [metadata, relations, history]
+      get:
+        tags: [Complex]
+        operationId: getComplexResource
+        summary: Get complex resource
+        deprecated: true
+        externalDocs:
+          description: External documentation
+          url: https://example.com/docs
+        parameters:
+          - name: resourceId
+            in: path
+            required: true
+            schema:
+              type: string
+              format: uuid
+          - name: fields
+            in: query
+            description: Sparse fieldset
+            style: form
+            explode: true
+            schema:
+              type: array
+              items:
+                type: string
+        responses:
+          "200":
+            description: Success
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/User"
+          "404":
+            $ref: "#/components/responses/NotFound"
+        security:
+          - BearerAuth: []
+          - OAuth2: [read:users]
+      post:
+        tags: [Complex]
+        operationId: createComplexResource
+        summary: Create complex resource
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+            multipart/form-data:
+              schema:
+                type: object
+                properties:
+                  file:
+                    type: string
+                    format: binary
+                  metadata:
+                    type: string
+              encoding:
+                file:
+                  contentType: image/png, image/jpeg
+        responses:
+          "201":
+            description: Created
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/User"
+          "400":
+            $ref: "#/components/responses/ValidationError"
+        callbacks:
+          onCreated:
+            "{$request.body#/callbackUrl}":
+              post:
+                requestBody:
+                  required: true
+                  content:
+                    application/json:
+                      schema:
+                        type: object
+                        properties:
+                          status:
+                            type: string
+                          resourceId:
+                            type: string
+                responses:
+                  "200":
+                    description: Callback acknowledged
+      put:
+        tags: [Complex]
+        operationId: replaceComplexResource
+        summary: Replace complex resource
+        parameters:
+          - name: resourceId
+            in: path
+            required: true
+            schema:
+              type: string
+        requestBody:
+          $ref: "#/components/requestBodies/UpdateUserRequest"
+        responses:
+          "200":
+            description: Replaced
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/User"
+      delete:
+        tags: [Complex]
+        operationId: deleteComplexResource
+        summary: Delete complex resource
+        responses:
+          "204":
+            description: Deleted
+      options:
+        tags: [Complex]
+        operationId: optionsComplexResource
+        summary: Get allowed methods
+        responses:
+          "200":
+            description: Allowed methods
+            headers:
+              Allow:
+                schema:
+                  type: string
+      head:
+        tags: [Complex]
+        operationId: headComplexResource
+        summary: Check resource exists
+        responses:
+          "200":
+            description: Exists
+          "404":
+            description: Not found
+      patch:
+        tags: [Complex]
+        operationId: patchComplexResource
+        summary: Patch complex resource
+        requestBody:
+          required: true
+          content:
+            application/json-patch+json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  required: [op, path]
+                  properties:
+                    op:
+                      type: string
+                      enum: [add, remove, replace, move, copy, test]
+                    path:
+                      type: string
+                    value: {}
+        responses:
+          "200":
+            description: Patched
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/User"
+      trace:
+        tags: [Complex]
+        operationId: traceComplexResource
+        summary: Trace request
+        responses:
+          "200":
+            description: Trace response
+            content:
+              message/http:
+                schema:
+                  type: string
+      servers:
+        - url: https://complex.example.com
+          description: Complex resource server
+
+webhooks:
+  newUserRegistered:
+    post:
+      operationId: onNewUserRegistered
+      summary: New user registered webhook
+      tags: [Webhooks]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserEventPayload"
+            examples:
+              userCreated:
+                $ref: "#/components/examples/UserFull"
+      responses:
+        "200":
+          description: Webhook acknowledged
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  received:
+                    type: boolean
+        default:
+          $ref: "#/components/responses/DefaultError"
+
+  orderStatusChanged:
+    post:
+      operationId: onOrderStatusChanged
+      summary: Order status changed webhook
+      tags: [Webhooks]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrderEventPayload"
+            examples:
+              orderShipped:
+                value:
+                  order:
+                    id: "01J1K9N3E6R6ZK7Z6B0Q9Q3H3J"
+                    meta:
+                      createdAt: "2026-01-04T00:00:00Z"
+                    buyer:
+                      id: "01J1K9N3E6R6ZK7Z6B0Q9Q3H3J"
+                      meta:
+                        createdAt: "2026-01-04T00:00:00Z"
+                      name: "Minimal User"
+                      email: "min@example.com"
+                    status: shipped
+                    items: []
+                  previousStatus: paid
+      responses:
+        "200":
+          description: Webhook acknowledged
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  received:
+                    type: boolean
+                  processedAt:
+                    type: string
+                    format: date-time
+        default:
+          $ref: "#/components/responses/DefaultError"
+
+  systemAlert:
+    post:
+      operationId: onSystemAlert
+      summary: System alert webhook
+      tags: [Webhooks]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SystemEventPayload"
+      responses:
+        "200":
+          description: Alert acknowledged
+          headers:
+            x-trace-id:
+              $ref: "#/components/headers/TraceIdHeader"
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [acknowledged]
+                properties:
+                  acknowledged:
+                    type: boolean
+                  alertId:
+                    $ref: "#/components/schemas/Id"
+        default:
+          $ref: "#/components/responses/DefaultError"

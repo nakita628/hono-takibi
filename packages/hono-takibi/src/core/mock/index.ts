@@ -7,7 +7,9 @@ export async function mock(
   openAPI: OpenAPI,
   output: string,
   readonly?: boolean,
-): Promise<{ readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }> {
+): Promise<
+  { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
+> {
   try {
     const mockCode = generateMockServer(openAPI, '/', { readonly })
     const coreResult = await core(mockCode, path.dirname(output), output)

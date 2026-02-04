@@ -21,6 +21,38 @@ describe('zodToOpenAPI', () => {
     })
   })
 
+  describe('prefixItems (tuple)', () => {
+    it.concurrent.each<[Schema, string]>([
+      // Basic tuple
+      [
+        {
+          type: 'array',
+          prefixItems: [{ type: 'string' }, { type: 'number' }, { type: 'boolean' }],
+        },
+        'z.tuple([z.string(),z.number(),z.boolean()])',
+      ],
+      // Tuple with $ref
+      [
+        {
+          type: 'array',
+          prefixItems: [{ $ref: '#/components/schemas/Name' }, { type: 'number' }],
+        },
+        'z.tuple([NameSchema,z.number()])',
+      ],
+      // Tuple with description
+      [
+        {
+          type: 'array',
+          prefixItems: [{ type: 'string' }, { type: 'number' }],
+          description: 'A tuple of name and age',
+        },
+        'z.tuple([z.string(),z.number()]).openapi({"description":"A tuple of name and age"})',
+      ],
+    ])('zodToOpenAPI(%o) → %s', (input, expected) => {
+      expect(zodToOpenAPI(input as Schema)).toBe(expected)
+    })
+  })
+
   describe('oneOf', () => {
     it.concurrent.each<[Schema, string]>([
       [

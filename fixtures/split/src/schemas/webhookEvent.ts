@@ -1,6 +1,6 @@
 import { z } from '@hono/zod-openapi'
-import { EventSchema } from './event'
 import { WebhookSubscriptionSchema } from './webhookSubscription'
+import { EventSchema } from './event'
 
 export const WebhookEventSchema = z
   .object({ subscription: WebhookSubscriptionSchema, event: EventSchema })

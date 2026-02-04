@@ -91,18 +91,21 @@ export const getRoute = createRoute({
 
 ```bash
 Options:
-  --export-schemas-types      export schemas types
   --export-schemas            export schemas
-  --export-parameters-types   export parameters types
-  --export-parameters         export parameters
-  --export-security-schemes   export securitySchemes
-  --export-request-bodies     export requestBodies
+  --export-schemas-types      export schemas types
   --export-responses          export responses
-  --export-headers-types      export headers types
-  --export-headers            export headers
+  --export-parameters         export parameters
+  --export-parameters-types   export parameters types
   --export-examples           export examples
+  --export-requestBodies      export requestBodies
+  --export-headers            export headers
+  --export-headers-types      export headers types
+  --export-securitySchemes    export securitySchemes
   --export-links              export links
   --export-callbacks          export callbacks
+  --export-pathItems          export pathItems
+  --export-mediaTypes         export mediaTypes
+  --export-mediaTypes-types   export mediaTypes types
   --readonly                  make schemas immutable (adds .readonly() and 'as const')
   --template                  generate app file and handler stubs
   --test                      generate test files with vitest and faker.js
@@ -127,22 +130,27 @@ export default defineConfig({
   'zod-openapi': {
     output: './src/index.ts',
     readonly: true,
+    // Export options (OpenAPI Components Object order)
     exportSchemas: true,
     exportSchemasTypes: true,
+    exportResponses: true,
     exportParameters: true,
     exportParametersTypes: true,
-    exportSecuritySchemes: true,
+    exportExamples: true,
     exportRequestBodies: true,
-    exportResponses: true,
     exportHeaders: true,
     exportHeadersTypes: true,
-    exportExamples: true,
+    exportSecuritySchemes: true,
     exportLinks: true,
     exportCallbacks: true,
+    exportPathItems: true,
+    exportMediaTypes: true,
+    exportMediaTypesTypes: true,
     routes: {
       output: './src/routes',
       split: true,
     },
+    // Components (OpenAPI Components Object order)
     components: {
       schemas: {
         output: './src/schemas',
@@ -150,26 +158,26 @@ export default defineConfig({
         split: true,
         import: '../schemas',
       },
+      responses: {
+        output: './src/responses',
+        split: true,
+        import: '../responses',
+      },
       parameters: {
         output: './src/parameters',
         exportTypes: true,
         split: true,
         import: '../parameters',
       },
-      securitySchemes: {
-        output: './src/securitySchemes',
+      examples: {
+        output: './src/examples',
         split: true,
-        import: '../securitySchemes',
+        import: '../examples',
       },
       requestBodies: {
         output: './src/requestBodies',
         split: true,
         import: '../requestBodies',
-      },
-      responses: {
-        output: './src/responses',
-        split: true,
-        import: '../responses',
       },
       headers: {
         output: './src/headers',
@@ -177,10 +185,10 @@ export default defineConfig({
         split: true,
         import: '../headers',
       },
-      examples: {
-        output: './src/examples',
+      securitySchemes: {
+        output: './src/securitySchemes',
         split: true,
-        import: '../examples',
+        import: '../securitySchemes',
       },
       links: {
         output: './src/links',
@@ -191,6 +199,21 @@ export default defineConfig({
         output: './src/callbacks',
         split: true,
         import: '../callbacks',
+      },
+      pathItems: {
+        output: './src/pathItems',
+        split: true,
+        import: '../pathItems',
+      },
+      mediaTypes: {
+        output: './src/mediaTypes',
+        exportTypes: true,
+        split: true,
+        import: '../mediaTypes',
+      },
+      webhooks: {
+        output: './src/webhooks',
+        split: true,
       },
     },
   },

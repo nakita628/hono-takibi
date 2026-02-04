@@ -23,6 +23,7 @@
  * @module helper/openapi
  */
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
+import { isRecord, isRefObject } from '../guard/index.js'
 import type {
   Callbacks,
   Content,
@@ -67,6 +68,7 @@ import {
  * makeRef('#/components/schemas/User')      // → 'UserSchema'
  * makeRef('#/components/parameters/UserId') // → 'UserIdParamsSchema'
  * makeRef('#/components/headers/Auth')      // → 'AuthHeaderSchema'
+ * makeRef('#/components/pathItems/User')    // → 'UserPathItem'
  * ```
  */
 export function makeRef($ref: string): string {
@@ -87,6 +89,7 @@ export function makeRef($ref: string): string {
     { prefix: '#/components/examples/', suffix: 'Example' },
     { prefix: '#/components/links/', suffix: 'Link' },
     { prefix: '#/components/callbacks/', suffix: 'Callback' },
+    { prefix: '#/components/pathItems/', suffix: 'PathItem' },
   ]
 
   /** Converts name to PascalCase variable name with suffix */
@@ -234,13 +237,14 @@ export function makeExamples(examples: {
  * // → '{200:{description:"Success",content:{...}},"default":{description:"Error"}}'
  * ```
  */
-export function makeOperationResponses(responses: Operation['responses']) {
+export function makeOperationResponses(
+  responses: Operation['responses'] | Record<string, unknown>,
+) {
   const result = Object.entries(responses)
     .map(
       ([statusCode, res]) =>
-        `${/^\d+$/.test(statusCode) ? statusCode : `'${statusCode}'`}:${makeResponses(res)}`,
+        `${/^\d+$/.test(statusCode) ? statusCode : `'${statusCode}'`}:${makeResponses(res as Responses)}`,
     )
-    // .map(([statusCode, res]) => `${JSON.stringify(statusCode)}:${makeResponses(res)}`)
     .join(',')
   return `{${result}}`
 }
@@ -408,18 +412,21 @@ export function makeLinkOrReference(linkOrReference: Link | Reference) {
  * @param callbacks - The callbacks object from an operation.
  * @returns Callbacks code string or undefined if no callbacks.
  */
-export function makeOperationCallbacks(callbacks: Operation['callbacks']) {
+export function makeOperationCallbacks(
+  callbacks: Operation['callbacks'] | Record<string, unknown> | undefined,
+) {
   if (!callbacks) return undefined
   const result = Object.entries(callbacks)
     .map(([callbackName, callbackRef]) => {
-      if (callbackRef.$ref) {
+      if (!isRecord(callbackRef)) return undefined
+      if (isRefObject(callbackRef)) {
         return `${JSON.stringify(callbackName)}:${makeRef(callbackRef.$ref)}`
       }
+      const summary = callbackRef.summary
+      const description = callbackRef.description
       const result = [
-        callbackRef.summary ? `summary:${JSON.stringify(callbackRef.summary)}` : undefined,
-        callbackRef.description
-          ? `description:${JSON.stringify(callbackRef.description)}`
-          : undefined,
+        typeof summary === 'string' ? `summary:${JSON.stringify(summary)}` : undefined,
+        typeof description === 'string' ? `description:${JSON.stringify(description)}` : undefined,
       ]
         .filter((v) => v !== undefined)
         .join(',')
@@ -451,6 +458,19 @@ export function makeOperationCallbacks(callbacks: Operation['callbacks']) {
  * // → '"onPaymentComplete":{post:{requestBody:{...},responses:{...}}}'
  * ```
  */
+export function makeCallback(callback: Callbacks): string {
+  return Object.entries(callback)
+    .map(([callbackKey, pathItem]) => {
+      if (isRefObject(pathItem)) {
+        return `${JSON.stringify(callbackKey)}:${makeRef(pathItem.$ref)}`
+      }
+      const pathItemCode = makePathItem(pathItem)
+      return `${JSON.stringify(callbackKey)}:${pathItemCode}`
+    })
+    .filter((v) => v !== undefined)
+    .join(',')
+}
+
 export function makeCallbacks(
   callbacks:
     | Callbacks
@@ -462,32 +482,30 @@ export function makeCallbacks(
         }
       },
 ): string {
-  const isRef = (v: unknown): v is { $ref: string } => {
-    if (typeof v !== 'object' || v === null || !('$ref' in v)) return false
-    const obj = v as Record<string, unknown>
-    return typeof obj.$ref === 'string'
-  }
-  const isPathItem = (v: unknown): v is PathItem => typeof v === 'object' && v !== null
   const isParameter = (v: unknown): v is Parameter =>
-    typeof v === 'object' && v !== null && 'name' in v && 'in' in v && 'schema' in v
+    isRecord(v) && 'name' in v && 'in' in v && 'schema' in v
+
+  const isOperation = (v: unknown): v is Operation => isRecord(v) && 'responses' in v
 
   return Object.entries(callbacks)
     .map(([callbackKey, pathItem]) => {
       // Handle $ref to components/callbacks
-      if (isRef(pathItem)) {
+      if (isRefObject(pathItem)) {
         return `${JSON.stringify(callbackKey)}:${makeRef(pathItem.$ref)}`
       }
-      if (!isPathItem(pathItem)) return undefined
+      if (!isRecord(pathItem)) return undefined
+      const pathItemRecord: Record<string, unknown> = pathItem
       const methods = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'] as const
       const pathItemCode = methods
         .map((method) => {
-          const operation = pathItem[method]
-          if (!operation) return undefined
+          const operation = pathItemRecord[method]
+          if (!isOperation(operation)) return undefined
+          // OpenAPI spec: parameters is [Parameter Object | Reference Object]
           const params =
             operation.parameters && operation.parameters.length > 0
               ? operation.parameters
                   .filter(isParameter)
-                  .map((param) =>
+                  .map((param: Parameter) =>
                     param.$ref
                       ? makeRef(param.$ref)
                       : zodToOpenAPI(param.schema, { parameters: { ...param } }),
@@ -555,15 +573,12 @@ export function makeCallbacks(
 export function makeContent(
   content: Content | { readonly [k: string]: Media | Reference },
 ): string[] {
-  const isMedia = (v: unknown): v is Media => typeof v === 'object' && v !== null && 'schema' in v
-
-  const isReference = (v: unknown): v is Reference =>
-    typeof v === 'object' && v !== null && '$ref' in v
+  const isMedia = (v: unknown): v is Media => isRecord(v) && 'schema' in v
 
   return Object.entries(content)
     .map(([contentType, mediaOrRef]) => {
-      // Referenc
-      if (isReference(mediaOrRef) && mediaOrRef.$ref) {
+      // Reference
+      if (isRefObject(mediaOrRef)) {
         return `'${contentType}':${makeRef(mediaOrRef.$ref)}`
       }
       // Media
@@ -784,4 +799,100 @@ export function makeRequestParams(parameters: readonly Parameter[]) {
   const paramsObject = makeParameters(parameters)
   const paramsArray = requestParamsArray(paramsObject)
   return paramsArray.length > 0 ? paramsArray.join(',') : undefined
+}
+
+/**
+ * Generates code for path-level parameters array.
+ *
+ * Per OpenAPI 3.x specification, `parameters` is an array of Parameter Object or Reference Object.
+ * This function outputs the array format: `[ParamSchema1, ParamSchema2, ...]`
+ *
+ * @see https://spec.openapis.org/oas/v3.1.0.html#parameter-object
+ * @see https://spec.openapis.org/oas/v3.1.0.html#path-item-object (parameters field)
+ *
+ * @param parameters - Array of Parameter or Reference objects
+ * @returns Array literal string like `[Schema1, Schema2]`
+ */
+export function makePathParameters(parameters: readonly (Parameter | Reference)[]) {
+  const serializeValue = (value: unknown): string => {
+    if (value === null) return 'null'
+    if (value === undefined) return 'undefined'
+    if (typeof value === 'string') return JSON.stringify(value)
+    if (typeof value === 'number' || typeof value === 'boolean') return String(value)
+
+    if (Array.isArray(value)) {
+      return `[${value.map(serializeValue).join(',')}]`
+    }
+
+    if (isRefObject(value)) {
+      return makeRef(value.$ref)
+    }
+
+    if (isRecord(value)) {
+      const entries = Object.entries(value)
+        .map(([k, v]) => `${JSON.stringify(k)}:${serializeValue(v)}`)
+        .join(',')
+      return `{${entries}}`
+    }
+    return JSON.stringify(value)
+  }
+  const items = parameters.map((param) => {
+    if (isRefObject(param)) {
+      return makeRef(param.$ref)
+    }
+    return serializeValue(param)
+  })
+  return `[${items.join(',')}]`
+}
+
+export function makeOperation(operation: Operation) {
+  const result = [
+    operation.tags ? `tags:${JSON.stringify(operation.tags)}` : undefined,
+    operation.summary ? `summary:${JSON.stringify(operation.summary)}` : undefined,
+    operation.description ? `description:${JSON.stringify(operation.description)}` : undefined,
+    operation.externalDocs ? `externalDocs:${JSON.stringify(operation.externalDocs)}` : undefined,
+    operation.operationId ? `operationId:'${operation.operationId}'` : undefined,
+    // OpenAPI spec: parameters is [Parameter Object | Reference Object]
+    operation.parameters ? `parameters:${makePathParameters(operation.parameters)}` : undefined,
+    operation.requestBody ? `requestBody:${makeRequestBody(operation.requestBody)}` : undefined,
+    operation.responses ? `responses:${makeOperationResponses(operation.responses)}` : undefined,
+    operation.callbacks ? `callbacks:{${makeCallbacks(operation.callbacks)}}` : undefined,
+    operation.deprecated ? `deprecated:${JSON.stringify(operation.deprecated)}` : undefined,
+    operation.security ? `security:${JSON.stringify(operation.security)}` : undefined,
+    operation.servers ? `servers:${JSON.stringify(operation.servers)}` : undefined,
+  ]
+    .filter((v) => v !== undefined)
+    .join(',')
+  return `{${result}}`
+}
+
+export function makePathItem(pathItem: PathItem) {
+  // Generate additionalOperations code
+  const additionalOpsCode = pathItem.additionalOperations
+    ? Object.entries(pathItem.additionalOperations)
+        .map(([opName, op]) => `${JSON.stringify(opName)}:${makeOperation(op)}`)
+        .join(',')
+    : undefined
+
+  const results = [
+    pathItem.$ref ? `$ref:${makeRef(pathItem.$ref)}` : undefined,
+    pathItem.summary ? `summary:${JSON.stringify(pathItem.summary)}` : undefined,
+    pathItem.description ? `description:${JSON.stringify(pathItem.description)}` : undefined,
+    pathItem.get ? `get:${makeOperation(pathItem.get)}` : undefined,
+    pathItem.put ? `put:${makeOperation(pathItem.put)}` : undefined,
+    pathItem.post ? `post:${makeOperation(pathItem.post)}` : undefined,
+    pathItem.delete ? `delete:${makeOperation(pathItem.delete)}` : undefined,
+    pathItem.options ? `options:${makeOperation(pathItem.options)}` : undefined,
+    pathItem.head ? `head:${makeOperation(pathItem.head)}` : undefined,
+    pathItem.patch ? `patch:${makeOperation(pathItem.patch)}` : undefined,
+    pathItem.trace ? `trace:${makeOperation(pathItem.trace)}` : undefined,
+    pathItem.query ? `query:${makeOperation(pathItem.query)}` : undefined,
+    additionalOpsCode ? `additionalOperations:{${additionalOpsCode}}` : undefined,
+    pathItem.servers ? `servers:${JSON.stringify(pathItem.servers)}` : undefined,
+    // OpenAPI spec: parameters is [Parameter Object | Reference Object]
+    pathItem.parameters ? `parameters:${makePathParameters(pathItem.parameters)}` : undefined,
+  ]
+    .filter((v) => v !== undefined)
+    .join(',')
+  return `{${results}}`
 }

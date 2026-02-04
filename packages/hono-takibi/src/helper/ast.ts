@@ -335,18 +335,22 @@ const getStatementReferences = (
   const identifiers = collectIdentifiers(statement)
   // Filter out self-references, but allow references to same-named declarations of different kind
   // e.g., type TestSchema can reference const TestSchema
-  return [...new Set(identifiers.filter((id) => {
-    if (!declNames.has(id)) return false
-    // If same name but different kind (e.g., type referencing variable), allow it
-    // For self-reference check, we only exclude if it's exactly the same declaration
-    // However, at this point we don't have kind info for the referenced decl
-    // So we need to check if this is a type/interface referencing a variable with same name
-    if (id === selfName && (selfKind === 'type' || selfKind === 'interface')) {
-      // Type/interface can reference variable with same name, so don't exclude
-      return true
-    }
-    return id !== selfName
-  }))]
+  return [
+    ...new Set(
+      identifiers.filter((id) => {
+        if (!declNames.has(id)) return false
+        // If same name but different kind (e.g., type referencing variable), allow it
+        // For self-reference check, we only exclude if it's exactly the same declaration
+        // However, at this point we don't have kind info for the referenced decl
+        // So we need to check if this is a type/interface referencing a variable with same name
+        if (id === selfName && (selfKind === 'type' || selfKind === 'interface')) {
+          // Type/interface can reference variable with same name, so don't exclude
+          return true
+        }
+        return id !== selfName
+      }),
+    ),
+  ]
 }
 
 const parseStatements = (
@@ -365,7 +369,7 @@ const parseStatements = (
     .map((statement): ReturnType<typeof createDeclaration> | undefined => {
       const name = getDeclarationName(statement)
       const kind = getDeclarationKind(statement)
-      if (!name || !kind) return undefined
+      if (!(name && kind)) return undefined
 
       const fullText = statement.getText(sourceFile)
       const refs = getStatementReferences(statement, declNames, name, kind)
@@ -384,7 +388,9 @@ const topoSort = (
 
   // For dependency resolution, prefer variable declarations (since types reference variables)
   const findByName = (name: string): ReturnType<typeof createDeclaration> | undefined =>
-    map.get(makeKey('variable', name)) ?? map.get(makeKey('type', name)) ?? map.get(makeKey('interface', name))
+    map.get(makeKey('variable', name)) ??
+    map.get(makeKey('type', name)) ??
+    map.get(makeKey('interface', name))
 
   const visit = (
     key: string,

@@ -99,3 +99,27 @@ export function isSchemaArray(items: Schema | readonly Schema[]): items is reado
 export function isValidIdent(s: string): boolean {
   return /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(s)
 }
+
+/**
+ * Type guard for RequestBody or Reference objects.
+ */
+export function isRequestBodyOrRef(
+  v: unknown,
+): v is { content?: unknown; required?: boolean } | { $ref: string } {
+  if (!isRecord(v)) return false
+  return '$ref' in v || 'content' in v
+}
+
+/**
+ * Type guard for responses object (status code -> response mapping).
+ */
+export function isResponsesObject(v: unknown): v is Record<string, unknown> {
+  return isRecord(v)
+}
+
+/**
+ * Type guard for callbacks object.
+ */
+export function isCallbacksObject(v: unknown): v is Record<string, unknown> {
+  return isRecord(v)
+}
