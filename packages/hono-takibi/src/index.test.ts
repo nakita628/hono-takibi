@@ -2259,14 +2259,16 @@ export const getUsersIdRoute = createRoute({
     })
 
     const callbacksIndex = fs.readFileSync(path.join(testDir, 'src/callbacks/index.ts'), 'utf-8')
-    expect(callbacksIndex).toBe(`export * from './onEvent.ts'\n`)
+    expect(callbacksIndex).toBe(`export * from './onEvent'\n`)
 
     const onEventFile = fs.readFileSync(path.join(testDir, 'src/callbacks/onEvent.ts'), 'utf-8')
-    expect(onEventFile).toBe(`export const OnEventCallback = {
+    expect(onEventFile).toBe(`import { z } from '@hono/zod-openapi'
+
+export const OnEventCallback = {
   '{$request.body#/callbackUrl}': {
     post: {
-      requestBody: { content: { 'application/json': { schema: { type: 'object' } } } },
-      responses: { '200': { description: 'OK' } },
+      requestBody: { content: { 'application/json': { schema: z.object({}) } } },
+      responses: { 200: { description: 'OK' } },
     },
   },
 }

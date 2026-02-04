@@ -12,14 +12,14 @@ export const UserPathItem = {
     tags: ['Users'],
     summary: 'Get user by id (reusable pathItem)',
     operationId: 'getUserByIdPathItem',
-    request: { parameters: [UserIdPathParamParamsSchema, TraceIdHeaderParamParamsSchema] },
+    parameters: [UserIdPathParamParamsSchema, TraceIdHeaderParamParamsSchema],
     responses: { 200: UserResponse, 404: NotFoundResponse, default: DefaultErrorResponse },
   },
   delete: {
     tags: ['Users'],
     summary: 'Delete user (reusable pathItem)',
     operationId: 'deleteUserPathItem',
-    request: { parameters: [UserIdPathParamParamsSchema, TraceIdHeaderParamParamsSchema] },
+    parameters: [UserIdPathParamParamsSchema, TraceIdHeaderParamParamsSchema],
     responses: {
       204: { description: 'Deleted' },
       404: NotFoundResponse,
@@ -30,10 +30,8 @@ export const UserPathItem = {
     tags: ['Users'],
     summary: 'Update user (reusable pathItem)',
     operationId: 'updateUserPathItem',
-    request: {
-      parameters: [UserIdPathParamParamsSchema, TraceIdHeaderParamParamsSchema],
-      body: UpdateUserRequestRequestBody,
-    },
+    parameters: [UserIdPathParamParamsSchema, TraceIdHeaderParamParamsSchema],
+    requestBody: UpdateUserRequestRequestBody,
     responses: {
       200: UserResponse,
       400: ValidationErrorResponse,

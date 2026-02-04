@@ -1,10 +1,10 @@
 import { z } from '@hono/zod-openapi'
-import { AddressSchema } from './address'
-import { CompanySchema } from './company'
 import { EntitySchema } from './entity'
+import { CompanySchema } from './company'
+import { AddressSchema } from './address'
+import { UserPreferencesSchema } from './userPreferences'
 import { OrderSchema } from './order'
 import { ResourceLinksSchema } from './resourceLinks'
-import { UserPreferencesSchema } from './userPreferences'
 
 type UserType = z.infer<typeof EntitySchema> & {
   name: string

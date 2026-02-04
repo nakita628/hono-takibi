@@ -40,6 +40,7 @@ export {
   resolveSplitOutDir,
 } from './hono-rpc.js'
 export {
+  makeCallback,
   makeCallbacks,
   makeContent,
   makeEncoding,

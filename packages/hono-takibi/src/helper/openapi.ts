@@ -23,7 +23,13 @@
  * @module helper/openapi
  */
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
-import { isRecord, isRefObject } from '../guard/index.js'
+import {
+  isCallbacksObject,
+  isRecord,
+  isRefObject,
+  isRequestBodyOrRef,
+  isResponsesObject,
+} from '../guard/index.js'
 import type {
   Callbacks,
   Content,
@@ -237,13 +243,12 @@ export function makeExamples(examples: {
  * // → '{200:{description:"Success",content:{...}},"default":{description:"Error"}}'
  * ```
  */
-export function makeOperationResponses(responses: Operation['responses']) {
+export function makeOperationResponses(responses: Operation['responses'] | Record<string, unknown>) {
   const result = Object.entries(responses)
     .map(
       ([statusCode, res]) =>
-        `${/^\d+$/.test(statusCode) ? statusCode : `'${statusCode}'`}:${makeResponses(res)}`,
+        `${/^\d+$/.test(statusCode) ? statusCode : `'${statusCode}'`}:${makeResponses(res as Responses)}`,
     )
-    // .map(([statusCode, res]) => `${JSON.stringify(statusCode)}:${makeResponses(res)}`)
     .join(',')
   return `{${result}}`
 }
@@ -411,7 +416,9 @@ export function makeLinkOrReference(linkOrReference: Link | Reference) {
  * @param callbacks - The callbacks object from an operation.
  * @returns Callbacks code string or undefined if no callbacks.
  */
-export function makeOperationCallbacks(callbacks: Operation['callbacks']) {
+export function makeOperationCallbacks(
+  callbacks: Operation['callbacks'] | Record<string, unknown> | undefined,
+) {
   if (!callbacks) return undefined
   const result = Object.entries(callbacks)
     .map(([callbackName, callbackRef]) => {
@@ -454,6 +461,75 @@ export function makeOperationCallbacks(callbacks: Operation['callbacks']) {
  * // → '"onPaymentComplete":{post:{requestBody:{...},responses:{...}}}'
  * ```
  */
+export function makeCallback(callback: Record<string, unknown>): string {
+  const methods = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'] as const
+  const isParameter = (v: unknown): v is Parameter =>
+    isRecord(v) && 'name' in v && 'in' in v && 'schema' in v
+
+  return Object.entries(callback)
+    .map(([pathExpression, pathItem]) => {
+      if (!isRecord(pathItem)) return undefined
+
+      const pathItemCode = methods
+        .map((method) => {
+          const operation = pathItem[method]
+          if (!operation || !isRecord(operation)) return undefined
+
+          const params =
+            operation.parameters && Array.isArray(operation.parameters)
+              ? operation.parameters
+                  .map((param) => {
+                    if (isRefObject(param)) {
+                      return makeRef(param.$ref)
+                    }
+                    if (isParameter(param)) {
+                      return zodToOpenAPI(param.schema, { parameters: { ...param } })
+                    }
+                    return undefined
+                  })
+                  .filter(Boolean)
+              : undefined
+          const parametersCode = params && params.length > 0 ? `[${params.join(',')}]` : undefined
+
+          const result = [
+            operation.tags ? `tags:${JSON.stringify(operation.tags)}` : undefined,
+            operation.summary ? `summary:${JSON.stringify(operation.summary)}` : undefined,
+            operation.description
+              ? `description:${JSON.stringify(operation.description)}`
+              : undefined,
+            operation.externalDocs
+              ? `externalDocs:${JSON.stringify(operation.externalDocs)}`
+              : undefined,
+            operation.operationId
+              ? `operationId:${JSON.stringify(operation.operationId)}`
+              : undefined,
+            parametersCode ? `parameters:${parametersCode}` : undefined,
+            isRequestBodyOrRef(operation.requestBody)
+              ? `requestBody:${makeRequestBody(operation.requestBody)}`
+              : undefined,
+            isResponsesObject(operation.responses)
+              ? `responses:${makeOperationResponses(operation.responses)}`
+              : undefined,
+            isCallbacksObject(operation.callbacks)
+              ? `callbacks:${makeOperationCallbacks(operation.callbacks)}`
+              : undefined,
+            operation.deprecated ? `deprecated:${JSON.stringify(operation.deprecated)}` : undefined,
+            operation.security ? `security:${JSON.stringify(operation.security)}` : undefined,
+            operation.servers ? `servers:${JSON.stringify(operation.servers)}` : undefined,
+          ]
+            .filter((v) => v !== undefined)
+            .join(',')
+          return `${method}:{${result}}`
+        })
+        .filter((v) => v !== undefined)
+        .join(',')
+
+      return pathItemCode ? `${JSON.stringify(pathExpression)}:{${pathItemCode}}` : undefined
+    })
+    .filter((v) => v !== undefined)
+    .join(',')
+}
+
 export function makeCallbacks(
   callbacks:
     | Callbacks

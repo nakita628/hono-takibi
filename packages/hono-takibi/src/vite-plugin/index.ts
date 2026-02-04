@@ -380,6 +380,7 @@ const runAllGenerationTasks = async (configuration: Configuration): Promise<{ lo
         openAPI.components?.callbacks,
         outputDirectory,
         callbacksConfig.split === true,
+        configuration['zod-openapi']?.components,
       )
       if (!callbacksResult.ok) return `❌ callbacks: ${callbacksResult.error}`
       return `✅ callbacks${callbacksConfig.split === true ? '(split)' : ''} -> ${outputDirectory}`

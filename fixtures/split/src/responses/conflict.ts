@@ -1,6 +1,6 @@
 import { z } from '@hono/zod-openapi'
-import { TraceIdHeaderHeaderSchema } from '../headers'
 import { ProblemDetailsSchema } from '../schemas'
+import { TraceIdHeaderHeaderSchema } from '../headers'
 
 export const ConflictResponse = {
   description: 'Conflict',

@@ -1768,6 +1768,193 @@ components:
           default:
             $ref: "#/components/responses/DefaultError"
 
+    # Complex PathItem for testing edge cases
+    ComplexPathItem:
+      summary: Complex pathItem for testing all features
+      description: This pathItem tests query, additionalOperations, and various edge cases
+      parameters:
+        - $ref: "#/components/parameters/TraceIdHeaderParam"
+        - name: include
+          in: query
+          description: Fields to include
+          schema:
+            type: array
+            items:
+              type: string
+              enum: [metadata, relations, history]
+      get:
+        tags: [Complex]
+        operationId: getComplexResource
+        summary: Get complex resource
+        deprecated: true
+        externalDocs:
+          description: External documentation
+          url: https://example.com/docs
+        parameters:
+          - name: resourceId
+            in: path
+            required: true
+            schema:
+              type: string
+              format: uuid
+          - name: fields
+            in: query
+            description: Sparse fieldset
+            style: form
+            explode: true
+            schema:
+              type: array
+              items:
+                type: string
+        responses:
+          "200":
+            description: Success
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/User"
+          "404":
+            $ref: "#/components/responses/NotFound"
+        security:
+          - BearerAuth: []
+          - OAuth2: [read:users]
+      post:
+        tags: [Complex]
+        operationId: createComplexResource
+        summary: Create complex resource
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+            multipart/form-data:
+              schema:
+                type: object
+                properties:
+                  file:
+                    type: string
+                    format: binary
+                  metadata:
+                    type: string
+              encoding:
+                file:
+                  contentType: image/png, image/jpeg
+        responses:
+          "201":
+            description: Created
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/User"
+          "400":
+            $ref: "#/components/responses/ValidationError"
+        callbacks:
+          onCreated:
+            "{$request.body#/callbackUrl}":
+              post:
+                requestBody:
+                  required: true
+                  content:
+                    application/json:
+                      schema:
+                        type: object
+                        properties:
+                          status:
+                            type: string
+                          resourceId:
+                            type: string
+                responses:
+                  "200":
+                    description: Callback acknowledged
+      put:
+        tags: [Complex]
+        operationId: replaceComplexResource
+        summary: Replace complex resource
+        parameters:
+          - name: resourceId
+            in: path
+            required: true
+            schema:
+              type: string
+        requestBody:
+          $ref: "#/components/requestBodies/UpdateUserRequest"
+        responses:
+          "200":
+            description: Replaced
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/User"
+      delete:
+        tags: [Complex]
+        operationId: deleteComplexResource
+        summary: Delete complex resource
+        responses:
+          "204":
+            description: Deleted
+      options:
+        tags: [Complex]
+        operationId: optionsComplexResource
+        summary: Get allowed methods
+        responses:
+          "200":
+            description: Allowed methods
+            headers:
+              Allow:
+                schema:
+                  type: string
+      head:
+        tags: [Complex]
+        operationId: headComplexResource
+        summary: Check resource exists
+        responses:
+          "200":
+            description: Exists
+          "404":
+            description: Not found
+      patch:
+        tags: [Complex]
+        operationId: patchComplexResource
+        summary: Patch complex resource
+        requestBody:
+          required: true
+          content:
+            application/json-patch+json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  required: [op, path]
+                  properties:
+                    op:
+                      type: string
+                      enum: [add, remove, replace, move, copy, test]
+                    path:
+                      type: string
+                    value: {}
+        responses:
+          "200":
+            description: Patched
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/User"
+      trace:
+        tags: [Complex]
+        operationId: traceComplexResource
+        summary: Trace request
+        responses:
+          "200":
+            description: Trace response
+            content:
+              message/http:
+                schema:
+                  type: string
+      servers:
+        - url: https://complex.example.com
+          description: Complex resource server
+
 webhooks:
   newUserRegistered:
     post:

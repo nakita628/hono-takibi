@@ -1,6 +1,6 @@
 import { z } from '@hono/zod-openapi'
-import { UserPrefsExample } from '../examples'
 import { ProblemDetailsSchema, UserPreferencesSchema, UserSchema } from '../schemas'
+import { UserPrefsExample } from '../examples'
 
 export const UpdateUserRequestRequestBody = {
   content: {

@@ -1,6 +1,6 @@
 import { z } from '@hono/zod-openapi'
-import { DefaultErrorResponse } from '../responses'
 import { OrderEventPayloadSchema } from '../schemas'
+import { DefaultErrorResponse } from '../responses'
 
 export const orderStatusChangedPostWebhook = {
   method: 'post',

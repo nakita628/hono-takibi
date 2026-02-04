@@ -1,6 +1,6 @@
-import { makeConst } from "../../../../helper/code.js"
-import { makePathItem } from "../../../../helper/openapi.js"
-import type { Components, PathItem } from "../../../../openapi/index.js"
+import { makeConst } from '../../../../helper/code.js'
+import { makePathItem } from '../../../../helper/openapi.js'
+import type { Components, PathItem } from '../../../../openapi/index.js'
 
 /**
  * Generates TypeScript code for OpenAPI component pathItems.

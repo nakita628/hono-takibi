@@ -1,5 +1,5 @@
 import { makeConst } from '../../../../helper/code.js'
-import { makeCallbacks } from '../../../../helper/index.js'
+import { makeCallback } from '../../../../helper/index.js'
 import type { Callbacks, Components } from '../../../../openapi/index.js'
 
 /**
@@ -36,7 +36,7 @@ export function callbacksCode(
   return Object.entries(callbacks)
     .map(([k, callbackOrRef]) => {
       if (!isCallbacks(callbackOrRef)) return undefined
-      const callbackCode = makeCallbacks(callbackOrRef)
+      const callbackCode = makeCallback(callbackOrRef as Record<string, unknown>)
       return callbackCode
         ? `${makeConst(exportCallbacks, k, 'Callback')}{${callbackCode}}${asConst}`
         : undefined

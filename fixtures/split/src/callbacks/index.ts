@@ -1,2 +1,2 @@
-export * from './orderCreatedCallback.ts'
-export * from './subscriptionLifecycleCallback.ts'
+export * from './orderCreatedCallback'
+export * from './subscriptionLifecycleCallback'

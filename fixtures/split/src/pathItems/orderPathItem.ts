@@ -1,4 +1,5 @@
 import { z } from '@hono/zod-openapi'
+import { OrderStatusSchema } from '../schemas'
 import { OrderIdPathParamParamsSchema, TraceIdHeaderParamParamsSchema } from '../parameters'
 import {
   DefaultErrorResponse,
@@ -6,28 +7,25 @@ import {
   OrderResponse,
   ValidationErrorResponse,
 } from '../responses'
-import { OrderStatusSchema } from '../schemas'
 
 export const OrderPathItem = {
   get: {
     tags: ['Orders'],
     summary: 'Get order by id (reusable pathItem)',
     operationId: 'getOrderByIdPathItem',
-    request: { parameters: [OrderIdPathParamParamsSchema, TraceIdHeaderParamParamsSchema] },
+    parameters: [OrderIdPathParamParamsSchema, TraceIdHeaderParamParamsSchema],
     responses: { 200: OrderResponse, 404: NotFoundResponse, default: DefaultErrorResponse },
   },
   patch: {
     tags: ['Orders'],
     summary: 'Update order status (reusable pathItem)',
     operationId: 'updateOrderPathItem',
-    request: {
-      parameters: [OrderIdPathParamParamsSchema, TraceIdHeaderParamParamsSchema],
-      body: {
-        content: {
-          'application/json': { schema: z.object({ status: OrderStatusSchema.exactOptional() }) },
-        },
-        required: true,
+    parameters: [OrderIdPathParamParamsSchema, TraceIdHeaderParamParamsSchema],
+    requestBody: {
+      content: {
+        'application/json': { schema: z.object({ status: OrderStatusSchema.exactOptional() }) },
       },
+      required: true,
     },
     responses: {
       200: OrderResponse,

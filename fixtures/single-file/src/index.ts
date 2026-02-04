@@ -1082,10 +1082,13 @@ const ValidationErrorResponse = {
   },
 }
 
-const WwwAuthenticateHeaderHeaderSchema = z.string().exactOptional().openapi({
-  description: 'WWW-Authenticate for Bearer',
-  example: 'Bearer realm="inferno", error="invalid_token"',
-})
+const WwwAuthenticateHeaderHeaderSchema = z
+  .string()
+  .exactOptional()
+  .openapi({
+    description: 'WWW-Authenticate for Bearer',
+    example: 'Bearer realm="inferno", error="invalid_token"',
+  })
 
 const ProblemUnauthorizedExample = {
   value: {
@@ -1403,6 +1406,7 @@ const SubscriptionLifecycleCallback = {
     post: {
       summary: 'Subscription lifecycle callback',
       operationId: 'onSubscriptionEvent',
+      parameters: [TraceIdHeaderParamParamsSchema],
       requestBody: WebhookEventRequestRequestBody,
       responses: {
         200: {
@@ -1453,14 +1457,14 @@ const UserPathItem = {
     tags: ['Users'],
     summary: 'Get user by id (reusable pathItem)',
     operationId: 'getUserByIdPathItem',
-    request: { parameters: [UserIdPathParamParamsSchema, TraceIdHeaderParamParamsSchema] },
+    parameters: [UserIdPathParamParamsSchema, TraceIdHeaderParamParamsSchema],
     responses: { 200: UserResponse, 404: NotFoundResponse, default: DefaultErrorResponse },
   },
   delete: {
     tags: ['Users'],
     summary: 'Delete user (reusable pathItem)',
     operationId: 'deleteUserPathItem',
-    request: { parameters: [UserIdPathParamParamsSchema, TraceIdHeaderParamParamsSchema] },
+    parameters: [UserIdPathParamParamsSchema, TraceIdHeaderParamParamsSchema],
     responses: {
       204: { description: 'Deleted' },
       404: NotFoundResponse,
@@ -1471,10 +1475,8 @@ const UserPathItem = {
     tags: ['Users'],
     summary: 'Update user (reusable pathItem)',
     operationId: 'updateUserPathItem',
-    request: {
-      parameters: [UserIdPathParamParamsSchema, TraceIdHeaderParamParamsSchema],
-      body: UpdateUserRequestRequestBody,
-    },
+    parameters: [UserIdPathParamParamsSchema, TraceIdHeaderParamParamsSchema],
+    requestBody: UpdateUserRequestRequestBody,
     responses: {
       200: UserResponse,
       400: ValidationErrorResponse,
@@ -1489,21 +1491,19 @@ const OrderPathItem = {
     tags: ['Orders'],
     summary: 'Get order by id (reusable pathItem)',
     operationId: 'getOrderByIdPathItem',
-    request: { parameters: [OrderIdPathParamParamsSchema, TraceIdHeaderParamParamsSchema] },
+    parameters: [OrderIdPathParamParamsSchema, TraceIdHeaderParamParamsSchema],
     responses: { 200: OrderResponse, 404: NotFoundResponse, default: DefaultErrorResponse },
   },
   patch: {
     tags: ['Orders'],
     summary: 'Update order status (reusable pathItem)',
     operationId: 'updateOrderPathItem',
-    request: {
-      parameters: [OrderIdPathParamParamsSchema, TraceIdHeaderParamParamsSchema],
-      body: {
-        content: {
-          'application/json': { schema: z.object({ status: OrderStatusSchema.exactOptional() }) },
-        },
-        required: true,
+    parameters: [OrderIdPathParamParamsSchema, TraceIdHeaderParamParamsSchema],
+    requestBody: {
+      content: {
+        'application/json': { schema: z.object({ status: OrderStatusSchema.exactOptional() }) },
       },
+      required: true,
     },
     responses: {
       200: OrderResponse,
@@ -1512,6 +1512,159 @@ const OrderPathItem = {
       default: DefaultErrorResponse,
     },
   },
+}
+
+const ComplexPathItem = {
+  summary: 'Complex pathItem for testing all features',
+  description: 'This pathItem tests query, additionalOperations, and various edge cases',
+  get: {
+    tags: ['Complex'],
+    summary: 'Get complex resource',
+    externalDocs: { description: 'External documentation', url: 'https://example.com/docs' },
+    operationId: 'getComplexResource',
+    parameters: [
+      {
+        name: 'resourceId',
+        in: 'path',
+        required: true,
+        schema: { type: 'string', format: 'uuid' },
+      },
+      {
+        name: 'fields',
+        in: 'query',
+        description: 'Sparse fieldset',
+        style: 'form',
+        explode: true,
+        schema: { type: 'array', items: { type: 'string' } },
+      },
+    ],
+    responses: {
+      200: { description: 'Success', content: { 'application/json': { schema: UserSchema } } },
+      404: NotFoundResponse,
+    },
+    deprecated: true,
+    security: [{ BearerAuth: [] }, { OAuth2: ['read:users'] }],
+  },
+  put: {
+    tags: ['Complex'],
+    summary: 'Replace complex resource',
+    operationId: 'replaceComplexResource',
+    parameters: [{ name: 'resourceId', in: 'path', required: true, schema: { type: 'string' } }],
+    requestBody: UpdateUserRequestRequestBody,
+    responses: {
+      200: { description: 'Replaced', content: { 'application/json': { schema: UserSchema } } },
+    },
+  },
+  post: {
+    tags: ['Complex'],
+    summary: 'Create complex resource',
+    operationId: 'createComplexResource',
+    requestBody: {
+      content: {
+        'application/json': { schema: UserSchema },
+        'multipart/form-data': {
+          schema: z.object({
+            file: z.file().exactOptional(),
+            metadata: z.string().exactOptional(),
+          }),
+          encoding: { file: { contentType: 'image/png, image/jpeg' } },
+        },
+      },
+      required: true,
+    },
+    responses: {
+      201: { description: 'Created', content: { 'application/json': { schema: UserSchema } } },
+      400: ValidationErrorResponse,
+    },
+    callbacks: {
+      onCreated: {
+        '{$request.body#/callbackUrl}': {
+          post: {
+            requestBody: {
+              content: {
+                'application/json': {
+                  schema: z.object({
+                    status: z.string().exactOptional(),
+                    resourceId: z.string().exactOptional(),
+                  }),
+                },
+              },
+              required: true,
+            },
+            responses: { 200: { description: 'Callback acknowledged' } },
+          },
+        },
+      },
+    },
+  },
+  delete: {
+    tags: ['Complex'],
+    summary: 'Delete complex resource',
+    operationId: 'deleteComplexResource',
+    responses: { 204: { description: 'Deleted' } },
+  },
+  options: {
+    tags: ['Complex'],
+    summary: 'Get allowed methods',
+    operationId: 'optionsComplexResource',
+    responses: {
+      200: {
+        description: 'Allowed methods',
+        headers: z.object({ Allow: { schema: z.string().exactOptional() } }),
+      },
+    },
+  },
+  head: {
+    tags: ['Complex'],
+    summary: 'Check resource exists',
+    operationId: 'headComplexResource',
+    responses: { 200: { description: 'Exists' }, 404: { description: 'Not found' } },
+  },
+  patch: {
+    tags: ['Complex'],
+    summary: 'Patch complex resource',
+    operationId: 'patchComplexResource',
+    requestBody: {
+      content: {
+        'application/json-patch+json': {
+          schema: z.array(
+            z
+              .object({
+                op: z.enum(['add', 'remove', 'replace', 'move', 'copy', 'test']),
+                path: z.string(),
+                value: z.any().exactOptional(),
+              })
+              .openapi({ required: ['op', 'path'] }),
+          ),
+        },
+      },
+      required: true,
+    },
+    responses: {
+      200: { description: 'Patched', content: { 'application/json': { schema: UserSchema } } },
+    },
+  },
+  trace: {
+    tags: ['Complex'],
+    summary: 'Trace request',
+    operationId: 'traceComplexResource',
+    responses: {
+      200: { description: 'Trace response', content: { 'message/http': { schema: z.string() } } },
+    },
+  },
+  servers: [{ url: 'https://complex.example.com', description: 'Complex resource server' }],
+  parameters: [
+    TraceIdHeaderParamParamsSchema,
+    {
+      name: 'include',
+      in: 'query',
+      description: 'Fields to include',
+      schema: {
+        type: 'array',
+        items: { type: 'string', enum: ['metadata', 'relations', 'history'] },
+      },
+    },
+  ],
 }
 
 export const postAuthTokenRoute = createRoute({
