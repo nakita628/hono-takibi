@@ -23,13 +23,7 @@
  * @module helper/openapi
  */
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
-import {
-  isCallbacksObject,
-  isRecord,
-  isRefObject,
-  isRequestBodyOrRef,
-  isResponsesObject,
-} from '../guard/index.js'
+import { isRecord, isRefObject } from '../guard/index.js'
 import type {
   Callbacks,
   Content,
@@ -422,14 +416,15 @@ export function makeOperationCallbacks(
   if (!callbacks) return undefined
   const result = Object.entries(callbacks)
     .map(([callbackName, callbackRef]) => {
-      if (callbackRef.$ref) {
+      if (!isRecord(callbackRef)) return undefined
+      if (isRefObject(callbackRef)) {
         return `${JSON.stringify(callbackName)}:${makeRef(callbackRef.$ref)}`
       }
+      const summary = callbackRef.summary
+      const description = callbackRef.description
       const result = [
-        callbackRef.summary ? `summary:${JSON.stringify(callbackRef.summary)}` : undefined,
-        callbackRef.description
-          ? `description:${JSON.stringify(callbackRef.description)}`
-          : undefined,
+        typeof summary === 'string' ? `summary:${JSON.stringify(summary)}` : undefined,
+        typeof description === 'string' ? `description:${JSON.stringify(description)}` : undefined,
       ]
         .filter((v) => v !== undefined)
         .join(',')
@@ -461,70 +456,14 @@ export function makeOperationCallbacks(
  * // → '"onPaymentComplete":{post:{requestBody:{...},responses:{...}}}'
  * ```
  */
-export function makeCallback(callback: Record<string, unknown>): string {
-  const methods = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'] as const
-  const isParameter = (v: unknown): v is Parameter =>
-    isRecord(v) && 'name' in v && 'in' in v && 'schema' in v
-
+export function makeCallback(callback: Callbacks): string {
   return Object.entries(callback)
-    .map(([pathExpression, pathItem]) => {
-      if (!isRecord(pathItem)) return undefined
-
-      const pathItemCode = methods
-        .map((method) => {
-          const operation = pathItem[method]
-          if (!operation || !isRecord(operation)) return undefined
-
-          const params =
-            operation.parameters && Array.isArray(operation.parameters)
-              ? operation.parameters
-                  .map((param) => {
-                    if (isRefObject(param)) {
-                      return makeRef(param.$ref)
-                    }
-                    if (isParameter(param)) {
-                      return zodToOpenAPI(param.schema, { parameters: { ...param } })
-                    }
-                    return undefined
-                  })
-                  .filter(Boolean)
-              : undefined
-          const parametersCode = params && params.length > 0 ? `[${params.join(',')}]` : undefined
-
-          const result = [
-            operation.tags ? `tags:${JSON.stringify(operation.tags)}` : undefined,
-            operation.summary ? `summary:${JSON.stringify(operation.summary)}` : undefined,
-            operation.description
-              ? `description:${JSON.stringify(operation.description)}`
-              : undefined,
-            operation.externalDocs
-              ? `externalDocs:${JSON.stringify(operation.externalDocs)}`
-              : undefined,
-            operation.operationId
-              ? `operationId:${JSON.stringify(operation.operationId)}`
-              : undefined,
-            parametersCode ? `parameters:${parametersCode}` : undefined,
-            isRequestBodyOrRef(operation.requestBody)
-              ? `requestBody:${makeRequestBody(operation.requestBody)}`
-              : undefined,
-            isResponsesObject(operation.responses)
-              ? `responses:${makeOperationResponses(operation.responses)}`
-              : undefined,
-            isCallbacksObject(operation.callbacks)
-              ? `callbacks:${makeOperationCallbacks(operation.callbacks)}`
-              : undefined,
-            operation.deprecated ? `deprecated:${JSON.stringify(operation.deprecated)}` : undefined,
-            operation.security ? `security:${JSON.stringify(operation.security)}` : undefined,
-            operation.servers ? `servers:${JSON.stringify(operation.servers)}` : undefined,
-          ]
-            .filter((v) => v !== undefined)
-            .join(',')
-          return `${method}:{${result}}`
-        })
-        .filter((v) => v !== undefined)
-        .join(',')
-
-      return pathItemCode ? `${JSON.stringify(pathExpression)}:{${pathItemCode}}` : undefined
+    .map(([callbackKey, pathItem]) => {
+      if (isRefObject(pathItem)) {
+        return `${JSON.stringify(callbackKey)}:${makeRef(pathItem.$ref)}`
+      }
+      const pathItemCode = makePathItem(pathItem)
+      return `${JSON.stringify(callbackKey)}:${pathItemCode}`
     })
     .filter((v) => v !== undefined)
     .join(',')
@@ -544,6 +483,8 @@ export function makeCallbacks(
   const isParameter = (v: unknown): v is Parameter =>
     isRecord(v) && 'name' in v && 'in' in v && 'schema' in v
 
+  const isOperation = (v: unknown): v is Operation => isRecord(v) && 'responses' in v
+
   return Object.entries(callbacks)
     .map(([callbackKey, pathItem]) => {
       // Handle $ref to components/callbacks
@@ -551,16 +492,17 @@ export function makeCallbacks(
         return `${JSON.stringify(callbackKey)}:${makeRef(pathItem.$ref)}`
       }
       if (!isRecord(pathItem)) return undefined
+      const pathItemRecord: Record<string, unknown> = pathItem
       const methods = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'] as const
       const pathItemCode = methods
         .map((method) => {
-          const operation = pathItem[method]
-          if (!operation) return undefined
+          const operation = pathItemRecord[method]
+          if (!isOperation(operation)) return undefined
           const params =
             operation.parameters && operation.parameters.length > 0
               ? operation.parameters
                   .filter(isParameter)
-                  .map((param) =>
+                  .map((param: Parameter) =>
                     param.$ref
                       ? makeRef(param.$ref)
                       : zodToOpenAPI(param.schema, { parameters: { ...param } }),
@@ -591,7 +533,9 @@ export function makeCallbacks(
             operation.callbacks
               ? `callbacks:${makeOperationCallbacks(operation.callbacks)}`
               : undefined,
-            operation.deprecated ? `deprecated:${JSON.stringify(operation.deprecated)}` : undefined,
+            operation.deprecated
+              ? `deprecated:${JSON.stringify(operation.deprecated)}`
+              : undefined,
             operation.security ? `security:${JSON.stringify(operation.security)}` : undefined,
             operation.servers ? `servers:${JSON.stringify(operation.servers)}` : undefined,
           ]

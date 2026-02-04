@@ -36,7 +36,7 @@ export function callbacksCode(
   return Object.entries(callbacks)
     .map(([k, callbackOrRef]) => {
       if (!isCallbacks(callbackOrRef)) return undefined
-      const callbackCode = makeCallback(callbackOrRef as Record<string, unknown>)
+      const callbackCode = makeCallback(callbackOrRef)
       return callbackCode
         ? `${makeConst(exportCallbacks, k, 'Callback')}{${callbackCode}}${asConst}`
         : undefined
