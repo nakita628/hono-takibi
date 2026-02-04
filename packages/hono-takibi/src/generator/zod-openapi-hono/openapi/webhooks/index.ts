@@ -38,7 +38,8 @@ export function webhookCode(openapi: OpenAPI, readonly?: boolean): string {
         ? (['get', 'put', 'post', 'delete', 'patch', 'options', 'head', 'trace'] as const)
             .filter((m) => pathItem[m]?.responses)
             .map((method) => {
-              const operation = pathItem[method]!
+              const operation = pathItem[method]
+              if (!operation) return undefined
               const params = [...(pathItem.parameters ?? []), ...(operation.parameters ?? [])]
                 .map(resolve)
                 .filter((p) => p !== undefined)
@@ -49,6 +50,7 @@ export function webhookCode(openapi: OpenAPI, readonly?: boolean): string {
                 readonly,
               )
             })
+            .filter((v) => v !== undefined)
         : [],
     )
     .filter(Boolean)
