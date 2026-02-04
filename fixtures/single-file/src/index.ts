@@ -643,6 +643,461 @@ const SearchFilterSchema = z
   })
   .openapi('SearchFilter')
 
+const TraceIdHeaderHeaderSchema = TraceIdSchema.exactOptional().openapi({
+  description: 'Trace id header component (same concept as parameter)',
+  example: 'trace-01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
+})
+
+const ProblemGenericExample = {
+  value: {
+    type: 'https://errors.inferno.example/problem/generic',
+    title: 'Something went wrong',
+    status: 500,
+    traceId: 'trace-01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
+    causes: [
+      { type: 'https://errors.inferno.example/problem/inner', title: 'Inner failure', status: 500 },
+    ],
+  },
+}
+
+const DefaultErrorResponse = {
+  description: 'Default error wrapper -> points to ProblemDetails',
+  headers: z.object({ 'x-trace-id': TraceIdHeaderHeaderSchema }),
+  content: {
+    'application/problem+json': {
+      schema: ProblemDetailsSchema,
+      examples: { generic: ProblemGenericExample },
+    },
+  },
+}
+
+const ProblemValidationExample = {
+  value: {
+    type: 'https://errors.inferno.example/problem/validation',
+    title: 'Validation error',
+    status: 400,
+    traceId: 'trace-01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
+    errors: [
+      {
+        path: 'email',
+        message: 'Invalid email',
+        nested: { path: 'email.domain', message: 'Domain is not allowed' },
+      },
+    ],
+  },
+}
+
+const ValidationErrorResponse = {
+  description: 'Validation error -> points to ValidationProblemDetails',
+  headers: z.object({ 'x-trace-id': TraceIdHeaderHeaderSchema }),
+  content: {
+    'application/problem+json': {
+      schema: ValidationProblemDetailsSchema,
+      examples: { invalid: ProblemValidationExample },
+    },
+  },
+}
+
+const WwwAuthenticateHeaderHeaderSchema = z
+  .string()
+  .exactOptional()
+  .openapi({
+    description: 'WWW-Authenticate for Bearer',
+    example: 'Bearer realm="inferno", error="invalid_token"',
+  })
+
+const ProblemUnauthorizedExample = {
+  value: {
+    type: 'https://errors.inferno.example/problem/unauthorized',
+    title: 'Unauthorized',
+    status: 401,
+    traceId: 'trace-01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
+  },
+}
+
+const UnauthorizedResponse = {
+  description: 'Unauthorized',
+  headers: z.object({
+    'x-trace-id': TraceIdHeaderHeaderSchema,
+    'www-authenticate': WwwAuthenticateHeaderHeaderSchema,
+  }),
+  content: {
+    'application/problem+json': {
+      schema: ProblemDetailsSchema,
+      examples: { unauthorized: ProblemUnauthorizedExample },
+    },
+  },
+}
+
+const ConflictResponse = {
+  description: 'Conflict',
+  headers: z.object({ 'x-trace-id': TraceIdHeaderHeaderSchema }),
+  content: { 'application/problem+json': { schema: ProblemDetailsSchema } },
+}
+
+const ProblemNotFoundExample = {
+  value: {
+    type: 'https://errors.inferno.example/problem/notfound',
+    title: 'Not found',
+    status: 404,
+    traceId: 'trace-01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
+  },
+}
+
+const NotFoundResponse = {
+  description: 'Not Found',
+  headers: z.object({ 'x-trace-id': TraceIdHeaderHeaderSchema }),
+  content: {
+    'application/problem+json': {
+      schema: ProblemDetailsSchema,
+      examples: { notFound: ProblemNotFoundExample },
+    },
+  },
+}
+
+const RateLimitLimitHeaderHeaderSchema = z
+  .int()
+  .exactOptional()
+  .openapi({ description: 'Rate limit total', example: 1000 })
+
+const RateLimitRemainingHeaderHeaderSchema = z
+  .int()
+  .exactOptional()
+  .openapi({ description: 'Rate limit remaining', example: 998 })
+
+const RateLimitResetHeaderHeaderSchema = z
+  .int()
+  .exactOptional()
+  .openapi({ description: 'Rate limit reset epoch seconds', example: 1735689600 })
+
+const ProblemRateLimitedExample = {
+  value: {
+    type: 'https://errors.inferno.example/problem/ratelimited',
+    title: 'Too many requests',
+    status: 429,
+    traceId: 'trace-01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
+  },
+}
+
+const RateLimitedResponse = {
+  description: 'Too Many Requests',
+  headers: z.object({
+    'x-trace-id': TraceIdHeaderHeaderSchema,
+    'x-ratelimit-limit': RateLimitLimitHeaderHeaderSchema,
+    'x-ratelimit-remaining': RateLimitRemainingHeaderHeaderSchema,
+    'x-ratelimit-reset': RateLimitResetHeaderHeaderSchema,
+  }),
+  content: {
+    'application/problem+json': {
+      schema: ProblemDetailsSchema,
+      examples: { rateLimited: ProblemRateLimitedExample },
+    },
+  },
+}
+
+const TokenResponseExample = {
+  value: {
+    accessToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+    tokenType: 'Bearer',
+    expiresIn: 3600,
+    scope: 'inferno.read',
+    meta: {
+      createdAt: '2026-01-04T00:00:00Z',
+      trace: { traceId: 'trace-01J1K9N3E6R6ZK7Z6B0Q9Q3H3J' },
+    },
+  },
+}
+
+const ListUsersLink = { operationId: 'listUsers', description: 'Jump to users list after token' }
+
+const TokenResponse = {
+  description: 'Token issued',
+  headers: z.object({ 'x-trace-id': TraceIdHeaderHeaderSchema }),
+  content: {
+    'application/json': { schema: TokenResponseSchema, examples: { token: TokenResponseExample } },
+  },
+  links: { me: ListUsersLink },
+}
+
+const UserFullExample = {
+  value: {
+    id: 'f3b1b6d8-4c8c-4f1a-9b6f-1c7e6d8b9a01',
+    meta: {
+      createdAt: '2026-01-04T00:00:00Z',
+      trace: { traceId: 'trace-01J1K9N3E6R6ZK7Z6B0Q9Q3H3J' },
+    },
+    name: 'Inferno Taro',
+    email: 'taro@inferno.example',
+    company: {
+      id: '01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
+      meta: { createdAt: '2026-01-04T00:00:00Z' },
+      name: 'Inferno Inc.',
+    },
+    manager: {
+      id: '01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
+      meta: { createdAt: '2026-01-04T00:00:00Z' },
+      name: 'Minimal User',
+      email: 'min@example.com',
+    },
+    addresses: [
+      {
+        line1: '1-2-3 Hell St',
+        city: 'Tokyo',
+        country: 'JP',
+        geo: {
+          lat: 35.6895,
+          lng: 139.6917,
+          graph: {
+            nodes: [
+              {
+                id: '01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
+                edges: [{ to: { id: '01J1K9N3E6R6ZK7Z6B0Q9Q3H3J' }, weight: 0.666 }],
+              },
+            ],
+          },
+        },
+      },
+    ],
+  },
+}
+
+const GetUserLink = {
+  operationId: 'getUserById',
+  parameters: { userId: '$response.body#/id' },
+  description: 'Follow to get the same user',
+}
+
+const GetCompanyFromUserLink = {
+  operationId: 'getCompanyById',
+  parameters: { companyId: '$response.body#/company/id' },
+  description: "Resolve user's company",
+}
+
+const ListOrdersForUserLink = {
+  operationId: 'listOrders',
+  parameters: { buyerId: '$response.body#/id' },
+  description: 'List orders by user id',
+}
+
+const UserResponse = {
+  description: 'A user',
+  headers: z.object({ 'x-trace-id': TraceIdHeaderHeaderSchema }),
+  content: { 'application/json': { schema: UserSchema, examples: { full: UserFullExample } } },
+  links: { self: GetUserLink, company: GetCompanyFromUserLink, orders: ListOrdersForUserLink },
+}
+
+const UserListExample = {
+  value: {
+    items: [
+      {
+        id: '01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
+        meta: { createdAt: '2026-01-04T00:00:00Z' },
+        name: 'Minimal User',
+        email: 'min@example.com',
+      },
+    ],
+    nextCursor: 'cursor_opaque_123',
+    meta: { createdAt: '2026-01-04T00:00:00Z' },
+  },
+}
+
+const ListUsersNextPageLink = {
+  operationId: 'listUsers',
+  parameters: { cursor: '$response.body#/nextCursor' },
+}
+
+const UserListResponse = {
+  description: 'Users list (paged)',
+  headers: z.object({ 'x-trace-id': TraceIdHeaderHeaderSchema }),
+  content: {
+    'application/json': {
+      schema: z
+        .object({
+          items: z.array(UserSchema),
+          nextCursor: CursorSchema.exactOptional(),
+          meta: MetaSchema.exactOptional(),
+        })
+        .openapi({ required: ['items'] }),
+      examples: { list: UserListExample },
+    },
+  },
+  links: { next: ListUsersNextPageLink },
+}
+
+const CompanyExample = {
+  value: {
+    id: '01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
+    meta: { createdAt: '2026-01-04T00:00:00Z' },
+    name: 'Inferno Inc.',
+    employees: [
+      {
+        id: '01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
+        meta: { createdAt: '2026-01-04T00:00:00Z' },
+        name: 'Minimal User',
+        email: 'min@example.com',
+      },
+    ],
+  },
+}
+
+const GetCompanyLink = {
+  operationId: 'getCompanyById',
+  parameters: { companyId: '$response.body#/id' },
+}
+
+const CompanyResponse = {
+  description: 'A company',
+  headers: z.object({ 'x-trace-id': TraceIdHeaderHeaderSchema }),
+  content: { 'application/json': { schema: CompanySchema, examples: { company: CompanyExample } } },
+  links: { self: GetCompanyLink },
+}
+
+const OrderExample = {
+  value: {
+    id: '01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
+    meta: { createdAt: '2026-01-04T00:00:00Z' },
+    buyer: {
+      id: '01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
+      meta: { createdAt: '2026-01-04T00:00:00Z' },
+      name: 'Minimal User',
+      email: 'min@example.com',
+    },
+    status: 'paid',
+    items: [
+      {
+        product: {
+          id: '01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
+          meta: { createdAt: '2026-01-04T00:00:00Z' },
+          name: 'Flame Keyboard',
+          price: { currency: 'JPY', amount: 19999 },
+        },
+        quantity: 1,
+      },
+    ],
+    auditTrail: [
+      {
+        entity: {
+          id: '01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
+          meta: { createdAt: '2026-01-04T00:00:00Z' },
+          name: 'Minimal User',
+          email: 'min@example.com',
+        },
+        event: { type: 'order.created', payload: { orderId: '01J1K9N3E6R6ZK7Z6B0Q9Q3H3J' } },
+        meta: { createdAt: '2026-01-04T00:00:00Z' },
+      },
+    ],
+  },
+}
+
+const GetOrderLink = { operationId: 'getOrderById', parameters: { orderId: '$response.body#/id' } }
+
+const GetUserFromOrderLink = {
+  operationId: 'getUserById',
+  parameters: { userId: '$response.body#/buyer/id' },
+  description: 'Resolve order buyer',
+}
+
+const OrderResponse = {
+  description: 'An order',
+  headers: z.object({ 'x-trace-id': TraceIdHeaderHeaderSchema }),
+  content: { 'application/json': { schema: OrderSchema, examples: { order: OrderExample } } },
+  links: { self: GetOrderLink, buyer: GetUserFromOrderLink },
+}
+
+const OrderListExample = {
+  value: {
+    items: [
+      {
+        id: '01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
+        meta: { createdAt: '2026-01-04T00:00:00Z' },
+        buyer: {
+          id: '01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
+          meta: { createdAt: '2026-01-04T00:00:00Z' },
+          name: 'Minimal User',
+          email: 'min@example.com',
+        },
+        status: 'paid',
+      },
+    ],
+    nextCursor: 'cursor_opaque_orders_123',
+    meta: { createdAt: '2026-01-04T00:00:00Z' },
+  },
+}
+
+const ListOrdersNextPageLink = {
+  operationId: 'listOrders',
+  parameters: { cursor: '$response.body#/nextCursor' },
+}
+
+const OrderListResponse = {
+  description: 'Orders list (paged)',
+  headers: z.object({ 'x-trace-id': TraceIdHeaderHeaderSchema }),
+  content: {
+    'application/json': {
+      schema: z
+        .object({
+          items: z.array(OrderSchema),
+          nextCursor: CursorSchema.exactOptional(),
+          meta: MetaSchema.exactOptional(),
+        })
+        .openapi({ required: ['items'] }),
+      examples: { list: OrderListExample },
+    },
+  },
+  links: { next: ListOrdersNextPageLink },
+}
+
+const FileExample = {
+  value: {
+    id: '01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
+    meta: { createdAt: '2026-01-04T00:00:00Z' },
+    name: 'inferno.png',
+    size: 123456,
+    contentType: 'image/png',
+    download: { href: '/files/01J1K9N3E6R6ZK7Z6B0Q9Q3H3J/download' },
+    owner: {
+      id: '01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
+      meta: { createdAt: '2026-01-04T00:00:00Z' },
+      name: 'Minimal User',
+      email: 'min@example.com',
+    },
+  },
+}
+
+const GetUserFromFileLink = {
+  operationId: 'getUserById',
+  parameters: { userId: '$response.body#/owner/id' },
+  description: 'Resolve file owner',
+}
+
+const FileResponse = {
+  description: 'A file',
+  headers: z.object({ 'x-trace-id': TraceIdHeaderHeaderSchema }),
+  content: { 'application/json': { schema: FileSchema, examples: { file: FileExample } } },
+  links: { owner: GetUserFromFileLink },
+}
+
+const SubscriptionExample = {
+  value: {
+    id: '01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
+    meta: { createdAt: '2026-01-04T00:00:00Z' },
+    callbackUrl: 'https://client.example/webhook',
+    events: ['order.created', 'user.updated'],
+    secret: { secretId: 'sec_123', rotation: { next: { secretId: 'sec_456' } } },
+  },
+}
+
+const SubscriptionResponse = {
+  description: 'A webhook subscription',
+  headers: z.object({ 'x-trace-id': TraceIdHeaderHeaderSchema }),
+  content: {
+    'application/json': {
+      schema: WebhookSubscriptionSchema,
+      examples: { subscription: SubscriptionExample },
+    },
+  },
+}
+
 const TraceIdHeaderParamParamsSchema = TraceIdSchema.exactOptional().openapi({
   param: {
     name: 'x-trace-id',
@@ -811,21 +1266,7 @@ const SearchFilterQueryParamParamsSchema = SearchFilterSchema.exactOptional().op
   },
 })
 
-const OAuth2SecurityScheme = {
-  type: 'oauth2',
-  description: 'OAuth2 (authorizationCode) - scopes used by top-level security',
-  flows: {
-    authorizationCode: {
-      authorizationUrl: 'https://auth.inferno.example/oauth/authorize',
-      tokenUrl: 'https://auth.inferno.example/oauth/token',
-      scopes: { 'inferno.read': 'read everything', 'inferno.write': 'write everything' },
-    },
-  },
-}
-
-const ApiKeyAuthSecurityScheme = { type: 'apiKey', name: 'x-api-key', in: 'header' }
-
-const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' }
+const TraceIdExample = { summary: 'TraceId example', value: 'trace-01J1K9N3E6R6ZK7Z6B0Q9Q3H3J' }
 
 const TokenRequestClientCredentialsExample = {
   value: {
@@ -844,61 +1285,6 @@ const TokenRequestRefreshExample = {
   },
 }
 
-const TokenRequestRequestBody = {
-  content: {
-    'application/json': {
-      schema: TokenRequestSchema,
-      examples: {
-        clientCredentials: TokenRequestClientCredentialsExample,
-        refreshToken: TokenRequestRefreshExample,
-      },
-    },
-  },
-  required: true,
-}
-
-const UserFullExample = {
-  value: {
-    id: 'f3b1b6d8-4c8c-4f1a-9b6f-1c7e6d8b9a01',
-    meta: {
-      createdAt: '2026-01-04T00:00:00Z',
-      trace: { traceId: 'trace-01J1K9N3E6R6ZK7Z6B0Q9Q3H3J' },
-    },
-    name: 'Inferno Taro',
-    email: 'taro@inferno.example',
-    company: {
-      id: '01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
-      meta: { createdAt: '2026-01-04T00:00:00Z' },
-      name: 'Inferno Inc.',
-    },
-    manager: {
-      id: '01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
-      meta: { createdAt: '2026-01-04T00:00:00Z' },
-      name: 'Minimal User',
-      email: 'min@example.com',
-    },
-    addresses: [
-      {
-        line1: '1-2-3 Hell St',
-        city: 'Tokyo',
-        country: 'JP',
-        geo: {
-          lat: 35.6895,
-          lng: 139.6917,
-          graph: {
-            nodes: [
-              {
-                id: '01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
-                edges: [{ to: { id: '01J1K9N3E6R6ZK7Z6B0Q9Q3H3J' }, weight: 0.666 }],
-              },
-            ],
-          },
-        },
-      },
-    ],
-  },
-}
-
 const UserMinimalExample = {
   value: {
     id: '01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
@@ -906,16 +1292,6 @@ const UserMinimalExample = {
     name: 'Minimal User',
     email: 'min@example.com',
   },
-}
-
-const CreateUserRequestRequestBody = {
-  content: {
-    'application/json': {
-      schema: UserSchema,
-      examples: { full: UserFullExample, minimal: UserMinimalExample },
-    },
-  },
-  required: true,
 }
 
 const UserPrefsExample = {
@@ -929,6 +1305,48 @@ const UserPrefsExample = {
       email: 'shadow@inferno.example',
     },
   },
+}
+
+const WebhookEventExample = {
+  value: {
+    subscription: {
+      id: '01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
+      meta: { createdAt: '2026-01-04T00:00:00Z' },
+      callbackUrl: 'https://client.example/webhook',
+      events: ['order.created', 'user.updated'],
+      secret: { secretId: 'sec_123', rotation: { next: { secretId: 'sec_456' } } },
+    },
+    event: { type: 'order.created', payload: { orderId: '01J1K9N3E6R6ZK7Z6B0Q9Q3H3J' } },
+  },
+}
+
+const UserFullAliasExample = UserFullExample
+
+const DefaultUserExample = UserMinimalExample
+
+const ChainedUserExample = UserMinimalExample
+
+const TokenRequestRequestBody = {
+  content: {
+    'application/json': {
+      schema: TokenRequestSchema,
+      examples: {
+        clientCredentials: TokenRequestClientCredentialsExample,
+        refreshToken: TokenRequestRefreshExample,
+      },
+    },
+  },
+  required: true,
+}
+
+const CreateUserRequestRequestBody = {
+  content: {
+    'application/json': {
+      schema: UserSchema,
+      examples: { full: UserFullExample, minimal: UserMinimalExample },
+    },
+  },
+  required: true,
 }
 
 const UpdateUserRequestRequestBody = {
@@ -945,56 +1363,9 @@ const UpdateUserRequestRequestBody = {
   required: true,
 }
 
-const OrderExample = {
-  value: {
-    id: '01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
-    meta: { createdAt: '2026-01-04T00:00:00Z' },
-    buyer: {
-      id: '01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
-      meta: { createdAt: '2026-01-04T00:00:00Z' },
-      name: 'Minimal User',
-      email: 'min@example.com',
-    },
-    status: 'paid',
-    items: [
-      {
-        product: {
-          id: '01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
-          meta: { createdAt: '2026-01-04T00:00:00Z' },
-          name: 'Flame Keyboard',
-          price: { currency: 'JPY', amount: 19999 },
-        },
-        quantity: 1,
-      },
-    ],
-    auditTrail: [
-      {
-        entity: {
-          id: '01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
-          meta: { createdAt: '2026-01-04T00:00:00Z' },
-          name: 'Minimal User',
-          email: 'min@example.com',
-        },
-        event: { type: 'order.created', payload: { orderId: '01J1K9N3E6R6ZK7Z6B0Q9Q3H3J' } },
-        meta: { createdAt: '2026-01-04T00:00:00Z' },
-      },
-    ],
-  },
-}
-
 const CreateOrderRequestRequestBody = {
   content: { 'application/json': { schema: OrderSchema, examples: { sample: OrderExample } } },
   required: true,
-}
-
-const SubscriptionExample = {
-  value: {
-    id: '01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
-    meta: { createdAt: '2026-01-04T00:00:00Z' },
-    callbackUrl: 'https://client.example/webhook',
-    events: ['order.created', 'user.updated'],
-    secret: { secretId: 'sec_123', rotation: { next: { secretId: 'sec_456' } } },
-  },
 }
 
 const SubscriptionRequestRequestBody = {
@@ -1007,19 +1378,6 @@ const SubscriptionRequestRequestBody = {
   required: true,
 }
 
-const WebhookEventExample = {
-  value: {
-    subscription: {
-      id: '01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
-      meta: { createdAt: '2026-01-04T00:00:00Z' },
-      callbackUrl: 'https://client.example/webhook',
-      events: ['order.created', 'user.updated'],
-      secret: { secretId: 'sec_123', rotation: { next: { secretId: 'sec_456' } } },
-    },
-    event: { type: 'order.created', payload: { orderId: '01J1K9N3E6R6ZK7Z6B0Q9Q3H3J' } },
-  },
-}
-
 const WebhookEventRequestRequestBody = {
   content: {
     'application/json': { schema: WebhookEventSchema, examples: { event: WebhookEventExample } },
@@ -1027,376 +1385,21 @@ const WebhookEventRequestRequestBody = {
   required: true,
 }
 
-const TraceIdHeaderHeaderSchema = TraceIdSchema.exactOptional().openapi({
-  description: 'Trace id header component (same concept as parameter)',
-  example: 'trace-01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
-})
-
-const ProblemGenericExample = {
-  value: {
-    type: 'https://errors.inferno.example/problem/generic',
-    title: 'Something went wrong',
-    status: 500,
-    traceId: 'trace-01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
-    causes: [
-      { type: 'https://errors.inferno.example/problem/inner', title: 'Inner failure', status: 500 },
-    ],
-  },
-}
-
-const DefaultErrorResponse = {
-  description: 'Default error wrapper -> points to ProblemDetails',
-  headers: z.object({ 'x-trace-id': TraceIdHeaderHeaderSchema }),
-  content: {
-    'application/problem+json': {
-      schema: ProblemDetailsSchema,
-      examples: { generic: ProblemGenericExample },
+const OAuth2SecurityScheme = {
+  type: 'oauth2',
+  description: 'OAuth2 (authorizationCode) - scopes used by top-level security',
+  flows: {
+    authorizationCode: {
+      authorizationUrl: 'https://auth.inferno.example/oauth/authorize',
+      tokenUrl: 'https://auth.inferno.example/oauth/token',
+      scopes: { 'inferno.read': 'read everything', 'inferno.write': 'write everything' },
     },
   },
 }
 
-const ProblemValidationExample = {
-  value: {
-    type: 'https://errors.inferno.example/problem/validation',
-    title: 'Validation error',
-    status: 400,
-    traceId: 'trace-01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
-    errors: [
-      {
-        path: 'email',
-        message: 'Invalid email',
-        nested: { path: 'email.domain', message: 'Domain is not allowed' },
-      },
-    ],
-  },
-}
+const ApiKeyAuthSecurityScheme = { type: 'apiKey', name: 'x-api-key', in: 'header' }
 
-const ValidationErrorResponse = {
-  description: 'Validation error -> points to ValidationProblemDetails',
-  headers: z.object({ 'x-trace-id': TraceIdHeaderHeaderSchema }),
-  content: {
-    'application/problem+json': {
-      schema: ValidationProblemDetailsSchema,
-      examples: { invalid: ProblemValidationExample },
-    },
-  },
-}
-
-const WwwAuthenticateHeaderHeaderSchema = z.string().exactOptional().openapi({
-  description: 'WWW-Authenticate for Bearer',
-  example: 'Bearer realm="inferno", error="invalid_token"',
-})
-
-const ProblemUnauthorizedExample = {
-  value: {
-    type: 'https://errors.inferno.example/problem/unauthorized',
-    title: 'Unauthorized',
-    status: 401,
-    traceId: 'trace-01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
-  },
-}
-
-const UnauthorizedResponse = {
-  description: 'Unauthorized',
-  headers: z.object({
-    'x-trace-id': TraceIdHeaderHeaderSchema,
-    'www-authenticate': WwwAuthenticateHeaderHeaderSchema,
-  }),
-  content: {
-    'application/problem+json': {
-      schema: ProblemDetailsSchema,
-      examples: { unauthorized: ProblemUnauthorizedExample },
-    },
-  },
-}
-
-const ConflictResponse = {
-  description: 'Conflict',
-  headers: z.object({ 'x-trace-id': TraceIdHeaderHeaderSchema }),
-  content: { 'application/problem+json': { schema: ProblemDetailsSchema } },
-}
-
-const ProblemNotFoundExample = {
-  value: {
-    type: 'https://errors.inferno.example/problem/notfound',
-    title: 'Not found',
-    status: 404,
-    traceId: 'trace-01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
-  },
-}
-
-const NotFoundResponse = {
-  description: 'Not Found',
-  headers: z.object({ 'x-trace-id': TraceIdHeaderHeaderSchema }),
-  content: {
-    'application/problem+json': {
-      schema: ProblemDetailsSchema,
-      examples: { notFound: ProblemNotFoundExample },
-    },
-  },
-}
-
-const RateLimitLimitHeaderHeaderSchema = z
-  .int()
-  .exactOptional()
-  .openapi({ description: 'Rate limit total', example: 1000 })
-
-const RateLimitRemainingHeaderHeaderSchema = z
-  .int()
-  .exactOptional()
-  .openapi({ description: 'Rate limit remaining', example: 998 })
-
-const RateLimitResetHeaderHeaderSchema = z
-  .int()
-  .exactOptional()
-  .openapi({ description: 'Rate limit reset epoch seconds', example: 1735689600 })
-
-const ProblemRateLimitedExample = {
-  value: {
-    type: 'https://errors.inferno.example/problem/ratelimited',
-    title: 'Too many requests',
-    status: 429,
-    traceId: 'trace-01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
-  },
-}
-
-const RateLimitedResponse = {
-  description: 'Too Many Requests',
-  headers: z.object({
-    'x-trace-id': TraceIdHeaderHeaderSchema,
-    'x-ratelimit-limit': RateLimitLimitHeaderHeaderSchema,
-    'x-ratelimit-remaining': RateLimitRemainingHeaderHeaderSchema,
-    'x-ratelimit-reset': RateLimitResetHeaderHeaderSchema,
-  }),
-  content: {
-    'application/problem+json': {
-      schema: ProblemDetailsSchema,
-      examples: { rateLimited: ProblemRateLimitedExample },
-    },
-  },
-}
-
-const TokenResponseExample = {
-  value: {
-    accessToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
-    tokenType: 'Bearer',
-    expiresIn: 3600,
-    scope: 'inferno.read',
-    meta: {
-      createdAt: '2026-01-04T00:00:00Z',
-      trace: { traceId: 'trace-01J1K9N3E6R6ZK7Z6B0Q9Q3H3J' },
-    },
-  },
-}
-
-const ListUsersLink = { operationId: 'listUsers', description: 'Jump to users list after token' }
-
-const TokenResponse = {
-  description: 'Token issued',
-  headers: z.object({ 'x-trace-id': TraceIdHeaderHeaderSchema }),
-  content: {
-    'application/json': { schema: TokenResponseSchema, examples: { token: TokenResponseExample } },
-  },
-  links: { me: ListUsersLink },
-}
-
-const GetUserLink = {
-  operationId: 'getUserById',
-  parameters: { userId: '$response.body#/id' },
-  description: 'Follow to get the same user',
-}
-
-const GetCompanyFromUserLink = {
-  operationId: 'getCompanyById',
-  parameters: { companyId: '$response.body#/company/id' },
-  description: "Resolve user's company",
-}
-
-const ListOrdersForUserLink = {
-  operationId: 'listOrders',
-  parameters: { buyerId: '$response.body#/id' },
-  description: 'List orders by user id',
-}
-
-const UserResponse = {
-  description: 'A user',
-  headers: z.object({ 'x-trace-id': TraceIdHeaderHeaderSchema }),
-  content: { 'application/json': { schema: UserSchema, examples: { full: UserFullExample } } },
-  links: { self: GetUserLink, company: GetCompanyFromUserLink, orders: ListOrdersForUserLink },
-}
-
-const UserListExample = {
-  value: {
-    items: [
-      {
-        id: '01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
-        meta: { createdAt: '2026-01-04T00:00:00Z' },
-        name: 'Minimal User',
-        email: 'min@example.com',
-      },
-    ],
-    nextCursor: 'cursor_opaque_123',
-    meta: { createdAt: '2026-01-04T00:00:00Z' },
-  },
-}
-
-const ListUsersNextPageLink = {
-  operationId: 'listUsers',
-  parameters: { cursor: '$response.body#/nextCursor' },
-}
-
-const UserListResponse = {
-  description: 'Users list (paged)',
-  headers: z.object({ 'x-trace-id': TraceIdHeaderHeaderSchema }),
-  content: {
-    'application/json': {
-      schema: z
-        .object({
-          items: z.array(UserSchema),
-          nextCursor: CursorSchema.exactOptional(),
-          meta: MetaSchema.exactOptional(),
-        })
-        .openapi({ required: ['items'] }),
-      examples: { list: UserListExample },
-    },
-  },
-  links: { next: ListUsersNextPageLink },
-}
-
-const CompanyExample = {
-  value: {
-    id: '01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
-    meta: { createdAt: '2026-01-04T00:00:00Z' },
-    name: 'Inferno Inc.',
-    employees: [
-      {
-        id: '01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
-        meta: { createdAt: '2026-01-04T00:00:00Z' },
-        name: 'Minimal User',
-        email: 'min@example.com',
-      },
-    ],
-  },
-}
-
-const GetCompanyLink = {
-  operationId: 'getCompanyById',
-  parameters: { companyId: '$response.body#/id' },
-}
-
-const CompanyResponse = {
-  description: 'A company',
-  headers: z.object({ 'x-trace-id': TraceIdHeaderHeaderSchema }),
-  content: { 'application/json': { schema: CompanySchema, examples: { company: CompanyExample } } },
-  links: { self: GetCompanyLink },
-}
-
-const GetOrderLink = { operationId: 'getOrderById', parameters: { orderId: '$response.body#/id' } }
-
-const GetUserFromOrderLink = {
-  operationId: 'getUserById',
-  parameters: { userId: '$response.body#/buyer/id' },
-  description: 'Resolve order buyer',
-}
-
-const OrderResponse = {
-  description: 'An order',
-  headers: z.object({ 'x-trace-id': TraceIdHeaderHeaderSchema }),
-  content: { 'application/json': { schema: OrderSchema, examples: { order: OrderExample } } },
-  links: { self: GetOrderLink, buyer: GetUserFromOrderLink },
-}
-
-const OrderListExample = {
-  value: {
-    items: [
-      {
-        id: '01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
-        meta: { createdAt: '2026-01-04T00:00:00Z' },
-        buyer: {
-          id: '01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
-          meta: { createdAt: '2026-01-04T00:00:00Z' },
-          name: 'Minimal User',
-          email: 'min@example.com',
-        },
-        status: 'paid',
-      },
-    ],
-    nextCursor: 'cursor_opaque_orders_123',
-    meta: { createdAt: '2026-01-04T00:00:00Z' },
-  },
-}
-
-const ListOrdersNextPageLink = {
-  operationId: 'listOrders',
-  parameters: { cursor: '$response.body#/nextCursor' },
-}
-
-const OrderListResponse = {
-  description: 'Orders list (paged)',
-  headers: z.object({ 'x-trace-id': TraceIdHeaderHeaderSchema }),
-  content: {
-    'application/json': {
-      schema: z
-        .object({
-          items: z.array(OrderSchema),
-          nextCursor: CursorSchema.exactOptional(),
-          meta: MetaSchema.exactOptional(),
-        })
-        .openapi({ required: ['items'] }),
-      examples: { list: OrderListExample },
-    },
-  },
-  links: { next: ListOrdersNextPageLink },
-}
-
-const FileExample = {
-  value: {
-    id: '01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
-    meta: { createdAt: '2026-01-04T00:00:00Z' },
-    name: 'inferno.png',
-    size: 123456,
-    contentType: 'image/png',
-    download: { href: '/files/01J1K9N3E6R6ZK7Z6B0Q9Q3H3J/download' },
-    owner: {
-      id: '01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
-      meta: { createdAt: '2026-01-04T00:00:00Z' },
-      name: 'Minimal User',
-      email: 'min@example.com',
-    },
-  },
-}
-
-const GetUserFromFileLink = {
-  operationId: 'getUserById',
-  parameters: { userId: '$response.body#/owner/id' },
-  description: 'Resolve file owner',
-}
-
-const FileResponse = {
-  description: 'A file',
-  headers: z.object({ 'x-trace-id': TraceIdHeaderHeaderSchema }),
-  content: { 'application/json': { schema: FileSchema, examples: { file: FileExample } } },
-  links: { owner: GetUserFromFileLink },
-}
-
-const SubscriptionResponse = {
-  description: 'A webhook subscription',
-  headers: z.object({ 'x-trace-id': TraceIdHeaderHeaderSchema }),
-  content: {
-    'application/json': {
-      schema: WebhookSubscriptionSchema,
-      examples: { subscription: SubscriptionExample },
-    },
-  },
-}
-
-const TraceIdExample = { summary: 'TraceId example', value: 'trace-01J1K9N3E6R6ZK7Z6B0Q9Q3H3J' }
-
-const UserFullAliasExample = UserFullExample
-
-const DefaultUserExample = UserMinimalExample
-
-const ChainedUserExample = UserMinimalExample
+const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' }
 
 const SubscriptionLifecycleCallback = {
   '{$request.body#/callbackUrl}': {
@@ -1573,26 +1576,7 @@ const ComplexPathItem = {
       201: { description: 'Created', content: { 'application/json': { schema: UserSchema } } },
       400: ValidationErrorResponse,
     },
-    callbacks: {
-      onCreated: {
-        '{$request.body#/callbackUrl}': {
-          post: {
-            requestBody: {
-              content: {
-                'application/json': {
-                  schema: z.object({
-                    status: z.string().exactOptional(),
-                    resourceId: z.string().exactOptional(),
-                  }),
-                },
-              },
-              required: true,
-            },
-            responses: { 200: { description: 'Callback acknowledged' } },
-          },
-        },
-      },
-    },
+    callbacks: {},
   },
   delete: {
     tags: ['Complex'],
