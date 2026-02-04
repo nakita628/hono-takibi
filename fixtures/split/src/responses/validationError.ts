@@ -1,7 +1,7 @@
 import { z } from '@hono/zod-openapi'
-import { ValidationProblemDetailsSchema } from '../schemas'
-import { TraceIdHeaderHeaderSchema } from '../headers'
 import { ProblemValidationExample } from '../examples'
+import { TraceIdHeaderHeaderSchema } from '../headers'
+import { ValidationProblemDetailsSchema } from '../schemas'
 
 export const ValidationErrorResponse = {
   description: 'Validation error -> points to ValidationProblemDetails',

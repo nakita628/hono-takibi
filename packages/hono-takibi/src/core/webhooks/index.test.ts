@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import type { OpenAPI } from '../../openapi/index.js'
-import { webhooks } from './webhooks.js'
+import { webhooks } from './index.js'
 
 describe('webhooks', () => {
   const mockOpenAPI: OpenAPI = {

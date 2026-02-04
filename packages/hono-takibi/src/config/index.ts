@@ -25,17 +25,15 @@ const ConfigSchema = z
   .object({
     input: z.custom<`${string}.yaml` | `${string}.json` | `${string}.tsp`>(
       (v) =>
-        typeof v === 'string' &&
-        (v.endsWith('.yaml') || v.endsWith('.json') || v.endsWith('.tsp')),
+        typeof v === 'string' && (v.endsWith('.yaml') || v.endsWith('.json') || v.endsWith('.tsp')),
       { message: 'must be .yaml | .json | .tsp' },
     ),
     'zod-openapi': z
       .object({
         output: z
-          .custom<`${string}.ts`>(
-            (v) => typeof v === 'string' && v.endsWith('.ts'),
-            { message: 'must be .ts file' },
-          )
+          .custom<`${string}.ts`>((v) => typeof v === 'string' && v.endsWith('.ts'), {
+            message: 'must be .ts file',
+          })
           .exactOptional(),
         readonly: z.boolean().exactOptional(),
         exportSchemas: z.boolean().exactOptional(),
@@ -178,10 +176,9 @@ const ConfigSchema = z
     type: z
       .object({
         readonly: z.boolean().exactOptional(),
-        output: z.custom<`${string}.ts`>(
-          (v) => typeof v === 'string' && v.endsWith('.ts'),
-          { message: 'must be .ts file' },
-        ),
+        output: z.custom<`${string}.ts`>((v) => typeof v === 'string' && v.endsWith('.ts'), {
+          message: 'must be .ts file',
+        }),
       })
       .exactOptional(),
     rpc: z
@@ -440,8 +437,7 @@ export function parseConfig(
  * Reads and validates the hono-takibi configuration from hono-takibi.config.ts.
  */
 export async function readConfig(): Promise<
-  | { readonly ok: true; readonly value: Config }
-  | { readonly ok: false; readonly error: string }
+  { readonly ok: true; readonly value: Config } | { readonly ok: false; readonly error: string }
 > {
   const abs = resolve(process.cwd(), 'hono-takibi.config.ts')
   if (!existsSync(abs)) return { ok: false, error: `Config not found: ${abs}` }

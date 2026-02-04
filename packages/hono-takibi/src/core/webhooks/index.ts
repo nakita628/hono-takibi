@@ -1,10 +1,10 @@
 /**
- * Webhook component generation module.
+ * Webhook generation module.
  *
  * Generates webhook exports from OpenAPI webhooks with split mode support.
  * Follows the same pattern as route generation.
  *
- * @module core/components/webhooks
+ * @module core/webhooks
  */
 import path from 'node:path'
 import { webhookCode } from '../../generator/zod-openapi-hono/openapi/webhooks/index.js'
@@ -13,7 +13,7 @@ import type { OpenAPI } from '../../openapi/index.js'
 import { lowerFirst } from '../../utils/index.js'
 
 /**
- * Generates webhook component files.
+ * Generates webhook files from OpenAPI specification.
  *
  * @param openAPI - OpenAPI specification object
  * @param webhooksConfig - Webhook output configuration
@@ -33,7 +33,7 @@ import { lowerFirst } from '../../utils/index.js'
  */
 export async function webhooks(
   openAPI: OpenAPI,
-  webhooksConfig?: {
+  webhooks?: {
     readonly output: string | `${string}.ts`
     readonly split?: boolean
   },
@@ -48,10 +48,10 @@ export async function webhooks(
 ): Promise<
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {
-  if (!webhooksConfig?.output) return { ok: false, error: 'webhooks.output is required' }
+  if (!webhooks?.output) return { ok: false, error: 'webhooks.output is required' }
   if (!openAPI.webhooks) return { ok: false, error: 'No webhooks found' }
 
-  const { output, split = false } = webhooksConfig
+  const { output, split = false } = webhooks
   const webhooksSrc = webhookCode(openAPI, readonly)
 
   if (!webhooksSrc) return { ok: true, value: 'No webhooks found' }

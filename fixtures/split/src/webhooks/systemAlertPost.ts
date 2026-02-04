@@ -1,14 +1,7 @@
-import { createRoute, z } from '@hono/zod-openapi'
-
-const SystemEventPayloadSchema = z
-  .object({ message: z.string(), related: EntityRefSchema.exactOptional() })
-  .openapi({ required: ['message'] })
-  .openapi('SystemEventPayload')
-
-const IdSchema = z
-  .xor([UuidSchema, UlidSchema])
-  .openapi({ description: 'Primary identifier (uuid or ulid) - used everywhere' })
-  .openapi('Id')
+import { z } from '@hono/zod-openapi'
+import { TraceIdHeaderHeaderSchema } from '../headers'
+import { DefaultErrorResponse } from '../responses'
+import { IdSchema, SystemEventPayloadSchema } from '../schemas'
 
 export const systemAlertPostWebhook = {
   method: 'post',

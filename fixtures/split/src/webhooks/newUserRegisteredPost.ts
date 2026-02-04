@@ -1,9 +1,7 @@
-import { createRoute, z } from '@hono/zod-openapi'
-
-const UserEventPayloadSchema = z
-  .object({ user: UserSchema, previous: UserSchema.exactOptional() })
-  .openapi({ required: ['user'] })
-  .openapi('UserEventPayload')
+import { z } from '@hono/zod-openapi'
+import { UserFullExample } from '../examples'
+import { DefaultErrorResponse } from '../responses'
+import { UserEventPayloadSchema } from '../schemas'
 
 export const newUserRegisteredPostWebhook = {
   method: 'post',

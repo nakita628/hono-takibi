@@ -1,42 +1,39 @@
+import { z } from '@hono/zod-openapi'
+import { OrderIdPathParamParamsSchema, TraceIdHeaderParamParamsSchema } from '../parameters'
+import {
+  DefaultErrorResponse,
+  NotFoundResponse,
+  OrderResponse,
+  ValidationErrorResponse,
+} from '../responses'
+import { OrderStatusSchema } from '../schemas'
+
 export const OrderPathItem = {
   get: {
     tags: ['Orders'],
-    operationId: 'getOrderByIdPathItem',
     summary: 'Get order by id (reusable pathItem)',
-    parameters: [
-      { $ref: '#/components/parameters/OrderIdPathParam' },
-      { $ref: '#/components/parameters/TraceIdHeaderParam' },
-    ],
-    responses: {
-      '200': { $ref: '#/components/responses/OrderResponse' },
-      '404': { $ref: '#/components/responses/NotFound' },
-      default: { $ref: '#/components/responses/DefaultError' },
-    },
+    operationId: 'getOrderByIdPathItem',
+    request: { parameters: [OrderIdPathParamParamsSchema, TraceIdHeaderParamParamsSchema] },
+    responses: { 200: OrderResponse, 404: NotFoundResponse, default: DefaultErrorResponse },
   },
   patch: {
     tags: ['Orders'],
-    operationId: 'updateOrderPathItem',
     summary: 'Update order status (reusable pathItem)',
-    parameters: [
-      { $ref: '#/components/parameters/OrderIdPathParam' },
-      { $ref: '#/components/parameters/TraceIdHeaderParam' },
-    ],
-    requestBody: {
-      required: true,
-      content: {
-        'application/json': {
-          schema: {
-            type: 'object',
-            properties: { status: { $ref: '#/components/schemas/OrderStatus' } },
-          },
+    operationId: 'updateOrderPathItem',
+    request: {
+      parameters: [OrderIdPathParamParamsSchema, TraceIdHeaderParamParamsSchema],
+      body: {
+        content: {
+          'application/json': { schema: z.object({ status: OrderStatusSchema.exactOptional() }) },
         },
+        required: true,
       },
     },
     responses: {
-      '200': { $ref: '#/components/responses/OrderResponse' },
-      '400': { $ref: '#/components/responses/ValidationError' },
-      '404': { $ref: '#/components/responses/NotFound' },
-      default: { $ref: '#/components/responses/DefaultError' },
+      200: OrderResponse,
+      400: ValidationErrorResponse,
+      404: NotFoundResponse,
+      default: DefaultErrorResponse,
     },
   },
 }

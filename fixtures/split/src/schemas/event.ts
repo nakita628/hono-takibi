@@ -1,9 +1,9 @@
 import { z } from '@hono/zod-openapi'
 import { EventTypeSchema } from './eventType'
-import { UserEventPayloadSchema } from './userEventPayload'
 import { OrderEventPayloadSchema } from './orderEventPayload'
 import { SystemEventPayloadSchema } from './systemEventPayload'
 import { TraceContextSchema } from './traceContext'
+import { UserEventPayloadSchema } from './userEventPayload'
 
 type EventType = {
   type: z.infer<typeof EventTypeSchema>

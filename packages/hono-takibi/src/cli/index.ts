@@ -333,9 +333,9 @@ export async function honoTakibi(): Promise<
       : Promise.resolve(undefined),
     config['zod-openapi']?.components?.pathItems
       ? pathItems(
-          openAPI.components?.pathItems,
-          config['zod-openapi']?.components?.pathItems?.output,
-          config['zod-openapi']?.components?.pathItems?.split ?? false,
+          openAPI.components ?? {},
+          config['zod-openapi']?.components?.pathItems,
+          config['zod-openapi']?.components,
           config['zod-openapi']?.readonly,
         )
       : Promise.resolve(undefined),

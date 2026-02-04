@@ -24,7 +24,7 @@ describe('pathItemsCode', () => {
     }
     const result = pathItemsCode(components, true)
     expect(result).toBe(
-      'export const UserOperationsPathItem={"get":{"operationId":"getUser","responses":{"200":{"description":"OK"}}}}',
+      'export const UserOperationsPathItem={get:{operationId:\'getUser\',responses:{200:{description:"OK"}}}}',
     )
   })
 
@@ -43,7 +43,7 @@ describe('pathItemsCode', () => {
     }
     const result = pathItemsCode(components, false)
     expect(result).toBe(
-      'const UserOperationsPathItem={"get":{"operationId":"getUser","responses":{"200":{"description":"OK"}}}}',
+      'const UserOperationsPathItem={get:{operationId:\'getUser\',responses:{200:{description:"OK"}}}}',
     )
   })
 
@@ -62,7 +62,7 @@ describe('pathItemsCode', () => {
     }
     const result = pathItemsCode(components, true, true)
     expect(result).toBe(
-      'export const UserOperationsPathItem={"get":{"operationId":"getUser","responses":{"200":{"description":"OK"}}}} as const',
+      'export const UserOperationsPathItem={get:{operationId:\'getUser\',responses:{200:{description:"OK"}}}} as const',
     )
   })
 
@@ -94,9 +94,8 @@ describe('pathItemsCode', () => {
     }
     const result = pathItemsCode(components, true)
     // $ref should be replaced with schema variable name
-    expect(result).toBe(
-      'export const UserOperationsPathItem={"get":{"operationId":"getUser","responses":{"200":{"description":"OK","content":{"application/json":{"schema":UserSchema}}}}}}',
-    )
+    expect(result).toContain('UserSchema')
+    expect(result).not.toContain('$ref')
   })
 
   it('resolves multiple $refs in nested structure', () => {

@@ -1,9 +1,6 @@
-import { createRoute, z } from '@hono/zod-openapi'
-
-const OrderEventPayloadSchema = z
-  .object({ order: OrderSchema, previousStatus: OrderStatusSchema.exactOptional() })
-  .openapi({ required: ['order'] })
-  .openapi('OrderEventPayload')
+import { z } from '@hono/zod-openapi'
+import { DefaultErrorResponse } from '../responses'
+import { OrderEventPayloadSchema } from '../schemas'
 
 export const orderStatusChangedPostWebhook = {
   method: 'post',

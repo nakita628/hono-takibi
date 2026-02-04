@@ -13,15 +13,6 @@ import type { Components } from '../../openapi/index.js'
 import { ensureSuffix, lowerFirst, toIdentifierPascalCase } from '../../utils/index.js'
 
 /**
- * Type guard for $ref property.
- *
- * @param val - Value to check
- * @returns True if value has $ref property
- */
-const hasRef = (val: unknown): val is { readonly $ref: string } =>
-  typeof val === 'object' && val !== null && '$ref' in val && typeof val.$ref === 'string'
-
-/**
  * Generates example component files.
  *
  * @param examples - OpenAPI examples object
@@ -79,7 +70,7 @@ export async function examples(
         const filePath = path.join(outDir, `${lowerFirst(key)}.ts`)
 
         // Handle $ref references: generate import + re-export
-        if (hasRef(v)) {
+        if (typeof v === 'object' && v !== null && '$ref' in v && typeof v.$ref === 'string') {
           const refName = makeRef(v.$ref)
           const refKey = v.$ref.split('/').at(-1) ?? ''
           const importPath = `./${lowerFirst(refKey)}.ts`

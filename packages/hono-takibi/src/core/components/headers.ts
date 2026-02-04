@@ -10,7 +10,7 @@ import path from 'node:path'
 import { headersCode } from '../../generator/zod-openapi-hono/openapi/components/headers.js'
 import { core, makeBarrel, makeImports } from '../../helper/index.js'
 import type { Components } from '../../openapi/index.js'
-import { lowerFirst, renderNamedImport } from '../../utils/index.js'
+import { lowerFirst } from '../../utils/index.js'
 
 /**
  * Generates header component files.
@@ -89,14 +89,8 @@ export async function headers(
     }
   }
 
-  const importCode = renderNamedImport(['z'], '@hono/zod-openapi')
   const headerDefinitions = headersCode({ headers }, true, exportType, readonly)
-  const headerDefinitionsCode = `${importCode}\n\n${headerDefinitions}`
-  const coreResult = await core(
-    toFileCode(headerDefinitionsCode, output),
-    path.dirname(output),
-    output,
-  )
+  const coreResult = await core(toFileCode(headerDefinitions, output), path.dirname(output), output)
   if (!coreResult.ok) return { ok: false, error: coreResult.error }
   return { ok: true, value: `Generated headers code written to ${output}` }
 }

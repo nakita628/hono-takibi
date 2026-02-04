@@ -1,46 +1,44 @@
+import { TraceIdHeaderParamParamsSchema, UserIdPathParamParamsSchema } from '../parameters'
+import { UpdateUserRequestRequestBody } from '../requestBodies'
+import {
+  DefaultErrorResponse,
+  NotFoundResponse,
+  UserResponse,
+  ValidationErrorResponse,
+} from '../responses'
+
 export const UserPathItem = {
   get: {
     tags: ['Users'],
-    operationId: 'getUserByIdPathItem',
     summary: 'Get user by id (reusable pathItem)',
-    parameters: [
-      { $ref: '#/components/parameters/UserIdPathParam' },
-      { $ref: '#/components/parameters/TraceIdHeaderParam' },
-    ],
+    operationId: 'getUserByIdPathItem',
+    request: { parameters: [UserIdPathParamParamsSchema, TraceIdHeaderParamParamsSchema] },
+    responses: { 200: UserResponse, 404: NotFoundResponse, default: DefaultErrorResponse },
+  },
+  delete: {
+    tags: ['Users'],
+    summary: 'Delete user (reusable pathItem)',
+    operationId: 'deleteUserPathItem',
+    request: { parameters: [UserIdPathParamParamsSchema, TraceIdHeaderParamParamsSchema] },
     responses: {
-      '200': { $ref: '#/components/responses/UserResponse' },
-      '404': { $ref: '#/components/responses/NotFound' },
-      default: { $ref: '#/components/responses/DefaultError' },
+      204: { description: 'Deleted' },
+      404: NotFoundResponse,
+      default: DefaultErrorResponse,
     },
   },
   patch: {
     tags: ['Users'],
-    operationId: 'updateUserPathItem',
     summary: 'Update user (reusable pathItem)',
-    parameters: [
-      { $ref: '#/components/parameters/UserIdPathParam' },
-      { $ref: '#/components/parameters/TraceIdHeaderParam' },
-    ],
-    requestBody: { $ref: '#/components/requestBodies/UpdateUserRequest' },
-    responses: {
-      '200': { $ref: '#/components/responses/UserResponse' },
-      '400': { $ref: '#/components/responses/ValidationError' },
-      '404': { $ref: '#/components/responses/NotFound' },
-      default: { $ref: '#/components/responses/DefaultError' },
+    operationId: 'updateUserPathItem',
+    request: {
+      parameters: [UserIdPathParamParamsSchema, TraceIdHeaderParamParamsSchema],
+      body: UpdateUserRequestRequestBody,
     },
-  },
-  delete: {
-    tags: ['Users'],
-    operationId: 'deleteUserPathItem',
-    summary: 'Delete user (reusable pathItem)',
-    parameters: [
-      { $ref: '#/components/parameters/UserIdPathParam' },
-      { $ref: '#/components/parameters/TraceIdHeaderParam' },
-    ],
     responses: {
-      '204': { description: 'Deleted' },
-      '404': { $ref: '#/components/responses/NotFound' },
-      default: { $ref: '#/components/responses/DefaultError' },
+      200: UserResponse,
+      400: ValidationErrorResponse,
+      404: NotFoundResponse,
+      default: DefaultErrorResponse,
     },
   },
 }

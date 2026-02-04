@@ -1,2 +1,2 @@
-export * from './orderPathItem.ts'
-export * from './userPathItem.ts'
+export * from './orderPathItem'
+export * from './userPathItem'

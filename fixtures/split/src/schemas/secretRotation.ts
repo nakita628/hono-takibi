@@ -1,6 +1,6 @@
 import { z } from '@hono/zod-openapi'
-import { SecretRefSchema } from './secretRef'
 import { MetaSchema } from './meta'
+import { SecretRefSchema } from './secretRef'
 
 type SecretRotationType = {
   next?: z.infer<typeof SecretRefSchema>

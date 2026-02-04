@@ -23,6 +23,7 @@
  * @module helper/openapi
  */
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
+import { isRecord, isRefObject } from '../guard/index.js'
 import type {
   Callbacks,
   Content,
@@ -786,4 +787,78 @@ export function makeRequestParams(parameters: readonly Parameter[]) {
   const paramsObject = makeParameters(parameters)
   const paramsArray = requestParamsArray(paramsObject)
   return paramsArray.length > 0 ? paramsArray.join(',') : undefined
+}
+
+export function makePathParameters(parameters: readonly (Parameter | Reference)[]) {
+  const serializeValue = (value: unknown): string => {
+    if (value === null) return 'null'
+    if (value === undefined) return 'undefined'
+    if (typeof value === 'string') return JSON.stringify(value)
+    if (typeof value === 'number' || typeof value === 'boolean') return String(value)
+
+    if (Array.isArray(value)) {
+      return `[${value.map(serializeValue).join(',')}]`
+    }
+
+    if (isRefObject(value)) {
+      return makeRef(value.$ref)
+    }
+
+    if (isRecord(value)) {
+      const entries = Object.entries(value)
+        .map(([k, v]) => `${JSON.stringify(k)}:${serializeValue(v)}`)
+        .join(',')
+      return `{${entries}}`
+    }
+    return JSON.stringify(value)
+  }
+  const items = parameters.map((param) => {
+    if (isRefObject(param)) {
+      return makeRef(param.$ref)
+    }
+    return serializeValue(param)
+  })
+  return `[${items.join(',')}]`
+}
+
+export function makeOperation(operation: Operation) {
+  return [
+    operation.tags ? `tags:${JSON.stringify(operation.tags)}` : undefined,
+    operation.summary ? `summary:${JSON.stringify(operation.summary)}` : undefined,
+    operation.description ? `description:${JSON.stringify(operation.description)}` : undefined,
+    operation.externalDocs ? `externalDocs:${JSON.stringify(operation.externalDocs)}` : undefined,
+    operation.operationId ? `operationId:'${operation.operationId}'` : undefined,
+    operation.parameters ? `parameters:${makePathParameters(operation.parameters)}` : undefined,
+    operation.requestBody ? `requestBody:${makeRequestBody(operation.requestBody)}` : undefined,
+    operation.responses ? `responses:${makeOperationResponses(operation.responses)}` : undefined,
+    operation.callbacks ? `callbacks:{${makeCallbacks(operation.callbacks)}}` : undefined,
+    operation.deprecated ? `deprecated:${JSON.stringify(operation.deprecated)}` : undefined,
+    operation.security ? `security:${JSON.stringify(operation.security)}` : undefined,
+    operation.servers ? `servers:${JSON.stringify(operation.servers)}` : undefined,
+  ]
+    .filter((v) => v !== undefined)
+    .join(',')
+}
+
+export function makePathItem(pathItem: PathItem) {
+  const results = [
+    pathItem.$ref ? `$ref:${makeRef(pathItem.$ref)}` : undefined,
+    pathItem.summary ? `summary:${JSON.stringify(pathItem.summary)}` : undefined,
+    pathItem.description ? `description:${JSON.stringify(pathItem.description)}` : undefined,
+    pathItem.get ? `get:${makeOperation(pathItem.get)}` : undefined,
+    pathItem.put ? `put:${makeOperation(pathItem.put)}` : undefined,
+    pathItem.post ? `post:${makeOperation(pathItem.post)}` : undefined,
+    pathItem.delete ? `delete:${makeOperation(pathItem.delete)}` : undefined,
+    pathItem.options ? `options:${makeOperation(pathItem.options)}` : undefined,
+    pathItem.head ? `head:${makeOperation(pathItem.head)}` : undefined,
+    pathItem.patch ? `patch:${makeOperation(pathItem.patch)}` : undefined,
+    pathItem.trace ? `trace:${makeOperation(pathItem.trace)}` : undefined,
+    // query comming soon
+    // additionalOperations comming soon
+    pathItem.servers ? `servers:${JSON.stringify(pathItem.servers)}` : undefined,
+    pathItem.parameters ? `parameters:${makePathParameters(pathItem.parameters)}` : undefined,
+  ]
+    .filter((v) => v !== undefined)
+    .join(',')
+  return `{${results}}`
 }

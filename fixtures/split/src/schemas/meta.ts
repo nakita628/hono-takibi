@@ -1,6 +1,6 @@
 import { z } from '@hono/zod-openapi'
-import { TraceContextSchema } from './traceContext'
 import { ResourceLinksSchema } from './resourceLinks'
+import { TraceContextSchema } from './traceContext'
 
 type MetaType = {
   createdAt: string

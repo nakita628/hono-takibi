@@ -1,37 +1,6 @@
-import { makeConst } from '../../../../helper/code.js'
-import { makeRef } from '../../../../helper/openapi.js'
-import type { Components, PathItem } from '../../../../openapi/index.js'
-
-/**
- * Serializes a value to JavaScript code, replacing $ref objects with variable references.
- *
- * @param value - The value to serialize
- * @returns JavaScript code string
- */
-function serializeWithRefs(value: unknown): string {
-  if (value === null) return 'null'
-  if (value === undefined) return 'undefined'
-  if (typeof value === 'string') return JSON.stringify(value)
-  if (typeof value === 'number' || typeof value === 'boolean') return String(value)
-
-  if (Array.isArray(value)) {
-    return `[${value.map(serializeWithRefs).join(',')}]`
-  }
-
-  if (typeof value === 'object') {
-    const obj = value as Record<string, unknown>
-    // Check if this is a $ref object - replace with schema variable reference
-    if ('$ref' in obj && typeof obj.$ref === 'string' && Object.keys(obj).length === 1) {
-      return makeRef(obj.$ref)
-    }
-    const entries = Object.entries(obj)
-      .map(([k, v]) => `${JSON.stringify(k)}:${serializeWithRefs(v)}`)
-      .join(',')
-    return `{${entries}}`
-  }
-
-  return JSON.stringify(value)
-}
+import { makeConst } from "../../../../helper/code.js"
+import { makePathItem } from "../../../../helper/openapi.js"
+import type { Components, PathItem } from "../../../../openapi/index.js"
 
 /**
  * Generates TypeScript code for OpenAPI component pathItems.
@@ -68,7 +37,7 @@ export function pathItemsCode(
   return Object.entries(pathItems)
     .map(([k, pathItemOrRef]) => {
       if (!isPathItem(pathItemOrRef)) return undefined
-      return `${makeConst(exportPathItems, k, 'PathItem')}${serializeWithRefs(pathItemOrRef)}${asConst}`
+      return `${makeConst(exportPathItems, k, 'PathItem')}${makePathItem(pathItemOrRef)}${asConst}`
     })
     .filter((v) => v !== undefined)
     .join('\n\n')

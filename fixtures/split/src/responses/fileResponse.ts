@@ -1,8 +1,8 @@
 import { z } from '@hono/zod-openapi'
-import { FileSchema } from '../schemas'
-import { TraceIdHeaderHeaderSchema } from '../headers'
 import { FileExample } from '../examples'
+import { TraceIdHeaderHeaderSchema } from '../headers'
 import { GetUserFromFileLink } from '../links'
+import { FileSchema } from '../schemas'
 
 export const FileResponse = {
   description: 'A file',
