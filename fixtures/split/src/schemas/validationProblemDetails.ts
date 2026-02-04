@@ -1,6 +1,6 @@
 import { z } from '@hono/zod-openapi'
-import { FieldErrorSchema } from './fieldError'
 import { ProblemDetailsSchema } from './problemDetails'
+import { FieldErrorSchema } from './fieldError'
 
 export const ValidationProblemDetailsSchema = ProblemDetailsSchema.and(
   z.object({ errors: z.array(FieldErrorSchema) }).openapi({ required: ['errors'] }),

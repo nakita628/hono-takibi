@@ -1,5 +1,5 @@
-import { UserFullExample, UserMinimalExample } from '../examples'
 import { UserSchema } from '../schemas'
+import { UserFullExample, UserMinimalExample } from '../examples'
 
 export const CreateUserRequestRequestBody = {
   content: {

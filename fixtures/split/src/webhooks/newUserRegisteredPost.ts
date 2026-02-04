@@ -1,7 +1,7 @@
 import { z } from '@hono/zod-openapi'
-import { UserFullExample } from '../examples'
-import { DefaultErrorResponse } from '../responses'
 import { UserEventPayloadSchema } from '../schemas'
+import { DefaultErrorResponse } from '../responses'
+import { UserFullExample } from '../examples'
 
 export const newUserRegisteredPostWebhook = {
   method: 'post',

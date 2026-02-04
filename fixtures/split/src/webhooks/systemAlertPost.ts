@@ -1,7 +1,7 @@
 import { z } from '@hono/zod-openapi'
-import { TraceIdHeaderHeaderSchema } from '../headers'
-import { DefaultErrorResponse } from '../responses'
 import { IdSchema, SystemEventPayloadSchema } from '../schemas'
+import { DefaultErrorResponse } from '../responses'
+import { TraceIdHeaderHeaderSchema } from '../headers'
 
 export const systemAlertPostWebhook = {
   method: 'post',
