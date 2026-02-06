@@ -132,7 +132,12 @@ export function schemaToFaker(
     return JSON.stringify(schema.example)
   }
 
-  // 2. Handle enum
+  // 2. Handle const (OpenAPI 3.1) - use 'as const' to preserve literal type
+  if (schema.const !== undefined) {
+    return `${JSON.stringify(schema.const)} as const`
+  }
+
+  // 3. Handle enum
   if (schema.enum && schema.enum.length > 0) {
     const enumValues = schema.enum.map((v) => JSON.stringify(v)).join(', ')
     return `faker.helpers.arrayElement([${enumValues}] as const)`
@@ -191,9 +196,14 @@ export function schemaToFaker(
     return FORMAT_TO_FAKER[schema.format]
   }
 
-  // 9. Check property name heuristics
+  // 9. Check property name heuristics (skip when type conflicts)
   if (propertyName && PROPERTY_NAME_TO_FAKER[propertyName]) {
-    return PROPERTY_NAME_TO_FAKER[propertyName]
+    const hint = PROPERTY_NAME_TO_FAKER[propertyName]
+    const isNumberHint = hint.includes('faker.number.')
+    const isStringType = schema.type === 'string'
+    if (!(isNumberHint && isStringType)) {
+      return hint
+    }
   }
 
   // 10. Check type mapping

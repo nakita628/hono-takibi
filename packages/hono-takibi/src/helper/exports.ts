@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { ensureSuffix, lowerFirst, toIdentifierPascalCase } from '../utils/index.js'
+import { ensureSuffix, toIdentifierPascalCase, uncapitalize } from '../utils/index.js'
 import { core } from './core.js'
 
 /**
@@ -50,7 +50,7 @@ export async function makeExports(
   // sort abc
   const indexCode = `${keys
     .sort()
-    .map((v) => `export * from './${lowerFirst(v)}.ts'`)
+    .map((v) => `export * from './${uncapitalize(v)}.ts'`)
     .join('\n')}\n`
 
   const asConst = readonly ? ' as const' : ''
@@ -59,7 +59,7 @@ export async function makeExports(
       const v = value[key]
       const name = toIdentifierPascalCase(ensureSuffix(key, suffix))
       const body = `export const ${name} = ${JSON.stringify(v ?? {})}${asConst}\n`
-      const filePath = path.join(outDir, `${lowerFirst(key)}.ts`)
+      const filePath = path.join(outDir, `${uncapitalize(key)}.ts`)
       return core(body, path.dirname(filePath), filePath)
     }),
     core(indexCode, path.dirname(path.join(outDir, 'index.ts')), path.join(outDir, 'index.ts')),

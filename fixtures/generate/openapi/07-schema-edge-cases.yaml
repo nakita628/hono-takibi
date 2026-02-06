@@ -1,0 +1,178 @@
+openapi: 3.1.0
+info:
+  title: Schema Edge Cases API
+  version: 1.0.0
+paths:
+  /nullable:
+    post:
+      operationId: postNullable
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NullableFields"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NullableFields"
+  /discriminated:
+    post:
+      operationId: postDiscriminated
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Shape"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Shape"
+  /composed:
+    get:
+      operationId: getComposed
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ComposedObject"
+  /deep-nested:
+    get:
+      operationId: getDeepNested
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Level1"
+  /additional-props:
+    get:
+      operationId: getAdditionalProps
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DynamicMap"
+components:
+  schemas:
+    NullableFields:
+      type: object
+      properties:
+        name:
+          type: string
+        nickname:
+          type:
+            - string
+            - "null"
+        age:
+          type:
+            - integer
+            - "null"
+        tags:
+          type:
+            - array
+            - "null"
+          items:
+            type: string
+      required:
+        - name
+    Circle:
+      type: object
+      properties:
+        kind:
+          type: string
+          const: circle
+        radius:
+          type: number
+      required:
+        - kind
+        - radius
+    Rectangle:
+      type: object
+      properties:
+        kind:
+          type: string
+          const: rectangle
+        width:
+          type: number
+        height:
+          type: number
+      required:
+        - kind
+        - width
+        - height
+    Shape:
+      oneOf:
+        - $ref: "#/components/schemas/Circle"
+        - $ref: "#/components/schemas/Rectangle"
+      discriminator:
+        propertyName: kind
+        mapping:
+          circle: "#/components/schemas/Circle"
+          rectangle: "#/components/schemas/Rectangle"
+    Base:
+      type: object
+      properties:
+        id:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - createdAt
+    Extended:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+      required:
+        - name
+    ComposedObject:
+      allOf:
+        - $ref: "#/components/schemas/Base"
+        - $ref: "#/components/schemas/Extended"
+        - type: object
+          properties:
+            extra:
+              type: boolean
+    Level1:
+      type: object
+      properties:
+        level2:
+          type: object
+          properties:
+            level3:
+              type: object
+              properties:
+                value:
+                  type: string
+              required:
+                - value
+          required:
+            - level3
+      required:
+        - level2
+    DynamicMap:
+      type: object
+      additionalProperties:
+        type: string
+    AnyOfExample:
+      anyOf:
+        - type: string
+        - type: integer
+        - type: boolean

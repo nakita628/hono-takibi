@@ -1,0 +1,32 @@
+{
+  "name": "@fixtures/generate",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "generate": "tsx src/index.ts",
+    "all": "tsx src/index.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@apidevtools/swagger-parser": "^12.1.0",
+    "hono-takibi": "workspace:^"
+  },
+  "devDependencies": {
+    "@faker-js/faker": "^10.2.0",
+    "@hono/zod-openapi": "^1.2.1",
+    "@tanstack/react-query": "^5.90.20",
+    "@tanstack/svelte-query": "^6.0.18",
+    "@tanstack/vue-query": "^5.92.9",
+    "@types/node": "^25.1.0",
+    "@types/react": "^19.2.13",
+    "hono": "^4.11.7",
+    "react": "^19.2.4",
+    "swr": "^2.4.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.18",
+    "vue": "^3.5.27",
+    "zod": "^4.3.6"
+  }
+}

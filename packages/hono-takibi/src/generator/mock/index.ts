@@ -9,15 +9,12 @@
  *
  * @module generator/mock
  */
-import type { OpenAPI, Operation, Schema } from '../../openapi/index.js'
-import { isHttpMethod, methodPath } from '../../utils/index.js'
+import { isHttpMethod, isOperation, isSecurityArray, isSecurityScheme } from '../../guard/index.js'
+import type { OpenAPI, Schema } from '../../openapi/index.js'
+import { methodPath } from '../../utils/index.js'
 import { schemaToFaker } from '../test/faker-mapping.js'
 import { componentsCode } from '../zod-openapi-hono/openapi/components/index.js'
 import { routeCode } from '../zod-openapi-hono/openapi/routes/index.js'
-
-function isOperation(value: unknown): value is Operation {
-  return typeof value === 'object' && value !== null && 'responses' in value
-}
 
 function collectRefs(schema: Schema, refs: Set<string> = new Set()): Set<string> {
   if (schema.$ref) {
@@ -90,6 +87,35 @@ function topologicalSort(refs: Set<string>, schemas: { [key: string]: Schema }):
   return result
 }
 
+function detectCircularSchemas(schemas: { [key: string]: Schema }): Set<string> {
+  const circular = new Set<string>()
+  for (const name of Object.keys(schemas)) {
+    const schema = schemas[name]
+    if (!schema) continue
+    for (const dep of collectRefs(schema)) {
+      if (dep === name) {
+        circular.add(name)
+        break
+      }
+      const visited = new Set<string>()
+      const stack = [dep]
+      while (stack.length > 0) {
+        const current = stack.pop()!
+        if (current === name) {
+          circular.add(name)
+          break
+        }
+        if (visited.has(current)) continue
+        visited.add(current)
+        const s = schemas[current]
+        if (s) for (const r of collectRefs(s)) stack.push(r)
+      }
+      if (circular.has(name)) break
+    }
+  }
+  return circular
+}
+
 /**
  * Generate mock function for a schema
  */
@@ -97,9 +123,11 @@ function generateMockFunction(
   name: string,
   schema: Schema,
   schemas: { [key: string]: Schema },
+  isCircular: boolean,
 ): string {
   const mockBody = schemaToFaker(schema, undefined, { schemas })
-  return `function mock${name}() {\n  return ${mockBody}\n}`
+  const returnType = isCircular ? ': any' : ''
+  return `function mock${name}()${returnType} {\n  return ${mockBody}\n}`
 }
 
 type SecurityInfo = {
@@ -108,20 +136,9 @@ type SecurityInfo = {
   in?: 'header' | 'query' | 'cookie'
 }
 
-function getSecurityArray(security: unknown): { [key: string]: string[] }[] | undefined {
-  if (!Array.isArray(security)) return undefined
-  return security
-}
-
-function isSecurityScheme(
-  value: unknown,
-): value is { type?: string; scheme?: string; name?: string; in?: string } {
-  return typeof value === 'object' && value !== null && !('$ref' in value)
-}
-
 function extractSecurityInfo(
-  opSecurity: { [key: string]: string[] }[] | undefined,
-  globalSecurity: { [key: string]: string[] }[] | undefined,
+  opSecurity: readonly { readonly [key: string]: readonly string[] }[] | undefined,
+  globalSecurity: readonly { readonly [key: string]: readonly string[] }[] | undefined,
   securitySchemes: { [key: string]: unknown } | undefined,
 ): SecurityInfo[] {
   const securityDefs = opSecurity ?? globalSecurity ?? []
@@ -152,18 +169,6 @@ function extractSecurityInfo(
   return infos
 }
 
-function generateAuthMiddleware(): string {
-  return `const authMiddleware = async (c: any, next: any) => {
-  const auth = c.req.header('Authorization')
-  const apiKey = c.req.header('X-API-Key') || c.req.query('api_key')
-
-  if (!auth && !apiKey) {
-    return c.json({ message: 'Unauthorized' }, 401)
-  }
-
-  await next()
-}`
-}
 
 function hasRequestBodyContent(
   op: unknown,
@@ -238,33 +243,53 @@ export function generateMockServer(
       const op = operation
 
       const security = extractSecurityInfo(
-        getSecurityArray(op.security),
-        getSecurityArray(openapi.security),
+        isSecurityArray(op.security) ? op.security : undefined,
+        isSecurityArray(openapi.security) ? openapi.security : undefined,
         securitySchemes,
       )
       const requiresAuth = security.length > 0
 
       routeEntries.push({ routeId, method, path: p, requiresAuth })
 
-      const successResponse =
-        op.responses?.['200'] ?? op.responses?.['201'] ?? op.responses?.['204']
-      const responseSchema = successResponse?.content?.['application/json']?.schema
+      const responses = openapi.components?.responses as
+        | { [key: string]: { description?: string; content?: { [ct: string]: { schema?: Schema } } } }
+        | undefined
+      const resolveResponse = (
+        r: unknown,
+      ): { content?: { [ct: string]: { schema?: Schema } } } | undefined => {
+        if (typeof r !== 'object' || r === null) return undefined
+        if ('$ref' in r && typeof (r as { $ref: string }).$ref === 'string') {
+          const refName = (r as { $ref: string }).$ref.split('/').pop()
+          return refName && responses?.[refName] ? responses[refName] : undefined
+        }
+        return r as { content?: { [ct: string]: { schema?: Schema } } }
+      }
+      const successResponse = resolveResponse(
+        op.responses?.['200'] ?? op.responses?.['201'] ?? op.responses?.['204'],
+      )
+      const jsonSchema = successResponse?.content?.['application/json']?.schema
+      const textSchema = successResponse?.content?.['text/plain']?.schema
 
       // Determine response status: prefer 200 OK, then 201 Created, fallback to 204 No Content
       const handlerBody = (() => {
-        if (responseSchema) {
-          collectRefs(responseSchema, allRefs)
-          const mockData = schemaToFaker(responseSchema, undefined, { schemas })
-          const statusCode = op.responses?.['200'] ? 200 : op.responses?.['201'] ? 201 : 204
+        const statusCode = op.responses?.['200'] ? 200 : op.responses?.['201'] ? 201 : 204
+        if (jsonSchema) {
+          collectRefs(jsonSchema, allRefs)
+          const mockData = schemaToFaker(jsonSchema, undefined, { schemas })
           return `return c.json(${mockData}, ${statusCode})`
         }
-        const statusCode = op.responses?.['204'] ? 204 : 200
-        return `return c.body(null, ${statusCode})`
+        if (textSchema) {
+          const mockData = schemaToFaker(textSchema, undefined, { schemas })
+          return `return c.text(${mockData}, ${statusCode})`
+        }
+        if (op.responses?.['204']) return `return new Response(null, { status: 204 })`
+        return `return c.body(null, 200)`
       })()
 
-      // Generate auth check code if endpoint requires authentication
+      // Generate auth check code only when route defines 401 response
+      const has401 = op.responses?.['401'] !== undefined
       const authCheck = (() => {
-        if (!requiresAuth) return ''
+        if (!requiresAuth || !has401) return ''
         const authChecks = security.flatMap((sec) => {
           if (sec.type === 'bearer' || sec.type === 'oauth2' || sec.type === 'basic') {
             return [`c.req.header('Authorization')`]
@@ -295,10 +320,15 @@ export function generateMockServer(
   // Sort by dependency order
   const sortedRefs = topologicalSort(allDeps, schemas)
 
+  // Detect circular schemas for return type annotation
+  const circularSchemas = detectCircularSchemas(schemas)
+
   // Generate mock functions in dependency order
   const mockFunctions = sortedRefs
     .filter((refName) => schemas[refName])
-    .map((refName) => generateMockFunction(refName, schemas[refName], schemas))
+    .map((refName) =>
+      generateMockFunction(refName, schemas[refName], schemas, circularSchemas.has(refName)),
+    )
 
   // Generate components code (schemas)
   const components = openapi.components
@@ -331,8 +361,7 @@ export function generateMockServer(
     .join('\n  ')
 
   // Build the final file
-  const imports = `import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi'
-import type { RouteHandler } from '@hono/zod-openapi'
+  const imports = `import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'`
 
   const appCode = `const app = new OpenAPIHono()${basePath !== '/' ? `.basePath('${basePath}')` : ''}

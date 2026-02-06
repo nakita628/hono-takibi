@@ -1,19 +1,12 @@
+import {
+  isContentBody,
+  isHttpMethod,
+  isOperation,
+  isSecurityArray,
+  isSecurityScheme,
+} from '../../guard/index.js'
 import type { OpenAPI, Operation, Schema } from '../../openapi/index.js'
-import { isHttpMethod } from '../../utils/index.js'
 import { schemaToFaker } from './faker-mapping.js'
-
-function isOperation(value: unknown): value is Operation {
-  return typeof value === 'object' && value !== null && 'responses' in value
-}
-
-function hasContent(body: unknown): body is { content?: { [key: string]: { schema?: Schema } } } {
-  return typeof body === 'object' && body !== null && !('$ref' in body)
-}
-
-function getSecurityArray(security: unknown): { [key: string]: string[] }[] | undefined {
-  if (!Array.isArray(security)) return undefined
-  return security
-}
 
 /**
  * Recursively collect all schema $ref names from a schema and its nested properties
@@ -87,15 +80,9 @@ type TestCase = {
   usedSchemaRefs: string[]
 }
 
-function isSecurityScheme(
-  value: unknown,
-): value is { type?: string; scheme?: string; name?: string; in?: string } {
-  return typeof value === 'object' && value !== null && !('$ref' in value)
-}
-
 function extractSecurityRequirements(
-  opSecurity: { [key: string]: string[] }[] | undefined,
-  globalSecurity: { [key: string]: string[] }[] | undefined,
+  opSecurity: readonly { readonly [key: string]: readonly string[] }[] | undefined,
+  globalSecurity: readonly { readonly [key: string]: readonly string[] }[] | undefined,
   securitySchemes: { [key: string]: unknown } | undefined,
 ): SecurityRequirement[] {
   const securityDefs = opSecurity ?? globalSecurity ?? []
@@ -145,14 +132,14 @@ export function extractTestCases(spec: OpenAPI): TestCase[] {
         }
       }
       const requestBody: TestCase['requestBody'] = (() => {
-        if (!(op.requestBody && hasContent(op.requestBody))) return undefined
+        if (!(op.requestBody && isContentBody(op.requestBody))) return undefined
         const jsonContent = op.requestBody.content?.['application/json']
         if (jsonContent?.schema)
           return { fakerCode: schemaToFaker(jsonContent.schema), contentType: 'application/json' }
         return undefined
       })()
       const usedSchemaRefs: string[] = (() => {
-        if (!(op.requestBody && hasContent(op.requestBody))) return []
+        if (!(op.requestBody && isContentBody(op.requestBody))) return []
         const jsonContent = op.requestBody.content?.['application/json']
         if (!jsonContent?.schema) return []
         // Recursively collect all schema refs from the request body
@@ -172,8 +159,8 @@ export function extractTestCases(spec: OpenAPI): TestCase[] {
         .map((s) => Number.parseInt(s, 10))
         .sort()
       const security = extractSecurityRequirements(
-        getSecurityArray(op.security),
-        getSecurityArray(spec.security),
+        isSecurityArray(op.security) ? op.security : undefined,
+        isSecurityArray(spec.security) ? spec.security : undefined,
         securitySchemes,
       )
       testCases.push({
@@ -197,9 +184,61 @@ export function extractTestCases(spec: OpenAPI): TestCase[] {
   return testCases
 }
 
+/**
+ * Shallow ref collection: extract $ref names from schema structure without following into definitions
+ */
+function shallowRefs(schema: Schema): string[] {
+  const refs: string[] = []
+  if (schema.$ref) {
+    const name = schema.$ref.replace('#/components/schemas/', '')
+    refs.push(name)
+  }
+  if (schema.properties) {
+    for (const prop of Object.values(schema.properties)) refs.push(...shallowRefs(prop))
+  }
+  if (schema.items) {
+    const items = Array.isArray(schema.items) ? schema.items : [schema.items]
+    for (const item of items) refs.push(...shallowRefs(item))
+  }
+  for (const key of ['allOf', 'oneOf', 'anyOf'] as const) {
+    if (schema[key]) for (const s of schema[key]) refs.push(...shallowRefs(s))
+  }
+  return refs
+}
+
+function detectCircularSchemas(schemas: { [key: string]: Schema }): Set<string> {
+  const circular = new Set<string>()
+  for (const name of Object.keys(schemas)) {
+    const schema = schemas[name]
+    if (!schema) continue
+    for (const dep of shallowRefs(schema)) {
+      if (dep === name) {
+        circular.add(name)
+        break
+      }
+      const visited = new Set<string>()
+      const stack = [dep]
+      while (stack.length > 0) {
+        const current = stack.pop()!
+        if (current === name) {
+          circular.add(name)
+          break
+        }
+        if (visited.has(current)) continue
+        visited.add(current)
+        const s = schemas[current]
+        if (s) for (const r of shallowRefs(s)) stack.push(r)
+      }
+      if (circular.has(name)) break
+    }
+  }
+  return circular
+}
+
 function generateMockFunctions(spec: OpenAPI, usedSchemaNames: Set<string>): string {
   if (!spec.components?.schemas || usedSchemaNames.size === 0) return ''
   const schemas = spec.components.schemas
+  const circular = detectCircularSchemas(schemas)
   // Topological sort: generate dependencies first
   const sorted: string[] = []
   const visiting = new Set<string>()
@@ -224,7 +263,10 @@ function generateMockFunctions(spec: OpenAPI, usedSchemaNames: Set<string>): str
     visit(name)
   }
   return sorted
-    .map((name) => `function mock${name}() {\n  return ${schemaToFaker(schemas[name])}\n}`)
+    .map((name) => {
+      const returnType = circular.has(name) ? ': any' : ''
+      return `function mock${name}()${returnType} {\n  return ${schemaToFaker(schemas[name])}\n}`
+    })
     .join('\n\n')
 }
 

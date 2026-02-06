@@ -1,3 +1,4 @@
+import { isMedia } from '../../../../guard/index.js'
 import type { Components, Media, Reference } from '../../../../openapi/index.js'
 import {
   ensureSuffix,
@@ -5,10 +6,6 @@ import {
   zodToOpenAPISchema,
 } from '../../../../utils/index.js'
 import { zodToOpenAPI } from '../../../zod-to-openapi/index.js'
-
-function isMedia(value: Media | Reference): value is Media {
-  return typeof value === 'object' && value !== null && 'schema' in value
-}
 
 /**
  * Generates TypeScript code for OpenAPI component mediaTypes.

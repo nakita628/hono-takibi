@@ -1,6 +1,3 @@
-// Re-export guards for backward compatibility
-export { isHttpMethod, isRecord } from '../guard/index.js'
-
 /**
  * Normalize a JSON Schema `type` value into an array of type strings.
  *
@@ -169,13 +166,13 @@ export function renderNamedImport(names: readonly string[], spec: string): strin
  *
  * @example
  * ```ts
- * lowerFirst('Hello')  // → 'hello'
- * lowerFirst('ABC')    // → 'aBC'
- * lowerFirst('')       // → ''
+ * uncapitalize('Hello')  // → 'hello'
+ * uncapitalize('ABC')    // → 'aBC'
+ * uncapitalize('')       // → ''
  * ```
  */
-export function lowerFirst(text: string): string {
-  return text ? (text[0]?.toLowerCase() ?? '') + text.slice(1) : text
+export function uncapitalize(text: string): string {
+  return text.charAt(0).toLowerCase() + text.slice(1)
 }
 
 /**
@@ -186,13 +183,13 @@ export function lowerFirst(text: string): string {
  *
  * @example
  * ```ts
- * upperFirst('hello')  // → 'Hello'
- * upperFirst('abc')    // → 'Abc'
- * upperFirst('')       // → ''
+ * capitalize('hello')  // → 'Hello'
+ * capitalize('abc')    // → 'Abc'
+ * capitalize('')       // → ''
  * ```
  */
-export function upperFirst(text: string): string {
-  return text ? (text[0]?.toUpperCase() ?? '') + text.slice(1) : text
+export function capitalize(text: string): string {
+  return text.charAt(0).toUpperCase() + text.slice(1)
 }
 
 /**
@@ -274,4 +271,24 @@ export function zodToOpenAPISchema(
 
   if (notComponentSchema) return `${schemaCode}${zodInferCode}`
   return `${componentSchemaCode}${zodInferCode}`
+}
+
+/**
+ * Generates a barrel file content with sorted export statements.
+ *
+ * @param value - An object whose keys represent module names to export.
+ * @returns A string containing sorted `export * from './moduleName'` statements.
+ *
+ * @example
+ * ```ts
+ * makeBarrel({ User: {}, Post: {}, Comment: {} })
+ * // Returns:
+ * // "export * from './comment'\nexport * from './post'\nexport * from './user'\n"
+ * ```
+ */
+export function makeBarrel(value: { readonly [k: string]: unknown }): string {
+  return `${Object.keys(value)
+    .sort()
+    .map((k) => `export * from './${k.charAt(0).toLowerCase() + k.slice(1)}'`)
+    .join('\n')}\n`
 }

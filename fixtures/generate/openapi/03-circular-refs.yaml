@@ -1,0 +1,83 @@
+openapi: 3.1.0
+info:
+  title: Circular References API
+  version: 1.0.0
+paths:
+  /tree:
+    get:
+      operationId: getTree
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TreeNode"
+    post:
+      operationId: createTree
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TreeNode"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TreeNode"
+  /graph:
+    get:
+      operationId: getGraph
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NodeA"
+components:
+  schemas:
+    TreeNode:
+      type: object
+      properties:
+        id:
+          type: integer
+        value:
+          type: string
+        children:
+          type: array
+          items:
+            $ref: "#/components/schemas/TreeNode"
+      required:
+        - id
+        - value
+    NodeA:
+      type: object
+      properties:
+        id:
+          type: integer
+        ref:
+          $ref: "#/components/schemas/NodeB"
+      required:
+        - id
+    NodeB:
+      type: object
+      properties:
+        id:
+          type: integer
+        ref:
+          $ref: "#/components/schemas/NodeC"
+      required:
+        - id
+    NodeC:
+      type: object
+      properties:
+        id:
+          type: integer
+        ref:
+          $ref: "#/components/schemas/NodeA"
+      required:
+        - id

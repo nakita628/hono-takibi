@@ -8,66 +8,30 @@
  */
 import path from 'node:path'
 import {
-  hasSchemaProp,
   isOperationLike,
   isParameterObject,
   isRecord,
   isRefObject,
+  isSchemaProperty,
   isValidIdent,
 } from '../guard/index.js'
-
-// Re-export guards for backward compatibility
-export {
-  hasSchemaProp,
-  isOpenAPIPaths,
-  isOperationLike,
-  isParameterObject,
-  isRefObject,
-  isValidIdent,
-} from '../guard/index.js'
-
-/* ─────────────────────────────── Types ─────────────────────────────── */
-
-// HttpMethod is exported because it's used by multiple modules
-export type HttpMethod = 'get' | 'put' | 'post' | 'delete' | 'options' | 'head' | 'patch' | 'trace'
-
-type ParameterLike = {
-  name: string
-  in: 'path' | 'query' | 'header' | 'cookie'
-  required?: boolean
-}
-
-type OperationLike = {
-  summary?: string
-  description?: string
-  parameters?: unknown
-  requestBody?: unknown
-  responses?: unknown
-}
-
-/* ─────────────────────────────── Formatters ─────────────────────────────── */
 
 /**
  * Escape special characters for string literals.
  */
-export function esc(s: string) {
+function makeEscaped(s: string) {
   return s.replace(/\\/g, '\\\\').replace(/'/g, "\\'")
-}
-
-/**
- * Format result containing paths for both runtime and type expressions.
- */
-export type FormatPathResult = {
-  runtimePath: string
-  typeofPrefix: string
-  bracketSuffix: string
-  hasBracket: boolean
 }
 
 /**
  * Format path for Hono RPC access (both type and runtime).
  */
-export function formatPath(p: string): FormatPathResult {
+export function formatPath(p: string): {
+  runtimePath: string
+  typeofPrefix: string
+  bracketSuffix: string
+  hasBracket: boolean
+} {
   if (p === '/') {
     return {
       runtimePath: '.index',
@@ -83,7 +47,9 @@ export function formatPath(p: string): FormatPathResult {
   const firstBracketIdx = honoSegs.findIndex((seg) => !isValidIdent(seg))
   const hasBracket = firstBracketIdx !== -1
 
-  const runtimeParts = honoSegs.map((seg) => (isValidIdent(seg) ? `.${seg}` : `['${esc(seg)}']`))
+  const runtimeParts = honoSegs.map((seg) =>
+    isValidIdent(seg) ? `.${seg}` : `['${makeEscaped(seg)}']`,
+  )
   const runtimePath = runtimeParts.join('')
 
   const typeofPrefix = hasBracket
@@ -96,7 +62,7 @@ export function formatPath(p: string): FormatPathResult {
   const bracketSuffix = hasBracket
     ? honoSegs
         .slice(firstBracketIdx)
-        .map((seg) => `['${esc(seg)}']`)
+        .map((seg) => `['${makeEscaped(seg)}']`)
         .join('')
     : ''
 
@@ -108,7 +74,7 @@ export function formatPath(p: string): FormatPathResult {
 /**
  * Extract parameter name from $ref.
  */
-export function refParamName(refLike: unknown): string | undefined {
+function refParamName(refLike: unknown): string | undefined {
   const ref =
     typeof refLike === 'string' ? refLike : isRefObject(refLike) ? refLike.$ref : undefined
   const m = ref?.match(/^#\/components\/parameters\/(.+)$/)
@@ -118,8 +84,12 @@ export function refParamName(refLike: unknown): string | undefined {
 /**
  * Create parameter resolver function.
  */
-export function createResolveParameter(componentsParameters: Record<string, unknown>) {
-  return (p: unknown): ParameterLike | undefined => {
+function makeResolveParameter(componentsParameters: { readonly [k: string]: unknown }) {
+  return (
+    p: unknown,
+  ):
+    | { name: string; in: 'path' | 'query' | 'header' | 'cookie'; required?: boolean }
+    | undefined => {
     if (isParameterObject(p)) return p
     const name = refParamName(p)
     const cand = name ? componentsParameters[name] : undefined
@@ -130,88 +100,72 @@ export function createResolveParameter(componentsParameters: Record<string, unkn
 /**
  * Create function to convert parameter array to ParameterLike array.
  */
-export function createToParameterLikes(resolveParam: (p: unknown) => ParameterLike | undefined) {
-  return (arr?: unknown): ParameterLike[] =>
+function makeToParameterLikes(
+  resolveParam: (p: unknown) =>
+    | {
+        name: string
+        in: 'path' | 'query' | 'header' | 'cookie'
+        required?: boolean
+      }
+    | undefined,
+) {
+  return (
+    arr?: unknown,
+  ): readonly { name: string; in: 'path' | 'query' | 'header' | 'cookie'; required?: boolean }[] =>
     Array.isArray(arr) ? arr.map((x) => resolveParam(x)).filter((param) => param !== undefined) : []
 }
 
 /* ─────────────────────────────── Operation types ─────────────────────────────── */
 
-/**
- * Extract success status codes (2xx) from operation responses.
- */
-export function getSuccessStatusCode(op: OperationLike): number | undefined {
-  const responses = op.responses
-  if (!isRecord(responses)) return undefined
-
-  const statusCodes = Object.keys(responses)
-    .map((s) => Number.parseInt(s, 10))
-    .filter((code) => !Number.isNaN(code) && code >= 200 && code < 300)
-    .sort((a, b) => {
-      const priority = [200, 201, 204]
-      const aIndex = priority.indexOf(a)
-      const bIndex = priority.indexOf(b)
-      if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex
-      if (aIndex !== -1) return -1
-      if (bIndex !== -1) return 1
-      return a - b
-    })
-
-  return statusCodes[0]
-}
-
-const NO_CONTENT_STATUS_CODES = [204, 205] as const
+const NO_CONTENT_STATUS_CODES = [204, 205]
 
 /**
  * Check if operation has No Content response (204 or 205).
  */
-export function hasNoContentResponse(op: OperationLike): boolean {
+export function hasNoContentResponse(op: {
+  summary?: string
+  description?: string
+  parameters?: unknown
+  requestBody?: unknown
+  responses?: unknown
+}): boolean {
   const responses = op.responses
   if (!isRecord(responses)) return false
 
   return Object.keys(responses).some((status) => {
     const code = Number.parseInt(status, 10)
-    return !Number.isNaN(code) && NO_CONTENT_STATUS_CODES.includes(code as 204 | 205)
+    return !Number.isNaN(code) && NO_CONTENT_STATUS_CODES.includes(code)
   })
 }
-
-/**
- * All HTTP methods as readonly array.
- */
-export const HTTP_METHODS: readonly HttpMethod[] = [
-  'get',
-  'put',
-  'post',
-  'delete',
-  'options',
-  'head',
-  'patch',
-  'trace',
-]
 
 /**
  * OpenAPI path item with operations.
  */
 export type PathItemLike = {
   parameters?: unknown
-} & { [M in HttpMethod]?: OperationLike | undefined }
+} & {
+  [M in 'get' | 'put' | 'post' | 'delete' | 'options' | 'head' | 'patch' | 'trace']?:
+    | {
+        summary?: string
+        description?: string
+        parameters?: unknown
+        requestBody?: unknown
+        responses?: unknown
+      }
+    | undefined
+}
 
 /* ─────────────────────────────── RequestBody ─────────────────────────────── */
 
 /**
- * Body info for tracking request body presence.
- */
-export type BodyInfo = { contentType: string }
-
-/**
  * All body info grouped by type.
  */
-export type AllBodyInfo = { form: BodyInfo[]; json: BodyInfo[] }
+export type AllBodyInfo = { form: { contentType: string }[]; json: { contentType: string }[] }
 
 /**
  * Extract requestBody name from $ref.
  */
-export function refRequestBodyName(refLike: unknown): string | undefined {
+function refRequestBodyName(refLike: unknown): string | undefined {
   const ref =
     typeof refLike === 'string' ? refLike : isRefObject(refLike) ? refLike.$ref : undefined
   const m = ref?.match(/^#\/components\/requestBodies\/(.+)$/)
@@ -221,7 +175,7 @@ export function refRequestBodyName(refLike: unknown): string | undefined {
 /**
  * Collect all body infos from content.
  */
-export function pickAllBodyInfoFromContent(content: unknown): AllBodyInfo | undefined {
+function pickAllBodyInfoFromContent(content: unknown) {
   if (!isRecord(content)) return undefined
 
   const formContentTypes = ['multipart/form-data', 'application/x-www-form-urlencoded']
@@ -230,16 +184,17 @@ export function pickAllBodyInfoFromContent(content: unknown): AllBodyInfo | unde
     formContentTypes.includes(ct.split(';')[0].trim())
 
   const validEntries = Object.entries(content).filter(
-    ([_, mediaObj]) => isRecord(mediaObj) && hasSchemaProp(mediaObj) && isRecord(mediaObj.schema),
+    ([_, mediaObj]) =>
+      isRecord(mediaObj) && isSchemaProperty(mediaObj) && isRecord(mediaObj.schema),
   )
 
   const formInfos = validEntries
     .filter(([ct]) => isFormContentType(ct))
-    .map(([ct]): BodyInfo => ({ contentType: ct }))
+    .map(([ct]) => ({ contentType: ct }))
 
   const jsonInfos = validEntries
     .filter(([ct]) => !isFormContentType(ct))
-    .map(([ct]): BodyInfo => ({ contentType: ct }))
+    .map(([ct]) => ({ contentType: ct }))
 
   if (formInfos.length === 0 && jsonInfos.length === 0) return undefined
 
@@ -249,8 +204,14 @@ export function pickAllBodyInfoFromContent(content: unknown): AllBodyInfo | unde
 /**
  * Create function to pick body info from operation.
  */
-export function createPickAllBodyInfo(componentsRequestBodies: Record<string, unknown>) {
-  return (op: OperationLike): AllBodyInfo | undefined => {
+function makePickAllBodyInfo(componentsRequestBodies: { readonly [k: string]: unknown }) {
+  return (op: {
+    summary?: string
+    description?: string
+    parameters?: unknown
+    requestBody?: unknown
+    responses?: unknown
+  }): AllBodyInfo | undefined => {
     const rb = op.requestBody
     if (!isRecord(rb)) return undefined
 
@@ -280,27 +241,21 @@ export function resolveSplitOutDir(output: string) {
   return { outDir, indexPath }
 }
 
-/* ─────────────────────────────── JSDoc formatting ─────────────────────────────── */
-
-/**
- * Format multiline text for JSDoc comments.
- */
-export function formatJsDocLines(text: string): string[] {
-  return text
-    .trimEnd()
-    .split('\n')
-    .map((line) => ` * ${line}`)
-}
-
 /**
  * Build JSDoc comment block for an operation.
  */
-export function buildOperationDocs(
+export function makeOperationDocs(
   method: string,
   pathStr: string,
   summary?: string,
   description?: string,
 ): string {
+  const formatJsDocLines = (text: string): readonly string[] => {
+    return text
+      .trimEnd()
+      .split('\n')
+      .map((line) => ` * ${line}`)
+  }
   const safePathStr = pathStr.replace(/\/\*/g, '/[*]')
   return [
     '/**',
@@ -316,7 +271,7 @@ export function buildOperationDocs(
 /**
  * Parse raw path item to PathItemLike.
  */
-export function parsePathItem(rawItem: Record<string, unknown>): PathItemLike {
+export function parsePathItem(rawItem: { [key: string]: unknown }): PathItemLike {
   return {
     parameters: rawItem.parameters,
     get: isOperationLike(rawItem.get) ? rawItem.get : undefined,
@@ -335,44 +290,38 @@ export function parsePathItem(rawItem: Record<string, unknown>): PathItemLike {
 /**
  * Build InferRequestType expression.
  */
-export function buildInferRequestType(
+export function makeInferRequestType(
   clientName: string,
-  pathResult: FormatPathResult,
-  method: HttpMethod,
+  pathResult: {
+    runtimePath: string
+    typeofPrefix: string
+    bracketSuffix: string
+    hasBracket: boolean
+  },
+  method: 'get' | 'put' | 'post' | 'delete' | 'options' | 'head' | 'patch' | 'trace',
 ): string {
   const { runtimePath, typeofPrefix, bracketSuffix, hasBracket } = pathResult
   return hasBracket
-    ? `InferRequestType<(typeof ${clientName}${typeofPrefix})${bracketSuffix}['$${method}']>`
+    ? `InferRequestType<typeof ${clientName}${typeofPrefix}${bracketSuffix}['$${method}']>`
     : `InferRequestType<typeof ${clientName}${runtimePath}.$${method}>`
-}
-
-/**
- * Build InferResponseType expression.
- */
-export function buildInferResponseType(
-  clientName: string,
-  pathResult: FormatPathResult,
-  method: HttpMethod,
-  statusCode?: number,
-): string {
-  const { runtimePath, typeofPrefix, bracketSuffix, hasBracket } = pathResult
-  const statusSuffix = statusCode !== undefined ? `,${statusCode}` : ''
-  return hasBracket
-    ? `InferResponseType<(typeof ${clientName}${typeofPrefix})${bracketSuffix}['$${method}']${statusSuffix}>`
-    : `InferResponseType<typeof ${clientName}${runtimePath}.$${method}${statusSuffix}>`
 }
 
 /**
  * Build parseResponse return type expression.
  */
-export function buildParseResponseType(
+export function makeParseResponseType(
   clientName: string,
-  pathResult: FormatPathResult,
-  method: HttpMethod,
+  pathResult: {
+    runtimePath: string
+    typeofPrefix: string
+    bracketSuffix: string
+    hasBracket: boolean
+  },
+  method: 'get' | 'put' | 'post' | 'delete' | 'options' | 'head' | 'patch' | 'trace',
 ): string {
   const { runtimePath, typeofPrefix, bracketSuffix, hasBracket } = pathResult
   const clientMethodType = hasBracket
-    ? `(typeof ${clientName}${typeofPrefix})${bracketSuffix}['$${method}']`
+    ? `typeof ${clientName}${typeofPrefix}${bracketSuffix}['$${method}']`
     : `typeof ${clientName}${runtimePath}.$${method}`
   return `Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<${clientMethodType}>>>>>`
 }
@@ -382,23 +331,31 @@ export function buildParseResponseType(
 /**
  * Dependencies for operation analysis.
  */
-export type OperationDeps = {
-  client: string
-  toParameterLikes: (arr?: unknown) => ParameterLike[]
-  pickAllBodyInfo: (op: OperationLike) => AllBodyInfo | undefined
-}
+// export type OperationDeps = {
+//   client: string
+//   toParameterLikes: (
+//     arr?: unknown,
+//   ) => readonly { name: string; in: 'path' | 'query' | 'header' | 'cookie'; required?: boolean }[]
+//   pickAllBodyInfo: (op: {
+//     summary?: string
+//     description?: string
+//     parameters?: unknown
+//     requestBody?: unknown
+//     responses?: unknown
+//   }) => AllBodyInfo | undefined
+// }
 
 /**
  * Create operation dependencies from OpenAPI components.
  */
-export function createOperationDeps(
+export function makeOperationDeps(
   clientName: string,
-  componentsParameters: Record<string, unknown>,
-  componentsRequestBodies: Record<string, unknown>,
-): OperationDeps {
-  const resolveParameter = createResolveParameter(componentsParameters)
-  const toParameterLikes = createToParameterLikes(resolveParameter)
-  const pickAllBodyInfo = createPickAllBodyInfo(componentsRequestBodies)
+  componentsParameters: { [key: string]: unknown },
+  componentsRequestBodies: { [key: string]: unknown },
+) {
+  const resolveParameter = makeResolveParameter(componentsParameters)
+  const toParameterLikes = makeToParameterLikes(resolveParameter)
+  const pickAllBodyInfo = makePickAllBodyInfo(componentsRequestBodies)
   return { client: clientName, toParameterLikes, pickAllBodyInfo }
 }
 
@@ -407,8 +364,26 @@ export function createOperationDeps(
  */
 export function operationHasArgs(
   item: PathItemLike,
-  op: OperationLike,
-  deps: OperationDeps,
+  op: {
+    summary?: string
+    description?: string
+    parameters?: unknown
+    requestBody?: unknown
+    responses?: unknown
+  },
+  deps: {
+    client: string
+    toParameterLikes: (
+      arr?: unknown,
+    ) => readonly { name: string; in: 'path' | 'query' | 'header' | 'cookie'; required?: boolean }[]
+    pickAllBodyInfo: (op: {
+      summary?: string
+      description?: string
+      parameters?: unknown
+      requestBody?: unknown
+      responses?: unknown
+    }) => AllBodyInfo | undefined
+  },
 ): boolean {
   const pathLevelParams = deps.toParameterLikes(item.parameters)
   const opParams = deps.toParameterLikes(op.parameters)

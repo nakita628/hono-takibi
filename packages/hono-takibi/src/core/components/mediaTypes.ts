@@ -12,9 +12,9 @@ import { core } from '../../helper/index.js'
 import type { Components } from '../../openapi/index.js'
 import {
   ensureSuffix,
-  lowerFirst,
   renderNamedImport,
   toIdentifierPascalCase,
+  uncapitalize,
   zodToOpenAPISchema,
 } from '../../utils/index.js'
 
@@ -66,20 +66,20 @@ export async function mediaTypes(
     // Generate index.ts with sorted exports
     const indexCode = `${keys
       .sort()
-      .map((v) => `export * from './${lowerFirst(v)}.ts'`)
+      .map((v) => `export * from './${uncapitalize(v)}.ts'`)
       .join('\n')}\n`
 
     const results = await Promise.all([
       ...keys.map((key) => {
         const v = mediaTypes[key]
         const name = toIdentifierPascalCase(ensureSuffix(key, 'Schema'))
-        const filePath = path.join(outDir, `${lowerFirst(key)}.ts`)
+        const filePath = path.join(outDir, `${uncapitalize(key)}.ts`)
 
         // Handle $ref references
         if (typeof v === 'object' && v !== null && '$ref' in v && v.$ref) {
           const refKey = v.$ref.split('/').at(-1) ?? ''
           const refName = toIdentifierPascalCase(ensureSuffix(refKey, 'Schema'))
-          const importPath = `./${lowerFirst(refKey)}.ts`
+          const importPath = `./${uncapitalize(refKey)}.ts`
           const body = `import { ${refName} } from '${importPath}'\n\nexport const ${name} = ${refName}\n`
           return core(body, path.dirname(filePath), filePath)
         }

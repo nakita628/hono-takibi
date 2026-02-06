@@ -8,9 +8,9 @@
  */
 import path from 'node:path'
 import { responsesCode } from '../../generator/zod-openapi-hono/openapi/components/responses.js'
-import { core, makeBarrel, makeImports } from '../../helper/index.js'
+import { core, makeImports } from '../../helper/index.js'
 import type { Components } from '../../openapi/index.js'
-import { lowerFirst } from '../../utils/index.js'
+import { makeBarrel, uncapitalize } from '../../utils/index.js'
 
 /**
  * Generates response component files.
@@ -70,7 +70,7 @@ export async function responses(
       ...responseNames.map((responseName) => {
         const singleComponent = { responses: { [responseName]: responses[responseName] } }
         const code = responsesCode(singleComponent, true, readonly)
-        const filePath = path.join(outDir, `${lowerFirst(responseName)}.ts`)
+        const filePath = path.join(outDir, `${uncapitalize(responseName)}.ts`)
         return core(toFileCode(code, filePath), path.dirname(filePath), filePath)
       }),
       core(makeBarrel(responses), outDir, path.join(outDir, 'index.ts')),

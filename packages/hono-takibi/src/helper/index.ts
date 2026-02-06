@@ -1,42 +1,16 @@
 export { analyzeCircularSchemas, ast } from './ast.js'
-export { makeBarrel } from './barrel.js'
 export { makeConst, makeExportConst, makeImports, makeModuleSpec } from './code.js'
 export { core } from './core.js'
 export { makeExports } from './exports.js'
-export type {
-  AllBodyInfo,
-  BodyInfo,
-  FormatPathResult,
-  HttpMethod,
-  OperationDeps,
-  PathItemLike,
-} from './hono-rpc.js'
 export {
-  buildInferRequestType,
-  buildInferResponseType,
-  buildOperationDocs,
-  buildParseResponseType,
-  createOperationDeps,
-  createPickAllBodyInfo,
-  createResolveParameter,
-  createToParameterLikes,
-  esc,
-  formatJsDocLines,
+  makeInferRequestType,
+  makeParseResponseType,
+  makeOperationDocs,
+  makeOperationDeps,
   formatPath,
-  getSuccessStatusCode,
-  HTTP_METHODS,
   hasNoContentResponse,
-  hasSchemaProp,
-  isOpenAPIPaths,
-  isOperationLike,
-  isParameterObject,
-  isRefObject,
-  isValidIdent,
   operationHasArgs,
   parsePathItem,
-  pickAllBodyInfoFromContent,
-  refParamName,
-  refRequestBodyName,
   resolveSplitOutDir,
 } from './hono-rpc.js'
 export {
