@@ -19,7 +19,6 @@
  */
 import path from 'node:path'
 import {
-  isStringRef,
   isHttpMethod,
   isMediaWithSchema,
   isOperation,
@@ -27,6 +26,7 @@ import {
   isParameterArray,
   isRequestBody,
   isSchemaArray,
+  isStringRef,
 } from '../../guard/index.js'
 import { core } from '../../helper/index.js'
 import type {

@@ -87,9 +87,7 @@ export function isStringRef(p: object): p is { readonly $ref: string } {
 /**
  * Type guard for parameter objects (lightweight, unknown input).
  */
-export function isParameterObject(
-  v: unknown,
-): v is {
+export function isParameterObject(v: unknown): v is {
   readonly name: string
   readonly in: 'path' | 'query' | 'header' | 'cookie'
   readonly required?: boolean
@@ -231,9 +229,7 @@ export function isContentBody(
 /**
  * Type guard for security scheme objects (not a $ref).
  */
-export function isSecurityScheme(
-  value: unknown,
-): value is {
+export function isSecurityScheme(value: unknown): value is {
   readonly type?: string
   readonly scheme?: string
   readonly name?: string

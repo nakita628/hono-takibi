@@ -45,19 +45,14 @@ function makeEscaped(s: string) {
 }
 
 /**
- * Format result containing paths for both runtime and type expressions.
+ * Format path for Hono RPC access (both type and runtime).
  */
-export type FormatPathResult = {
+export function formatPath(p: string):{
   runtimePath: string
   typeofPrefix: string
   bracketSuffix: string
   hasBracket: boolean
-}
-
-/**
- * Format path for Hono RPC access (both type and runtime).
- */
-export function formatPath(p: string): FormatPathResult {
+} {
   if (p === '/') {
     return {
       runtimePath: '.index',
@@ -73,7 +68,9 @@ export function formatPath(p: string): FormatPathResult {
   const firstBracketIdx = honoSegs.findIndex((seg) => !isValidIdent(seg))
   const hasBracket = firstBracketIdx !== -1
 
-  const runtimeParts = honoSegs.map((seg) => (isValidIdent(seg) ? `.${seg}` : `['${makeEscaped(seg)}']`))
+  const runtimeParts = honoSegs.map((seg) =>
+    isValidIdent(seg) ? `.${seg}` : `['${makeEscaped(seg)}']`,
+  )
   const runtimePath = runtimeParts.join('')
 
   const typeofPrefix = hasBracket
@@ -197,7 +194,8 @@ function pickAllBodyInfoFromContent(content: unknown): AllBodyInfo | undefined {
     formContentTypes.includes(ct.split(';')[0].trim())
 
   const validEntries = Object.entries(content).filter(
-    ([_, mediaObj]) => isRecord(mediaObj) && isSchemaProperty(mediaObj) && isRecord(mediaObj.schema),
+    ([_, mediaObj]) =>
+      isRecord(mediaObj) && isSchemaProperty(mediaObj) && isRecord(mediaObj.schema),
   )
 
   const formInfos = validEntries

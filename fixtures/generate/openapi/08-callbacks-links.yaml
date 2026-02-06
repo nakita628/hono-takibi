@@ -1,0 +1,164 @@
+openapi: 3.1.0
+info:
+  title: Callbacks and Links API
+  version: 1.0.0
+paths:
+  /subscriptions:
+    post:
+      operationId: createSubscription
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubscriptionRequest"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Subscription"
+          links:
+            GetSubscription:
+              $ref: "#/components/links/GetSubscriptionLink"
+      callbacks:
+        onEvent:
+          $ref: "#/components/callbacks/SubscriptionEvent"
+  /subscriptions/{id}:
+    get:
+      operationId: getSubscription
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Subscription"
+          links:
+            DeleteSubscription:
+              $ref: "#/components/links/DeleteSubscriptionLink"
+    delete:
+      operationId: deleteSubscription
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Deleted
+  /webhooks/test:
+    post:
+      operationId: testWebhook
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                url:
+                  type: string
+                  format: uri
+              required:
+                - url
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sent:
+                    type: boolean
+                required:
+                  - sent
+components:
+  schemas:
+    SubscriptionRequest:
+      type: object
+      properties:
+        callbackUrl:
+          type: string
+          format: uri
+        events:
+          type: array
+          items:
+            type: string
+            enum:
+              - created
+              - updated
+              - deleted
+      required:
+        - callbackUrl
+        - events
+    Subscription:
+      type: object
+      properties:
+        id:
+          type: string
+        callbackUrl:
+          type: string
+          format: uri
+        events:
+          type: array
+          items:
+            type: string
+        status:
+          type: string
+          enum:
+            - active
+            - paused
+            - cancelled
+      required:
+        - id
+        - callbackUrl
+        - events
+        - status
+    EventPayload:
+      type: object
+      properties:
+        event:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        data:
+          type: object
+          additionalProperties: true
+      required:
+        - event
+        - timestamp
+  links:
+    GetSubscriptionLink:
+      operationId: getSubscription
+      parameters:
+        id: $response.body#/id
+      description: Get the created subscription
+    DeleteSubscriptionLink:
+      operationId: deleteSubscription
+      parameters:
+        id: $request.path.id
+      description: Delete this subscription
+  callbacks:
+    SubscriptionEvent:
+      "{$request.body#/callbackUrl}":
+        post:
+          operationId: subscriptionEventCallback
+          requestBody:
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/EventPayload"
+          responses:
+            "200":
+              description: Event processed

@@ -5,7 +5,6 @@ export { makeExports } from './exports.js'
 export type {
   AllBodyInfo,
   BodyInfo,
-  FormatPathResult,
   HttpMethod,
   OperationDeps,
   PathItemLike,

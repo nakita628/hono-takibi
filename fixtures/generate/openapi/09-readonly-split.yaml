@@ -1,0 +1,278 @@
+openapi: 3.1.0
+info:
+  title: Readonly Split API
+  version: 1.0.0
+paths:
+  /posts:
+    get:
+      operationId: listPosts
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  posts:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Post"
+                  total:
+                    type: integer
+                required:
+                  - posts
+                  - total
+    post:
+      operationId: createPost
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePost"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Post"
+  /posts/{id}:
+    get:
+      operationId: getPost
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Post"
+    put:
+      operationId: updatePost
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdatePost"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Post"
+    delete:
+      operationId: deletePost
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+  /posts/{id}/comments:
+    get:
+      operationId: listComments
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Comment"
+    post:
+      operationId: createComment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateComment"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Comment"
+  /tags:
+    get:
+      operationId: listTags
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Tag"
+components:
+  schemas:
+    Post:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        body:
+          type: string
+        author:
+          $ref: "#/components/schemas/Author"
+        tags:
+          type: array
+          items:
+            $ref: "#/components/schemas/Tag"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - title
+        - body
+        - author
+        - createdAt
+        - updatedAt
+    CreatePost:
+      type: object
+      properties:
+        title:
+          type: string
+        body:
+          type: string
+        tagIds:
+          type: array
+          items:
+            type: integer
+      required:
+        - title
+        - body
+    UpdatePost:
+      type: object
+      properties:
+        title:
+          type: string
+        body:
+          type: string
+        tagIds:
+          type: array
+          items:
+            type: integer
+    Comment:
+      type: object
+      properties:
+        id:
+          type: integer
+        body:
+          type: string
+        author:
+          $ref: "#/components/schemas/Author"
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - body
+        - author
+        - createdAt
+    CreateComment:
+      type: object
+      properties:
+        body:
+          type: string
+      required:
+        - body
+    Author:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        avatarUrl:
+          type: string
+          format: uri
+      required:
+        - id
+        - name
+    Tag:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        slug:
+          type: string
+      required:
+        - id
+        - name
+        - slug
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+        limit:
+          type: integer
+        total:
+          type: integer
+      required:
+        - page
+        - limit
+        - total
+    Error:
+      type: object
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+      required:
+        - code
+        - message

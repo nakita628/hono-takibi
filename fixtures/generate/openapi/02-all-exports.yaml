@@ -1,0 +1,148 @@
+openapi: 3.1.0
+info:
+  title: All Exports API
+  version: 1.0.0
+paths:
+  /users:
+    get:
+      operationId: getUsers
+      parameters:
+        - $ref: "#/components/parameters/PageParam"
+      responses:
+        "200":
+          $ref: "#/components/responses/UserListResponse"
+    post:
+      operationId: createUser
+      requestBody:
+        $ref: "#/components/requestBodies/CreateUserBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+          links:
+            GetUser:
+              $ref: "#/components/links/GetUserLink"
+  /users/{id}:
+    get:
+      operationId: getUserById
+      parameters:
+        - $ref: "#/components/parameters/UserIdParam"
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+          headers:
+            X-Request-Id:
+              $ref: "#/components/headers/XRequestId"
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+      required:
+        - id
+        - name
+        - email
+    UserList:
+      type: array
+      items:
+        $ref: "#/components/schemas/User"
+  responses:
+    UserListResponse:
+      description: A list of users
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/UserList"
+  parameters:
+    PageParam:
+      name: page
+      in: query
+      schema:
+        type: integer
+        default: 1
+    UserIdParam:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+  examples:
+    UserExample:
+      summary: Example user
+      value:
+        id: 1
+        name: Alice
+        email: alice@example.com
+  requestBodies:
+    CreateUserBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+              email:
+                type: string
+                format: email
+            required:
+              - name
+              - email
+  headers:
+    XRequestId:
+      description: Unique request identifier
+      schema:
+        type: string
+        format: uuid
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  links:
+    GetUserLink:
+      operationId: getUserById
+      parameters:
+        id: $response.body#/id
+      description: Get the created user
+  callbacks:
+    UserCreated:
+      "{$request.body#/callbackUrl}":
+        post:
+          operationId: userCreatedCallback
+          requestBody:
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/User"
+          responses:
+            "200":
+              description: Callback processed
+  pathItems:
+    UserItem:
+      get:
+        operationId: getUserItem
+        responses:
+          "200":
+            description: OK
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/User"

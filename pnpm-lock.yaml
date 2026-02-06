@@ -269,6 +269,61 @@ importers:
         specifier: ^5.9.3
         version: 5.9.3
 
+  fixtures/generate:
+    dependencies:
+      '@apidevtools/swagger-parser':
+        specifier: ^12.1.0
+        version: 12.1.0(openapi-types@12.1.3)
+      hono-takibi:
+        specifier: workspace:^
+        version: link:../../packages/hono-takibi
+    devDependencies:
+      '@faker-js/faker':
+        specifier: ^10.2.0
+        version: 10.2.0
+      '@hono/zod-openapi':
+        specifier: ^1.2.1
+        version: 1.2.1(hono@4.11.7)(zod@4.3.6)
+      '@tanstack/react-query':
+        specifier: ^5.90.20
+        version: 5.90.20(react@19.2.4)
+      '@tanstack/svelte-query':
+        specifier: ^6.0.18
+        version: 6.0.18(svelte@5.49.1)
+      '@tanstack/vue-query':
+        specifier: ^5.92.9
+        version: 5.92.9(vue@3.5.27(typescript@5.9.3))
+      '@types/node':
+        specifier: ^25.1.0
+        version: 25.2.0
+      '@types/react':
+        specifier: ^19.2.13
+        version: 19.2.13
+      hono:
+        specifier: ^4.11.7
+        version: 4.11.7
+      react:
+        specifier: ^19.2.4
+        version: 19.2.4
+      swr:
+        specifier: ^2.4.0
+        version: 2.4.0(react@19.2.4)
+      tsx:
+        specifier: ^4.21.0
+        version: 4.21.0
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vitest:
+        specifier: ^4.0.18
+        version: 4.0.18(@types/node@25.2.0)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.21.0)(yaml@2.8.2)
+      vue:
+        specifier: ^3.5.27
+        version: 3.5.27(typescript@5.9.3)
+      zod:
+        specifier: ^4.3.6
+        version: 4.3.6
+
   fixtures/orval:
     dependencies:
       '@tanstack/react-query':
@@ -1389,6 +1444,10 @@ packages:
     engines: {node: '>=18'}
     cpu: [x64]
     os: [win32]
+
+  '@faker-js/faker@10.2.0':
+    resolution: {integrity: sha512-rTXwAsIxpCqzUnZvrxVh3L0QA0NzToqWBLAhV+zDV3MIIwiQhAZHMdPCIaj5n/yADu/tyk12wIPgL6YHGXJP+g==}
+    engines: {node: ^20.19.0 || ^22.13.0 || ^23.5.0 || >=24.0.0, npm: '>=10'}
 
   '@faker-js/faker@9.9.0':
     resolution: {integrity: sha512-OEl393iCOoo/z8bMezRlJu+GlRGlsKbUAN7jKB6LhnKoqKve5DXRpalbItIIcwnCjs1k/FOPjFzcA6Qn+H+YbA==}
@@ -2548,6 +2607,9 @@ packages:
 
   '@types/react@19.2.10':
     resolution: {integrity: sha512-WPigyYuGhgZ/cTPRXB2EwUw+XvsRA3GqHlsP4qteqrnnjDrApbS7MxcGr/hke5iUoeB7E/gQtrs9I37zAJ0Vjw==}
+
+  '@types/react@19.2.13':
+    resolution: {integrity: sha512-KkiJeU6VbYbUOp5ITMIc7kBfqlYkKA5KhEHVrGMmUUMt7NeaZg65ojdPk+FtNrBAOXNVM5QM72jnADjM+XVRAQ==}
 
   '@types/unist@3.0.3':
     resolution: {integrity: sha512-ko/gIFJRv177XgZsZcBwnqJN5x/Gien8qNOn0D5bQU/zAzVf9Zt3BlcUiLqhV9y4ARk0GbT3tnUiPNgnTXzc/Q==}
@@ -5058,6 +5120,8 @@ snapshots:
   '@esbuild/win32-x64@0.27.2':
     optional: true
 
+  '@faker-js/faker@10.2.0': {}
+
   '@faker-js/faker@9.9.0': {}
 
   '@gerrit0/mini-shiki@3.22.0':
@@ -6228,6 +6292,10 @@ snapshots:
       '@types/react': 19.2.10
 
   '@types/react@19.2.10':
+    dependencies:
+      csstype: 3.2.3
+
+  '@types/react@19.2.13':
     dependencies:
       csstype: 3.2.3
 
