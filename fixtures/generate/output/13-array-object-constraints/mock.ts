@@ -61,6 +61,117 @@ export const postTagsRoute = createRoute({
   responses: { 201: { description: 'Created' } },
 })
 
+export const getSettingsRoute = createRoute({
+  method: 'get',
+  path: '/settings',
+  operationId: 'getSettings',
+  request: {
+    query: z.object({
+      filter: z
+        .string()
+        .exactOptional()
+        .openapi({
+          param: { name: 'filter', in: 'query', allowReserved: true, schema: { type: 'string' } },
+        }),
+    }),
+  },
+  responses: {
+    200: {
+      description: 'OK',
+      content: {
+        'application/json': {
+          schema: z
+            .record(z.string(), z.string())
+            .refine((o) => Object.keys(o).every((k) => new RegExp('^[a-z_]+$').test(k))),
+        },
+      },
+    },
+  },
+})
+
+export const putSettingsRoute = createRoute({
+  method: 'put',
+  path: '/settings',
+  operationId: 'updateSettings',
+  request: {
+    body: {
+      content: {
+        'application/json': {
+          schema: z
+            .object({
+              avatar: z
+                .string()
+                .openapi({ contentEncoding: 'base64', contentMediaType: 'image/png' }),
+            })
+            .openapi({ required: ['avatar'] }),
+        },
+      },
+    },
+  },
+  responses: { 200: { description: 'OK' } },
+})
+
+export const postConfigRoute = createRoute({
+  method: 'post',
+  path: '/config',
+  operationId: 'createConfig',
+  request: {
+    body: {
+      content: {
+        'application/json': {
+          schema: z
+            .object({
+              data: z
+                .record(z.string(), z.string())
+                .refine((o) =>
+                  Object.entries(o).every(
+                    ([k, v]) => !new RegExp('^x-').test(k) || z.string().safeParse(v).success,
+                  ),
+                ),
+              headers: z
+                .looseObject({})
+                .refine((o) =>
+                  Object.entries(o).every(
+                    ([k, v]) =>
+                      !new RegExp('^X-Custom-').test(k) || z.string().safeParse(v).success,
+                  ),
+                )
+                .exactOptional(),
+              keys: z
+                .record(z.string(), z.string())
+                .refine((o) => Object.keys(o).every((k) => new RegExp('^[a-z_]+$').test(k)))
+                .exactOptional(),
+            })
+            .openapi({ required: ['data'] }),
+        },
+      },
+    },
+  },
+  responses: { 201: { description: 'Created' } },
+})
+
+export const postPaymentRoute = createRoute({
+  method: 'post',
+  path: '/payment',
+  operationId: 'createPayment',
+  request: {
+    body: {
+      content: {
+        'application/json': {
+          schema: z
+            .object({
+              creditCard: z.string().exactOptional(),
+              billingAddress: z.string().exactOptional(),
+              email: z.string().exactOptional(),
+            })
+            .refine((o) => !('creditCard' in o) || 'billingAddress' in o),
+        },
+      },
+    },
+  },
+  responses: { 201: { description: 'Created' } },
+})
+
 const getTagsRouteHandler: RouteHandler<typeof getTagsRoute> = async (c) => {
   return c.json(
     {
@@ -82,11 +193,31 @@ const postTagsRouteHandler: RouteHandler<typeof postTagsRoute> = async (c) => {
   return c.body(null, 200)
 }
 
+const getSettingsRouteHandler: RouteHandler<typeof getSettingsRoute> = async (c) => {
+  return c.json(undefined, 200)
+}
+
+const putSettingsRouteHandler: RouteHandler<typeof putSettingsRoute> = async (c) => {
+  return c.body(null, 200)
+}
+
+const postConfigRouteHandler: RouteHandler<typeof postConfigRoute> = async (c) => {
+  return c.body(null, 200)
+}
+
+const postPaymentRouteHandler: RouteHandler<typeof postPaymentRoute> = async (c) => {
+  return c.body(null, 200)
+}
+
 const app = new OpenAPIHono()
 
 export const api = app
   .openapi(getTagsRoute, getTagsRouteHandler)
   .openapi(postTagsRoute, postTagsRouteHandler)
+  .openapi(getSettingsRoute, getSettingsRouteHandler)
+  .openapi(putSettingsRoute, putSettingsRouteHandler)
+  .openapi(postConfigRoute, postConfigRouteHandler)
+  .openapi(postPaymentRoute, postPaymentRouteHandler)
 
 export type AppType = typeof api
 

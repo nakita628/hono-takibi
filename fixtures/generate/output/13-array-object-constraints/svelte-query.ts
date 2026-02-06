@@ -86,3 +86,164 @@ export function createPostTags(
     return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
   })
 }
+
+/**
+ * Generates Svelte Query cache key for GET /settings
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetSettingsQueryKey(args: InferRequestType<typeof client.settings.$get>) {
+  return ['settings', 'GET', '/settings', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /settings
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export const getGetSettingsQueryOptions = (
+  args: InferRequestType<typeof client.settings.$get>,
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetSettingsQueryKey(args),
+  queryFn: ({ signal }: QueryFunctionContext) =>
+    parseResponse(
+      client.settings.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
+
+/**
+ * GET /settings
+ */
+export function createGetSettings(
+  args: InferRequestType<typeof client.settings.$get>,
+  options?: () => {
+    query?: CreateQueryOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.settings.$get>>>>>,
+      Error
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createQuery(() => {
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetSettingsQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
+}
+
+/**
+ * Generates Svelte Query mutation key for PUT /settings
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPutSettingsMutationKey() {
+  return ['settings', 'PUT', '/settings'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PUT /settings
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutSettingsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPutSettingsMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.settings.$put>) =>
+    parseResponse(client.settings.$put(args, clientOptions)),
+})
+
+/**
+ * PUT /settings
+ */
+export function createPutSettings(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.settings.$put>>>>>,
+      Error,
+      InferRequestType<typeof client.settings.$put>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPutSettingsMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
+}
+
+/**
+ * Generates Svelte Query mutation key for POST /config
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostConfigMutationKey() {
+  return ['config', 'POST', '/config'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /config
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostConfigMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostConfigMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.config.$post>) =>
+    parseResponse(client.config.$post(args, clientOptions)),
+})
+
+/**
+ * POST /config
+ */
+export function createPostConfig(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.config.$post>>>>>,
+      Error,
+      InferRequestType<typeof client.config.$post>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostConfigMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
+}
+
+/**
+ * Generates Svelte Query mutation key for POST /payment
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostPaymentMutationKey() {
+  return ['payment', 'POST', '/payment'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /payment
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostPaymentMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostPaymentMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.payment.$post>) =>
+    parseResponse(client.payment.$post(args, clientOptions)),
+})
+
+/**
+ * POST /payment
+ */
+export function createPostPayment(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.payment.$post>>>>>,
+      Error,
+      InferRequestType<typeof client.payment.$post>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostPaymentMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
+}

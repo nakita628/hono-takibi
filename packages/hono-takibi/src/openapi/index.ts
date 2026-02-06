@@ -396,6 +396,7 @@ export type Header = {
   }
   style?: string
   explode?: boolean
+  allowReserved?: boolean
   schema?: Schema
   content?: Content
 }
@@ -592,6 +593,15 @@ export type Schema = {
   readonly anyOf?: readonly Schema[]
   readonly not?: Schema
   readonly const?: unknown
+  readonly patternProperties?: {
+    readonly [k: string]: Schema
+  }
+  readonly propertyNames?: Schema
+  readonly dependentRequired?: {
+    readonly [k: string]: readonly string[]
+  }
+  readonly contentEncoding?: string
+  readonly contentMediaType?: string
 }
 
 export type Parameter = {
@@ -602,6 +612,9 @@ export type Parameter = {
   readonly required?: boolean
   readonly deprecated?: boolean
   readonly allowEmptyValue?: boolean
+  readonly style?: string
+  readonly explode?: boolean
+  readonly allowReserved?: boolean
   readonly schema: Schema
   readonly content?: Content
   readonly example?: unknown
