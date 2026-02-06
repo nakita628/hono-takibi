@@ -53,10 +53,14 @@ export const postOrdersRoute = createRoute({
     onOrderCreated: {
       '{$request.body#/callbackUrl}': {
         post: {
-          summary: 'Order created notification',
           operationId: 'onOrderCreated',
-          requestBody: { content: { 'application/json': { schema: OrderEventSchema } } },
-          responses: { 200: { description: 'Callback received' } },
+          summary: 'Order created notification',
+          requestBody: {
+            content: {
+              'application/json': { schema: { $ref: '#/components/schemas/OrderEvent' } },
+            },
+          },
+          responses: { '200': { description: 'Callback received' } },
         },
       },
     },
@@ -82,8 +86,12 @@ export const postPaymentsRoute = createRoute({
       '{$request.body#/successUrl}': {
         post: {
           operationId: 'onPaymentSuccess',
-          requestBody: { content: { 'application/json': { schema: PaymentEventSchema } } },
-          responses: { 200: { description: 'OK' } },
+          requestBody: {
+            content: {
+              'application/json': { schema: { $ref: '#/components/schemas/PaymentEvent' } },
+            },
+          },
+          responses: { '200': { description: 'OK' } },
         },
       },
     },
@@ -91,8 +99,12 @@ export const postPaymentsRoute = createRoute({
       '{$request.body#/failureUrl}': {
         post: {
           operationId: 'onPaymentFailure',
-          requestBody: { content: { 'application/json': { schema: PaymentEventSchema } } },
-          responses: { 200: { description: 'OK' } },
+          requestBody: {
+            content: {
+              'application/json': { schema: { $ref: '#/components/schemas/PaymentEvent' } },
+            },
+          },
+          responses: { '200': { description: 'OK' } },
         },
       },
     },

@@ -56,8 +56,10 @@ const UserCreatedCallback = {
   '{$request.body#/callbackUrl}': {
     post: {
       operationId: 'userCreatedCallback',
-      requestBody: { content: { 'application/json': { schema: UserSchema } } },
-      responses: { 200: { description: 'Callback processed' } },
+      requestBody: {
+        content: { 'application/json': { schema: { $ref: '#/components/schemas/User' } } },
+      },
+      responses: { '200': { description: 'Callback processed' } },
     },
   },
 }

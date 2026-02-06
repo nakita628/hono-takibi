@@ -652,8 +652,8 @@ export const getUsersIdRoute = createRoute({
 export const OnEventCallback = {
   '{$request.body#/callbackUrl}': {
     post: {
-      requestBody: { content: { 'application/json': { schema: z.object({}) } } },
-      responses: { 200: { description: 'OK' } },
+      requestBody: { content: { 'application/json': { schema: { type: 'object' } } } },
+      responses: { '200': { description: 'OK' } },
     },
   },
 }
@@ -785,7 +785,7 @@ export type RateLimitHeader = z.infer<typeof RateLimitHeaderSchema>
 export const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer' }
 
 export const OnCreatedCallback = {
-  '{$request.body#/callbackUrl}': { post: { responses: { 200: { description: 'OK' } } } },
+  '{$request.body#/callbackUrl}': { post: { responses: { '200': { description: 'OK' } } } },
 }
 
 export const getItemsIdRoute = createRoute({
@@ -2266,13 +2266,11 @@ export const getUsersIdRoute = createRoute({
     expect(callbacksIndex).toBe(`export * from './onEvent'\n`)
 
     const onEventFile = fs.readFileSync(path.join(testDir, 'src/callbacks/onEvent.ts'), 'utf-8')
-    expect(onEventFile).toBe(`import { z } from '@hono/zod-openapi'
-
-export const OnEventCallback = {
+    expect(onEventFile).toBe(`export const OnEventCallback = {
   '{$request.body#/callbackUrl}': {
     post: {
-      requestBody: { content: { 'application/json': { schema: z.object({}) } } },
-      responses: { 200: { description: 'OK' } },
+      requestBody: { content: { 'application/json': { schema: { type: 'object' } } } },
+      responses: { '200': { description: 'OK' } },
     },
   },
 }

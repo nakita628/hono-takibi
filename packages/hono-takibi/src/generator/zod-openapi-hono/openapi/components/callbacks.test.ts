@@ -38,7 +38,7 @@ describe('callbacksCode', () => {
     }
     const result = callbacksCode(components, true)
     expect(result).toBe(
-      `export const OnEventCallback={"{callback}":{post:{requestBody:{content:{'application/json':{schema:z.object({message:z.string().exactOptional()})}}},responses:{200:{description:"OK"}}}}}`,
+      `export const OnEventCallback={"{callback}":{"post":{"requestBody":{"content":{"application/json":{"schema":{"type":"object","properties":{"message":{"type":"string"}}}}}},"responses":{"200":{"description":"OK"}}}}}`,
     )
   })
 
@@ -60,7 +60,7 @@ describe('callbacksCode', () => {
     }
     const result = callbacksCode(components, false)
     expect(result).toBe(
-      `const SimpleCallback={"{url}":{get:{responses:{200:{description:"Success"}}}}}`,
+      `const SimpleCallback={"{url}":{"get":{"responses":{"200":{"description":"Success"}}}}}`,
     )
   })
 })

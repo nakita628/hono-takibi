@@ -845,7 +845,7 @@ describe('openapi helper', () => {
         },
       })
       expect(result).toBe(
-        '"{$request.body#/callbackUrl}":{post:{responses:{200:{description:"Success"}}}}',
+        '"{$request.body#/callbackUrl}":{"post":{"responses":{"200":{"description":"Success"}}}}',
       )
     })
     it.concurrent('generates callback with full operation details', () => {
@@ -867,7 +867,7 @@ describe('openapi helper', () => {
         },
       })
       expect(result).toBe(
-        `"{$request.body#/callbackUrl}":{post:{tags:["callback"],summary:"Callback summary",description:"Callback description",operationId:"callbackOp",requestBody:{content:{'application/json':{schema:z.object({})}}},responses:{200:{description:"Success"}},deprecated:true}}`,
+        `"{$request.body#/callbackUrl}":{"post":{"tags":["callback"],"summary":"Callback summary","description":"Callback description","operationId":"callbackOp","requestBody":{"content":{"application/json":{"schema":{"type":"object"}}}},"responses":{"200":{"description":"Success"}},"deprecated":true}}`,
       )
     })
     it.concurrent('generates callback with multiple methods', () => {
@@ -882,7 +882,7 @@ describe('openapi helper', () => {
         },
       })
       expect(result).toBe(
-        '"{$callback}":{get:{responses:{200:{description:"Get success"}}},post:{responses:{201:{description:"Post success"}}}}',
+        '"{$callback}":{"get":{"responses":{"200":{"description":"Get success"}}},"post":{"responses":{"201":{"description":"Post success"}}}}',
       )
     })
     it.concurrent('generates callback with parameters', () => {
@@ -895,7 +895,7 @@ describe('openapi helper', () => {
         },
       })
       expect(result).toBe(
-        '"{$request.body#/url}":{post:{parameters:[z.string().exactOptional().openapi({param:{"name":"id","in":"path","schema":{"type":"string"}}})],responses:{200:{description:"Success"}}}}',
+        '"{$request.body#/url}":{"post":{"parameters":[{"name":"id","in":"path","schema":{"type":"string"}}],"responses":{"200":{"description":"Success"}}}}',
       )
     })
     it.concurrent('generates callback with external docs', () => {
@@ -908,7 +908,7 @@ describe('openapi helper', () => {
         },
       })
       expect(result).toBe(
-        '"{$callback}":{get:{externalDocs:{"url":"https://example.com/docs"},responses:{200:{description:"Success"}}}}',
+        '"{$callback}":{"get":{"externalDocs":{"url":"https://example.com/docs"},"responses":{"200":{"description":"Success"}}}}',
       )
     })
     it.concurrent('generates callback with servers', () => {
@@ -921,7 +921,7 @@ describe('openapi helper', () => {
         },
       })
       expect(result).toBe(
-        '"{$callback}":{post:{responses:{200:{description:"Success"}},servers:[{"url":"https://api.example.com"}]}}',
+        '"{$callback}":{"post":{"servers":[{"url":"https://api.example.com"}],"responses":{"200":{"description":"Success"}}}}',
       )
     })
     it.concurrent('generates multiple callbacks', () => {

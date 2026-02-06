@@ -43,8 +43,10 @@ export const SubscriptionEventCallback = {
   '{$request.body#/callbackUrl}': {
     post: {
       operationId: 'subscriptionEventCallback',
-      requestBody: { content: { 'application/json': { schema: EventPayloadSchema } } },
-      responses: { 200: { description: 'Event processed' } },
+      requestBody: {
+        content: { 'application/json': { schema: { $ref: '#/components/schemas/EventPayload' } } },
+      },
+      responses: { '200': { description: 'Event processed' } },
     },
   },
 } as const

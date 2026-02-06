@@ -19,5 +19,5 @@ export const postSubscriptionsRoute = createRoute({
     400: ValidationErrorResponse,
     default: DefaultErrorResponse,
   },
-  subscriptionEvents: SubscriptionLifecycleCallback,
+  callbacks: { subscriptionEvents: SubscriptionLifecycleCallback },
 })

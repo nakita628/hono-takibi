@@ -1,32 +1,28 @@
-import { z } from '@hono/zod-openapi'
-import { LinkSchema } from '../schemas'
-import { TraceIdHeaderParamParamsSchema } from '../parameters'
-import { WebhookEventRequestRequestBody } from '../requestBodies'
-import { DefaultErrorResponse } from '../responses'
-import { TraceIdHeaderHeaderSchema } from '../headers'
-
 export const SubscriptionLifecycleCallback = {
   '{$request.body#/callbackUrl}': {
     post: {
-      summary: 'Subscription lifecycle callback',
       operationId: 'onSubscriptionEvent',
-      parameters: [TraceIdHeaderParamParamsSchema],
-      requestBody: WebhookEventRequestRequestBody,
+      summary: 'Subscription lifecycle callback',
+      parameters: [{ $ref: '#/components/parameters/TraceIdHeaderParam' }],
+      requestBody: { $ref: '#/components/requestBodies/WebhookEventRequest' },
       responses: {
-        200: {
+        '200': {
           description: 'Ack',
-          headers: z.object({ 'x-trace-id': TraceIdHeaderHeaderSchema }),
+          headers: { 'x-trace-id': { $ref: '#/components/headers/TraceIdHeader' } },
           content: {
             'application/json': {
-              schema: z.object({
-                ok: z.boolean().exactOptional(),
-                next: LinkSchema.exactOptional(),
-              }),
+              schema: {
+                type: 'object',
+                properties: {
+                  ok: { type: 'boolean' },
+                  next: { $ref: '#/components/schemas/Link' },
+                },
+              },
               examples: { ack: { value: { ok: true, next: { href: '/subscriptions' } } } },
             },
           },
         },
-        default: DefaultErrorResponse,
+        default: { $ref: '#/components/responses/DefaultError' },
       },
     },
   },
