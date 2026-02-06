@@ -1,4 +1,4 @@
-import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi'
+import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
 
 const AddressSchema = z
@@ -570,7 +570,7 @@ function mockOrder() {
   }
 }
 
-const getUsersRouteHandler = async (c: any) => {
+const getUsersRouteHandler: RouteHandler<typeof getUsersRoute> = async (c) => {
   return c.json(
     {
       users: Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () => mockUser()),
@@ -580,32 +580,23 @@ const getUsersRouteHandler = async (c: any) => {
   )
 }
 
-const postUsersRouteHandler = async (c: any) => {
-  if (!c.req.header('Authorization')) {
-    return c.json({ message: 'Unauthorized' }, 401)
-  }
+const postUsersRouteHandler: RouteHandler<typeof postUsersRoute> = async (c) => {
   return c.json(mockUser(), 201)
 }
 
-const getUsersUserIdRouteHandler = async (c: any) => {
+const getUsersUserIdRouteHandler: RouteHandler<typeof getUsersUserIdRoute> = async (c) => {
   return c.json(mockUser(), 200)
 }
 
-const putUsersUserIdRouteHandler = async (c: any) => {
-  if (!c.req.header('Authorization')) {
-    return c.json({ message: 'Unauthorized' }, 401)
-  }
+const putUsersUserIdRouteHandler: RouteHandler<typeof putUsersUserIdRoute> = async (c) => {
   return c.json(mockUser(), 200)
 }
 
-const deleteUsersUserIdRouteHandler = async (c: any) => {
-  if (!c.req.header('Authorization')) {
-    return c.json({ message: 'Unauthorized' }, 401)
-  }
-  return c.body(null, 204)
+const deleteUsersUserIdRouteHandler: RouteHandler<typeof deleteUsersUserIdRoute> = async (c) => {
+  return new Response(null, { status: 204 })
 }
 
-const getProductsRouteHandler = async (c: any) => {
+const getProductsRouteHandler: RouteHandler<typeof getProductsRoute> = async (c) => {
   return c.json(
     {
       products: Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () => mockProduct()),
@@ -615,42 +606,38 @@ const getProductsRouteHandler = async (c: any) => {
   )
 }
 
-const postProductsRouteHandler = async (c: any) => {
-  if (!c.req.header('Authorization')) {
-    return c.json({ message: 'Unauthorized' }, 401)
-  }
+const postProductsRouteHandler: RouteHandler<typeof postProductsRoute> = async (c) => {
   return c.json(mockProduct(), 201)
 }
 
-const getProductsProductIdRouteHandler = async (c: any) => {
+const getProductsProductIdRouteHandler: RouteHandler<typeof getProductsProductIdRoute> = async (
+  c,
+) => {
   return c.json(mockProduct(), 200)
 }
 
-const putProductsProductIdRouteHandler = async (c: any) => {
-  if (!c.req.header('Authorization')) {
-    return c.json({ message: 'Unauthorized' }, 401)
-  }
+const putProductsProductIdRouteHandler: RouteHandler<typeof putProductsProductIdRoute> = async (
+  c,
+) => {
   return c.json(mockProduct(), 200)
 }
 
-const getProductsProductIdReviewsRouteHandler = async (c: any) => {
+const getProductsProductIdReviewsRouteHandler: RouteHandler<
+  typeof getProductsProductIdReviewsRoute
+> = async (c) => {
   return c.json(
     Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () => mockReview()),
     200,
   )
 }
 
-const postProductsProductIdReviewsRouteHandler = async (c: any) => {
-  if (!c.req.header('Authorization')) {
-    return c.json({ message: 'Unauthorized' }, 401)
-  }
+const postProductsProductIdReviewsRouteHandler: RouteHandler<
+  typeof postProductsProductIdReviewsRoute
+> = async (c) => {
   return c.json(mockReview(), 201)
 }
 
-const getOrdersRouteHandler = async (c: any) => {
-  if (!c.req.header('Authorization')) {
-    return c.json({ message: 'Unauthorized' }, 401)
-  }
+const getOrdersRouteHandler: RouteHandler<typeof getOrdersRoute> = async (c) => {
   return c.json(
     {
       orders: Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () => mockOrder()),
@@ -660,31 +647,22 @@ const getOrdersRouteHandler = async (c: any) => {
   )
 }
 
-const postOrdersRouteHandler = async (c: any) => {
-  if (!c.req.header('Authorization')) {
-    return c.json({ message: 'Unauthorized' }, 401)
-  }
+const postOrdersRouteHandler: RouteHandler<typeof postOrdersRoute> = async (c) => {
   return c.json(mockOrder(), 201)
 }
 
-const getOrdersOrderIdRouteHandler = async (c: any) => {
-  if (!c.req.header('Authorization')) {
-    return c.json({ message: 'Unauthorized' }, 401)
-  }
+const getOrdersOrderIdRouteHandler: RouteHandler<typeof getOrdersOrderIdRoute> = async (c) => {
   return c.json(mockOrder(), 200)
 }
 
-const getCategoriesRouteHandler = async (c: any) => {
+const getCategoriesRouteHandler: RouteHandler<typeof getCategoriesRoute> = async (c) => {
   return c.json(
     Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () => mockCategory()),
     200,
   )
 }
 
-const postUploadImageRouteHandler = async (c: any) => {
-  if (!c.req.header('Authorization')) {
-    return c.json({ message: 'Unauthorized' }, 401)
-  }
+const postUploadImageRouteHandler: RouteHandler<typeof postUploadImageRoute> = async (c) => {
   return c.json(
     {
       url: faker.internet.url(),

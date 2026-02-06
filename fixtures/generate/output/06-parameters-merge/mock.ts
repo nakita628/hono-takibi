@@ -1,4 +1,4 @@
-import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi'
+import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
 
 const ItemSchema = z
@@ -157,19 +157,19 @@ function mockItem() {
   }
 }
 
-const getItemsItemIdRouteHandler = async (c: any) => {
+const getItemsItemIdRouteHandler: RouteHandler<typeof getItemsItemIdRoute> = async (c) => {
   return c.json(mockItem(), 200)
 }
 
-const putItemsItemIdRouteHandler = async (c: any) => {
+const putItemsItemIdRouteHandler: RouteHandler<typeof putItemsItemIdRoute> = async (c) => {
   return c.json(mockItem(), 200)
 }
 
-const deleteItemsItemIdRouteHandler = async (c: any) => {
-  return c.body(null, 204)
+const deleteItemsItemIdRouteHandler: RouteHandler<typeof deleteItemsItemIdRoute> = async (c) => {
+  return new Response(null, { status: 204 })
 }
 
-const getItemsRouteHandler = async (c: any) => {
+const getItemsRouteHandler: RouteHandler<typeof getItemsRoute> = async (c) => {
   return c.json(
     {
       items: Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () => mockItem()),

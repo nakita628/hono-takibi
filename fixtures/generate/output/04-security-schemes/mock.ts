@@ -1,4 +1,4 @@
-import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi'
+import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
 
 const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' }
@@ -119,7 +119,7 @@ export const getMultiAuthRoute = createRoute({
   security: [{ BearerAuth: [], ApiKeyAuth: [] }],
 })
 
-const getPublicRouteHandler = async (c: any) => {
+const getPublicRouteHandler: RouteHandler<typeof getPublicRoute> = async (c) => {
   return c.json(
     {
       message: faker.string.alpha({ length: { min: 5, max: 20 } }),
@@ -128,10 +128,7 @@ const getPublicRouteHandler = async (c: any) => {
   )
 }
 
-const getBearerProtectedRouteHandler = async (c: any) => {
-  if (!c.req.header('Authorization')) {
-    return c.json({ message: 'Unauthorized' }, 401)
-  }
+const getBearerProtectedRouteHandler: RouteHandler<typeof getBearerProtectedRoute> = async (c) => {
   return c.json(
     {
       data: faker.string.alpha({ length: { min: 5, max: 20 } }),
@@ -140,10 +137,7 @@ const getBearerProtectedRouteHandler = async (c: any) => {
   )
 }
 
-const getApiKeyProtectedRouteHandler = async (c: any) => {
-  if (!c.req.header('X-API-Key')) {
-    return c.json({ message: 'Unauthorized' }, 401)
-  }
+const getApiKeyProtectedRouteHandler: RouteHandler<typeof getApiKeyProtectedRoute> = async (c) => {
   return c.json(
     {
       data: faker.string.alpha({ length: { min: 5, max: 20 } }),
@@ -152,10 +146,7 @@ const getApiKeyProtectedRouteHandler = async (c: any) => {
   )
 }
 
-const getBasicProtectedRouteHandler = async (c: any) => {
-  if (!c.req.header('Authorization')) {
-    return c.json({ message: 'Unauthorized' }, 401)
-  }
+const getBasicProtectedRouteHandler: RouteHandler<typeof getBasicProtectedRoute> = async (c) => {
   return c.json(
     {
       data: faker.string.alpha({ length: { min: 5, max: 20 } }),
@@ -164,10 +155,7 @@ const getBasicProtectedRouteHandler = async (c: any) => {
   )
 }
 
-const getOauthProtectedRouteHandler = async (c: any) => {
-  if (!c.req.header('Authorization')) {
-    return c.json({ message: 'Unauthorized' }, 401)
-  }
+const getOauthProtectedRouteHandler: RouteHandler<typeof getOauthProtectedRoute> = async (c) => {
   return c.json(
     {
       data: faker.string.alpha({ length: { min: 5, max: 20 } }),
@@ -176,10 +164,7 @@ const getOauthProtectedRouteHandler = async (c: any) => {
   )
 }
 
-const getMultiAuthRouteHandler = async (c: any) => {
-  if (!(c.req.header('Authorization') || c.req.header('X-API-Key'))) {
-    return c.json({ message: 'Unauthorized' }, 401)
-  }
+const getMultiAuthRouteHandler: RouteHandler<typeof getMultiAuthRoute> = async (c) => {
   return c.json(
     {
       data: faker.string.alpha({ length: { min: 5, max: 20 } }),

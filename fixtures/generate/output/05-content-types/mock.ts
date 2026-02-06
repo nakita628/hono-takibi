@@ -1,4 +1,4 @@
-import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi'
+import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
 
 export const postJsonRoute = createRoute({
@@ -119,7 +119,7 @@ export const postMultiContentRoute = createRoute({
   },
 })
 
-const postJsonRouteHandler = async (c: any) => {
+const postJsonRouteHandler: RouteHandler<typeof postJsonRoute> = async (c) => {
   return c.json(
     {
       id: faker.number.int({ min: 1, max: 99999 }),
@@ -129,7 +129,7 @@ const postJsonRouteHandler = async (c: any) => {
   )
 }
 
-const postFormRouteHandler = async (c: any) => {
+const postFormRouteHandler: RouteHandler<typeof postFormRoute> = async (c) => {
   return c.json(
     {
       success: faker.datatype.boolean(),
@@ -138,7 +138,7 @@ const postFormRouteHandler = async (c: any) => {
   )
 }
 
-const postUploadRouteHandler = async (c: any) => {
+const postUploadRouteHandler: RouteHandler<typeof postUploadRoute> = async (c) => {
   return c.json(
     {
       url: faker.internet.url(),
@@ -147,11 +147,11 @@ const postUploadRouteHandler = async (c: any) => {
   )
 }
 
-const postTextRouteHandler = async (c: any) => {
-  return c.body(null, 200)
+const postTextRouteHandler: RouteHandler<typeof postTextRoute> = async (c) => {
+  return c.text(faker.string.alpha({ length: { min: 5, max: 20 } }), 200)
 }
 
-const postMultiContentRouteHandler = async (c: any) => {
+const postMultiContentRouteHandler: RouteHandler<typeof postMultiContentRoute> = async (c) => {
   return c.json(
     {
       received: faker.datatype.boolean(),

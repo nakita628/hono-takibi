@@ -1,4 +1,4 @@
-import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi'
+import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
 
 const NullableFieldsSchema = z
@@ -121,14 +121,14 @@ function mockNullableFields() {
 
 function mockCircle() {
   return {
-    kind: faker.string.alpha({ length: { min: 5, max: 20 } }),
+    kind: 'circle' as const,
     radius: faker.number.float({ min: 1, max: 1000, fractionDigits: 2 }),
   }
 }
 
 function mockRectangle() {
   return {
-    kind: faker.string.alpha({ length: { min: 5, max: 20 } }),
+    kind: 'rectangle' as const,
     width: faker.number.float({ min: 1, max: 1000, fractionDigits: 2 }),
     height: faker.number.float({ min: 1, max: 1000, fractionDigits: 2 }),
   }
@@ -176,23 +176,23 @@ function mockDynamicMap() {
   return undefined
 }
 
-const postNullableRouteHandler = async (c: any) => {
+const postNullableRouteHandler: RouteHandler<typeof postNullableRoute> = async (c) => {
   return c.json(mockNullableFields(), 200)
 }
 
-const postDiscriminatedRouteHandler = async (c: any) => {
+const postDiscriminatedRouteHandler: RouteHandler<typeof postDiscriminatedRoute> = async (c) => {
   return c.json(mockShape(), 200)
 }
 
-const getComposedRouteHandler = async (c: any) => {
+const getComposedRouteHandler: RouteHandler<typeof getComposedRoute> = async (c) => {
   return c.json(mockComposedObject(), 200)
 }
 
-const getDeepNestedRouteHandler = async (c: any) => {
+const getDeepNestedRouteHandler: RouteHandler<typeof getDeepNestedRoute> = async (c) => {
   return c.json(mockLevel1(), 200)
 }
 
-const getAdditionalPropsRouteHandler = async (c: any) => {
+const getAdditionalPropsRouteHandler: RouteHandler<typeof getAdditionalPropsRoute> = async (c) => {
   return c.json(mockDynamicMap(), 200)
 }
 

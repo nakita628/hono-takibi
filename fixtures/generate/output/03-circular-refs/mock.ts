@@ -1,4 +1,4 @@
-import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi'
+import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
 
 type TreeNodeType = { id: number; value: string; children?: TreeNodeType[] }
@@ -97,15 +97,15 @@ function mockNodeA(): any {
   }
 }
 
-const getTreeRouteHandler = async (c: any) => {
+const getTreeRouteHandler: RouteHandler<typeof getTreeRoute> = async (c) => {
   return c.json(mockTreeNode(), 200)
 }
 
-const postTreeRouteHandler = async (c: any) => {
+const postTreeRouteHandler: RouteHandler<typeof postTreeRoute> = async (c) => {
   return c.json(mockTreeNode(), 201)
 }
 
-const getGraphRouteHandler = async (c: any) => {
+const getGraphRouteHandler: RouteHandler<typeof getGraphRoute> = async (c) => {
   return c.json(mockNodeA(), 200)
 }
 

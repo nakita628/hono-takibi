@@ -169,18 +169,6 @@ function extractSecurityInfo(
   return infos
 }
 
-function generateAuthMiddleware(): string {
-  return `const authMiddleware = async (c: any, next: any) => {
-  const auth = c.req.header('Authorization')
-  const apiKey = c.req.header('X-API-Key') || c.req.query('api_key')
-
-  if (!auth && !apiKey) {
-    return c.json({ message: 'Unauthorized' }, 401)
-  }
-
-  await next()
-}`
-}
 
 function hasRequestBodyContent(
   op: unknown,
@@ -263,25 +251,45 @@ export function generateMockServer(
 
       routeEntries.push({ routeId, method, path: p, requiresAuth })
 
-      const successResponse =
-        op.responses?.['200'] ?? op.responses?.['201'] ?? op.responses?.['204']
-      const responseSchema = successResponse?.content?.['application/json']?.schema
+      const responses = openapi.components?.responses as
+        | { [key: string]: { description?: string; content?: { [ct: string]: { schema?: Schema } } } }
+        | undefined
+      const resolveResponse = (
+        r: unknown,
+      ): { content?: { [ct: string]: { schema?: Schema } } } | undefined => {
+        if (typeof r !== 'object' || r === null) return undefined
+        if ('$ref' in r && typeof (r as { $ref: string }).$ref === 'string') {
+          const refName = (r as { $ref: string }).$ref.split('/').pop()
+          return refName && responses?.[refName] ? responses[refName] : undefined
+        }
+        return r as { content?: { [ct: string]: { schema?: Schema } } }
+      }
+      const successResponse = resolveResponse(
+        op.responses?.['200'] ?? op.responses?.['201'] ?? op.responses?.['204'],
+      )
+      const jsonSchema = successResponse?.content?.['application/json']?.schema
+      const textSchema = successResponse?.content?.['text/plain']?.schema
 
       // Determine response status: prefer 200 OK, then 201 Created, fallback to 204 No Content
       const handlerBody = (() => {
-        if (responseSchema) {
-          collectRefs(responseSchema, allRefs)
-          const mockData = schemaToFaker(responseSchema, undefined, { schemas })
-          const statusCode = op.responses?.['200'] ? 200 : op.responses?.['201'] ? 201 : 204
+        const statusCode = op.responses?.['200'] ? 200 : op.responses?.['201'] ? 201 : 204
+        if (jsonSchema) {
+          collectRefs(jsonSchema, allRefs)
+          const mockData = schemaToFaker(jsonSchema, undefined, { schemas })
           return `return c.json(${mockData}, ${statusCode})`
         }
-        const statusCode = op.responses?.['204'] ? 204 : 200
-        return `return c.body(null, ${statusCode})`
+        if (textSchema) {
+          const mockData = schemaToFaker(textSchema, undefined, { schemas })
+          return `return c.text(${mockData}, ${statusCode})`
+        }
+        if (op.responses?.['204']) return `return new Response(null, { status: 204 })`
+        return `return c.body(null, 200)`
       })()
 
-      // Generate auth check code if endpoint requires authentication
+      // Generate auth check code only when route defines 401 response
+      const has401 = op.responses?.['401'] !== undefined
       const authCheck = (() => {
-        if (!requiresAuth) return ''
+        if (!requiresAuth || !has401) return ''
         const authChecks = security.flatMap((sec) => {
           if (sec.type === 'bearer' || sec.type === 'oauth2' || sec.type === 'basic') {
             return [`c.req.header('Authorization')`]
@@ -298,7 +306,7 @@ export function generateMockServer(
       })()
 
       handlers.push(
-        `const ${routeId}RouteHandler = async (c: any) => {\n  ${authCheck}${handlerBody}\n}`,
+        `const ${routeId}RouteHandler: RouteHandler<typeof ${routeId}Route> = async (c) => {\n  ${authCheck}${handlerBody}\n}`,
       )
     }
   }
@@ -353,7 +361,7 @@ export function generateMockServer(
     .join('\n  ')
 
   // Build the final file
-  const imports = `import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi'
+  const imports = `import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'`
 
   const appCode = `const app = new OpenAPIHono()${basePath !== '/' ? `.basePath('${basePath}')` : ''}

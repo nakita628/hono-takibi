@@ -1,4 +1,4 @@
-import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi'
+import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
 
 const AuthorSchema = z
@@ -242,7 +242,7 @@ function mockComment() {
   }
 }
 
-const getPostsRouteHandler = async (c: any) => {
+const getPostsRouteHandler: RouteHandler<typeof getPostsRoute> = async (c) => {
   return c.json(
     {
       posts: Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () => mockPost()),
@@ -252,34 +252,36 @@ const getPostsRouteHandler = async (c: any) => {
   )
 }
 
-const postPostsRouteHandler = async (c: any) => {
+const postPostsRouteHandler: RouteHandler<typeof postPostsRoute> = async (c) => {
   return c.json(mockPost(), 201)
 }
 
-const getPostsIdRouteHandler = async (c: any) => {
+const getPostsIdRouteHandler: RouteHandler<typeof getPostsIdRoute> = async (c) => {
   return c.json(mockPost(), 200)
 }
 
-const putPostsIdRouteHandler = async (c: any) => {
+const putPostsIdRouteHandler: RouteHandler<typeof putPostsIdRoute> = async (c) => {
   return c.json(mockPost(), 200)
 }
 
-const deletePostsIdRouteHandler = async (c: any) => {
-  return c.body(null, 204)
+const deletePostsIdRouteHandler: RouteHandler<typeof deletePostsIdRoute> = async (c) => {
+  return new Response(null, { status: 204 })
 }
 
-const getPostsIdCommentsRouteHandler = async (c: any) => {
+const getPostsIdCommentsRouteHandler: RouteHandler<typeof getPostsIdCommentsRoute> = async (c) => {
   return c.json(
     Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () => mockComment()),
     200,
   )
 }
 
-const postPostsIdCommentsRouteHandler = async (c: any) => {
+const postPostsIdCommentsRouteHandler: RouteHandler<typeof postPostsIdCommentsRoute> = async (
+  c,
+) => {
   return c.json(mockComment(), 201)
 }
 
-const getTagsRouteHandler = async (c: any) => {
+const getTagsRouteHandler: RouteHandler<typeof getTagsRoute> = async (c) => {
   return c.json(
     Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () => mockTag()),
     200,

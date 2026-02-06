@@ -26,14 +26,14 @@ describe('Callbacks and Links API', () => {
     })
     describe('GET /subscriptions/{id}', () => {
       it('GET /subscriptions/{id}', async () => {
-        const id = faker.number.int({ min: 1, max: 99999 })
+        const id = faker.string.alpha({ length: { min: 5, max: 20 } })
         const res = await app.request(`/subscriptions/${id}`, { method: 'GET' })
         expect(res.status).toBe(200)
       })
     })
     describe('DELETE /subscriptions/{id}', () => {
       it('DELETE /subscriptions/{id}', async () => {
-        const id = faker.number.int({ min: 1, max: 99999 })
+        const id = faker.string.alpha({ length: { min: 5, max: 20 } })
         const res = await app.request(`/subscriptions/${id}`, { method: 'DELETE' })
         expect(res.status).toBe(204)
       })

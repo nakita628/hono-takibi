@@ -13,14 +13,14 @@ function mockNullableFields() {
 
 function mockCircle() {
   return {
-    kind: faker.string.alpha({ length: { min: 5, max: 20 } }),
+    kind: 'circle' as const,
     radius: faker.number.float({ min: 1, max: 1000, fractionDigits: 2 }),
   }
 }
 
 function mockRectangle() {
   return {
-    kind: faker.string.alpha({ length: { min: 5, max: 20 } }),
+    kind: 'rectangle' as const,
     width: faker.number.float({ min: 1, max: 1000, fractionDigits: 2 }),
     height: faker.number.float({ min: 1, max: 1000, fractionDigits: 2 }),
   }

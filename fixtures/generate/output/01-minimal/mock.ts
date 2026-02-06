@@ -1,4 +1,4 @@
-import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi'
+import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
 
 export const getHealthRoute = createRoute({
@@ -17,7 +17,7 @@ export const getHealthRoute = createRoute({
   },
 })
 
-const getHealthRouteHandler = async (c: any) => {
+const getHealthRouteHandler: RouteHandler<typeof getHealthRoute> = async (c) => {
   return c.json(
     {
       status: faker.helpers.arrayElement(['active', 'inactive', 'pending']),
