@@ -12,11 +12,10 @@ import {
   analyzeCircularSchemas,
   ast,
   core,
-  makeBarrel,
   makeSplitSchemaFile,
 } from '../../helper/index.js'
 import type { Components } from '../../openapi/index.js'
-import { lowerFirst, renderNamedImport } from '../../utils/index.js'
+import { makeBarrel, renderNamedImport, uncapitalize } from '../../utils/index.js'
 
 /**
  * Generates schema component files.
@@ -79,7 +78,7 @@ export async function schemas(
           exportType,
           readonly,
         )
-        const filePath = `${outDir}/${lowerFirst(schemaName)}.ts`
+        const filePath = `${outDir}/${uncapitalize(schemaName)}.ts`
         return core(fileCode, path.dirname(filePath), filePath)
       }),
       core(makeBarrel(schemas), path.dirname(`${outDir}/index.ts`), `${outDir}/index.ts`),

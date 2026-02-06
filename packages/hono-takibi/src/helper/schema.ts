@@ -2,9 +2,9 @@ import { zodType } from '../generator/zod-to-openapi/type/index.js'
 import type { Schema } from '../openapi/index.js'
 import {
   ensureSuffix,
-  lowerFirst,
   renderNamedImport,
   toIdentifierPascalCase,
+  uncapitalize,
 } from '../utils/index.js'
 import type { analyzeCircularSchemas } from './ast.js'
 
@@ -258,7 +258,7 @@ export function makeSplitSchemaFile(
   const deps = findSchemaRefs(content, schemaName).filter((d) => d in schemas)
   const depImports =
     deps.length > 0
-      ? deps.map((d) => renderNamedImport([`${d}Schema`], `./${lowerFirst(d)}`)).join('\n')
+      ? deps.map((d) => renderNamedImport([`${d}Schema`], `./${uncapitalize(d)}`)).join('\n')
       : ''
 
   const importZ = renderNamedImport(['z'], '@hono/zod-openapi')

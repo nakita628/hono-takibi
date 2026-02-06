@@ -8,9 +8,9 @@
  */
 import path from 'node:path'
 import { headersCode } from '../../generator/zod-openapi-hono/openapi/components/headers.js'
-import { core, makeBarrel, makeImports } from '../../helper/index.js'
+import { core, makeImports } from '../../helper/index.js'
 import type { Components } from '../../openapi/index.js'
-import { lowerFirst } from '../../utils/index.js'
+import { makeBarrel, uncapitalize } from '../../utils/index.js'
 
 /**
  * Generates header component files.
@@ -74,7 +74,7 @@ export async function headers(
       ...headerNames.map((headerName) => {
         const singleComponent = { headers: { [headerName]: headers[headerName] } }
         const code = headersCode(singleComponent, true, exportType, readonly)
-        const filePath = path.join(outDir, `${lowerFirst(headerName)}.ts`)
+        const filePath = path.join(outDir, `${uncapitalize(headerName)}.ts`)
         return core(toFileCode(code, filePath), path.dirname(filePath), filePath)
       }),
       core(makeBarrel(headers), outDir, path.join(outDir, 'index.ts')),

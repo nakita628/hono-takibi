@@ -8,9 +8,9 @@
  */
 import path from 'node:path'
 import { pathItemsCode } from '../../generator/zod-openapi-hono/openapi/components/pathItems.js'
-import { core, makeBarrel, makeImports } from '../../helper/index.js'
+import { core, makeImports } from '../../helper/index.js'
 import type { Components } from '../../openapi/index.js'
-import { lowerFirst } from '../../utils/index.js'
+import { makeBarrel, uncapitalize } from '../../utils/index.js'
 
 /**
  * Generates pathItems component files.
@@ -105,7 +105,7 @@ export async function pathItems(
   // Write each pathItem block and barrel file in parallel
   const allResults = await Promise.all([
     ...blocks.map(({ name, block }) =>
-      writeFile(`${outDir}/${lowerFirst(name)}PathItem.ts`, block),
+      writeFile(`${outDir}/${uncapitalize(name)}PathItem.ts`, block),
     ),
     core(
       makeBarrel(Object.fromEntries(blocks.map((b) => [`${b.name}PathItem`, null]))),

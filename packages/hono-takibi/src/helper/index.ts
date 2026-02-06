@@ -1,5 +1,4 @@
 export { analyzeCircularSchemas, ast } from './ast.js'
-export { makeBarrel } from './barrel.js'
 export { makeConst, makeExportConst, makeImports, makeModuleSpec } from './code.js'
 export { core } from './core.js'
 export { makeExports } from './exports.js'

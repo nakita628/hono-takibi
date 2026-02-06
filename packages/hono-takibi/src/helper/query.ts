@@ -23,7 +23,7 @@
  */
 import path from 'node:path'
 import type { OpenAPI, OpenAPIPaths } from '../openapi/index.js'
-import { escapeCommentEnd, isRecord, methodPath, upperFirst } from '../utils/index.js'
+import { capitalize, escapeCommentEnd, isRecord, methodPath } from '../utils/index.js'
 import type { HttpMethod, OperationDeps, PathItemLike } from './index.js'
 import {
   buildInferRequestType,
@@ -53,7 +53,7 @@ import {
  */
 function makeHookName(method: string, pathStr: string, prefix: string): string {
   const funcName = methodPath(method, pathStr)
-  return `${prefix}${upperFirst(funcName)}`
+  return `${prefix}${capitalize(funcName)}`
 }
 
 /* ─────────────────────────────── Fetcher Helper ─────────────────────────────── */
@@ -84,7 +84,7 @@ function makeFetcher(clientCall: string): string {
  */
 function makeQueryKeyGetterName(method: string, pathStr: string, isSWR?: boolean): string {
   const funcName = methodPath(method, pathStr)
-  return isSWR ? `get${upperFirst(funcName)}Key` : `get${upperFirst(funcName)}QueryKey`
+  return isSWR ? `get${capitalize(funcName)}Key` : `get${capitalize(funcName)}QueryKey`
 }
 
 /* ─────────────────────────────── Query Options Getter ─────────────────────────────── */
@@ -98,7 +98,7 @@ function makeQueryKeyGetterName(method: string, pathStr: string, isSWR?: boolean
  */
 function makeQueryOptionsGetterName(method: string, pathStr: string): string {
   const funcName = methodPath(method, pathStr)
-  return `get${upperFirst(funcName)}QueryOptions`
+  return `get${capitalize(funcName)}QueryOptions`
 }
 
 /**
@@ -324,7 +324,7 @@ export function ${hookName}(${argsSig}options?:${optionsType}){const{query:query
  */
 function makeMutationKeyGetterName(method: string, pathStr: string): string {
   const funcName = methodPath(method, pathStr)
-  return `get${upperFirst(funcName)}MutationKey`
+  return `get${capitalize(funcName)}MutationKey`
 }
 
 /**
@@ -373,7 +373,7 @@ export function ${keyGetterName}(){return['${prefix}','${methodUpper}','${honoPa
  */
 function makeMutationOptionsGetterName(method: string, pathStr: string): string {
   const funcName = methodPath(method, pathStr)
-  return `get${upperFirst(funcName)}MutationOptions`
+  return `get${capitalize(funcName)}MutationOptions`
 }
 
 /**

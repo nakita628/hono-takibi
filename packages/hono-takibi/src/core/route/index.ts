@@ -17,9 +17,9 @@
  */
 import path from 'node:path'
 import { routeCode } from '../../generator/zod-openapi-hono/openapi/routes/index.js'
-import { core, makeBarrel, makeImports } from '../../helper/index.js'
+import { core, makeImports } from '../../helper/index.js'
 import type { OpenAPI } from '../../openapi/index.js'
-import { lowerFirst } from '../../utils/index.js'
+import { makeBarrel, uncapitalize } from '../../utils/index.js'
 
 /**
  * Generates Hono route files from OpenAPI specification.
@@ -117,7 +117,7 @@ export async function route(
 
   // Write each route block and barrel file in parallel
   const allResults = await Promise.all([
-    ...blocks.map(({ name, block }) => writeFile(`${outDir}/${lowerFirst(name)}.ts`, block)),
+    ...blocks.map(({ name, block }) => writeFile(`${outDir}/${uncapitalize(name)}.ts`, block)),
     core(
       makeBarrel(Object.fromEntries(blocks.map((b) => [b.name, null]))),
       outDir,

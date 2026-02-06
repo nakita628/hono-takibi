@@ -8,9 +8,9 @@
  */
 import path from 'node:path'
 import { makeConst } from '../../helper/code.js'
-import { core, makeBarrel, makeCallback, makeImports } from '../../helper/index.js'
+import { core, makeCallback, makeImports } from '../../helper/index.js'
 import type { Callbacks, Components } from '../../openapi/index.js'
-import { ensureSuffix, lowerFirst, toIdentifierPascalCase } from '../../utils/index.js'
+import { ensureSuffix, makeBarrel, toIdentifierPascalCase, uncapitalize } from '../../utils/index.js'
 
 /**
  * Generates callback component files with $ref resolution.
@@ -81,7 +81,7 @@ export async function callbacks(
         const body = callbackCode
           ? `export const ${name} = {${callbackCode}}${asConst}\n`
           : `export const ${name} = {}${asConst}\n`
-        const filePath = path.join(outDir, `${lowerFirst(key)}.ts`)
+        const filePath = path.join(outDir, `${uncapitalize(key)}.ts`)
         return core(toFileCode(body, filePath), path.dirname(filePath), filePath)
       }),
       core(makeBarrel(callbacks), outDir, path.join(outDir, 'index.ts')),
