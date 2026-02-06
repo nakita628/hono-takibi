@@ -302,7 +302,7 @@ export function makeInferRequestType(
 ): string {
   const { runtimePath, typeofPrefix, bracketSuffix, hasBracket } = pathResult
   return hasBracket
-    ? `InferRequestType<(typeof ${clientName}${typeofPrefix})${bracketSuffix}['$${method}']>`
+    ? `InferRequestType<typeof ${clientName}${typeofPrefix}${bracketSuffix}['$${method}']>`
     : `InferRequestType<typeof ${clientName}${runtimePath}.$${method}>`
 }
 
@@ -321,7 +321,7 @@ export function makeParseResponseType(
 ): string {
   const { runtimePath, typeofPrefix, bracketSuffix, hasBracket } = pathResult
   const clientMethodType = hasBracket
-    ? `(typeof ${clientName}${typeofPrefix})${bracketSuffix}['$${method}']`
+    ? `typeof ${clientName}${typeofPrefix}${bracketSuffix}['$${method}']`
     : `typeof ${clientName}${runtimePath}.$${method}`
   return `Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<${clientMethodType}>>>>>`
 }
