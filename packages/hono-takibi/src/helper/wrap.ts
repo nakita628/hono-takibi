@@ -178,6 +178,8 @@ export function wrap(
     'not',
     'multipleOf',
     'uniqueItems',
+    'minProperties',
+    'maxProperties',
     'nullable',
     'const',
     '$ref',

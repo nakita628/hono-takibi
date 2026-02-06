@@ -64,5 +64,14 @@ export function object(schema: Schema): string {
         .join(',')
     : ''
 
-  return `z.${objectType}({${propertiesCode}})`
+  const base = `z.${objectType}({${propertiesCode}})`
+  const minP =
+    typeof schema.minProperties === 'number'
+      ? `.refine((o)=>Object.keys(o).length>=${schema.minProperties})`
+      : ''
+  const maxP =
+    typeof schema.maxProperties === 'number'
+      ? `.refine((o)=>Object.keys(o).length<=${schema.maxProperties})`
+      : ''
+  return `${base}${minP}${maxP}`
 }

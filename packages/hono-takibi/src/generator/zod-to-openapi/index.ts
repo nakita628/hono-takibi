@@ -111,15 +111,13 @@ export function zodToOpenAPI(
   /** allOf */
   if (schema.allOf !== undefined) {
     // Merge sibling properties as implicit allOf member (JSON Schema spec)
-    let effectiveAllOf: readonly Schema[] = schema.allOf
-    if (schema.properties !== undefined) {
-      const siblingSchema: Schema = {
-        type: 'object' as const,
-        properties: schema.properties,
-        ...(schema.required ? { required: schema.required } : {}),
-      }
-      effectiveAllOf = [...schema.allOf, siblingSchema]
-    }
+    const effectiveAllOf: readonly Schema[] = schema.properties !== undefined
+      ? [...schema.allOf, {
+          type: 'object' as const,
+          properties: schema.properties,
+          ...(schema.required ? { required: schema.required } : {}),
+        }]
+      : schema.allOf
     if (!effectiveAllOf.length) return wrap('z.any()', schema, meta)
 
     const nullable =
@@ -273,16 +271,19 @@ export function zodToOpenAPI(
         : zodToOpenAPI(itemSchema, innerMeta)
       : 'z.any()'
     const z = `z.array(${item})`
+    const unique = schema.uniqueItems === true
+      ? '.refine((items)=>new Set(items).size===items.length)'
+      : ''
     if (typeof schema.minItems === 'number' && typeof schema.maxItems === 'number') {
       return schema.minItems === schema.maxItems
-        ? wrap(`${z}.length(${schema.minItems})`, schema, meta)
-        : wrap(`${z}.min(${schema.minItems}).max(${schema.maxItems})`, schema, meta)
+        ? wrap(`${z}.length(${schema.minItems})${unique}`, schema, meta)
+        : wrap(`${z}.min(${schema.minItems}).max(${schema.maxItems})${unique}`, schema, meta)
     }
     if (typeof schema.minItems === 'number')
-      return wrap(`${z}.min(${schema.minItems})`, schema, meta)
+      return wrap(`${z}.min(${schema.minItems})${unique}`, schema, meta)
     if (typeof schema.maxItems === 'number')
-      return wrap(`${z}.max(${schema.maxItems})`, schema, meta)
-    return wrap(z, schema, meta)
+      return wrap(`${z}.max(${schema.maxItems})${unique}`, schema, meta)
+    return wrap(`${z}${unique}`, schema, meta)
   }
   /* object */
   if (t.includes('object')) return wrap(object(schema), schema, meta)

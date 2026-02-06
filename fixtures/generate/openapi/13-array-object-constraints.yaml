@@ -1,0 +1,75 @@
+openapi: 3.1.0
+info:
+  title: Array & Object Constraints API
+  version: 1.0.0
+paths:
+  /tags:
+    get:
+      operationId: getTags
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tags:
+                    type: array
+                    items:
+                      type: string
+                    uniqueItems: true
+                  ids:
+                    type: array
+                    items:
+                      type: integer
+                    uniqueItems: true
+                    minItems: 1
+                    maxItems: 100
+                  labels:
+                    type: array
+                    items:
+                      type: string
+                    uniqueItems: true
+                    minItems: 3
+                    maxItems: 3
+                required:
+                  - tags
+                  - ids
+                  - labels
+    post:
+      operationId: createTag
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                metadata:
+                  type: object
+                  properties:
+                    key:
+                      type: string
+                    value:
+                      type: string
+                  minProperties: 1
+                  maxProperties: 10
+                config:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                  minProperties: 1
+                limited:
+                  type: object
+                  properties:
+                    a:
+                      type: string
+                    b:
+                      type: string
+                  maxProperties: 5
+              required:
+                - metadata
+      responses:
+        "201":
+          description: Created
