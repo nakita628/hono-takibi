@@ -23,7 +23,8 @@
       "!**/routeTree.gen.ts",
       "!**/orval",
       "!**/fixtures/single-file",
-      "!**/fixtures/split"
+      "!**/fixtures/split",
+      "!**/fixtures/generate"
     ]
   },
   "formatter": {

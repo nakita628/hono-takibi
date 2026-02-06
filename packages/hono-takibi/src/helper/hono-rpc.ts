@@ -47,7 +47,7 @@ function makeEscaped(s: string) {
 /**
  * Format path for Hono RPC access (both type and runtime).
  */
-export function formatPath(p: string):{
+export function formatPath(p: string): {
   runtimePath: string
   typeofPrefix: string
   bracketSuffix: string
