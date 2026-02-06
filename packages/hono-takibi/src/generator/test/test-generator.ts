@@ -184,13 +184,34 @@ export function extractTestCases(spec: OpenAPI): TestCase[] {
   return testCases
 }
 
+/**
+ * Shallow ref collection: extract $ref names from schema structure without following into definitions
+ */
+function shallowRefs(schema: Schema): string[] {
+  const refs: string[] = []
+  if (schema.$ref) {
+    const name = schema.$ref.replace('#/components/schemas/', '')
+    refs.push(name)
+  }
+  if (schema.properties) {
+    for (const prop of Object.values(schema.properties)) refs.push(...shallowRefs(prop))
+  }
+  if (schema.items) {
+    const items = Array.isArray(schema.items) ? schema.items : [schema.items]
+    for (const item of items) refs.push(...shallowRefs(item))
+  }
+  for (const key of ['allOf', 'oneOf', 'anyOf'] as const) {
+    if (schema[key]) for (const s of schema[key]) refs.push(...shallowRefs(s))
+  }
+  return refs
+}
+
 function detectCircularSchemas(schemas: { [key: string]: Schema }): Set<string> {
   const circular = new Set<string>()
   for (const name of Object.keys(schemas)) {
     const schema = schemas[name]
     if (!schema) continue
-    const directRefs = collectSchemaRefs(schema, schemas, new Set([name]))
-    for (const dep of directRefs) {
+    for (const dep of shallowRefs(schema)) {
       if (dep === name) {
         circular.add(name)
         break
@@ -206,9 +227,7 @@ function detectCircularSchemas(schemas: { [key: string]: Schema }): Set<string> 
         if (visited.has(current)) continue
         visited.add(current)
         const s = schemas[current]
-        if (s) {
-          for (const r of collectSchemaRefs(s, schemas, new Set([current]))) stack.push(r)
-        }
+        if (s) for (const r of shallowRefs(s)) stack.push(r)
       }
       if (circular.has(name)) break
     }

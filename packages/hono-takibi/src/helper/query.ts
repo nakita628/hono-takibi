@@ -25,16 +25,14 @@ import path from 'node:path'
 import { isOpenAPIPaths, isOperationLike, isRecord } from '../guard/index.js'
 import type { OpenAPI, OpenAPIPaths } from '../openapi/index.js'
 import { capitalize, escapeCommentEnd, methodPath } from '../utils/index.js'
-import type { HttpMethod, OperationDeps, PathItemLike } from './index.js'
 import {
-  buildInferRequestType,
-  buildOperationDocs,
-  buildParseResponseType,
   core,
-  createOperationDeps,
   formatPath,
-  HTTP_METHODS,
   hasNoContentResponse,
+  makeInferRequestType,
+  makeOperationDeps,
+  makeOperationDocs,
+  makeParseResponseType,
   operationHasArgs,
   parsePathItem,
   resolveSplitOutDir,
@@ -551,9 +549,9 @@ export function ${hookName}(options?:${optionsType}){const{mutation:mutationOpti
 
 function makeHookCode(
   pathStr: string,
-  method: HttpMethod,
-  item: PathItemLike,
-  deps: OperationDeps,
+  method: 'get' | 'put' | 'post' | 'delete' | 'options' | 'head' | 'patch' | 'trace',
+  item: ReturnType<typeof parsePathItem>,
+  deps: ReturnType<typeof makeOperationDeps>,
   config: {
     hookPrefix: string
     frameworkName: string
@@ -575,9 +573,9 @@ function makeHookCode(
   const hasArgs = operationHasArgs(item, op, deps)
   const isQuery = method === 'get'
 
-  const inferRequestType = buildInferRequestType(deps.client, pathResult, method)
+  const inferRequestType = makeInferRequestType(deps.client, pathResult, method)
   // Use parseResponse return type for accurate type inference
-  const parseResponseType = buildParseResponseType(deps.client, pathResult, method)
+  const parseResponseType = makeParseResponseType(deps.client, pathResult, method)
   // parseResponse returns undefined for 204/205 No Content responses
   const hasNoContent = hasNoContentResponse(op)
 
@@ -587,7 +585,7 @@ function makeHookCode(
 
   const summary = typeof op.summary === 'string' ? op.summary : ''
   const description = typeof op.description === 'string' ? op.description : ''
-  const docs = buildOperationDocs(method, pathStr, summary || undefined, description || undefined)
+  const docs = makeOperationDocs(method, pathStr, summary || undefined, description || undefined)
 
   // SWR: simpler pattern without options getter
   if (config.isSWR) {
@@ -713,7 +711,7 @@ function makeHookCode(
  */
 function makeHookCodes(
   paths: OpenAPIPaths,
-  deps: OperationDeps,
+  deps: ReturnType<typeof makeOperationDeps>,
   config: {
     hookPrefix: string
     frameworkName: string
@@ -731,7 +729,8 @@ function makeHookCodes(
     .filter((entry): entry is [string, Record<string, unknown>] => isRecord(entry[1]))
     .flatMap(([p, rawItem]) => {
       const pathItem = parsePathItem(rawItem)
-      return HTTP_METHODS.map((method) => {
+      const methods = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'] as const
+      return methods.map((method) => {
         const result = makeHookCode(p, method, pathItem, deps, config)
         return result
           ? {
@@ -890,7 +889,7 @@ export async function makeQueryHooks(
 
   const componentsParameters = openAPI.components?.parameters ?? {}
   const componentsRequestBodies = openAPI.components?.requestBodies ?? {}
-  const deps = createOperationDeps(clientName, componentsParameters, componentsRequestBodies)
+  const deps = makeOperationDeps(clientName, componentsParameters, componentsRequestBodies)
 
   const hookCodes = makeHookCodes(pathsMaybe, deps, config)
 

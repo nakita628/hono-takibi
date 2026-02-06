@@ -2,20 +2,12 @@ export { analyzeCircularSchemas, ast } from './ast.js'
 export { makeConst, makeExportConst, makeImports, makeModuleSpec } from './code.js'
 export { core } from './core.js'
 export { makeExports } from './exports.js'
-export type {
-  AllBodyInfo,
-  BodyInfo,
-  HttpMethod,
-  OperationDeps,
-  PathItemLike,
-} from './hono-rpc.js'
 export {
-  buildInferRequestType,
-  buildOperationDocs,
-  buildParseResponseType,
-  createOperationDeps,
+  makeInferRequestType,
+  makeParseResponseType,
+  makeOperationDocs,
+  makeOperationDeps,
   formatPath,
-  HTTP_METHODS,
   hasNoContentResponse,
   operationHasArgs,
   parsePathItem,

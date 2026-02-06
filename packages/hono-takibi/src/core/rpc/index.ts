@@ -19,14 +19,12 @@
  */
 import path from 'node:path'
 import { isOpenAPIPaths, isOperationLike, isRecord } from '../../guard/index.js'
-import type { HttpMethod, OperationDeps, PathItemLike } from '../../helper/index.js'
 import {
-  buildInferRequestType,
-  buildOperationDocs,
   core,
-  createOperationDeps,
   formatPath,
-  HTTP_METHODS,
+  makeInferRequestType,
+  makeOperationDeps,
+  makeOperationDocs,
   operationHasArgs,
   parsePathItem,
   resolveSplitOutDir,
@@ -48,9 +46,9 @@ type GeneratedOperation = { code: string; hasArgs: boolean } | null
 
 const makeOperationCode = (
   pathStr: string,
-  method: HttpMethod,
-  item: PathItemLike,
-  deps: OperationDeps,
+  method: 'get' | 'put' | 'post' | 'delete' | 'options' | 'head' | 'patch' | 'trace',
+  item: ReturnType<typeof parsePathItem>,
+  deps: ReturnType<typeof makeOperationDeps>,
   useParseResponse?: boolean,
 ): GeneratedOperation => {
   const op = item[method]
@@ -60,7 +58,7 @@ const makeOperationCode = (
   const pathResult = formatPath(pathStr)
   const hasArgs = operationHasArgs(item, op, deps)
 
-  const inferType = buildInferRequestType(deps.client, pathResult, method)
+  const inferType = makeInferRequestType(deps.client, pathResult, method)
 
   const argSig = hasArgs
     ? `args:${inferType},options?:ClientRequestOptions`
@@ -72,7 +70,7 @@ const makeOperationCode = (
 
   const summary = typeof op.summary === 'string' ? op.summary : ''
   const description = typeof op.description === 'string' ? op.description : ''
-  const docs = buildOperationDocs(method, pathStr, summary || undefined, description || undefined)
+  const docs = makeOperationDocs(method, pathStr, summary || undefined, description || undefined)
 
   const func = `export async function ${funcName}(${argSig}){return await ${call}}`
 
@@ -84,14 +82,15 @@ const makeOperationCode = (
  */
 const makeOperationCodes = (
   paths: OpenAPIPaths,
-  deps: OperationDeps,
+  deps: ReturnType<typeof makeOperationDeps>,
   useParseResponse?: boolean,
 ): OperationCode[] =>
   Object.entries(paths)
     .filter((entry): entry is [string, Record<string, unknown>] => isRecord(entry[1]))
     .flatMap(([p, rawItem]) => {
       const pathItem = parsePathItem(rawItem)
-      return HTTP_METHODS.map((method) => {
+      const methods = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'] as const
+      return methods.map((method) => {
         const result = makeOperationCode(p, method, pathItem, deps, useParseResponse)
         return result
           ? { funcName: methodPath(method, p), code: result.code, hasArgs: result.hasArgs }
@@ -168,7 +167,7 @@ export async function rpc(
 
   const componentsParameters = openAPI.components?.parameters ?? {}
   const componentsRequestBodies = openAPI.components?.requestBodies ?? {}
-  const deps = createOperationDeps(clientName, componentsParameters, componentsRequestBodies)
+  const deps = makeOperationDeps(clientName, componentsParameters, componentsRequestBodies)
 
   const operationCodes = makeOperationCodes(pathsMaybe, deps, useParseResponse)
 
