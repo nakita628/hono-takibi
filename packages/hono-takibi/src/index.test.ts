@@ -2300,6 +2300,123 @@ export const postSubscribeRoute = createRoute({
 `)
   })
 
+  it('generates split callbacks with $ref schemas as plain object', () => {
+    const openAPI = {
+      openapi: '3.0.3',
+      info: { title: 'Test API', version: '1.0.0' },
+      paths: {
+        '/subscribe': {
+          post: {
+            operationId: 'subscribe',
+            requestBody: {
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: { callbackUrl: { type: 'string' } },
+                    required: ['callbackUrl'],
+                  },
+                },
+              },
+            },
+            responses: {
+              201: {
+                description: 'Subscribed',
+                content: {
+                  'application/json': {
+                    schema: { $ref: '#/components/schemas/Subscription' },
+                  },
+                },
+              },
+            },
+            callbacks: { onEvent: { $ref: '#/components/callbacks/OnEvent' } },
+          },
+        },
+      },
+      components: {
+        schemas: {
+          EventPayload: {
+            type: 'object',
+            properties: {
+              eventType: { type: 'string' },
+              timestamp: { type: 'string' },
+            },
+            required: ['eventType', 'timestamp'],
+          },
+          Subscription: {
+            type: 'object',
+            properties: {
+              id: { type: 'string' },
+              callbackUrl: { type: 'string' },
+            },
+            required: ['id', 'callbackUrl'],
+          },
+        },
+        callbacks: {
+          OnEvent: {
+            '{$request.body#/callbackUrl}': {
+              post: {
+                requestBody: {
+                  content: {
+                    'application/json': {
+                      schema: { $ref: '#/components/schemas/EventPayload' },
+                    },
+                  },
+                },
+                responses: {
+                  200: {
+                    description: 'OK',
+                    content: {
+                      'application/json': {
+                        schema: { $ref: '#/components/schemas/EventPayload' },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const config = `export default {
+  input: 'openapi.json',
+  'zod-openapi': {
+    routes: { output: 'src/routes', split: true },
+    components: {
+      schemas: { output: 'src/schemas', split: true, import: '../schemas' },
+      callbacks: { output: 'src/callbacks', split: true, import: '../callbacks' },
+    },
+  },
+}`
+
+    fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI))
+    fs.writeFileSync(path.join(testDir, 'hono-takibi.config.ts'), config)
+
+    execSync(`node ${path.resolve('packages/hono-takibi/dist/index.js')}`, {
+      cwd: path.resolve(testDir),
+    })
+
+    // 1. callback file should contain $ref strings as-is (plain object)
+    const onEventFile = fs.readFileSync(path.join(testDir, 'src/callbacks/onEvent.ts'), 'utf-8')
+    expect(onEventFile).toContain("$ref: '#/components/schemas/EventPayload'")
+
+    // 2. callback file should NOT contain Zod schema conversions
+    expect(onEventFile).not.toContain('z.object')
+    expect(onEventFile).not.toContain('z.string')
+    expect(onEventFile).not.toContain("import { z }")
+
+    // 3. route file should use Zod schemas for request/responses (normal conversion)
+    const postSubscribeRoute = fs.readFileSync(
+      path.join(testDir, 'src/routes/postSubscribe.ts'),
+      'utf-8',
+    )
+    expect(postSubscribeRoute).toContain('z.object')
+    expect(postSubscribeRoute).toContain('OnEventCallback')
+    expect(postSubscribeRoute).toContain("import { OnEventCallback } from '../callbacks'")
+  })
+
   it('verifies no unnecessary imports in generated files', () => {
     const openAPI = {
       openapi: '3.0.3',
@@ -2706,7 +2823,7 @@ export * from './xmlContent.ts'
     )
     expect(jsonContent).toBe(`import { z } from '@hono/zod-openapi'
 
-export const JsonContentSchema = z
+export const JsonContentMediaTypeSchema = z
   .object({ data: z.string(), timestamp: z.iso.datetime().exactOptional() })
   .openapi({ required: ['data'] })
 `)
@@ -2714,7 +2831,7 @@ export const JsonContentSchema = z
     const xmlContent = fs.readFileSync(path.join(testDir, 'src/mediaTypes/xmlContent.ts'), 'utf-8')
     expect(xmlContent).toBe(`import { z } from '@hono/zod-openapi'
 
-export const XmlContentSchema = z.object({ root: z.string().exactOptional() })
+export const XmlContentMediaTypeSchema = z.object({ root: z.string().exactOptional() })
 `)
   })
 
@@ -2763,7 +2880,7 @@ export const XmlContentSchema = z.object({ root: z.string().exactOptional() })
 
     expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
 
-export const BinaryContentSchema = z.file()
+export const BinaryContentMediaTypeSchema = z.file()
 
 export const getDataRoute = createRoute({
   method: 'get',
@@ -2824,11 +2941,11 @@ export const getDataRoute = createRoute({
 
     expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
 
-export const JsonPayloadSchema = z
+export const JsonPayloadMediaTypeSchema = z
   .object({ id: z.int(), name: z.string() })
   .openapi({ required: ['id', 'name'] })
 
-export type JsonPayload = z.infer<typeof JsonPayloadSchema>
+export type JsonPayloadMediaType = z.infer<typeof JsonPayloadMediaTypeSchema>
 
 export const getDataRoute = createRoute({
   method: 'get',

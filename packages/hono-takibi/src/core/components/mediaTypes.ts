@@ -72,13 +72,13 @@ export async function mediaTypes(
     const results = await Promise.all([
       ...keys.map((key) => {
         const v = mediaTypes[key]
-        const name = toIdentifierPascalCase(ensureSuffix(key, 'Schema'))
+        const name = toIdentifierPascalCase(ensureSuffix(key, 'MediaTypeSchema'))
         const filePath = path.join(outDir, `${uncapitalize(key)}.ts`)
 
         // Handle $ref references
         if (typeof v === 'object' && v !== null && '$ref' in v && v.$ref) {
           const refKey = v.$ref.split('/').at(-1) ?? ''
-          const refName = toIdentifierPascalCase(ensureSuffix(refKey, 'Schema'))
+          const refName = toIdentifierPascalCase(ensureSuffix(refKey, 'MediaTypeSchema'))
           const importPath = `./${uncapitalize(refKey)}.ts`
           const body = `import { ${refName} } from '${importPath}'\n\nexport const ${name} = ${refName}\n`
           return core(body, path.dirname(filePath), filePath)
@@ -112,11 +112,11 @@ export async function mediaTypes(
   const definitions = keys
     .map((key) => {
       const v = mediaTypes[key]
-      const name = toIdentifierPascalCase(ensureSuffix(key, 'Schema'))
+      const name = toIdentifierPascalCase(ensureSuffix(key, 'MediaTypeSchema'))
 
       if (typeof v === 'object' && v !== null && '$ref' in v && v.$ref) {
         const refKey = v.$ref.split('/').at(-1) ?? ''
-        const refName = toIdentifierPascalCase(ensureSuffix(refKey, 'Schema'))
+        const refName = toIdentifierPascalCase(ensureSuffix(refKey, 'MediaTypeSchema'))
         return `export const ${name} = ${refName}`
       }
 

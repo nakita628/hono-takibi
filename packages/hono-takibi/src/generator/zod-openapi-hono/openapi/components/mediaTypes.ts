@@ -41,7 +41,7 @@ export function mediaTypesCode(
   return entries
     .map(([k, v]) => {
       if (!isMedia(v)) return undefined
-      const name = toIdentifierPascalCase(ensureSuffix(k, 'Schema'))
+      const name = toIdentifierPascalCase(ensureSuffix(k, 'MediaTypeSchema'))
       const zodCode = zodToOpenAPI(v.schema)
       return zodToOpenAPISchema(
         name,
