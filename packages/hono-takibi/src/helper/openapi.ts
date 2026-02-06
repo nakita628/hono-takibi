@@ -487,6 +487,60 @@ export function makeCallbacks(
 
   const isOperation = (v: unknown): v is Operation => isRecord(v) && 'responses' in v
 
+  const methods = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'] as const
+
+  const makeMethodsCode = (record: {readonly [k: string]: unknown}): string =>
+    methods
+      .map((method) => {
+        const operation = record[method]
+        if (!isOperation(operation)) return undefined
+        // OpenAPI spec: parameters is [Parameter Object | Reference Object]
+        const params =
+          operation.parameters && operation.parameters.length > 0
+            ? operation.parameters
+                .filter(isParameter)
+                .map((param: Parameter) =>
+                  param.$ref
+                    ? makeRef(param.$ref)
+                    : zodToOpenAPI(param.schema, { parameters: { ...param } }),
+                )
+                .filter(Boolean)
+            : undefined
+        const parametersCode = params && params.length > 0 ? `[${params.join(',')}]` : undefined
+
+        const result = [
+          operation.tags ? `tags:${JSON.stringify(operation.tags)}` : undefined,
+          operation.summary ? `summary:${JSON.stringify(operation.summary)}` : undefined,
+          operation.description
+            ? `description:${JSON.stringify(operation.description)}`
+            : undefined,
+          operation.externalDocs
+            ? `externalDocs:${JSON.stringify(operation.externalDocs)}`
+            : undefined,
+          operation.operationId
+            ? `operationId:${JSON.stringify(operation.operationId)}`
+            : undefined,
+          parametersCode ? `parameters:${parametersCode}` : undefined,
+          operation.requestBody
+            ? `requestBody:${makeRequestBody(operation.requestBody)}`
+            : undefined,
+          operation.responses
+            ? `responses:${makeOperationResponses(operation.responses)}`
+            : undefined,
+          operation.callbacks
+            ? `callbacks:${makeOperationCallbacks(operation.callbacks)}`
+            : undefined,
+          operation.deprecated ? `deprecated:${JSON.stringify(operation.deprecated)}` : undefined,
+          operation.security ? `security:${JSON.stringify(operation.security)}` : undefined,
+          operation.servers ? `servers:${JSON.stringify(operation.servers)}` : undefined,
+        ]
+          .filter((v) => v !== undefined)
+          .join(',')
+        return `${method}:{${result}}`
+      })
+      .filter((v) => v !== undefined)
+      .join(',')
+
   return Object.entries(callbacks)
     .map(([callbackKey, pathItem]) => {
       // Handle $ref to components/callbacks
@@ -495,58 +549,22 @@ export function makeCallbacks(
       }
       if (!isRecord(pathItem)) return undefined
       const pathItemRecord: Record<string, unknown> = pathItem
-      const methods = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'] as const
-      const pathItemCode = methods
-        .map((method) => {
-          const operation = pathItemRecord[method]
-          if (!isOperation(operation)) return undefined
-          // OpenAPI spec: parameters is [Parameter Object | Reference Object]
-          const params =
-            operation.parameters && operation.parameters.length > 0
-              ? operation.parameters
-                  .filter(isParameter)
-                  .map((param: Parameter) =>
-                    param.$ref
-                      ? makeRef(param.$ref)
-                      : zodToOpenAPI(param.schema, { parameters: { ...param } }),
-                  )
-                  .filter(Boolean)
-              : undefined
-          const parametersCode = params && params.length > 0 ? `[${params.join(',')}]` : undefined
-
-          const result = [
-            operation.tags ? `tags:${JSON.stringify(operation.tags)}` : undefined,
-            operation.summary ? `summary:${JSON.stringify(operation.summary)}` : undefined,
-            operation.description
-              ? `description:${JSON.stringify(operation.description)}`
-              : undefined,
-            operation.externalDocs
-              ? `externalDocs:${JSON.stringify(operation.externalDocs)}`
-              : undefined,
-            operation.operationId
-              ? `operationId:${JSON.stringify(operation.operationId)}`
-              : undefined,
-            parametersCode ? `parameters:${parametersCode}` : undefined,
-            operation.requestBody
-              ? `requestBody:${makeRequestBody(operation.requestBody)}`
-              : undefined,
-            operation.responses
-              ? `responses:${makeOperationResponses(operation.responses)}`
-              : undefined,
-            operation.callbacks
-              ? `callbacks:${makeOperationCallbacks(operation.callbacks)}`
-              : undefined,
-            operation.deprecated ? `deprecated:${JSON.stringify(operation.deprecated)}` : undefined,
-            operation.security ? `security:${JSON.stringify(operation.security)}` : undefined,
-            operation.servers ? `servers:${JSON.stringify(operation.servers)}` : undefined,
-          ]
-            .filter((v) => v !== undefined)
-            .join(',')
-          return `${method}:{${result}}`
+      // Try direct pathItem (pathExpression → {method: operation})
+      const pathItemCode = makeMethodsCode(pathItemRecord)
+      if (pathItemCode) {
+        return `${JSON.stringify(callbackKey)}:{${pathItemCode}}`
+      }
+      // Fallback: callbackName → pathExpression → {method: operation}
+      const nestedCode = Object.entries(pathItemRecord)
+        .map(([pathExpr, inner]) => {
+          if (!isRecord(inner)) return undefined
+          const innerRecord: Record<string, unknown> = inner
+          const code = makeMethodsCode(innerRecord)
+          return code ? `${JSON.stringify(pathExpr)}:{${code}}` : undefined
         })
         .filter((v) => v !== undefined)
         .join(',')
-      return pathItemCode ? `${JSON.stringify(callbackKey)}:{${pathItemCode}}` : undefined
+      return nestedCode ? `${JSON.stringify(callbackKey)}:{${nestedCode}}` : undefined
     })
     .filter((v) => v !== undefined)
     .join(',')

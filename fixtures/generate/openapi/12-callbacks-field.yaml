@@ -1,0 +1,201 @@
+openapi: 3.1.0
+info:
+  title: Callbacks Field Name Test
+  version: 1.0.0
+  description: Verify that callbacks field is correctly named in generated createRoute output
+paths:
+  /orders:
+    post:
+      operationId: createOrder
+      summary: Create an order with callback
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrderRequest"
+      responses:
+        "201":
+          description: Order created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+      callbacks:
+        onOrderCreated:
+          "{$request.body#/callbackUrl}":
+            post:
+              operationId: onOrderCreated
+              summary: Order created notification
+              requestBody:
+                content:
+                  application/json:
+                    schema:
+                      $ref: "#/components/schemas/OrderEvent"
+              responses:
+                "200":
+                  description: Callback received
+  /payments:
+    post:
+      operationId: createPayment
+      summary: Create a payment with multiple callbacks
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PaymentRequest"
+      responses:
+        "201":
+          description: Payment created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Payment"
+      callbacks:
+        onPaymentSuccess:
+          "{$request.body#/successUrl}":
+            post:
+              operationId: onPaymentSuccess
+              requestBody:
+                content:
+                  application/json:
+                    schema:
+                      $ref: "#/components/schemas/PaymentEvent"
+              responses:
+                "200":
+                  description: OK
+        onPaymentFailure:
+          "{$request.body#/failureUrl}":
+            post:
+              operationId: onPaymentFailure
+              requestBody:
+                content:
+                  application/json:
+                    schema:
+                      $ref: "#/components/schemas/PaymentEvent"
+              responses:
+                "200":
+                  description: OK
+  /items:
+    get:
+      operationId: listItems
+      summary: List items (no callbacks)
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    name:
+                      type: string
+                  required:
+                    - id
+                    - name
+components:
+  schemas:
+    OrderRequest:
+      type: object
+      properties:
+        item:
+          type: string
+        quantity:
+          type: integer
+        callbackUrl:
+          type: string
+          format: uri
+      required:
+        - item
+        - quantity
+        - callbackUrl
+    Order:
+      type: object
+      properties:
+        id:
+          type: string
+        item:
+          type: string
+        quantity:
+          type: integer
+        status:
+          type: string
+      required:
+        - id
+        - item
+        - quantity
+        - status
+    OrderEvent:
+      type: object
+      properties:
+        orderId:
+          type: string
+        event:
+          type: string
+          enum:
+            - created
+            - confirmed
+            - shipped
+        timestamp:
+          type: string
+          format: date-time
+      required:
+        - orderId
+        - event
+        - timestamp
+    PaymentRequest:
+      type: object
+      properties:
+        amount:
+          type: number
+        currency:
+          type: string
+        successUrl:
+          type: string
+          format: uri
+        failureUrl:
+          type: string
+          format: uri
+      required:
+        - amount
+        - currency
+        - successUrl
+        - failureUrl
+    Payment:
+      type: object
+      properties:
+        id:
+          type: string
+        amount:
+          type: number
+        currency:
+          type: string
+        status:
+          type: string
+      required:
+        - id
+        - amount
+        - currency
+        - status
+    PaymentEvent:
+      type: object
+      properties:
+        paymentId:
+          type: string
+        status:
+          type: string
+          enum:
+            - success
+            - failure
+        timestamp:
+          type: string
+          format: date-time
+      required:
+        - paymentId
+        - status
+        - timestamp

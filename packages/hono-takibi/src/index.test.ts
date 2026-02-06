@@ -670,7 +670,7 @@ export const postSubscribeRoute = createRoute({
     },
   },
   responses: { 201: { description: 'Subscribed' } },
-  onEvent: OnEventCallback,
+  callbacks: { onEvent: OnEventCallback },
 })
 `)
   })
@@ -803,7 +803,7 @@ export const postItemsIdRoute = createRoute({
   operationId: 'createItem',
   request: { body: ItemBodyRequestBody },
   responses: { 201: { description: 'Created' } },
-  onCreated: OnCreatedCallback,
+  callbacks: { onCreated: OnCreatedCallback },
 })
 `)
   })
@@ -2297,7 +2297,7 @@ export const postSubscribeRoute = createRoute({
     },
   },
   responses: { 201: { description: 'Subscribed' } },
-  onEvent: OnEventCallback,
+  callbacks: { onEvent: OnEventCallback },
 })
 `)
   })

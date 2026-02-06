@@ -47,7 +47,7 @@ export function createRoute(
       ? `request:${makeRequest(operation.parameters, operation.requestBody)}`
       : undefined,
     operation.responses ? `responses:${makeOperationResponses(operation.responses)}` : undefined,
-    operation.callbacks ? makeCallbacks(operation.callbacks) : undefined,
+    operation.callbacks ? `callbacks:{${makeCallbacks(operation.callbacks)}}` : undefined,
     operation.deprecated ? `deprecated:${JSON.stringify(operation.deprecated)}` : undefined,
     operation.security ? `security:${JSON.stringify(operation.security)}` : undefined,
     operation.servers ? `servers:${JSON.stringify(operation.servers)}` : undefined,

@@ -62,6 +62,7 @@ const SPECS = [
   { name: '09-readonly-split', yaml: '09-readonly-split.yaml', flags: NO_EXPORTS },
   { name: '10-comprehensive', yaml: '10-comprehensive.yaml', flags: ALL_EXPORTS },
   { name: '11-composition-keywords', yaml: '11-composition-keywords.yaml', flags: { ...NO_EXPORTS, exportSchemas: true, exportSchemasTypes: true } },
+  { name: '12-callbacks-field', yaml: '12-callbacks-field.yaml', flags: { ...NO_EXPORTS, exportCallbacks: true } },
 ] as const
 
 const CLIENT_STUB = `import { hc } from 'hono/client'
