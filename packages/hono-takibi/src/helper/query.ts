@@ -730,20 +730,22 @@ function makeHookCodes(
     .flatMap(([p, rawItem]) => {
       const pathItem = parsePathItem(rawItem)
       const methods = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'] as const
-      return methods.map((method) => {
-        const result = makeHookCode(p, method, pathItem, deps, config)
-        return result
-          ? {
-              hookName: makeHookName(method, p, config.hookPrefix),
-              code: result.code,
-              isQuery: result.isQuery,
-              hasArgs: result.hasArgs,
-            }
-          : null
-      }).filter(
-        (item): item is { hookName: string; code: string; isQuery: boolean; hasArgs: boolean } =>
-          item !== null,
-      )
+      return methods
+        .map((method) => {
+          const result = makeHookCode(p, method, pathItem, deps, config)
+          return result
+            ? {
+                hookName: makeHookName(method, p, config.hookPrefix),
+                code: result.code,
+                isQuery: result.isQuery,
+                hasArgs: result.hasArgs,
+              }
+            : null
+        })
+        .filter(
+          (item): item is { hookName: string; code: string; isQuery: boolean; hasArgs: boolean } =>
+            item !== null,
+        )
     })
 }
 

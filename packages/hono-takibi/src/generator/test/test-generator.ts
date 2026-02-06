@@ -5,7 +5,7 @@ import {
   isSecurityArray,
   isSecurityScheme,
 } from '../../guard/index.js'
-import type { OpenAPI, Operation, Schema } from '../../openapi/index.js'
+import type { OpenAPI, Schema } from '../../openapi/index.js'
 import { schemaToFaker } from './faker-mapping.js'
 
 /**

@@ -198,7 +198,7 @@ export function zodToOpenAPI(
     }
     // 2b. not.type (array of types)
     if (typeof schema.not === 'object' && Array.isArray(schema.not.type)) {
-      const predicates = (schema.not.type)
+      const predicates = schema.not.type
         .map((t) => typePredicates[t])
         .filter((p): p is string => p !== undefined)
       if (predicates.length > 0) {
@@ -264,7 +264,9 @@ export function zodToOpenAPI(
       return wrap(z, schema, meta)
     }
     // items can be Schema or readonly Schema[] (JSON Schema draft-04 tuple validation)
-    const itemSchema: Schema | undefined = Array.isArray(schema.items) ? schema.items[0] : schema.items
+    const itemSchema: Schema | undefined = Array.isArray(schema.items)
+      ? schema.items[0]
+      : schema.items
     const item = itemSchema
       ? itemSchema.$ref
         ? makeRef(itemSchema.$ref)

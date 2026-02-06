@@ -90,12 +90,14 @@ const makeOperationCodes = (
     .flatMap(([p, rawItem]) => {
       const pathItem = parsePathItem(rawItem)
       const methods = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'] as const
-      return methods.map((method) => {
-        const result = makeOperationCode(p, method, pathItem, deps, useParseResponse)
-        return result
-          ? { funcName: methodPath(method, p), code: result.code, hasArgs: result.hasArgs }
-          : null
-      }).filter((item): item is OperationCode => item !== null)
+      return methods
+        .map((method) => {
+          const result = makeOperationCode(p, method, pathItem, deps, useParseResponse)
+          return result
+            ? { funcName: methodPath(method, p), code: result.code, hasArgs: result.hasArgs }
+            : null
+        })
+        .filter((item): item is OperationCode => item !== null)
     })
 
 /* ─────────────────────────────── Header ─────────────────────────────── */

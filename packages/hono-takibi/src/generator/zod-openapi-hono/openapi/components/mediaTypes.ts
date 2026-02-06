@@ -1,5 +1,5 @@
 import { isMedia } from '../../../../guard/index.js'
-import type { Components, Media, Reference } from '../../../../openapi/index.js'
+import type { Components } from '../../../../openapi/index.js'
 import {
   ensureSuffix,
   toIdentifierPascalCase,

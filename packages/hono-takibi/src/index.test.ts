@@ -2405,7 +2405,7 @@ export const postSubscribeRoute = createRoute({
     // 2. callback file should NOT contain Zod schema conversions
     expect(onEventFile).not.toContain('z.object')
     expect(onEventFile).not.toContain('z.string')
-    expect(onEventFile).not.toContain("import { z }")
+    expect(onEventFile).not.toContain('import { z }')
 
     // 3. route file should use Zod schemas for request/responses (normal conversion)
     const postSubscribeRoute = fs.readFileSync(

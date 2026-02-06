@@ -494,7 +494,7 @@ export function makeCallbacks(
       const hasNested = Object.values(pathItem).some(
         (v) => isRecord(v) && Object.keys(v).some((k) => methods.includes(k)),
       )
-      if (!hasMethod && !hasNested) {
+      if (!(hasMethod || hasNested)) {
         // summary/description only
         const props = [
           'summary' in pathItem && pathItem.summary

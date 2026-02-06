@@ -184,10 +184,7 @@ describe('zodToOpenAPI', () => {
         // $ref union
         [
           {
-            anyOf: [
-              { $ref: '#/components/schemas/Cat' },
-              { $ref: '#/components/schemas/Dog' },
-            ],
+            anyOf: [{ $ref: '#/components/schemas/Cat' }, { $ref: '#/components/schemas/Dog' }],
           },
           'z.union([CatSchema,DogSchema])',
         ],
@@ -403,10 +400,7 @@ describe('zodToOpenAPI', () => {
 
       describe('not.enum', () => {
         it.concurrent.each<[Schema, string]>([
-          [
-            { not: { enum: ['a', 'b', 'c'] } },
-            `z.any().refine((v) => !["a","b","c"].includes(v))`,
-          ],
+          [{ not: { enum: ['a', 'b', 'c'] } }, `z.any().refine((v) => !["a","b","c"].includes(v))`],
         ])('zodToOpenAPI(%o) → %s', (input, expected) => {
           expect(zodToOpenAPI(input)).toBe(expected)
         })
