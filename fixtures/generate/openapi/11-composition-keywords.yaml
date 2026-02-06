@@ -1,0 +1,326 @@
+openapi: 3.1.0
+info:
+  title: Composition Keywords API
+  description: Comprehensive test for oneOf, anyOf, allOf, not composition keywords
+  version: 1.0.0
+paths:
+  /one-of:
+    post:
+      operationId: postOneOf
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PaymentMethod"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaymentMethod"
+  /any-of:
+    post:
+      operationId: postAnyOf
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SearchFilter"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SearchFilter"
+  /all-of:
+    post:
+      operationId: postAllOf
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Employee"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Employee"
+  /not:
+    post:
+      operationId: postNot
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NotStringValue"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotStringValue"
+  /not-ref:
+    get:
+      operationId: getNotRef
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotAdmin"
+  /not-enum:
+    get:
+      operationId: getNotEnum
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotDraftOrArchived"
+  /not-const:
+    get:
+      operationId: getNotConst
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotSpecificValue"
+  /not-composition:
+    get:
+      operationId: getNotComposition
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotStringOrNumber"
+  /all-of-sibling:
+    get:
+      operationId: getAllOfSibling
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExtendedWithSibling"
+  /nullable-one-of:
+    get:
+      operationId: getNullableOneOf
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NullablePayment"
+  /any-of-three:
+    get:
+      operationId: getAnyOfThree
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FlexibleId"
+  /any-of-ref:
+    get:
+      operationId: getAnyOfRef
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PetChoice"
+components:
+  schemas:
+    # --- oneOf ---
+    CreditCard:
+      type: object
+      properties:
+        type:
+          type: string
+          const: credit_card
+        cardNumber:
+          type: string
+        expiry:
+          type: string
+      required:
+        - type
+        - cardNumber
+        - expiry
+    BankTransfer:
+      type: object
+      properties:
+        type:
+          type: string
+          const: bank_transfer
+        bankCode:
+          type: string
+        accountNumber:
+          type: string
+      required:
+        - type
+        - bankCode
+        - accountNumber
+    PaymentMethod:
+      oneOf:
+        - $ref: "#/components/schemas/CreditCard"
+        - $ref: "#/components/schemas/BankTransfer"
+      discriminator:
+        propertyName: type
+        mapping:
+          credit_card: "#/components/schemas/CreditCard"
+          bank_transfer: "#/components/schemas/BankTransfer"
+    NullablePayment:
+      oneOf:
+        - $ref: "#/components/schemas/CreditCard"
+        - $ref: "#/components/schemas/BankTransfer"
+      nullable: true
+
+    # --- anyOf ---
+    SearchFilter:
+      anyOf:
+        - type: object
+          properties:
+            keyword:
+              type: string
+          required:
+            - keyword
+        - type: object
+          properties:
+            category:
+              type: integer
+          required:
+            - category
+    FlexibleId:
+      description: Accepts string, integer, or UUID
+      anyOf:
+        - type: string
+        - type: integer
+        - type: string
+          format: uuid
+    Cat:
+      type: object
+      properties:
+        name:
+          type: string
+        purring:
+          type: boolean
+      required:
+        - name
+    Dog:
+      type: object
+      properties:
+        name:
+          type: string
+        barkVolume:
+          type: number
+      required:
+        - name
+    PetChoice:
+      anyOf:
+        - $ref: "#/components/schemas/Cat"
+        - $ref: "#/components/schemas/Dog"
+
+    # --- allOf ---
+    Person:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+      required:
+        - name
+        - email
+    EmployeeInfo:
+      type: object
+      properties:
+        employeeId:
+          type: integer
+        department:
+          type: string
+      required:
+        - employeeId
+    Employee:
+      description: An employee with personal and work info
+      allOf:
+        - $ref: "#/components/schemas/Person"
+        - $ref: "#/components/schemas/EmployeeInfo"
+        - type: object
+          properties:
+            startDate:
+              type: string
+              format: date
+
+    # --- allOf + sibling properties ---
+    BaseEntity:
+      type: object
+      properties:
+        id:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - createdAt
+    ExtendedWithSibling:
+      description: allOf with sibling properties merged
+      allOf:
+        - $ref: "#/components/schemas/BaseEntity"
+      properties:
+        label:
+          type: string
+        active:
+          type: boolean
+      required:
+        - label
+
+    # --- not ---
+    NotStringValue:
+      not:
+        type: string
+    NotAdmin:
+      not:
+        $ref: "#/components/schemas/AdminRole"
+    AdminRole:
+      type: object
+      properties:
+        role:
+          type: string
+          const: admin
+      required:
+        - role
+    NotDraftOrArchived:
+      not:
+        enum:
+          - draft
+          - archived
+    NotSpecificValue:
+      not:
+        const: forbidden
+    NotStringOrNumber:
+      description: Rejects if value matches string or number union
+      not:
+        anyOf:
+          - type: string
+          - type: number

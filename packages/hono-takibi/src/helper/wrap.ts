@@ -175,6 +175,7 @@ export function wrap(
     'oneOf',
     'anyOf',
     'allOf',
+    'not',
     'multipleOf',
     'uniqueItems',
     'nullable',
