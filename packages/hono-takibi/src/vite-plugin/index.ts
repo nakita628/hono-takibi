@@ -44,8 +44,8 @@ import {
   type,
   vueQuery,
 } from '../core/index.js'
+import { isRecord } from '../guard/index.js'
 import { parseOpenAPI } from '../openapi/index.js'
-import { isRecord } from '../utils/index.js'
 
 /**
  * Parsed configuration type extracted from parseConfig result.

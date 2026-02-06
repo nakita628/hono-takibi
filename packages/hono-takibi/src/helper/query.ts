@@ -22,8 +22,9 @@
  * @link https://hono.dev/docs/guides/rpc
  */
 import path from 'node:path'
+import { isOpenAPIPaths, isOperationLike, isRecord } from '../guard/index.js'
 import type { OpenAPI, OpenAPIPaths } from '../openapi/index.js'
-import { capitalize, escapeCommentEnd, isRecord, methodPath } from '../utils/index.js'
+import { capitalize, escapeCommentEnd, methodPath } from '../utils/index.js'
 import type { HttpMethod, OperationDeps, PathItemLike } from './index.js'
 import {
   buildInferRequestType,
@@ -34,8 +35,6 @@ import {
   formatPath,
   HTTP_METHODS,
   hasNoContentResponse,
-  isOpenAPIPaths,
-  isOperationLike,
   operationHasArgs,
   parsePathItem,
   resolveSplitOutDir,

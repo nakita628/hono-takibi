@@ -1,19 +1,12 @@
+import {
+  isContentBody,
+  isHttpMethod,
+  isOperation,
+  isSecurityArray,
+  isSecurityScheme,
+} from '../../guard/index.js'
 import type { OpenAPI, Operation, Schema } from '../../openapi/index.js'
-import { isHttpMethod } from '../../utils/index.js'
 import { schemaToFaker } from './faker-mapping.js'
-
-function isOperation(value: unknown): value is Operation {
-  return typeof value === 'object' && value !== null && 'responses' in value
-}
-
-function hasContent(body: unknown): body is { content?: { [key: string]: { schema?: Schema } } } {
-  return typeof body === 'object' && body !== null && !('$ref' in body)
-}
-
-function getSecurityArray(security: unknown): { [key: string]: string[] }[] | undefined {
-  if (!Array.isArray(security)) return undefined
-  return security
-}
 
 /**
  * Recursively collect all schema $ref names from a schema and its nested properties
@@ -87,15 +80,9 @@ type TestCase = {
   usedSchemaRefs: string[]
 }
 
-function isSecurityScheme(
-  value: unknown,
-): value is { type?: string; scheme?: string; name?: string; in?: string } {
-  return typeof value === 'object' && value !== null && !('$ref' in value)
-}
-
 function extractSecurityRequirements(
-  opSecurity: { [key: string]: string[] }[] | undefined,
-  globalSecurity: { [key: string]: string[] }[] | undefined,
+  opSecurity: readonly { readonly [key: string]: readonly string[] }[] | undefined,
+  globalSecurity: readonly { readonly [key: string]: readonly string[] }[] | undefined,
   securitySchemes: { [key: string]: unknown } | undefined,
 ): SecurityRequirement[] {
   const securityDefs = opSecurity ?? globalSecurity ?? []
@@ -145,14 +132,14 @@ export function extractTestCases(spec: OpenAPI): TestCase[] {
         }
       }
       const requestBody: TestCase['requestBody'] = (() => {
-        if (!(op.requestBody && hasContent(op.requestBody))) return undefined
+        if (!(op.requestBody && isContentBody(op.requestBody))) return undefined
         const jsonContent = op.requestBody.content?.['application/json']
         if (jsonContent?.schema)
           return { fakerCode: schemaToFaker(jsonContent.schema), contentType: 'application/json' }
         return undefined
       })()
       const usedSchemaRefs: string[] = (() => {
-        if (!(op.requestBody && hasContent(op.requestBody))) return []
+        if (!(op.requestBody && isContentBody(op.requestBody))) return []
         const jsonContent = op.requestBody.content?.['application/json']
         if (!jsonContent?.schema) return []
         // Recursively collect all schema refs from the request body
@@ -172,8 +159,8 @@ export function extractTestCases(spec: OpenAPI): TestCase[] {
         .map((s) => Number.parseInt(s, 10))
         .sort()
       const security = extractSecurityRequirements(
-        getSecurityArray(op.security),
-        getSecurityArray(spec.security),
+        isSecurityArray(op.security) ? op.security : undefined,
+        isSecurityArray(spec.security) ? spec.security : undefined,
         securitySchemes,
       )
       testCases.push({

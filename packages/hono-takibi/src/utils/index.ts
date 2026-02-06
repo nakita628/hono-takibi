@@ -1,6 +1,3 @@
-// Re-export guards for backward compatibility
-export { isHttpMethod, isRecord } from '../guard/index.js'
-
 /**
  * Normalize a JSON Schema `type` value into an array of type strings.
  *

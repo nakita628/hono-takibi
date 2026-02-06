@@ -18,6 +18,7 @@
  * @link https://github.com/honojs/hono/blob/main/src/client/types.ts#L46-L76
  */
 import path from 'node:path'
+import { isOpenAPIPaths, isOperationLike, isRecord } from '../../guard/index.js'
 import type { HttpMethod, OperationDeps, PathItemLike } from '../../helper/index.js'
 import {
   buildInferRequestType,
@@ -26,14 +27,12 @@ import {
   createOperationDeps,
   formatPath,
   HTTP_METHODS,
-  isOpenAPIPaths,
-  isOperationLike,
   operationHasArgs,
   parsePathItem,
   resolveSplitOutDir,
 } from '../../helper/index.js'
 import type { OpenAPI, OpenAPIPaths } from '../../openapi/index.js'
-import { isRecord, methodPath } from '../../utils/index.js'
+import { methodPath } from '../../utils/index.js'
 
 /* ─────────────────────────────── Types ─────────────────────────────── */
 

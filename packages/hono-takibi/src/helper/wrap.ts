@@ -15,6 +15,7 @@
  *
  * @module helper/wrap
  */
+import { isRecord } from '../guard/index.js'
 import type { Header, Parameter, Schema } from '../openapi/index.js'
 import { makeExamples } from './openapi.js'
 
@@ -218,9 +219,6 @@ export function wrap(
     openapiSchema?.startsWith('{') && openapiSchema?.endsWith('}')
       ? openapiSchema.slice(1, -1)
       : openapiSchema
-
-  const isRecord = (v: unknown): v is Record<string, unknown> =>
-    typeof v === 'object' && v !== null && !Array.isArray(v)
 
   /**
    * Serializes a media object with examples handled as code references.

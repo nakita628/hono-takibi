@@ -8,12 +8,7 @@
  */
 import path from 'node:path'
 import { schemasCode } from '../../generator/zod-openapi-hono/openapi/components/schemas.js'
-import {
-  analyzeCircularSchemas,
-  ast,
-  core,
-  makeSplitSchemaFile,
-} from '../../helper/index.js'
+import { analyzeCircularSchemas, ast, core, makeSplitSchemaFile } from '../../helper/index.js'
 import type { Components } from '../../openapi/index.js'
 import { makeBarrel, renderNamedImport, uncapitalize } from '../../utils/index.js'
 

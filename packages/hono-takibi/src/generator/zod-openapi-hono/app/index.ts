@@ -1,5 +1,6 @@
+import { isHttpMethod } from '../../../guard/index.js'
 import type { OpenAPI } from '../../../openapi/index.js'
-import { isHttpMethod, methodPath } from '../../../utils/index.js'
+import { methodPath } from '../../../utils/index.js'
 
 /**
  * Generates a Hono app with OpenAPI integration.

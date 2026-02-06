@@ -8,21 +8,11 @@
  */
 import path from 'node:path'
 import {
-  hasSchemaProp,
   isOperationLike,
   isParameterObject,
   isRecord,
   isRefObject,
-  isValidIdent,
-} from '../guard/index.js'
-
-// Re-export guards for backward compatibility
-export {
-  hasSchemaProp,
-  isOpenAPIPaths,
-  isOperationLike,
-  isParameterObject,
-  isRefObject,
+  isSchemaProperty,
   isValidIdent,
 } from '../guard/index.js'
 
@@ -50,7 +40,7 @@ type OperationLike = {
 /**
  * Escape special characters for string literals.
  */
-export function esc(s: string) {
+function makeEscaped(s: string) {
   return s.replace(/\\/g, '\\\\').replace(/'/g, "\\'")
 }
 
@@ -83,7 +73,7 @@ export function formatPath(p: string): FormatPathResult {
   const firstBracketIdx = honoSegs.findIndex((seg) => !isValidIdent(seg))
   const hasBracket = firstBracketIdx !== -1
 
-  const runtimeParts = honoSegs.map((seg) => (isValidIdent(seg) ? `.${seg}` : `['${esc(seg)}']`))
+  const runtimeParts = honoSegs.map((seg) => (isValidIdent(seg) ? `.${seg}` : `['${makeEscaped(seg)}']`))
   const runtimePath = runtimeParts.join('')
 
   const typeofPrefix = hasBracket
@@ -96,7 +86,7 @@ export function formatPath(p: string): FormatPathResult {
   const bracketSuffix = hasBracket
     ? honoSegs
         .slice(firstBracketIdx)
-        .map((seg) => `['${esc(seg)}']`)
+        .map((seg) => `['${makeEscaped(seg)}']`)
         .join('')
     : ''
 
@@ -108,7 +98,7 @@ export function formatPath(p: string): FormatPathResult {
 /**
  * Extract parameter name from $ref.
  */
-export function refParamName(refLike: unknown): string | undefined {
+function refParamName(refLike: unknown): string | undefined {
   const ref =
     typeof refLike === 'string' ? refLike : isRefObject(refLike) ? refLike.$ref : undefined
   const m = ref?.match(/^#\/components\/parameters\/(.+)$/)
@@ -118,7 +108,7 @@ export function refParamName(refLike: unknown): string | undefined {
 /**
  * Create parameter resolver function.
  */
-export function createResolveParameter(componentsParameters: Record<string, unknown>) {
+function createResolveParameter(componentsParameters: { [key: string]: unknown }) {
   return (p: unknown): ParameterLike | undefined => {
     if (isParameterObject(p)) return p
     const name = refParamName(p)
@@ -130,37 +120,14 @@ export function createResolveParameter(componentsParameters: Record<string, unkn
 /**
  * Create function to convert parameter array to ParameterLike array.
  */
-export function createToParameterLikes(resolveParam: (p: unknown) => ParameterLike | undefined) {
+function createToParameterLikes(resolveParam: (p: unknown) => ParameterLike | undefined) {
   return (arr?: unknown): ParameterLike[] =>
     Array.isArray(arr) ? arr.map((x) => resolveParam(x)).filter((param) => param !== undefined) : []
 }
 
 /* ─────────────────────────────── Operation types ─────────────────────────────── */
 
-/**
- * Extract success status codes (2xx) from operation responses.
- */
-export function getSuccessStatusCode(op: OperationLike): number | undefined {
-  const responses = op.responses
-  if (!isRecord(responses)) return undefined
-
-  const statusCodes = Object.keys(responses)
-    .map((s) => Number.parseInt(s, 10))
-    .filter((code) => !Number.isNaN(code) && code >= 200 && code < 300)
-    .sort((a, b) => {
-      const priority = [200, 201, 204]
-      const aIndex = priority.indexOf(a)
-      const bIndex = priority.indexOf(b)
-      if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex
-      if (aIndex !== -1) return -1
-      if (bIndex !== -1) return 1
-      return a - b
-    })
-
-  return statusCodes[0]
-}
-
-const NO_CONTENT_STATUS_CODES = [204, 205] as const
+const NO_CONTENT_STATUS_CODES = [204, 205]
 
 /**
  * Check if operation has No Content response (204 or 205).
@@ -171,7 +138,7 @@ export function hasNoContentResponse(op: OperationLike): boolean {
 
   return Object.keys(responses).some((status) => {
     const code = Number.parseInt(status, 10)
-    return !Number.isNaN(code) && NO_CONTENT_STATUS_CODES.includes(code as 204 | 205)
+    return !Number.isNaN(code) && NO_CONTENT_STATUS_CODES.includes(code)
   })
 }
 
@@ -211,7 +178,7 @@ export type AllBodyInfo = { form: BodyInfo[]; json: BodyInfo[] }
 /**
  * Extract requestBody name from $ref.
  */
-export function refRequestBodyName(refLike: unknown): string | undefined {
+function refRequestBodyName(refLike: unknown): string | undefined {
   const ref =
     typeof refLike === 'string' ? refLike : isRefObject(refLike) ? refLike.$ref : undefined
   const m = ref?.match(/^#\/components\/requestBodies\/(.+)$/)
@@ -221,7 +188,7 @@ export function refRequestBodyName(refLike: unknown): string | undefined {
 /**
  * Collect all body infos from content.
  */
-export function pickAllBodyInfoFromContent(content: unknown): AllBodyInfo | undefined {
+function pickAllBodyInfoFromContent(content: unknown): AllBodyInfo | undefined {
   if (!isRecord(content)) return undefined
 
   const formContentTypes = ['multipart/form-data', 'application/x-www-form-urlencoded']
@@ -230,7 +197,7 @@ export function pickAllBodyInfoFromContent(content: unknown): AllBodyInfo | unde
     formContentTypes.includes(ct.split(';')[0].trim())
 
   const validEntries = Object.entries(content).filter(
-    ([_, mediaObj]) => isRecord(mediaObj) && hasSchemaProp(mediaObj) && isRecord(mediaObj.schema),
+    ([_, mediaObj]) => isRecord(mediaObj) && isSchemaProperty(mediaObj) && isRecord(mediaObj.schema),
   )
 
   const formInfos = validEntries
@@ -249,7 +216,7 @@ export function pickAllBodyInfoFromContent(content: unknown): AllBodyInfo | unde
 /**
  * Create function to pick body info from operation.
  */
-export function createPickAllBodyInfo(componentsRequestBodies: Record<string, unknown>) {
+function createPickAllBodyInfo(componentsRequestBodies: { [key: string]: unknown }) {
   return (op: OperationLike): AllBodyInfo | undefined => {
     const rb = op.requestBody
     if (!isRecord(rb)) return undefined
@@ -285,7 +252,7 @@ export function resolveSplitOutDir(output: string) {
 /**
  * Format multiline text for JSDoc comments.
  */
-export function formatJsDocLines(text: string): string[] {
+function formatJsDocLines(text: string): string[] {
   return text
     .trimEnd()
     .split('\n')
@@ -316,7 +283,7 @@ export function buildOperationDocs(
 /**
  * Parse raw path item to PathItemLike.
  */
-export function parsePathItem(rawItem: Record<string, unknown>): PathItemLike {
+export function parsePathItem(rawItem: { [key: string]: unknown }): PathItemLike {
   return {
     parameters: rawItem.parameters,
     get: isOperationLike(rawItem.get) ? rawItem.get : undefined,
@@ -344,22 +311,6 @@ export function buildInferRequestType(
   return hasBracket
     ? `InferRequestType<(typeof ${clientName}${typeofPrefix})${bracketSuffix}['$${method}']>`
     : `InferRequestType<typeof ${clientName}${runtimePath}.$${method}>`
-}
-
-/**
- * Build InferResponseType expression.
- */
-export function buildInferResponseType(
-  clientName: string,
-  pathResult: FormatPathResult,
-  method: HttpMethod,
-  statusCode?: number,
-): string {
-  const { runtimePath, typeofPrefix, bracketSuffix, hasBracket } = pathResult
-  const statusSuffix = statusCode !== undefined ? `,${statusCode}` : ''
-  return hasBracket
-    ? `InferResponseType<(typeof ${clientName}${typeofPrefix})${bracketSuffix}['$${method}']${statusSuffix}>`
-    : `InferResponseType<typeof ${clientName}${runtimePath}.$${method}${statusSuffix}>`
 }
 
 /**
@@ -393,8 +344,8 @@ export type OperationDeps = {
  */
 export function createOperationDeps(
   clientName: string,
-  componentsParameters: Record<string, unknown>,
-  componentsRequestBodies: Record<string, unknown>,
+  componentsParameters: { [key: string]: unknown },
+  componentsRequestBodies: { [key: string]: unknown },
 ): OperationDeps {
   const resolveParameter = createResolveParameter(componentsParameters)
   const toParameterLikes = createToParameterLikes(resolveParameter)

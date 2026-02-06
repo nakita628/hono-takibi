@@ -1,8 +1,7 @@
 import { describe, expect, it } from 'vitest'
+import { isHttpMethod, isRecord } from '../guard/index.js'
 import {
   ensureSuffix,
-  isHttpMethod,
-  isRecord,
   makeBarrel,
   makeSafeKey,
   methodPath,
@@ -40,7 +39,7 @@ describe('utils', () => {
     it.concurrent.each([
       [{ key: 'value' }, true],
       [{ type: 'object' }, true],
-      [[], true],
+      [[], false],
       [{}, true],
       [null, false],
       [undefined, false],

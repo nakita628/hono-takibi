@@ -13,21 +13,9 @@ import { fmt } from '../format/index.js'
 import { mkdir, writeFile } from '../fsp/index.js'
 import { schemaToFaker } from '../generator/test/faker-mapping.js'
 import { generateHandlerTestCode } from '../generator/test/index.js'
+import { isHttpMethod, isOperation, isOperationWithResponses } from '../guard/index.js'
 import type { OpenAPI, Operation, Schema } from '../openapi/index.js'
-import { isHttpMethod, methodPath } from '../utils/index.js'
-
-/* ─────────────────────────────── Type Guards ─────────────────────────────── */
-
-function isOperation(value: unknown): value is Operation {
-  return typeof value === 'object' && value !== null && 'responses' in value
-}
-
-function isOperationWithResponses(value: unknown): value is Operation & {
-  responses: Record<string, { content?: Record<string, { schema?: Schema }> }>
-} {
-  if (!isOperation(value)) return false
-  return typeof value.responses === 'object' && value.responses !== null
-}
+import { methodPath } from '../utils/index.js'
 
 /* ─────────────────────────────── Ref Collection ─────────────────────────────── */
 

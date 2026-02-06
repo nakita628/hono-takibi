@@ -9,15 +9,12 @@
  *
  * @module generator/mock
  */
+import { isHttpMethod, isOperation, isSecurityArray, isSecurityScheme } from '../../guard/index.js'
 import type { OpenAPI, Operation, Schema } from '../../openapi/index.js'
-import { isHttpMethod, methodPath } from '../../utils/index.js'
+import { methodPath } from '../../utils/index.js'
 import { schemaToFaker } from '../test/faker-mapping.js'
 import { componentsCode } from '../zod-openapi-hono/openapi/components/index.js'
 import { routeCode } from '../zod-openapi-hono/openapi/routes/index.js'
-
-function isOperation(value: unknown): value is Operation {
-  return typeof value === 'object' && value !== null && 'responses' in value
-}
 
 function collectRefs(schema: Schema, refs: Set<string> = new Set()): Set<string> {
   if (schema.$ref) {
@@ -108,20 +105,9 @@ type SecurityInfo = {
   in?: 'header' | 'query' | 'cookie'
 }
 
-function getSecurityArray(security: unknown): { [key: string]: string[] }[] | undefined {
-  if (!Array.isArray(security)) return undefined
-  return security
-}
-
-function isSecurityScheme(
-  value: unknown,
-): value is { type?: string; scheme?: string; name?: string; in?: string } {
-  return typeof value === 'object' && value !== null && !('$ref' in value)
-}
-
 function extractSecurityInfo(
-  opSecurity: { [key: string]: string[] }[] | undefined,
-  globalSecurity: { [key: string]: string[] }[] | undefined,
+  opSecurity: readonly { readonly [key: string]: readonly string[] }[] | undefined,
+  globalSecurity: readonly { readonly [key: string]: readonly string[] }[] | undefined,
   securitySchemes: { [key: string]: unknown } | undefined,
 ): SecurityInfo[] {
   const securityDefs = opSecurity ?? globalSecurity ?? []
@@ -238,8 +224,8 @@ export function generateMockServer(
       const op = operation
 
       const security = extractSecurityInfo(
-        getSecurityArray(op.security),
-        getSecurityArray(openapi.security),
+        isSecurityArray(op.security) ? op.security : undefined,
+        isSecurityArray(openapi.security) ? openapi.security : undefined,
         securitySchemes,
       )
       const requiresAuth = security.length > 0

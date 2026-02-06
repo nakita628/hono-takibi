@@ -18,7 +18,16 @@
  * @module core/type
  */
 import path from 'node:path'
-import { isHttpMethod, isSchemaArray } from '../../guard/index.js'
+import {
+  isStringRef,
+  isHttpMethod,
+  isMediaWithSchema,
+  isOperation,
+  isParameter,
+  isParameterArray,
+  isRequestBody,
+  isSchemaArray,
+} from '../../guard/index.js'
 import { core } from '../../helper/index.js'
 import type {
   Components,
@@ -31,44 +40,6 @@ import type {
   Schema,
 } from '../../openapi/index.js'
 import { makeSafeKey } from '../../utils/index.js'
-
-// ============================================================================
-// Type Guards
-// ============================================================================
-
-function isOperation(op: unknown): op is Operation {
-  return typeof op === 'object' && op !== null && 'responses' in op
-}
-
-function isParameter(p: unknown): p is Parameter {
-  return (
-    typeof p === 'object' &&
-    p !== null &&
-    'name' in p &&
-    'in' in p &&
-    ('schema' in p || 'content' in p)
-  )
-}
-
-function isRequestBody(rb: unknown): rb is RequestBody {
-  return (
-    typeof rb === 'object' &&
-    rb !== null &&
-    ('content' in rb || 'required' in rb || 'description' in rb)
-  )
-}
-
-function isMediaWithSchema(m: unknown): m is { schema: Schema } {
-  return typeof m === 'object' && m !== null && 'schema' in m
-}
-
-function hasStringRef(p: object): p is { $ref: string } {
-  return '$ref' in p && typeof p.$ref === 'string'
-}
-
-function isParameterArray(params: unknown): params is readonly Parameter[] | readonly Reference[] {
-  return Array.isArray(params)
-}
 
 // ============================================================================
 // Main Export
@@ -350,7 +321,7 @@ function makeResolvedParameter(
   components: Components | undefined,
 ): Parameter | undefined {
   if (isParameter(p)) return p
-  if (typeof p === 'object' && p !== null && hasStringRef(p) && components?.parameters) {
+  if (typeof p === 'object' && p !== null && isStringRef(p) && components?.parameters) {
     const refName = p.$ref.split('/').at(-1)
     const resolved = refName ? components.parameters[refName] : undefined
     return resolved && isParameter(resolved) ? resolved : undefined
@@ -363,8 +334,8 @@ function makeResolvedRequestBody(
   components: Components | undefined,
 ): RequestBody | undefined {
   if (!rb || typeof rb !== 'object') return undefined
-  if (isRequestBody(rb) && !hasStringRef(rb)) return rb
-  if (hasStringRef(rb) && components?.requestBodies) {
+  if (isRequestBody(rb) && !isStringRef(rb)) return rb
+  if (isStringRef(rb) && components?.requestBodies) {
     const refName = rb.$ref.split('/').at(-1)
     const resolved = refName ? components.requestBodies[refName] : undefined
     return resolved && isRequestBody(resolved) ? resolved : undefined
