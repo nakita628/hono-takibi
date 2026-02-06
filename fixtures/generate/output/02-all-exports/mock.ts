@@ -1,5 +1,4 @@
 import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi'
-import type { RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
 
 const UserSchema = z
@@ -117,15 +116,15 @@ function mockUser() {
   }
 }
 
-const getUsersRouteHandler: RouteHandler<typeof getUsersRoute> = async (c) => {
+const getUsersRouteHandler = async (c: any) => {
   return c.body(null, 200)
 }
 
-const postUsersRouteHandler: RouteHandler<typeof postUsersRoute> = async (c) => {
+const postUsersRouteHandler = async (c: any) => {
   return c.json(mockUser(), 201)
 }
 
-const getUsersIdRouteHandler: RouteHandler<typeof getUsersIdRoute> = async (c) => {
+const getUsersIdRouteHandler = async (c: any) => {
   if (!c.req.header('Authorization')) {
     return c.json({ message: 'Unauthorized' }, 401)
   }

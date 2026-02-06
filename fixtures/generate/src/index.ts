@@ -85,6 +85,7 @@ function makeTasks(openAPI: Parameters<typeof type>[0], outDir: string, flags: (
     { mode: 'vue-query', fn: () => vueQuery(openAPI, `${outDir}/vue-query.ts`, './client', false, 'client') },
     { mode: 'mock', fn: () => mock(openAPI, `${outDir}/mock.ts`) },
     { mode: 'test', fn: () => test(openAPI, `${outDir}/test.ts`, './mock') },
+    { mode: 'parse-response', fn: () => rpc(openAPI, `${outDir}/parse-response.ts`, './client', false, 'client', true) },
   ]
 }
 

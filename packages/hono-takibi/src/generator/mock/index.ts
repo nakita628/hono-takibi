@@ -10,7 +10,7 @@
  * @module generator/mock
  */
 import { isHttpMethod, isOperation, isSecurityArray, isSecurityScheme } from '../../guard/index.js'
-import type { OpenAPI, Operation, Schema } from '../../openapi/index.js'
+import type { OpenAPI, Schema } from '../../openapi/index.js'
 import { methodPath } from '../../utils/index.js'
 import { schemaToFaker } from '../test/faker-mapping.js'
 import { componentsCode } from '../zod-openapi-hono/openapi/components/index.js'
@@ -87,6 +87,35 @@ function topologicalSort(refs: Set<string>, schemas: { [key: string]: Schema }):
   return result
 }
 
+function detectCircularSchemas(schemas: { [key: string]: Schema }): Set<string> {
+  const circular = new Set<string>()
+  for (const name of Object.keys(schemas)) {
+    const schema = schemas[name]
+    if (!schema) continue
+    for (const dep of collectRefs(schema)) {
+      if (dep === name) {
+        circular.add(name)
+        break
+      }
+      const visited = new Set<string>()
+      const stack = [dep]
+      while (stack.length > 0) {
+        const current = stack.pop()!
+        if (current === name) {
+          circular.add(name)
+          break
+        }
+        if (visited.has(current)) continue
+        visited.add(current)
+        const s = schemas[current]
+        if (s) for (const r of collectRefs(s)) stack.push(r)
+      }
+      if (circular.has(name)) break
+    }
+  }
+  return circular
+}
+
 /**
  * Generate mock function for a schema
  */
@@ -94,9 +123,11 @@ function generateMockFunction(
   name: string,
   schema: Schema,
   schemas: { [key: string]: Schema },
+  isCircular: boolean,
 ): string {
   const mockBody = schemaToFaker(schema, undefined, { schemas })
-  return `function mock${name}() {\n  return ${mockBody}\n}`
+  const returnType = isCircular ? ': any' : ''
+  return `function mock${name}()${returnType} {\n  return ${mockBody}\n}`
 }
 
 type SecurityInfo = {
@@ -267,7 +298,7 @@ export function generateMockServer(
       })()
 
       handlers.push(
-        `const ${routeId}RouteHandler: RouteHandler<typeof ${routeId}Route> = async (c) => {\n  ${authCheck}${handlerBody}\n}`,
+        `const ${routeId}RouteHandler = async (c: any) => {\n  ${authCheck}${handlerBody}\n}`,
       )
     }
   }
@@ -281,10 +312,15 @@ export function generateMockServer(
   // Sort by dependency order
   const sortedRefs = topologicalSort(allDeps, schemas)
 
+  // Detect circular schemas for return type annotation
+  const circularSchemas = detectCircularSchemas(schemas)
+
   // Generate mock functions in dependency order
   const mockFunctions = sortedRefs
     .filter((refName) => schemas[refName])
-    .map((refName) => generateMockFunction(refName, schemas[refName], schemas))
+    .map((refName) =>
+      generateMockFunction(refName, schemas[refName], schemas, circularSchemas.has(refName)),
+    )
 
   // Generate components code (schemas)
   const components = openapi.components
@@ -318,7 +354,6 @@ export function generateMockServer(
 
   // Build the final file
   const imports = `import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi'
-import type { RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'`
 
   const appCode = `const app = new OpenAPIHono()${basePath !== '/' ? `.basePath('${basePath}')` : ''}

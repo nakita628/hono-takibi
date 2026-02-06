@@ -1,5 +1,4 @@
 import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi'
-import type { RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
 
 const AuthorSchema = z
@@ -243,7 +242,7 @@ function mockComment() {
   }
 }
 
-const getPostsRouteHandler: RouteHandler<typeof getPostsRoute> = async (c) => {
+const getPostsRouteHandler = async (c: any) => {
   return c.json(
     {
       posts: Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () => mockPost()),
@@ -253,36 +252,34 @@ const getPostsRouteHandler: RouteHandler<typeof getPostsRoute> = async (c) => {
   )
 }
 
-const postPostsRouteHandler: RouteHandler<typeof postPostsRoute> = async (c) => {
+const postPostsRouteHandler = async (c: any) => {
   return c.json(mockPost(), 201)
 }
 
-const getPostsIdRouteHandler: RouteHandler<typeof getPostsIdRoute> = async (c) => {
+const getPostsIdRouteHandler = async (c: any) => {
   return c.json(mockPost(), 200)
 }
 
-const putPostsIdRouteHandler: RouteHandler<typeof putPostsIdRoute> = async (c) => {
+const putPostsIdRouteHandler = async (c: any) => {
   return c.json(mockPost(), 200)
 }
 
-const deletePostsIdRouteHandler: RouteHandler<typeof deletePostsIdRoute> = async (c) => {
+const deletePostsIdRouteHandler = async (c: any) => {
   return c.body(null, 204)
 }
 
-const getPostsIdCommentsRouteHandler: RouteHandler<typeof getPostsIdCommentsRoute> = async (c) => {
+const getPostsIdCommentsRouteHandler = async (c: any) => {
   return c.json(
     Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () => mockComment()),
     200,
   )
 }
 
-const postPostsIdCommentsRouteHandler: RouteHandler<typeof postPostsIdCommentsRoute> = async (
-  c,
-) => {
+const postPostsIdCommentsRouteHandler = async (c: any) => {
   return c.json(mockComment(), 201)
 }
 
-const getTagsRouteHandler: RouteHandler<typeof getTagsRoute> = async (c) => {
+const getTagsRouteHandler = async (c: any) => {
   return c.json(
     Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () => mockTag()),
     200,

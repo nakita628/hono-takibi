@@ -302,7 +302,12 @@ export function parsePathItem(rawItem: { [key: string]: unknown }): PathItemLike
  */
 export function buildInferRequestType(
   clientName: string,
-  pathResult: FormatPathResult,
+  pathResult: {
+    runtimePath: string
+    typeofPrefix: string
+    bracketSuffix: string
+    hasBracket: boolean
+  },
   method: HttpMethod,
 ): string {
   const { runtimePath, typeofPrefix, bracketSuffix, hasBracket } = pathResult
@@ -316,7 +321,12 @@ export function buildInferRequestType(
  */
 export function buildParseResponseType(
   clientName: string,
-  pathResult: FormatPathResult,
+  pathResult: {
+    runtimePath: string
+    typeofPrefix: string
+    bracketSuffix: string
+    hasBracket: boolean
+  },
   method: HttpMethod,
 ): string {
   const { runtimePath, typeofPrefix, bracketSuffix, hasBracket } = pathResult

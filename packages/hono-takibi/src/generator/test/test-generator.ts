@@ -184,9 +184,42 @@ export function extractTestCases(spec: OpenAPI): TestCase[] {
   return testCases
 }
 
+function detectCircularSchemas(schemas: { [key: string]: Schema }): Set<string> {
+  const circular = new Set<string>()
+  for (const name of Object.keys(schemas)) {
+    const schema = schemas[name]
+    if (!schema) continue
+    const directRefs = collectSchemaRefs(schema, schemas, new Set([name]))
+    for (const dep of directRefs) {
+      if (dep === name) {
+        circular.add(name)
+        break
+      }
+      const visited = new Set<string>()
+      const stack = [dep]
+      while (stack.length > 0) {
+        const current = stack.pop()!
+        if (current === name) {
+          circular.add(name)
+          break
+        }
+        if (visited.has(current)) continue
+        visited.add(current)
+        const s = schemas[current]
+        if (s) {
+          for (const r of collectSchemaRefs(s, schemas, new Set([current]))) stack.push(r)
+        }
+      }
+      if (circular.has(name)) break
+    }
+  }
+  return circular
+}
+
 function generateMockFunctions(spec: OpenAPI, usedSchemaNames: Set<string>): string {
   if (!spec.components?.schemas || usedSchemaNames.size === 0) return ''
   const schemas = spec.components.schemas
+  const circular = detectCircularSchemas(schemas)
   // Topological sort: generate dependencies first
   const sorted: string[] = []
   const visiting = new Set<string>()
@@ -211,7 +244,10 @@ function generateMockFunctions(spec: OpenAPI, usedSchemaNames: Set<string>): str
     visit(name)
   }
   return sorted
-    .map((name) => `function mock${name}() {\n  return ${schemaToFaker(schemas[name])}\n}`)
+    .map((name) => {
+      const returnType = circular.has(name) ? ': any' : ''
+      return `function mock${name}()${returnType} {\n  return ${schemaToFaker(schemas[name])}\n}`
+    })
     .join('\n\n')
 }
 

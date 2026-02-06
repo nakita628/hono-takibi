@@ -1,5 +1,4 @@
 import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi'
-import type { RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
 
 const SubscriptionRequestSchema = z
@@ -137,21 +136,19 @@ function mockSubscription() {
   }
 }
 
-const postSubscriptionsRouteHandler: RouteHandler<typeof postSubscriptionsRoute> = async (c) => {
+const postSubscriptionsRouteHandler = async (c: any) => {
   return c.json(mockSubscription(), 201)
 }
 
-const getSubscriptionsIdRouteHandler: RouteHandler<typeof getSubscriptionsIdRoute> = async (c) => {
+const getSubscriptionsIdRouteHandler = async (c: any) => {
   return c.json(mockSubscription(), 200)
 }
 
-const deleteSubscriptionsIdRouteHandler: RouteHandler<typeof deleteSubscriptionsIdRoute> = async (
-  c,
-) => {
+const deleteSubscriptionsIdRouteHandler = async (c: any) => {
   return c.body(null, 204)
 }
 
-const postWebhooksTestRouteHandler: RouteHandler<typeof postWebhooksTestRoute> = async (c) => {
+const postWebhooksTestRouteHandler = async (c: any) => {
   return c.json(
     {
       sent: faker.datatype.boolean(),
