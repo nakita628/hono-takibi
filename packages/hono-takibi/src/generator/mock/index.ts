@@ -100,7 +100,8 @@ function detectCircularSchemas(schemas: { [key: string]: Schema }): Set<string> 
       const visited = new Set<string>()
       const stack = [dep]
       while (stack.length > 0) {
-        const current = stack.pop()!
+        const current = stack.pop()
+        if (current === undefined) break
         if (current === name) {
           circular.add(name)
           break
