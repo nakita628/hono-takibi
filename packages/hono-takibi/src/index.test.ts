@@ -652,8 +652,8 @@ export const getUsersIdRoute = createRoute({
 export const OnEventCallback = {
   '{$request.body#/callbackUrl}': {
     post: {
-      requestBody: { content: { 'application/json': { schema: { type: 'object' } } } },
-      responses: { '200': { description: 'OK' } },
+      requestBody: { content: { 'application/json': { schema: z.object({}) } } },
+      responses: { 200: { description: 'OK' } },
     },
   },
 }
@@ -785,7 +785,7 @@ export type RateLimitHeader = z.infer<typeof RateLimitHeaderSchema>
 export const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer' }
 
 export const OnCreatedCallback = {
-  '{$request.body#/callbackUrl}': { post: { responses: { '200': { description: 'OK' } } } },
+  '{$request.body#/callbackUrl}': { post: { responses: { 200: { description: 'OK' } } } },
 }
 
 export const getItemsIdRoute = createRoute({
@@ -2266,11 +2266,13 @@ export const getUsersIdRoute = createRoute({
     expect(callbacksIndex).toBe(`export * from './onEvent'\n`)
 
     const onEventFile = fs.readFileSync(path.join(testDir, 'src/callbacks/onEvent.ts'), 'utf-8')
-    expect(onEventFile).toBe(`export const OnEventCallback = {
+    expect(onEventFile).toBe(`import { z } from '@hono/zod-openapi'
+
+export const OnEventCallback = {
   '{$request.body#/callbackUrl}': {
     post: {
-      requestBody: { content: { 'application/json': { schema: { type: 'object' } } } },
-      responses: { '200': { description: 'OK' } },
+      requestBody: { content: { 'application/json': { schema: z.object({}) } } },
+      responses: { 200: { description: 'OK' } },
     },
   },
 }
@@ -2300,7 +2302,7 @@ export const postSubscribeRoute = createRoute({
 `)
   })
 
-  it('generates split callbacks with $ref schemas as plain object', () => {
+  it('generates split callbacks with $ref schemas resolved to Zod', () => {
     const openAPI = {
       openapi: '3.0.3',
       info: { title: 'Test API', version: '1.0.0' },
@@ -2398,14 +2400,12 @@ export const postSubscribeRoute = createRoute({
       cwd: path.resolve(testDir),
     })
 
-    // 1. callback file should contain $ref strings as-is (plain object)
+    // 1. callback file should contain Zod schema references (not plain $ref strings)
     const onEventFile = fs.readFileSync(path.join(testDir, 'src/callbacks/onEvent.ts'), 'utf-8')
-    expect(onEventFile).toContain("$ref: '#/components/schemas/EventPayload'")
+    expect(onEventFile).toContain('EventPayloadSchema')
 
-    // 2. callback file should NOT contain Zod schema conversions
-    expect(onEventFile).not.toContain('z.object')
-    expect(onEventFile).not.toContain('z.string')
-    expect(onEventFile).not.toContain('import { z }')
+    // 2. callback file should contain Zod imports
+    expect(onEventFile).toContain('import')
 
     // 3. route file should use Zod schemas for request/responses (normal conversion)
     const postSubscribeRoute = fs.readFileSync(

@@ -464,7 +464,8 @@ export function makeCallback(callback: Callbacks): string {
       if (isRefObject(pathItem)) {
         return `${JSON.stringify(callbackKey)}:${makeRef(pathItem.$ref)}`
       }
-      return `${JSON.stringify(callbackKey)}:${JSON.stringify(pathItem)}`
+      const pathItemCode = makePathItem(pathItem)
+      return `${JSON.stringify(callbackKey)}:${pathItemCode}`
     })
     .filter((v) => v !== undefined)
     .join(',')
@@ -481,6 +482,65 @@ export function makeCallbacks(
         }
       },
 ): string {
+  const isParameter = (v: unknown): v is Parameter =>
+    isRecord(v) && 'name' in v && 'in' in v && 'schema' in v
+
+  const isOperation = (v: unknown): v is Operation => isRecord(v) && 'responses' in v
+
+  const methods = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'] as const
+
+  const makeMethodsCode = (record: {readonly [k: string]: unknown}): string =>
+    methods
+      .map((method) => {
+        const operation = record[method]
+        if (!isOperation(operation)) return undefined
+        // OpenAPI spec: parameters is [Parameter Object | Reference Object]
+        const params =
+          operation.parameters && operation.parameters.length > 0
+            ? operation.parameters
+                .filter(isParameter)
+                .map((param: Parameter) =>
+                  param.$ref
+                    ? makeRef(param.$ref)
+                    : zodToOpenAPI(param.schema, { parameters: { ...param } }),
+                )
+                .filter(Boolean)
+            : undefined
+        const parametersCode = params && params.length > 0 ? `[${params.join(',')}]` : undefined
+
+        const result = [
+          operation.tags ? `tags:${JSON.stringify(operation.tags)}` : undefined,
+          operation.summary ? `summary:${JSON.stringify(operation.summary)}` : undefined,
+          operation.description
+            ? `description:${JSON.stringify(operation.description)}`
+            : undefined,
+          operation.externalDocs
+            ? `externalDocs:${JSON.stringify(operation.externalDocs)}`
+            : undefined,
+          operation.operationId
+            ? `operationId:${JSON.stringify(operation.operationId)}`
+            : undefined,
+          parametersCode ? `parameters:${parametersCode}` : undefined,
+          operation.requestBody
+            ? `requestBody:${makeRequestBody(operation.requestBody)}`
+            : undefined,
+          operation.responses
+            ? `responses:${makeOperationResponses(operation.responses)}`
+            : undefined,
+          operation.callbacks
+            ? `callbacks:${makeOperationCallbacks(operation.callbacks)}`
+            : undefined,
+          operation.deprecated ? `deprecated:${JSON.stringify(operation.deprecated)}` : undefined,
+          operation.security ? `security:${JSON.stringify(operation.security)}` : undefined,
+          operation.servers ? `servers:${JSON.stringify(operation.servers)}` : undefined,
+        ]
+          .filter((v) => v !== undefined)
+          .join(',')
+        return `${method}:{${result}}`
+      })
+      .filter((v) => v !== undefined)
+      .join(',')
+
   return Object.entries(callbacks)
     .map(([callbackKey, pathItem]) => {
       // Handle $ref to components/callbacks
@@ -488,27 +548,23 @@ export function makeCallbacks(
         return `${JSON.stringify(callbackKey)}:${makeRef(pathItem.$ref)}`
       }
       if (!isRecord(pathItem)) return undefined
-      // Check for summary/description only (no HTTP methods)
-      const methods = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace']
-      const hasMethod = Object.keys(pathItem).some((k) => methods.includes(k))
-      const hasNested = Object.values(pathItem).some(
-        (v) => isRecord(v) && Object.keys(v).some((k) => methods.includes(k)),
-      )
-      if (!(hasMethod || hasNested)) {
-        // summary/description only
-        const props = [
-          'summary' in pathItem && pathItem.summary
-            ? `summary:${JSON.stringify(pathItem.summary)}`
-            : undefined,
-          'description' in pathItem && pathItem.description
-            ? `description:${JSON.stringify(pathItem.description)}`
-            : undefined,
-        ]
-          .filter((v) => v !== undefined)
-          .join(',')
-        return props ? `${JSON.stringify(callbackKey)}:{${props}}` : undefined
+      const pathItemRecord: Record<string, unknown> = pathItem
+      // Try direct pathItem (pathExpression → {method: operation})
+      const pathItemCode = makeMethodsCode(pathItemRecord)
+      if (pathItemCode) {
+        return `${JSON.stringify(callbackKey)}:{${pathItemCode}}`
       }
-      return `${JSON.stringify(callbackKey)}:${JSON.stringify(pathItem)}`
+      // Fallback: callbackName → pathExpression → {method: operation}
+      const nestedCode = Object.entries(pathItemRecord)
+        .map(([pathExpr, inner]) => {
+          if (!isRecord(inner)) return undefined
+          const innerRecord: Record<string, unknown> = inner
+          const code = makeMethodsCode(innerRecord)
+          return code ? `${JSON.stringify(pathExpr)}:{${code}}` : undefined
+        })
+        .filter((v) => v !== undefined)
+        .join(',')
+      return nestedCode ? `${JSON.stringify(callbackKey)}:{${nestedCode}}` : undefined
     })
     .filter((v) => v !== undefined)
     .join(',')

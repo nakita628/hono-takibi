@@ -15,5 +15,5 @@ export const postOrdersRoute = createRoute({
     body: CreateOrderRequestRequestBody,
   },
   responses: { 201: OrderResponse, 400: ValidationErrorResponse, default: DefaultErrorResponse },
-  callbacks: { orderEvents: OrderCreatedCallback },
+  orderEvents: OrderCreatedCallback,
 })
