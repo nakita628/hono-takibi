@@ -363,6 +363,8 @@ export type Ref =
   | `#/components/examples/${string}`
   | `#/components/links/${string}`
   | `#/components/callbacks/${string}`
+  | `#/components/pathItems/${string}`
+  | `#/components/mediaTypes/${string}`
 
 type Server = {
   readonly url: string

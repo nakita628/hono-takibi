@@ -176,6 +176,8 @@ export function makeExamples(examples: {
           | `#/components/examples/${string}`
           | `#/components/links/${string}`
           | `#/components/callbacks/${string}`
+          | `#/components/pathItems/${string}`
+          | `#/components/mediaTypes/${string}`
         readonly summary?: string
         readonly description?: string
       }
