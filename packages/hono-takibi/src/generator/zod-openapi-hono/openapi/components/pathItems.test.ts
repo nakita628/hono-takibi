@@ -24,7 +24,7 @@ describe('pathItemsCode', () => {
     }
     const result = pathItemsCode(components, true)
     expect(result).toBe(
-      'export const UserOperationsPathItem={get:{operationId:\'getUser\',responses:{200:{description:"OK"}}}}',
+      'export const UserOperationsPathItem={get:{operationId:"getUser",responses:{200:{description:"OK"}}}}',
     )
   })
 
@@ -43,7 +43,7 @@ describe('pathItemsCode', () => {
     }
     const result = pathItemsCode(components, false)
     expect(result).toBe(
-      'const UserOperationsPathItem={get:{operationId:\'getUser\',responses:{200:{description:"OK"}}}}',
+      'const UserOperationsPathItem={get:{operationId:"getUser",responses:{200:{description:"OK"}}}}',
     )
   })
 
@@ -62,7 +62,7 @@ describe('pathItemsCode', () => {
     }
     const result = pathItemsCode(components, true, true)
     expect(result).toBe(
-      'export const UserOperationsPathItem={get:{operationId:\'getUser\',responses:{200:{description:"OK"}}}} as const',
+      'export const UserOperationsPathItem={get:{operationId:"getUser",responses:{200:{description:"OK"}}}} as const',
     )
   })
 
