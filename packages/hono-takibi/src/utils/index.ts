@@ -292,3 +292,28 @@ export function makeBarrel(value: { readonly [k: string]: unknown }): string {
     .map((k) => `export * from './${k.charAt(0).toLowerCase() + k.slice(1)}'`)
     .join('\n')}\n`
 }
+
+/**
+ * Build JSDoc comment block for an operation.
+ */
+export function makeOperationDocs(
+  method: string,
+  pathStr: string,
+  summary?: string,
+  description?: string,
+): string {
+  const formatJsDocLines = (text: string): readonly string[] => {
+    return text
+      .trimEnd()
+      .split('\n')
+      .map((line) => ` * ${line}`)
+  }
+  const safePathStr = pathStr.replace(/\/\*/g, '/[*]')
+  return [
+    '/**',
+    ` * ${method.toUpperCase()} ${safePathStr}`,
+    ...(summary ? [' *', ...formatJsDocLines(summary)] : []),
+    ...(description ? [' *', ...formatJsDocLines(description)] : []),
+    ' */',
+  ].join('\n')
+}

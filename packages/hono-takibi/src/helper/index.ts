@@ -7,7 +7,6 @@ export {
   hasNoContentResponse,
   makeInferRequestType,
   makeOperationDeps,
-  makeOperationDocs,
   makeParseResponseType,
   operationHasArgs,
   parsePathItem,

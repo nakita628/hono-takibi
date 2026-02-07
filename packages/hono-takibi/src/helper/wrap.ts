@@ -204,7 +204,9 @@ export function wrap(
         meta.headers.examples ? `examples:${makeExamples(meta.headers.examples)}` : undefined,
         meta.headers.style ? `style:${JSON.stringify(meta.headers.style)}` : undefined,
         meta.headers.explode ? `explode:${JSON.stringify(meta.headers.explode)}` : undefined,
-        meta.headers.allowReserved ? `allowReserved:${JSON.stringify(meta.headers.allowReserved)}` : undefined,
+        meta.headers.allowReserved
+          ? `allowReserved:${JSON.stringify(meta.headers.allowReserved)}`
+          : undefined,
         // meta.headers.schema
         //   ? `schema:${JSON.stringify(meta.headers.schema)}`
         //   : undefined,

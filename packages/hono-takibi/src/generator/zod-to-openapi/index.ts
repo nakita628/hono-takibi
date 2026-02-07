@@ -111,13 +111,17 @@ export function zodToOpenAPI(
   /** allOf */
   if (schema.allOf !== undefined) {
     // Merge sibling properties as implicit allOf member (JSON Schema spec)
-    const effectiveAllOf: readonly Schema[] = schema.properties !== undefined
-      ? [...schema.allOf, {
-          type: 'object' as const,
-          properties: schema.properties,
-          ...(schema.required ? { required: schema.required } : {}),
-        }]
-      : schema.allOf
+    const effectiveAllOf: readonly Schema[] =
+      schema.properties !== undefined
+        ? [
+            ...schema.allOf,
+            {
+              type: 'object' as const,
+              properties: schema.properties,
+              ...(schema.required ? { required: schema.required } : {}),
+            },
+          ]
+        : schema.allOf
     if (!effectiveAllOf.length) return wrap('z.any()', schema, meta)
 
     const nullable =
@@ -271,9 +275,8 @@ export function zodToOpenAPI(
         : zodToOpenAPI(itemSchema, innerMeta)
       : 'z.any()'
     const z = `z.array(${item})`
-    const unique = schema.uniqueItems === true
-      ? '.refine((items)=>new Set(items).size===items.length)'
-      : ''
+    const unique =
+      schema.uniqueItems === true ? '.refine((items)=>new Set(items).size===items.length)' : ''
     if (typeof schema.minItems === 'number' && typeof schema.maxItems === 'number') {
       return schema.minItems === schema.maxItems
         ? wrap(`${z}.length(${schema.minItems})${unique}`, schema, meta)

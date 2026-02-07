@@ -50,10 +50,9 @@ export function object(schema: Schema): string {
           })
           .join('')
       : ''
-    const recordPropNames =
-      schema.propertyNames?.pattern
-        ? `.refine((o)=>Object.keys(o).every((k)=>new RegExp(${JSON.stringify(schema.propertyNames.pattern)}).test(k)))`
-        : ''
+    const recordPropNames = schema.propertyNames?.pattern
+      ? `.refine((o)=>Object.keys(o).every((k)=>new RegExp(${JSON.stringify(schema.propertyNames.pattern)}).test(k)))`
+      : ''
     return `${record}${recordPropNames}${recordPatternProps}`
   }
 
@@ -87,12 +86,11 @@ export function object(schema: Schema): string {
       ? `.refine((o)=>Object.keys(o).length<=${schema.maxProperties})`
       : ''
   // propertyNames: validate that all keys match the given schema constraints
-  const propNames =
-    schema.propertyNames?.pattern
-      ? `.refine((o)=>Object.keys(o).every((k)=>new RegExp(${JSON.stringify(schema.propertyNames.pattern)}).test(k)))`
-      : schema.propertyNames?.enum
-        ? `.refine((o)=>Object.keys(o).every((k)=>${JSON.stringify(schema.propertyNames.enum)}.includes(k)))`
-        : ''
+  const propNames = schema.propertyNames?.pattern
+    ? `.refine((o)=>Object.keys(o).every((k)=>new RegExp(${JSON.stringify(schema.propertyNames.pattern)}).test(k)))`
+    : schema.propertyNames?.enum
+      ? `.refine((o)=>Object.keys(o).every((k)=>${JSON.stringify(schema.propertyNames.enum)}.includes(k)))`
+      : ''
   // patternProperties: validate values match schema per key pattern
   const patternProps = schema.patternProperties
     ? Object.entries(schema.patternProperties)

@@ -24,13 +24,12 @@ import {
   formatPath,
   makeInferRequestType,
   makeOperationDeps,
-  makeOperationDocs,
   operationHasArgs,
   parsePathItem,
   resolveSplitOutDir,
 } from '../../helper/index.js'
 import type { OpenAPI, OpenAPIPaths } from '../../openapi/index.js'
-import { methodPath } from '../../utils/index.js'
+import { methodPath, makeOperationDocs } from '../../utils/index.js'
 
 /* ─────────────────────────────── Types ─────────────────────────────── */
 
