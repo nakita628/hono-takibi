@@ -1,7 +1,7 @@
 import path from 'node:path'
 import { app } from '../../generator/zod-openapi-hono/app/index.js'
 import { zodOpenAPIHono } from '../../generator/zod-openapi-hono/openapi/index.js'
-import { makeStubHandlers } from '../../helper/handler.js'
+import { zodOpenAPIHonoHandler } from '../../helper/handler.js'
 import { core } from '../../helper/index.js'
 import type { OpenAPI } from '../../openapi/index.js'
 
@@ -37,7 +37,7 @@ import type { OpenAPI } from '../../openapi/index.js'
  *   Y --> Z["writeResult2 = writeFile(target, appResult.value)"]
  *   Z --> ZA{"writeResult2.ok ?"}
  *   ZA -->|No| ZB["return { ok:false, error: writeResult2.error }"]
- *   ZA -->|Yes| ZC["stubHandlersResult = makeStubHandlers(openAPI, output, test)"]
+ *   ZA -->|Yes| ZC["stubHandlersResult = zodOpenAPIHonoHandler(openAPI, output, test)"]
  *   ZC --> ZD{"stubHandlersResult.ok ?"}
  *   ZD -->|No| ZE["return { ok:false, error: stubHandlersResult.error }"]
  *   ZD -->|Yes| ZF["return { ok:true, value: 'Generated code and template files written' }"]
@@ -93,7 +93,7 @@ export async function takibi(
       const target = path.join(dir, 'index.ts')
       const [appResult, stubHandlersResult] = await Promise.all([
         core(app(openAPI, output, basePath), dir, target),
-        makeStubHandlers(openAPI, output, test),
+        zodOpenAPIHonoHandler(openAPI, output, test),
       ])
       if (!appResult.ok) return { ok: false, error: appResult.error }
       if (!stubHandlersResult.ok) return { ok: false, error: stubHandlersResult.error }

@@ -4,8 +4,8 @@
  * Generates skeleton handler files for Hono routes based on OpenAPI operations.
  *
  * Two modes are available:
- * - `makeStubHandlers`: Generates empty stub handlers
- * - `makeMockHandlers`: Generates handlers with faker.js mock responses
+ * - `zodOpenAPIHonoHandler`: Generates empty stub handlers
+ * - `mockZodOpenAPIHonoHandler`: Generates handlers with faker.js mock responses
  *
  * @module helper/handler
  */
@@ -273,7 +273,7 @@ function makeBarrelContent(fileNames: readonly string[]): string {
  * @param test - Whether to generate corresponding test files.
  * @returns A `Result` indicating success or error with message.
  */
-export async function makeStubHandlers(
+export async function zodOpenAPIHonoHandler(
   openapi: OpenAPI,
   output: string,
   test = false,
@@ -368,7 +368,7 @@ export async function makeStubHandlers(
  * @param test - Whether to generate corresponding test files.
  * @returns A `Result` indicating success or error with message.
  */
-export async function makeMockHandlers(
+export async function mockZodOpenAPIHonoHandler(
   openapi: OpenAPI,
   output: string,
   test: boolean,
@@ -454,6 +454,3 @@ export async function makeMockHandlers(
   return { ok: true, value: undefined }
 }
 
-// Legacy alias for backward compatibility
-export { makeStubHandlers as zodOpenAPIHonoHandler }
-export { makeMockHandlers as mockZodOpenAPIHonoHandler }
