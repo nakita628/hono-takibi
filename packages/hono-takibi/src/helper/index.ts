@@ -5,7 +5,6 @@ export { makeExports } from './exports.js'
 export {
   formatPath,
   hasNoContentResponse,
-  makeInferRequestType,
   makeOperationDeps,
   makeParseResponseType,
   operationHasArgs,

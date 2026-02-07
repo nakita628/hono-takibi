@@ -114,19 +114,17 @@ function mergeImports(existingCode: string, generatedCode: string): string[] {
       const moduleSpecifier = imp.getModuleSpecifierValue()
       const isTypeOnlyImport = imp.isTypeOnly()
 
-      let info = importMap.get(moduleSpecifier)
-      if (info) {
-        // If either source has a non-type-only import, the merged result should be non-type-only
-        // unless both are type-only
-        if (!isExisting) {
-          info.isTypeOnlyImport = info.isTypeOnlyImport && isTypeOnlyImport
-        }
-      } else {
-        info = {
+      if (!importMap.has(moduleSpecifier)) {
+        importMap.set(moduleSpecifier, {
           namedImports: new Map(),
           isTypeOnlyImport: isTypeOnlyImport,
-        }
-        importMap.set(moduleSpecifier, info)
+        })
+      }
+      const info = importMap.get(moduleSpecifier) as ImportInfo
+      // If either source has a non-type-only import, the merged result should be non-type-only
+      // unless both are type-only
+      if (!isExisting) {
+        info.isTypeOnlyImport = info.isTypeOnlyImport && isTypeOnlyImport
       }
 
       const defaultImport = imp.getDefaultImport()
@@ -215,10 +213,9 @@ export function mergeBarrelFile(existingCode: string, generatedCode: string): st
 
   // Union: keep existing lines, add new ones from generated
   const allModules = new Set([...existingExports.keys(), ...generatedExports.keys()])
-  const lines: string[] = []
-  for (const mod of allModules) {
-    lines.push(existingExports.get(mod) ?? generatedExports.get(mod)!)
-  }
+  const lines = [...allModules]
+    .map((mod) => existingExports.get(mod) ?? generatedExports.get(mod) ?? '')
+    .filter((line) => line !== '')
 
   return `${lines.join('\n')}\n`
 }

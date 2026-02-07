@@ -317,3 +317,22 @@ export function makeOperationDocs(
     ' */',
   ].join('\n')
 }
+
+/**
+ * Build InferRequestType expression.
+ */
+export function makeInferRequestType(
+  clientName: string,
+  pathResult: {
+    runtimePath: string
+    typeofPrefix: string
+    bracketSuffix: string
+    hasBracket: boolean
+  },
+  method: 'get' | 'put' | 'post' | 'delete' | 'options' | 'head' | 'patch' | 'trace',
+): string {
+  const { runtimePath, typeofPrefix, bracketSuffix, hasBracket } = pathResult
+  return hasBracket
+    ? `InferRequestType<typeof ${clientName}${typeofPrefix}${bracketSuffix}['$${method}']>`
+    : `InferRequestType<typeof ${clientName}${runtimePath}.$${method}>`
+}
