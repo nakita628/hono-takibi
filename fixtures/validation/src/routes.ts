@@ -81,7 +81,7 @@ export const getSettingsRoute = createRoute({
         'application/json': {
           schema: z
             .record(z.string(), z.string())
-            .refine((o) => Object.keys(o).every((k) => new RegExp('^[a-z_]+$').test(k))),
+            .refine((o) => Object.keys(o).every((k) => /^[a-z_]+$/.test(k))),
         },
       },
     },
@@ -124,21 +124,20 @@ export const postConfigRoute = createRoute({
                 .record(z.string(), z.string())
                 .refine((o) =>
                   Object.entries(o).every(
-                    ([k, v]) => !new RegExp('^x-').test(k) || z.string().safeParse(v).success,
+                    ([k, v]) => !/^x-/.test(k) || z.string().safeParse(v).success,
                   ),
                 ),
               headers: z
                 .looseObject({})
                 .refine((o) =>
                   Object.entries(o).every(
-                    ([k, v]) =>
-                      !new RegExp('^X-Custom-').test(k) || z.string().safeParse(v).success,
+                    ([k, v]) => !/^X-Custom-/.test(k) || z.string().safeParse(v).success,
                   ),
                 )
                 .exactOptional(),
               keys: z
                 .record(z.string(), z.string())
-                .refine((o) => Object.keys(o).every((k) => new RegExp('^[a-z_]+$').test(k)))
+                .refine((o) => Object.keys(o).every((k) => /^[a-z_]+$/.test(k)))
                 .exactOptional(),
             })
             .openapi({ required: ['data'] }),

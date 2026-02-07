@@ -1,10 +1,5 @@
 import { OpenAPIHono } from '@hono/zod-openapi'
-import {
-  getSettingsRoute,
-  postConfigRoute,
-  postPaymentRoute,
-  postTagsRoute,
-} from './routes.ts'
+import { getSettingsRoute, postConfigRoute, postPaymentRoute, postTagsRoute } from './routes.ts'
 
 const app = new OpenAPIHono()
 

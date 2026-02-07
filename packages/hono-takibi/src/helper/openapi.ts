@@ -843,7 +843,9 @@ export function makeOperation(operation: Operation) {
     operation.description ? `description:${JSON.stringify(operation.description)}` : undefined,
     operation.externalDocs ? `externalDocs:${JSON.stringify(operation.externalDocs)}` : undefined,
     operation.operationId ? `operationId:${JSON.stringify(operation.operationId)}` : undefined,
-    operation.parameters ? `parameters:${makeOperationParameters(operation.parameters)}` : undefined,
+    operation.parameters
+      ? `parameters:${makeOperationParameters(operation.parameters)}`
+      : undefined,
     operation.requestBody ? `requestBody:${makeRequestBody(operation.requestBody)}` : undefined,
     operation.responses ? `responses:${makeOperationResponses(operation.responses)}` : undefined,
     operation.callbacks ? `callbacks:{${makeCallbacks(operation.callbacks)}}` : undefined,

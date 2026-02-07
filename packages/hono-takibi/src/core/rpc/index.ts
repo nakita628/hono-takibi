@@ -29,7 +29,7 @@ import {
   resolveSplitOutDir,
 } from '../../helper/index.js'
 import type { OpenAPI, OpenAPIPaths } from '../../openapi/index.js'
-import { methodPath, makeOperationDocs } from '../../utils/index.js'
+import { makeOperationDocs, methodPath } from '../../utils/index.js'
 
 /* ─────────────────────────────── Types ─────────────────────────────── */
 
