@@ -1,22 +1,26 @@
 /**
  * AST-based merge module for handler files.
  *
- * Uses ts-morph to parse and merge generated handler code with existing user implementations,
- * preserving user edits while adding new handlers.
+ * Uses ts-morph for AST analysis and original text slicing for output,
+ * preserving user edits (including comments) while adding new handlers
+ * and removing handlers whose routes have been deleted from the OpenAPI spec.
  *
  * @module merge
  */
-import { Project, SyntaxKind } from 'ts-morph'
+import { Project } from 'ts-morph'
 
 /**
  * Merges generated handler code with existing handler code.
  *
  * Merge rules:
- * - Handlers in both: keep existing (user implementation wins)
+ * - Handlers in both: keep existing (user implementation wins, comments preserved)
  * - Handlers only in generated: add (new endpoints)
- * - Handlers only in existing: keep (user-added code)
- * - Imports: union of both
- * - Non-handler code (helpers, constants): keep existing
+ * - Handlers only in existing (RouteHandler): delete (route removed from OpenAPI)
+ * - Non-handler code (helpers, constants, comments): keep existing
+ * - Imports: sync with generated (remove deleted route imports, add new ones, keep user imports)
+ *
+ * Uses AST for analysis only. The existing file's original text (including comments)
+ * is preserved by slicing the source string, not by reconstructing from AST nodes.
  *
  * A "handler" is identified as an exported variable declaration whose name ends with `RouteHandler`.
  *
@@ -29,6 +33,17 @@ export function mergeHandlerFile(existingCode: string, generatedCode: string): s
   const existingFile = project.createSourceFile('existing.ts', existingCode)
   const generatedFile = project.createSourceFile('generated.ts', generatedCode)
 
+  // Collect generated handler names (source of truth from OpenAPI)
+  const generatedHandlerNames = new Set<string>()
+  for (const stmt of generatedFile.getVariableStatements()) {
+    if (!stmt.isExported()) continue
+    for (const decl of stmt.getDeclarations()) {
+      if (decl.getName().endsWith('RouteHandler')) {
+        generatedHandlerNames.add(decl.getName())
+      }
+    }
+  }
+
   // Collect existing handler names
   const existingHandlerNames = new Set<string>()
   for (const stmt of existingFile.getVariableStatements()) {
@@ -39,6 +54,38 @@ export function mergeHandlerFile(existingCode: string, generatedCode: string): s
       }
     }
   }
+
+  // Determine delete ranges (handlers in existing but not in generated)
+  const deleteRanges: Array<[number, number]> = []
+  for (const stmt of existingFile.getVariableStatements()) {
+    if (!stmt.isExported()) continue
+    for (const decl of stmt.getDeclarations()) {
+      if (decl.getName().endsWith('RouteHandler') && !generatedHandlerNames.has(decl.getName())) {
+        deleteRanges.push([stmt.getFullStart(), stmt.getEnd()])
+        break
+      }
+    }
+  }
+  deleteRanges.sort((a, b) => a[0] - b[0])
+
+  // Find body start (after last import declaration)
+  const importDecls = existingFile.getImportDeclarations()
+  const bodyStart =
+    importDecls.length > 0 ? importDecls[importDecls.length - 1].getEnd() : 0
+
+  // Build body by removing deleted ranges from original text
+  let body = ''
+  let cursor = bodyStart
+  for (const [start, end] of deleteRanges) {
+    if (start >= bodyStart) {
+      body += existingCode.slice(cursor, start)
+      cursor = end
+    }
+  }
+  body += existingCode.slice(cursor)
+
+  // Clean up excessive blank lines from deletions
+  body = body.replace(/\n{3,}/g, '\n\n')
 
   // Collect new handlers (in generated but not in existing)
   const newHandlerStatements: string[] = []
@@ -55,13 +102,6 @@ export function mergeHandlerFile(existingCode: string, generatedCode: string): s
   // Merge imports
   const mergedImports = mergeImports(existingCode, generatedCode)
 
-  // Collect existing non-import statements (preserve all)
-  const existingNonImportLines: string[] = []
-  for (const stmt of existingFile.getStatements()) {
-    if (stmt.getKind() === SyntaxKind.ImportDeclaration) continue
-    existingNonImportLines.push(stmt.getText())
-  }
-
   // Build output
   const parts: string[] = []
 
@@ -69,8 +109,9 @@ export function mergeHandlerFile(existingCode: string, generatedCode: string): s
     parts.push(mergedImports.join('\n'))
   }
 
-  if (existingNonImportLines.length > 0) {
-    parts.push(existingNonImportLines.join('\n\n'))
+  const trimmedBody = body.trim()
+  if (trimmedBody) {
+    parts.push(trimmedBody)
   }
 
   if (newHandlerStatements.length > 0) {
@@ -83,7 +124,10 @@ export function mergeHandlerFile(existingCode: string, generatedCode: string): s
 /**
  * Merges import declarations from two source files.
  *
- * For each module specifier, named imports are unioned.
+ * For each module specifier, named imports are unioned with the following exception:
+ * named imports ending in `Route` from the existing file are only kept if they also
+ * appear in the generated file (to remove imports for deleted routes).
+ *
  * Type-only imports are preserved as type-only when they appear as type-only in both sources,
  * or when they only appear in one source as type-only.
  *
@@ -95,6 +139,17 @@ function mergeImports(existingCode: string, generatedCode: string): string[] {
   const project = new Project({ useInMemoryFileSystem: true })
   const existingFile = project.createSourceFile('existing.ts', existingCode)
   const generatedFile = project.createSourceFile('generated.ts', generatedCode)
+
+  // Collect route names from generated (names ending in Route) as source of truth
+  const generatedRouteNames = new Set<string>()
+  for (const imp of generatedFile.getImportDeclarations()) {
+    for (const named of imp.getNamedImports()) {
+      const name = named.getName()
+      if (name.endsWith('Route')) {
+        generatedRouteNames.add(name)
+      }
+    }
+  }
 
   // Map: moduleSpecifier → { namedImports: Map<name, isTypeOnly>, isTypeOnlyImport: boolean }
   type ImportInfo = {
@@ -140,6 +195,12 @@ function mergeImports(existingCode: string, generatedCode: string): string[] {
       for (const named of imp.getNamedImports()) {
         const name = named.getName()
         const isTypeOnlySpecifier = named.isTypeOnly()
+
+        // For existing imports: skip route names not in generated (deleted routes)
+        if (isExisting && name.endsWith('Route') && !generatedRouteNames.has(name)) {
+          continue
+        }
+
         const existingTypeOnly = info.namedImports.get(name)
         if (existingTypeOnly === undefined) {
           info.namedImports.set(name, isTypeOnlySpecifier)
@@ -177,6 +238,9 @@ function mergeImports(existingCode: string, generatedCode: string): string[] {
         })
       parts.push(`{ ${namedParts.join(', ')} }`)
     }
+
+    // Skip empty import declarations (all named imports were filtered out)
+    if (parts.length === 0) continue
 
     const typePrefix = info.isTypeOnlyImport ? 'import type' : 'import'
     result.push(`${typePrefix} ${parts.join(', ')} from '${moduleSpecifier}'`)

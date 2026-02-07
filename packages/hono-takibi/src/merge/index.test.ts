@@ -123,16 +123,17 @@ export const getUserRouteHandler: RouteHandler<typeof getUserRoute> = async (c) 
       expect(result).toContain('getUserRouteHandler')
     })
 
-    it('preserves existing-only handlers (user-added)', () => {
+    it('removes handlers not in generated code (route deleted from OpenAPI)', () => {
       const existing = `import type { RouteHandler } from '@hono/zod-openapi'
-import type { getUserRoute, customRoute } from '../index'
+import type { getUserRoute, deleteUserRoute } from '../index'
 
 export const getUserRouteHandler: RouteHandler<typeof getUserRoute> = async (c) => {
   return c.json({ id: 1 }, 200)
 }
 
-export const customRouteHandler: RouteHandler<typeof customRoute> = async (c) => {
-  return c.json({ custom: true }, 200)
+export const deleteUserRouteHandler: RouteHandler<typeof deleteUserRoute> = async (c) => {
+  await db.deleteUser(c.req.param('id'))
+  return new Response(null, { status: 204 })
 }
 `
 
@@ -144,8 +145,106 @@ export const getUserRouteHandler: RouteHandler<typeof getUserRoute> = async (c) 
 
       const result = mergeHandlerFile(existing, generated)
       expect(result).toContain('getUserRouteHandler')
-      expect(result).toContain('customRouteHandler')
-      expect(result).toContain('custom: true')
+      expect(result).toContain('return c.json({ id: 1 }, 200)')
+      expect(result).not.toContain('deleteUserRouteHandler')
+      expect(result).not.toContain('db.deleteUser')
+    })
+
+    it('removes route imports for deleted handlers', () => {
+      const existing = `import type { RouteHandler } from '@hono/zod-openapi'
+import type { getUserRoute, deleteUserRoute } from '../index'
+
+export const getUserRouteHandler: RouteHandler<typeof getUserRoute> = async (c) => {
+  return c.json({ id: 1 }, 200)
+}
+
+export const deleteUserRouteHandler: RouteHandler<typeof deleteUserRoute> = async (c) => {
+  return new Response(null, { status: 204 })
+}
+`
+
+      const generated = `import type { RouteHandler } from '@hono/zod-openapi'
+import type { getUserRoute } from '../index'
+
+export const getUserRouteHandler: RouteHandler<typeof getUserRoute> = async (c) => {}
+`
+
+      const result = mergeHandlerFile(existing, generated)
+      expect(result).toContain('getUserRoute')
+      expect(result).not.toContain('deleteUserRoute')
+    })
+
+    it('preserves comments on existing handlers', () => {
+      const existing = `import type { RouteHandler } from '@hono/zod-openapi'
+import type { getUserRoute } from '../index'
+
+// Get user by ID from database
+export const getUserRouteHandler: RouteHandler<typeof getUserRoute> = async (c) => {
+  // Look up user
+  const user = await db.getUser(c.req.param('id'))
+  return c.json(user, 200)
+}
+`
+
+      const generated = `import type { RouteHandler } from '@hono/zod-openapi'
+import type { getUserRoute } from '../index'
+
+export const getUserRouteHandler: RouteHandler<typeof getUserRoute> = async (c) => {}
+`
+
+      const result = mergeHandlerFile(existing, generated)
+      expect(result).toContain('// Get user by ID from database')
+      expect(result).toContain('// Look up user')
+      expect(result).toContain('await db.getUser')
+    })
+
+    it('removes comments attached to deleted handlers', () => {
+      const existing = `import type { RouteHandler } from '@hono/zod-openapi'
+import type { getUserRoute, deleteUserRoute } from '../index'
+
+// Get user by ID
+export const getUserRouteHandler: RouteHandler<typeof getUserRoute> = async (c) => {
+  return c.json({ id: 1 }, 200)
+}
+
+// Delete user - dangerous operation
+export const deleteUserRouteHandler: RouteHandler<typeof deleteUserRoute> = async (c) => {
+  return new Response(null, { status: 204 })
+}
+`
+
+      const generated = `import type { RouteHandler } from '@hono/zod-openapi'
+import type { getUserRoute } from '../index'
+
+export const getUserRouteHandler: RouteHandler<typeof getUserRoute> = async (c) => {}
+`
+
+      const result = mergeHandlerFile(existing, generated)
+      expect(result).toContain('// Get user by ID')
+      expect(result).not.toContain('// Delete user - dangerous operation')
+      expect(result).not.toContain('deleteUserRouteHandler')
+    })
+
+    it('preserves user-added imports', () => {
+      const existing = `import type { RouteHandler } from '@hono/zod-openapi'
+import type { getUserRoute } from '../index'
+import { db } from '../db'
+
+export const getUserRouteHandler: RouteHandler<typeof getUserRoute> = async (c) => {
+  const user = await db.getUser(c.req.param('id'))
+  return c.json(user, 200)
+}
+`
+
+      const generated = `import type { RouteHandler } from '@hono/zod-openapi'
+import type { getUserRoute } from '../index'
+
+export const getUserRouteHandler: RouteHandler<typeof getUserRoute> = async (c) => {}
+`
+
+      const result = mergeHandlerFile(existing, generated)
+      expect(result).toContain("from '../db'")
+      expect(result).toContain('await db.getUser')
     })
   })
 
