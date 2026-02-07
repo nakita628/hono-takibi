@@ -22,15 +22,13 @@ import { isOpenAPIPaths, isOperationLike, isRecord } from '../../guard/index.js'
 import {
   core,
   formatPath,
-  makeInferRequestType,
   makeOperationDeps,
-  makeOperationDocs,
   operationHasArgs,
   parsePathItem,
   resolveSplitOutDir,
 } from '../../helper/index.js'
 import type { OpenAPI, OpenAPIPaths } from '../../openapi/index.js'
-import { methodPath } from '../../utils/index.js'
+import { makeOperationDocs, methodPath, makeInferRequestType } from '../../utils/index.js'
 
 /* ─────────────────────────────── Types ─────────────────────────────── */
 

@@ -292,3 +292,47 @@ export function makeBarrel(value: { readonly [k: string]: unknown }): string {
     .map((k) => `export * from './${k.charAt(0).toLowerCase() + k.slice(1)}'`)
     .join('\n')}\n`
 }
+
+/**
+ * Build JSDoc comment block for an operation.
+ */
+export function makeOperationDocs(
+  method: string,
+  pathStr: string,
+  summary?: string,
+  description?: string,
+): string {
+  const formatJsDocLines = (text: string): readonly string[] => {
+    return text
+      .trimEnd()
+      .split('\n')
+      .map((line) => ` * ${line}`)
+  }
+  const safePathStr = pathStr.replace(/\/\*/g, '/[*]')
+  return [
+    '/**',
+    ` * ${method.toUpperCase()} ${safePathStr}`,
+    ...(summary ? [' *', ...formatJsDocLines(summary)] : []),
+    ...(description ? [' *', ...formatJsDocLines(description)] : []),
+    ' */',
+  ].join('\n')
+}
+
+/**
+ * Build InferRequestType expression.
+ */
+export function makeInferRequestType(
+  clientName: string,
+  pathResult: {
+    runtimePath: string
+    typeofPrefix: string
+    bracketSuffix: string
+    hasBracket: boolean
+  },
+  method: 'get' | 'put' | 'post' | 'delete' | 'options' | 'head' | 'patch' | 'trace',
+): string {
+  const { runtimePath, typeofPrefix, bracketSuffix, hasBracket } = pathResult
+  return hasBracket
+    ? `InferRequestType<typeof ${clientName}${typeofPrefix}${bracketSuffix}['$${method}']>`
+    : `InferRequestType<typeof ${clientName}${runtimePath}.$${method}>`
+}

@@ -23,7 +23,7 @@
  * @module helper/openapi
  */
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
-import { isRecord, isRefObject } from '../guard/index.js'
+import { isOperation, isRecord, isRefObject } from '../guard/index.js'
 import type {
   Callbacks,
   Content,
@@ -176,6 +176,8 @@ export function makeExamples(examples: {
           | `#/components/examples/${string}`
           | `#/components/links/${string}`
           | `#/components/callbacks/${string}`
+          | `#/components/pathItems/${string}`
+          | `#/components/mediaTypes/${string}`
         readonly summary?: string
         readonly description?: string
       }
@@ -240,11 +242,14 @@ export function makeExamples(examples: {
 export function makeOperationResponses(
   responses: Operation['responses'] | Record<string, unknown>,
 ) {
+  const isResponse = (v: unknown): v is Responses =>
+    typeof v === 'object' && v !== null && !Array.isArray(v)
   const result = Object.entries(responses)
-    .map(
-      ([statusCode, res]) =>
-        `${/^\d+$/.test(statusCode) ? statusCode : `'${statusCode}'`}:${makeResponses(res as Responses)}`,
-    )
+    .map(([statusCode, res]) => {
+      if (!isResponse(res)) return undefined
+      return `${/^\d+$/.test(statusCode) ? statusCode : `'${statusCode}'`}:${makeResponses(res)}`
+    })
+    .filter((v) => v !== undefined)
     .join(',')
   return `{${result}}`
 }
@@ -482,61 +487,14 @@ export function makeCallbacks(
         }
       },
 ): string {
-  const isParameter = (v: unknown): v is Parameter =>
-    isRecord(v) && 'name' in v && 'in' in v && 'schema' in v
-
-  const isOperation = (v: unknown): v is Operation => isRecord(v) && 'responses' in v
-
   const methods = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'] as const
-
-  const makeMethodsCode = (record: {readonly [k: string]: unknown}): string =>
+  const makeMethodsCode = (record: { readonly [k: string]: unknown }): string =>
     methods
       .map((method) => {
         const operation = record[method]
         if (!isOperation(operation)) return undefined
-        // OpenAPI spec: parameters is [Parameter Object | Reference Object]
-        const params =
-          operation.parameters && operation.parameters.length > 0
-            ? operation.parameters
-                .filter(isParameter)
-                .map((param: Parameter) =>
-                  param.$ref
-                    ? makeRef(param.$ref)
-                    : zodToOpenAPI(param.schema, { parameters: { ...param } }),
-                )
-                .filter(Boolean)
-            : undefined
-        const parametersCode = params && params.length > 0 ? `[${params.join(',')}]` : undefined
-
-        const result = [
-          operation.tags ? `tags:${JSON.stringify(operation.tags)}` : undefined,
-          operation.summary ? `summary:${JSON.stringify(operation.summary)}` : undefined,
-          operation.description
-            ? `description:${JSON.stringify(operation.description)}`
-            : undefined,
-          operation.externalDocs
-            ? `externalDocs:${JSON.stringify(operation.externalDocs)}`
-            : undefined,
-          operation.operationId
-            ? `operationId:${JSON.stringify(operation.operationId)}`
-            : undefined,
-          parametersCode ? `parameters:${parametersCode}` : undefined,
-          operation.requestBody
-            ? `requestBody:${makeRequestBody(operation.requestBody)}`
-            : undefined,
-          operation.responses
-            ? `responses:${makeOperationResponses(operation.responses)}`
-            : undefined,
-          operation.callbacks
-            ? `callbacks:${makeOperationCallbacks(operation.callbacks)}`
-            : undefined,
-          operation.deprecated ? `deprecated:${JSON.stringify(operation.deprecated)}` : undefined,
-          operation.security ? `security:${JSON.stringify(operation.security)}` : undefined,
-          operation.servers ? `servers:${JSON.stringify(operation.servers)}` : undefined,
-        ]
-          .filter((v) => v !== undefined)
-          .join(',')
-        return `${method}:{${result}}`
+        const result = makeOperation(operation)
+        return `${method}:${result}`
       })
       .filter((v) => v !== undefined)
       .join(',')
@@ -830,6 +788,7 @@ export function makeRequestParams(parameters: readonly Parameter[]) {
  *
  * @param parameters - Array of Parameter or Reference objects
  * @returns Array literal string like `[Schema1, Schema2]`
+ * OpenAPI spec: parameters is [Parameter Object | Reference Object]
  */
 export function makePathParameters(parameters: readonly (Parameter | Reference)[]) {
   const serializeValue = (value: unknown): string => {
@@ -863,15 +822,30 @@ export function makePathParameters(parameters: readonly (Parameter | Reference)[
   return `[${items.join(',')}]`
 }
 
+function makeOperationParameters(parameters: readonly (Parameter | Reference)[]): string {
+  const items = parameters.map((param) => {
+    if (isRefObject(param)) {
+      return makeRef(param.$ref)
+    }
+    const p = param as Parameter
+    if (p.schema) {
+      return zodToOpenAPI(p.schema, { parameters: p })
+    }
+    return JSON.stringify(param)
+  })
+  return `[${items.join(',')}]`
+}
+
 export function makeOperation(operation: Operation) {
   const result = [
     operation.tags ? `tags:${JSON.stringify(operation.tags)}` : undefined,
     operation.summary ? `summary:${JSON.stringify(operation.summary)}` : undefined,
     operation.description ? `description:${JSON.stringify(operation.description)}` : undefined,
     operation.externalDocs ? `externalDocs:${JSON.stringify(operation.externalDocs)}` : undefined,
-    operation.operationId ? `operationId:'${operation.operationId}'` : undefined,
-    // OpenAPI spec: parameters is [Parameter Object | Reference Object]
-    operation.parameters ? `parameters:${makePathParameters(operation.parameters)}` : undefined,
+    operation.operationId ? `operationId:${JSON.stringify(operation.operationId)}` : undefined,
+    operation.parameters
+      ? `parameters:${makeOperationParameters(operation.parameters)}`
+      : undefined,
     operation.requestBody ? `requestBody:${makeRequestBody(operation.requestBody)}` : undefined,
     operation.responses ? `responses:${makeOperationResponses(operation.responses)}` : undefined,
     operation.callbacks ? `callbacks:{${makeCallbacks(operation.callbacks)}}` : undefined,

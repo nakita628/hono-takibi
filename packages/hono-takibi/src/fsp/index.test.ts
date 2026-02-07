@@ -2,7 +2,7 @@ import fs from 'node:fs'
 import fsp from 'node:fs/promises'
 import path from 'node:path'
 import { afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest'
-import { mkdir, readdir, writeFile } from './index.js'
+import { mkdir, readdir, readFile, writeFile } from './index.js'
 
 const TEST_DIR = path.join(process.cwd(), 'test-tmp-dir')
 
@@ -60,6 +60,35 @@ describe('fsp', () => {
     it('returns err for non-existent directory', async () => {
       const nonExist = path.join(TEST_DIR, 'no-such-dir')
       const result = await readdir(nonExist)
+      expect(result.ok).toBe(false)
+      if (!result.ok) {
+        expect(typeof result.error).toBe('string')
+        expect(result.error.length).toBeGreaterThan(0)
+      }
+    })
+  })
+
+  describe('readFile', () => {
+    beforeEach(async () => {
+      await fsp.mkdir(TEST_DIR, { recursive: true })
+    })
+
+    it('returns file content when file exists', async () => {
+      const filePath = path.join(TEST_DIR, 'read-test.txt')
+      await fsp.writeFile(filePath, 'hello world')
+      const result = await readFile(filePath)
+      expect(result).toEqual({ ok: true, value: 'hello world' })
+    })
+
+    it('returns null when file does not exist', async () => {
+      const filePath = path.join(TEST_DIR, 'no-such-file.txt')
+      const result = await readFile(filePath)
+      expect(result).toEqual({ ok: true, value: null })
+    })
+
+    it('returns err for non-file path', async () => {
+      // Reading a directory as a file should fail
+      const result = await readFile(TEST_DIR)
       expect(result.ok).toBe(false)
       if (!result.ok) {
         expect(typeof result.error).toBe('string')

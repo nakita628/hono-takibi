@@ -4,16 +4,17 @@
  * Generates skeleton handler files for Hono routes based on OpenAPI operations.
  *
  * Two modes are available:
- * - `makeStubHandlers`: Generates empty stub handlers
- * - `makeMockHandlers`: Generates handlers with faker.js mock responses
+ * - `zodOpenAPIHonoHandler`: Generates empty stub handlers
+ * - `mockZodOpenAPIHonoHandler`: Generates handlers with faker.js mock responses
  *
  * @module helper/handler
  */
 import { fmt } from '../format/index.js'
-import { mkdir, writeFile } from '../fsp/index.js'
+import { mkdir, readFile, writeFile } from '../fsp/index.js'
 import { schemaToFaker } from '../generator/test/faker-mapping.js'
 import { generateHandlerTestCode } from '../generator/test/index.js'
 import { isHttpMethod, isOperation, isOperationWithResponses } from '../guard/index.js'
+import { mergeBarrelFile, mergeHandlerFile } from '../merge/index.js'
 import type { OpenAPI, Operation, Schema } from '../openapi/index.js'
 import { methodPath } from '../utils/index.js'
 
@@ -272,7 +273,7 @@ function makeBarrelContent(fileNames: readonly string[]): string {
  * @param test - Whether to generate corresponding test files.
  * @returns A `Result` indicating success or error with message.
  */
-export async function makeStubHandlers(
+export async function zodOpenAPIHonoHandler(
   openapi: OpenAPI,
   output: string,
   test = false,
@@ -300,7 +301,17 @@ export async function makeStubHandlers(
     ...handlers.map(async (handler) => {
       const fmtResult = await fmt(makeStubFileContent(handler, importFrom))
       if (!fmtResult.ok) return { ok: false, error: fmtResult.error } as const
-      const writeResult = await writeFile(`${handlerPath}/${handler.fileName}`, fmtResult.value)
+
+      const filePath = `${handlerPath}/${handler.fileName}`
+      const existingResult = await readFile(filePath)
+      if (!existingResult.ok) return { ok: false, error: existingResult.error } as const
+
+      const content =
+        existingResult.value !== null
+          ? mergeHandlerFile(existingResult.value, fmtResult.value)
+          : fmtResult.value
+
+      const writeResult = await writeFile(filePath, content)
       if (!writeResult.ok) return { ok: false, error: writeResult.error } as const
 
       if (test) {
@@ -325,7 +336,17 @@ export async function makeStubHandlers(
     (async () => {
       const fmtResult = await fmt(makeBarrelContent(handlers.map((h) => h.fileName)))
       if (!fmtResult.ok) return { ok: false, error: fmtResult.error } as const
-      const writeResult = await writeFile(`${handlerPath}/index.ts`, fmtResult.value)
+
+      const barrelPath = `${handlerPath}/index.ts`
+      const existingResult = await readFile(barrelPath)
+      if (!existingResult.ok) return { ok: false, error: existingResult.error } as const
+
+      const content =
+        existingResult.value !== null
+          ? mergeBarrelFile(existingResult.value, fmtResult.value)
+          : fmtResult.value
+
+      const writeResult = await writeFile(barrelPath, content)
       if (!writeResult.ok) return { ok: false, error: writeResult.error } as const
       return { ok: true, value: undefined } as const
     })(),
@@ -347,7 +368,7 @@ export async function makeStubHandlers(
  * @param test - Whether to generate corresponding test files.
  * @returns A `Result` indicating success or error with message.
  */
-export async function makeMockHandlers(
+export async function mockZodOpenAPIHonoHandler(
   openapi: OpenAPI,
   output: string,
   test: boolean,
@@ -376,7 +397,17 @@ export async function makeMockHandlers(
     ...handlers.map(async (handler) => {
       const fmtResult = await fmt(makeMockFileContent(handler, importFrom, schemas))
       if (!fmtResult.ok) return { ok: false, error: fmtResult.error } as const
-      const writeResult = await writeFile(`${handlerPath}/${handler.fileName}`, fmtResult.value)
+
+      const filePath = `${handlerPath}/${handler.fileName}`
+      const existingResult = await readFile(filePath)
+      if (!existingResult.ok) return { ok: false, error: existingResult.error } as const
+
+      const content =
+        existingResult.value !== null
+          ? mergeHandlerFile(existingResult.value, fmtResult.value)
+          : fmtResult.value
+
+      const writeResult = await writeFile(filePath, content)
       if (!writeResult.ok) return { ok: false, error: writeResult.error } as const
 
       if (test) {
@@ -401,7 +432,17 @@ export async function makeMockHandlers(
     (async () => {
       const fmtResult = await fmt(makeBarrelContent(handlers.map((h) => h.fileName)))
       if (!fmtResult.ok) return { ok: false, error: fmtResult.error } as const
-      const writeResult = await writeFile(`${handlerPath}/index.ts`, fmtResult.value)
+
+      const barrelPath = `${handlerPath}/index.ts`
+      const existingResult = await readFile(barrelPath)
+      if (!existingResult.ok) return { ok: false, error: existingResult.error } as const
+
+      const content =
+        existingResult.value !== null
+          ? mergeBarrelFile(existingResult.value, fmtResult.value)
+          : fmtResult.value
+
+      const writeResult = await writeFile(barrelPath, content)
       if (!writeResult.ok) return { ok: false, error: writeResult.error } as const
       return { ok: true, value: undefined } as const
     })(),
@@ -413,6 +454,3 @@ export async function makeMockHandlers(
   return { ok: true, value: undefined }
 }
 
-// Legacy alias for backward compatibility
-export { makeStubHandlers as zodOpenAPIHonoHandler }
-export { makeMockHandlers as mockZodOpenAPIHonoHandler }

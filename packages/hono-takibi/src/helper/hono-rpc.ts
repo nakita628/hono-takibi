@@ -241,31 +241,6 @@ export function resolveSplitOutDir(output: string) {
   return { outDir, indexPath }
 }
 
-/**
- * Build JSDoc comment block for an operation.
- */
-export function makeOperationDocs(
-  method: string,
-  pathStr: string,
-  summary?: string,
-  description?: string,
-): string {
-  const formatJsDocLines = (text: string): readonly string[] => {
-    return text
-      .trimEnd()
-      .split('\n')
-      .map((line) => ` * ${line}`)
-  }
-  const safePathStr = pathStr.replace(/\/\*/g, '/[*]')
-  return [
-    '/**',
-    ` * ${method.toUpperCase()} ${safePathStr}`,
-    ...(summary ? [' *', ...formatJsDocLines(summary)] : []),
-    ...(description ? [' *', ...formatJsDocLines(description)] : []),
-    ' */',
-  ].join('\n')
-}
-
 /* ─────────────────────────────── Path item parsing ─────────────────────────────── */
 
 /**
@@ -283,27 +258,6 @@ export function parsePathItem(rawItem: { [key: string]: unknown }): PathItemLike
     patch: isOperationLike(rawItem.patch) ? rawItem.patch : undefined,
     trace: isOperationLike(rawItem.trace) ? rawItem.trace : undefined,
   }
-}
-
-/* ─────────────────────────────── Type expressions ─────────────────────────────── */
-
-/**
- * Build InferRequestType expression.
- */
-export function makeInferRequestType(
-  clientName: string,
-  pathResult: {
-    runtimePath: string
-    typeofPrefix: string
-    bracketSuffix: string
-    hasBracket: boolean
-  },
-  method: 'get' | 'put' | 'post' | 'delete' | 'options' | 'head' | 'patch' | 'trace',
-): string {
-  const { runtimePath, typeofPrefix, bracketSuffix, hasBracket } = pathResult
-  return hasBracket
-    ? `InferRequestType<typeof ${clientName}${typeofPrefix}${bracketSuffix}['$${method}']>`
-    : `InferRequestType<typeof ${clientName}${runtimePath}.$${method}>`
 }
 
 /**

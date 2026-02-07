@@ -58,6 +58,33 @@ export async function readdir(dir: string): Promise<
 }
 
 /**
+ * Reads UTF-8 text from a file.
+ *
+ * @param path - File path to read.
+ * @returns A `Result` with the file content on success, `null` if the file does not exist, or an error message.
+ */
+export async function readFile(path: string): Promise<
+  | {
+      readonly ok: true
+      readonly value: string | null
+    }
+  | {
+      readonly ok: false
+      readonly error: string
+    }
+> {
+  try {
+    const content = await fsp.readFile(path, 'utf-8')
+    return { ok: true, value: content }
+  } catch (e) {
+    if (e instanceof Error && 'code' in e && e.code === 'ENOENT') {
+      return { ok: true, value: null }
+    }
+    return { ok: false, error: e instanceof Error ? e.message : String(e) }
+  }
+}
+
+/**
  * Writes UTF-8 text to a file, creating it if necessary.
  * Skips writing if the file already exists with identical content.
  *
