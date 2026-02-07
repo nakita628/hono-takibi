@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { mergeBarrelFile, mergeHandlerFile } from './index.js'
+import { mergeAppFile, mergeBarrelFile, mergeHandlerFile } from './index.js'
 
 describe('merge', () => {
   describe('mergeHandlerFile', () => {
@@ -245,6 +245,139 @@ export const getUserRouteHandler: RouteHandler<typeof getUserRoute> = async (c) 
       const result = mergeHandlerFile(existing, generated)
       expect(result).toContain("from '../db'")
       expect(result).toContain('await db.getUser')
+    })
+  })
+
+  describe('mergeAppFile', () => {
+    it('preserves middleware when routes change', () => {
+      const existing = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute } from './routes'
+import { getHealthRouteHandler } from './handlers'
+import { logger } from 'hono/logger'
+import { cors } from 'hono/cors'
+
+const app = new OpenAPIHono()
+
+// Middleware
+app.use('*', logger())
+app.use('*', cors())
+
+export const api = app.openapi(getHealthRoute, getHealthRouteHandler)
+
+export type AppType = typeof api
+
+export default app
+`
+
+      const generated = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute, getUserRoute } from './routes'
+import { getHealthRouteHandler, getUserRouteHandler } from './handlers'
+
+const app = new OpenAPIHono()
+
+export const api = app.openapi(getHealthRoute, getHealthRouteHandler).openapi(getUserRoute, getUserRouteHandler)
+
+export type AppType = typeof api
+
+export default app
+`
+
+      const result = mergeAppFile(existing, generated)
+      // Middleware preserved
+      expect(result).toContain("app.use('*', logger())")
+      expect(result).toContain("app.use('*', cors())")
+      expect(result).toContain('// Middleware')
+      // User imports preserved
+      expect(result).toContain("from 'hono/logger'")
+      expect(result).toContain("from 'hono/cors'")
+      // Route chain updated
+      expect(result).toContain('getUserRoute')
+      expect(result).toContain('getUserRouteHandler')
+    })
+
+    it('updates api chain when route is deleted', () => {
+      const existing = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute, getUserRoute } from './routes'
+import { getHealthRouteHandler, getUserRouteHandler } from './handlers'
+
+const app = new OpenAPIHono()
+
+export const api = app.openapi(getHealthRoute, getHealthRouteHandler).openapi(getUserRoute, getUserRouteHandler)
+
+export type AppType = typeof api
+
+export default app
+`
+
+      const generated = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute } from './routes'
+import { getHealthRouteHandler } from './handlers'
+
+const app = new OpenAPIHono()
+
+export const api = app.openapi(getHealthRoute, getHealthRouteHandler)
+
+export type AppType = typeof api
+
+export default app
+`
+
+      const result = mergeAppFile(existing, generated)
+      expect(result).toContain('getHealthRoute')
+      expect(result).not.toContain('getUserRoute')
+      expect(result).not.toContain('getUserRouteHandler')
+    })
+
+    it('preserves comments in app file', () => {
+      const existing = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute } from './routes'
+import { getHealthRouteHandler } from './handlers'
+
+const app = new OpenAPIHono()
+
+// Register all API routes
+export const api = app.openapi(getHealthRoute, getHealthRouteHandler)
+
+export type AppType = typeof api
+
+export default app
+`
+
+      const generated = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute, getUserRoute } from './routes'
+import { getHealthRouteHandler, getUserRouteHandler } from './handlers'
+
+const app = new OpenAPIHono()
+
+export const api = app.openapi(getHealthRoute, getHealthRouteHandler).openapi(getUserRoute, getUserRouteHandler)
+
+export type AppType = typeof api
+
+export default app
+`
+
+      const result = mergeAppFile(existing, generated)
+      expect(result).toContain('// Register all API routes')
+      expect(result).toContain('getUserRoute')
+    })
+
+    it('handles first generation (no changes)', () => {
+      const generated = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute } from './routes'
+import { getHealthRouteHandler } from './handlers'
+
+const app = new OpenAPIHono()
+
+export const api = app.openapi(getHealthRoute, getHealthRouteHandler)
+
+export type AppType = typeof api
+
+export default app
+`
+
+      const result = mergeAppFile(generated, generated)
+      expect(result).toContain('getHealthRoute')
+      expect(result).toContain('export default app')
     })
   })
 

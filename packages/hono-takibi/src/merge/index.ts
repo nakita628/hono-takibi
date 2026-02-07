@@ -1,9 +1,13 @@
 /**
- * AST-based merge module for handler files.
+ * AST-based merge module for generated files.
  *
  * Uses ts-morph for AST analysis and original text slicing for output,
- * preserving user edits (including comments) while adding new handlers
- * and removing handlers whose routes have been deleted from the OpenAPI spec.
+ * preserving user edits (including comments) while syncing with OpenAPI spec changes.
+ *
+ * Supports three file types:
+ * - Handler files: add/remove/preserve handlers based on OpenAPI routes
+ * - App file (index.ts): replace the `.openapi()` chain while preserving middleware/comments
+ * - Barrel files: union of `export * from` statements
  *
  * @module merge
  */
@@ -74,18 +78,17 @@ export function mergeHandlerFile(existingCode: string, generatedCode: string): s
     importDecls.length > 0 ? importDecls[importDecls.length - 1].getEnd() : 0
 
   // Build body by removing deleted ranges from original text
-  let body = ''
-  let cursor = bodyStart
-  for (const [start, end] of deleteRanges) {
-    if (start >= bodyStart) {
-      body += existingCode.slice(cursor, start)
-      cursor = end
-    }
-  }
-  body += existingCode.slice(cursor)
-
+  const filteredRanges = deleteRanges.filter(([start]) => start >= bodyStart)
+  const keepSlices = [
+    ...filteredRanges.map(([start], i) =>
+      existingCode.slice(i === 0 ? bodyStart : filteredRanges[i - 1][1], start),
+    ),
+    existingCode.slice(
+      filteredRanges.length > 0 ? filteredRanges[filteredRanges.length - 1][1] : bodyStart,
+    ),
+  ]
   // Clean up excessive blank lines from deletions
-  body = body.replace(/\n{3,}/g, '\n\n')
+  const body = keepSlices.join('').replace(/\n{3,}/g, '\n\n')
 
   // Collect new handlers (in generated but not in existing)
   const newHandlerStatements: string[] = []
@@ -122,11 +125,81 @@ export function mergeHandlerFile(existingCode: string, generatedCode: string): s
 }
 
 /**
+ * Merges generated app file (index.ts) with existing user-modified version.
+ *
+ * Merge rules:
+ * - `export const api = app.openapi(...)` chain: replaced with generated version (reflects current routes)
+ * - Imports: sync with generated (remove deleted route/handler imports, add new ones, keep user imports)
+ * - Everything else (middleware, comments, helpers): keep existing
+ *
+ * Uses AST for analysis only. The existing file's original text is preserved by slicing.
+ *
+ * @param existingCode - The current file content (user-modified).
+ * @param generatedCode - The newly generated file content.
+ * @returns The merged source code.
+ */
+export function mergeAppFile(existingCode: string, generatedCode: string): string {
+  const project = new Project({ useInMemoryFileSystem: true })
+  const existingFile = project.createSourceFile('existing.ts', existingCode)
+  const generatedFile = project.createSourceFile('generated.ts', generatedCode)
+
+  // Find 'export const api = ...' in existing (position for replacement)
+  // Use getStart() (not getFullStart()) to preserve leading comments
+  const existingApiStmt = existingFile
+    .getVariableStatements()
+    .find(
+      (stmt) =>
+        stmt.isExported() && stmt.getDeclarations().some((decl) => decl.getName() === 'api'),
+    )
+  const apiReplaceRange: [number, number] | null = existingApiStmt
+    ? [existingApiStmt.getStart(), existingApiStmt.getEnd()]
+    : null
+
+  // Get 'export const api = ...' text from generated
+  const generatedApiStmt = generatedFile
+    .getVariableStatements()
+    .find(
+      (stmt) =>
+        stmt.isExported() && stmt.getDeclarations().some((decl) => decl.getName() === 'api'),
+    )
+  const generatedApiText = generatedApiStmt?.getText() ?? ''
+
+  // Merge imports
+  const mergedImports = mergeImports(existingCode, generatedCode)
+
+  // Find body start (after last import declaration)
+  const importDecls = existingFile.getImportDeclarations()
+  const bodyStart =
+    importDecls.length > 0 ? importDecls[importDecls.length - 1].getEnd() : 0
+
+  // Build body: replace api statement, keep everything else
+  const body = apiReplaceRange
+    ? existingCode.slice(bodyStart, apiReplaceRange[0]) +
+      generatedApiText +
+      existingCode.slice(apiReplaceRange[1])
+    : existingCode.slice(bodyStart)
+
+  // Build output
+  const parts: string[] = []
+
+  if (mergedImports.length > 0) {
+    parts.push(mergedImports.join('\n'))
+  }
+
+  const trimmedBody = body.trim()
+  if (trimmedBody) {
+    parts.push(trimmedBody)
+  }
+
+  return `${parts.join('\n\n')}\n`
+}
+
+/**
  * Merges import declarations from two source files.
  *
  * For each module specifier, named imports are unioned with the following exception:
- * named imports ending in `Route` from the existing file are only kept if they also
- * appear in the generated file (to remove imports for deleted routes).
+ * named imports ending in `Route` or `RouteHandler` from the existing file are only kept
+ * if they also appear in the generated file (to remove imports for deleted routes).
  *
  * Type-only imports are preserved as type-only when they appear as type-only in both sources,
  * or when they only appear in one source as type-only.
@@ -140,13 +213,13 @@ function mergeImports(existingCode: string, generatedCode: string): string[] {
   const existingFile = project.createSourceFile('existing.ts', existingCode)
   const generatedFile = project.createSourceFile('generated.ts', generatedCode)
 
-  // Collect route names from generated (names ending in Route) as source of truth
-  const generatedRouteNames = new Set<string>()
+  // Collect auto-generated names (ending in Route or RouteHandler) as source of truth
+  const generatedAutoNames = new Set<string>()
   for (const imp of generatedFile.getImportDeclarations()) {
     for (const named of imp.getNamedImports()) {
       const name = named.getName()
-      if (name.endsWith('Route')) {
-        generatedRouteNames.add(name)
+      if (name.endsWith('Route') || name.endsWith('RouteHandler')) {
+        generatedAutoNames.add(name)
       }
     }
   }
@@ -196,8 +269,12 @@ function mergeImports(existingCode: string, generatedCode: string): string[] {
         const name = named.getName()
         const isTypeOnlySpecifier = named.isTypeOnly()
 
-        // For existing imports: skip route names not in generated (deleted routes)
-        if (isExisting && name.endsWith('Route') && !generatedRouteNames.has(name)) {
+        // For existing imports: skip auto-generated names not in generated (deleted routes)
+        if (
+          isExisting &&
+          (name.endsWith('Route') || name.endsWith('RouteHandler')) &&
+          !generatedAutoNames.has(name)
+        ) {
           continue
         }
 
