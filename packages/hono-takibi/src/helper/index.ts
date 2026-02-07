@@ -3,12 +3,12 @@ export { makeConst, makeExportConst, makeImports, makeModuleSpec } from './code.
 export { core } from './core.js'
 export { makeExports } from './exports.js'
 export {
-  makeInferRequestType,
-  makeParseResponseType,
-  makeOperationDocs,
-  makeOperationDeps,
   formatPath,
   hasNoContentResponse,
+  makeInferRequestType,
+  makeOperationDeps,
+  makeOperationDocs,
+  makeParseResponseType,
   operationHasArgs,
   parsePathItem,
   resolveSplitOutDir,

@@ -110,14 +110,22 @@ export function zodToOpenAPI(
   /* combinators */
   /** allOf */
   if (schema.allOf !== undefined) {
-    if (!schema.allOf?.length) return wrap('z.any()', schema, meta)
+    // Merge sibling properties as implicit allOf member (JSON Schema spec)
+    const effectiveAllOf: readonly Schema[] = schema.properties !== undefined
+      ? [...schema.allOf, {
+          type: 'object' as const,
+          properties: schema.properties,
+          ...(schema.required ? { required: schema.required } : {}),
+        }]
+      : schema.allOf
+    if (!effectiveAllOf.length) return wrap('z.any()', schema, meta)
 
     const nullable =
       schema.nullable === true ||
       (Array.isArray(schema.type) ? schema.type.includes('null') : schema.type === 'null') ||
-      schema.allOf.some(isNullType)
+      effectiveAllOf.some(isNullType)
 
-    const nonNull = schema.allOf.filter((s) => !isNullType(s))
+    const nonNull = effectiveAllOf.filter((s) => !isNullType(s))
     if (nonNull.length === 0) return wrap('z.any()', { ...schema, nullable }, meta)
 
     const schemas = nonNull.map((s) =>
@@ -159,7 +167,7 @@ export function zodToOpenAPI(
   }
   /* not */
   if (schema.not !== undefined) {
-    const typePredicates: { readonly [key: string]: string } = {
+    const typePredicates: { readonly [k: string]: string } = {
       string: `(v) => typeof v !== 'string'`,
       number: `(v) => typeof v !== 'number'`,
       integer: `(v) => typeof v !== 'number' || !Number.isInteger(v)`,
@@ -168,17 +176,33 @@ export function zodToOpenAPI(
       object: `(v) => typeof v !== 'object' || v === null || Array.isArray(v)`,
       null: '(v) => v !== null',
     }
+    // 0. not.$ref
+    if (typeof schema.not === 'object' && schema.not.$ref !== undefined) {
+      const refName = makeRef(schema.not.$ref)
+      return wrap(`z.any().refine((v) => !${refName}.safeParse(v).success)`, schema, meta)
+    }
     // 1. not.const
     if (typeof schema.not === 'object' && 'const' in schema.not) {
       const value = JSON.stringify(schema.not.const)
       const predicate = `(v) => v !== ${value}`
       return wrap(`z.any().refine(${predicate})`, schema, meta)
     }
-    // 2. not.type (single type)
+    // 2a. not.type (single type)
     if (typeof schema.not === 'object' && typeof schema.not.type === 'string') {
       const predicate = typePredicates[schema.not.type]
       if (predicate) {
         return wrap(`z.any().refine(${predicate})`, schema, meta)
+      }
+    }
+    // 2b. not.type (array of types)
+    if (typeof schema.not === 'object' && Array.isArray(schema.not.type)) {
+      const predicates = schema.not.type
+        .map((t) => typePredicates[t])
+        .filter((p): p is string => p !== undefined)
+      if (predicates.length > 0) {
+        const bodies = predicates.map((p) => `(${p.replace(/^\(v\) => /, '')})`)
+        const combined = `(v) => ${bodies.join(' && ')}`
+        return wrap(`z.any().refine(${combined})`, schema, meta)
       }
     }
     // 3. not.enum
@@ -186,6 +210,16 @@ export function zodToOpenAPI(
       const list = JSON.stringify(schema.not.enum)
       const predicate = `(v) => !${list}.includes(v)`
       return wrap(`z.any().refine(${predicate})`, schema, meta)
+    }
+    // 3b. not with composition (oneOf/anyOf/allOf)
+    if (
+      typeof schema.not === 'object' &&
+      (schema.not.oneOf !== undefined ||
+        schema.not.anyOf !== undefined ||
+        schema.not.allOf !== undefined)
+    ) {
+      const innerZod = zodToOpenAPI(schema.not, innerMeta)
+      return wrap(`z.any().refine((v) => !${innerZod}.safeParse(v).success)`, schema, meta)
     }
     // 4. fallback
     return wrap('z.any()', schema, meta)
@@ -228,24 +262,28 @@ export function zodToOpenAPI(
       return wrap(z, schema, meta)
     }
     // items can be Schema or readonly Schema[] (JSON Schema draft-04 tuple validation)
-    const rawItems = schema.items
-    const itemSchema: Schema | undefined = Array.isArray(rawItems) ? rawItems[0] : rawItems
+    const itemSchema: Schema | undefined = Array.isArray(schema.items)
+      ? schema.items[0]
+      : schema.items
     const item = itemSchema
       ? itemSchema.$ref
         ? makeRef(itemSchema.$ref)
         : zodToOpenAPI(itemSchema, innerMeta)
       : 'z.any()'
     const z = `z.array(${item})`
+    const unique = schema.uniqueItems === true
+      ? '.refine((items)=>new Set(items).size===items.length)'
+      : ''
     if (typeof schema.minItems === 'number' && typeof schema.maxItems === 'number') {
       return schema.minItems === schema.maxItems
-        ? wrap(`${z}.length(${schema.minItems})`, schema, meta)
-        : wrap(`${z}.min(${schema.minItems}).max(${schema.maxItems})`, schema, meta)
+        ? wrap(`${z}.length(${schema.minItems})${unique}`, schema, meta)
+        : wrap(`${z}.min(${schema.minItems}).max(${schema.maxItems})${unique}`, schema, meta)
     }
     if (typeof schema.minItems === 'number')
-      return wrap(`${z}.min(${schema.minItems})`, schema, meta)
+      return wrap(`${z}.min(${schema.minItems})${unique}`, schema, meta)
     if (typeof schema.maxItems === 'number')
-      return wrap(`${z}.max(${schema.maxItems})`, schema, meta)
-    return wrap(z, schema, meta)
+      return wrap(`${z}.max(${schema.maxItems})${unique}`, schema, meta)
+    return wrap(`${z}${unique}`, schema, meta)
   }
   /* object */
   if (t.includes('object')) return wrap(object(schema), schema, meta)

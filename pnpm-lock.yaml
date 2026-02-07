@@ -269,6 +269,22 @@ importers:
         specifier: ^5.9.3
         version: 5.9.3
 
+  fixtures/fix:
+    dependencies:
+      '@hono/zod-openapi':
+        specifier: ^1.2.1
+        version: 1.2.1(hono@4.11.7)(zod@4.3.6)
+      hono:
+        specifier: ^4.11.7
+        version: 4.11.7
+      zod:
+        specifier: ^4.3.6
+        version: 4.3.6
+    devDependencies:
+      tsx:
+        specifier: ^4.21.0
+        version: 4.21.0
+
   fixtures/generate:
     dependencies:
       '@apidevtools/swagger-parser':

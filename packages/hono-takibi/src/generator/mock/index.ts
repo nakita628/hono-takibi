@@ -100,7 +100,8 @@ function detectCircularSchemas(schemas: { [key: string]: Schema }): Set<string> 
       const visited = new Set<string>()
       const stack = [dep]
       while (stack.length > 0) {
-        const current = stack.pop()!
+        const current = stack.pop()
+        if (current === undefined) break
         if (current === name) {
           circular.add(name)
           break
@@ -168,7 +169,6 @@ function extractSecurityInfo(
   }
   return infos
 }
-
 
 function hasRequestBodyContent(
   op: unknown,
@@ -252,7 +252,9 @@ export function generateMockServer(
       routeEntries.push({ routeId, method, path: p, requiresAuth })
 
       const responses = openapi.components?.responses as
-        | { [key: string]: { description?: string; content?: { [ct: string]: { schema?: Schema } } } }
+        | {
+            [key: string]: { description?: string; content?: { [ct: string]: { schema?: Schema } } }
+          }
         | undefined
       const resolveResponse = (
         r: unknown,
@@ -282,14 +284,14 @@ export function generateMockServer(
           const mockData = schemaToFaker(textSchema, undefined, { schemas })
           return `return c.text(${mockData}, ${statusCode})`
         }
-        if (op.responses?.['204']) return `return new Response(null, { status: 204 })`
-        return `return c.body(null, 200)`
+        if (op.responses?.['204']) return 'return new Response(null, { status: 204 })'
+        return 'return c.body(null, 200)'
       })()
 
       // Generate auth check code only when route defines 401 response
       const has401 = op.responses?.['401'] !== undefined
       const authCheck = (() => {
-        if (!requiresAuth || !has401) return ''
+        if (!(requiresAuth && has401)) return ''
         const authChecks = security.flatMap((sec) => {
           if (sec.type === 'bearer' || sec.type === 'oauth2' || sec.type === 'basic') {
             return [`c.req.header('Authorization')`]

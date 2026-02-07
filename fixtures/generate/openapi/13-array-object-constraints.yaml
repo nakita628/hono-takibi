@@ -1,0 +1,166 @@
+openapi: 3.1.0
+info:
+  title: Array & Object Constraints API
+  version: 1.0.0
+paths:
+  /tags:
+    get:
+      operationId: getTags
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tags:
+                    type: array
+                    items:
+                      type: string
+                    uniqueItems: true
+                  ids:
+                    type: array
+                    items:
+                      type: integer
+                    uniqueItems: true
+                    minItems: 1
+                    maxItems: 100
+                  labels:
+                    type: array
+                    items:
+                      type: string
+                    uniqueItems: true
+                    minItems: 3
+                    maxItems: 3
+                required:
+                  - tags
+                  - ids
+                  - labels
+    post:
+      operationId: createTag
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                metadata:
+                  type: object
+                  properties:
+                    key:
+                      type: string
+                    value:
+                      type: string
+                  minProperties: 1
+                  maxProperties: 10
+                config:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                  minProperties: 1
+                limited:
+                  type: object
+                  properties:
+                    a:
+                      type: string
+                    b:
+                      type: string
+                  maxProperties: 5
+              required:
+                - metadata
+      responses:
+        "201":
+          description: Created
+  /settings:
+    get:
+      operationId: getSettings
+      parameters:
+        - name: filter
+          in: query
+          allowReserved: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                propertyNames:
+                  pattern: "^[a-z_]+$"
+                additionalProperties:
+                  type: string
+    put:
+      operationId: updateSettings
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                avatar:
+                  type: string
+                  contentEncoding: base64
+                  contentMediaType: image/png
+              required:
+                - avatar
+      responses:
+        "200":
+          description: OK
+  /config:
+    post:
+      operationId: createConfig
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: object
+                  patternProperties:
+                    "^x-":
+                      type: string
+                  additionalProperties:
+                    type: string
+                headers:
+                  type: object
+                  patternProperties:
+                    "^X-Custom-":
+                      type: string
+                  additionalProperties: true
+                keys:
+                  type: object
+                  propertyNames:
+                    pattern: "^[a-z_]+$"
+                  additionalProperties:
+                    type: string
+              required:
+                - data
+      responses:
+        "201":
+          description: Created
+  /payment:
+    post:
+      operationId: createPayment
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                creditCard:
+                  type: string
+                billingAddress:
+                  type: string
+                email:
+                  type: string
+              dependentRequired:
+                creditCard:
+                  - billingAddress
+      responses:
+        "201":
+          description: Created

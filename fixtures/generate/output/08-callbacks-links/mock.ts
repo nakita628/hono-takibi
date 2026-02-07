@@ -64,7 +64,7 @@ export const postSubscriptionsRoute = createRoute({
       links: { GetSubscription: GetSubscriptionLink },
     },
   },
-  onEvent: SubscriptionEventCallback,
+  callbacks: { onEvent: SubscriptionEventCallback },
 })
 
 export const getSubscriptionsIdRoute = createRoute({

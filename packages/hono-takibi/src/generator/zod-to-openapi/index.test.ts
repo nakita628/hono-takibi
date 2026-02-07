@@ -133,13 +133,12 @@ describe('zodToOpenAPI', () => {
     })
 
     // anyOf
-    // not support zod-to-openapi
     describe('anyOf', () => {
       it.concurrent.each<[Schema, string]>([
         [
           {
             type: 'object',
-            oneOf: [
+            anyOf: [
               {
                 properties: { kind: { const: 'A' } },
                 required: ['kind'],
@@ -151,29 +150,51 @@ describe('zodToOpenAPI', () => {
             ],
             nullable: true,
           },
-          'z.xor([z.object({kind:z.literal("A")}).openapi({"required":["kind"]}),z.object({kind:z.literal("B")}).openapi({"required":["kind"]})]).nullable()',
+          'z.union([z.object({kind:z.literal("A")}).openapi({"required":["kind"]}),z.object({kind:z.literal("B")}).openapi({"required":["kind"]})]).nullable()',
         ],
         [
           {
             type: 'object',
-            oneOf: [{ $ref: '#/components/schemas/A' }, { $ref: '#/components/schemas/B' }],
+            anyOf: [{ $ref: '#/components/schemas/A' }, { $ref: '#/components/schemas/B' }],
           },
-          'z.xor([ASchema,BSchema])',
+          'z.union([ASchema,BSchema])',
         ],
         [
           {
             type: 'object',
-            oneOf: [{ $ref: '#/components/schemas/A' }, { $ref: '#/components/schemas/B' }],
+            anyOf: [{ $ref: '#/components/schemas/A' }, { $ref: '#/components/schemas/B' }],
             nullable: true,
           },
-          'z.xor([ASchema,BSchema]).nullable()',
+          'z.union([ASchema,BSchema]).nullable()',
         ],
         [
           {
             type: ['object', 'null'],
-            oneOf: [{ $ref: '#/components/schemas/A' }, { $ref: '#/components/schemas/B' }],
+            anyOf: [{ $ref: '#/components/schemas/A' }, { $ref: '#/components/schemas/B' }],
           },
-          'z.xor([ASchema,BSchema]).nullable()',
+          'z.union([ASchema,BSchema]).nullable()',
+        ],
+        // 3-type union
+        [
+          {
+            anyOf: [{ type: 'string' }, { type: 'number' }, { type: 'boolean' }],
+          },
+          'z.union([z.string(),z.number(),z.boolean()])',
+        ],
+        // $ref union
+        [
+          {
+            anyOf: [{ $ref: '#/components/schemas/Cat' }, { $ref: '#/components/schemas/Dog' }],
+          },
+          'z.union([CatSchema,DogSchema])',
+        ],
+        // nullable union
+        [
+          {
+            anyOf: [{ type: 'string' }, { type: 'number' }],
+            nullable: true,
+          },
+          'z.union([z.string(),z.number()]).nullable()',
         ],
       ])('zodToOpenAPI(%o) → %s', (input, expected) => {
         expect(zodToOpenAPI(input)).toBe(expected)
@@ -346,7 +367,86 @@ describe('zodToOpenAPI', () => {
       })
     })
 
-    // TODO add not
+    // not
+    describe('not', () => {
+      describe('not.type (single)', () => {
+        it.concurrent.each<[Schema, string]>([
+          [{ not: { type: 'string' } }, `z.any().refine((v) => typeof v !== 'string')`],
+          [{ not: { type: 'number' } }, `z.any().refine((v) => typeof v !== 'number')`],
+          [
+            { not: { type: 'integer' } },
+            `z.any().refine((v) => typeof v !== 'number' || !Number.isInteger(v))`,
+          ],
+          [{ not: { type: 'boolean' } }, `z.any().refine((v) => typeof v !== 'boolean')`],
+          [{ not: { type: 'array' } }, 'z.any().refine((v) => !Array.isArray(v))'],
+          [
+            { not: { type: 'object' } },
+            `z.any().refine((v) => typeof v !== 'object' || v === null || Array.isArray(v))`,
+          ],
+          [{ not: { type: 'null' } }, 'z.any().refine((v) => v !== null)'],
+        ])('zodToOpenAPI(%o) → %s', (input, expected) => {
+          expect(zodToOpenAPI(input)).toBe(expected)
+        })
+      })
+
+      describe('not.const', () => {
+        it.concurrent.each<[Schema, string]>([
+          [{ not: { const: 'admin' } }, `z.any().refine((v) => v !== "admin")`],
+          [{ not: { const: 42 } }, 'z.any().refine((v) => v !== 42)'],
+        ])('zodToOpenAPI(%o) → %s', (input, expected) => {
+          expect(zodToOpenAPI(input)).toBe(expected)
+        })
+      })
+
+      describe('not.enum', () => {
+        it.concurrent.each<[Schema, string]>([
+          [{ not: { enum: ['a', 'b', 'c'] } }, `z.any().refine((v) => !["a","b","c"].includes(v))`],
+        ])('zodToOpenAPI(%o) → %s', (input, expected) => {
+          expect(zodToOpenAPI(input)).toBe(expected)
+        })
+      })
+
+      describe('not.$ref', () => {
+        it.concurrent.each<[Schema, string]>([
+          [
+            { not: { $ref: '#/components/schemas/Forbidden' } },
+            'z.any().refine((v) => !ForbiddenSchema.safeParse(v).success)',
+          ],
+        ])('zodToOpenAPI(%o) → %s', (input, expected) => {
+          expect(zodToOpenAPI(input)).toBe(expected)
+        })
+      })
+
+      describe('not.type (array)', () => {
+        it.concurrent.each<[Schema, string]>([
+          [
+            { not: { type: ['string', 'number'] } },
+            `z.any().refine((v) => (typeof v !== 'string') && (typeof v !== 'number'))`,
+          ],
+        ])('zodToOpenAPI(%o) → %s', (input, expected) => {
+          expect(zodToOpenAPI(input as Schema)).toBe(expected)
+        })
+      })
+
+      describe('not + composition', () => {
+        it.concurrent.each<[Schema, string]>([
+          [
+            { not: { anyOf: [{ type: 'string' }, { type: 'number' }] } },
+            'z.any().refine((v) => !z.union([z.string(),z.number()]).safeParse(v).success)',
+          ],
+        ])('zodToOpenAPI(%o) → %s', (input, expected) => {
+          expect(zodToOpenAPI(input as Schema)).toBe(expected)
+        })
+      })
+
+      describe('not fallback', () => {
+        it.concurrent.each<[Schema, string]>([
+          [{ not: {} }, 'z.any()'],
+        ])('zodToOpenAPI(%o) → %s', (input, expected) => {
+          expect(zodToOpenAPI(input as Schema)).toBe(expected)
+        })
+      })
+    })
 
     describe('const', () => {
       it.concurrent.each<[Schema, string]>([
@@ -726,7 +826,7 @@ describe('zodToOpenAPI', () => {
             { type: 'array', items: { type: 'string' }, minItems: 1, maxItems: 10 },
             'z.array(z.string()).min(1).max(10)',
           ],
-          [{ type: 'array', items: { type: 'string' }, uniqueItems: true }, 'z.array(z.string())'],
+          [{ type: 'array', items: { type: 'string' }, uniqueItems: true }, 'z.array(z.string()).refine((items)=>new Set(items).size===items.length)'],
           [
             { type: 'array', items: { type: 'string' }, default: [] },
             'z.array(z.string()).default([])',

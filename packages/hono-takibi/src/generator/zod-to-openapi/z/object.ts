@@ -41,7 +41,20 @@ export function object(schema: Schema): string {
 
   // additionalProperties as Schema → record type
   if (typeof schema.additionalProperties === 'object') {
-    return `z.record(z.string(),${zodToOpenAPI(schema.additionalProperties)})`
+    const record = `z.record(z.string(),${zodToOpenAPI(schema.additionalProperties)})`
+    const recordPatternProps = schema.patternProperties
+      ? Object.entries(schema.patternProperties)
+          .map(([pattern, propSchema]) => {
+            const zodSchema = zodToOpenAPI(propSchema)
+            return `.refine((o)=>Object.entries(o).every(([k,v])=>!new RegExp(${JSON.stringify(pattern)}).test(k)||${zodSchema}.safeParse(v).success))`
+          })
+          .join('')
+      : ''
+    const recordPropNames =
+      schema.propertyNames?.pattern
+        ? `.refine((o)=>Object.keys(o).every((k)=>new RegExp(${JSON.stringify(schema.propertyNames.pattern)}).test(k)))`
+        : ''
+    return `${record}${recordPropNames}${recordPatternProps}`
   }
 
   // Determine object type based on additionalProperties boolean
@@ -64,5 +77,39 @@ export function object(schema: Schema): string {
         .join(',')
     : ''
 
-  return `z.${objectType}({${propertiesCode}})`
+  const base = `z.${objectType}({${propertiesCode}})`
+  const minP =
+    typeof schema.minProperties === 'number'
+      ? `.refine((o)=>Object.keys(o).length>=${schema.minProperties})`
+      : ''
+  const maxP =
+    typeof schema.maxProperties === 'number'
+      ? `.refine((o)=>Object.keys(o).length<=${schema.maxProperties})`
+      : ''
+  // propertyNames: validate that all keys match the given schema constraints
+  const propNames =
+    schema.propertyNames?.pattern
+      ? `.refine((o)=>Object.keys(o).every((k)=>new RegExp(${JSON.stringify(schema.propertyNames.pattern)}).test(k)))`
+      : schema.propertyNames?.enum
+        ? `.refine((o)=>Object.keys(o).every((k)=>${JSON.stringify(schema.propertyNames.enum)}.includes(k)))`
+        : ''
+  // patternProperties: validate values match schema per key pattern
+  const patternProps = schema.patternProperties
+    ? Object.entries(schema.patternProperties)
+        .map(([pattern, propSchema]) => {
+          const zodSchema = zodToOpenAPI(propSchema)
+          return `.refine((o)=>Object.entries(o).every(([k,v])=>!new RegExp(${JSON.stringify(pattern)}).test(k)||${zodSchema}.safeParse(v).success))`
+        })
+        .join('')
+    : ''
+  // dependentRequired: if key present, dependent keys must also be present
+  const depReq = schema.dependentRequired
+    ? Object.entries(schema.dependentRequired)
+        .map(([key, deps]) => {
+          const depsCheck = deps.map((d) => `'${d}' in o`).join('&&')
+          return `.refine((o)=>!('${key}' in o)||(${depsCheck}))`
+        })
+        .join('')
+    : ''
+  return `${base}${minP}${maxP}${propNames}${patternProps}${depReq}`
 }

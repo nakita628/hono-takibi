@@ -5,7 +5,7 @@ import {
   isSecurityArray,
   isSecurityScheme,
 } from '../../guard/index.js'
-import type { OpenAPI, Operation, Schema } from '../../openapi/index.js'
+import type { OpenAPI, Schema } from '../../openapi/index.js'
 import { schemaToFaker } from './faker-mapping.js'
 
 /**
@@ -219,7 +219,8 @@ function detectCircularSchemas(schemas: { [key: string]: Schema }): Set<string> 
       const visited = new Set<string>()
       const stack = [dep]
       while (stack.length > 0) {
-        const current = stack.pop()!
+        const current = stack.pop()
+        if (current === undefined) break
         if (current === name) {
           circular.add(name)
           break
