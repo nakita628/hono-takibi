@@ -90,6 +90,7 @@ export function makeRef($ref: string): string {
     { prefix: '#/components/links/', suffix: 'Link' },
     { prefix: '#/components/callbacks/', suffix: 'Callback' },
     { prefix: '#/components/pathItems/', suffix: 'PathItem' },
+    { prefix: '#/components/mediaTypes/', suffix: 'MediaTypeSchema' },
   ]
 
   /** Converts name to PascalCase variable name with suffix */

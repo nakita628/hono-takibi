@@ -30,7 +30,10 @@ import {
   examples,
   headers,
   links,
+  mediaTypes,
+  mock,
   parameters,
+  pathItems,
   requestBodies,
   responses,
   route,
@@ -41,8 +44,10 @@ import {
   swr,
   takibi,
   tanstackQuery,
+  test,
   type,
   vueQuery,
+  webhooks,
 } from '../core/index.js'
 import { isRecord } from '../guard/index.js'
 import { parseOpenAPI } from '../openapi/index.js'
@@ -244,6 +249,7 @@ const runAllGenerationTasks = async (config: Config): Promise<{ readonly logs: r
       if (!isTypeScriptFile(outputPath))
         return `❌ zod-openapi: Invalid output format: ${outputPath}`
       const result = await takibi(openAPI, outputPath, config['zod-openapi']?.template ?? false, config['zod-openapi']?.test ?? false, config['zod-openapi']?.basePath ?? '/', {
+        readonly: config['zod-openapi']?.readonly,
         exportSchemasTypes: config['zod-openapi']?.exportSchemasTypes ?? false,
         exportSchemas: config['zod-openapi']?.exportSchemas ?? false,
         exportParametersTypes: config['zod-openapi']?.exportParametersTypes ?? false,
@@ -277,6 +283,7 @@ const runAllGenerationTasks = async (config: Config): Promise<{ readonly logs: r
           outputDirectory,
           true,
           schemaConfig.exportTypes === true,
+          config['zod-openapi']?.readonly,
         )
         if (!schemaResult.ok) return `❌ schemas(split): ${schemaResult.error}`
         return beforeFiles.length > 0
@@ -289,6 +296,7 @@ const runAllGenerationTasks = async (config: Config): Promise<{ readonly logs: r
         outputPath,
         false,
         schemaConfig.exportTypes === true,
+        config['zod-openapi']?.readonly,
       )
       return schemaResult.ok ? `✅ schemas -> ${outputPath}` : `❌ schemas: ${schemaResult.error}`
     })()
@@ -308,6 +316,7 @@ const runAllGenerationTasks = async (config: Config): Promise<{ readonly logs: r
         parametersConfig.split === true,
         parametersConfig.exportTypes === true,
         config['zod-openapi']?.components,
+        config['zod-openapi']?.readonly,
       )
       if (!parameterResult.ok) return `❌ parameters: ${parameterResult.error}`
       return `✅ parameters${parametersConfig.split === true ? '(split)' : ''} -> ${outputDirectory}`
@@ -328,6 +337,7 @@ const runAllGenerationTasks = async (config: Config): Promise<{ readonly logs: r
         headersConfig.split === true,
         headersConfig.exportTypes === true,
         config['zod-openapi']?.components,
+        config['zod-openapi']?.readonly,
       )
       if (!headersResult.ok) return `❌ headers: ${headersResult.error}`
       return `✅ headers${headersConfig.split === true ? '(split)' : ''} -> ${outputDirectory}`
@@ -346,6 +356,7 @@ const runAllGenerationTasks = async (config: Config): Promise<{ readonly logs: r
         openAPI.components?.examples,
         outputDirectory,
         examplesConfig.split === true,
+        config['zod-openapi']?.readonly,
       )
       if (!examplesResult.ok) return `❌ examples: ${examplesResult.error}`
       return `✅ examples${examplesConfig.split === true ? '(split)' : ''} -> ${outputDirectory}`
@@ -364,6 +375,7 @@ const runAllGenerationTasks = async (config: Config): Promise<{ readonly logs: r
         openAPI.components?.links,
         outputDirectory,
         linksConfig.split === true,
+        config['zod-openapi']?.readonly,
       )
       if (!linksResult.ok) return `❌ links: ${linksResult.error}`
       return `✅ links${linksConfig.split === true ? '(split)' : ''} -> ${outputDirectory}`
@@ -383,6 +395,7 @@ const runAllGenerationTasks = async (config: Config): Promise<{ readonly logs: r
         outputDirectory,
         callbacksConfig.split === true,
         config['zod-openapi']?.components,
+        config['zod-openapi']?.readonly,
       )
       if (!callbacksResult.ok) return `❌ callbacks: ${callbacksResult.error}`
       return `✅ callbacks${callbacksConfig.split === true ? '(split)' : ''} -> ${outputDirectory}`
@@ -403,6 +416,7 @@ const runAllGenerationTasks = async (config: Config): Promise<{ readonly logs: r
         openAPI.components?.securitySchemes,
         outputDirectory,
         securitySchemesConfig.split === true,
+        config['zod-openapi']?.readonly,
       )
       if (!securitySchemesResult.ok) return `❌ securitySchemes: ${securitySchemesResult.error}`
       return `✅ securitySchemes${securitySchemesConfig.split === true ? '(split)' : ''} -> ${outputDirectory}`
@@ -422,6 +436,7 @@ const runAllGenerationTasks = async (config: Config): Promise<{ readonly logs: r
         outputDirectory,
         requestBodiesConfig.split === true,
         config['zod-openapi']?.components,
+        config['zod-openapi']?.readonly,
       )
       if (!requestBodiesResult.ok) return `❌ requestBodies: ${requestBodiesResult.error}`
       return `✅ requestBodies${requestBodiesConfig.split === true ? '(split)' : ''} -> ${outputDirectory}`
@@ -441,6 +456,7 @@ const runAllGenerationTasks = async (config: Config): Promise<{ readonly logs: r
         outputDirectory,
         responsesConfig.split === true,
         config['zod-openapi']?.components,
+        config['zod-openapi']?.readonly,
       )
       if (!responsesResult.ok) return `❌ responses: ${responsesResult.error}`
       return `✅ responses${responsesConfig.split === true ? '(split)' : ''} -> ${outputDirectory}`
@@ -459,6 +475,7 @@ const runAllGenerationTasks = async (config: Config): Promise<{ readonly logs: r
         openAPI,
         { output: outputPath, split: routesConfig.split ?? false },
         config['zod-openapi']?.components,
+        config['zod-openapi']?.readonly,
       )
       if (!routeResult.ok) return `❌ routes: ${routeResult.error}`
       return `✅ routes${routesConfig.split === true ? '(split)' : ''} -> ${outputPath}`
@@ -490,6 +507,7 @@ const runAllGenerationTasks = async (config: Config): Promise<{ readonly logs: r
           rpcConfig.import,
           true,
           rpcConfig.client ?? 'client',
+          rpcConfig.parseResponse ?? false,
         )
         if (!rpcResult.ok) return `❌ rpc(split): ${rpcResult.error}`
         return beforeFiles.length > 0
@@ -503,6 +521,7 @@ const runAllGenerationTasks = async (config: Config): Promise<{ readonly logs: r
         rpcConfig.import,
         false,
         rpcConfig.client ?? 'client',
+        rpcConfig.parseResponse ?? false,
       )
       return rpcResult.ok ? `✅ rpc -> ${outputPath}` : `❌ rpc: ${rpcResult.error}`
     })()
@@ -642,6 +661,83 @@ const runAllGenerationTasks = async (config: Config): Promise<{ readonly logs: r
     })()
   }
 
+  const makePathItemsJob = (): Promise<string> | undefined => {
+    const pathItemsConfig = config['zod-openapi']?.components?.pathItems
+    if (!pathItemsConfig) return undefined
+    return (async () => {
+      const outputDirectory = toAbsolutePath(pathItemsConfig.output)
+      const beforeFiles =
+        pathItemsConfig.split === true ? await listTypeScriptFilesShallow(outputDirectory) : []
+      if (pathItemsConfig.split === true) await deleteTypeScriptFiles(beforeFiles)
+      const pathItemsResult = await pathItems(
+        openAPI.components ?? {},
+        { output: outputDirectory, split: pathItemsConfig.split ?? false },
+        config['zod-openapi']?.components,
+        config['zod-openapi']?.readonly,
+      )
+      if (!pathItemsResult.ok) return `❌ pathItems: ${pathItemsResult.error}`
+      return `✅ pathItems${pathItemsConfig.split === true ? '(split)' : ''} -> ${outputDirectory}`
+    })()
+  }
+
+  const makeMediaTypesJob = (): Promise<string> | undefined => {
+    const mediaTypesConfig = config['zod-openapi']?.components?.mediaTypes
+    if (!mediaTypesConfig) return undefined
+    return (async () => {
+      const outputDirectory = toAbsolutePath(mediaTypesConfig.output)
+      const beforeFiles =
+        mediaTypesConfig.split === true ? await listTypeScriptFilesShallow(outputDirectory) : []
+      if (mediaTypesConfig.split === true) await deleteTypeScriptFiles(beforeFiles)
+      const mediaTypesResult = await mediaTypes(
+        openAPI.components?.mediaTypes,
+        outputDirectory,
+        mediaTypesConfig.split === true,
+        config['zod-openapi']?.readonly,
+      )
+      if (!mediaTypesResult.ok) return `❌ mediaTypes: ${mediaTypesResult.error}`
+      return `✅ mediaTypes${mediaTypesConfig.split === true ? '(split)' : ''} -> ${outputDirectory}`
+    })()
+  }
+
+  const makeWebhooksJob = (): Promise<string> | undefined => {
+    const webhooksConfig = config['zod-openapi']?.components?.webhooks
+    if (!webhooksConfig) return undefined
+    return (async () => {
+      const outputDirectory = toAbsolutePath(webhooksConfig.output)
+      const beforeFiles =
+        webhooksConfig.split === true ? await listTypeScriptFilesShallow(outputDirectory) : []
+      if (webhooksConfig.split === true) await deleteTypeScriptFiles(beforeFiles)
+      const webhooksResult = await webhooks(
+        openAPI,
+        { output: outputDirectory, split: webhooksConfig.split ?? false },
+        config['zod-openapi']?.components,
+        config['zod-openapi']?.readonly,
+      )
+      if (!webhooksResult.ok) return `❌ webhooks: ${webhooksResult.error}`
+      return `✅ webhooks${webhooksConfig.split === true ? '(split)' : ''} -> ${outputDirectory}`
+    })()
+  }
+
+  const makeTestJob = (): Promise<string> | undefined => {
+    const testConfig = config.test
+    if (!testConfig) return undefined
+    return (async () => {
+      const outputPath = toAbsolutePath(testConfig.output)
+      const testResult = await test(openAPI, outputPath, testConfig.import)
+      return testResult.ok ? `✅ test -> ${outputPath}` : `❌ test: ${testResult.error}`
+    })()
+  }
+
+  const makeMockJob = (): Promise<string> | undefined => {
+    const mockConfig = config.mock
+    if (!mockConfig) return undefined
+    return (async () => {
+      const outputPath = toAbsolutePath(mockConfig.output)
+      const mockResult = await mock(openAPI, outputPath, config['zod-openapi']?.readonly)
+      return mockResult.ok ? `✅ mock -> ${outputPath}` : `❌ mock: ${mockResult.error}`
+    })()
+  }
+
   const generationJobs = [
     makeZodOpenAPIJob(),
     makeSchemaJob(),
@@ -653,6 +749,9 @@ const runAllGenerationTasks = async (config: Config): Promise<{ readonly logs: r
     makeSecuritySchemesJob(),
     makeRequestBodiesJob(),
     makeResponsesJob(),
+    makePathItemsJob(),
+    makeMediaTypesJob(),
+    makeWebhooksJob(),
     makeRoutesJob(),
     makeTypeJob(),
     makeRpcJob(),
@@ -660,6 +759,8 @@ const runAllGenerationTasks = async (config: Config): Promise<{ readonly logs: r
     makeTanstackQueryJob(),
     makeSvelteQueryJob(),
     makeVueQueryJob(),
+    makeTestJob(),
+    makeMockJob(),
   ].filter((job): job is Promise<string> => job !== undefined)
 
   return Promise.all(generationJobs).then((logs) => ({ logs }))
@@ -767,6 +868,9 @@ const extractOutputPaths = (config: Config): string[] =>
     config['zod-openapi']?.components?.securitySchemes?.output,
     config['zod-openapi']?.components?.requestBodies?.output,
     config['zod-openapi']?.components?.responses?.output,
+    config['zod-openapi']?.components?.pathItems?.output,
+    config['zod-openapi']?.components?.mediaTypes?.output,
+    config['zod-openapi']?.components?.webhooks?.output,
     config['zod-openapi']?.routes?.output,
     config.type?.output,
     config.rpc?.output,
@@ -774,6 +878,8 @@ const extractOutputPaths = (config: Config): string[] =>
     config['tanstack-query']?.output,
     config['svelte-query']?.output,
     config['vue-query']?.output,
+    config.test?.output,
+    config.mock?.output,
   ]
     .filter((outputPath): outputPath is string => outputPath !== undefined)
     .map(toAbsolutePath)
