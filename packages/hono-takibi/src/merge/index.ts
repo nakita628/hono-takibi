@@ -174,15 +174,22 @@ export function mergeAppFile(existingCode: string, generatedCode: string): strin
   const bodyStart = importDecls.length > 0 ? importDecls[importDecls.length - 1].getEnd() : 0
 
   // Build body: replace api statement, keep everything else
-  const body = apiReplaceRange
+  const existingBody = apiReplaceRange
     ? existingCode.slice(bodyStart, apiReplaceRange[0]) +
       generatedApiText +
       existingCode.slice(apiReplaceRange[1])
     : existingCode.slice(bodyStart)
 
-  const parts = [mergedImports.length > 0 ? mergedImports.join('\n') : '', body.trim()].filter(
-    Boolean,
-  )
+  // Fallback to generated body when existing file has no body content
+  // (e.g., existing file contains only imports)
+  const generatedImportDecls = generatedFile.getImportDeclarations()
+  const generatedBodyStart =
+    generatedImportDecls.length > 0
+      ? generatedImportDecls[generatedImportDecls.length - 1].getEnd()
+      : 0
+  const body = existingBody.trim() || generatedCode.slice(generatedBodyStart).trim()
+
+  const parts = [mergedImports.length > 0 ? mergedImports.join('\n') : '', body].filter(Boolean)
 
   return `${parts.join('\n\n')}\n`
 }
