@@ -290,13 +290,13 @@ export default defineConfig({
 Generated hooks (from Pet Store):
 
 ```ts
+import { useQuery, useMutation } from '@tanstack/react-query'
 import type {
+  UseQueryOptions,
   QueryFunctionContext,
   UseMutationOptions,
-  UseQueryOptions,
 } from '@tanstack/react-query'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/pet-store'
 
@@ -313,11 +313,14 @@ export function getPutPetMutationKey() {
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export const getPutPetMutationOptions = (clientOptions?: ClientRequestOptions) => ({
-  mutationKey: getPutPetMutationKey(),
-  mutationFn: async (args: InferRequestType<typeof client.pet.$put>) =>
-    parseResponse(client.pet.$put(args, clientOptions)),
-})
+export function getPutPetMutationOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    mutationKey: getPutPetMutationKey(),
+    async mutationFn(args: InferRequestType<typeof client.pet.$put>) {
+      return parseResponse(client.pet.$put(args, clientOptions))
+    },
+  }
+}
 
 /**
  * PUT /pet
