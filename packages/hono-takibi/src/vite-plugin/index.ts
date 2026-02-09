@@ -50,7 +50,7 @@ import { parseOpenAPI } from '../openapi/index.js'
 /**
  * Parsed configuration type extracted from parseConfig result.
  */
-type Configuration = Extract<ReturnType<typeof parseConfig>, { ok: true }>['value']
+type Config = Extract<ReturnType<typeof parseConfig>, { ok: true }>['value']
 
 /**
  * Minimal Vite dev-server interface.
@@ -83,7 +83,7 @@ type ViteDevServer = {
  * @param value - Value to check
  * @returns True if value is a valid configuration object
  */
-const isConfiguration = (value: unknown): value is Configuration =>
+const isConfiguration = (value: unknown): value is Config =>
   typeof value === 'object' && value !== null
 
 /**
@@ -113,7 +113,7 @@ const isTypeScriptFile = (filePath: string): filePath is `${string}.ts` => fileP
  */
 const loadConfigurationWithHotReload = async (
   server: ViteDevServer,
-): Promise<{ ok: true; value: Configuration } | { ok: false; error: string }> => {
+): Promise<{ readonly ok: true; readonly value: Config } | { readonly ok: false; readonly error: string }> => {
   const absoluteConfigPath = path.resolve(process.cwd(), 'hono-takibi.config.ts')
   try {
     const resolved = await server.pluginContainer.resolveId(absoluteConfigPath)
@@ -220,52 +220,52 @@ const debounce = (delayMilliseconds: number, callback: () => void): (() => void)
  *   C --> I["...others"]
  * ```
  *
- * @param configuration - Parsed configuration object
+ * @param config - Parsed configuration object
  * @returns Promise resolving to object containing log messages
  */
-const runAllGenerationTasks = async (configuration: Configuration): Promise<{ logs: string[] }> => {
-  const openAPIResult = await parseOpenAPI(configuration.input)
+const runAllGenerationTasks = async (config: Config): Promise<{ readonly logs: readonly string[] }> => {
+  const openAPIResult = await parseOpenAPI(config.input)
   if (!openAPIResult.ok) return { logs: [`❌ parseOpenAPI: ${openAPIResult.error}`] }
   const openAPI = openAPIResult.value
 
   const makeZodOpenAPIJob = (): Promise<string> | undefined => {
     if (
       !(
-        configuration['zod-openapi'] &&
+        config['zod-openapi'] &&
         !(
-          configuration['zod-openapi'].components?.schemas || configuration['zod-openapi'].routes
+          config['zod-openapi'].components?.schemas || config['zod-openapi'].routes
         ) &&
-        configuration['zod-openapi'].output
+        config['zod-openapi'].output
       )
     )
       return undefined
-    const outputPath = toAbsolutePath(configuration['zod-openapi'].output)
+    const outputPath = toAbsolutePath(config['zod-openapi'].output)
     return (async () => {
       if (!isTypeScriptFile(outputPath))
         return `❌ zod-openapi: Invalid output format: ${outputPath}`
-      const result = await takibi(openAPI, outputPath, false, false, '/', {
-        exportSchemasTypes: configuration['zod-openapi']?.exportSchemasTypes ?? false,
-        exportSchemas: configuration['zod-openapi']?.exportSchemas ?? false,
-        exportParametersTypes: configuration['zod-openapi']?.exportParametersTypes ?? false,
-        exportParameters: configuration['zod-openapi']?.exportParameters ?? false,
-        exportSecuritySchemes: configuration['zod-openapi']?.exportSecuritySchemes ?? false,
-        exportRequestBodies: configuration['zod-openapi']?.exportRequestBodies ?? false,
-        exportResponses: configuration['zod-openapi']?.exportResponses ?? false,
-        exportHeadersTypes: configuration['zod-openapi']?.exportHeadersTypes ?? false,
-        exportHeaders: configuration['zod-openapi']?.exportHeaders ?? false,
-        exportExamples: configuration['zod-openapi']?.exportExamples ?? false,
-        exportLinks: configuration['zod-openapi']?.exportLinks ?? false,
-        exportCallbacks: configuration['zod-openapi']?.exportCallbacks ?? false,
-        exportPathItems: configuration['zod-openapi']?.exportPathItems ?? false,
-        exportMediaTypes: configuration['zod-openapi']?.exportMediaTypes ?? false,
-        exportMediaTypesTypes: configuration['zod-openapi']?.exportMediaTypesTypes ?? false,
+      const result = await takibi(openAPI, outputPath, config['zod-openapi']?.template ?? false, config['zod-openapi']?.test ?? false, config['zod-openapi']?.basePath ?? '/', {
+        exportSchemasTypes: config['zod-openapi']?.exportSchemasTypes ?? false,
+        exportSchemas: config['zod-openapi']?.exportSchemas ?? false,
+        exportParametersTypes: config['zod-openapi']?.exportParametersTypes ?? false,
+        exportParameters: config['zod-openapi']?.exportParameters ?? false,
+        exportSecuritySchemes: config['zod-openapi']?.exportSecuritySchemes ?? false,
+        exportRequestBodies: config['zod-openapi']?.exportRequestBodies ?? false,
+        exportResponses: config['zod-openapi']?.exportResponses ?? false,
+        exportHeadersTypes: config['zod-openapi']?.exportHeadersTypes ?? false,
+        exportHeaders: config['zod-openapi']?.exportHeaders ?? false,
+        exportExamples: config['zod-openapi']?.exportExamples ?? false,
+        exportLinks: config['zod-openapi']?.exportLinks ?? false,
+        exportCallbacks: config['zod-openapi']?.exportCallbacks ?? false,
+        exportPathItems: config['zod-openapi']?.exportPathItems ?? false,
+        exportMediaTypes: config['zod-openapi']?.exportMediaTypes ?? false,
+        exportMediaTypesTypes: config['zod-openapi']?.exportMediaTypesTypes ?? false,
       })
       return result.ok ? `✅ zod-openapi -> ${outputPath}` : `❌ zod-openapi: ${result.error}`
     })()
   }
 
   const makeSchemaJob = (): Promise<string> | undefined => {
-    const schemaConfig = configuration['zod-openapi']?.components?.schemas
+    const schemaConfig = config['zod-openapi']?.components?.schemas
     if (!schemaConfig) return undefined
     return (async () => {
       if (schemaConfig.split === true) {
@@ -295,7 +295,7 @@ const runAllGenerationTasks = async (configuration: Configuration): Promise<{ lo
   }
 
   const makeParametersJob = (): Promise<string> | undefined => {
-    const parametersConfig = configuration['zod-openapi']?.components?.parameters
+    const parametersConfig = config['zod-openapi']?.components?.parameters
     if (!parametersConfig) return undefined
     return (async () => {
       const outputDirectory = toAbsolutePath(parametersConfig.output)
@@ -307,7 +307,7 @@ const runAllGenerationTasks = async (configuration: Configuration): Promise<{ lo
         outputDirectory,
         parametersConfig.split === true,
         parametersConfig.exportTypes === true,
-        configuration['zod-openapi']?.components,
+        config['zod-openapi']?.components,
       )
       if (!parameterResult.ok) return `❌ parameters: ${parameterResult.error}`
       return `✅ parameters${parametersConfig.split === true ? '(split)' : ''} -> ${outputDirectory}`
@@ -315,7 +315,7 @@ const runAllGenerationTasks = async (configuration: Configuration): Promise<{ lo
   }
 
   const makeHeadersJob = (): Promise<string> | undefined => {
-    const headersConfig = configuration['zod-openapi']?.components?.headers
+    const headersConfig = config['zod-openapi']?.components?.headers
     if (!headersConfig) return undefined
     return (async () => {
       const outputDirectory = toAbsolutePath(headersConfig.output)
@@ -327,7 +327,7 @@ const runAllGenerationTasks = async (configuration: Configuration): Promise<{ lo
         outputDirectory,
         headersConfig.split === true,
         headersConfig.exportTypes === true,
-        configuration['zod-openapi']?.components,
+        config['zod-openapi']?.components,
       )
       if (!headersResult.ok) return `❌ headers: ${headersResult.error}`
       return `✅ headers${headersConfig.split === true ? '(split)' : ''} -> ${outputDirectory}`
@@ -335,7 +335,7 @@ const runAllGenerationTasks = async (configuration: Configuration): Promise<{ lo
   }
 
   const makeExamplesJob = (): Promise<string> | undefined => {
-    const examplesConfig = configuration['zod-openapi']?.components?.examples
+    const examplesConfig = config['zod-openapi']?.components?.examples
     if (!examplesConfig) return undefined
     return (async () => {
       const outputDirectory = toAbsolutePath(examplesConfig.output)
@@ -353,7 +353,7 @@ const runAllGenerationTasks = async (configuration: Configuration): Promise<{ lo
   }
 
   const makeLinksJob = (): Promise<string> | undefined => {
-    const linksConfig = configuration['zod-openapi']?.components?.links
+    const linksConfig = config['zod-openapi']?.components?.links
     if (!linksConfig) return undefined
     return (async () => {
       const outputDirectory = toAbsolutePath(linksConfig.output)
@@ -371,7 +371,7 @@ const runAllGenerationTasks = async (configuration: Configuration): Promise<{ lo
   }
 
   const makeCallbacksJob = (): Promise<string> | undefined => {
-    const callbacksConfig = configuration['zod-openapi']?.components?.callbacks
+    const callbacksConfig = config['zod-openapi']?.components?.callbacks
     if (!callbacksConfig) return undefined
     return (async () => {
       const outputDirectory = toAbsolutePath(callbacksConfig.output)
@@ -382,7 +382,7 @@ const runAllGenerationTasks = async (configuration: Configuration): Promise<{ lo
         openAPI.components?.callbacks,
         outputDirectory,
         callbacksConfig.split === true,
-        configuration['zod-openapi']?.components,
+        config['zod-openapi']?.components,
       )
       if (!callbacksResult.ok) return `❌ callbacks: ${callbacksResult.error}`
       return `✅ callbacks${callbacksConfig.split === true ? '(split)' : ''} -> ${outputDirectory}`
@@ -390,7 +390,7 @@ const runAllGenerationTasks = async (configuration: Configuration): Promise<{ lo
   }
 
   const makeSecuritySchemesJob = (): Promise<string> | undefined => {
-    const securitySchemesConfig = configuration['zod-openapi']?.components?.securitySchemes
+    const securitySchemesConfig = config['zod-openapi']?.components?.securitySchemes
     if (!securitySchemesConfig) return undefined
     return (async () => {
       const outputDirectory = toAbsolutePath(securitySchemesConfig.output)
@@ -410,7 +410,7 @@ const runAllGenerationTasks = async (configuration: Configuration): Promise<{ lo
   }
 
   const makeRequestBodiesJob = (): Promise<string> | undefined => {
-    const requestBodiesConfig = configuration['zod-openapi']?.components?.requestBodies
+    const requestBodiesConfig = config['zod-openapi']?.components?.requestBodies
     if (!requestBodiesConfig) return undefined
     return (async () => {
       const outputDirectory = toAbsolutePath(requestBodiesConfig.output)
@@ -421,7 +421,7 @@ const runAllGenerationTasks = async (configuration: Configuration): Promise<{ lo
         openAPI.components?.requestBodies,
         outputDirectory,
         requestBodiesConfig.split === true,
-        configuration['zod-openapi']?.components,
+        config['zod-openapi']?.components,
       )
       if (!requestBodiesResult.ok) return `❌ requestBodies: ${requestBodiesResult.error}`
       return `✅ requestBodies${requestBodiesConfig.split === true ? '(split)' : ''} -> ${outputDirectory}`
@@ -429,7 +429,7 @@ const runAllGenerationTasks = async (configuration: Configuration): Promise<{ lo
   }
 
   const makeResponsesJob = (): Promise<string> | undefined => {
-    const responsesConfig = configuration['zod-openapi']?.components?.responses
+    const responsesConfig = config['zod-openapi']?.components?.responses
     if (!responsesConfig) return undefined
     return (async () => {
       const outputDirectory = toAbsolutePath(responsesConfig.output)
@@ -440,7 +440,7 @@ const runAllGenerationTasks = async (configuration: Configuration): Promise<{ lo
         openAPI.components?.responses,
         outputDirectory,
         responsesConfig.split === true,
-        configuration['zod-openapi']?.components,
+        config['zod-openapi']?.components,
       )
       if (!responsesResult.ok) return `❌ responses: ${responsesResult.error}`
       return `✅ responses${responsesConfig.split === true ? '(split)' : ''} -> ${outputDirectory}`
@@ -448,7 +448,7 @@ const runAllGenerationTasks = async (configuration: Configuration): Promise<{ lo
   }
 
   const makeRoutesJob = (): Promise<string> | undefined => {
-    const routesConfig = configuration['zod-openapi']?.routes
+    const routesConfig = config['zod-openapi']?.routes
     if (!routesConfig) return undefined
     return (async () => {
       const outputPath = toAbsolutePath(routesConfig.output)
@@ -458,7 +458,7 @@ const runAllGenerationTasks = async (configuration: Configuration): Promise<{ lo
       const routeResult = await route(
         openAPI,
         { output: outputPath, split: routesConfig.split ?? false },
-        configuration['zod-openapi']?.components,
+        config['zod-openapi']?.components,
       )
       if (!routeResult.ok) return `❌ routes: ${routeResult.error}`
       return `✅ routes${routesConfig.split === true ? '(split)' : ''} -> ${outputPath}`
@@ -466,7 +466,7 @@ const runAllGenerationTasks = async (configuration: Configuration): Promise<{ lo
   }
 
   const makeTypeJob = (): Promise<string> | undefined => {
-    const typeConfig = configuration.type
+    const typeConfig = config.type
     if (!typeConfig) return undefined
     return (async () => {
       const outputPath = toAbsolutePath(typeConfig.output)
@@ -477,7 +477,7 @@ const runAllGenerationTasks = async (configuration: Configuration): Promise<{ lo
   }
 
   const makeRpcJob = (): Promise<string> | undefined => {
-    const rpcConfig = configuration.rpc
+    const rpcConfig = config.rpc
     if (!rpcConfig) return undefined
     return (async () => {
       if (rpcConfig.split === true) {
@@ -509,7 +509,7 @@ const runAllGenerationTasks = async (configuration: Configuration): Promise<{ lo
   }
 
   const makeSwrJob = (): Promise<string> | undefined => {
-    const swrConfig = configuration.swr
+    const swrConfig = config.swr
     if (!swrConfig) return undefined
     return (async () => {
       if (swrConfig.split === true) {
@@ -541,7 +541,7 @@ const runAllGenerationTasks = async (configuration: Configuration): Promise<{ lo
   }
 
   const makeTanstackQueryJob = (): Promise<string> | undefined => {
-    const tanstackQueryConfig = configuration['tanstack-query']
+    const tanstackQueryConfig = config['tanstack-query']
     if (!tanstackQueryConfig) return undefined
     return (async () => {
       if (tanstackQueryConfig.split === true) {
@@ -575,7 +575,7 @@ const runAllGenerationTasks = async (configuration: Configuration): Promise<{ lo
   }
 
   const makeSvelteQueryJob = (): Promise<string> | undefined => {
-    const svelteQueryConfig = configuration['svelte-query']
+    const svelteQueryConfig = config['svelte-query']
     if (!svelteQueryConfig) return undefined
     return (async () => {
       if (svelteQueryConfig.split === true) {
@@ -609,7 +609,7 @@ const runAllGenerationTasks = async (configuration: Configuration): Promise<{ lo
   }
 
   const makeVueQueryJob = (): Promise<string> | undefined => {
-    const vueQueryConfig = configuration['vue-query']
+    const vueQueryConfig = config['vue-query']
     if (!vueQueryConfig) return undefined
     return (async () => {
       if (vueQueryConfig.split === true) {
@@ -755,25 +755,25 @@ const addInputGlobsToWatcher = (server: ViteDevServer, absoluteInputPath: string
  * @param configuration - The configuration object
  * @returns Array of absolute output paths
  */
-const extractOutputPaths = (configuration: Configuration): string[] =>
+const extractOutputPaths = (config: Config): string[] =>
   [
-    configuration['zod-openapi']?.output,
-    configuration['zod-openapi']?.components?.schemas?.output,
-    configuration['zod-openapi']?.components?.parameters?.output,
-    configuration['zod-openapi']?.components?.headers?.output,
-    configuration['zod-openapi']?.components?.examples?.output,
-    configuration['zod-openapi']?.components?.links?.output,
-    configuration['zod-openapi']?.components?.callbacks?.output,
-    configuration['zod-openapi']?.components?.securitySchemes?.output,
-    configuration['zod-openapi']?.components?.requestBodies?.output,
-    configuration['zod-openapi']?.components?.responses?.output,
-    configuration['zod-openapi']?.routes?.output,
-    configuration.type?.output,
-    configuration.rpc?.output,
-    configuration.swr?.output,
-    configuration['tanstack-query']?.output,
-    configuration['svelte-query']?.output,
-    configuration['vue-query']?.output,
+    config['zod-openapi']?.output,
+    config['zod-openapi']?.components?.schemas?.output,
+    config['zod-openapi']?.components?.parameters?.output,
+    config['zod-openapi']?.components?.headers?.output,
+    config['zod-openapi']?.components?.examples?.output,
+    config['zod-openapi']?.components?.links?.output,
+    config['zod-openapi']?.components?.callbacks?.output,
+    config['zod-openapi']?.components?.securitySchemes?.output,
+    config['zod-openapi']?.components?.requestBodies?.output,
+    config['zod-openapi']?.components?.responses?.output,
+    config['zod-openapi']?.routes?.output,
+    config.type?.output,
+    config.rpc?.output,
+    config.swr?.output,
+    config['tanstack-query']?.output,
+    config['svelte-query']?.output,
+    config['vue-query']?.output,
   ]
     .filter((outputPath): outputPath is string => outputPath !== undefined)
     .map(toAbsolutePath)
@@ -789,8 +789,8 @@ const extractOutputPaths = (configuration: Configuration): string[] =>
  * @returns Array of cleaned up paths
  */
 const cleanupStaleOutputs = async (
-  previousConfiguration: Configuration,
-  currentConfiguration: Configuration,
+  previousConfiguration: Config,
+  currentConfiguration: Config,
 ): Promise<string[]> => {
   const previousPaths = new Set(extractOutputPaths(previousConfiguration))
   const currentPaths = new Set(extractOutputPaths(currentConfiguration))
@@ -818,8 +818,8 @@ const cleanupStaleOutputs = async (
 // biome-ignore lint: plugin returns any for Vite compatibility
 export function honoTakibiVite(): any {
   const pluginState: {
-    current: Configuration | null
-    previous: Configuration | null
+    current: Config | null
+    previous: Config | null
     inputDirectory: string | null
   } = {
     current: null,

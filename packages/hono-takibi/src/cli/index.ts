@@ -270,7 +270,7 @@ export async function honoTakibi(): Promise<
     mockResult,
   ] = await Promise.all([
     config['zod-openapi']?.output
-      ? takibi(openAPI, config['zod-openapi'].output, false, false, '/', {
+      ? takibi(openAPI, config['zod-openapi'].output, config['zod-openapi'].template ?? false, config['zod-openapi'].test ?? false, config['zod-openapi'].basePath ?? '/', {
           readonly: config['zod-openapi'].readonly,
           // OpenAPI Components Object order
           exportSchemas: config['zod-openapi'].exportSchemas ?? false,
