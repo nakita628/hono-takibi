@@ -52,6 +52,7 @@ export async function takibi(
   template: boolean,
   test: boolean,
   basePath: string,
+  pathAlias: string | undefined,
   componentsOptions: {
     readonly readonly?: boolean | undefined
     // OpenAPI Components Object order
@@ -96,8 +97,8 @@ export async function takibi(
       const target = path.join(dir, 'index.ts')
 
       const [appFmtResult, stubHandlersResult] = await Promise.all([
-        fmt(app(openAPI, output, basePath)),
-        zodOpenAPIHonoHandler(openAPI, output, test),
+        fmt(app(openAPI, output, basePath, pathAlias)),
+        zodOpenAPIHonoHandler(openAPI, output, test, pathAlias),
       ])
       if (!appFmtResult.ok) return { ok: false, error: appFmtResult.error }
       if (!stubHandlersResult.ok) return { ok: false, error: stubHandlersResult.error }

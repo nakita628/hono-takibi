@@ -33,6 +33,59 @@ If you have OpenAPI specifications, Hono Takibi automates the conversion process
 npx hono-takibi path/to/input.{yaml,json,tsp} -o path/to/output.ts
 ```
 
+### CLI Options
+
+```bash
+Options:
+  -o, --output <path>         output file path
+  --readonly                  make schemas immutable (adds .readonly() and 'as const')
+  --template                  generate app file and handler stubs
+  --test                      generate test files with vitest and faker.js
+  --base-path <path>          api prefix (default: /)
+  --path-alias <alias>        import path alias (e.g., @/api)
+  --export-schemas            export schemas
+  --export-schemas-types      export schemas types
+  --export-responses          export responses
+  --export-parameters         export parameters
+  --export-parameters-types   export parameters types
+  --export-examples           export examples
+  --export-requestBodies      export requestBodies
+  --export-headers            export headers
+  --export-headers-types      export headers types
+  --export-securitySchemes    export securitySchemes
+  --export-links              export links
+  --export-callbacks          export callbacks
+  --export-pathItems          export pathItems
+  --export-mediaTypes         export mediaTypes
+  --export-mediaTypes-types   export mediaTypes types
+  -h, --help                  display help for command
+```
+
+### Configuration File
+
+You can also use a config file instead of CLI flags. Create `hono-takibi.config.ts` at your project root:
+
+```ts
+import { defineConfig } from 'hono-takibi/config'
+
+export default defineConfig({
+  input: 'openapi.yaml',
+  'zod-openapi': {
+    output: './src/routes.ts',
+  },
+})
+```
+
+Then simply run:
+
+```bash
+npx hono-takibi
+```
+
+> For large-scale projects or advanced customization, see [Advanced Configuration](#advanced-configuration).
+
+### Example
+
 input:
 
 ```yaml
@@ -85,39 +138,193 @@ export const getRoute = createRoute({
 })
 ```
 
-## CLI
+## Vite Plugin
 
-### Options
+Auto-regenerate on file changes:
 
-```bash
-Options:
-  --export-schemas            export schemas
-  --export-schemas-types      export schemas types
-  --export-responses          export responses
-  --export-parameters         export parameters
-  --export-parameters-types   export parameters types
-  --export-examples           export examples
-  --export-requestBodies      export requestBodies
-  --export-headers            export headers
-  --export-headers-types      export headers types
-  --export-securitySchemes    export securitySchemes
-  --export-links              export links
-  --export-callbacks          export callbacks
-  --export-pathItems          export pathItems
-  --export-mediaTypes         export mediaTypes
-  --export-mediaTypes-types   export mediaTypes types
-  --readonly                  make schemas immutable (adds .readonly() and 'as const')
-  --template                  generate app file and handler stubs
-  --test                      generate test files with vitest and faker.js
-  --base-path <path>          api prefix (default: /)
-  -h, --help                  display help for command
+```ts
+// vite.config.ts
+import { honoTakibiVite } from 'hono-takibi/vite-plugin'
+import { defineConfig } from 'vite'
+
+export default defineConfig({
+  plugins: [honoTakibiVite()],
+})
 ```
 
-## Configuration File (`hono-takibi.config.ts`)
+![](https://raw.githubusercontent.com/nakita628/hono-takibi/refs/heads/main/assets/vite/hono-takibi-vite.gif)
 
-Config used by both the CLI and the Vite plugin.
+## Template & Test Generation
 
-### Config Reference
+Generate a complete app structure with handler stubs and test files:
+
+```bash
+npx hono-takibi openapi.yaml -o src/routes.ts --template --test
+```
+
+Or via config:
+
+```ts
+export default defineConfig({
+  input: 'openapi.yaml',
+  'zod-openapi': {
+    output: './src/routes.ts',
+    template: true,
+    test: true,
+  },
+})
+```
+
+This generates:
+- `src/index.ts` - App entry point with route registrations
+- `src/handlers/*.ts` - Handler stubs for each resource
+- `src/handlers/*.test.ts` - Vitest test files with `@faker-js/faker` mock data
+
+When you update your OpenAPI spec and re-run, existing handler implementations and test customizations are preserved. Only new routes are added and removed routes are cleaned up automatically.
+
+### Path Alias
+
+If your project uses TypeScript path aliases (e.g., `@/*`), you can configure import paths:
+
+```ts
+export default defineConfig({
+  input: 'openapi.yaml',
+  'zod-openapi': {
+    output: './src/api/routes.ts',
+    template: true,
+    test: true,
+    pathAlias: '@/api',
+  },
+})
+```
+
+Generated imports will use the alias:
+
+```ts
+import app from '@/api'           // instead of '..'
+import { getRoute } from '@/api/routes'  // instead of '../routes'
+```
+
+## Client Library Integrations
+
+### TanStack Query
+
+```ts
+export default defineConfig({
+  input: 'openapi.yaml',
+  'zod-openapi': { output: './src/routes.ts', exportSchemas: true },
+  'tanstack-query': { output: './src/hooks', import: '../client', split: true, client: 'client' },
+})
+```
+
+Generated hooks (from Pet Store):
+
+```ts
+import { useQuery, useMutation } from '@tanstack/react-query'
+import type {
+  UseQueryOptions,
+  QueryFunctionContext,
+  UseMutationOptions,
+} from '@tanstack/react-query'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
+import { client } from '../clients/pet-store'
+
+/**
+ * Generates TanStack Query mutation key for PUT /pet
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPutPetMutationKey() {
+  return ['pet', 'PUT', '/pet'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for PUT /pet
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export function getPutPetMutationOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    mutationKey: getPutPetMutationKey(),
+    async mutationFn(args: InferRequestType<typeof client.pet.$put>) {
+      return parseResponse(client.pet.$put(args, clientOptions))
+    },
+  }
+}
+
+/**
+ * PUT /pet
+ *
+ * Update an existing pet
+ *
+ * Update an existing pet by Id
+ */
+export function usePutPet(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.pet.$put>>>>>,
+    Error,
+    InferRequestType<typeof client.pet.$put>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } = getPutPetMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
+}
+```
+
+## Test & Mock Generation
+
+### Test Generation
+
+Generate Vitest test files for your API endpoints:
+
+```ts
+export default defineConfig({
+  input: 'openapi.yaml',
+  'zod-openapi': { output: './src/routes.ts' },
+  test: {
+    output: './src/test.ts',
+    import: '../index', // Path to import the Hono app
+  },
+})
+```
+
+Generated test files use `@faker-js/faker` to generate mock data based on your OpenAPI schemas.
+
+### Mock Server Generation
+
+Generate a Hono mock server that returns fake data:
+
+```ts
+export default defineConfig({
+  input: 'openapi.yaml',
+  'zod-openapi': { output: './src/routes.ts', readonly: true },
+  mock: {
+    output: './src/mock.ts',
+  },
+})
+```
+
+The mock server generates realistic responses using `@faker-js/faker` based on your OpenAPI response schemas.
+
+## Advanced Configuration
+
+The following options are for **large-scale projects** or cases where you need fine-grained control over code generation. Most projects work fine with the [Quick Start](#quick-start) config above.
+
+### Configuration File
+
+Create `hono-takibi.config.ts` at your project root. Config is used by both the CLI and the Vite plugin.
+
+* Default-export with `defineConfig(...)`.
+* `input`: **`openapi.yaml`** (recommended), or `*.json` / `*.tsp`.
+
+> **About `split`**
+>
+> * `split: true` - `output` is a **directory**; many files + `index.ts`.
+> * `split` **omitted** or `false` - `output` is a **single `*.ts` file** (one file only).
+
+### Full Config Reference
 
 All available options are shown below. In practice, use only the options you need.
 
@@ -130,6 +337,10 @@ export default defineConfig({
   'zod-openapi': {
     output: './src/index.ts',
     readonly: true,
+    template: true,
+    test: true,
+    basePath: '/api',
+    pathAlias: '@/api',
     // Export options (OpenAPI Components Object order)
     exportSchemas: true,
     exportSchemasTypes: true,
@@ -263,133 +474,6 @@ export default defineConfig({
   },
 })
 ```
-
-### Essentials
-
-* Put **`hono-takibi.config.ts`** at repo root.
-* Default-export with `defineConfig(...)`.
-* `input`: **`openapi.yaml`** (recommended), or `*.json` / `*.tsp`.
-
-> **About `split`**
->
-> * `split: true` → `output` is a **directory**; many files + `index.ts`.
-> * `split` **omitted** or `false` → `output` is a **single `*.ts` file** (one file only).
-
-## Client Library Integrations
-
-### TanStack Query
-
-```ts
-export default defineConfig({
-  input: 'openapi.yaml',
-  'zod-openapi': { output: './src/routes.ts', exportSchemas: true },
-  'tanstack-query': { output: './src/hooks', import: '../client', split: true, client: 'client' },
-})
-```
-
-Generated hooks (from Pet Store):
-
-```ts
-import type {
-  QueryFunctionContext,
-  UseMutationOptions,
-  UseQueryOptions,
-} from '@tanstack/react-query'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import { client } from '../clients/pet-store'
-
-/**
- * Generates TanStack Query mutation key for PUT /pet
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getPutPetMutationKey() {
-  return ['pet', 'PUT', '/pet'] as const
-}
-
-/**
- * Returns TanStack Query mutation options for PUT /pet
- *
- * Use with useMutation, setMutationDefaults, or isMutating.
- */
-export const getPutPetMutationOptions = (clientOptions?: ClientRequestOptions) => ({
-  mutationKey: getPutPetMutationKey(),
-  mutationFn: async (args: InferRequestType<typeof client.pet.$put>) =>
-    parseResponse(client.pet.$put(args, clientOptions)),
-})
-
-/**
- * PUT /pet
- *
- * Update an existing pet
- *
- * Update an existing pet by Id
- */
-export function usePutPet(options?: {
-  mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.pet.$put>>>>>,
-    Error,
-    InferRequestType<typeof client.pet.$put>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const { mutationKey, mutationFn, ...baseOptions } = getPutPetMutationOptions(clientOptions)
-  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
-}
-```
-
-## Test & Mock Generation
-
-### Test Generation
-
-Generate Vitest test files for your API endpoints:
-
-```ts
-export default defineConfig({
-  input: 'openapi.yaml',
-  'zod-openapi': { output: './src/routes.ts' },
-  test: {
-    output: './src/test.ts',
-    import: '../index', // Path to import the Hono app
-  },
-})
-```
-
-Generated test files use `@faker-js/faker` to generate mock data based on your OpenAPI schemas.
-
-### Mock Server Generation
-
-Generate a Hono mock server that returns fake data:
-
-```ts
-export default defineConfig({
-  input: 'openapi.yaml',
-  'zod-openapi': { output: './src/routes.ts', readonly: true },
-  mock: {
-    output: './src/mock.ts',
-  },
-})
-```
-
-The mock server generates realistic responses using `@faker-js/faker` based on your OpenAPI response schemas.
-
-## Vite Plugin
-
-Auto-regenerate on file changes:
-
-```ts
-// vite.config.ts
-import { honoTakibiVite } from 'hono-takibi/vite-plugin'
-import { defineConfig } from 'vite'
-
-export default defineConfig({
-  plugins: [honoTakibiVite()],
-})
-```
-
-![](https://raw.githubusercontent.com/nakita628/hono-takibi/refs/heads/main/assets/vite/hono-takibi-vite.gif)
 
 ## Limitations
 

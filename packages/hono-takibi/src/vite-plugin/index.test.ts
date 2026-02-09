@@ -69,7 +69,10 @@ vi.mock('../core/index.js', () => ({
   examples: vi.fn(async () => ({ ok: true, value: 'examples' })),
   headers: vi.fn(async () => ({ ok: true, value: 'headers' })),
   links: vi.fn(async () => ({ ok: true, value: 'links' })),
+  mediaTypes: vi.fn(async () => ({ ok: true, value: 'mediaTypes' })),
+  mock: vi.fn(async () => ({ ok: true, value: 'mock' })),
   parameters: vi.fn(async () => ({ ok: true, value: 'parameters' })),
+  pathItems: vi.fn(async () => ({ ok: true, value: 'pathItems' })),
   requestBodies: vi.fn(async () => ({ ok: true, value: 'requestBodies' })),
   responses: vi.fn(async () => ({ ok: true, value: 'responses' })),
   schemas: vi.fn(async (_schemas: unknown, outputDir: string, split: boolean) => {
@@ -82,6 +85,8 @@ vi.mock('../core/index.js', () => ({
     return { ok: true, value: 'schemas' }
   }),
   securitySchemes: vi.fn(async () => ({ ok: true, value: 'securitySchemes' })),
+  svelteQuery: vi.fn(async () => ({ ok: true, value: 'svelteQuery' })),
+  swr: vi.fn(async () => ({ ok: true, value: 'swr' })),
   route: vi.fn(async (_openAPI: unknown, config: { output: string; split: boolean }) => {
     if (config.split) {
       await fsp.mkdir(config.output, { recursive: true })
@@ -101,7 +106,11 @@ vi.mock('../core/index.js', () => ({
     return { ok: true, value: 'rpc' }
   }),
   takibi: vi.fn(async () => ({ ok: true, value: 'takibi' })),
+  tanstackQuery: vi.fn(async () => ({ ok: true, value: 'tanstackQuery' })),
+  test: vi.fn(async () => ({ ok: true, value: 'test' })),
   type: vi.fn(async () => ({ ok: true, value: 'type' })),
+  vueQuery: vi.fn(async () => ({ ok: true, value: 'vueQuery' })),
+  webhooks: vi.fn(async () => ({ ok: true, value: 'webhooks' })),
 }))
 
 vi.mock('../openapi/index.js', () => ({

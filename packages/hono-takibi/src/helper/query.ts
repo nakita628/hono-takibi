@@ -24,7 +24,13 @@
 import path from 'node:path'
 import { isOpenAPIPaths, isOperationLike, isRecord } from '../guard/index.js'
 import type { OpenAPI, OpenAPIPaths } from '../openapi/index.js'
-import { capitalize, escapeCommentEnd, makeOperationDocs, methodPath, makeInferRequestType } from '../utils/index.js'
+import {
+  capitalize,
+  escapeCommentEnd,
+  makeInferRequestType,
+  makeOperationDocs,
+  methodPath,
+} from '../utils/index.js'
 import {
   core,
   formatPath,
@@ -216,14 +222,14 @@ function makeQueryOptionsGetterCode(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const ${optionsGetterName}=(args:${inferRequestType},clientOptions?:ClientRequestOptions)=>({queryKey:${queryKeyCall},queryFn:({signal}:QueryFunctionContext)=>${fetcherBody}})`
+export function ${optionsGetterName}(args:${inferRequestType},clientOptions?:ClientRequestOptions){return{queryKey:${queryKeyCall},queryFn({signal}:QueryFunctionContext){return ${fetcherBody}}}}`
   }
   return `/**
  * Returns ${config.frameworkName} query options for GET ${commentPath}
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const ${optionsGetterName}=(clientOptions?:ClientRequestOptions)=>({queryKey:${queryKeyCall},queryFn:({signal}:QueryFunctionContext)=>${fetcherBody}})`
+export function ${optionsGetterName}(clientOptions?:ClientRequestOptions){return{queryKey:${queryKeyCall},queryFn({signal}:QueryFunctionContext){return ${fetcherBody}}}}`
 }
 
 /* ─────────────────────────────── SWR Query Hook Code ─────────────────────────────── */
@@ -411,14 +417,14 @@ function makeMutationOptionsGetterCode(
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export const ${optionsGetterName}=(clientOptions?:ClientRequestOptions)=>({mutationKey:${keyGetterName}(),mutationFn:async(args:${inferRequestType})=>${fetcherBody}})`
+export function ${optionsGetterName}(clientOptions?:ClientRequestOptions){return{mutationKey:${keyGetterName}(),async mutationFn(args:${inferRequestType}){return ${fetcherBody}}}}`
   }
   return `/**
  * Returns ${config.frameworkName} mutation options for ${methodUpper} ${safeCommentPath}
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export const ${optionsGetterName}=(clientOptions?:ClientRequestOptions)=>({mutationKey:${keyGetterName}(),mutationFn:async()=>${fetcherBody}})`
+export function ${optionsGetterName}(clientOptions?:ClientRequestOptions){return{mutationKey:${keyGetterName}(),async mutationFn(){return ${fetcherBody}}}}`
 }
 
 /* ─────────────────────────────── SWR Header ─────────────────────────────── */

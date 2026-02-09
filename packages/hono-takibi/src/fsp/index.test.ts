@@ -2,7 +2,7 @@ import fs from 'node:fs'
 import fsp from 'node:fs/promises'
 import path from 'node:path'
 import { afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest'
-import { mkdir, readdir, readFile, writeFile } from './index.js'
+import { mkdir, readdir, readFile, unlink, writeFile } from './index.js'
 
 const TEST_DIR = path.join(process.cwd(), 'test-tmp-dir')
 
@@ -89,6 +89,36 @@ describe('fsp', () => {
     it('returns err for non-file path', async () => {
       // Reading a directory as a file should fail
       const result = await readFile(TEST_DIR)
+      expect(result.ok).toBe(false)
+      if (!result.ok) {
+        expect(typeof result.error).toBe('string')
+        expect(result.error.length).toBeGreaterThan(0)
+      }
+    })
+  })
+
+  describe('unlink', () => {
+    beforeEach(async () => {
+      await fsp.mkdir(TEST_DIR, { recursive: true })
+    })
+
+    it('removes an existing file', async () => {
+      const filePath = path.join(TEST_DIR, 'to-remove.txt')
+      await fsp.writeFile(filePath, 'bye')
+      expect(fs.existsSync(filePath)).toBe(true)
+      const result = await unlink(filePath)
+      expect(result).toEqual({ ok: true, value: undefined })
+      expect(fs.existsSync(filePath)).toBe(false)
+    })
+
+    it('returns ok when file does not exist (ENOENT)', async () => {
+      const filePath = path.join(TEST_DIR, 'no-such-file.txt')
+      const result = await unlink(filePath)
+      expect(result).toEqual({ ok: true, value: undefined })
+    })
+
+    it('returns err for invalid path (directory)', async () => {
+      const result = await unlink(TEST_DIR)
       expect(result.ok).toBe(false)
       if (!result.ok) {
         expect(typeof result.error).toBe('string')

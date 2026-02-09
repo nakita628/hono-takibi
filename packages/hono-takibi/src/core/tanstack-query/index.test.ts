@@ -72,13 +72,16 @@ export function getGetHonoQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetHonoQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetHonoQueryKey(),
-  queryFn: ({ signal }: QueryFunctionContext) =>
-    parseResponse(
-      client.hono.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-    ),
-})
+export function getGetHonoQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetHonoQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.hono.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      )
+    },
+  }
+}
 
 /**
  * GET /hono
@@ -112,16 +115,19 @@ export function getGetUsersQueryKey(args: InferRequestType<typeof client.users.$
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetUsersQueryOptions = (
+export function getGetUsersQueryOptions(
   args: InferRequestType<typeof client.users.$get>,
   clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetUsersQueryKey(args),
-  queryFn: ({ signal }: QueryFunctionContext) =>
-    parseResponse(
-      client.users.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-    ),
-})
+) {
+  return {
+    queryKey: getGetUsersQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.users.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      )
+    },
+  }
+}
 
 /**
  * GET /users
@@ -158,11 +164,14 @@ export function getPostUsersMutationKey() {
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export const getPostUsersMutationOptions = (clientOptions?: ClientRequestOptions) => ({
-  mutationKey: getPostUsersMutationKey(),
-  mutationFn: async (args: InferRequestType<typeof client.users.$post>) =>
-    parseResponse(client.users.$post(args, clientOptions)),
-})
+export function getPostUsersMutationOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    mutationKey: getPostUsersMutationKey(),
+    async mutationFn(args: InferRequestType<typeof client.users.$post>) {
+      return parseResponse(client.users.$post(args, clientOptions))
+    },
+  }
+}
 
 /**
  * POST /users
@@ -236,13 +245,16 @@ export function getGetHonoQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetHonoQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetHonoQueryKey(),
-  queryFn: ({ signal }: QueryFunctionContext) =>
-    parseResponse(
-      client.hono.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-    ),
-})
+export function getGetHonoQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetHonoQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.hono.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      )
+    },
+  }
+}
 
 /**
  * GET /hono
@@ -286,16 +298,19 @@ export function getGetUsersQueryKey(args: InferRequestType<typeof client.users.$
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetUsersQueryOptions = (
+export function getGetUsersQueryOptions(
   args: InferRequestType<typeof client.users.$get>,
   clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetUsersQueryKey(args),
-  queryFn: ({ signal }: QueryFunctionContext) =>
-    parseResponse(
-      client.users.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-    ),
-})
+) {
+  return {
+    queryKey: getGetUsersQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.users.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      )
+    },
+  }
+}
 
 /**
  * GET /users
@@ -342,11 +357,14 @@ export function getPostUsersMutationKey() {
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export const getPostUsersMutationOptions = (clientOptions?: ClientRequestOptions) => ({
-  mutationKey: getPostUsersMutationKey(),
-  mutationFn: async (args: InferRequestType<typeof client.users.$post>) =>
-    parseResponse(client.users.$post(args, clientOptions)),
-})
+export function getPostUsersMutationOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    mutationKey: getPostUsersMutationKey(),
+    async mutationFn(args: InferRequestType<typeof client.users.$post>) {
+      return parseResponse(client.users.$post(args, clientOptions))
+    },
+  }
+}
 
 /**
  * POST /users
@@ -424,16 +442,19 @@ export function getGetUsersQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetUsersQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetUsersQueryKey(),
-  queryFn: ({ signal }: QueryFunctionContext) =>
-    parseResponse(
-      authClient.users.$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
+export function getGetUsersQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetUsersQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        authClient.users.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      )
+    },
+  }
+}
 
 /**
  * GET /users
@@ -512,13 +533,16 @@ export function getGetPingQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetPingQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetPingQueryKey(),
-  queryFn: ({ signal }: QueryFunctionContext) =>
-    parseResponse(
-      client.ping.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-    ),
-})
+export function getGetPingQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetPingQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.ping.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      )
+    },
+  }
+}
 
 /**
  * GET /ping
@@ -550,10 +574,14 @@ export function getPostPingMutationKey() {
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export const getPostPingMutationOptions = (clientOptions?: ClientRequestOptions) => ({
-  mutationKey: getPostPingMutationKey(),
-  mutationFn: async () => parseResponse(client.ping.$post(undefined, clientOptions)),
-})
+export function getPostPingMutationOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    mutationKey: getPostPingMutationKey(),
+    async mutationFn() {
+      return parseResponse(client.ping.$post(undefined, clientOptions))
+    },
+  }
+}
 
 /**
  * POST /ping
@@ -624,16 +652,19 @@ export function getGetHonoXQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetHonoXQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetHonoXQueryKey(),
-  queryFn: ({ signal }: QueryFunctionContext) =>
-    parseResponse(
-      client['hono-x'].$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
+export function getGetHonoXQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetHonoXQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client['hono-x'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      )
+    },
+  }
+}
 
 /**
  * GET /hono-x
@@ -717,19 +748,22 @@ export function getGetUsersIdQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetUsersIdQueryOptions = (
+export function getGetUsersIdQueryOptions(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetUsersIdQueryKey(args),
-  queryFn: ({ signal }: QueryFunctionContext) =>
-    parseResponse(
-      client.users[':id'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
+) {
+  return {
+    queryKey: getGetUsersIdQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.users[':id'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      )
+    },
+  }
+}
 
 /**
  * GET /users/{id}
@@ -766,11 +800,14 @@ export function getDeleteUsersIdMutationKey() {
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export const getDeleteUsersIdMutationOptions = (clientOptions?: ClientRequestOptions) => ({
-  mutationKey: getDeleteUsersIdMutationKey(),
-  mutationFn: async (args: InferRequestType<(typeof client.users)[':id']['$delete']>) =>
-    parseResponse(client.users[':id'].$delete(args, clientOptions)),
-})
+export function getDeleteUsersIdMutationOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    mutationKey: getDeleteUsersIdMutationKey(),
+    async mutationFn(args: InferRequestType<(typeof client.users)[':id']['$delete']>) {
+      return parseResponse(client.users[':id'].$delete(args, clientOptions))
+    },
+  }
+}
 
 /**
  * DELETE /users/{id}

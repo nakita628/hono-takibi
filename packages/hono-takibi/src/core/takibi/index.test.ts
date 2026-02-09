@@ -83,22 +83,31 @@ const runTakibi = async (
     readonly template: boolean
     readonly test: boolean
     readonly basePath?: string
+    readonly pathAlias?: string
   },
 ) =>
-  takibi(openapi, output, options.template, options.test, options.basePath ?? '/', {
-    exportSchemasTypes: true,
-    exportSchemas: true,
-    exportParametersTypes: false,
-    exportParameters: false,
-    exportSecuritySchemes: false,
-    exportRequestBodies: false,
-    exportResponses: false,
-    exportHeadersTypes: false,
-    exportHeaders: false,
-    exportExamples: false,
-    exportLinks: false,
-    exportCallbacks: false,
-  })
+  takibi(
+    openapi,
+    output,
+    options.template,
+    options.test,
+    options.basePath ?? '/',
+    options.pathAlias,
+    {
+      exportSchemasTypes: true,
+      exportSchemas: true,
+      exportParametersTypes: false,
+      exportParameters: false,
+      exportSecuritySchemes: false,
+      exportRequestBodies: false,
+      exportResponses: false,
+      exportHeadersTypes: false,
+      exportHeaders: false,
+      exportExamples: false,
+      exportLinks: false,
+      exportCallbacks: false,
+    },
+  )
 
 describe('takibi generate (sandbox)', () => {
   it('should generate Hono app with OpenAPI routes (no template/test)', async () => {
@@ -486,12 +495,11 @@ export const getTestRoute = createRoute({
       expect(fs.existsSync(path.join(srcDir, 'handlers', 'test.test.ts'))).toBe(true)
       const testContent = fs.readFileSync(path.join(srcDir, 'handlers', 'test.test.ts'), 'utf-8')
       expect(testContent).toBe(`import { describe, it, expect } from 'vitest'
-import { faker } from '@faker-js/faker'
 import app from '..'
 
 describe('Test', () => {
   describe('GET /test', () => {
-    it('GET /test', async () => {
+    it('should return 200', async () => {
       const res = await app.request(\`/test\`, { method: 'GET' })
       expect(res.status).toBe(200)
     })
@@ -557,6 +565,38 @@ export default app
       expect(handlerContent).toContain("import type { getTestRoute } from '../route'")
     } finally {
       process.chdir(originalCwd)
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+
+  it('generates import paths with pathAlias when specified', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-alias-'))
+    try {
+      const out = path.join(dir, 'src', 'api', 'routes.ts') as `${string}.ts`
+      const result = await runTakibi(simpleOpenapi, out, {
+        template: true,
+        test: true,
+        pathAlias: '@/api',
+      })
+
+      expect(result.ok).toBe(true)
+
+      const indexContent = fs.readFileSync(path.join(dir, 'src', 'api', 'index.ts'), 'utf-8')
+      expect(indexContent).toContain("from '@/api/routes'")
+      expect(indexContent).toContain("from '@/api/handlers'")
+
+      const handlerContent = fs.readFileSync(
+        path.join(dir, 'src', 'api', 'handlers', 'test.ts'),
+        'utf-8',
+      )
+      expect(handlerContent).toContain("from '@/api/routes'")
+
+      const testContent = fs.readFileSync(
+        path.join(dir, 'src', 'api', 'handlers', 'test.test.ts'),
+        'utf-8',
+      )
+      expect(testContent).toContain("from '@/api'")
+    } finally {
       fs.rmSync(dir, { recursive: true, force: true })
     }
   })

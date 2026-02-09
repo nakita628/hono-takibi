@@ -960,12 +960,11 @@ export const getUsersRouteHandler: RouteHandler<typeof getUsersRoute> = async (c
       'utf-8',
     )
     expect(testFileContent).toBe(`import { describe, it, expect } from 'vitest'
-import { faker } from '@faker-js/faker'
 import app from '..'
 
 describe('Items', () => {
   describe('POST /items', () => {
-    it('POST /items', async () => {
+    it('should return 201', async () => {
       const res = await app.request(\`/items\`, { method: 'POST' })
       expect(res.status).toBe(201)
     })

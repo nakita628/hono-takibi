@@ -30,7 +30,10 @@ import {
   examples,
   headers,
   links,
+  mediaTypes,
+  mock,
   parameters,
+  pathItems,
   requestBodies,
   responses,
   route,
@@ -41,8 +44,10 @@ import {
   swr,
   takibi,
   tanstackQuery,
+  test,
   type,
   vueQuery,
+  webhooks,
 } from '../core/index.js'
 import { isRecord } from '../guard/index.js'
 import { parseOpenAPI } from '../openapi/index.js'
@@ -50,7 +55,7 @@ import { parseOpenAPI } from '../openapi/index.js'
 /**
  * Parsed configuration type extracted from parseConfig result.
  */
-type Configuration = Extract<ReturnType<typeof parseConfig>, { ok: true }>['value']
+type Config = Extract<ReturnType<typeof parseConfig>, { ok: true }>['value']
 
 /**
  * Minimal Vite dev-server interface.
@@ -83,7 +88,7 @@ type ViteDevServer = {
  * @param value - Value to check
  * @returns True if value is a valid configuration object
  */
-const isConfiguration = (value: unknown): value is Configuration =>
+const isConfiguration = (value: unknown): value is Config =>
   typeof value === 'object' && value !== null
 
 /**
@@ -113,7 +118,9 @@ const isTypeScriptFile = (filePath: string): filePath is `${string}.ts` => fileP
  */
 const loadConfigurationWithHotReload = async (
   server: ViteDevServer,
-): Promise<{ ok: true; value: Configuration } | { ok: false; error: string }> => {
+): Promise<
+  { readonly ok: true; readonly value: Config } | { readonly ok: false; readonly error: string }
+> => {
   const absoluteConfigPath = path.resolve(process.cwd(), 'hono-takibi.config.ts')
   try {
     const resolved = await server.pluginContainer.resolveId(absoluteConfigPath)
@@ -220,425 +227,319 @@ const debounce = (delayMilliseconds: number, callback: () => void): (() => void)
  *   C --> I["...others"]
  * ```
  *
- * @param configuration - Parsed configuration object
+ * @param config - Parsed configuration object
  * @returns Promise resolving to object containing log messages
  */
-const runAllGenerationTasks = async (configuration: Configuration): Promise<{ logs: string[] }> => {
-  const openAPIResult = await parseOpenAPI(configuration.input)
+const runAllGenerationTasks = async (
+  config: Config,
+): Promise<{ readonly logs: readonly string[] }> => {
+  const openAPIResult = await parseOpenAPI(config.input)
   if (!openAPIResult.ok) return { logs: [`❌ parseOpenAPI: ${openAPIResult.error}`] }
   const openAPI = openAPIResult.value
 
+  const zodOpenapi = config['zod-openapi']
+  const components = zodOpenapi?.components
+  const readonlyFlag = zodOpenapi?.readonly
+
+  /**
+   * Runs a generation job with split-mode file cleanup.
+   */
+  const runSplitAwareJob = async (
+    name: string,
+    output: string,
+    isSplit: boolean,
+    generate: (
+      absOutput: string,
+    ) => Promise<
+      { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
+    >,
+  ): Promise<string> => {
+    const absOutput = toAbsolutePath(output)
+    if (isSplit) {
+      const beforeFiles = await listTypeScriptFilesShallow(absOutput)
+      await deleteTypeScriptFiles(beforeFiles)
+    }
+    const result = await generate(absOutput)
+    if (!result.ok) return `❌ ${name}: ${result.error}`
+    return `✅ ${name}${isSplit ? '(split)' : ''} -> ${absOutput}`
+  }
+
+  // --- zod-openapi (monolithic output) ---
+
   const makeZodOpenAPIJob = (): Promise<string> | undefined => {
-    if (
-      !(
-        configuration['zod-openapi'] &&
-        !(
-          configuration['zod-openapi'].components?.schemas || configuration['zod-openapi'].routes
-        ) &&
-        configuration['zod-openapi'].output
-      )
-    )
-      return undefined
-    const outputPath = toAbsolutePath(configuration['zod-openapi'].output)
+    if (!config['zod-openapi']?.output) return undefined
+    const outputPath = toAbsolutePath(config['zod-openapi']?.output)
     return (async () => {
       if (!isTypeScriptFile(outputPath))
         return `❌ zod-openapi: Invalid output format: ${outputPath}`
-      const result = await takibi(openAPI, outputPath, false, false, '/', {
-        exportSchemasTypes: configuration['zod-openapi']?.exportSchemasTypes ?? false,
-        exportSchemas: configuration['zod-openapi']?.exportSchemas ?? false,
-        exportParametersTypes: configuration['zod-openapi']?.exportParametersTypes ?? false,
-        exportParameters: configuration['zod-openapi']?.exportParameters ?? false,
-        exportSecuritySchemes: configuration['zod-openapi']?.exportSecuritySchemes ?? false,
-        exportRequestBodies: configuration['zod-openapi']?.exportRequestBodies ?? false,
-        exportResponses: configuration['zod-openapi']?.exportResponses ?? false,
-        exportHeadersTypes: configuration['zod-openapi']?.exportHeadersTypes ?? false,
-        exportHeaders: configuration['zod-openapi']?.exportHeaders ?? false,
-        exportExamples: configuration['zod-openapi']?.exportExamples ?? false,
-        exportLinks: configuration['zod-openapi']?.exportLinks ?? false,
-        exportCallbacks: configuration['zod-openapi']?.exportCallbacks ?? false,
-        exportPathItems: configuration['zod-openapi']?.exportPathItems ?? false,
-        exportMediaTypes: configuration['zod-openapi']?.exportMediaTypes ?? false,
-        exportMediaTypesTypes: configuration['zod-openapi']?.exportMediaTypesTypes ?? false,
-      })
+      const result = await takibi(
+        openAPI,
+        outputPath,
+        config['zod-openapi']?.template ?? false,
+        config['zod-openapi']?.test ?? false,
+        config['zod-openapi']?.basePath ?? '/',
+        config['zod-openapi']?.pathAlias,
+        {
+          readonly: config['zod-openapi']?.readonly,
+          exportSchemasTypes: config['zod-openapi']?.exportSchemasTypes ?? false,
+          exportSchemas: config['zod-openapi']?.exportSchemas ?? false,
+          exportParametersTypes: config['zod-openapi']?.exportParametersTypes ?? false,
+          exportParameters: config['zod-openapi']?.exportParameters ?? false,
+          exportSecuritySchemes: config['zod-openapi']?.exportSecuritySchemes ?? false,
+          exportRequestBodies: config['zod-openapi']?.exportRequestBodies ?? false,
+          exportResponses: config['zod-openapi']?.exportResponses ?? false,
+          exportHeadersTypes: config['zod-openapi']?.exportHeadersTypes ?? false,
+          exportHeaders: config['zod-openapi']?.exportHeaders ?? false,
+          exportExamples: config['zod-openapi']?.exportExamples ?? false,
+          exportLinks: config['zod-openapi']?.exportLinks ?? false,
+          exportCallbacks: config['zod-openapi']?.exportCallbacks ?? false,
+          exportPathItems: config['zod-openapi']?.exportPathItems ?? false,
+          exportMediaTypes: config['zod-openapi']?.exportMediaTypes ?? false,
+          exportMediaTypesTypes: config['zod-openapi']?.exportMediaTypesTypes ?? false,
+        },
+      )
       return result.ok ? `✅ zod-openapi -> ${outputPath}` : `❌ zod-openapi: ${result.error}`
     })()
   }
 
+  // --- Component jobs ---
+
   const makeSchemaJob = (): Promise<string> | undefined => {
-    const schemaConfig = configuration['zod-openapi']?.components?.schemas
-    if (!schemaConfig) return undefined
-    return (async () => {
-      if (schemaConfig.split === true) {
-        const outputDirectory = toAbsolutePath(schemaConfig.output)
-        const beforeFiles = await listTypeScriptFilesShallow(outputDirectory)
-        await deleteTypeScriptFiles(beforeFiles)
-        const schemaResult = await schemas(
-          openAPI.components?.schemas,
-          outputDirectory,
-          true,
-          schemaConfig.exportTypes === true,
-        )
-        if (!schemaResult.ok) return `❌ schemas(split): ${schemaResult.error}`
-        return beforeFiles.length > 0
-          ? `✅ schemas(split) -> ${outputDirectory}/*.ts (cleaned ${beforeFiles.length})`
-          : `✅ schemas(split) -> ${outputDirectory}/*.ts`
-      }
-      const outputPath = toAbsolutePath(schemaConfig.output)
-      const schemaResult = await schemas(
+    const cfg = config['zod-openapi']?.components?.schemas
+    if (!cfg) return undefined
+    return runSplitAwareJob('schemas', cfg.output, cfg.split === true, (out) =>
+      schemas(
         openAPI.components?.schemas,
-        outputPath,
-        false,
-        schemaConfig.exportTypes === true,
-      )
-      return schemaResult.ok ? `✅ schemas -> ${outputPath}` : `❌ schemas: ${schemaResult.error}`
-    })()
+        out,
+        cfg.split === true,
+        cfg.exportTypes === true,
+        config['zod-openapi']?.readonly,
+      ),
+    )
   }
 
   const makeParametersJob = (): Promise<string> | undefined => {
-    const parametersConfig = configuration['zod-openapi']?.components?.parameters
-    if (!parametersConfig) return undefined
-    return (async () => {
-      const outputDirectory = toAbsolutePath(parametersConfig.output)
-      const beforeFiles =
-        parametersConfig.split === true ? await listTypeScriptFilesShallow(outputDirectory) : []
-      if (parametersConfig.split === true) await deleteTypeScriptFiles(beforeFiles)
-      const parameterResult = await parameters(
+    const cfg = config['zod-openapi']?.components?.parameters
+    if (!cfg) return undefined
+    return runSplitAwareJob('parameters', cfg.output, cfg.split === true, (out) =>
+      parameters(
         openAPI.components?.parameters,
-        outputDirectory,
-        parametersConfig.split === true,
-        parametersConfig.exportTypes === true,
-        configuration['zod-openapi']?.components,
-      )
-      if (!parameterResult.ok) return `❌ parameters: ${parameterResult.error}`
-      return `✅ parameters${parametersConfig.split === true ? '(split)' : ''} -> ${outputDirectory}`
-    })()
+        out,
+        cfg.split === true,
+        cfg.exportTypes === true,
+        config['zod-openapi']?.components,
+        config['zod-openapi']?.readonly,
+      ),
+    )
   }
 
   const makeHeadersJob = (): Promise<string> | undefined => {
-    const headersConfig = configuration['zod-openapi']?.components?.headers
-    if (!headersConfig) return undefined
-    return (async () => {
-      const outputDirectory = toAbsolutePath(headersConfig.output)
-      const beforeFiles =
-        headersConfig.split === true ? await listTypeScriptFilesShallow(outputDirectory) : []
-      if (headersConfig.split === true) await deleteTypeScriptFiles(beforeFiles)
-      const headersResult = await headers(
+    const cfg = config['zod-openapi']?.components?.headers
+    if (!cfg) return undefined
+    return runSplitAwareJob('headers', cfg.output, cfg.split === true, (out) =>
+      headers(
         openAPI.components?.headers,
-        outputDirectory,
-        headersConfig.split === true,
-        headersConfig.exportTypes === true,
-        configuration['zod-openapi']?.components,
-      )
-      if (!headersResult.ok) return `❌ headers: ${headersResult.error}`
-      return `✅ headers${headersConfig.split === true ? '(split)' : ''} -> ${outputDirectory}`
-    })()
+        out,
+        cfg.split === true,
+        cfg.exportTypes === true,
+        config['zod-openapi']?.components,
+        config['zod-openapi']?.readonly,
+      ),
+    )
   }
 
   const makeExamplesJob = (): Promise<string> | undefined => {
-    const examplesConfig = configuration['zod-openapi']?.components?.examples
-    if (!examplesConfig) return undefined
-    return (async () => {
-      const outputDirectory = toAbsolutePath(examplesConfig.output)
-      const beforeFiles =
-        examplesConfig.split === true ? await listTypeScriptFilesShallow(outputDirectory) : []
-      if (examplesConfig.split === true) await deleteTypeScriptFiles(beforeFiles)
-      const examplesResult = await examples(
+    const cfg = config['zod-openapi']?.components?.examples
+    if (!cfg) return undefined
+    return runSplitAwareJob('examples', cfg.output, cfg.split === true, (out) =>
+      examples(
         openAPI.components?.examples,
-        outputDirectory,
-        examplesConfig.split === true,
-      )
-      if (!examplesResult.ok) return `❌ examples: ${examplesResult.error}`
-      return `✅ examples${examplesConfig.split === true ? '(split)' : ''} -> ${outputDirectory}`
-    })()
+        out,
+        cfg.split === true,
+        config['zod-openapi']?.readonly,
+      ),
+    )
   }
 
   const makeLinksJob = (): Promise<string> | undefined => {
-    const linksConfig = configuration['zod-openapi']?.components?.links
-    if (!linksConfig) return undefined
-    return (async () => {
-      const outputDirectory = toAbsolutePath(linksConfig.output)
-      const beforeFiles =
-        linksConfig.split === true ? await listTypeScriptFilesShallow(outputDirectory) : []
-      if (linksConfig.split === true) await deleteTypeScriptFiles(beforeFiles)
-      const linksResult = await links(
-        openAPI.components?.links,
-        outputDirectory,
-        linksConfig.split === true,
-      )
-      if (!linksResult.ok) return `❌ links: ${linksResult.error}`
-      return `✅ links${linksConfig.split === true ? '(split)' : ''} -> ${outputDirectory}`
-    })()
+    const cfg = config['zod-openapi']?.components?.links
+    if (!cfg) return undefined
+    return runSplitAwareJob('links', cfg.output, cfg.split === true, (out) =>
+      links(openAPI.components?.links, out, cfg.split === true, config['zod-openapi']?.readonly),
+    )
   }
 
   const makeCallbacksJob = (): Promise<string> | undefined => {
-    const callbacksConfig = configuration['zod-openapi']?.components?.callbacks
-    if (!callbacksConfig) return undefined
-    return (async () => {
-      const outputDirectory = toAbsolutePath(callbacksConfig.output)
-      const beforeFiles =
-        callbacksConfig.split === true ? await listTypeScriptFilesShallow(outputDirectory) : []
-      if (callbacksConfig.split === true) await deleteTypeScriptFiles(beforeFiles)
-      const callbacksResult = await callbacks(
+    const cfg = config['zod-openapi']?.components?.callbacks
+    if (!cfg) return undefined
+    return runSplitAwareJob('callbacks', cfg.output, cfg.split === true, (out) =>
+      callbacks(
         openAPI.components?.callbacks,
-        outputDirectory,
-        callbacksConfig.split === true,
-        configuration['zod-openapi']?.components,
-      )
-      if (!callbacksResult.ok) return `❌ callbacks: ${callbacksResult.error}`
-      return `✅ callbacks${callbacksConfig.split === true ? '(split)' : ''} -> ${outputDirectory}`
-    })()
+        out,
+        cfg.split === true,
+        config['zod-openapi']?.components,
+        config['zod-openapi']?.readonly,
+      ),
+    )
   }
 
   const makeSecuritySchemesJob = (): Promise<string> | undefined => {
-    const securitySchemesConfig = configuration['zod-openapi']?.components?.securitySchemes
-    if (!securitySchemesConfig) return undefined
-    return (async () => {
-      const outputDirectory = toAbsolutePath(securitySchemesConfig.output)
-      const beforeFiles =
-        securitySchemesConfig.split === true
-          ? await listTypeScriptFilesShallow(outputDirectory)
-          : []
-      if (securitySchemesConfig.split === true) await deleteTypeScriptFiles(beforeFiles)
-      const securitySchemesResult = await securitySchemes(
+    const cfg = config['zod-openapi']?.components?.securitySchemes
+    if (!cfg) return undefined
+    return runSplitAwareJob('securitySchemes', cfg.output, cfg.split === true, (out) =>
+      securitySchemes(
         openAPI.components?.securitySchemes,
-        outputDirectory,
-        securitySchemesConfig.split === true,
-      )
-      if (!securitySchemesResult.ok) return `❌ securitySchemes: ${securitySchemesResult.error}`
-      return `✅ securitySchemes${securitySchemesConfig.split === true ? '(split)' : ''} -> ${outputDirectory}`
-    })()
+        out,
+        cfg.split === true,
+        config['zod-openapi']?.readonly,
+      ),
+    )
   }
 
   const makeRequestBodiesJob = (): Promise<string> | undefined => {
-    const requestBodiesConfig = configuration['zod-openapi']?.components?.requestBodies
-    if (!requestBodiesConfig) return undefined
-    return (async () => {
-      const outputDirectory = toAbsolutePath(requestBodiesConfig.output)
-      const beforeFiles =
-        requestBodiesConfig.split === true ? await listTypeScriptFilesShallow(outputDirectory) : []
-      if (requestBodiesConfig.split === true) await deleteTypeScriptFiles(beforeFiles)
-      const requestBodiesResult = await requestBodies(
+    const cfg = config['zod-openapi']?.components?.requestBodies
+    if (!cfg) return undefined
+    return runSplitAwareJob('requestBodies', cfg.output, cfg.split === true, (out) =>
+      requestBodies(
         openAPI.components?.requestBodies,
-        outputDirectory,
-        requestBodiesConfig.split === true,
-        configuration['zod-openapi']?.components,
-      )
-      if (!requestBodiesResult.ok) return `❌ requestBodies: ${requestBodiesResult.error}`
-      return `✅ requestBodies${requestBodiesConfig.split === true ? '(split)' : ''} -> ${outputDirectory}`
-    })()
+        out,
+        cfg.split === true,
+        config['zod-openapi']?.components,
+        config['zod-openapi']?.readonly,
+      ),
+    )
   }
 
   const makeResponsesJob = (): Promise<string> | undefined => {
-    const responsesConfig = configuration['zod-openapi']?.components?.responses
-    if (!responsesConfig) return undefined
-    return (async () => {
-      const outputDirectory = toAbsolutePath(responsesConfig.output)
-      const beforeFiles =
-        responsesConfig.split === true ? await listTypeScriptFilesShallow(outputDirectory) : []
-      if (responsesConfig.split === true) await deleteTypeScriptFiles(beforeFiles)
-      const responsesResult = await responses(
+    const cfg = config['zod-openapi']?.components?.responses
+    if (!cfg) return undefined
+    return runSplitAwareJob('responses', cfg.output, cfg.split === true, (out) =>
+      responses(
         openAPI.components?.responses,
-        outputDirectory,
-        responsesConfig.split === true,
-        configuration['zod-openapi']?.components,
-      )
-      if (!responsesResult.ok) return `❌ responses: ${responsesResult.error}`
-      return `✅ responses${responsesConfig.split === true ? '(split)' : ''} -> ${outputDirectory}`
-    })()
+        out,
+        cfg.split === true,
+        config['zod-openapi']?.components,
+        config['zod-openapi']?.readonly,
+      ),
+    )
   }
+
+  const makePathItemsJob = (): Promise<string> | undefined => {
+    const cfg = config['zod-openapi']?.components?.pathItems
+    if (!cfg) return undefined
+    return runSplitAwareJob('pathItems', cfg.output, cfg.split === true, (out) =>
+      pathItems(
+        openAPI.components ?? {},
+        { output: out, split: cfg.split ?? false },
+        config['zod-openapi']?.components,
+        config['zod-openapi']?.readonly,
+      ),
+    )
+  }
+
+  const makeMediaTypesJob = (): Promise<string> | undefined => {
+    const cfg = config['zod-openapi']?.components?.mediaTypes
+    if (!cfg) return undefined
+    return runSplitAwareJob('mediaTypes', cfg.output, cfg.split === true, (out) =>
+      mediaTypes(
+        openAPI.components?.mediaTypes,
+        out,
+        cfg.split === true,
+        config['zod-openapi']?.readonly,
+      ),
+    )
+  }
+
+  const makeWebhooksJob = (): Promise<string> | undefined => {
+    const cfg = config['zod-openapi']?.components?.webhooks
+    if (!cfg) return undefined
+    return runSplitAwareJob('webhooks', cfg.output, cfg.split === true, (out) =>
+      webhooks(
+        openAPI,
+        { output: out, split: cfg.split ?? false },
+        config['zod-openapi']?.components,
+        config['zod-openapi']?.readonly,
+      ),
+    )
+  }
+
+  // --- Routes ---
 
   const makeRoutesJob = (): Promise<string> | undefined => {
-    const routesConfig = configuration['zod-openapi']?.routes
-    if (!routesConfig) return undefined
-    return (async () => {
-      const outputPath = toAbsolutePath(routesConfig.output)
-      const beforeFiles =
-        routesConfig.split === true ? await listTypeScriptFilesShallow(outputPath) : []
-      if (routesConfig.split === true) await deleteTypeScriptFiles(beforeFiles)
-      const routeResult = await route(
+    const cfg = config['zod-openapi']?.routes
+    if (!cfg) return undefined
+    return runSplitAwareJob('routes', cfg.output, cfg.split === true, (out) =>
+      route(
         openAPI,
-        { output: outputPath, split: routesConfig.split ?? false },
-        configuration['zod-openapi']?.components,
-      )
-      if (!routeResult.ok) return `❌ routes: ${routeResult.error}`
-      return `✅ routes${routesConfig.split === true ? '(split)' : ''} -> ${outputPath}`
-    })()
+        { output: out, split: cfg.split ?? false },
+        config['zod-openapi']?.components,
+        config['zod-openapi']?.readonly,
+      ),
+    )
   }
+
+  // --- Type ---
 
   const makeTypeJob = (): Promise<string> | undefined => {
-    const typeConfig = configuration.type
-    if (!typeConfig) return undefined
+    const cfg = config.type
+    if (!cfg) return undefined
     return (async () => {
-      const outputPath = toAbsolutePath(typeConfig.output)
+      const outputPath = toAbsolutePath(cfg.output)
       if (!isTypeScriptFile(outputPath)) return `❌ type: Invalid output format: ${outputPath}`
-      const typeResult = await type(openAPI, outputPath)
-      return typeResult.ok ? `✅ type -> ${outputPath}` : `❌ type: ${typeResult.error}`
+      const result = await type(openAPI, outputPath)
+      return result.ok ? `✅ type -> ${outputPath}` : `❌ type: ${result.error}`
     })()
   }
+
+  // --- RPC ---
 
   const makeRpcJob = (): Promise<string> | undefined => {
-    const rpcConfig = configuration.rpc
-    if (!rpcConfig) return undefined
-    return (async () => {
-      if (rpcConfig.split === true) {
-        const outputDirectory = toAbsolutePath(rpcConfig.output)
-        const beforeFiles = await listTypeScriptFilesShallow(outputDirectory)
-        await deleteTypeScriptFiles(beforeFiles)
-        const rpcResult = await rpc(
-          openAPI,
-          outputDirectory,
-          rpcConfig.import,
-          true,
-          rpcConfig.client ?? 'client',
-        )
-        if (!rpcResult.ok) return `❌ rpc(split): ${rpcResult.error}`
-        return beforeFiles.length > 0
-          ? `✅ rpc(split) -> ${outputDirectory}/*.ts (cleaned ${beforeFiles.length})`
-          : `✅ rpc(split) -> ${outputDirectory}/*.ts`
-      }
-      const outputPath = toAbsolutePath(rpcConfig.output)
-      const rpcResult = await rpc(
+    const cfg = config.rpc
+    if (!cfg) return undefined
+    return runSplitAwareJob('rpc', cfg.output, cfg.split === true, (out) =>
+      rpc(
         openAPI,
-        outputPath,
-        rpcConfig.import,
-        false,
-        rpcConfig.client ?? 'client',
-      )
-      return rpcResult.ok ? `✅ rpc -> ${outputPath}` : `❌ rpc: ${rpcResult.error}`
+        out,
+        cfg.import,
+        cfg.split === true,
+        cfg.client ?? 'client',
+        cfg.parseResponse ?? false,
+      ),
+    )
+  }
+
+  // --- Query clients ---
+
+  const makeQueryJob = (
+    name: string,
+    cfg: typeof config.swr,
+    fn: typeof swr,
+  ): Promise<string> | undefined => {
+    if (!cfg) return undefined
+    return runSplitAwareJob(name, cfg.output, cfg.split === true, (out) =>
+      fn(openAPI, out, cfg.import, cfg.split === true, cfg.client ?? 'client'),
+    )
+  }
+
+  // --- Test & Mock ---
+
+  const makeTestJob = (): Promise<string> | undefined => {
+    const cfg = config.test
+    if (!cfg) return undefined
+    return (async () => {
+      const outputPath = toAbsolutePath(cfg.output)
+      const result = await test(openAPI, outputPath, cfg.import)
+      return result.ok ? `✅ test -> ${outputPath}` : `❌ test: ${result.error}`
     })()
   }
 
-  const makeSwrJob = (): Promise<string> | undefined => {
-    const swrConfig = configuration.swr
-    if (!swrConfig) return undefined
+  const makeMockJob = (): Promise<string> | undefined => {
+    const cfg = config.mock
+    if (!cfg) return undefined
     return (async () => {
-      if (swrConfig.split === true) {
-        const outputDirectory = toAbsolutePath(swrConfig.output)
-        const beforeFiles = await listTypeScriptFilesShallow(outputDirectory)
-        await deleteTypeScriptFiles(beforeFiles)
-        const swrResult = await swr(
-          openAPI,
-          outputDirectory,
-          swrConfig.import,
-          true,
-          swrConfig.client ?? 'client',
-        )
-        if (!swrResult.ok) return `❌ swr(split): ${swrResult.error}`
-        return beforeFiles.length > 0
-          ? `✅ swr(split) -> ${outputDirectory}/*.ts (cleaned ${beforeFiles.length})`
-          : `✅ swr(split) -> ${outputDirectory}/*.ts`
-      }
-      const outputPath = toAbsolutePath(swrConfig.output)
-      const swrResult = await swr(
-        openAPI,
-        outputPath,
-        swrConfig.import,
-        false,
-        swrConfig.client ?? 'client',
-      )
-      return swrResult.ok ? `✅ swr -> ${outputPath}` : `❌ swr: ${swrResult.error}`
-    })()
-  }
-
-  const makeTanstackQueryJob = (): Promise<string> | undefined => {
-    const tanstackQueryConfig = configuration['tanstack-query']
-    if (!tanstackQueryConfig) return undefined
-    return (async () => {
-      if (tanstackQueryConfig.split === true) {
-        const outputDirectory = toAbsolutePath(tanstackQueryConfig.output)
-        const beforeFiles = await listTypeScriptFilesShallow(outputDirectory)
-        await deleteTypeScriptFiles(beforeFiles)
-        const tanstackQueryResult = await tanstackQuery(
-          openAPI,
-          outputDirectory,
-          tanstackQueryConfig.import,
-          true,
-          tanstackQueryConfig.client ?? 'client',
-        )
-        if (!tanstackQueryResult.ok) return `❌ tanstack-query(split): ${tanstackQueryResult.error}`
-        return beforeFiles.length > 0
-          ? `✅ tanstack-query(split) -> ${outputDirectory}/*.ts (cleaned ${beforeFiles.length})`
-          : `✅ tanstack-query(split) -> ${outputDirectory}/*.ts`
-      }
-      const outputPath = toAbsolutePath(tanstackQueryConfig.output)
-      const tanstackQueryResult = await tanstackQuery(
-        openAPI,
-        outputPath,
-        tanstackQueryConfig.import,
-        false,
-        tanstackQueryConfig.client ?? 'client',
-      )
-      return tanstackQueryResult.ok
-        ? `✅ tanstack-query -> ${outputPath}`
-        : `❌ tanstack-query: ${tanstackQueryResult.error}`
-    })()
-  }
-
-  const makeSvelteQueryJob = (): Promise<string> | undefined => {
-    const svelteQueryConfig = configuration['svelte-query']
-    if (!svelteQueryConfig) return undefined
-    return (async () => {
-      if (svelteQueryConfig.split === true) {
-        const outputDirectory = toAbsolutePath(svelteQueryConfig.output)
-        const beforeFiles = await listTypeScriptFilesShallow(outputDirectory)
-        await deleteTypeScriptFiles(beforeFiles)
-        const svelteQueryResult = await svelteQuery(
-          openAPI,
-          outputDirectory,
-          svelteQueryConfig.import,
-          true,
-          svelteQueryConfig.client ?? 'client',
-        )
-        if (!svelteQueryResult.ok) return `❌ svelte-query(split): ${svelteQueryResult.error}`
-        return beforeFiles.length > 0
-          ? `✅ svelte-query(split) -> ${outputDirectory}/*.ts (cleaned ${beforeFiles.length})`
-          : `✅ svelte-query(split) -> ${outputDirectory}/*.ts`
-      }
-      const outputPath = toAbsolutePath(svelteQueryConfig.output)
-      const svelteQueryResult = await svelteQuery(
-        openAPI,
-        outputPath,
-        svelteQueryConfig.import,
-        false,
-        svelteQueryConfig.client ?? 'client',
-      )
-      return svelteQueryResult.ok
-        ? `✅ svelte-query -> ${outputPath}`
-        : `❌ svelte-query: ${svelteQueryResult.error}`
-    })()
-  }
-
-  const makeVueQueryJob = (): Promise<string> | undefined => {
-    const vueQueryConfig = configuration['vue-query']
-    if (!vueQueryConfig) return undefined
-    return (async () => {
-      if (vueQueryConfig.split === true) {
-        const outputDirectory = toAbsolutePath(vueQueryConfig.output)
-        const beforeFiles = await listTypeScriptFilesShallow(outputDirectory)
-        await deleteTypeScriptFiles(beforeFiles)
-        const vueQueryResult = await vueQuery(
-          openAPI,
-          outputDirectory,
-          vueQueryConfig.import,
-          true,
-          vueQueryConfig.client ?? 'client',
-        )
-        if (!vueQueryResult.ok) return `❌ vue-query(split): ${vueQueryResult.error}`
-        return beforeFiles.length > 0
-          ? `✅ vue-query(split) -> ${outputDirectory}/*.ts (cleaned ${beforeFiles.length})`
-          : `✅ vue-query(split) -> ${outputDirectory}/*.ts`
-      }
-      const outputPath = toAbsolutePath(vueQueryConfig.output)
-      const vueQueryResult = await vueQuery(
-        openAPI,
-        outputPath,
-        vueQueryConfig.import,
-        false,
-        vueQueryConfig.client ?? 'client',
-      )
-      return vueQueryResult.ok
-        ? `✅ vue-query -> ${outputPath}`
-        : `❌ vue-query: ${vueQueryResult.error}`
+      const outputPath = toAbsolutePath(cfg.output)
+      const result = await mock(openAPI, outputPath, config['zod-openapi']?.readonly)
+      return result.ok ? `✅ mock -> ${outputPath}` : `❌ mock: ${result.error}`
     })()
   }
 
@@ -653,13 +554,18 @@ const runAllGenerationTasks = async (configuration: Configuration): Promise<{ lo
     makeSecuritySchemesJob(),
     makeRequestBodiesJob(),
     makeResponsesJob(),
+    makePathItemsJob(),
+    makeMediaTypesJob(),
+    makeWebhooksJob(),
     makeRoutesJob(),
     makeTypeJob(),
     makeRpcJob(),
-    makeSwrJob(),
-    makeTanstackQueryJob(),
-    makeSvelteQueryJob(),
-    makeVueQueryJob(),
+    makeQueryJob('swr', config.swr, swr),
+    makeQueryJob('tanstack-query', config['tanstack-query'], tanstackQuery),
+    makeQueryJob('svelte-query', config['svelte-query'], svelteQuery),
+    makeQueryJob('vue-query', config['vue-query'], vueQuery),
+    makeTestJob(),
+    makeMockJob(),
   ].filter((job): job is Promise<string> => job !== undefined)
 
   return Promise.all(generationJobs).then((logs) => ({ logs }))
@@ -752,31 +658,37 @@ const addInputGlobsToWatcher = (server: ViteDevServer, absoluteInputPath: string
 /**
  * Extracts all output paths from a configuration.
  *
- * @param configuration - The configuration object
+ * @param config - The configuration object
  * @returns Array of absolute output paths
  */
-const extractOutputPaths = (configuration: Configuration): string[] =>
-  [
-    configuration['zod-openapi']?.output,
-    configuration['zod-openapi']?.components?.schemas?.output,
-    configuration['zod-openapi']?.components?.parameters?.output,
-    configuration['zod-openapi']?.components?.headers?.output,
-    configuration['zod-openapi']?.components?.examples?.output,
-    configuration['zod-openapi']?.components?.links?.output,
-    configuration['zod-openapi']?.components?.callbacks?.output,
-    configuration['zod-openapi']?.components?.securitySchemes?.output,
-    configuration['zod-openapi']?.components?.requestBodies?.output,
-    configuration['zod-openapi']?.components?.responses?.output,
-    configuration['zod-openapi']?.routes?.output,
-    configuration.type?.output,
-    configuration.rpc?.output,
-    configuration.swr?.output,
-    configuration['tanstack-query']?.output,
-    configuration['svelte-query']?.output,
-    configuration['vue-query']?.output,
+const extractOutputPaths = (config: Config): string[] => {
+  return [
+    config['zod-openapi']?.output,
+    config['zod-openapi']?.components?.schemas?.output,
+    config['zod-openapi']?.components?.parameters?.output,
+    config['zod-openapi']?.components?.headers?.output,
+    config['zod-openapi']?.components?.examples?.output,
+    config['zod-openapi']?.components?.links?.output,
+    config['zod-openapi']?.components?.callbacks?.output,
+    config['zod-openapi']?.components?.securitySchemes?.output,
+    config['zod-openapi']?.components?.requestBodies?.output,
+    config['zod-openapi']?.components?.responses?.output,
+    config['zod-openapi']?.components?.pathItems?.output,
+    config['zod-openapi']?.components?.mediaTypes?.output,
+    config['zod-openapi']?.components?.webhooks?.output,
+    config['zod-openapi']?.routes?.output,
+    config.type?.output,
+    config.rpc?.output,
+    config.swr?.output,
+    config['tanstack-query']?.output,
+    config['svelte-query']?.output,
+    config['vue-query']?.output,
+    config.test?.output,
+    config.mock?.output,
   ]
     .filter((outputPath): outputPath is string => outputPath !== undefined)
     .map(toAbsolutePath)
+}
 
 /**
  * Cleans up output paths that exist in previous config but not in current config.
@@ -789,8 +701,8 @@ const extractOutputPaths = (configuration: Configuration): string[] =>
  * @returns Array of cleaned up paths
  */
 const cleanupStaleOutputs = async (
-  previousConfiguration: Configuration,
-  currentConfiguration: Configuration,
+  previousConfiguration: Config,
+  currentConfiguration: Config,
 ): Promise<string[]> => {
   const previousPaths = new Set(extractOutputPaths(previousConfiguration))
   const currentPaths = new Set(extractOutputPaths(currentConfiguration))
@@ -818,8 +730,8 @@ const cleanupStaleOutputs = async (
 // biome-ignore lint: plugin returns any for Vite compatibility
 export function honoTakibiVite(): any {
   const pluginState: {
-    current: Configuration | null
-    previous: Configuration | null
+    current: Config | null
+    previous: Config | null
     inputDirectory: string | null
   } = {
     current: null,
@@ -895,6 +807,8 @@ export function honoTakibiVite(): any {
         )
         server.watcher.add(absoluteConfigFilePath)
 
+        // 200ms debounce: editors emit multiple fs events on save, and batch file changes
+        // (e.g. git checkout) would otherwise trigger redundant regeneration cycles.
         const debouncedRunGeneration = debounce(200, () => void runGenerationAndReload(server))
 
         server.watcher.on('all', async (_eventType, filePath) => {

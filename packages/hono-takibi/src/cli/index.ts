@@ -139,6 +139,7 @@ function parseCli(args: readonly string[]):
         readonly template: boolean
         readonly test: boolean
         readonly basePath: string
+        readonly pathAlias: string | undefined
         readonly componentsOptions: {
           readonly readonly: boolean
           readonly exportSchemas: boolean
@@ -191,6 +192,7 @@ function parseCli(args: readonly string[]):
       template: args.includes('--template'),
       test: args.includes('--test'),
       basePath: getFlagValue(args, '--base-path') ?? '/',
+      pathAlias: getFlagValue(args, '--path-alias'),
       componentsOptions: {
         readonly: args.includes('--readonly'),
         // OpenAPI Components Object order
@@ -228,11 +230,19 @@ export async function honoTakibi(): Promise<
     const cliResult = parseCli(args)
     if (!cliResult.ok) return { ok: false, error: cliResult.error }
     const value = cliResult.value
-    const { input, output, template, test, basePath, componentsOptions } = value
+    const { input, output, template, test, basePath, pathAlias, componentsOptions } = value
     const openAPIResult = await parseOpenAPI(input)
     if (!openAPIResult.ok) return { ok: false, error: openAPIResult.error }
     const openAPI = openAPIResult.value
-    const takibiResult = await takibi(openAPI, output, template, test, basePath, componentsOptions)
+    const takibiResult = await takibi(
+      openAPI,
+      output,
+      template,
+      test,
+      basePath,
+      pathAlias,
+      componentsOptions,
+    )
     if (!takibiResult.ok) return { ok: false, error: takibiResult.error }
     return { ok: true, value: takibiResult.value }
   }
@@ -270,25 +280,33 @@ export async function honoTakibi(): Promise<
     mockResult,
   ] = await Promise.all([
     config['zod-openapi']?.output
-      ? takibi(openAPI, config['zod-openapi'].output, false, false, '/', {
-          readonly: config['zod-openapi'].readonly,
-          // OpenAPI Components Object order
-          exportSchemas: config['zod-openapi'].exportSchemas ?? false,
-          exportSchemasTypes: config['zod-openapi'].exportSchemasTypes ?? false,
-          exportResponses: config['zod-openapi'].exportResponses ?? false,
-          exportParameters: config['zod-openapi'].exportParameters ?? false,
-          exportParametersTypes: config['zod-openapi'].exportParametersTypes ?? false,
-          exportExamples: config['zod-openapi'].exportExamples ?? false,
-          exportRequestBodies: config['zod-openapi'].exportRequestBodies ?? false,
-          exportHeaders: config['zod-openapi'].exportHeaders ?? false,
-          exportHeadersTypes: config['zod-openapi'].exportHeadersTypes ?? false,
-          exportSecuritySchemes: config['zod-openapi'].exportSecuritySchemes ?? false,
-          exportLinks: config['zod-openapi'].exportLinks ?? false,
-          exportCallbacks: config['zod-openapi'].exportCallbacks ?? false,
-          exportPathItems: config['zod-openapi'].exportPathItems ?? false,
-          exportMediaTypes: config['zod-openapi'].exportMediaTypes ?? false,
-          exportMediaTypesTypes: config['zod-openapi'].exportMediaTypesTypes ?? false,
-        })
+      ? takibi(
+          openAPI,
+          config['zod-openapi'].output,
+          config['zod-openapi'].template ?? false,
+          config['zod-openapi'].test ?? false,
+          config['zod-openapi'].basePath ?? '/',
+          config['zod-openapi'].pathAlias,
+          {
+            readonly: config['zod-openapi'].readonly,
+            // OpenAPI Components Object order
+            exportSchemas: config['zod-openapi'].exportSchemas ?? false,
+            exportSchemasTypes: config['zod-openapi'].exportSchemasTypes ?? false,
+            exportResponses: config['zod-openapi'].exportResponses ?? false,
+            exportParameters: config['zod-openapi'].exportParameters ?? false,
+            exportParametersTypes: config['zod-openapi'].exportParametersTypes ?? false,
+            exportExamples: config['zod-openapi'].exportExamples ?? false,
+            exportRequestBodies: config['zod-openapi'].exportRequestBodies ?? false,
+            exportHeaders: config['zod-openapi'].exportHeaders ?? false,
+            exportHeadersTypes: config['zod-openapi'].exportHeadersTypes ?? false,
+            exportSecuritySchemes: config['zod-openapi'].exportSecuritySchemes ?? false,
+            exportLinks: config['zod-openapi'].exportLinks ?? false,
+            exportCallbacks: config['zod-openapi'].exportCallbacks ?? false,
+            exportPathItems: config['zod-openapi'].exportPathItems ?? false,
+            exportMediaTypes: config['zod-openapi'].exportMediaTypes ?? false,
+            exportMediaTypesTypes: config['zod-openapi'].exportMediaTypesTypes ?? false,
+          },
+        )
       : Promise.resolve(undefined),
     config['zod-openapi']?.components?.schemas
       ? schemas(

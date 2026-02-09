@@ -6,8 +6,7 @@
   "scripts": {
     "generate": "tsx src/index.ts",
     "typecheck": "tsc --noEmit",
-    "takibi": "hono-takibi openapi.yaml -o src/routes.ts --template"
-
+    "takibi": "hono-takibi openapi.yaml -o src/routes.ts --template --test"
   },
   "dependencies": {
     "@apidevtools/swagger-parser": "^12.1.0",
