@@ -270,25 +270,32 @@ export async function honoTakibi(): Promise<
     mockResult,
   ] = await Promise.all([
     config['zod-openapi']?.output
-      ? takibi(openAPI, config['zod-openapi'].output, config['zod-openapi'].template ?? false, config['zod-openapi'].test ?? false, config['zod-openapi'].basePath ?? '/', {
-          readonly: config['zod-openapi'].readonly,
-          // OpenAPI Components Object order
-          exportSchemas: config['zod-openapi'].exportSchemas ?? false,
-          exportSchemasTypes: config['zod-openapi'].exportSchemasTypes ?? false,
-          exportResponses: config['zod-openapi'].exportResponses ?? false,
-          exportParameters: config['zod-openapi'].exportParameters ?? false,
-          exportParametersTypes: config['zod-openapi'].exportParametersTypes ?? false,
-          exportExamples: config['zod-openapi'].exportExamples ?? false,
-          exportRequestBodies: config['zod-openapi'].exportRequestBodies ?? false,
-          exportHeaders: config['zod-openapi'].exportHeaders ?? false,
-          exportHeadersTypes: config['zod-openapi'].exportHeadersTypes ?? false,
-          exportSecuritySchemes: config['zod-openapi'].exportSecuritySchemes ?? false,
-          exportLinks: config['zod-openapi'].exportLinks ?? false,
-          exportCallbacks: config['zod-openapi'].exportCallbacks ?? false,
-          exportPathItems: config['zod-openapi'].exportPathItems ?? false,
-          exportMediaTypes: config['zod-openapi'].exportMediaTypes ?? false,
-          exportMediaTypesTypes: config['zod-openapi'].exportMediaTypesTypes ?? false,
-        })
+      ? takibi(
+          openAPI,
+          config['zod-openapi'].output,
+          config['zod-openapi'].template ?? false,
+          config['zod-openapi'].test ?? false,
+          config['zod-openapi'].basePath ?? '/',
+          {
+            readonly: config['zod-openapi'].readonly,
+            // OpenAPI Components Object order
+            exportSchemas: config['zod-openapi'].exportSchemas ?? false,
+            exportSchemasTypes: config['zod-openapi'].exportSchemasTypes ?? false,
+            exportResponses: config['zod-openapi'].exportResponses ?? false,
+            exportParameters: config['zod-openapi'].exportParameters ?? false,
+            exportParametersTypes: config['zod-openapi'].exportParametersTypes ?? false,
+            exportExamples: config['zod-openapi'].exportExamples ?? false,
+            exportRequestBodies: config['zod-openapi'].exportRequestBodies ?? false,
+            exportHeaders: config['zod-openapi'].exportHeaders ?? false,
+            exportHeadersTypes: config['zod-openapi'].exportHeadersTypes ?? false,
+            exportSecuritySchemes: config['zod-openapi'].exportSecuritySchemes ?? false,
+            exportLinks: config['zod-openapi'].exportLinks ?? false,
+            exportCallbacks: config['zod-openapi'].exportCallbacks ?? false,
+            exportPathItems: config['zod-openapi'].exportPathItems ?? false,
+            exportMediaTypes: config['zod-openapi'].exportMediaTypes ?? false,
+            exportMediaTypesTypes: config['zod-openapi'].exportMediaTypesTypes ?? false,
+          },
+        )
       : Promise.resolve(undefined),
     config['zod-openapi']?.components?.schemas
       ? schemas(

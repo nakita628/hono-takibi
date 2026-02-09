@@ -28,7 +28,7 @@ import {
   resolveSplitOutDir,
 } from '../../helper/index.js'
 import type { OpenAPI, OpenAPIPaths } from '../../openapi/index.js'
-import { makeOperationDocs, methodPath, makeInferRequestType } from '../../utils/index.js'
+import { makeInferRequestType, makeOperationDocs, methodPath } from '../../utils/index.js'
 
 /* ─────────────────────────────── Types ─────────────────────────────── */
 

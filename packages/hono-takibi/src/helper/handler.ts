@@ -368,8 +368,7 @@ export async function zodOpenAPIHonoHandler(
           const testCode = testFmtResult.ok ? testFmtResult.value : testContent
           const testFilePath = `${handlerPath}/${handler.testFileName}`
           const existingTestResult = await readFile(testFilePath)
-          if (!existingTestResult.ok)
-            return { ok: false, error: existingTestResult.error } as const
+          if (!existingTestResult.ok) return { ok: false, error: existingTestResult.error } as const
           const finalTestCode =
             existingTestResult.value !== null
               ? mergeTestFile(existingTestResult.value, testCode)
@@ -474,8 +473,7 @@ export async function mockZodOpenAPIHonoHandler(
           const testCode = testFmtResult.ok ? testFmtResult.value : testContent
           const testFilePath = `${handlerPath}/${handler.testFileName}`
           const existingTestResult = await readFile(testFilePath)
-          if (!existingTestResult.ok)
-            return { ok: false, error: existingTestResult.error } as const
+          if (!existingTestResult.ok) return { ok: false, error: existingTestResult.error } as const
           const finalTestCode =
             existingTestResult.value !== null
               ? mergeTestFile(existingTestResult.value, testCode)
@@ -515,4 +513,3 @@ export async function mockZodOpenAPIHonoHandler(
 
   return { ok: true, value: undefined }
 }
-

@@ -24,7 +24,13 @@
 import path from 'node:path'
 import { isOpenAPIPaths, isOperationLike, isRecord } from '../guard/index.js'
 import type { OpenAPI, OpenAPIPaths } from '../openapi/index.js'
-import { capitalize, escapeCommentEnd, makeOperationDocs, methodPath, makeInferRequestType } from '../utils/index.js'
+import {
+  capitalize,
+  escapeCommentEnd,
+  makeInferRequestType,
+  makeOperationDocs,
+  methodPath,
+} from '../utils/index.js'
 import {
   core,
   formatPath,
