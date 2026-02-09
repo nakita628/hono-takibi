@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { mergeAppFile, mergeBarrelFile, mergeHandlerFile } from './index.js'
+import { mergeAppFile, mergeBarrelFile, mergeHandlerFile, mergeTestFile } from './index.js'
 
 describe('merge', () => {
   describe('mergeHandlerFile', () => {
@@ -381,10 +381,220 @@ export default app
     })
   })
 
+  describe('mergeTestFile', () => {
+    it('preserves user mocks and custom tests', () => {
+      const existing = `import { describe, it, expect, vi } from 'vitest'
+import { faker } from '@faker-js/faker'
+import app from '..'
+
+vi.mock('../db', () => ({
+  findAll: () => [{ id: 1, name: 'Test' }]
+}))
+
+describe('Users', () => {
+  describe('GET /users', () => {
+    it('List users', async () => {
+      const res = await app.request('/users', { method: 'GET' })
+      expect(res.status).toBe(200)
+      const body = await res.json()
+      expect(body).toHaveLength(1)
+    })
+  })
+  describe('edge cases', () => {
+    it('returns empty array when no users', async () => {
+      const res = await app.request('/users?empty=true')
+      expect(res.status).toBe(200)
+    })
+  })
+})
+`
+
+      const generated = `import { describe, it, expect } from 'vitest'
+import { faker } from '@faker-js/faker'
+import app from '..'
+
+describe('Users', () => {
+  describe('GET /users', () => {
+    it('List users', async () => {
+      const res = await app.request('/users', { method: 'GET' })
+      expect(res.status).toBe(200)
+    })
+  })
+})
+`
+
+      const result = mergeTestFile(existing, generated)
+      // User mock preserved
+      expect(result).toContain("vi.mock('../db'")
+      // User-modified test preserved (body check)
+      expect(result).toContain('expect(body).toHaveLength(1)')
+      // User-added test preserved
+      expect(result).toContain('edge cases')
+      expect(result).toContain('returns empty array when no users')
+      // vi import preserved
+      expect(result).toContain('vi')
+    })
+
+    it('adds new route test stubs', () => {
+      const existing = `import { describe, it, expect } from 'vitest'
+import { faker } from '@faker-js/faker'
+import app from '..'
+
+describe('Users', () => {
+  describe('GET /users', () => {
+    it('List users', async () => {
+      const res = await app.request('/users', { method: 'GET' })
+      expect(res.status).toBe(200)
+    })
+  })
+})
+`
+
+      const generated = `import { describe, it, expect } from 'vitest'
+import { faker } from '@faker-js/faker'
+import app from '..'
+
+describe('Users', () => {
+  describe('GET /users', () => {
+    it('List users', async () => {
+      const res = await app.request('/users', { method: 'GET' })
+      expect(res.status).toBe(200)
+    })
+  })
+  describe('POST /users', () => {
+    it('Create user', async () => {
+      const body = { name: faker.person.firstName() }
+      const res = await app.request('/users', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+      expect(res.status).toBe(201)
+    })
+  })
+})
+`
+
+      const result = mergeTestFile(existing, generated)
+      // Existing test preserved
+      expect(result).toContain("describe('GET /users'")
+      // New test added
+      expect(result).toContain("describe('POST /users'")
+      expect(result).toContain('Create user')
+    })
+
+    it('does not duplicate existing route tests', () => {
+      const existing = `import { describe, it, expect } from 'vitest'
+import { faker } from '@faker-js/faker'
+import app from '..'
+
+describe('Users', () => {
+  describe('GET /users', () => {
+    it('List users', async () => {
+      const res = await app.request('/users', { method: 'GET' })
+      expect(res.status).toBe(200)
+    })
+  })
+  describe('POST /users', () => {
+    it('Create user', async () => {
+      const res = await app.request('/users', { method: 'POST' })
+      expect(res.status).toBe(201)
+    })
+  })
+})
+`
+
+      const generated = `import { describe, it, expect } from 'vitest'
+import { faker } from '@faker-js/faker'
+import app from '..'
+
+describe('Users', () => {
+  describe('GET /users', () => {
+    it('List users', async () => {
+      const res = await app.request('/users', { method: 'GET' })
+      expect(res.status).toBe(200)
+    })
+  })
+  describe('POST /users', () => {
+    it('Create user', async () => {
+      const res = await app.request('/users', { method: 'POST' })
+      expect(res.status).toBe(201)
+    })
+  })
+})
+`
+
+      const result = mergeTestFile(existing, generated)
+      // Should not duplicate
+      const getCount = (result.match(/describe\(\s*['"]GET \/users['"]/g) || []).length
+      expect(getCount).toBe(1)
+      const postCount = (result.match(/describe\(\s*['"]POST \/users['"]/g) || []).length
+      expect(postCount).toBe(1)
+    })
+
+    it('handles first generation (no changes)', () => {
+      const generated = `import { describe, it, expect } from 'vitest'
+import { faker } from '@faker-js/faker'
+import app from '..'
+
+describe('Health', () => {
+  describe('GET /health', () => {
+    it('OK', async () => {
+      const res = await app.request('/health', { method: 'GET' })
+      expect(res.status).toBe(200)
+    })
+  })
+})
+`
+
+      const result = mergeTestFile(generated, generated)
+      expect(result).toContain("describe('GET /health'")
+      const count = (result.match(/describe\(\s*['"]GET \/health['"]/g) || []).length
+      expect(count).toBe(1)
+    })
+
+    it('merges imports from both files', () => {
+      const existing = `import { describe, it, expect, vi } from 'vitest'
+import app from '..'
+
+describe('Users', () => {
+  describe('GET /users', () => {
+    it('test', async () => {})
+  })
+})
+`
+
+      const generated = `import { describe, it, expect } from 'vitest'
+import { faker } from '@faker-js/faker'
+import app from '..'
+
+describe('Users', () => {
+  describe('GET /users', () => {
+    it('test', async () => {})
+  })
+})
+`
+
+      const result = mergeTestFile(existing, generated)
+      // vi from existing preserved
+      expect(result).toContain('vi')
+      // faker from generated added
+      expect(result).toContain('faker')
+    })
+  })
+
   describe('mergeBarrelFile', () => {
-    it('merges export statements from both files', () => {
+    it('syncs with generated (removes deleted handler exports)', () => {
       const existing = `export * from './users'
-export * from './posts'
+export * from './pets'
+`
+
+      const generated = `export * from './users'
+`
+
+      const result = mergeBarrelFile(existing, generated)
+      expect(result).toContain("export * from './users'")
+      expect(result).not.toContain("export * from './pets'")
+    })
+
+    it('adds new exports from generated', () => {
+      const existing = `export * from './users'
 `
 
       const generated = `export * from './users'
@@ -393,20 +603,7 @@ export * from './comments'
 
       const result = mergeBarrelFile(existing, generated)
       expect(result).toContain("export * from './users'")
-      expect(result).toContain("export * from './posts'")
       expect(result).toContain("export * from './comments'")
-    })
-
-    it('preserves existing export lines', () => {
-      const existing = `export * from './users'
-`
-
-      const generated = `export * from './users'
-`
-
-      const result = mergeBarrelFile(existing, generated)
-      const count = (result.match(/export \* from '\.\/users'/g) || []).length
-      expect(count).toBe(1)
     })
 
     it('handles first generation', () => {

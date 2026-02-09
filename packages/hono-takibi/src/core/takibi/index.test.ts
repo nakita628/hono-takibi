@@ -486,7 +486,6 @@ export const getTestRoute = createRoute({
       expect(fs.existsSync(path.join(srcDir, 'handlers', 'test.test.ts'))).toBe(true)
       const testContent = fs.readFileSync(path.join(srcDir, 'handlers', 'test.test.ts'), 'utf-8')
       expect(testContent).toBe(`import { describe, it, expect } from 'vitest'
-import { faker } from '@faker-js/faker'
 import app from '..'
 
 describe('Test', () => {

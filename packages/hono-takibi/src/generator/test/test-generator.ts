@@ -367,7 +367,6 @@ export function generateTestFile(spec: OpenAPI, appImportPath: string = './app')
     const tag = tc.tag || 'default'
     return acc.set(tag, [...(acc.get(tag) || []), tc])
   }, new Map<string, TestCase[]>())
-  const imports = `import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'${appImportPath}'\n`
   const mockFunctions = generateMockFunctions(spec, usedSchemaNames)
   const tagDescribes = Array.from(byTag.entries())
     .map(([tag, cases]) => {
@@ -378,7 +377,11 @@ export function generateTestFile(spec: OpenAPI, appImportPath: string = './app')
     })
     .join('')
   const mockSection = mockFunctions ? `${mockFunctions}\n\n` : ''
-  return `${imports}\n${mockSection}describe('${escapeString(apiTitle)}',()=>{${tagDescribes}})\n`
+  const body = `${mockSection}describe('${escapeString(apiTitle)}',()=>{${tagDescribes}})\n`
+  const needsFaker = body.includes('faker.')
+  const fakerImport = needsFaker ? `\nimport{faker}from'@faker-js/faker'` : ''
+  const imports = `import{describe,it,expect}from'vitest'${fakerImport}\nimport app from'${appImportPath}'\n`
+  return `${imports}\n${body}`
 }
 
 /**
@@ -413,11 +416,14 @@ export function generateHandlerTestCode(
   })
   if (relevantCases.length === 0) return ''
   const usedSchemaNames = new Set(relevantCases.flatMap((tc) => tc.usedSchemaRefs))
-  const imports = `import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'${importFrom}'\n`
   const mockFunctions = generateMockFunctions(spec, usedSchemaNames)
   const testCasesCode = relevantCases.map((tc) => generateTestCase(tc)).join('')
   const mockSection = mockFunctions ? `${mockFunctions}\n\n` : ''
   // Capitalize resource name for describe block (e.g., "users" → "Users")
   const resourceName = handlerFileName.charAt(0).toUpperCase() + handlerFileName.slice(1)
-  return `${imports}\n${mockSection}describe('${resourceName}',()=>{${testCasesCode}})\n`
+  const body = `${mockSection}describe('${resourceName}',()=>{${testCasesCode}})\n`
+  const needsFaker = body.includes('faker.')
+  const fakerImport = needsFaker ? `\nimport{faker}from'@faker-js/faker'` : ''
+  const imports = `import{describe,it,expect}from'vitest'${fakerImport}\nimport app from'${importFrom}'\n`
+  return `${imports}\n${body}`
 }

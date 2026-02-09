@@ -4,10 +4,11 @@
  * Uses ts-morph for AST analysis and original text slicing for output,
  * preserving user edits (including comments) while syncing with OpenAPI spec changes.
  *
- * Supports three file types:
+ * Supports four file types:
  * - Handler files: add/remove/preserve handlers based on OpenAPI routes
  * - App file (index.ts): replace the `.openapi()` chain while preserving middleware/comments
- * - Barrel files: union of `export * from` statements
+ * - Test files: preserve user mocks/tests, add new route test stubs
+ * - Barrel files: sync with generated (source of truth)
  *
  * @module merge
  */
@@ -327,36 +328,124 @@ function mergeImports(existingCode: string, generatedCode: string): string[] {
 }
 
 /**
- * Merges barrel file (index.ts) content by taking the union of `export * from '...'` statements.
+ * Extracts `describe('METHOD /path', ...)` blocks from test code.
  *
- * @param existingCode - The current barrel file content.
- * @param generatedCode - The newly generated barrel file content.
- * @returns The merged barrel file content.
+ * Uses balanced-paren counting to find the full extent of each describe call.
+ * Returns a map of route identifier (e.g., "GET /users") to the block text.
  */
-export function mergeBarrelFile(existingCode: string, generatedCode: string): string {
-  const exportPattern = /^export \* from ['"]([^'"]+)['"]/
-  const existingExports = new Map<string, string>()
-  const generatedExports = new Map<string, string>()
+function extractRouteDescribeBlocks(code: string): Map<string, string> {
+  const result = new Map<string, string>()
+  const regex = /describe\(\s*['"]([A-Z]+\s+\/[^'"]*)['"]/g
 
-  for (const line of existingCode.split('\n')) {
-    const match = line.match(exportPattern)
-    if (match) {
-      existingExports.set(match[1], line)
+  for (const match of code.matchAll(regex)) {
+    const route = match[1]
+    const startIdx = match.index
+    if (startIdx === undefined) continue
+
+    // Find matching closing paren by counting balanced parens
+    let depth = 0
+    let end = startIdx
+    for (let i = startIdx; i < code.length; i++) {
+      if (code[i] === '(') depth++
+      if (code[i] === ')') {
+        depth--
+        if (depth === 0) {
+          end = i + 1
+          break
+        }
+      }
+    }
+
+    result.set(route, code.slice(startIdx, end))
+  }
+
+  return result
+}
+
+/**
+ * Merges generated test file with existing user-modified test file.
+ *
+ * Merge rules:
+ * - Route describe blocks (`describe('METHOD /path', ...)`) in both: keep existing (user mocks/edits preserved)
+ * - Route describe blocks only in generated: add (new route test stubs)
+ * - Everything else (user mocks, custom tests, helpers): keep existing
+ * - Imports: merge (add missing, keep user imports)
+ *
+ * A "route describe block" is identified by the pattern `describe('METHOD /path', ...)`.
+ *
+ * @param existingCode - The current test file content (user-modified).
+ * @param generatedCode - The newly generated test file content.
+ * @returns The merged test code.
+ */
+export function mergeTestFile(existingCode: string, generatedCode: string): string {
+  // 1. Find existing route describes
+  const routePattern = /describe\(\s*['"]([A-Z]+\s+\/[^'"]*)['"]/g
+  const existingRoutes = new Set(
+    [...existingCode.matchAll(routePattern)].map((m) => m[1]),
+  )
+
+  // 2. Extract new route describe blocks from generated code
+  const generatedBlocks = extractRouteDescribeBlocks(generatedCode)
+  const newBlocks = [...generatedBlocks.entries()]
+    .filter(([route]) => !existingRoutes.has(route))
+    .map(([, block]) => block)
+
+  // 3. Merge imports
+  const mergedImports = mergeImports(existingCode, generatedCode)
+
+  // 4. Find body start (after imports) in existing code
+  const project = new Project({ useInMemoryFileSystem: true })
+  const existFile = project.createSourceFile('existing.ts', existingCode)
+  const importDecls = existFile.getImportDeclarations()
+  const bodyStart =
+    importDecls.length > 0 ? importDecls[importDecls.length - 1].getEnd() : 0
+
+  const existingBody = existingCode.slice(bodyStart)
+
+  if (newBlocks.length === 0) {
+    // No new routes — keep existing body, merge imports only
+    const parts: string[] = []
+    if (mergedImports.length > 0) parts.push(mergedImports.join('\n'))
+    const trimmedBody = existingBody.trim()
+    if (trimmedBody) parts.push(trimmedBody)
+    return `${parts.join('\n\n')}\n`
+  }
+
+  // 5. Find insertion point: last line matching /^\s*\}\s*\)\s*;?\s*$/ (outer describe close)
+  const lines = existingBody.split('\n')
+  let insertLineIndex = -1
+  for (let i = lines.length - 1; i >= 0; i--) {
+    if (/^\s*\}\s*\)\s*;?\s*$/.test(lines[i])) {
+      insertLineIndex = i
+      break
     }
   }
 
-  for (const line of generatedCode.split('\n')) {
-    const match = line.match(exportPattern)
-    if (match) {
-      generatedExports.set(match[1], line)
-    }
+  if (insertLineIndex !== -1) {
+    // Insert new blocks before the outer describe's closing })
+    lines.splice(insertLineIndex, 0, '', ...newBlocks.map((b) => `  ${b}`))
+  } else {
+    // Fallback: append at end
+    lines.push('', ...newBlocks)
   }
 
-  // Union: keep existing lines, add new ones from generated
-  const allModules = new Set([...existingExports.keys(), ...generatedExports.keys()])
-  const lines = [...allModules]
-    .map((mod) => existingExports.get(mod) ?? generatedExports.get(mod) ?? '')
-    .filter((line) => line !== '')
+  const body = lines.join('\n').trim()
+  const parts: string[] = []
+  if (mergedImports.length > 0) parts.push(mergedImports.join('\n'))
+  if (body) parts.push(body)
+  return `${parts.join('\n\n')}\n`
+}
 
-  return `${lines.join('\n')}\n`
+/**
+ * Syncs barrel file (index.ts) with the generated version.
+ *
+ * The generated file is the source of truth (reflects current OpenAPI spec).
+ * Exports for deleted handler files are removed.
+ *
+ * @param _existingCode - The current barrel file content (unused, kept for API compatibility).
+ * @param generatedCode - The newly generated barrel file content.
+ * @returns The synced barrel file content.
+ */
+export function mergeBarrelFile(_existingCode: string, generatedCode: string): string {
+  return generatedCode
 }

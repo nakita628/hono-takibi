@@ -1,6 +1,33 @@
 import fsp from 'node:fs/promises'
 
 /**
+ * Removes a file. Returns ok if the file was deleted or did not exist.
+ *
+ * @param path - File path to remove.
+ * @returns A `Result` that is `ok` on success (including ENOENT), otherwise an error message.
+ */
+export async function unlink(path: string): Promise<
+  | {
+      readonly ok: true
+      readonly value: undefined
+    }
+  | {
+      readonly ok: false
+      readonly error: string
+    }
+> {
+  try {
+    await fsp.unlink(path)
+    return { ok: true, value: undefined }
+  } catch (e) {
+    if (e instanceof Error && 'code' in e && e.code === 'ENOENT') {
+      return { ok: true, value: undefined }
+    }
+    return { ok: false, error: e instanceof Error ? e.message : String(e) }
+  }
+}
+
+/**
  * Creates a directory if it does not already exist.
  *
  * @param dir - Directory path to create.

@@ -10,11 +10,11 @@
  * @module helper/handler
  */
 import { fmt } from '../format/index.js'
-import { mkdir, readFile, writeFile } from '../fsp/index.js'
+import { mkdir, readdir, readFile, unlink, writeFile } from '../fsp/index.js'
 import { schemaToFaker } from '../generator/test/faker-mapping.js'
 import { generateHandlerTestCode } from '../generator/test/index.js'
 import { isHttpMethod, isOperation, isOperationWithResponses } from '../guard/index.js'
-import { mergeBarrelFile, mergeHandlerFile } from '../merge/index.js'
+import { mergeBarrelFile, mergeHandlerFile, mergeTestFile } from '../merge/index.js'
 import type { OpenAPI, Operation, Schema } from '../openapi/index.js'
 import { methodPath } from '../utils/index.js'
 
@@ -263,6 +263,48 @@ function makeBarrelContent(fileNames: readonly string[]): string {
   return fileNames.map((h) => `export * from './${h.replace(/\.ts$/, '')}'`).join('\n')
 }
 
+/* ─────────────────────────────── Stale File Cleanup ─────────────────────────────── */
+
+/**
+ * Removes handler files (and their test files) that are no longer in the OpenAPI spec.
+ *
+ * Compares existing files in the handlers directory with the set of generated filenames.
+ * Any `.ts` handler file not in the generated set (excluding `index.ts` and `.test.ts` files)
+ * is deleted, along with its corresponding `.test.ts` file.
+ */
+async function removeStaleFiles(
+  handlerPath: string,
+  generatedFileNames: ReadonlySet<string>,
+): Promise<
+  { readonly ok: true; readonly value: undefined } | { readonly ok: false; readonly error: string }
+> {
+  const readdirResult = await readdir(handlerPath)
+  if (!readdirResult.ok) {
+    // Directory doesn't exist yet (first generation) — nothing to clean
+    return { ok: true, value: undefined }
+  }
+
+  const staleFiles = readdirResult.value.filter(
+    (file) =>
+      file.endsWith('.ts') &&
+      !file.endsWith('.test.ts') &&
+      file !== 'index.ts' &&
+      !generatedFileNames.has(file),
+  )
+
+  const results = await Promise.all(
+    staleFiles.flatMap((file) => [
+      unlink(`${handlerPath}/${file}`),
+      unlink(`${handlerPath}/${file.replace(/\.ts$/, '.test.ts')}`),
+    ]),
+  )
+
+  const firstError = results.find((r) => !r.ok)
+  if (firstError && !firstError.ok) return { ok: false, error: firstError.error }
+
+  return { ok: true, value: undefined }
+}
+
 /* ─────────────────────────────── Stub Handlers (Main) ─────────────────────────────── */
 
 /**
@@ -324,10 +366,15 @@ export async function zodOpenAPIHonoHandler(
         if (testContent) {
           const testFmtResult = await fmt(testContent)
           const testCode = testFmtResult.ok ? testFmtResult.value : testContent
-          const testWriteResult = await writeFile(
-            `${handlerPath}/${handler.testFileName}`,
-            testCode,
-          )
+          const testFilePath = `${handlerPath}/${handler.testFileName}`
+          const existingTestResult = await readFile(testFilePath)
+          if (!existingTestResult.ok)
+            return { ok: false, error: existingTestResult.error } as const
+          const finalTestCode =
+            existingTestResult.value !== null
+              ? mergeTestFile(existingTestResult.value, testCode)
+              : testCode
+          const testWriteResult = await writeFile(testFilePath, finalTestCode)
           if (!testWriteResult.ok) return { ok: false, error: testWriteResult.error } as const
         }
       }
@@ -354,6 +401,11 @@ export async function zodOpenAPIHonoHandler(
 
   const firstError = results.find((r) => !r.ok)
   if (firstError) return firstError
+
+  // Remove stale handler files (deleted from OpenAPI)
+  const generatedFileNames = new Set(handlers.map((h) => h.fileName))
+  const cleanupResult = await removeStaleFiles(handlerPath, generatedFileNames)
+  if (!cleanupResult.ok) return { ok: false, error: cleanupResult.error }
 
   return { ok: true, value: undefined }
 }
@@ -420,10 +472,15 @@ export async function mockZodOpenAPIHonoHandler(
         if (testContent) {
           const testFmtResult = await fmt(testContent)
           const testCode = testFmtResult.ok ? testFmtResult.value : testContent
-          const testWriteResult = await writeFile(
-            `${handlerPath}/${handler.testFileName}`,
-            testCode,
-          )
+          const testFilePath = `${handlerPath}/${handler.testFileName}`
+          const existingTestResult = await readFile(testFilePath)
+          if (!existingTestResult.ok)
+            return { ok: false, error: existingTestResult.error } as const
+          const finalTestCode =
+            existingTestResult.value !== null
+              ? mergeTestFile(existingTestResult.value, testCode)
+              : testCode
+          const testWriteResult = await writeFile(testFilePath, finalTestCode)
           if (!testWriteResult.ok) return { ok: false, error: testWriteResult.error } as const
         }
       }
@@ -450,6 +507,11 @@ export async function mockZodOpenAPIHonoHandler(
 
   const firstError = results.find((r) => !r.ok)
   if (firstError) return firstError
+
+  // Remove stale handler files (deleted from OpenAPI)
+  const generatedFileNames = new Set(handlers.map((h) => h.fileName))
+  const cleanupResult = await removeStaleFiles(handlerPath, generatedFileNames)
+  if (!cleanupResult.ok) return { ok: false, error: cleanupResult.error }
 
   return { ok: true, value: undefined }
 }
