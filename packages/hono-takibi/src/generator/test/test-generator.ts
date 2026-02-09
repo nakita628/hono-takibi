@@ -326,11 +326,12 @@ function generateTestCase(tc: TestCase): string {
   const allHeaders = [...headers, ...authHeaders]
   const headersOption = allHeaders.length > 0 ? `,headers:{${allHeaders.join(',')}}` : ''
   const headersWithoutAuth = headers.length > 0 ? `,headers:{${headers.join(',')}}` : ''
-  const summary = tc.summary || `${tc.method} ${tc.path}`
+  const summaryPart = tc.summary ? ` - ${escapeString(tc.summary)}` : ''
+  const itDescription = `should return ${tc.successStatus}${summaryPart}`
   const setupCode = [...pathSetup, ...querySetup, ...headerSetup, bodySetup]
     .filter(Boolean)
     .join('\n')
-  const mainTest = `describe('${tc.method} ${tc.path}',()=>{it('${escapeString(summary)}',async()=>{${setupCode}\nconst res=await app.request(\`${testPath}${queryString}\`,{method:'${tc.method}'${headersOption}${bodyOption}})\nexpect(res.status).toBe(${tc.successStatus})})`
+  const mainTest = `describe('${tc.method} ${tc.path}',()=>{it('${itDescription}',async()=>{${setupCode}\nconst res=await app.request(\`${testPath}${queryString}\`,{method:'${tc.method}'${headersOption}${bodyOption}})\nexpect(res.status).toBe(${tc.successStatus})})`
   const unauthorizedTest =
     tc.security.length > 0
       ? `\nit('should return 401 without auth',async()=>{${setupCode}\nconst res=await app.request(\`${testPath}${queryString}\`,{method:'${tc.method}'${headersWithoutAuth}${bodyOption}})\nexpect(res.status).toBe(401)})`

@@ -965,7 +965,7 @@ import app from '..'
 
 describe('Items', () => {
   describe('POST /items', () => {
-    it('POST /items', async () => {
+    it('should return 201', async () => {
       const res = await app.request(\`/items\`, { method: 'POST' })
       expect(res.status).toBe(201)
     })

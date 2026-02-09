@@ -549,6 +549,134 @@ describe('Health', () => {
       expect(count).toBe(1)
     })
 
+    it('removes describe blocks for deleted routes', () => {
+      const existing = `import { describe, it, expect } from 'vitest'
+import app from '..'
+
+describe('Users', () => {
+  describe('GET /users', () => {
+    it('List users', async () => {
+      const res = await app.request('/users', { method: 'GET' })
+      expect(res.status).toBe(200)
+    })
+  })
+  describe('DELETE /users/:id', () => {
+    it('Delete user', async () => {
+      const res = await app.request('/users/1', { method: 'DELETE' })
+      expect(res.status).toBe(204)
+    })
+  })
+})
+`
+
+      const generated = `import { describe, it, expect } from 'vitest'
+import app from '..'
+
+describe('Users', () => {
+  describe('GET /users', () => {
+    it('List users', async () => {
+      const res = await app.request('/users', { method: 'GET' })
+      expect(res.status).toBe(200)
+    })
+  })
+})
+`
+
+      const result = mergeTestFile(existing, generated)
+      expect(result).toContain("describe('GET /users'")
+      expect(result).not.toContain("describe('DELETE /users/:id'")
+      expect(result).not.toContain('Delete user')
+    })
+
+    it('removes stale routes while adding new routes', () => {
+      const existing = `import { describe, it, expect } from 'vitest'
+import app from '..'
+
+describe('Users', () => {
+  describe('GET /users', () => {
+    it('List users', async () => {
+      const res = await app.request('/users', { method: 'GET' })
+      expect(res.status).toBe(200)
+    })
+  })
+  describe('DELETE /users/:id', () => {
+    it('Delete user', async () => {
+      const res = await app.request('/users/1', { method: 'DELETE' })
+      expect(res.status).toBe(204)
+    })
+  })
+})
+`
+
+      const generated = `import { describe, it, expect } from 'vitest'
+import app from '..'
+
+describe('Users', () => {
+  describe('GET /users', () => {
+    it('List users', async () => {
+      const res = await app.request('/users', { method: 'GET' })
+      expect(res.status).toBe(200)
+    })
+  })
+  describe('POST /users', () => {
+    it('Create user', async () => {
+      const res = await app.request('/users', { method: 'POST' })
+      expect(res.status).toBe(201)
+    })
+  })
+})
+`
+
+      const result = mergeTestFile(existing, generated)
+      expect(result).toContain("describe('GET /users'")
+      expect(result).toContain("describe('POST /users'")
+      expect(result).not.toContain("describe('DELETE /users/:id'")
+      expect(result).not.toContain('Delete user')
+    })
+
+    it('preserves user mocks when removing stale routes', () => {
+      const existing = `import { describe, it, expect, vi } from 'vitest'
+import app from '..'
+
+vi.mock('../db', () => ({
+  findAll: () => [{ id: 1, name: 'Test' }]
+}))
+
+describe('Users', () => {
+  describe('GET /users', () => {
+    it('List users', async () => {
+      const res = await app.request('/users', { method: 'GET' })
+      expect(res.status).toBe(200)
+    })
+  })
+  describe('DELETE /users/:id', () => {
+    it('Delete user', async () => {
+      const res = await app.request('/users/1', { method: 'DELETE' })
+      expect(res.status).toBe(204)
+    })
+  })
+})
+`
+
+      const generated = `import { describe, it, expect } from 'vitest'
+import app from '..'
+
+describe('Users', () => {
+  describe('GET /users', () => {
+    it('List users', async () => {
+      const res = await app.request('/users', { method: 'GET' })
+      expect(res.status).toBe(200)
+    })
+  })
+})
+`
+
+      const result = mergeTestFile(existing, generated)
+      expect(result).toContain("vi.mock('../db'")
+      expect(result).toContain("describe('GET /users'")
+      expect(result).not.toContain("describe('DELETE /users/:id'")
+    })
+
     it('merges imports from both files', () => {
       const existing = `import { describe, it, expect, vi } from 'vitest'
 import app from '..'

@@ -278,6 +278,7 @@ const runAllGenerationTasks = async (
         config['zod-openapi']?.template ?? false,
         config['zod-openapi']?.test ?? false,
         config['zod-openapi']?.basePath ?? '/',
+        config['zod-openapi']?.pathAlias,
         {
           readonly: config['zod-openapi']?.readonly,
           exportSchemasTypes: config['zod-openapi']?.exportSchemasTypes ?? false,

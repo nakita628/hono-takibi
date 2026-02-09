@@ -39,6 +39,7 @@ const ConfigSchema = z
         template: z.boolean().exactOptional(),
         test: z.boolean().exactOptional(),
         basePath: z.string().exactOptional(),
+        pathAlias: z.string().exactOptional(),
         // OpenAPI Components Object order
         exportSchemas: z.boolean().exactOptional(),
         exportSchemasTypes: z.boolean().exactOptional(),

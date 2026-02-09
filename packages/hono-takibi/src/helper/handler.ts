@@ -126,16 +126,22 @@ function makeTestFileName(fileName: `${string}.ts`): `${string}.ts` {
   return `${fileName.replace(/\.ts$/, '')}.test.ts`
 }
 
-function makePaths(output: string): {
+function makePaths(
+  output: string,
+  pathAlias: string | undefined,
+): {
   readonly handlerPath: string
   readonly importFrom: string
+  readonly testImportFrom: string
 } {
   const isDot = output === '.' || output === './'
   const baseDir = isDot ? '.' : (output.match(/^(.*)\/[^/]+\.ts$/)?.[1] ?? '.')
   const handlerPath = baseDir === '.' ? 'handlers' : `${baseDir}/handlers`
   const routeEntryBasename = output.match(/[^/]+\.ts$/)?.[0] ?? 'index.ts'
-  const importFrom = `../${routeEntryBasename.replace(/\.ts$/, '')}`
-  return { handlerPath, importFrom }
+  const routeModuleName = routeEntryBasename.replace(/\.ts$/, '')
+  const importFrom = pathAlias ? `${pathAlias}/${routeModuleName}` : `../${routeModuleName}`
+  const testImportFrom = pathAlias ?? '..'
+  return { handlerPath, importFrom, testImportFrom }
 }
 
 /* ─────────────────────────────── Handler Info ─────────────────────────────── */
@@ -319,6 +325,7 @@ export async function zodOpenAPIHonoHandler(
   openapi: OpenAPI,
   output: string,
   test = false,
+  pathAlias: string | undefined = undefined,
 ): Promise<
   { readonly ok: true; readonly value: undefined } | { readonly ok: false; readonly error: string }
 > {
@@ -334,7 +341,7 @@ export async function zodOpenAPIHonoHandler(
     ),
   )
 
-  const { handlerPath, importFrom } = makePaths(output)
+  const { handlerPath, importFrom, testImportFrom } = makePaths(output, pathAlias)
 
   const mkdirResult = await mkdir(handlerPath)
   if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error }
@@ -361,7 +368,7 @@ export async function zodOpenAPIHonoHandler(
           openapi,
           `${handlerPath}/${handler.fileName}`,
           [...handler.routeNames],
-          '..',
+          testImportFrom,
         )
         if (testContent) {
           const testFmtResult = await fmt(testContent)
@@ -369,10 +376,12 @@ export async function zodOpenAPIHonoHandler(
           const testFilePath = `${handlerPath}/${handler.testFileName}`
           const existingTestResult = await readFile(testFilePath)
           if (!existingTestResult.ok) return { ok: false, error: existingTestResult.error } as const
-          const finalTestCode =
+          const mergedTestCode =
             existingTestResult.value !== null
               ? mergeTestFile(existingTestResult.value, testCode)
               : testCode
+          const finalFmtResult = await fmt(mergedTestCode)
+          const finalTestCode = finalFmtResult.ok ? finalFmtResult.value : mergedTestCode
           const testWriteResult = await writeFile(testFilePath, finalTestCode)
           if (!testWriteResult.ok) return { ok: false, error: testWriteResult.error } as const
         }
@@ -417,12 +426,14 @@ export async function zodOpenAPIHonoHandler(
  * @param openapi - The OpenAPI specification object.
  * @param output - The output directory or file path for generated handlers.
  * @param test - Whether to generate corresponding test files.
+ * @param pathAlias - Optional path alias prefix for import paths.
  * @returns A `Result` indicating success or error with message.
  */
 export async function mockZodOpenAPIHonoHandler(
   openapi: OpenAPI,
   output: string,
   test: boolean,
+  pathAlias: string | undefined = undefined,
 ): Promise<
   { readonly ok: true; readonly value: undefined } | { readonly ok: false; readonly error: string }
 > {
@@ -439,7 +450,7 @@ export async function mockZodOpenAPIHonoHandler(
     ),
   )
 
-  const { handlerPath, importFrom } = makePaths(output)
+  const { handlerPath, importFrom, testImportFrom } = makePaths(output, pathAlias)
 
   const mkdirResult = await mkdir(handlerPath)
   if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error }
@@ -466,7 +477,7 @@ export async function mockZodOpenAPIHonoHandler(
           openapi,
           `${handlerPath}/${handler.fileName}`,
           [...handler.routeNames],
-          '..',
+          testImportFrom,
         )
         if (testContent) {
           const testFmtResult = await fmt(testContent)
@@ -474,10 +485,12 @@ export async function mockZodOpenAPIHonoHandler(
           const testFilePath = `${handlerPath}/${handler.testFileName}`
           const existingTestResult = await readFile(testFilePath)
           if (!existingTestResult.ok) return { ok: false, error: existingTestResult.error } as const
-          const finalTestCode =
+          const mergedTestCode =
             existingTestResult.value !== null
               ? mergeTestFile(existingTestResult.value, testCode)
               : testCode
+          const finalFmtResult = await fmt(mergedTestCode)
+          const finalTestCode = finalFmtResult.ok ? finalFmtResult.value : mergedTestCode
           const testWriteResult = await writeFile(testFilePath, finalTestCode)
           if (!testWriteResult.ok) return { ok: false, error: testWriteResult.error } as const
         }

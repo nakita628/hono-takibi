@@ -139,6 +139,7 @@ function parseCli(args: readonly string[]):
         readonly template: boolean
         readonly test: boolean
         readonly basePath: string
+        readonly pathAlias: string | undefined
         readonly componentsOptions: {
           readonly readonly: boolean
           readonly exportSchemas: boolean
@@ -191,6 +192,7 @@ function parseCli(args: readonly string[]):
       template: args.includes('--template'),
       test: args.includes('--test'),
       basePath: getFlagValue(args, '--base-path') ?? '/',
+      pathAlias: getFlagValue(args, '--path-alias'),
       componentsOptions: {
         readonly: args.includes('--readonly'),
         // OpenAPI Components Object order
@@ -228,11 +230,19 @@ export async function honoTakibi(): Promise<
     const cliResult = parseCli(args)
     if (!cliResult.ok) return { ok: false, error: cliResult.error }
     const value = cliResult.value
-    const { input, output, template, test, basePath, componentsOptions } = value
+    const { input, output, template, test, basePath, pathAlias, componentsOptions } = value
     const openAPIResult = await parseOpenAPI(input)
     if (!openAPIResult.ok) return { ok: false, error: openAPIResult.error }
     const openAPI = openAPIResult.value
-    const takibiResult = await takibi(openAPI, output, template, test, basePath, componentsOptions)
+    const takibiResult = await takibi(
+      openAPI,
+      output,
+      template,
+      test,
+      basePath,
+      pathAlias,
+      componentsOptions,
+    )
     if (!takibiResult.ok) return { ok: false, error: takibiResult.error }
     return { ok: true, value: takibiResult.value }
   }
@@ -276,6 +286,7 @@ export async function honoTakibi(): Promise<
           config['zod-openapi'].template ?? false,
           config['zod-openapi'].test ?? false,
           config['zod-openapi'].basePath ?? '/',
+          config['zod-openapi'].pathAlias,
           {
             readonly: config['zod-openapi'].readonly,
             // OpenAPI Components Object order

@@ -16,7 +16,12 @@ import { methodPath } from '../../../utils/index.js'
  * // Returns generated Hono app code with route handlers
  * ```
  */
-export function app(openapi: OpenAPI, output: `${string}.ts`, basePath: string): string {
+export function app(
+  openapi: OpenAPI,
+  output: `${string}.ts`,
+  basePath: string,
+  pathAlias: string | undefined,
+): string {
   const getRouteMaps = (
     openapi: OpenAPI,
   ): { routeName: string; handlerName: string; path: string }[] => {
@@ -37,13 +42,15 @@ export function app(openapi: OpenAPI, output: `${string}.ts`, basePath: string):
   const routeMappings = getRouteMaps(openapi)
 
   const routeNames = [...new Set(routeMappings.map((m) => m.routeName))]
-  const routeModule = `./${output.replace(/^.*\//, '').replace(/\.ts$/, '')}`
+  const routeBasename = output.replace(/^.*\//, '').replace(/\.ts$/, '')
+  const routeModule = pathAlias ? `${pathAlias}/${routeBasename}` : `./${routeBasename}`
   const routesImport =
     routeNames.length > 0 ? `import{${routeNames.join(',')}}from'${routeModule}'` : ''
 
   const handlerNames = [...new Set(routeMappings.map((m) => m.handlerName))]
+  const handlerModule = pathAlias ? `${pathAlias}/handlers` : './handlers'
   const handlerImport =
-    handlerNames.length > 0 ? `import{${handlerNames.join(',')}}from'./handlers'` : ''
+    handlerNames.length > 0 ? `import{${handlerNames.join(',')}}from'${handlerModule}'` : ''
 
   const importSection = [`import{OpenAPIHono}from'@hono/zod-openapi'`, routesImport, handlerImport]
     .filter(Boolean)

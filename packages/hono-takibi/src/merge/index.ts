@@ -7,7 +7,7 @@
  * Supports four file types:
  * - Handler files: add/remove/preserve handlers based on OpenAPI routes
  * - App file (index.ts): replace the `.openapi()` chain while preserving middleware/comments
- * - Test files: preserve user mocks/tests, add new route test stubs
+ * - Test files: preserve user mocks/tests, add/remove route test stubs based on OpenAPI routes
  * - Barrel files: sync with generated (source of truth)
  *
  * @module merge
@@ -74,11 +74,12 @@ export function mergeHandlerFile(existingCode: string, generatedCode: string): s
     .filter(
       (stmt) =>
         stmt.isExported() &&
-        stmt.getDeclarations().some(
-          (decl) =>
-            decl.getName().endsWith('RouteHandler') &&
-            !generatedHandlerNames.has(decl.getName()),
-        ),
+        stmt
+          .getDeclarations()
+          .some(
+            (decl) =>
+              decl.getName().endsWith('RouteHandler') && !generatedHandlerNames.has(decl.getName()),
+          ),
     )
     .map((stmt): [number, number] => [stmt.getFullStart(), stmt.getEnd()])
     .toSorted((a, b) => a[0] - b[0])
@@ -106,11 +107,12 @@ export function mergeHandlerFile(existingCode: string, generatedCode: string): s
     .filter(
       (stmt) =>
         stmt.isExported() &&
-        stmt.getDeclarations().some(
-          (decl) =>
-            decl.getName().endsWith('RouteHandler') &&
-            !existingHandlerNames.has(decl.getName()),
-        ),
+        stmt
+          .getDeclarations()
+          .some(
+            (decl) =>
+              decl.getName().endsWith('RouteHandler') && !existingHandlerNames.has(decl.getName()),
+          ),
     )
     .map((stmt) => stmt.getText())
 
@@ -178,10 +180,9 @@ export function mergeAppFile(existingCode: string, generatedCode: string): strin
       existingCode.slice(apiReplaceRange[1])
     : existingCode.slice(bodyStart)
 
-  const parts = [
-    mergedImports.length > 0 ? mergedImports.join('\n') : '',
-    body.trim(),
-  ].filter(Boolean)
+  const parts = [mergedImports.length > 0 ? mergedImports.join('\n') : '', body.trim()].filter(
+    Boolean,
+  )
 
   return `${parts.join('\n\n')}\n`
 }
@@ -306,22 +307,24 @@ function mergeImports(existingCode: string, generatedCode: string): string[] {
  * Extracts `describe('METHOD /path', ...)` blocks from test code.
  *
  * Uses balanced-paren counting to find the full extent of each describe call.
- * Returns a map of route identifier (e.g., "GET /users") to the block text.
+ * Returns a map of route identifier (e.g., "GET /users") to block info
+ * including text and source positions for removal.
  */
-function extractRouteDescribeBlocks(code: string): Map<string, string> {
-  const result = new Map<string, string>()
+function extractRouteDescribeBlocks(
+  code: string,
+): Map<string, { readonly text: string; readonly start: number; readonly end: number }> {
   const regex = /describe\(\s*['"]([A-Z]+\s+\/[^'"]*)['"]/g
 
-  for (const match of code.matchAll(regex)) {
-    const route = match[1]
-    const startIdx = match.index
-    if (startIdx === undefined) continue
-
-    const end = findBalancedParenEnd(code, startIdx)
-    result.set(route, code.slice(startIdx, end))
-  }
-
-  return result
+  return new Map(
+    [...code.matchAll(regex)]
+      .filter((match) => match.index !== undefined)
+      .map((match) => {
+        const route = match[1]
+        const start = match.index
+        const end = findBalancedParenEnd(code, start)
+        return [route, { text: code.slice(start, end), start, end }] as const
+      }),
+  )
 }
 
 /**
@@ -330,6 +333,7 @@ function extractRouteDescribeBlocks(code: string): Map<string, string> {
  * Merge rules:
  * - Route describe blocks (`describe('METHOD /path', ...)`) in both: keep existing (user mocks/edits preserved)
  * - Route describe blocks only in generated: add (new route test stubs)
+ * - Route describe blocks only in existing: delete (route removed from OpenAPI)
  * - Everything else (user mocks, custom tests, helpers): keep existing
  * - Imports: merge (add missing, keep user imports)
  *
@@ -340,38 +344,54 @@ function extractRouteDescribeBlocks(code: string): Map<string, string> {
  * @returns The merged test code.
  */
 export function mergeTestFile(existingCode: string, generatedCode: string): string {
-  // 1. Find existing route describes
-  const routePattern = /describe\(\s*['"]([A-Z]+\s+\/[^'"]*)['"]/g
-  const existingRoutes = new Set([...existingCode.matchAll(routePattern)].map((m) => m[1]))
-
-  // 2. Extract new route describe blocks from generated code
+  // 1. Extract route describe blocks from both files
+  const existingBlocks = extractRouteDescribeBlocks(existingCode)
   const generatedBlocks = extractRouteDescribeBlocks(generatedCode)
+  const generatedRoutes = new Set(generatedBlocks.keys())
+  const existingRoutes = new Set(existingBlocks.keys())
+
+  // 2. Stale routes: in existing but not in generated → remove
+  const staleRanges = [...existingBlocks.entries()]
+    .filter(([route]) => !generatedRoutes.has(route))
+    .map(([, block]): [number, number] => [block.start, block.end])
+    .toSorted((a, b) => a[0] - b[0])
+
+  // 3. New routes: in generated but not in existing → add
   const newBlocks = [...generatedBlocks.entries()]
     .filter(([route]) => !existingRoutes.has(route))
-    .map(([, block]) => block)
+    .map(([, block]) => block.text)
 
-  // 3. Merge imports
+  // 4. Merge imports
   const mergedImports = mergeImports(existingCode, generatedCode)
 
-  // 4. Find body start (after imports) in existing code
+  // 5. Find body start (after imports) in existing code
   const project = new Project({ useInMemoryFileSystem: true })
   const existFile = project.createSourceFile('existing.ts', existingCode)
   const importDecls = existFile.getImportDeclarations()
   const bodyStart = importDecls.length > 0 ? importDecls[importDecls.length - 1].getEnd() : 0
 
-  const existingBody = existingCode.slice(bodyStart)
+  // 6. Build body by removing stale describe blocks from original text
+  const filteredRanges = staleRanges.filter(([start]) => start >= bodyStart)
+  const keepSlices = [
+    ...filteredRanges.map(([start], i) =>
+      existingCode.slice(i === 0 ? bodyStart : filteredRanges[i - 1][1], start),
+    ),
+    existingCode.slice(
+      filteredRanges.length > 0 ? filteredRanges[filteredRanges.length - 1][1] : bodyStart,
+    ),
+  ]
+  const bodyWithRemovals = keepSlices.join('').replace(/\n{3,}/g, '\n\n')
 
   if (newBlocks.length === 0) {
-    // No new routes — keep existing body, merge imports only
     const parts = [
       mergedImports.length > 0 ? mergedImports.join('\n') : '',
-      existingBody.trim(),
+      bodyWithRemovals.trim(),
     ].filter(Boolean)
     return `${parts.join('\n\n')}\n`
   }
 
-  // 5. Find insertion point: last line matching /^\s*\}\s*\)\s*;?\s*$/ (outer describe close)
-  const lines = existingBody.split('\n')
+  // 7. Find insertion point: last line matching /^\s*\}\s*\)\s*;?\s*$/ (outer describe close)
+  const lines = bodyWithRemovals.split('\n')
   const insertLineIndex = lines.findLastIndex((line) => /^\s*\}\s*\)\s*;?\s*$/.test(line))
 
   const modifiedLines =
@@ -385,10 +405,7 @@ export function mergeTestFile(existingCode: string, generatedCode: string): stri
       : [...lines, '', ...newBlocks]
 
   const body = modifiedLines.join('\n').trim()
-  const parts = [
-    mergedImports.length > 0 ? mergedImports.join('\n') : '',
-    body,
-  ].filter(Boolean)
+  const parts = [mergedImports.length > 0 ? mergedImports.join('\n') : '', body].filter(Boolean)
   return `${parts.join('\n\n')}\n`
 }
 
