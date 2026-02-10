@@ -306,6 +306,23 @@ export default defineConfig({
 
 The mock server generates realistic responses using `@faker-js/faker` based on your OpenAPI response schemas.
 
+### API Reference Docs
+
+Generate API reference Markdown with executable `hono request` commands:
+
+```ts
+export default defineConfig({
+  input: 'openapi.yaml',
+  'zod-openapi': { output: './src/routes.ts', readonly: true },
+  docs: {
+    output: './docs/api.md',
+    entry: 'src/index.ts', // entry point for hono request commands (default: 'src/index.ts')
+  },
+})
+```
+
+The generated Markdown includes a table of contents, endpoint sections grouped by path, and `hono request` commands that can be run directly without starting a server.
+
 ## Advanced Configuration
 
 The following options are for **large-scale projects** or cases where you need fine-grained control over code generation. Most projects work fine with the [Quick Start](#quick-start) config above.
@@ -469,6 +486,11 @@ export default defineConfig({
   },
   mock: {
     output: './src/mock.ts',
+  },
+  // API Reference Docs
+  docs: {
+    output: './docs/api.md',
+    entry: 'src/index.ts',
   },
 })
 ```
