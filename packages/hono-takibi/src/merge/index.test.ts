@@ -246,6 +246,51 @@ export const getUserRouteHandler: RouteHandler<typeof getUserRoute> = async (c) 
       expect(result).toContain("from '../db'")
       expect(result).toContain('await db.getUser')
     })
+
+    it('deduplicates route imports when path-alias changes', () => {
+      const existing = `import type { RouteHandler } from '@hono/zod-openapi'
+import type { getHealthRoute } from '../routes'
+
+export const getHealthRouteHandler: RouteHandler<typeof getHealthRoute> = async (c) => {}
+`
+
+      const generated = `import type { RouteHandler } from '@hono/zod-openapi'
+import type { getHealthRoute } from '@/routes/routes'
+
+export const getHealthRouteHandler: RouteHandler<typeof getHealthRoute> = async (c) => {}
+`
+
+      const result = mergeHandlerFile(existing, generated)
+      // Should use the generated path (source of truth)
+      expect(result).toContain("from '@/routes/routes'")
+      // Should NOT keep the old path
+      expect(result).not.toContain("from '../routes'")
+      // Should have exactly one import of getHealthRoute
+      const importCount = (result.match(/getHealthRoute/g) || []).length
+      // One in import, one in RouteHandler type reference, one in variable name
+      expect(importCount).toBeLessThanOrEqual(3)
+    })
+
+    it('deduplicates route imports across multiple path-alias re-runs', () => {
+      const existing = `import type { RouteHandler } from '@hono/zod-openapi'
+import type { getHealthRoute } from '../routes'
+import type { getHealthRoute } from '@/routes/routes'
+
+export const getHealthRouteHandler: RouteHandler<typeof getHealthRoute> = async (c) => {}
+`
+
+      const generated = `import type { RouteHandler } from '@hono/zod-openapi'
+import type { getHealthRoute } from '@/api/routes'
+
+export const getHealthRouteHandler: RouteHandler<typeof getHealthRoute> = async (c) => {}
+`
+
+      const result = mergeHandlerFile(existing, generated)
+      // Should use the latest generated path only
+      expect(result).toContain("from '@/api/routes'")
+      expect(result).not.toContain("from '../routes'")
+      expect(result).not.toContain("from '@/routes/routes'")
+    })
   })
 
   describe('mergeAppFile', () => {
@@ -732,6 +777,83 @@ describe('Users', () => {
       expect(result).toContain('vi')
       // faker from generated added
       expect(result).toContain('faker')
+    })
+
+    it('deduplicates default imports when path-alias changes', () => {
+      const existing = `import { describe, expect, it } from 'vitest'
+import app from '..'
+
+describe('Health', () => {
+  describe('GET /health', () => {
+    it('should return 200', async () => {
+      const res = await app.request('/health', { method: 'GET' })
+      expect(res.status).toBe(200)
+    })
+  })
+})
+`
+
+      const generated = `import { describe, expect, it } from 'vitest'
+import app from '@/api'
+
+describe('Health', () => {
+  describe('GET /health', () => {
+    it('should return 200', async () => {
+      const res = await app.request('/health', { method: 'GET' })
+      expect(res.status).toBe(200)
+    })
+  })
+})
+`
+
+      const result = mergeTestFile(existing, generated)
+      // Should use the generated path (source of truth)
+      expect(result).toContain("from '@/api'")
+      // Should NOT keep the old path
+      expect(result).not.toContain("from '..'")
+      // Should have exactly one 'import app'
+      const importAppCount = (result.match(/import app from/g) || []).length
+      expect(importAppCount).toBe(1)
+    })
+
+    it('deduplicates default imports across multiple path-alias re-runs', () => {
+      const existing = `import { describe, expect, it } from 'vitest'
+import app from '@/routes'
+import app from '@/api'
+import app from '..'
+
+describe('Health', () => {
+  describe('GET /health', () => {
+    it('should return 200', async () => {
+      const res = await app.request('/health', { method: 'GET' })
+      expect(res.status).toBe(200)
+    })
+  })
+})
+`
+
+      const generated = `import { describe, expect, it } from 'vitest'
+import app from '@/api'
+
+describe('Health', () => {
+  describe('GET /health', () => {
+    it('should return 200', async () => {
+      const res = await app.request('/health', { method: 'GET' })
+      expect(res.status).toBe(200)
+    })
+  })
+})
+`
+
+      const result = mergeTestFile(existing, generated)
+      // Should use the generated path only
+      expect(result).toContain("from '@/api'")
+      // Should NOT keep old paths
+      expect(result).not.toContain("from '@/routes'")
+      expect(result).not.toContain("from '..'")
+      // Should have exactly one 'import app'
+      const importAppCount = (result.match(/import app from/g) || []).length
+      expect(importAppCount).toBe(1)
     })
   })
 

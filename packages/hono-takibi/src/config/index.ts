@@ -266,6 +266,14 @@ const ConfigSchema = z
         output: z.custom<string | `${string}.ts`>((v) => typeof v === 'string'),
       })
       .exactOptional(),
+    docs: z
+      .object({
+        output: z.custom<`${string}.md`>((v) => typeof v === 'string' && v.endsWith('.md'), {
+          message: 'must be .md file',
+        }),
+        entry: z.string().default('src/index.ts'),
+      })
+      .exactOptional(),
   })
   .transform((config) => {
     const normalize = (output: string, split?: boolean) =>

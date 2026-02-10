@@ -9,16 +9,25 @@
  *
  * @module generator/mock
  */
-import { isHttpMethod, isOperation, isSecurityArray, isSecurityScheme } from '../../guard/index.js'
-import type { OpenAPI, Schema } from '../../openapi/index.js'
+import {
+  isHttpMethod,
+  isMediaWithSchema,
+  isOperation,
+  isRefObject,
+  isSecurityArray,
+  isSecurityScheme,
+} from '../../guard/index.js'
+import type { OpenAPI, Responses, Schema } from '../../openapi/index.js'
 import { methodPath } from '../../utils/index.js'
 import { schemaToFaker } from '../test/faker-mapping.js'
 import { componentsCode } from '../zod-openapi-hono/openapi/components/index.js'
 import { routeCode } from '../zod-openapi-hono/openapi/routes/index.js'
 
+/* ── Schema ref collection ─────────────────────────────────────────── */
+
 function collectRefs(schema: Schema, refs: Set<string> = new Set()): Set<string> {
   if (schema.$ref) {
-    const refName = schema.$ref.split('/').pop()
+    const refName = schema.$ref.split('/').at(-1)
     if (refName) refs.add(refName)
   }
   if (schema.items) {
@@ -46,7 +55,7 @@ function collectRefs(schema: Schema, refs: Set<string> = new Set()): Set<string>
 
 function collectAllDependencies(
   refName: string,
-  schemas: { [key: string]: Schema },
+  schemas: { readonly [k: string]: Schema },
   visited: Set<string> = new Set(),
 ): Set<string> {
   if (visited.has(refName)) return visited
@@ -62,7 +71,10 @@ function collectAllDependencies(
   return visited
 }
 
-function topologicalSort(refs: Set<string>, schemas: { [key: string]: Schema }): string[] {
+function topologicalSort(
+  refs: Set<string>,
+  schemas: { readonly [k: string]: Schema },
+): readonly string[] {
   const visited = new Set<string>()
   const result: string[] = []
 
@@ -87,7 +99,7 @@ function topologicalSort(refs: Set<string>, schemas: { [key: string]: Schema }):
   return result
 }
 
-function detectCircularSchemas(schemas: { [key: string]: Schema }): Set<string> {
+function detectCircularSchemas(schemas: { readonly [k: string]: Schema }): Set<string> {
   const circular = new Set<string>()
   for (const name of Object.keys(schemas)) {
     const schema = schemas[name]
@@ -100,7 +112,8 @@ function detectCircularSchemas(schemas: { [key: string]: Schema }): Set<string> 
       const visited = new Set<string>()
       const stack = [dep]
       while (stack.length > 0) {
-        const current = stack.pop()
+        const current = stack[stack.length - 1]
+        stack.length -= 1
         if (current === undefined) break
         if (current === name) {
           circular.add(name)
@@ -117,13 +130,15 @@ function detectCircularSchemas(schemas: { [key: string]: Schema }): Set<string> 
   return circular
 }
 
+/* ── Mock function generation ──────────────────────────────────────── */
+
 /**
  * Generate mock function for a schema
  */
 function generateMockFunction(
   name: string,
   schema: Schema,
-  schemas: { [key: string]: Schema },
+  schemas: { readonly [k: string]: Schema },
   isCircular: boolean,
 ): string {
   const mockBody = schemaToFaker(schema, undefined, { schemas })
@@ -131,57 +146,65 @@ function generateMockFunction(
   return `function mock${name}()${returnType} {\n  return ${mockBody}\n}`
 }
 
+/* ── Security helpers ──────────────────────────────────────────────── */
+
 type SecurityInfo = {
-  type: 'bearer' | 'apiKey' | 'basic' | 'oauth2'
-  name: string
-  in?: 'header' | 'query' | 'cookie'
+  readonly type: 'bearer' | 'apiKey' | 'basic' | 'oauth2'
+  readonly name: string
+  readonly in?: 'header' | 'query' | 'cookie'
 }
 
 function extractSecurityInfo(
-  opSecurity: readonly { readonly [key: string]: readonly string[] }[] | undefined,
-  globalSecurity: readonly { readonly [key: string]: readonly string[] }[] | undefined,
-  securitySchemes: { [key: string]: unknown } | undefined,
-): SecurityInfo[] {
+  opSecurity: readonly { readonly [k: string]: readonly string[] }[] | undefined,
+  globalSecurity: readonly { readonly [k: string]: readonly string[] }[] | undefined,
+  securitySchemes: { readonly [k: string]: unknown } | undefined,
+): readonly SecurityInfo[] {
   const securityDefs = opSecurity ?? globalSecurity ?? []
-  const infos: SecurityInfo[] = []
-  for (const secDef of securityDefs) {
-    for (const schemeName of Object.keys(secDef)) {
+  return securityDefs.flatMap((secDef) =>
+    Object.keys(secDef).flatMap((schemeName): readonly SecurityInfo[] => {
       const scheme = securitySchemes?.[schemeName]
-      if (!(scheme && isSecurityScheme(scheme))) continue
+      if (!(scheme && isSecurityScheme(scheme))) return []
       if (scheme.type === 'http' && scheme.scheme === 'bearer') {
-        infos.push({ type: 'bearer', name: 'Authorization' })
-      } else if (scheme.type === 'http' && scheme.scheme === 'basic') {
-        infos.push({ type: 'basic', name: 'Authorization' })
-      } else if (scheme.type === 'apiKey') {
+        return [{ type: 'bearer', name: 'Authorization' }]
+      }
+      if (scheme.type === 'http' && scheme.scheme === 'basic') {
+        return [{ type: 'basic', name: 'Authorization' }]
+      }
+      if (scheme.type === 'apiKey') {
         const inLocation =
           scheme.in === 'header' || scheme.in === 'query' || scheme.in === 'cookie'
             ? scheme.in
             : 'header'
-        infos.push({
-          type: 'apiKey',
-          name: scheme.name || 'X-API-Key',
-          in: inLocation,
-        })
-      } else if (scheme.type === 'oauth2') {
-        infos.push({ type: 'oauth2', name: 'Authorization' })
+        return [
+          {
+            type: 'apiKey',
+            name: scheme.name || 'X-API-Key',
+            in: inLocation,
+          },
+        ]
       }
-    }
-  }
-  return infos
+      if (scheme.type === 'oauth2') {
+        return [{ type: 'oauth2', name: 'Authorization' }]
+      }
+      return []
+    }),
+  )
 }
+
+/* ── Request body type guard ───────────────────────────────────────── */
 
 function hasRequestBodyContent(
   op: unknown,
-): op is { requestBody: { content: { [key: string]: unknown } } } {
-  return (
-    typeof op === 'object' &&
-    op !== null &&
-    'requestBody' in op &&
-    typeof (op as { requestBody?: unknown }).requestBody === 'object' &&
-    (op as { requestBody: { content?: unknown } }).requestBody !== null &&
-    'content' in ((op as { requestBody: { content?: unknown } }).requestBody ?? {})
-  )
+): op is { requestBody: { content: { readonly [k: string]: unknown } } } {
+  if (typeof op !== 'object' || op === null) return false
+  if (!('requestBody' in op)) return false
+  const opWithBody: { requestBody?: unknown } = op
+  const rb = opWithBody.requestBody
+  if (typeof rb !== 'object' || rb === null) return false
+  return 'content' in rb
 }
+
+/* ── JSON content type filter ──────────────────────────────────────── */
 
 /**
  * Filter OpenAPI spec to only include JSON content types for request bodies.
@@ -212,6 +235,89 @@ function filterToJsonContentTypes(openapi: OpenAPI): OpenAPI {
   return { ...openapi, paths: filteredPaths }
 }
 
+/* ── Response resolution ───────────────────────────────────────────── */
+
+/**
+ * Resolves a Responses object, following $ref to components.responses if needed.
+ */
+function resolveResponse(
+  response: Responses | undefined,
+  componentResponses: { readonly [k: string]: Responses } | undefined,
+): Responses | undefined {
+  if (!response) return undefined
+  if (isRefObject(response) && response.$ref) {
+    const refName = response.$ref.split('/').at(-1)
+    return refName ? componentResponses?.[refName] : undefined
+  }
+  return response
+}
+
+/**
+ * Determines the HTTP status code for a successful response.
+ * Prefers 200 OK, then 201 Created, fallback to 204 No Content.
+ */
+function determineSuccessStatus(responses: { readonly [k: string]: Responses }): number {
+  if (responses[String(200)]) return 200
+  if (responses[String(201)]) return 201
+  return 204
+}
+
+/* ── Handler generation ────────────────────────────────────────────── */
+
+type RouteEntry = {
+  readonly routeId: string
+  readonly method: string
+  readonly path: string
+  readonly requiresAuth: boolean
+}
+
+/**
+ * Generates the auth check code for a handler.
+ * Only emits a check when the route defines a 401 response.
+ */
+function makeAuthCheck(security: readonly SecurityInfo[], has401: boolean): string {
+  if (!has401 || security.length === 0) return ''
+  const authChecks = security.flatMap((sec) => {
+    if (sec.type === 'bearer' || sec.type === 'oauth2' || sec.type === 'basic') {
+      return [`c.req.header('Authorization')`]
+    }
+    if (sec.type === 'apiKey') {
+      if (sec.in === 'header') return [`c.req.header('${sec.name}')`]
+      if (sec.in === 'query') return [`c.req.query('${sec.name}')`]
+      if (sec.in === 'cookie') return [`c.req.cookie('${sec.name}')`]
+    }
+    return []
+  })
+  if (authChecks.length === 0) return ''
+  return `if (!(${authChecks.join(' || ')})) {\n    return c.json({ message: 'Unauthorized' }, ${401})\n  }\n  `
+}
+
+/**
+ * Generates the response body code for a handler.
+ */
+function makeHandlerBody(
+  statusCode: number,
+  jsonSchema: Schema | undefined,
+  textSchema: Schema | undefined,
+  hasNoContent: boolean,
+  schemas: { readonly [k: string]: Schema },
+  allRefs: Set<string>,
+): string {
+  if (jsonSchema) {
+    collectRefs(jsonSchema, allRefs)
+    const mockData = schemaToFaker(jsonSchema, undefined, { schemas })
+    return `return c.json(${mockData}, ${statusCode})`
+  }
+  if (textSchema) {
+    const mockData = schemaToFaker(textSchema, undefined, { schemas })
+    return `return c.text(${mockData}, ${statusCode})`
+  }
+  if (hasNoContent) return `return new Response(null, { status: ${204} })`
+  return `return c.body(null, ${200})`
+}
+
+/* ── Main export ───────────────────────────────────────────────────── */
+
 export function generateMockServer(
   openapi: OpenAPI,
   basePath: string,
@@ -223,95 +329,63 @@ export function generateMockServer(
   const filteredOpenapi = filterToJsonContentTypes(openapi)
   const paths = filteredOpenapi.paths
   const schemas = openapi.components?.schemas ?? {}
-  const securitySchemes = openapi.components?.securitySchemes as
-    | { [key: string]: { type: string; scheme?: string; name?: string; in?: string } }
-    | undefined
+  const securitySchemes = openapi.components?.securitySchemes
+  const componentResponses = openapi.components?.responses
 
   // Collect all refs used in responses
   const allRefs = new Set<string>()
 
-  // Generate route names and handlers
-  const routeEntries: { routeId: string; method: string; path: string; requiresAuth: boolean }[] =
-    []
-  const handlers: string[] = []
+  // Process each path/method into route entries and handler code
+  const processed = Object.entries(paths).flatMap(([p, pathItem]) =>
+    Object.entries(pathItem).flatMap(
+      ([method, operation]): readonly {
+        readonly entry: RouteEntry
+        readonly handler: string
+      }[] => {
+        if (!(isHttpMethod(method) && isOperation(operation))) return []
 
-  for (const [p, pathItem] of Object.entries(paths)) {
-    for (const [method, operation] of Object.entries(pathItem)) {
-      if (!(isHttpMethod(method) && isOperation(operation))) continue
+        const routeId = methodPath(method, p)
+        const op = operation
 
-      const routeId = methodPath(method, p)
-      const op = operation
+        const security = extractSecurityInfo(
+          isSecurityArray(op.security) ? op.security : undefined,
+          isSecurityArray(openapi.security) ? openapi.security : undefined,
+          securitySchemes,
+        )
+        const requiresAuth = security.length > 0
 
-      const security = extractSecurityInfo(
-        isSecurityArray(op.security) ? op.security : undefined,
-        isSecurityArray(openapi.security) ? openapi.security : undefined,
-        securitySchemes,
-      )
-      const requiresAuth = security.length > 0
+        const successResponse = resolveResponse(
+          op.responses?.[String(200)] ?? op.responses?.[String(201)] ?? op.responses?.[String(204)],
+          componentResponses,
+        )
+        const jsonMedia = successResponse?.content?.['application/json']
+        const textMedia = successResponse?.content?.['text/plain']
+        const jsonSchema = jsonMedia && isMediaWithSchema(jsonMedia) ? jsonMedia.schema : undefined
+        const textSchema = textMedia && isMediaWithSchema(textMedia) ? textMedia.schema : undefined
 
-      routeEntries.push({ routeId, method, path: p, requiresAuth })
+        const statusCode = determineSuccessStatus(op.responses)
+        const handlerBody = makeHandlerBody(
+          statusCode,
+          jsonSchema,
+          textSchema,
+          op.responses?.[String(204)] !== undefined,
+          schemas,
+          allRefs,
+        )
 
-      const responses = openapi.components?.responses as
-        | {
-            [key: string]: { description?: string; content?: { [ct: string]: { schema?: Schema } } }
-          }
-        | undefined
-      const resolveResponse = (
-        r: unknown,
-      ): { content?: { [ct: string]: { schema?: Schema } } } | undefined => {
-        if (typeof r !== 'object' || r === null) return undefined
-        if ('$ref' in r && typeof (r as { $ref: string }).$ref === 'string') {
-          const refName = (r as { $ref: string }).$ref.split('/').pop()
-          return refName && responses?.[refName] ? responses[refName] : undefined
-        }
-        return r as { content?: { [ct: string]: { schema?: Schema } } }
-      }
-      const successResponse = resolveResponse(
-        op.responses?.['200'] ?? op.responses?.['201'] ?? op.responses?.['204'],
-      )
-      const jsonSchema = successResponse?.content?.['application/json']?.schema
-      const textSchema = successResponse?.content?.['text/plain']?.schema
+        // Generate auth check code only when route defines a 401 Unauthorized response
+        const has401 = op.responses?.[String(401)] !== undefined
+        const authCheck = makeAuthCheck(security, has401)
 
-      // Determine response status: prefer 200 OK, then 201 Created, fallback to 204 No Content
-      const handlerBody = (() => {
-        const statusCode = op.responses?.['200'] ? 200 : op.responses?.['201'] ? 201 : 204
-        if (jsonSchema) {
-          collectRefs(jsonSchema, allRefs)
-          const mockData = schemaToFaker(jsonSchema, undefined, { schemas })
-          return `return c.json(${mockData}, ${statusCode})`
-        }
-        if (textSchema) {
-          const mockData = schemaToFaker(textSchema, undefined, { schemas })
-          return `return c.text(${mockData}, ${statusCode})`
-        }
-        if (op.responses?.['204']) return 'return new Response(null, { status: 204 })'
-        return 'return c.body(null, 200)'
-      })()
+        const handler = `const ${routeId}RouteHandler: RouteHandler<typeof ${routeId}Route> = async (c) => {\n  ${authCheck}${handlerBody}\n}`
 
-      // Generate auth check code only when route defines 401 response
-      const has401 = op.responses?.['401'] !== undefined
-      const authCheck = (() => {
-        if (!(requiresAuth && has401)) return ''
-        const authChecks = security.flatMap((sec) => {
-          if (sec.type === 'bearer' || sec.type === 'oauth2' || sec.type === 'basic') {
-            return [`c.req.header('Authorization')`]
-          }
-          if (sec.type === 'apiKey') {
-            if (sec.in === 'header') return [`c.req.header('${sec.name}')`]
-            if (sec.in === 'query') return [`c.req.query('${sec.name}')`]
-            if (sec.in === 'cookie') return [`c.req.cookie('${sec.name}')`]
-          }
-          return []
-        })
-        if (authChecks.length === 0) return ''
-        return `if (!(${authChecks.join(' || ')})) {\n    return c.json({ message: 'Unauthorized' }, 401)\n  }\n  `
-      })()
+        return [{ entry: { routeId, method, path: p, requiresAuth }, handler }]
+      },
+    ),
+  )
 
-      handlers.push(
-        `const ${routeId}RouteHandler: RouteHandler<typeof ${routeId}Route> = async (c) => {\n  ${authCheck}${handlerBody}\n}`,
-      )
-    }
-  }
+  const routeEntries = processed.map(({ entry }) => entry)
+  const handlers = processed.map(({ handler }) => handler)
 
   // Collect all dependencies recursively
   const allDeps = new Set<string>()

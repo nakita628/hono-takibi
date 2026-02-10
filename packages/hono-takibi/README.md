@@ -37,12 +37,6 @@ npx hono-takibi path/to/input.{yaml,json,tsp} -o path/to/output.ts
 
 ```bash
 Options:
-  -o, --output <path>         output file path
-  --readonly                  make schemas immutable (adds .readonly() and 'as const')
-  --template                  generate app file and handler stubs
-  --test                      generate test files with vitest and faker.js
-  --base-path <path>          api prefix (default: /)
-  --path-alias <alias>        import path alias (e.g., @/api)
   --export-schemas            export schemas
   --export-schemas-types      export schemas types
   --export-responses          export responses
@@ -58,7 +52,11 @@ Options:
   --export-pathItems          export pathItems
   --export-mediaTypes         export mediaTypes
   --export-mediaTypes-types   export mediaTypes types
-  -h, --help                  display help for command
+  --readonly                  make schemas immutable (adds .readonly() and 'as const')
+  --template                  generate app file and handler stubs
+  --test                      generate test files with vitest and faker.js
+  --base-path <path>          api prefix (default: /)
+  -h, --help                  display help for command`
 ```
 
 ### Configuration File
@@ -308,6 +306,23 @@ export default defineConfig({
 
 The mock server generates realistic responses using `@faker-js/faker` based on your OpenAPI response schemas.
 
+### API Reference Docs
+
+Generate API reference Markdown with executable `hono request` commands:
+
+```ts
+export default defineConfig({
+  input: 'openapi.yaml',
+  'zod-openapi': { output: './src/routes.ts', readonly: true },
+  docs: {
+    output: './docs/api.md',
+    entry: 'src/index.ts', // entry point for hono request commands (default: 'src/index.ts')
+  },
+})
+```
+
+The generated Markdown includes a table of contents, endpoint sections grouped by path, and `hono request` commands that can be run directly without starting a server.
+
 ## Advanced Configuration
 
 The following options are for **large-scale projects** or cases where you need fine-grained control over code generation. Most projects work fine with the [Quick Start](#quick-start) config above.
@@ -471,6 +486,11 @@ export default defineConfig({
   },
   mock: {
     output: './src/mock.ts',
+  },
+  // API Reference Docs
+  docs: {
+    output: './docs/api.md',
+    entry: 'src/index.ts',
   },
 })
 ```

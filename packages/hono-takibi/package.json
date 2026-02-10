@@ -1,7 +1,7 @@
 {
   "name": "hono-takibi",
   "description": "Hono Takibi is a code generator from OpenAPI to @hono/zod-openapi",
-  "version": "0.9.90",
+  "version": "0.9.91",
   "type": "module",
   "license": "MIT",
   "keywords": [
@@ -62,6 +62,10 @@
     "./type": {
       "types": "./dist/core/type/index.d.ts",
       "import": "./dist/core/type/index.js"
+    },
+    "./docs": {
+      "types": "./dist/core/docs/index.d.ts",
+      "import": "./dist/core/docs/index.js"
     }
   },
   "scripts": {
