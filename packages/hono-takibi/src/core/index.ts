@@ -8,6 +8,7 @@
 export { makeQueryHooks } from '../helper/query.js'
 export * from './components/index.js'
 // Generation functions
+export { docs } from './docs/index.js'
 export { mock } from './mock/index.js'
 export { route } from './route/index.js'
 export { rpc } from './rpc/index.js'

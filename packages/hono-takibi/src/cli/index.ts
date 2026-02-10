@@ -24,6 +24,7 @@ import { resolve } from 'node:path'
 import { readConfig } from '../config/index.js'
 import {
   callbacks,
+  docs,
   examples,
   headers,
   links,
@@ -278,6 +279,7 @@ export async function honoTakibi(): Promise<
     vueQueryResult,
     testResult,
     mockResult,
+    docsResult,
   ] = await Promise.all([
     config['zod-openapi']?.output
       ? takibi(
@@ -475,6 +477,14 @@ export async function honoTakibi(): Promise<
     config.mock
       ? mock(openAPI, config.mock.output, config['zod-openapi']?.readonly)
       : Promise.resolve(undefined),
+    config.docs
+      ? (() => {
+          const docsOptions: { entry?: string; variables?: { readonly [k: string]: unknown } } = {}
+          if (config.docs.request?.entry) docsOptions.entry = config.docs.request.entry
+          if (config.docs.variables) docsOptions.variables = config.docs.variables
+          return docs(openAPI, config.docs.output, docsOptions)
+        })()
+      : Promise.resolve(undefined),
   ])
 
   if (takibiResult && !takibiResult.ok) return { ok: false, error: takibiResult.error }
@@ -503,6 +513,7 @@ export async function honoTakibi(): Promise<
   if (vueQueryResult && !vueQueryResult.ok) return { ok: false, error: vueQueryResult.error }
   if (testResult && !testResult.ok) return { ok: false, error: testResult.error }
   if (mockResult && !mockResult.ok) return { ok: false, error: mockResult.error }
+  if (docsResult && !docsResult.ok) return { ok: false, error: docsResult.error }
 
   const results = [
     takibiResult?.value,
@@ -527,6 +538,7 @@ export async function honoTakibi(): Promise<
     vueQueryResult?.value,
     testResult?.value,
     mockResult?.value,
+    docsResult?.value,
   ].filter((v) => v !== undefined)
 
   return { ok: true, value: results.join('\n') }

@@ -27,6 +27,7 @@ import path from 'node:path'
 import { parseConfig } from '../config/index.js'
 import {
   callbacks,
+  docs,
   examples,
   headers,
   links,
@@ -522,6 +523,21 @@ const runAllGenerationTasks = async (
     })()
   }
 
+  const makeDocsJob = (): Promise<string> | undefined => {
+    if (!config.docs) return undefined
+    return (async () => {
+      const outputPath = toAbsolutePath(config.docs?.output ?? '')
+      const docsOptions: {
+        entry?: string
+        variables?: { readonly [k: string]: unknown }
+      } = {}
+      if (config.docs?.request?.entry) docsOptions.entry = config.docs.request.entry
+      if (config.docs?.variables) docsOptions.variables = config.docs.variables
+      const result = await docs(openAPI, outputPath, docsOptions)
+      return result.ok ? `✅ docs -> ${outputPath}` : `❌ docs: ${result.error}`
+    })()
+  }
+
   const generationJobs = [
     makeZodOpenAPIJob(),
     makeSchemaJob(),
@@ -545,6 +561,7 @@ const runAllGenerationTasks = async (
     makeQueryJob('vue-query', config['vue-query'], vueQuery),
     makeTestJob(),
     makeMockJob(),
+    makeDocsJob(),
   ].filter((job) => job !== undefined)
 
   return Promise.all(generationJobs).then((logs) => ({ logs }))
@@ -664,6 +681,7 @@ const extractOutputPaths = (config: Config): string[] => {
     config['vue-query']?.output,
     config.test?.output,
     config.mock?.output,
+    config.docs?.output,
   ]
     .filter((outputPath) => outputPath !== undefined)
     .map(toAbsolutePath)
@@ -696,7 +714,7 @@ const cleanupStaleOutputs = async (
         await fsp.rm(stalePath, { recursive: true, force: true }).catch(() => {})
         return stalePath
       }
-      if (fileStats.isFile() && stalePath.endsWith('.ts')) {
+      if (fileStats.isFile() && (stalePath.endsWith('.ts') || stalePath.endsWith('.md'))) {
         await fsp.unlink(stalePath).catch(() => {})
         return stalePath
       }
