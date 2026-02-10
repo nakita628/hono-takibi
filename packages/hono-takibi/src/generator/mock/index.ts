@@ -175,11 +175,13 @@ function extractSecurityInfo(
           scheme.in === 'header' || scheme.in === 'query' || scheme.in === 'cookie'
             ? scheme.in
             : 'header'
-        return [{
-          type: 'apiKey',
-          name: scheme.name || 'X-API-Key',
-          in: inLocation,
-        }]
+        return [
+          {
+            type: 'apiKey',
+            name: scheme.name || 'X-API-Key',
+            in: inLocation,
+          },
+        ]
       }
       if (scheme.type === 'oauth2') {
         return [{ type: 'oauth2', name: 'Authorization' }]
@@ -273,10 +275,7 @@ type RouteEntry = {
  * Generates the auth check code for a handler.
  * Only emits a check when the route defines a 401 response.
  */
-function makeAuthCheck(
-  security: readonly SecurityInfo[],
-  has401: boolean,
-): string {
+function makeAuthCheck(security: readonly SecurityInfo[], has401: boolean): string {
   if (!has401 || security.length === 0) return ''
   const authChecks = security.flatMap((sec) => {
     if (sec.type === 'bearer' || sec.type === 'oauth2' || sec.type === 'basic') {
@@ -338,46 +337,51 @@ export function generateMockServer(
 
   // Process each path/method into route entries and handler code
   const processed = Object.entries(paths).flatMap(([p, pathItem]) =>
-    Object.entries(pathItem).flatMap(([method, operation]): readonly { readonly entry: RouteEntry; readonly handler: string }[] => {
-      if (!(isHttpMethod(method) && isOperation(operation))) return []
+    Object.entries(pathItem).flatMap(
+      ([method, operation]): readonly {
+        readonly entry: RouteEntry
+        readonly handler: string
+      }[] => {
+        if (!(isHttpMethod(method) && isOperation(operation))) return []
 
-      const routeId = methodPath(method, p)
-      const op = operation
+        const routeId = methodPath(method, p)
+        const op = operation
 
-      const security = extractSecurityInfo(
-        isSecurityArray(op.security) ? op.security : undefined,
-        isSecurityArray(openapi.security) ? openapi.security : undefined,
-        securitySchemes,
-      )
-      const requiresAuth = security.length > 0
+        const security = extractSecurityInfo(
+          isSecurityArray(op.security) ? op.security : undefined,
+          isSecurityArray(openapi.security) ? openapi.security : undefined,
+          securitySchemes,
+        )
+        const requiresAuth = security.length > 0
 
-      const successResponse = resolveResponse(
-        op.responses?.[String(200)] ?? op.responses?.[String(201)] ?? op.responses?.[String(204)],
-        componentResponses,
-      )
-      const jsonMedia = successResponse?.content?.['application/json']
-      const textMedia = successResponse?.content?.['text/plain']
-      const jsonSchema = jsonMedia && isMediaWithSchema(jsonMedia) ? jsonMedia.schema : undefined
-      const textSchema = textMedia && isMediaWithSchema(textMedia) ? textMedia.schema : undefined
+        const successResponse = resolveResponse(
+          op.responses?.[String(200)] ?? op.responses?.[String(201)] ?? op.responses?.[String(204)],
+          componentResponses,
+        )
+        const jsonMedia = successResponse?.content?.['application/json']
+        const textMedia = successResponse?.content?.['text/plain']
+        const jsonSchema = jsonMedia && isMediaWithSchema(jsonMedia) ? jsonMedia.schema : undefined
+        const textSchema = textMedia && isMediaWithSchema(textMedia) ? textMedia.schema : undefined
 
-      const statusCode = determineSuccessStatus(op.responses)
-      const handlerBody = makeHandlerBody(
-        statusCode,
-        jsonSchema,
-        textSchema,
-        op.responses?.[String(204)] !== undefined,
-        schemas,
-        allRefs,
-      )
+        const statusCode = determineSuccessStatus(op.responses)
+        const handlerBody = makeHandlerBody(
+          statusCode,
+          jsonSchema,
+          textSchema,
+          op.responses?.[String(204)] !== undefined,
+          schemas,
+          allRefs,
+        )
 
-      // Generate auth check code only when route defines a 401 Unauthorized response
-      const has401 = op.responses?.[String(401)] !== undefined
-      const authCheck = makeAuthCheck(security, has401)
+        // Generate auth check code only when route defines a 401 Unauthorized response
+        const has401 = op.responses?.[String(401)] !== undefined
+        const authCheck = makeAuthCheck(security, has401)
 
-      const handler = `const ${routeId}RouteHandler: RouteHandler<typeof ${routeId}Route> = async (c) => {\n  ${authCheck}${handlerBody}\n}`
+        const handler = `const ${routeId}RouteHandler: RouteHandler<typeof ${routeId}Route> = async (c) => {\n  ${authCheck}${handlerBody}\n}`
 
-      return [{ entry: { routeId, method, path: p, requiresAuth }, handler }]
-    }),
+        return [{ entry: { routeId, method, path: p, requiresAuth }, handler }]
+      },
+    ),
   )
 
   const routeEntries = processed.map(({ entry }) => entry)

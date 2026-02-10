@@ -268,10 +268,9 @@ const ConfigSchema = z
       .exactOptional(),
     docs: z
       .object({
-        output: z.custom<`${string}.md`>(
-          (v) => typeof v === 'string' && v.endsWith('.md'),
-          { message: 'must be .md file' },
-        ),
+        output: z.custom<`${string}.md`>((v) => typeof v === 'string' && v.endsWith('.md'), {
+          message: 'must be .md file',
+        }),
         entry: z.string().default('src/index.ts'),
       })
       .exactOptional(),

@@ -303,148 +303,201 @@ const runAllGenerationTasks = async (
 
   const makeSchemaJob = (): Promise<string> | undefined => {
     if (!config['zod-openapi']?.components?.schemas) return undefined
-    return runSplitAwareJob('schemas', config['zod-openapi']?.components?.schemas?.output, config['zod-openapi']?.components?.schemas?.split === true, (out) =>
-      schemas(
-        openAPI.components?.schemas,
-        out,
-        config['zod-openapi']?.components?.schemas?.split === true,
-        config['zod-openapi']?.components?.schemas?.exportTypes === true,
-        config['zod-openapi']?.readonly,
-      ),
+    return runSplitAwareJob(
+      'schemas',
+      config['zod-openapi']?.components?.schemas?.output,
+      config['zod-openapi']?.components?.schemas?.split === true,
+      (out) =>
+        schemas(
+          openAPI.components?.schemas,
+          out,
+          config['zod-openapi']?.components?.schemas?.split === true,
+          config['zod-openapi']?.components?.schemas?.exportTypes === true,
+          config['zod-openapi']?.readonly,
+        ),
     )
   }
 
   const makeParametersJob = (): Promise<string> | undefined => {
     if (!config['zod-openapi']?.components?.parameters) return undefined
-    return runSplitAwareJob('parameters', config['zod-openapi']?.components?.parameters?.output, config['zod-openapi']?.components?.parameters?.split === true, (out) =>
-      parameters(
-        openAPI.components?.parameters,
-        out,
-        config['zod-openapi']?.components?.parameters?.split === true,
-        config['zod-openapi']?.components?.parameters?.exportTypes === true,
-        config['zod-openapi']?.components,
-        config['zod-openapi']?.readonly,
-      ),
+    return runSplitAwareJob(
+      'parameters',
+      config['zod-openapi']?.components?.parameters?.output,
+      config['zod-openapi']?.components?.parameters?.split === true,
+      (out) =>
+        parameters(
+          openAPI.components?.parameters,
+          out,
+          config['zod-openapi']?.components?.parameters?.split === true,
+          config['zod-openapi']?.components?.parameters?.exportTypes === true,
+          config['zod-openapi']?.components,
+          config['zod-openapi']?.readonly,
+        ),
     )
   }
 
   const makeHeadersJob = (): Promise<string> | undefined => {
     if (!config['zod-openapi']?.components?.headers) return undefined
-    return runSplitAwareJob('headers', config['zod-openapi']?.components?.headers?.output, config['zod-openapi']?.components?.headers?.split === true, (out) =>
-      headers(
-        openAPI.components?.headers,
-        out,
-        config['zod-openapi']?.components?.headers?.split === true,
-        config['zod-openapi']?.components?.headers?.exportTypes === true,
-        config['zod-openapi']?.components,
-        config['zod-openapi']?.readonly,
-      ),
+    return runSplitAwareJob(
+      'headers',
+      config['zod-openapi']?.components?.headers?.output,
+      config['zod-openapi']?.components?.headers?.split === true,
+      (out) =>
+        headers(
+          openAPI.components?.headers,
+          out,
+          config['zod-openapi']?.components?.headers?.split === true,
+          config['zod-openapi']?.components?.headers?.exportTypes === true,
+          config['zod-openapi']?.components,
+          config['zod-openapi']?.readonly,
+        ),
     )
   }
 
   const makeExamplesJob = (): Promise<string> | undefined => {
     if (!config['zod-openapi']?.components?.examples) return undefined
-    return runSplitAwareJob('examples', config['zod-openapi']?.components?.examples?.output, config['zod-openapi']?.components?.examples?.split === true, (out) =>
-      examples(
-        openAPI.components?.examples,
-        out,
-        config['zod-openapi']?.components?.examples?.split === true,
-        config['zod-openapi']?.readonly,
-      ),
+    return runSplitAwareJob(
+      'examples',
+      config['zod-openapi']?.components?.examples?.output,
+      config['zod-openapi']?.components?.examples?.split === true,
+      (out) =>
+        examples(
+          openAPI.components?.examples,
+          out,
+          config['zod-openapi']?.components?.examples?.split === true,
+          config['zod-openapi']?.readonly,
+        ),
     )
   }
 
   const makeLinksJob = (): Promise<string> | undefined => {
     if (!config['zod-openapi']?.components?.links) return undefined
-    return runSplitAwareJob('links', config['zod-openapi']?.components?.links?.output, config['zod-openapi']?.components?.links?.split === true, (out) =>
-      links(openAPI.components?.links, out, config['zod-openapi']?.components?.links?.split === true, config['zod-openapi']?.readonly),
+    return runSplitAwareJob(
+      'links',
+      config['zod-openapi']?.components?.links?.output,
+      config['zod-openapi']?.components?.links?.split === true,
+      (out) =>
+        links(
+          openAPI.components?.links,
+          out,
+          config['zod-openapi']?.components?.links?.split === true,
+          config['zod-openapi']?.readonly,
+        ),
     )
   }
 
   const makeCallbacksJob = (): Promise<string> | undefined => {
     if (!config['zod-openapi']?.components?.callbacks) return undefined
-    return runSplitAwareJob('callbacks', config['zod-openapi']?.components?.callbacks?.output, config['zod-openapi']?.components?.callbacks?.split === true, (out) =>
-      callbacks(
-        openAPI.components?.callbacks,
-        out,
-        config['zod-openapi']?.components?.callbacks?.split === true,
-        config['zod-openapi']?.components,
-        config['zod-openapi']?.readonly,
-      ),
+    return runSplitAwareJob(
+      'callbacks',
+      config['zod-openapi']?.components?.callbacks?.output,
+      config['zod-openapi']?.components?.callbacks?.split === true,
+      (out) =>
+        callbacks(
+          openAPI.components?.callbacks,
+          out,
+          config['zod-openapi']?.components?.callbacks?.split === true,
+          config['zod-openapi']?.components,
+          config['zod-openapi']?.readonly,
+        ),
     )
   }
 
   const makeSecuritySchemesJob = (): Promise<string> | undefined => {
     if (!config['zod-openapi']?.components?.securitySchemes) return undefined
-    return runSplitAwareJob('securitySchemes', config['zod-openapi']?.components?.securitySchemes?.output, config['zod-openapi']?.components?.securitySchemes?.split === true, (out) =>
-      securitySchemes(
-        openAPI.components?.securitySchemes,
-        out,
-        config['zod-openapi']?.components?.securitySchemes?.split === true,
-        config['zod-openapi']?.readonly,
-      ),
+    return runSplitAwareJob(
+      'securitySchemes',
+      config['zod-openapi']?.components?.securitySchemes?.output,
+      config['zod-openapi']?.components?.securitySchemes?.split === true,
+      (out) =>
+        securitySchemes(
+          openAPI.components?.securitySchemes,
+          out,
+          config['zod-openapi']?.components?.securitySchemes?.split === true,
+          config['zod-openapi']?.readonly,
+        ),
     )
   }
 
   const makeRequestBodiesJob = (): Promise<string> | undefined => {
     if (!config['zod-openapi']?.components?.requestBodies) return undefined
-    return runSplitAwareJob('requestBodies', config['zod-openapi']?.components?.requestBodies?.output, config['zod-openapi']?.components?.requestBodies?.split === true, (out) =>
-      requestBodies(
-        openAPI.components?.requestBodies,
-        out,
-        config['zod-openapi']?.components?.requestBodies?.split === true,
-        config['zod-openapi']?.components,
-        config['zod-openapi']?.readonly,
-      ),
+    return runSplitAwareJob(
+      'requestBodies',
+      config['zod-openapi']?.components?.requestBodies?.output,
+      config['zod-openapi']?.components?.requestBodies?.split === true,
+      (out) =>
+        requestBodies(
+          openAPI.components?.requestBodies,
+          out,
+          config['zod-openapi']?.components?.requestBodies?.split === true,
+          config['zod-openapi']?.components,
+          config['zod-openapi']?.readonly,
+        ),
     )
   }
 
   const makeResponsesJob = (): Promise<string> | undefined => {
     if (!config['zod-openapi']?.components?.responses) return undefined
-    return runSplitAwareJob('responses', config['zod-openapi']?.components?.responses?.output, config['zod-openapi']?.components?.responses?.split === true, (out) =>
-      responses(
-        openAPI.components?.responses,
-        out,
-        config['zod-openapi']?.components?.responses?.split === true,
-        config['zod-openapi']?.components,
-        config['zod-openapi']?.readonly,
-      ),
+    return runSplitAwareJob(
+      'responses',
+      config['zod-openapi']?.components?.responses?.output,
+      config['zod-openapi']?.components?.responses?.split === true,
+      (out) =>
+        responses(
+          openAPI.components?.responses,
+          out,
+          config['zod-openapi']?.components?.responses?.split === true,
+          config['zod-openapi']?.components,
+          config['zod-openapi']?.readonly,
+        ),
     )
   }
 
   const makePathItemsJob = (): Promise<string> | undefined => {
     if (!config['zod-openapi']?.components?.pathItems) return undefined
-    return runSplitAwareJob('pathItems', config['zod-openapi']?.components?.pathItems?.output, config['zod-openapi']?.components?.pathItems?.split === true, (out) =>
-      pathItems(
-        openAPI.components ?? {},
-        { output: out, split: config['zod-openapi']?.components?.pathItems?.split ?? false },
-        config['zod-openapi']?.components,
-        config['zod-openapi']?.readonly,
-      ),
+    return runSplitAwareJob(
+      'pathItems',
+      config['zod-openapi']?.components?.pathItems?.output,
+      config['zod-openapi']?.components?.pathItems?.split === true,
+      (out) =>
+        pathItems(
+          openAPI.components ?? {},
+          { output: out, split: config['zod-openapi']?.components?.pathItems?.split ?? false },
+          config['zod-openapi']?.components,
+          config['zod-openapi']?.readonly,
+        ),
     )
   }
 
   const makeMediaTypesJob = (): Promise<string> | undefined => {
     if (!config['zod-openapi']?.components?.mediaTypes) return undefined
-    return runSplitAwareJob('mediaTypes', config['zod-openapi']?.components?.mediaTypes?.output, config['zod-openapi']?.components?.mediaTypes?.split === true, (out) =>
-      mediaTypes(
-        openAPI.components?.mediaTypes,
-        out,
-        config['zod-openapi']?.components?.mediaTypes?.split === true,
-        config['zod-openapi']?.readonly,
-      ),
+    return runSplitAwareJob(
+      'mediaTypes',
+      config['zod-openapi']?.components?.mediaTypes?.output,
+      config['zod-openapi']?.components?.mediaTypes?.split === true,
+      (out) =>
+        mediaTypes(
+          openAPI.components?.mediaTypes,
+          out,
+          config['zod-openapi']?.components?.mediaTypes?.split === true,
+          config['zod-openapi']?.readonly,
+        ),
     )
   }
 
   const makeWebhooksJob = (): Promise<string> | undefined => {
     if (!config['zod-openapi']?.components?.webhooks) return undefined
-    return runSplitAwareJob('webhooks', config['zod-openapi']?.components?.webhooks?.output, config['zod-openapi']?.components?.webhooks?.split === true, (out) =>
-      webhooks(
-        openAPI,
-        { output: out, split: config['zod-openapi']?.components?.webhooks?.split ?? false },
-        config['zod-openapi']?.components,
-        config['zod-openapi']?.readonly,
-      ),
+    return runSplitAwareJob(
+      'webhooks',
+      config['zod-openapi']?.components?.webhooks?.output,
+      config['zod-openapi']?.components?.webhooks?.split === true,
+      (out) =>
+        webhooks(
+          openAPI,
+          { output: out, split: config['zod-openapi']?.components?.webhooks?.split ?? false },
+          config['zod-openapi']?.components,
+          config['zod-openapi']?.readonly,
+        ),
     )
   }
 
@@ -452,13 +505,17 @@ const runAllGenerationTasks = async (
 
   const makeRoutesJob = (): Promise<string> | undefined => {
     if (!config['zod-openapi']?.routes) return undefined
-    return runSplitAwareJob('routes', config['zod-openapi']?.routes?.output, config['zod-openapi']?.routes?.split === true, (out) =>
-      route(
-        openAPI,
-        { output: out, split: config['zod-openapi']?.routes?.split ?? false },
-        config['zod-openapi']?.components,
-        config['zod-openapi']?.readonly,
-      ),
+    return runSplitAwareJob(
+      'routes',
+      config['zod-openapi']?.routes?.output,
+      config['zod-openapi']?.routes?.split === true,
+      (out) =>
+        route(
+          openAPI,
+          { output: out, split: config['zod-openapi']?.routes?.split ?? false },
+          config['zod-openapi']?.components,
+          config['zod-openapi']?.readonly,
+        ),
     )
   }
 

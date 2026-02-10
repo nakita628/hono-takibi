@@ -50,10 +50,16 @@ function collectEndpoints(openAPI: OpenAPI): readonly Endpoint[] {
  * Groups endpoints by path, preserving insertion order.
  */
 function groupByPath(endpoints: readonly Endpoint[]): ReadonlyMap<string, readonly Endpoint[]> {
-  return endpoints.reduce((map, ep) => {
-    const existing = map.get(ep.path) ?? []
-    return new Map([...map, [ep.path, [...existing, ep]]])
-  }, new Map<string, readonly Endpoint[]>())
+  const map = new Map<string, Endpoint[]>()
+  for (const ep of endpoints) {
+    const existing = map.get(ep.path)
+    if (existing) {
+      existing.push(ep)
+    } else {
+      map.set(ep.path, [ep])
+    }
+  }
+  return map
 }
 
 /**
@@ -116,9 +122,9 @@ export function makeDocs(openAPI: OpenAPI, entry: string): string {
 function extractSecurityNames(security: Operation['security'] | undefined): readonly string[] {
   if (!security) return []
   if (!isSecurityArray(security)) return []
-  return security.flatMap((item) =>
-    isRecord(item) ? Object.keys(item) : [],
-  ).filter((name, index, arr) => arr.indexOf(name) === index)
+  return security
+    .flatMap((item) => (isRecord(item) ? Object.keys(item) : []))
+    .filter((name, index, arr) => arr.indexOf(name) === index)
 }
 
 /**
@@ -165,10 +171,7 @@ function lookupComponentSection(
  * $ref format: "#/components/{section}/{name}" — split by "/" gives
  * ["#", "components", section, name], so index 2 = section, index 3 = name.
  */
-function resolveRef(
-  ref: string,
-  components: Components | undefined,
-): unknown {
+function resolveRef(ref: string, components: Components | undefined): unknown {
   if (!components) return undefined
   const parts = ref.split('/')
   // $ref "#/components/{section}/{name}" → parts[2] = section, parts[3] = name
@@ -176,7 +179,7 @@ function resolveRef(
   const REF_NAME_INDEX = 3
   const section = parts[REF_SECTION_INDEX]
   const name = parts[REF_NAME_INDEX]
-  if (!section || !name) return undefined
+  if (!(section && name)) return undefined
   const sectionObj = lookupComponentSection(components, section)
   if (!sectionObj) return undefined
   return sectionObj[name]
@@ -195,9 +198,13 @@ function makeAuthHeader(
   if (!isSecurityScheme(scheme)) return undefined
 
   if (scheme.type === 'http' && scheme.scheme === 'bearer') {
+    // Intentional literal ${TOKEN} — placeholder for user's environment variable
+    // biome-ignore lint/suspicious/noTemplateCurlyInString: literal placeholder
     return 'Authorization: Bearer ${TOKEN}'
   }
   if (scheme.type === 'http' && scheme.scheme === 'basic') {
+    // Intentional literal ${CREDENTIALS} — placeholder for user's environment variable
+    // biome-ignore lint/suspicious/noTemplateCurlyInString: literal placeholder
     return 'Authorization: Basic ${CREDENTIALS}'
   }
   if (scheme.type === 'apiKey' && scheme.name) {
@@ -216,14 +223,12 @@ function makeExampleBody(
   if (!requestBody) return undefined
 
   // Resolve $ref if present
-  const body = isRefObject(requestBody)
-    ? resolveRef(requestBody.$ref, components)
-    : requestBody
+  const body = isRefObject(requestBody) ? resolveRef(requestBody.$ref, components) : requestBody
 
-  if (!body || !isRequestBody(body) || !body.content) return undefined
+  if (!(body && isRequestBody(body) && body.content)) return undefined
 
   const mediaEntry = body.content['application/json']
-  if (!mediaEntry || !isMedia(mediaEntry) || !mediaEntry.schema) return undefined
+  if (!(mediaEntry && isMedia(mediaEntry) && mediaEntry.schema)) return undefined
 
   const example = makeExampleFromSchema(mediaEntry.schema, components)
   return JSON.stringify(example)
@@ -235,10 +240,7 @@ function makeExampleBody(
  * Generates placeholder values for required fields only, using schema metadata
  * (type, format, enum, minimum, example) to produce realistic defaults.
  */
-function makeExampleFromSchema(
-  schema: Schema,
-  components: Components | undefined,
-): unknown {
+function makeExampleFromSchema(schema: Schema, components: Components | undefined): unknown {
   if (schema.$ref) {
     const refName = schema.$ref.split('/').at(-1) ?? ''
     const resolved = components?.schemas?.[refName]

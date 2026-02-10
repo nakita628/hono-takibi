@@ -477,9 +477,7 @@ export async function honoTakibi(): Promise<
     config.mock
       ? mock(openAPI, config.mock.output, config['zod-openapi']?.readonly)
       : Promise.resolve(undefined),
-    config.docs
-      ? docs(openAPI, config.docs.output, config.docs.entry)
-      : Promise.resolve(undefined),
+    config.docs ? docs(openAPI, config.docs.output, config.docs.entry) : Promise.resolve(undefined),
   ])
 
   if (takibiResult && !takibiResult.ok) return { ok: false, error: takibiResult.error }
