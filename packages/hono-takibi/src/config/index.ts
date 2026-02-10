@@ -277,7 +277,7 @@ const ConfigSchema = z
             entry: z.string(),
           })
           .exactOptional(),
-        variables: z.record(z.string()).exactOptional(),
+        variables: z.record(z.string(), z.string()).exactOptional(),
       })
       .exactOptional(),
   })

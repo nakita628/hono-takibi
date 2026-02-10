@@ -3,6 +3,8 @@ import { mkdir, writeFile } from '../../fsp/index.js'
 import { makeDocs } from '../../generator/docs/index.js'
 import type { OpenAPI } from '../../openapi/index.js'
 
+export { makeDocs } from '../../generator/docs/index.js'
+
 export async function docs(
   openAPI: OpenAPI,
   output: string,

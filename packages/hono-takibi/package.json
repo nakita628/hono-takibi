@@ -62,6 +62,10 @@
     "./type": {
       "types": "./dist/core/type/index.d.ts",
       "import": "./dist/core/type/index.js"
+    },
+    "./docs": {
+      "types": "./dist/core/docs/index.d.ts",
+      "import": "./dist/core/docs/index.js"
     }
   },
   "scripts": {
