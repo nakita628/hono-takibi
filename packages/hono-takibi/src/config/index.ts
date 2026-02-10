@@ -272,12 +272,7 @@ const ConfigSchema = z
           (v) => typeof v === 'string' && v.endsWith('.md'),
           { message: 'must be .md file' },
         ),
-        request: z
-          .object({
-            entry: z.string(),
-          })
-          .exactOptional(),
-        variables: z.record(z.string(), z.string()).exactOptional(),
+        entry: z.string().default('src/index.ts'),
       })
       .exactOptional(),
   })

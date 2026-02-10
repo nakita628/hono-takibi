@@ -478,12 +478,7 @@ export async function honoTakibi(): Promise<
       ? mock(openAPI, config.mock.output, config['zod-openapi']?.readonly)
       : Promise.resolve(undefined),
     config.docs
-      ? (() => {
-          const docsOptions: { entry?: string; variables?: { readonly [k: string]: unknown } } = {}
-          if (config.docs.request?.entry) docsOptions.entry = config.docs.request.entry
-          if (config.docs.variables) docsOptions.variables = config.docs.variables
-          return docs(openAPI, config.docs.output, docsOptions)
-        })()
+      ? docs(openAPI, config.docs.output, config.docs.entry)
       : Promise.resolve(undefined),
   ])
 

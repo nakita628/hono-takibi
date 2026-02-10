@@ -8,11 +8,6 @@ import {
 } from '../../guard/index.js'
 import type { Components, OpenAPI, Operation, Schema } from '../../openapi/index.js'
 
-type DocsOptions = {
-  readonly entry?: string
-  readonly variables?: { readonly [k: string]: unknown }
-}
-
 const HTTP_METHODS = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'] as const
 
 type HttpMethod = (typeof HTTP_METHODS)[number]
@@ -64,9 +59,7 @@ function groupByPath(endpoints: readonly Endpoint[]): ReadonlyMap<string, readon
 /**
  * Makes API reference Markdown from an OpenAPI specification.
  */
-export function makeDocs(openAPI: OpenAPI, options?: DocsOptions): string {
-  const entry = options?.entry
-  const variables = options?.variables
+export function makeDocs(openAPI: OpenAPI, entry: string): string {
   const securitySchemes = openAPI.components?.securitySchemes
 
   const title = openAPI.info?.title ?? 'API'
@@ -88,7 +81,6 @@ export function makeDocs(openAPI: OpenAPI, options?: DocsOptions): string {
   // Endpoint sections
   const endpointLines = endpoints.flatMap(({ method, path: pathStr, operation }) => {
     const heading = `### ${method.toUpperCase()} ${pathStr}`
-    if (!entry) return [heading, '']
 
     const securityNames = extractSecurityNames(operation.security)
     const cmdParts = [
@@ -97,12 +89,12 @@ export function makeDocs(openAPI: OpenAPI, options?: DocsOptions): string {
       `  -X ${method.toUpperCase()}`,
       ...(securityNames.length > 0
         ? (() => {
-            const headerValue = makeAuthHeader(securityNames[0], securitySchemes, variables)
+            const headerValue = makeAuthHeader(securityNames[0], securitySchemes)
             return headerValue ? [`  -H "${headerValue}"`] : []
           })()
         : []),
       ...(() => {
-        const exampleBody = makeExampleBody(operation.requestBody, openAPI.components, variables)
+        const exampleBody = makeExampleBody(operation.requestBody, openAPI.components)
         return exampleBody ? [`  -d '${exampleBody}'`] : []
       })(),
       `  ${entry}`,
@@ -196,7 +188,6 @@ function resolveRef(
 function makeAuthHeader(
   schemeName: string,
   securitySchemes: Components['securitySchemes'] | undefined,
-  variables: { readonly [k: string]: unknown } | undefined,
 ): string | undefined {
   if (!securitySchemes) return undefined
   const scheme = securitySchemes[schemeName]
@@ -204,16 +195,13 @@ function makeAuthHeader(
   if (!isSecurityScheme(scheme)) return undefined
 
   if (scheme.type === 'http' && scheme.scheme === 'bearer') {
-    const token = variables?.TOKEN ? `\${${String(variables.TOKEN)}}` : '${TOKEN}'
-    return `Authorization: Bearer ${token}`
+    return 'Authorization: Bearer ${TOKEN}'
   }
   if (scheme.type === 'http' && scheme.scheme === 'basic') {
-    const creds = variables?.CREDENTIALS ? `\${${String(variables.CREDENTIALS)}}` : '${CREDENTIALS}'
-    return `Authorization: Basic ${creds}`
+    return 'Authorization: Basic ${CREDENTIALS}'
   }
   if (scheme.type === 'apiKey' && scheme.name) {
-    const key = variables?.API_KEY ? `\${${String(variables.API_KEY)}}` : '${API_KEY}'
-    return `${scheme.name}: ${key}`
+    return `${scheme.name}: \${API_KEY}`
   }
   return undefined
 }
@@ -224,7 +212,6 @@ function makeAuthHeader(
 function makeExampleBody(
   requestBody: Operation['requestBody'] | undefined,
   components: Components | undefined,
-  variables: { readonly [k: string]: unknown } | undefined,
 ): string | undefined {
   if (!requestBody) return undefined
 
@@ -238,7 +225,7 @@ function makeExampleBody(
   const mediaEntry = body.content['application/json']
   if (!mediaEntry || !isMedia(mediaEntry) || !mediaEntry.schema) return undefined
 
-  const example = makeExampleFromSchema(mediaEntry.schema, components, variables)
+  const example = makeExampleFromSchema(mediaEntry.schema, components)
   return JSON.stringify(example)
 }
 
@@ -251,13 +238,11 @@ function makeExampleBody(
 function makeExampleFromSchema(
   schema: Schema,
   components: Components | undefined,
-  variables: { readonly [k: string]: unknown } | undefined,
 ): unknown {
   if (schema.$ref) {
     const refName = schema.$ref.split('/').at(-1) ?? ''
-    if (variables && refName in variables) return `\${${refName}}`
     const resolved = components?.schemas?.[refName]
-    if (resolved) return makeExampleFromSchema(resolved, components, variables)
+    if (resolved) return makeExampleFromSchema(resolved, components)
     return {}
   }
 
@@ -268,13 +253,13 @@ function makeExampleFromSchema(
     return Object.fromEntries(
       Object.entries(schema.properties)
         .filter(([key]) => requiredSet.has(key))
-        .map(([key, prop]) => [key, makeExampleFromSchema(prop, components, variables)]),
+        .map(([key, prop]) => [key, makeExampleFromSchema(prop, components)]),
     )
   }
 
   if (schema.type === 'array' && schema.items) {
     const item = Array.isArray(schema.items) ? schema.items[0] : schema.items
-    if (item) return [makeExampleFromSchema(item, components, variables)]
+    if (item) return [makeExampleFromSchema(item, components)]
   }
 
   if (schema.enum && schema.enum.length > 0) return schema.enum[0]

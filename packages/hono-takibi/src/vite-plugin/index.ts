@@ -527,13 +527,7 @@ const runAllGenerationTasks = async (
     if (!config.docs) return undefined
     return (async () => {
       const outputPath = toAbsolutePath(config.docs?.output ?? '')
-      const docsOptions: {
-        entry?: string
-        variables?: { readonly [k: string]: unknown }
-      } = {}
-      if (config.docs?.request?.entry) docsOptions.entry = config.docs.request.entry
-      if (config.docs?.variables) docsOptions.variables = config.docs.variables
-      const result = await docs(openAPI, outputPath, docsOptions)
+      const result = await docs(openAPI, outputPath, config.docs?.entry ?? 'src/index.ts')
       return result.ok ? `✅ docs -> ${outputPath}` : `❌ docs: ${result.error}`
     })()
   }
