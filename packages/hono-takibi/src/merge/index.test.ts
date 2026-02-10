@@ -778,6 +778,83 @@ describe('Users', () => {
       // faker from generated added
       expect(result).toContain('faker')
     })
+
+    it('deduplicates default imports when path-alias changes', () => {
+      const existing = `import { describe, expect, it } from 'vitest'
+import app from '..'
+
+describe('Health', () => {
+  describe('GET /health', () => {
+    it('should return 200', async () => {
+      const res = await app.request('/health', { method: 'GET' })
+      expect(res.status).toBe(200)
+    })
+  })
+})
+`
+
+      const generated = `import { describe, expect, it } from 'vitest'
+import app from '@/api'
+
+describe('Health', () => {
+  describe('GET /health', () => {
+    it('should return 200', async () => {
+      const res = await app.request('/health', { method: 'GET' })
+      expect(res.status).toBe(200)
+    })
+  })
+})
+`
+
+      const result = mergeTestFile(existing, generated)
+      // Should use the generated path (source of truth)
+      expect(result).toContain("from '@/api'")
+      // Should NOT keep the old path
+      expect(result).not.toContain("from '..'")
+      // Should have exactly one 'import app'
+      const importAppCount = (result.match(/import app from/g) || []).length
+      expect(importAppCount).toBe(1)
+    })
+
+    it('deduplicates default imports across multiple path-alias re-runs', () => {
+      const existing = `import { describe, expect, it } from 'vitest'
+import app from '@/routes'
+import app from '@/api'
+import app from '..'
+
+describe('Health', () => {
+  describe('GET /health', () => {
+    it('should return 200', async () => {
+      const res = await app.request('/health', { method: 'GET' })
+      expect(res.status).toBe(200)
+    })
+  })
+})
+`
+
+      const generated = `import { describe, expect, it } from 'vitest'
+import app from '@/api'
+
+describe('Health', () => {
+  describe('GET /health', () => {
+    it('should return 200', async () => {
+      const res = await app.request('/health', { method: 'GET' })
+      expect(res.status).toBe(200)
+    })
+  })
+})
+`
+
+      const result = mergeTestFile(existing, generated)
+      // Should use the generated path only
+      expect(result).toContain("from '@/api'")
+      // Should NOT keep old paths
+      expect(result).not.toContain("from '@/routes'")
+      expect(result).not.toContain("from '..'")
+      // Should have exactly one 'import app'
+      const importAppCount = (result.match(/import app from/g) || []).length
+      expect(importAppCount).toBe(1)
+    })
   })
 
   describe('mergeBarrelFile', () => {
