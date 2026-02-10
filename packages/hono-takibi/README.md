@@ -37,12 +37,6 @@ npx hono-takibi path/to/input.{yaml,json,tsp} -o path/to/output.ts
 
 ```bash
 Options:
-  -o, --output <path>         output file path
-  --readonly                  make schemas immutable (adds .readonly() and 'as const')
-  --template                  generate app file and handler stubs
-  --test                      generate test files with vitest and faker.js
-  --base-path <path>          api prefix (default: /)
-  --path-alias <alias>        import path alias (e.g., @/api)
   --export-schemas            export schemas
   --export-schemas-types      export schemas types
   --export-responses          export responses
@@ -58,7 +52,11 @@ Options:
   --export-pathItems          export pathItems
   --export-mediaTypes         export mediaTypes
   --export-mediaTypes-types   export mediaTypes types
-  -h, --help                  display help for command
+  --readonly                  make schemas immutable (adds .readonly() and 'as const')
+  --template                  generate app file and handler stubs
+  --test                      generate test files with vitest and faker.js
+  --base-path <path>          api prefix (default: /)
+  -h, --help                  display help for command`
 ```
 
 ### Configuration File
