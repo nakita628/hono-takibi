@@ -213,15 +213,6 @@ function mergeImports(existingCode: string, generatedCode: string): string[] {
   const existingFile = project.createSourceFile('existing.ts', existingCode)
   const generatedFile = project.createSourceFile('generated.ts', generatedCode)
 
-  // Collect auto-generated names (ending in Route or RouteHandler) as source of truth
-  const generatedAutoNames = new Set(
-    generatedFile
-      .getImportDeclarations()
-      .flatMap((imp) => imp.getNamedImports())
-      .filter((n) => n.getName().endsWith('Route') || n.getName().endsWith('RouteHandler'))
-      .map((n) => n.getName()),
-  )
-
   // Parse raw import declarations from a single file
   const parseDeclarations = (file: ReturnType<typeof project.createSourceFile>) =>
     file.getImportDeclarations().map((imp) => ({
@@ -238,14 +229,30 @@ function mergeImports(existingCode: string, generatedCode: string): string[] {
   const existingImports = parseDeclarations(existingFile)
   const generatedImports = parseDeclarations(generatedFile)
 
+  // Collect auto-generated names (ending in Route or RouteHandler) as source of truth
+  const generatedAutoNames = new Set<string>()
+  // Map: auto-name → module specifier in generated code (canonical path)
+  const generatedAutoNameModules = new Map<string, string>()
+  for (const imp of generatedImports) {
+    for (const n of imp.namedImports) {
+      if (n.name.endsWith('Route') || n.name.endsWith('RouteHandler')) {
+        generatedAutoNames.add(n.name)
+        generatedAutoNameModules.set(n.name, imp.moduleSpecifier)
+      }
+    }
+  }
+
   // Filter existing: remove auto-names not in generated (deleted routes)
+  // AND auto-names imported from a different module specifier (path-alias changed)
   const filteredExistingImports = existingImports.map((imp) => ({
     ...imp,
-    namedImports: imp.namedImports.filter(
-      (n) =>
-        !(n.name.endsWith('Route') || n.name.endsWith('RouteHandler')) ||
-        generatedAutoNames.has(n.name),
-    ),
+    namedImports: imp.namedImports.filter((n) => {
+      const isAutoName = n.name.endsWith('Route') || n.name.endsWith('RouteHandler')
+      if (!isAutoName) return true
+      if (!generatedAutoNames.has(n.name)) return false
+      const canonicalModule = generatedAutoNameModules.get(n.name)
+      return canonicalModule === undefined || canonicalModule === imp.moduleSpecifier
+    }),
   }))
 
   // Build merged import map (existing first, then generated overrides isTypeOnlyImport)

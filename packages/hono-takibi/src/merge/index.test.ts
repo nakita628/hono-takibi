@@ -246,6 +246,51 @@ export const getUserRouteHandler: RouteHandler<typeof getUserRoute> = async (c) 
       expect(result).toContain("from '../db'")
       expect(result).toContain('await db.getUser')
     })
+
+    it('deduplicates route imports when path-alias changes', () => {
+      const existing = `import type { RouteHandler } from '@hono/zod-openapi'
+import type { getHealthRoute } from '../routes'
+
+export const getHealthRouteHandler: RouteHandler<typeof getHealthRoute> = async (c) => {}
+`
+
+      const generated = `import type { RouteHandler } from '@hono/zod-openapi'
+import type { getHealthRoute } from '@/routes/routes'
+
+export const getHealthRouteHandler: RouteHandler<typeof getHealthRoute> = async (c) => {}
+`
+
+      const result = mergeHandlerFile(existing, generated)
+      // Should use the generated path (source of truth)
+      expect(result).toContain("from '@/routes/routes'")
+      // Should NOT keep the old path
+      expect(result).not.toContain("from '../routes'")
+      // Should have exactly one import of getHealthRoute
+      const importCount = (result.match(/getHealthRoute/g) || []).length
+      // One in import, one in RouteHandler type reference, one in variable name
+      expect(importCount).toBeLessThanOrEqual(3)
+    })
+
+    it('deduplicates route imports across multiple path-alias re-runs', () => {
+      const existing = `import type { RouteHandler } from '@hono/zod-openapi'
+import type { getHealthRoute } from '../routes'
+import type { getHealthRoute } from '@/routes/routes'
+
+export const getHealthRouteHandler: RouteHandler<typeof getHealthRoute> = async (c) => {}
+`
+
+      const generated = `import type { RouteHandler } from '@hono/zod-openapi'
+import type { getHealthRoute } from '@/api/routes'
+
+export const getHealthRouteHandler: RouteHandler<typeof getHealthRoute> = async (c) => {}
+`
+
+      const result = mergeHandlerFile(existing, generated)
+      // Should use the latest generated path only
+      expect(result).toContain("from '@/api/routes'")
+      expect(result).not.toContain("from '../routes'")
+      expect(result).not.toContain("from '@/routes/routes'")
+    })
   })
 
   describe('mergeAppFile', () => {

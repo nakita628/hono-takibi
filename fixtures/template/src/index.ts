@@ -1,6 +1,6 @@
 import { OpenAPIHono } from '@hono/zod-openapi'
-import { getHealthRouteHandler } from './handlers'
 import { getHealthRoute } from './routes'
+import { getHealthRouteHandler } from './handlers'
 
 const app = new OpenAPIHono()
 
