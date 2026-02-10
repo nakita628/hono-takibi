@@ -1,0 +1,11 @@
+{
+  "name": "nakita628-opennext-auth-js-twitter-clone",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "hono-takibi": "workspace:^"
+  }
+}
