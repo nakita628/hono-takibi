@@ -318,7 +318,7 @@ function makeHandlerBody(
 
 /* ── Main export ───────────────────────────────────────────────────── */
 
-export function generateMockServer(
+export function makeMock(
   openapi: OpenAPI,
   basePath: string,
   options: {
