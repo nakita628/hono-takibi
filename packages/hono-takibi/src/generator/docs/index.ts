@@ -395,7 +395,7 @@ function makeCodeSampleHeaders(
     headers.push("  -H 'Accept: application/json'")
   }
 
-  // Auth headers
+  // Auth headers – use shell-style ${VAR} so users can `export` and paste
   const security = operation.security
   const reqs = extractSecurityRequirements(security)
   if (reqs.length > 0 && securitySchemes) {
@@ -406,25 +406,25 @@ function makeCodeSampleHeaders(
         const scheme = securitySchemes[name]
         if (!(scheme && isSecurityScheme(scheme))) continue
         if (scheme.type === 'http' && scheme.scheme === 'bearer') {
-          const h = "  -H 'Authorization: Bearer {access-token}'"
+          const h = `  -H "Authorization: Bearer \${ACCESS_TOKEN}"`
           if (!addedHeaders.has(h)) {
             headers.push(h)
             addedHeaders.add(h)
           }
         } else if (scheme.type === 'http' && scheme.scheme === 'basic') {
-          const h = "  -H 'Authorization: Basic {credentials}'"
+          const h = `  -H "Authorization: Basic \${CREDENTIALS}"`
           if (!addedHeaders.has(h)) {
             headers.push(h)
             addedHeaders.add(h)
           }
         } else if (scheme.type === 'apiKey' && scheme.in === 'header' && scheme.name) {
-          const h = `  -H '${scheme.name}: API_KEY'`
+          const h = `  -H "${scheme.name}: \${API_KEY}"`
           if (!addedHeaders.has(h)) {
             headers.push(h)
             addedHeaders.add(h)
           }
         } else if (scheme.type === 'oauth2') {
-          const h = "  -H 'Authorization: Bearer {access-token}'"
+          const h = `  -H "Authorization: Bearer \${ACCESS_TOKEN}"`
           if (!addedHeaders.has(h)) {
             headers.push(h)
             addedHeaders.add(h)

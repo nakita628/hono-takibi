@@ -131,7 +131,7 @@ hono request \
   -X GET \
   -P /users/{id} \
   -H 'Accept: application/json' \
-  -H 'Authorization: Bearer {access-token}' \
+  -H "Authorization: Bearer ${ACCESS_TOKEN}" \
   src/index.ts
 ```
 
