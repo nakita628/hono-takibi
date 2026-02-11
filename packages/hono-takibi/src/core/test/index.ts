@@ -1,6 +1,8 @@
 import path from 'node:path'
-import { generateTestFile } from '../../generator/test/index.js'
-import { core } from '../../helper/index.js'
+import { fmt } from '../../format/index.js'
+import { mkdir, readFile, writeFile } from '../../fsp/index.js'
+import { makeTestFile } from '../../generator/test/index.js'
+import { mergeTestFile } from '../../merge/index.js'
 import type { OpenAPI } from '../../openapi/index.js'
 
 export async function test(
@@ -11,9 +13,28 @@ export async function test(
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {
   try {
-    const testCode = generateTestFile(openAPI, importPath)
-    const coreResult = await core(testCode, path.dirname(output), output)
-    if (!coreResult.ok) return { ok: false, error: coreResult.error }
+    const testCode = makeTestFile(openAPI, importPath)
+
+    const [fmtResult, mkdirResult, existingResult] = await Promise.all([
+      fmt(testCode),
+      mkdir(path.dirname(output)),
+      readFile(output),
+    ])
+    if (!fmtResult.ok) return { ok: false, error: fmtResult.error }
+    if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error }
+    if (!existingResult.ok) return { ok: false, error: existingResult.error }
+
+    const merged =
+      existingResult.value !== null
+        ? mergeTestFile(existingResult.value, fmtResult.value)
+        : fmtResult.value
+
+    const finalFmtResult = await fmt(merged)
+    const content = finalFmtResult.ok ? finalFmtResult.value : merged
+
+    const writeResult = await writeFile(output, content)
+    if (!writeResult.ok) return { ok: false, error: writeResult.error }
+
     return { ok: true, value: `Generated test file written to ${output}` }
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : String(e) }

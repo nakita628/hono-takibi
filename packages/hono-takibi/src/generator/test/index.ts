@@ -15,4 +15,4 @@ export {
   TYPE_TO_FAKER,
 } from './faker-mapping.js'
 
-export { extractTestCases, generateHandlerTestCode, generateTestFile } from './test-generator.js'
+export { extractTestCases, makeHandlerTestCode, makeTestFile } from './test-generator.js'

@@ -912,8 +912,6 @@ const app = new OpenAPIHono()
 
 export const api = app.openapi(getUsersRoute, getUsersRouteHandler)
 
-export type AppType = typeof api
-
 export default app
 `)
 

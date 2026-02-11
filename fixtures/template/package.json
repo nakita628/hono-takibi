@@ -1,0 +1,22 @@
+{
+  "name": "@fixtures/template",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "takibi": "hono-takibi",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@hono/zod-openapi": "^1.2.1",
+    "hono": "^4.11.7",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@hono/cli": "^0.1.10",
+    "hono-takibi": "workspace:^",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.18"
+  }
+}
