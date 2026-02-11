@@ -200,7 +200,7 @@ op getCurrentUser(): CurrentUser | (UnauthorizedResponse & MessageResponse) | {
 
 @tag("edit")
 @route("/edit")
-@patch
+@patch(#{implicitOptionality: true})
 op patchEdit(@body body: EditUserRequest): User | {
   @statusCode statusCode: 500;
   @body body: MessageResponse;
