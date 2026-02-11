@@ -1,5 +1,5 @@
+import { describe, it, expect } from 'vitest'
 import { faker } from '@faker-js/faker'
-import { describe, expect, it } from 'vitest'
 import app from '@/backend'
 
 function mockRegisterRequest() {
@@ -15,7 +15,7 @@ describe('Register', () => {
   describe('POST /register', () => {
     it('should return 200', async () => {
       const body = mockRegisterRequest()
-      const res = await app.request('/register', {
+      const res = await app.request(`/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),

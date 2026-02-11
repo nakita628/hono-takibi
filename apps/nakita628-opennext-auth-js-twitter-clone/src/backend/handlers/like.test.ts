@@ -1,5 +1,5 @@
+import { describe, it, expect } from 'vitest'
 import { faker } from '@faker-js/faker'
-import { describe, expect, it } from 'vitest'
 import app from '@/backend'
 
 function mockLikePostRequest() {
@@ -12,7 +12,7 @@ describe('Like', () => {
   describe('DELETE /like', () => {
     it('should return 200', async () => {
       const body = mockLikePostRequest()
-      const res = await app.request('/like', {
+      const res = await app.request(`/like`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
@@ -23,7 +23,7 @@ describe('Like', () => {
   describe('POST /like', () => {
     it('should return 200', async () => {
       const body = mockLikePostRequest()
-      const res = await app.request('/like', {
+      const res = await app.request(`/like`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),

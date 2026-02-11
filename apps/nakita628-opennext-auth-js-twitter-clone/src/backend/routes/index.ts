@@ -255,41 +255,49 @@ const UserWithFollowCountSchema = z
   })
   .openapi('UserWithFollowCount')
 
-const ParametersPostIdQueryParamsSchema = z.uuid().openapi({
-  param: {
-    name: 'postId',
-    in: 'query',
-    required: true,
-    schema: { type: 'string', format: 'uuid' },
-  },
-})
+const ParametersPostIdQueryParamsSchema = z
+  .uuid()
+  .openapi({
+    param: {
+      name: 'postId',
+      in: 'query',
+      required: true,
+      schema: { type: 'string', format: 'uuid' },
+    },
+  })
 
-const ParametersUserIdPathParamsSchema = z.uuid().openapi({
-  param: {
-    name: 'userId',
-    in: 'path',
-    required: true,
-    schema: { type: 'string', format: 'uuid' },
-  },
-})
+const ParametersUserIdPathParamsSchema = z
+  .uuid()
+  .openapi({
+    param: {
+      name: 'userId',
+      in: 'path',
+      required: true,
+      schema: { type: 'string', format: 'uuid' },
+    },
+  })
 
-const ParametersUserIdQueryParamsSchema = z.uuid().openapi({
-  param: {
-    name: 'userId',
-    in: 'query',
-    required: true,
-    schema: { type: 'string', format: 'uuid' },
-  },
-})
+const ParametersUserIdQueryParamsSchema = z
+  .uuid()
+  .openapi({
+    param: {
+      name: 'userId',
+      in: 'query',
+      required: true,
+      schema: { type: 'string', format: 'uuid' },
+    },
+  })
 
-const ParametersPostIdPathParamsSchema = z.uuid().openapi({
-  param: {
-    name: 'postId',
-    in: 'path',
-    required: true,
-    schema: { type: 'string', format: 'uuid' },
-  },
-})
+const ParametersPostIdPathParamsSchema = z
+  .uuid()
+  .openapi({
+    param: {
+      name: 'postId',
+      in: 'path',
+      required: true,
+      schema: { type: 'string', format: 'uuid' },
+    },
+  })
 
 export const postCommentsRoute = createRoute({
   method: 'post',
