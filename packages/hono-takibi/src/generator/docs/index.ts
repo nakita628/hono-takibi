@@ -7,7 +7,14 @@ import {
   isSecurityArray,
   isSecurityScheme,
 } from '../../guard/index.js'
-import type { Components, OpenAPI, Operation, Parameter, Responses, Schema } from '../../openapi/index.js'
+import type {
+  Components,
+  OpenAPI,
+  Operation,
+  Parameter,
+  Responses,
+  Schema,
+} from '../../openapi/index.js'
 
 const HTTP_METHODS = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'] as const
 
@@ -122,9 +129,7 @@ function formatSchemaType(schema: Schema, components: Components | undefined): s
     }
     return 'array'
   }
-  const baseType = Array.isArray(schema.type)
-    ? schema.type.join(' | ')
-    : (schema.type ?? 'object')
+  const baseType = Array.isArray(schema.type) ? schema.type.join(' | ') : (schema.type ?? 'object')
   if (schema.format) return `${baseType}(${schema.format})`
   return baseType
 }
@@ -334,7 +339,7 @@ function makeAsideAuth(
         continue
       }
       const scheme = securitySchemes[name]
-      if (!scheme || !isSecurityScheme(scheme)) {
+      if (!(scheme && isSecurityScheme(scheme))) {
         parts.push(name)
         continue
       }
@@ -367,7 +372,11 @@ function makeCodeSampleHeaders(
   const headers: string[] = []
 
   // Content-Type for request body
-  if (operation.requestBody && isRequestBody(operation.requestBody) && operation.requestBody.content) {
+  if (
+    operation.requestBody &&
+    isRequestBody(operation.requestBody) &&
+    operation.requestBody.content
+  ) {
     const { content } = operation.requestBody
     if (content['application/json']) {
       headers.push("  -H 'Content-Type: application/json'")
@@ -395,7 +404,7 @@ function makeCodeSampleHeaders(
       if (!isRecord(req)) continue
       for (const name of Object.keys(req)) {
         const scheme = securitySchemes[name]
-        if (!scheme || !isSecurityScheme(scheme)) continue
+        if (!(scheme && isSecurityScheme(scheme))) continue
         if (scheme.type === 'http' && scheme.scheme === 'bearer') {
           const h = "  -H 'Authorization: Bearer {access-token}'"
           if (!addedHeaders.has(h)) {
@@ -617,11 +626,11 @@ function makeParametersTable(
   const bodySchema = getBodySchema(operation.requestBody, components)
   if (bodySchema) {
     // Top-level body row
-    const bodyTypeStr = bodySchema.$ref
-      ? formatSchemaType(bodySchema, components)
-      : 'object'
+    const bodyTypeStr = bodySchema.$ref ? formatSchemaType(bodySchema, components) : 'object'
     const isRequired =
-      operation.requestBody && isRequestBody(operation.requestBody) && operation.requestBody.required
+      operation.requestBody &&
+      isRequestBody(operation.requestBody) &&
+      operation.requestBody.required
     rows.push({
       name: 'body',
       in_: 'body',
@@ -660,10 +669,7 @@ function makeParametersTable(
   ]
 }
 
-function makeResponsesTable(
-  operation: Operation,
-  components: Components | undefined,
-): string[] {
+function makeResponsesTable(operation: Operation, components: Components | undefined): string[] {
   const heading = operation.summary ?? operation.operationId ?? ''
   const slugBase = toSlug(heading)
   const rows: string[] = []
@@ -980,9 +986,10 @@ function flattenSchemaProperties(
   return []
 }
 
-function collectSchemaEnumeratedValues(
-  schema: Schema,
-): readonly { property: string; value: Schema['enum'] extends readonly (infer T)[] | undefined ? T : never }[] {
+function collectSchemaEnumeratedValues(schema: Schema): readonly {
+  property: string
+  value: Schema['enum'] extends readonly (infer T)[] | undefined ? T : never
+}[] {
   type EnumValue = Schema['enum'] extends readonly (infer T)[] | undefined ? T : never
   const rows: { property: string; value: EnumValue }[] = []
   if (schema.properties) {
@@ -1078,10 +1085,7 @@ type TagGroup = {
   endpoints: Endpoint[]
 }
 
-function groupByTag(
-  endpoints: readonly Endpoint[],
-  openAPI: OpenAPI,
-): readonly TagGroup[] {
+function groupByTag(endpoints: readonly Endpoint[], openAPI: OpenAPI): readonly TagGroup[] {
   const tagMap = new Map<string, Endpoint[]>()
   const tagOrder: string[] = []
 
@@ -1101,14 +1105,14 @@ function groupByTag(
           tagOrder.push(tag)
           tagMap.set(tag, [])
         }
-        tagMap.get(tag)!.push(ep)
+        tagMap.get(tag)?.push(ep)
       }
     } else {
       if (!tagMap.has('Default')) {
         tagOrder.push('Default')
         tagMap.set('Default', [])
       }
-      tagMap.get('Default')!.push(ep)
+      tagMap.get('Default')?.push(ep)
     }
   }
 
@@ -1120,10 +1124,10 @@ function groupByTag(
   }
 
   return tagOrder
-    .filter((name) => tagMap.has(name) && tagMap.get(name)!.length > 0)
+    .filter((name) => tagMap.has(name) && (tagMap.get(name)?.length ?? 0) > 0)
     .map((name) => {
       const desc = tagDescriptions.get(name)
-      const group: TagGroup = { name, endpoints: tagMap.get(name)! }
+      const group: TagGroup = { name, endpoints: tagMap.get(name) ?? [] }
       if (desc !== undefined) group.description = desc
       return group
     })
@@ -1235,14 +1239,7 @@ export function makeDocs(openAPI: OpenAPI, entry: string): string {
       }
 
       // Code sample
-      const codeSample = makeCodeSample(
-        method,
-        pathStr,
-        baseUrl,
-        operation,
-        securitySchemes,
-        entry,
-      )
+      const codeSample = makeCodeSample(method, pathStr, baseUrl, operation, securitySchemes, entry)
       lines.push(...codeSample, '')
 
       // Method + path
