@@ -70,10 +70,5 @@ export function app(
       .map(({ routeName, handlerName }) => `.openapi(${routeName},${handlerName})`)
       .join('\n')
 
-  return [
-    importSection,
-    appInit,
-    apiInit,
-    'export default app',
-  ].join('\n\n')
+  return [importSection, appInit, apiInit, 'export default app'].join('\n\n')
 }
