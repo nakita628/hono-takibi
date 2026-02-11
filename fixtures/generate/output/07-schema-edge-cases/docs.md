@@ -1,12 +1,16 @@
 # Schema Edge Cases API v1.0.0
 
-- `/nullable` [POST](#post-nullable)
-- `/discriminated` [POST](#post-discriminated)
-- `/composed` [GET](#get-composed)
-- `/deep-nested` [GET](#get-deep-nested)
-- `/additional-props` [GET](#get-additional-props)
+- `/nullable` [POST](#postnullable)
+- `/discriminated` [POST](#postdiscriminated)
+- `/composed` [GET](#getcomposed)
+- `/deep-nested` [GET](#getdeepnested)
+- `/additional-props` [GET](#getadditionalprops)
 
-### POST /nullable
+## postNullable
+
+`POST /nullable`
+
+> Code samples
 
 ```bash
 hono request \
@@ -16,7 +20,57 @@ hono request \
   src/index.ts
 ```
 
-### POST /discriminated
+> Body parameter
+
+```json
+{
+  "name": "string"
+}
+```
+
+### Parameters
+
+| Name | In | Type | Required | Description |
+|------|----|------|----------|-------------|
+| name | body | string | true | none |
+| nickname | body | string | null | false | none |
+| age | body | integer | null | false | none |
+| tags | body | array | null | false | none |
+
+> Example responses
+
+> 200 Response
+
+```json
+{
+  "name": "string"
+}
+```
+
+### Responses
+
+| Status | Description | Schema |
+|--------|-------------|--------|
+| 200 | OK | Inline |
+
+### Response Schema
+
+Status Code **200**
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| name | string | true | none |
+| nickname | string | null | false | none |
+| age | integer | null | false | none |
+| tags | array | null | false | none |
+
+> This operation does not require authentication
+
+## postDiscriminated
+
+`POST /discriminated`
+
+> Code samples
 
 ```bash
 hono request \
@@ -26,7 +80,33 @@ hono request \
   src/index.ts
 ```
 
-### GET /composed
+> Body parameter
+
+```json
+null
+```
+
+> Example responses
+
+> 200 Response
+
+```json
+null
+```
+
+### Responses
+
+| Status | Description | Schema |
+|--------|-------------|--------|
+| 200 | OK | Inline |
+
+> This operation does not require authentication
+
+## getComposed
+
+`GET /composed`
+
+> Code samples
 
 ```bash
 hono request \
@@ -35,7 +115,27 @@ hono request \
   src/index.ts
 ```
 
-### GET /deep-nested
+> Example responses
+
+> 200 Response
+
+```json
+null
+```
+
+### Responses
+
+| Status | Description | Schema |
+|--------|-------------|--------|
+| 200 | OK | Inline |
+
+> This operation does not require authentication
+
+## getDeepNested
+
+`GET /deep-nested`
+
+> Code samples
 
 ```bash
 hono request \
@@ -44,7 +144,43 @@ hono request \
   src/index.ts
 ```
 
-### GET /additional-props
+> Example responses
+
+> 200 Response
+
+```json
+{
+  "level2": {
+    "level3": {
+      "value": "string"
+    }
+  }
+}
+```
+
+### Responses
+
+| Status | Description | Schema |
+|--------|-------------|--------|
+| 200 | OK | Inline |
+
+### Response Schema
+
+Status Code **200**
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| level2 | object | true | none |
+| level2.level3 | object | true | none |
+| level2.level3.value | string | true | none |
+
+> This operation does not require authentication
+
+## getAdditionalProps
+
+`GET /additional-props`
+
+> Code samples
 
 ```bash
 hono request \
@@ -52,3 +188,19 @@ hono request \
   -X GET \
   src/index.ts
 ```
+
+> Example responses
+
+> 200 Response
+
+```json
+null
+```
+
+### Responses
+
+| Status | Description | Schema |
+|--------|-------------|--------|
+| 200 | OK | Inline |
+
+> This operation does not require authentication

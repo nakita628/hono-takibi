@@ -169,6 +169,4 @@ export const api = app
   .openapi(postTextRoute, postTextRouteHandler)
   .openapi(postMultiContentRoute, postMultiContentRouteHandler)
 
-export type AppType = typeof api
-
 export default app

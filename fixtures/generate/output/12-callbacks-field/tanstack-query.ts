@@ -21,11 +21,14 @@ export function getPostOrdersMutationKey() {
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export const getPostOrdersMutationOptions = (clientOptions?: ClientRequestOptions) => ({
-  mutationKey: getPostOrdersMutationKey(),
-  mutationFn: async (args: InferRequestType<typeof client.orders.$post>) =>
-    parseResponse(client.orders.$post(args, clientOptions)),
-})
+export function getPostOrdersMutationOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    mutationKey: getPostOrdersMutationKey(),
+    async mutationFn(args: InferRequestType<typeof client.orders.$post>) {
+      return parseResponse(client.orders.$post(args, clientOptions))
+    },
+  }
+}
 
 /**
  * POST /orders
@@ -58,11 +61,14 @@ export function getPostPaymentsMutationKey() {
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export const getPostPaymentsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
-  mutationKey: getPostPaymentsMutationKey(),
-  mutationFn: async (args: InferRequestType<typeof client.payments.$post>) =>
-    parseResponse(client.payments.$post(args, clientOptions)),
-})
+export function getPostPaymentsMutationOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    mutationKey: getPostPaymentsMutationKey(),
+    async mutationFn(args: InferRequestType<typeof client.payments.$post>) {
+      return parseResponse(client.payments.$post(args, clientOptions))
+    },
+  }
+}
 
 /**
  * POST /payments
@@ -95,13 +101,19 @@ export function getGetItemsQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetItemsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetItemsQueryKey(),
-  queryFn: ({ signal }: QueryFunctionContext) =>
-    parseResponse(
-      client.items.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-    ),
-})
+export function getGetItemsQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetItemsQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.items.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      )
+    },
+  }
+}
 
 /**
  * GET /items

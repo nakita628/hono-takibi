@@ -21,16 +21,19 @@ export function getGetUsersQueryKey(args: InferRequestType<typeof client.users.$
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetUsersQueryOptions = (
+export function getGetUsersQueryOptions(
   args: InferRequestType<typeof client.users.$get>,
   clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetUsersQueryKey(args),
-  queryFn: ({ signal }: QueryFunctionContext) =>
-    parseResponse(
-      client.users.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-    ),
-})
+) {
+  return {
+    queryKey: getGetUsersQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.users.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      )
+    },
+  }
+}
 
 /**
  * GET /users
@@ -65,11 +68,14 @@ export function getPostUsersMutationKey() {
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export const getPostUsersMutationOptions = (clientOptions?: ClientRequestOptions) => ({
-  mutationKey: getPostUsersMutationKey(),
-  mutationFn: async (args: InferRequestType<typeof client.users.$post>) =>
-    parseResponse(client.users.$post(args, clientOptions)),
-})
+export function getPostUsersMutationOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    mutationKey: getPostUsersMutationKey(),
+    async mutationFn(args: InferRequestType<typeof client.users.$post>) {
+      return parseResponse(client.users.$post(args, clientOptions))
+    },
+  }
+}
 
 /**
  * POST /users
@@ -106,19 +112,22 @@ export function getGetUsersUserIdQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetUsersUserIdQueryOptions = (
+export function getGetUsersUserIdQueryOptions(
   args: InferRequestType<(typeof client.users)[':userId']['$get']>,
   clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetUsersUserIdQueryKey(args),
-  queryFn: ({ signal }: QueryFunctionContext) =>
-    parseResponse(
-      client.users[':userId'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
+) {
+  return {
+    queryKey: getGetUsersUserIdQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.users[':userId'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      )
+    },
+  }
+}
 
 /**
  * GET /users/{userId}
@@ -157,11 +166,14 @@ export function getPutUsersUserIdMutationKey() {
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export const getPutUsersUserIdMutationOptions = (clientOptions?: ClientRequestOptions) => ({
-  mutationKey: getPutUsersUserIdMutationKey(),
-  mutationFn: async (args: InferRequestType<(typeof client.users)[':userId']['$put']>) =>
-    parseResponse(client.users[':userId'].$put(args, clientOptions)),
-})
+export function getPutUsersUserIdMutationOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    mutationKey: getPutUsersUserIdMutationKey(),
+    async mutationFn(args: InferRequestType<(typeof client.users)[':userId']['$put']>) {
+      return parseResponse(client.users[':userId'].$put(args, clientOptions))
+    },
+  }
+}
 
 /**
  * PUT /users/{userId}
@@ -202,11 +214,14 @@ export function getDeleteUsersUserIdMutationKey() {
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export const getDeleteUsersUserIdMutationOptions = (clientOptions?: ClientRequestOptions) => ({
-  mutationKey: getDeleteUsersUserIdMutationKey(),
-  mutationFn: async (args: InferRequestType<(typeof client.users)[':userId']['$delete']>) =>
-    parseResponse(client.users[':userId'].$delete(args, clientOptions)),
-})
+export function getDeleteUsersUserIdMutationOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    mutationKey: getDeleteUsersUserIdMutationKey(),
+    async mutationFn(args: InferRequestType<(typeof client.users)[':userId']['$delete']>) {
+      return parseResponse(client.users[':userId'].$delete(args, clientOptions))
+    },
+  }
+}
 
 /**
  * DELETE /users/{userId}
@@ -248,16 +263,19 @@ export function getGetProductsQueryKey(args: InferRequestType<typeof client.prod
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetProductsQueryOptions = (
+export function getGetProductsQueryOptions(
   args: InferRequestType<typeof client.products.$get>,
   clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetProductsQueryKey(args),
-  queryFn: ({ signal }: QueryFunctionContext) =>
-    parseResponse(
-      client.products.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-    ),
-})
+) {
+  return {
+    queryKey: getGetProductsQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.products.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      )
+    },
+  }
+}
 
 /**
  * GET /products
@@ -292,11 +310,14 @@ export function getPostProductsMutationKey() {
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export const getPostProductsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
-  mutationKey: getPostProductsMutationKey(),
-  mutationFn: async (args: InferRequestType<typeof client.products.$post>) =>
-    parseResponse(client.products.$post(args, clientOptions)),
-})
+export function getPostProductsMutationOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    mutationKey: getPostProductsMutationKey(),
+    async mutationFn(args: InferRequestType<typeof client.products.$post>) {
+      return parseResponse(client.products.$post(args, clientOptions))
+    },
+  }
+}
 
 /**
  * POST /products
@@ -333,19 +354,22 @@ export function getGetProductsProductIdQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetProductsProductIdQueryOptions = (
+export function getGetProductsProductIdQueryOptions(
   args: InferRequestType<(typeof client.products)[':productId']['$get']>,
   clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetProductsProductIdQueryKey(args),
-  queryFn: ({ signal }: QueryFunctionContext) =>
-    parseResponse(
-      client.products[':productId'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
+) {
+  return {
+    queryKey: getGetProductsProductIdQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.products[':productId'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      )
+    },
+  }
+}
 
 /**
  * GET /products/{productId}
@@ -387,11 +411,14 @@ export function getPutProductsProductIdMutationKey() {
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export const getPutProductsProductIdMutationOptions = (clientOptions?: ClientRequestOptions) => ({
-  mutationKey: getPutProductsProductIdMutationKey(),
-  mutationFn: async (args: InferRequestType<(typeof client.products)[':productId']['$put']>) =>
-    parseResponse(client.products[':productId'].$put(args, clientOptions)),
-})
+export function getPutProductsProductIdMutationOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    mutationKey: getPutProductsProductIdMutationKey(),
+    async mutationFn(args: InferRequestType<(typeof client.products)[':productId']['$put']>) {
+      return parseResponse(client.products[':productId'].$put(args, clientOptions))
+    },
+  }
+}
 
 /**
  * PUT /products/{productId}
@@ -434,19 +461,22 @@ export function getGetProductsProductIdReviewsQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetProductsProductIdReviewsQueryOptions = (
+export function getGetProductsProductIdReviewsQueryOptions(
   args: InferRequestType<(typeof client.products)[':productId']['reviews']['$get']>,
   clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetProductsProductIdReviewsQueryKey(args),
-  queryFn: ({ signal }: QueryFunctionContext) =>
-    parseResponse(
-      client.products[':productId'].reviews.$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
+) {
+  return {
+    queryKey: getGetProductsProductIdReviewsQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.products[':productId'].reviews.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      )
+    },
+  }
+}
 
 /**
  * GET /products/{productId}/reviews
@@ -490,14 +520,18 @@ export function getPostProductsProductIdReviewsMutationKey() {
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export const getPostProductsProductIdReviewsMutationOptions = (
+export function getPostProductsProductIdReviewsMutationOptions(
   clientOptions?: ClientRequestOptions,
-) => ({
-  mutationKey: getPostProductsProductIdReviewsMutationKey(),
-  mutationFn: async (
-    args: InferRequestType<(typeof client.products)[':productId']['reviews']['$post']>,
-  ) => parseResponse(client.products[':productId'].reviews.$post(args, clientOptions)),
-})
+) {
+  return {
+    mutationKey: getPostProductsProductIdReviewsMutationKey(),
+    async mutationFn(
+      args: InferRequestType<(typeof client.products)[':productId']['reviews']['$post']>,
+    ) {
+      return parseResponse(client.products[':productId'].reviews.$post(args, clientOptions))
+    },
+  }
+}
 
 /**
  * POST /products/{productId}/reviews
@@ -539,16 +573,19 @@ export function getGetOrdersQueryKey(args: InferRequestType<typeof client.orders
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetOrdersQueryOptions = (
+export function getGetOrdersQueryOptions(
   args: InferRequestType<typeof client.orders.$get>,
   clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetOrdersQueryKey(args),
-  queryFn: ({ signal }: QueryFunctionContext) =>
-    parseResponse(
-      client.orders.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-    ),
-})
+) {
+  return {
+    queryKey: getGetOrdersQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.orders.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      )
+    },
+  }
+}
 
 /**
  * GET /orders
@@ -583,11 +620,14 @@ export function getPostOrdersMutationKey() {
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export const getPostOrdersMutationOptions = (clientOptions?: ClientRequestOptions) => ({
-  mutationKey: getPostOrdersMutationKey(),
-  mutationFn: async (args: InferRequestType<typeof client.orders.$post>) =>
-    parseResponse(client.orders.$post(args, clientOptions)),
-})
+export function getPostOrdersMutationOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    mutationKey: getPostOrdersMutationKey(),
+    async mutationFn(args: InferRequestType<typeof client.orders.$post>) {
+      return parseResponse(client.orders.$post(args, clientOptions))
+    },
+  }
+}
 
 /**
  * POST /orders
@@ -624,19 +664,22 @@ export function getGetOrdersOrderIdQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetOrdersOrderIdQueryOptions = (
+export function getGetOrdersOrderIdQueryOptions(
   args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
   clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetOrdersOrderIdQueryKey(args),
-  queryFn: ({ signal }: QueryFunctionContext) =>
-    parseResponse(
-      client.orders[':orderId'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
+) {
+  return {
+    queryKey: getGetOrdersOrderIdQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.orders[':orderId'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      )
+    },
+  }
+}
 
 /**
  * GET /orders/{orderId}
@@ -678,16 +721,19 @@ export function getGetCategoriesQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetCategoriesQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetCategoriesQueryKey(),
-  queryFn: ({ signal }: QueryFunctionContext) =>
-    parseResponse(
-      client.categories.$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
+export function getGetCategoriesQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetCategoriesQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.categories.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      )
+    },
+  }
+}
 
 /**
  * GET /categories
@@ -721,11 +767,14 @@ export function getPostUploadImageMutationKey() {
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export const getPostUploadImageMutationOptions = (clientOptions?: ClientRequestOptions) => ({
-  mutationKey: getPostUploadImageMutationKey(),
-  mutationFn: async (args: InferRequestType<typeof client.upload.image.$post>) =>
-    parseResponse(client.upload.image.$post(args, clientOptions)),
-})
+export function getPostUploadImageMutationOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    mutationKey: getPostUploadImageMutationKey(),
+    async mutationFn(args: InferRequestType<typeof client.upload.image.$post>) {
+      return parseResponse(client.upload.image.$post(args, clientOptions))
+    },
+  }
+}
 
 /**
  * POST /upload/image

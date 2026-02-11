@@ -17,13 +17,19 @@ export function getGetHealthQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetHealthQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetHealthQueryKey(),
-  queryFn: ({ signal }: QueryFunctionContext) =>
-    parseResponse(
-      client.health.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-    ),
-})
+export function getGetHealthQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetHealthQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.health.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      )
+    },
+  }
+}
 
 /**
  * GET /health

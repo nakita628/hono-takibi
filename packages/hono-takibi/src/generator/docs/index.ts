@@ -6,7 +6,7 @@ import {
   isSecurityArray,
   isSecurityScheme,
 } from '../../guard/index.js'
-import type { Components, OpenAPI, Operation, Schema } from '../../openapi/index.js'
+import type { Components, OpenAPI, Operation, Parameter, Schema } from '../../openapi/index.js'
 
 const HTTP_METHODS = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'] as const
 
@@ -63,6 +63,354 @@ function groupByPath(endpoints: readonly Endpoint[]): ReadonlyMap<string, readon
 }
 
 /**
+ * Derives an operationId-style label for an endpoint.
+ */
+function getOperationLabel(method: HttpMethod, path: string, operation: Operation): string {
+  if (operation.operationId) return operation.operationId
+  return `${method}${path}`
+}
+
+/**
+ * Collects path-level parameters for a given path from the OpenAPI spec.
+ */
+function getPathParameters(openAPI: OpenAPI, pathStr: string): readonly Parameter[] {
+  const pathItem = openAPI.paths?.[pathStr]
+  if (!pathItem?.parameters) return []
+  const params = pathItem.parameters as readonly (Parameter | { readonly $ref?: string })[]
+  return params.flatMap((p) => {
+    if ('$ref' in p && p.$ref) {
+      const resolved = resolveRef(p.$ref, openAPI.components)
+      if (resolved && typeof resolved === 'object' && 'name' in resolved) {
+        return [resolved as Parameter]
+      }
+      return []
+    }
+    if ('name' in p) return [p as Parameter]
+    return []
+  })
+}
+
+/**
+ * Resolves operation-level parameters, including $ref resolution.
+ */
+function resolveOperationParameters(
+  operation: Operation,
+  components: Components | undefined,
+): readonly Parameter[] {
+  if (!operation.parameters) return []
+  return operation.parameters.flatMap((p) => {
+    if ('$ref' in p && p.$ref) {
+      const resolved = resolveRef(p.$ref, components)
+      if (resolved && typeof resolved === 'object' && 'name' in resolved) {
+        return [resolved as Parameter]
+      }
+      return []
+    }
+    return [p]
+  })
+}
+
+/**
+ * Gets the schema type as a string, handling array types.
+ */
+function getSchemaTypeStr(schema: Schema): string {
+  if (schema.$ref) {
+    const name = schema.$ref.split('/').at(-1) ?? 'object'
+    return name
+  }
+  if (Array.isArray(schema.type)) {
+    return schema.type.join(' | ')
+  }
+  return schema.type ?? 'object'
+}
+
+/**
+ * Flattens schema fields into rows for a response schema table.
+ * Uses a visited set to prevent infinite recursion on circular $refs.
+ */
+function flattenSchemaFields(
+  schema: Schema,
+  components: Components | undefined,
+  prefix: string,
+  visited: Set<string> = new Set(),
+): readonly { name: string; type: string; required: boolean; description: string }[] {
+  // Resolve $ref with circular reference protection
+  if (schema.$ref) {
+    if (visited.has(schema.$ref)) return []
+    visited.add(schema.$ref)
+    const resolved = resolveRef(schema.$ref, components)
+    if (resolved && typeof resolved === 'object') {
+      return flattenSchemaFields(resolved as Schema, components, prefix, visited)
+    }
+    return []
+  }
+
+  if (schema.type === 'object' && schema.properties) {
+    const requiredSet = new Set(schema.required ?? [])
+    return Object.entries(schema.properties).flatMap(([key, propSchema]) => {
+      const fullName = prefix ? `${prefix}.${key}` : key
+      const row = {
+        name: fullName,
+        type: getSchemaTypeStr(propSchema),
+        required: requiredSet.has(key),
+        description: propSchema.description ?? 'none',
+      }
+      // For nested objects, flatten recursively
+      if (propSchema.type === 'object' && propSchema.properties) {
+        return [row, ...flattenSchemaFields(propSchema, components, fullName, visited)]
+      }
+      if (propSchema.$ref) {
+        if (visited.has(propSchema.$ref)) return [row]
+        visited.add(propSchema.$ref)
+        const resolved = resolveRef(propSchema.$ref, components)
+        if (
+          resolved &&
+          typeof resolved === 'object' &&
+          'type' in resolved &&
+          (resolved as Schema).type === 'object' &&
+          'properties' in resolved
+        ) {
+          return [row, ...flattenSchemaFields(resolved as Schema, components, fullName, visited)]
+        }
+      }
+      if (propSchema.type === 'array' && propSchema.items) {
+        const itemSchema = Array.isArray(propSchema.items)
+          ? propSchema.items[0]
+          : propSchema.items
+        if (itemSchema) {
+          // Resolve $ref on items with circular protection
+          let resolvedItem = itemSchema
+          if (itemSchema.$ref) {
+            if (visited.has(itemSchema.$ref)) return [row]
+            visited.add(itemSchema.$ref)
+            const r = resolveRef(itemSchema.$ref, components)
+            if (r && typeof r === 'object') resolvedItem = r as Schema
+          }
+          if (resolvedItem.type === 'object' && resolvedItem.properties) {
+            return [row, ...flattenSchemaFields(resolvedItem, components, fullName, visited)]
+          }
+        }
+      }
+      return [row]
+    })
+  }
+
+  if (schema.type === 'array' && schema.items) {
+    const itemSchema = Array.isArray(schema.items) ? schema.items[0] : schema.items
+    if (itemSchema) {
+      return flattenSchemaFields(itemSchema, components, prefix, visited)
+    }
+  }
+
+  return []
+}
+
+/**
+ * Makes a parameters table in Markdown.
+ */
+function makeParametersTable(
+  pathParams: readonly Parameter[],
+  operationParams: readonly Parameter[],
+  bodySchema: Schema | undefined,
+  components: Components | undefined,
+): string[] {
+  type ParamRow = {
+    name: string
+    in: string
+    type: string
+    required: string
+    description: string
+  }
+  const rows: ParamRow[] = []
+
+  // Merge path-level and operation-level params (operation overrides by name+in)
+  const seen = new Set<string>()
+  for (const p of operationParams) {
+    const key = `${p.name}:${p.in}`
+    seen.add(key)
+    rows.push({
+      name: p.name,
+      in: p.in,
+      type: getSchemaTypeStr(p.schema),
+      required: p.required ? 'true' : 'false',
+      description: p.description ?? 'none',
+    })
+  }
+  for (const p of pathParams) {
+    const key = `${p.name}:${p.in}`
+    if (seen.has(key)) continue
+    rows.push({
+      name: p.name,
+      in: p.in,
+      type: getSchemaTypeStr(p.schema),
+      required: p.required ? 'true' : 'false',
+      description: p.description ?? 'none',
+    })
+  }
+
+  // Body fields
+  if (bodySchema) {
+    const resolved = bodySchema.$ref
+      ? (resolveRef(bodySchema.$ref, components) as Schema | undefined)
+      : bodySchema
+
+    if (resolved?.type === 'object' && resolved.properties) {
+      const requiredSet = new Set(resolved.required ?? [])
+      for (const [key, propSchema] of Object.entries(resolved.properties)) {
+        rows.push({
+          name: key,
+          in: 'body',
+          type: getSchemaTypeStr(propSchema),
+          required: requiredSet.has(key) ? 'true' : 'false',
+          description: propSchema.description ?? 'none',
+        })
+      }
+    }
+  }
+
+  if (rows.length === 0) return []
+
+  const lines = [
+    '### Parameters',
+    '',
+    '| Name | In | Type | Required | Description |',
+    '|------|----|------|----------|-------------|',
+    ...rows.map((r) => `| ${r.name} | ${r.in} | ${r.type} | ${r.required} | ${r.description} |`),
+    '',
+  ]
+  return lines
+}
+
+/**
+ * Makes response example sections.
+ */
+function makeResponseExamples(
+  responses: Operation['responses'],
+  components: Components | undefined,
+): string[] {
+  const lines: string[] = []
+  for (const [statusCode, response] of Object.entries(responses)) {
+    // Resolve $ref response
+    let resolvedResponse = response
+    if (response.$ref) {
+      const r = resolveRef(response.$ref, components)
+      if (r && typeof r === 'object') {
+        resolvedResponse = r as typeof response
+      }
+    }
+
+    const content = resolvedResponse.content
+    if (!content) continue
+    const jsonMedia = content['application/json']
+    if (!jsonMedia) continue
+    if (!isMedia(jsonMedia)) continue
+    if (!jsonMedia.schema) continue
+
+    const example = makeExampleFromSchema(jsonMedia.schema, components)
+    const json = JSON.stringify(example, null, 2)
+    lines.push(`> ${statusCode} Response`, '', '```json', json, '```', '')
+  }
+  return lines
+}
+
+/**
+ * Makes a responses table.
+ */
+function makeResponsesTable(
+  responses: Operation['responses'],
+  components: Components | undefined,
+): string[] {
+  const rows: { status: string; description: string; schema: string }[] = []
+  for (const [statusCode, response] of Object.entries(responses)) {
+    let resolvedResponse = response
+    if (response.$ref) {
+      const r = resolveRef(response.$ref, components)
+      if (r && typeof r === 'object') {
+        resolvedResponse = r as typeof response
+      }
+    }
+
+    const description = resolvedResponse.description ?? ''
+    const content = resolvedResponse.content
+    const hasSchema = content?.['application/json'] !== undefined
+    rows.push({
+      status: statusCode,
+      description,
+      schema: hasSchema ? 'Inline' : 'None',
+    })
+  }
+
+  if (rows.length === 0) return []
+
+  return [
+    '### Responses',
+    '',
+    '| Status | Description | Schema |',
+    '|--------|-------------|--------|',
+    ...rows.map((r) => `| ${r.status} | ${r.description} | ${r.schema} |`),
+    '',
+  ]
+}
+
+/**
+ * Makes response schema tables for each status code.
+ */
+function makeResponseSchemaTable(
+  responses: Operation['responses'],
+  components: Components | undefined,
+): string[] {
+  const lines: string[] = []
+  for (const [statusCode, response] of Object.entries(responses)) {
+    let resolvedResponse = response
+    if (response.$ref) {
+      const r = resolveRef(response.$ref, components)
+      if (r && typeof r === 'object') {
+        resolvedResponse = r as typeof response
+      }
+    }
+
+    const content = resolvedResponse.content
+    if (!content) continue
+    const jsonMedia = content['application/json']
+    if (!jsonMedia) continue
+    if (!isMedia(jsonMedia)) continue
+    if (!jsonMedia.schema) continue
+
+    const fields = flattenSchemaFields(jsonMedia.schema, components, '')
+    if (fields.length === 0) continue
+
+    lines.push(
+      `### Response Schema`,
+      '',
+      `Status Code **${statusCode}**`,
+      '',
+      '| Name | Type | Required | Description |',
+      '|------|------|----------|-------------|',
+      ...fields.map(
+        (f) => `| ${f.name} | ${f.type} | ${f.required} | ${f.description} |`,
+      ),
+      '',
+    )
+  }
+  return lines
+}
+
+/**
+ * Gets the request body schema for application/json content type.
+ */
+function getBodySchema(
+  requestBody: Operation['requestBody'] | undefined,
+  components: Components | undefined,
+): Schema | undefined {
+  if (!requestBody) return undefined
+  const body = isRefObject(requestBody) ? resolveRef(requestBody.$ref, components) : requestBody
+  if (!(body && isRequestBody(body) && body.content)) return undefined
+  const mediaEntry = body.content['application/json']
+  if (!(mediaEntry && isMedia(mediaEntry) && mediaEntry.schema)) return undefined
+  return mediaEntry.schema
+}
+
+/**
  * Makes API reference Markdown from an OpenAPI specification.
  */
 export function makeDocs(openAPI: OpenAPI, entry: string): string {
@@ -75,19 +423,25 @@ export function makeDocs(openAPI: OpenAPI, entry: string): string {
   const endpoints = collectEndpoints(openAPI)
   const pathGroups = groupByPath(endpoints)
 
-  // Table of contents: path-grouped links for quick navigation in long docs
+  // Table of contents: operationId-based anchors
   const tocLines = [...pathGroups].map(([pathStr, eps]) => {
     const methods = eps.map((ep) => {
-      const heading = `${ep.method.toUpperCase()} ${pathStr}`
-      return `[${ep.method.toUpperCase()}](#${toAnchor(heading)})`
+      const label = getOperationLabel(ep.method, ep.path, ep.operation)
+      return `[${ep.method.toUpperCase()}](#${toAnchor(label)})`
     })
     return `- \`${pathStr}\` ${methods.join(' ')}`
   })
 
   // Endpoint sections
   const endpointLines = endpoints.flatMap(({ method, path: pathStr, operation }) => {
-    const heading = `### ${method.toUpperCase()} ${pathStr}`
+    const label = getOperationLabel(method, pathStr, operation)
+    const lines: string[] = []
 
+    // Heading
+    lines.push(`## ${label}`, '')
+    lines.push(`\`${method.toUpperCase()} ${pathStr}\``, '')
+
+    // Code samples
     const securityNames = extractSecurityNames(operation.security)
     const cmdParts = [
       'hono request',
@@ -105,8 +459,46 @@ export function makeDocs(openAPI: OpenAPI, entry: string): string {
       })(),
       `  ${entry}`,
     ]
+    lines.push('> Code samples', '', '```bash', cmdParts.join(' \\\n'), '```', '')
 
-    return [heading, '', '```bash', cmdParts.join(' \\\n'), '```', '']
+    // Body parameter (POST/PUT/PATCH)
+    const bodySchema = getBodySchema(operation.requestBody, openAPI.components)
+    if (bodySchema) {
+      const bodyExample = makeExampleFromSchema(bodySchema, openAPI.components)
+      const bodyJson = JSON.stringify(bodyExample, null, 2)
+      lines.push('> Body parameter', '', '```json', bodyJson, '```', '')
+    }
+
+    // Parameters table
+    const pathParams = getPathParameters(openAPI, pathStr)
+    const operationParams = resolveOperationParameters(operation, openAPI.components)
+    const paramLines = makeParametersTable(pathParams, operationParams, bodySchema, openAPI.components)
+    if (paramLines.length > 0) {
+      lines.push(...paramLines)
+    }
+
+    // Response examples
+    const responseExampleLines = makeResponseExamples(operation.responses, openAPI.components)
+    if (responseExampleLines.length > 0) {
+      lines.push('> Example responses', '', ...responseExampleLines)
+    }
+
+    // Responses table
+    const responsesTableLines = makeResponsesTable(operation.responses, openAPI.components)
+    lines.push(...responsesTableLines)
+
+    // Response schema table
+    const schemaTableLines = makeResponseSchemaTable(operation.responses, openAPI.components)
+    lines.push(...schemaTableLines)
+
+    // Authentication info
+    if (securityNames.length > 0) {
+      lines.push(`> Authentication: ${securityNames.join(', ')}`, '')
+    } else {
+      lines.push('> This operation does not require authentication', '')
+    }
+
+    return lines
   })
 
   return [titleLine, '', ...tocLines, '', ...endpointLines].join('\n')

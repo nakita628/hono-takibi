@@ -205,6 +205,4 @@ export const api = app
   .openapi(getDeepNestedRoute, getDeepNestedRouteHandler)
   .openapi(getAdditionalPropsRoute, getAdditionalPropsRouteHandler)
 
-export type AppType = typeof api
-
 export default app

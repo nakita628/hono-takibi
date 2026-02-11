@@ -1,13 +1,17 @@
 # Security Schemes API v1.0.0
 
-- `/public` [GET](#get-public)
-- `/bearer-protected` [GET](#get-bearer-protected)
-- `/api-key-protected` [GET](#get-api-key-protected)
-- `/basic-protected` [GET](#get-basic-protected)
-- `/oauth-protected` [GET](#get-oauth-protected)
-- `/multi-auth` [GET](#get-multi-auth)
+- `/public` [GET](#getpublic)
+- `/bearer-protected` [GET](#getbearerprotected)
+- `/api-key-protected` [GET](#getapikeyprotected)
+- `/basic-protected` [GET](#getbasicprotected)
+- `/oauth-protected` [GET](#getoauthprotected)
+- `/multi-auth` [GET](#getmultiauth)
 
-### GET /public
+## getPublic
+
+`GET /public`
+
+> Code samples
 
 ```bash
 hono request \
@@ -16,7 +20,37 @@ hono request \
   src/index.ts
 ```
 
-### GET /bearer-protected
+> Example responses
+
+> 200 Response
+
+```json
+{
+  "message": "string"
+}
+```
+
+### Responses
+
+| Status | Description | Schema |
+|--------|-------------|--------|
+| 200 | OK | Inline |
+
+### Response Schema
+
+Status Code **200**
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| message | string | true | none |
+
+> This operation does not require authentication
+
+## getBearerProtected
+
+`GET /bearer-protected`
+
+> Code samples
 
 ```bash
 hono request \
@@ -26,7 +60,37 @@ hono request \
   src/index.ts
 ```
 
-### GET /api-key-protected
+> Example responses
+
+> 200 Response
+
+```json
+{
+  "data": "string"
+}
+```
+
+### Responses
+
+| Status | Description | Schema |
+|--------|-------------|--------|
+| 200 | OK | Inline |
+
+### Response Schema
+
+Status Code **200**
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| data | string | true | none |
+
+> Authentication: BearerAuth
+
+## getApiKeyProtected
+
+`GET /api-key-protected`
+
+> Code samples
 
 ```bash
 hono request \
@@ -36,7 +100,37 @@ hono request \
   src/index.ts
 ```
 
-### GET /basic-protected
+> Example responses
+
+> 200 Response
+
+```json
+{
+  "data": "string"
+}
+```
+
+### Responses
+
+| Status | Description | Schema |
+|--------|-------------|--------|
+| 200 | OK | Inline |
+
+### Response Schema
+
+Status Code **200**
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| data | string | true | none |
+
+> Authentication: ApiKeyAuth
+
+## getBasicProtected
+
+`GET /basic-protected`
+
+> Code samples
 
 ```bash
 hono request \
@@ -46,7 +140,37 @@ hono request \
   src/index.ts
 ```
 
-### GET /oauth-protected
+> Example responses
+
+> 200 Response
+
+```json
+{
+  "data": "string"
+}
+```
+
+### Responses
+
+| Status | Description | Schema |
+|--------|-------------|--------|
+| 200 | OK | Inline |
+
+### Response Schema
+
+Status Code **200**
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| data | string | true | none |
+
+> Authentication: BasicAuth
+
+## getOAuthProtected
+
+`GET /oauth-protected`
+
+> Code samples
 
 ```bash
 hono request \
@@ -55,7 +179,37 @@ hono request \
   src/index.ts
 ```
 
-### GET /multi-auth
+> Example responses
+
+> 200 Response
+
+```json
+{
+  "data": "string"
+}
+```
+
+### Responses
+
+| Status | Description | Schema |
+|--------|-------------|--------|
+| 200 | OK | Inline |
+
+### Response Schema
+
+Status Code **200**
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| data | string | true | none |
+
+> Authentication: OAuth2
+
+## getMultiAuth
+
+`GET /multi-auth`
+
+> Code samples
 
 ```bash
 hono request \
@@ -64,3 +218,29 @@ hono request \
   -H "Authorization: Bearer ${TOKEN}" \
   src/index.ts
 ```
+
+> Example responses
+
+> 200 Response
+
+```json
+{
+  "data": "string"
+}
+```
+
+### Responses
+
+| Status | Description | Schema |
+|--------|-------------|--------|
+| 200 | OK | Inline |
+
+### Response Schema
+
+Status Code **200**
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| data | string | true | none |
+
+> Authentication: BearerAuth, ApiKeyAuth

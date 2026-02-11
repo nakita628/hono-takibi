@@ -1,19 +1,23 @@
 # Composition Keywords API v1.0.0
 
-- `/one-of` [POST](#post-one-of)
-- `/any-of` [POST](#post-any-of)
-- `/all-of` [POST](#post-all-of)
-- `/not` [POST](#post-not)
-- `/not-ref` [GET](#get-not-ref)
-- `/not-enum` [GET](#get-not-enum)
-- `/not-const` [GET](#get-not-const)
-- `/not-composition` [GET](#get-not-composition)
-- `/all-of-sibling` [GET](#get-all-of-sibling)
-- `/nullable-one-of` [GET](#get-nullable-one-of)
-- `/any-of-three` [GET](#get-any-of-three)
-- `/any-of-ref` [GET](#get-any-of-ref)
+- `/one-of` [POST](#postoneof)
+- `/any-of` [POST](#postanyof)
+- `/all-of` [POST](#postallof)
+- `/not` [POST](#postnot)
+- `/not-ref` [GET](#getnotref)
+- `/not-enum` [GET](#getnotenum)
+- `/not-const` [GET](#getnotconst)
+- `/not-composition` [GET](#getnotcomposition)
+- `/all-of-sibling` [GET](#getallofsibling)
+- `/nullable-one-of` [GET](#getnullableoneof)
+- `/any-of-three` [GET](#getanyofthree)
+- `/any-of-ref` [GET](#getanyofref)
 
-### POST /one-of
+## postOneOf
+
+`POST /one-of`
+
+> Code samples
 
 ```bash
 hono request \
@@ -23,7 +27,33 @@ hono request \
   src/index.ts
 ```
 
-### POST /any-of
+> Body parameter
+
+```json
+null
+```
+
+> Example responses
+
+> 200 Response
+
+```json
+null
+```
+
+### Responses
+
+| Status | Description | Schema |
+|--------|-------------|--------|
+| 200 | OK | Inline |
+
+> This operation does not require authentication
+
+## postAnyOf
+
+`POST /any-of`
+
+> Code samples
 
 ```bash
 hono request \
@@ -33,7 +63,33 @@ hono request \
   src/index.ts
 ```
 
-### POST /all-of
+> Body parameter
+
+```json
+null
+```
+
+> Example responses
+
+> 200 Response
+
+```json
+null
+```
+
+### Responses
+
+| Status | Description | Schema |
+|--------|-------------|--------|
+| 200 | OK | Inline |
+
+> This operation does not require authentication
+
+## postAllOf
+
+`POST /all-of`
+
+> Code samples
 
 ```bash
 hono request \
@@ -43,7 +99,33 @@ hono request \
   src/index.ts
 ```
 
-### POST /not
+> Body parameter
+
+```json
+null
+```
+
+> Example responses
+
+> 200 Response
+
+```json
+null
+```
+
+### Responses
+
+| Status | Description | Schema |
+|--------|-------------|--------|
+| 200 | OK | Inline |
+
+> This operation does not require authentication
+
+## postNot
+
+`POST /not`
+
+> Code samples
 
 ```bash
 hono request \
@@ -53,7 +135,33 @@ hono request \
   src/index.ts
 ```
 
-### GET /not-ref
+> Body parameter
+
+```json
+null
+```
+
+> Example responses
+
+> 200 Response
+
+```json
+null
+```
+
+### Responses
+
+| Status | Description | Schema |
+|--------|-------------|--------|
+| 200 | OK | Inline |
+
+> This operation does not require authentication
+
+## getNotRef
+
+`GET /not-ref`
+
+> Code samples
 
 ```bash
 hono request \
@@ -62,7 +170,27 @@ hono request \
   src/index.ts
 ```
 
-### GET /not-enum
+> Example responses
+
+> 200 Response
+
+```json
+null
+```
+
+### Responses
+
+| Status | Description | Schema |
+|--------|-------------|--------|
+| 200 | OK | Inline |
+
+> This operation does not require authentication
+
+## getNotEnum
+
+`GET /not-enum`
+
+> Code samples
 
 ```bash
 hono request \
@@ -71,7 +199,27 @@ hono request \
   src/index.ts
 ```
 
-### GET /not-const
+> Example responses
+
+> 200 Response
+
+```json
+null
+```
+
+### Responses
+
+| Status | Description | Schema |
+|--------|-------------|--------|
+| 200 | OK | Inline |
+
+> This operation does not require authentication
+
+## getNotConst
+
+`GET /not-const`
+
+> Code samples
 
 ```bash
 hono request \
@@ -80,7 +228,27 @@ hono request \
   src/index.ts
 ```
 
-### GET /not-composition
+> Example responses
+
+> 200 Response
+
+```json
+null
+```
+
+### Responses
+
+| Status | Description | Schema |
+|--------|-------------|--------|
+| 200 | OK | Inline |
+
+> This operation does not require authentication
+
+## getNotComposition
+
+`GET /not-composition`
+
+> Code samples
 
 ```bash
 hono request \
@@ -89,7 +257,27 @@ hono request \
   src/index.ts
 ```
 
-### GET /all-of-sibling
+> Example responses
+
+> 200 Response
+
+```json
+null
+```
+
+### Responses
+
+| Status | Description | Schema |
+|--------|-------------|--------|
+| 200 | OK | Inline |
+
+> This operation does not require authentication
+
+## getAllOfSibling
+
+`GET /all-of-sibling`
+
+> Code samples
 
 ```bash
 hono request \
@@ -98,7 +286,27 @@ hono request \
   src/index.ts
 ```
 
-### GET /nullable-one-of
+> Example responses
+
+> 200 Response
+
+```json
+null
+```
+
+### Responses
+
+| Status | Description | Schema |
+|--------|-------------|--------|
+| 200 | OK | Inline |
+
+> This operation does not require authentication
+
+## getNullableOneOf
+
+`GET /nullable-one-of`
+
+> Code samples
 
 ```bash
 hono request \
@@ -107,7 +315,27 @@ hono request \
   src/index.ts
 ```
 
-### GET /any-of-three
+> Example responses
+
+> 200 Response
+
+```json
+null
+```
+
+### Responses
+
+| Status | Description | Schema |
+|--------|-------------|--------|
+| 200 | OK | Inline |
+
+> This operation does not require authentication
+
+## getAnyOfThree
+
+`GET /any-of-three`
+
+> Code samples
 
 ```bash
 hono request \
@@ -116,7 +344,27 @@ hono request \
   src/index.ts
 ```
 
-### GET /any-of-ref
+> Example responses
+
+> 200 Response
+
+```json
+null
+```
+
+### Responses
+
+| Status | Description | Schema |
+|--------|-------------|--------|
+| 200 | OK | Inline |
+
+> This operation does not require authentication
+
+## getAnyOfRef
+
+`GET /any-of-ref`
+
+> Code samples
 
 ```bash
 hono request \
@@ -124,3 +372,19 @@ hono request \
   -X GET \
   src/index.ts
 ```
+
+> Example responses
+
+> 200 Response
+
+```json
+null
+```
+
+### Responses
+
+| Status | Description | Schema |
+|--------|-------------|--------|
+| 200 | OK | Inline |
+
+> This operation does not require authentication

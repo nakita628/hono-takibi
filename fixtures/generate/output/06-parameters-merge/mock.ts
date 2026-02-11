@@ -187,6 +187,4 @@ export const api = app
   .openapi(deleteItemsItemIdRoute, deleteItemsItemIdRouteHandler)
   .openapi(getItemsRoute, getItemsRouteHandler)
 
-export type AppType = typeof api
-
 export default app

@@ -21,13 +21,16 @@ export function getGetTagsQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetTagsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetTagsQueryKey(),
-  queryFn: ({ signal }: QueryFunctionContext) =>
-    parseResponse(
-      client.tags.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-    ),
-})
+export function getGetTagsQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetTagsQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.tags.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      )
+    },
+  }
+}
 
 /**
  * GET /tags
@@ -61,11 +64,14 @@ export function getPostTagsMutationKey() {
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export const getPostTagsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
-  mutationKey: getPostTagsMutationKey(),
-  mutationFn: async (args: InferRequestType<typeof client.tags.$post>) =>
-    parseResponse(client.tags.$post(args, clientOptions)),
-})
+export function getPostTagsMutationOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    mutationKey: getPostTagsMutationKey(),
+    async mutationFn(args: InferRequestType<typeof client.tags.$post>) {
+      return parseResponse(client.tags.$post(args, clientOptions))
+    },
+  }
+}
 
 /**
  * POST /tags
@@ -100,16 +106,19 @@ export function getGetSettingsQueryKey(args: InferRequestType<typeof client.sett
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetSettingsQueryOptions = (
+export function getGetSettingsQueryOptions(
   args: InferRequestType<typeof client.settings.$get>,
   clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetSettingsQueryKey(args),
-  queryFn: ({ signal }: QueryFunctionContext) =>
-    parseResponse(
-      client.settings.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-    ),
-})
+) {
+  return {
+    queryKey: getGetSettingsQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.settings.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      )
+    },
+  }
+}
 
 /**
  * GET /settings
@@ -144,11 +153,14 @@ export function getPutSettingsMutationKey() {
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export const getPutSettingsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
-  mutationKey: getPutSettingsMutationKey(),
-  mutationFn: async (args: InferRequestType<typeof client.settings.$put>) =>
-    parseResponse(client.settings.$put(args, clientOptions)),
-})
+export function getPutSettingsMutationOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    mutationKey: getPutSettingsMutationKey(),
+    async mutationFn(args: InferRequestType<typeof client.settings.$put>) {
+      return parseResponse(client.settings.$put(args, clientOptions))
+    },
+  }
+}
 
 /**
  * PUT /settings
@@ -183,11 +195,14 @@ export function getPostConfigMutationKey() {
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export const getPostConfigMutationOptions = (clientOptions?: ClientRequestOptions) => ({
-  mutationKey: getPostConfigMutationKey(),
-  mutationFn: async (args: InferRequestType<typeof client.config.$post>) =>
-    parseResponse(client.config.$post(args, clientOptions)),
-})
+export function getPostConfigMutationOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    mutationKey: getPostConfigMutationKey(),
+    async mutationFn(args: InferRequestType<typeof client.config.$post>) {
+      return parseResponse(client.config.$post(args, clientOptions))
+    },
+  }
+}
 
 /**
  * POST /config
@@ -222,11 +237,14 @@ export function getPostPaymentMutationKey() {
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export const getPostPaymentMutationOptions = (clientOptions?: ClientRequestOptions) => ({
-  mutationKey: getPostPaymentMutationKey(),
-  mutationFn: async (args: InferRequestType<typeof client.payment.$post>) =>
-    parseResponse(client.payment.$post(args, clientOptions)),
-})
+export function getPostPaymentMutationOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    mutationKey: getPostPaymentMutationKey(),
+    async mutationFn(args: InferRequestType<typeof client.payment.$post>) {
+      return parseResponse(client.payment.$post(args, clientOptions))
+    },
+  }
+}
 
 /**
  * POST /payment

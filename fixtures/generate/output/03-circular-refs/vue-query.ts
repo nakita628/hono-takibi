@@ -17,13 +17,16 @@ export function getGetTreeQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetTreeQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetTreeQueryKey(),
-  queryFn: ({ signal }: QueryFunctionContext) =>
-    parseResponse(
-      client.tree.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-    ),
-})
+export function getGetTreeQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetTreeQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.tree.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      )
+    },
+  }
+}
 
 /**
  * GET /tree
@@ -58,11 +61,14 @@ export function getPostTreeMutationKey() {
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export const getPostTreeMutationOptions = (clientOptions?: ClientRequestOptions) => ({
-  mutationKey: getPostTreeMutationKey(),
-  mutationFn: async (args: InferRequestType<typeof client.tree.$post>) =>
-    parseResponse(client.tree.$post(args, clientOptions)),
-})
+export function getPostTreeMutationOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    mutationKey: getPostTreeMutationKey(),
+    async mutationFn(args: InferRequestType<typeof client.tree.$post>) {
+      return parseResponse(client.tree.$post(args, clientOptions))
+    },
+  }
+}
 
 /**
  * POST /tree
@@ -98,13 +104,19 @@ export function getGetGraphQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetGraphQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetGraphQueryKey(),
-  queryFn: ({ signal }: QueryFunctionContext) =>
-    parseResponse(
-      client.graph.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-    ),
-})
+export function getGetGraphQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetGraphQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.graph.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      )
+    },
+  }
+}
 
 /**
  * GET /graph

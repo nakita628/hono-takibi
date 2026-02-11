@@ -183,6 +183,4 @@ export const api = app
   .openapi(getOauthProtectedRoute, getOauthProtectedRouteHandler)
   .openapi(getMultiAuthRoute, getMultiAuthRouteHandler)
 
-export type AppType = typeof api
-
 export default app
