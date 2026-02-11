@@ -27,6 +27,5 @@ nakita628-todo-docs
 server-build
 worker-configuration.d.ts
 .wrangler
-orval
 drizzle
 docs/hono-takibi/docs
