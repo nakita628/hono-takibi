@@ -693,6 +693,4 @@ export const api = app
   .openapi(getCategoriesRoute, getCategoriesRouteHandler)
   .openapi(postUploadImageRoute, postUploadImageRouteHandler)
 
-export type AppType = typeof api
-
 export default app

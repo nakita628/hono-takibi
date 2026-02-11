@@ -430,6 +430,4 @@ export const api = app
   .openapi(getAnyOfThreeRoute, getAnyOfThreeRouteHandler)
   .openapi(getAnyOfRefRoute, getAnyOfRefRouteHandler)
 
-export type AppType = typeof api
-
 export default app

@@ -21,16 +21,19 @@ export function getGetUsersQueryKey(args: InferRequestType<typeof client.users.$
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetUsersQueryOptions = (
+export function getGetUsersQueryOptions(
   args: InferRequestType<typeof client.users.$get>,
   clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetUsersQueryKey(args),
-  queryFn: ({ signal }: QueryFunctionContext) =>
-    parseResponse(
-      client.users.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-    ),
-})
+) {
+  return {
+    queryKey: getGetUsersQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.users.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      )
+    },
+  }
+}
 
 /**
  * GET /users
@@ -65,11 +68,14 @@ export function getPostUsersMutationKey() {
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export const getPostUsersMutationOptions = (clientOptions?: ClientRequestOptions) => ({
-  mutationKey: getPostUsersMutationKey(),
-  mutationFn: async (args: InferRequestType<typeof client.users.$post>) =>
-    parseResponse(client.users.$post(args, clientOptions)),
-})
+export function getPostUsersMutationOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    mutationKey: getPostUsersMutationKey(),
+    async mutationFn(args: InferRequestType<typeof client.users.$post>) {
+      return parseResponse(client.users.$post(args, clientOptions))
+    },
+  }
+}
 
 /**
  * POST /users
@@ -106,19 +112,22 @@ export function getGetUsersIdQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetUsersIdQueryOptions = (
+export function getGetUsersIdQueryOptions(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetUsersIdQueryKey(args),
-  queryFn: ({ signal }: QueryFunctionContext) =>
-    parseResponse(
-      client.users[':id'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
+) {
+  return {
+    queryKey: getGetUsersIdQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.users[':id'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      )
+    },
+  }
+}
 
 /**
  * GET /users/{id}

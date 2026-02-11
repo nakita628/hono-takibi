@@ -322,8 +322,6 @@ const app = new OpenAPIHono()
 
 export const api = app.openapi(getHealthRoute, getHealthRouteHandler).openapi(getUserRoute, getUserRouteHandler)
 
-export type AppType = typeof api
-
 export default app
 `
 
@@ -362,8 +360,6 @@ const app = new OpenAPIHono()
 
 export const api = app.openapi(getHealthRoute, getHealthRouteHandler)
 
-export type AppType = typeof api
-
 export default app
 `
 
@@ -396,8 +392,6 @@ const app = new OpenAPIHono()
 
 export const api = app.openapi(getHealthRoute, getHealthRouteHandler).openapi(getUserRoute, getUserRouteHandler)
 
-export type AppType = typeof api
-
 export default app
 `
 
@@ -420,8 +414,6 @@ const app = new OpenAPIHono()
 
 export const api = app.openapi(getHealthRoute, getHealthRouteHandler)
 
-export type AppType = typeof api
-
 export default app
 `
 
@@ -430,7 +422,6 @@ export default app
       expect(result).toContain(
         'export const api = app.openapi(getHealthRoute, getHealthRouteHandler)',
       )
-      expect(result).toContain('export type AppType = typeof api')
       expect(result).toContain('export default app')
     })
 
@@ -442,8 +433,6 @@ import { getHealthRouteHandler } from './handlers'
 const app = new OpenAPIHono()
 
 export const api = app.openapi(getHealthRoute, getHealthRouteHandler)
-
-export type AppType = typeof api
 
 export default app
 `

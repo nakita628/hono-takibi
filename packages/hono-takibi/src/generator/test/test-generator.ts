@@ -360,7 +360,7 @@ function escapeString(s: string): string {
   return s.replace(/'/g, "\\'").replace(/\n/g, ' ')
 }
 
-export function generateTestFile(spec: OpenAPI, appImportPath: string = './app'): string {
+export function makeTestFile(spec: OpenAPI, appImportPath: string = './app'): string {
   const testCases = extractTestCases(spec)
   const apiTitle = spec.info?.title || 'API'
   const usedSchemaNames = new Set(testCases.flatMap((tc) => tc.usedSchemaRefs))
@@ -400,7 +400,7 @@ function getPathFirstSegment(path: string): string {
   return sanitized === '' ? '__root' : sanitized
 }
 
-export function generateHandlerTestCode(
+export function makeHandlerTestCode(
   spec: OpenAPI,
   handlerPath: string,
   _routeNames: string[],

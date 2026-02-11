@@ -104,8 +104,6 @@ export const api=app.openapi(getHonoRoute,getHonoRouteHandler)
 .openapi(getHonoXRoute,getHonoXRouteHandler)
 .openapi(getZodOpenapiHonoRoute,getZodOpenapiHonoRouteHandler)
 
-export type AppType=typeof api
-
 export default app`
     expect(result).toBe(expected)
   })

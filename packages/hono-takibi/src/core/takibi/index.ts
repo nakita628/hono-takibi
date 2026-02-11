@@ -107,10 +107,13 @@ export async function takibi(
       const existingResult = await readFile(target)
       if (!existingResult.ok) return { ok: false, error: existingResult.error }
 
-      const appContent =
+      const merged =
         existingResult.value !== null
           ? mergeAppFile(existingResult.value, appFmtResult.value)
           : appFmtResult.value
+
+      const finalFmtResult = await fmt(merged)
+      const appContent = finalFmtResult.ok ? finalFmtResult.value : merged
 
       const writeResult = await writeFile(target, appContent)
       if (!writeResult.ok) return { ok: false, error: writeResult.error }

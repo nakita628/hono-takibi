@@ -17,13 +17,19 @@ export function getGetPublicQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetPublicQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetPublicQueryKey(),
-  queryFn: ({ signal }: QueryFunctionContext) =>
-    parseResponse(
-      client.public.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-    ),
-})
+export function getGetPublicQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetPublicQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.public.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      )
+    },
+  }
+}
 
 /**
  * GET /public
@@ -58,16 +64,19 @@ export function getGetBearerProtectedQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetBearerProtectedQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetBearerProtectedQueryKey(),
-  queryFn: ({ signal }: QueryFunctionContext) =>
-    parseResponse(
-      client['bearer-protected'].$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
+export function getGetBearerProtectedQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetBearerProtectedQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client['bearer-protected'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      )
+    },
+  }
+}
 
 /**
  * GET /bearer-protected
@@ -106,16 +115,19 @@ export function getGetApiKeyProtectedQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetApiKeyProtectedQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetApiKeyProtectedQueryKey(),
-  queryFn: ({ signal }: QueryFunctionContext) =>
-    parseResponse(
-      client['api-key-protected'].$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
+export function getGetApiKeyProtectedQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetApiKeyProtectedQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client['api-key-protected'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      )
+    },
+  }
+}
 
 /**
  * GET /api-key-protected
@@ -154,16 +166,19 @@ export function getGetBasicProtectedQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetBasicProtectedQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetBasicProtectedQueryKey(),
-  queryFn: ({ signal }: QueryFunctionContext) =>
-    parseResponse(
-      client['basic-protected'].$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
+export function getGetBasicProtectedQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetBasicProtectedQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client['basic-protected'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      )
+    },
+  }
+}
 
 /**
  * GET /basic-protected
@@ -202,16 +217,19 @@ export function getGetOauthProtectedQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetOauthProtectedQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetOauthProtectedQueryKey(),
-  queryFn: ({ signal }: QueryFunctionContext) =>
-    parseResponse(
-      client['oauth-protected'].$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
+export function getGetOauthProtectedQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetOauthProtectedQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client['oauth-protected'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      )
+    },
+  }
+}
 
 /**
  * GET /oauth-protected
@@ -250,16 +268,19 @@ export function getGetMultiAuthQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetMultiAuthQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetMultiAuthQueryKey(),
-  queryFn: ({ signal }: QueryFunctionContext) =>
-    parseResponse(
-      client['multi-auth'].$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
+export function getGetMultiAuthQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetMultiAuthQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client['multi-auth'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      )
+    },
+  }
+}
 
 /**
  * GET /multi-auth

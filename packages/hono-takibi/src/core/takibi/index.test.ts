@@ -400,8 +400,6 @@ const app = new OpenAPIHono()
 
 export const api = app.openapi(getTestRoute, getTestRouteHandler)
 
-export type AppType = typeof api
-
 export default app
 `
       expect(indexContent).toBe(expectedIndex)
@@ -528,8 +526,6 @@ import { getTestRouteHandler } from './handlers'
 const app = new OpenAPIHono().basePath('/api/v1')
 
 export const api = app.openapi(getTestRoute, getTestRouteHandler)
-
-export type AppType = typeof api
 
 export default app
 `

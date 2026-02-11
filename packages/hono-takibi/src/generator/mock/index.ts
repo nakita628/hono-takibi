@@ -445,8 +445,6 @@ import { faker } from '@faker-js/faker'`
 export const api = app
   ${appSetup}
 
-export type AppType = typeof api
-
 export default app`
 
   return [

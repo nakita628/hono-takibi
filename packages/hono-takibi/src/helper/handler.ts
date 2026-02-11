@@ -12,7 +12,7 @@
 import { fmt } from '../format/index.js'
 import { mkdir, readdir, readFile, unlink, writeFile } from '../fsp/index.js'
 import { schemaToFaker } from '../generator/test/faker-mapping.js'
-import { generateHandlerTestCode } from '../generator/test/index.js'
+import { makeHandlerTestCode } from '../generator/test/index.js'
 import { isHttpMethod, isOperation, isOperationWithResponses } from '../guard/index.js'
 import { mergeBarrelFile, mergeHandlerFile, mergeTestFile } from '../merge/index.js'
 import type { OpenAPI, Operation, Schema } from '../openapi/index.js'
@@ -355,16 +355,19 @@ export async function zodOpenAPIHonoHandler(
       const existingResult = await readFile(filePath)
       if (!existingResult.ok) return { ok: false, error: existingResult.error } as const
 
-      const content =
+      const merged =
         existingResult.value !== null
           ? mergeHandlerFile(existingResult.value, fmtResult.value)
           : fmtResult.value
+
+      const finalFmtResult = await fmt(merged)
+      const content = finalFmtResult.ok ? finalFmtResult.value : merged
 
       const writeResult = await writeFile(filePath, content)
       if (!writeResult.ok) return { ok: false, error: writeResult.error } as const
 
       if (test) {
-        const testContent = generateHandlerTestCode(
+        const testContent = makeHandlerTestCode(
           openapi,
           `${handlerPath}/${handler.fileName}`,
           [...handler.routeNames],
@@ -464,16 +467,19 @@ export async function mockZodOpenAPIHonoHandler(
       const existingResult = await readFile(filePath)
       if (!existingResult.ok) return { ok: false, error: existingResult.error } as const
 
-      const content =
+      const merged =
         existingResult.value !== null
           ? mergeHandlerFile(existingResult.value, fmtResult.value)
           : fmtResult.value
+
+      const finalFmtResult = await fmt(merged)
+      const content = finalFmtResult.ok ? finalFmtResult.value : merged
 
       const writeResult = await writeFile(filePath, content)
       if (!writeResult.ok) return { ok: false, error: writeResult.error } as const
 
       if (test) {
-        const testContent = generateHandlerTestCode(
+        const testContent = makeHandlerTestCode(
           openapi,
           `${handlerPath}/${handler.fileName}`,
           [...handler.routeNames],

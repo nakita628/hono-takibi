@@ -8,7 +8,7 @@ import { swr } from 'hono-takibi/swr'
 import { tanstackQuery } from 'hono-takibi/tanstack-query'
 import { type } from 'hono-takibi/type'
 import { vueQuery } from 'hono-takibi/vue-query'
-import { mock, takibi, test } from '../../../packages/hono-takibi/src/core/index.js'
+import { docs, mock, takibi, test } from '../../../packages/hono-takibi/src/core/index.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const OPENAPI_DIR = path.resolve(__dirname, '..', 'openapi')
@@ -89,6 +89,7 @@ function makeTasks(openAPI: Parameters<typeof type>[0], outDir: string, flags: (
     { mode: 'mock', fn: () => mock(openAPI, `${outDir}/mock.ts`) },
     { mode: 'test', fn: () => test(openAPI, `${outDir}/test.ts`, './mock') },
     { mode: 'parse-response', fn: () => rpc(openAPI, `${outDir}/parse-response.ts`, './client', false, 'client', true) },
+    { mode: 'docs', fn: () => docs(openAPI, `${outDir}/docs.md`, 'src/index.ts') },
   ]
 }
 

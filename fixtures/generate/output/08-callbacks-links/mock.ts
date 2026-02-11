@@ -167,6 +167,4 @@ export const api = app
   .openapi(deleteSubscriptionsIdRoute, deleteSubscriptionsIdRouteHandler)
   .openapi(postWebhooksTestRoute, postWebhooksTestRouteHandler)
 
-export type AppType = typeof api
-
 export default app

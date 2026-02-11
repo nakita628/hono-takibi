@@ -23,19 +23,22 @@ export function getGetItemsItemIdQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetItemsItemIdQueryOptions = (
+export function getGetItemsItemIdQueryOptions(
   args: InferRequestType<(typeof client.items)[':itemId']['$get']>,
   clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetItemsItemIdQueryKey(args),
-  queryFn: ({ signal }: QueryFunctionContext) =>
-    parseResponse(
-      client.items[':itemId'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
+) {
+  return {
+    queryKey: getGetItemsItemIdQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.items[':itemId'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      )
+    },
+  }
+}
 
 /**
  * GET /items/{itemId}
@@ -74,11 +77,14 @@ export function getPutItemsItemIdMutationKey() {
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export const getPutItemsItemIdMutationOptions = (clientOptions?: ClientRequestOptions) => ({
-  mutationKey: getPutItemsItemIdMutationKey(),
-  mutationFn: async (args: InferRequestType<(typeof client.items)[':itemId']['$put']>) =>
-    parseResponse(client.items[':itemId'].$put(args, clientOptions)),
-})
+export function getPutItemsItemIdMutationOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    mutationKey: getPutItemsItemIdMutationKey(),
+    async mutationFn(args: InferRequestType<(typeof client.items)[':itemId']['$put']>) {
+      return parseResponse(client.items[':itemId'].$put(args, clientOptions))
+    },
+  }
+}
 
 /**
  * PUT /items/{itemId}
@@ -119,11 +125,14 @@ export function getDeleteItemsItemIdMutationKey() {
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export const getDeleteItemsItemIdMutationOptions = (clientOptions?: ClientRequestOptions) => ({
-  mutationKey: getDeleteItemsItemIdMutationKey(),
-  mutationFn: async (args: InferRequestType<(typeof client.items)[':itemId']['$delete']>) =>
-    parseResponse(client.items[':itemId'].$delete(args, clientOptions)),
-})
+export function getDeleteItemsItemIdMutationOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    mutationKey: getDeleteItemsItemIdMutationKey(),
+    async mutationFn(args: InferRequestType<(typeof client.items)[':itemId']['$delete']>) {
+      return parseResponse(client.items[':itemId'].$delete(args, clientOptions))
+    },
+  }
+}
 
 /**
  * DELETE /items/{itemId}
@@ -165,16 +174,19 @@ export function getGetItemsQueryKey(args: InferRequestType<typeof client.items.$
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetItemsQueryOptions = (
+export function getGetItemsQueryOptions(
   args: InferRequestType<typeof client.items.$get>,
   clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetItemsQueryKey(args),
-  queryFn: ({ signal }: QueryFunctionContext) =>
-    parseResponse(
-      client.items.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-    ),
-})
+) {
+  return {
+    queryKey: getGetItemsQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.items.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      )
+    },
+  }
+}
 
 /**
  * GET /items
