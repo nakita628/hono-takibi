@@ -986,9 +986,7 @@ function flattenSchemaProperties(
   return []
 }
 
-function collectSchemaEnumeratedValues(
-  schema: Schema,
-): readonly {
+function collectSchemaEnumeratedValues(schema: Schema): readonly {
   property: string
   value: Schema['enum'] extends readonly (infer T)[] | undefined ? T : never
 }[] {
@@ -1107,14 +1105,14 @@ function groupByTag(endpoints: readonly Endpoint[], openAPI: OpenAPI): readonly 
           tagOrder.push(tag)
           tagMap.set(tag, [])
         }
-        tagMap.get(tag)!.push(ep)
+        tagMap.get(tag)?.push(ep)
       }
     } else {
       if (!tagMap.has('Default')) {
         tagOrder.push('Default')
         tagMap.set('Default', [])
       }
-      tagMap.get('Default')!.push(ep)
+      tagMap.get('Default')?.push(ep)
     }
   }
 
@@ -1126,10 +1124,10 @@ function groupByTag(endpoints: readonly Endpoint[], openAPI: OpenAPI): readonly 
   }
 
   return tagOrder
-    .filter((name) => tagMap.has(name) && tagMap.get(name)!.length > 0)
+    .filter((name) => tagMap.has(name) && (tagMap.get(name)?.length ?? 0) > 0)
     .map((name) => {
       const desc = tagDescriptions.get(name)
-      const group: TagGroup = { name, endpoints: tagMap.get(name)! }
+      const group: TagGroup = { name, endpoints: tagMap.get(name) ?? [] }
       if (desc !== undefined) group.description = desc
       return group
     })
