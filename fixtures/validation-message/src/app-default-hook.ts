@@ -1,15 +1,15 @@
 import { OpenAPIHono } from '@hono/zod-openapi'
 import { createUserRoute } from './routes.ts'
 
-// Pattern 2: defaultHook builds messages inline from issue metadata
+// Pattern 2: defaultHook builds RFC 9457 Problem Details from issue metadata
 const app = new OpenAPIHono({
   defaultHook: (result, c) => {
     if (!result.success) {
       const errors = result.error.issues.map((issue) => {
-        let message = issue.message
+        let detail = issue.message
         switch (issue.code) {
           case 'too_small':
-            message =
+            detail =
               issue.origin === 'string'
                 ? `Must be at least ${issue.minimum} characters`
                 : issue.origin === 'array'
@@ -17,7 +17,7 @@ const app = new OpenAPIHono({
                   : `Must be at least ${issue.minimum}`
             break
           case 'too_big':
-            message =
+            detail =
               issue.origin === 'string'
                 ? `Must be at most ${issue.maximum} characters`
                 : issue.origin === 'array'
@@ -25,21 +25,30 @@ const app = new OpenAPIHono({
                   : `Must be at most ${issue.maximum}`
             break
           case 'invalid_format':
-            if (issue.format === 'email') message = 'Invalid email address'
-            else if (issue.format === 'uuid') message = 'Invalid UUID'
-            else if (issue.format === 'url') message = 'Invalid URL'
-            else message = `Invalid format: ${issue.format}`
+            if (issue.format === 'email') detail = 'Invalid email address'
+            else if (issue.format === 'uuid') detail = 'Invalid UUID'
+            else if (issue.format === 'url') detail = 'Invalid URL'
+            else detail = `Invalid format: ${issue.format}`
             break
           case 'invalid_type':
-            message =
+            detail =
               issue.input === undefined || issue.input === null
                 ? 'This field is required'
                 : `Expected ${issue.expected}, received ${typeof issue.input}`
             break
         }
-        return { field: issue.path.join('.'), message, code: issue.code }
+        return { pointer: `/${issue.path.join('/')}`, detail }
       })
-      return c.json({ success: false, errors }, 422)
+      return c.json(
+        {
+          type: 'about:blank',
+          title: 'Unprocessable Content',
+          status: 422,
+          detail: 'Request validation failed',
+          errors,
+        },
+        422,
+      )
     }
   },
 })

@@ -48,97 +48,109 @@ describe('Pattern 1: No hook (default behavior)', () => {
 })
 
 // ============================================================
-// Pattern 2: defaultHook builds messages inline
+// RFC 9457 Problem Details structure validation
 // ============================================================
-describe('Pattern 2: defaultHook (inline message building)', () => {
+const expectProblemDetails = (body: Record<string, unknown>) => {
+  expect(body.type).toBe('about:blank')
+  expect(body.title).toBe('Unprocessable Content')
+  expect(body.status).toBe(422)
+  expect(body.detail).toBe('Request validation failed')
+  expect(body.errors).toBeDefined()
+}
+
+// ============================================================
+// Pattern 2: defaultHook builds RFC 9457 Problem Details
+// ============================================================
+describe('Pattern 2: defaultHook (RFC 9457 Problem Details)', () => {
   it('accepts valid input', async () => {
     const res = await appDefaultHook.request('/users', post(validUser))
     expect(res.status).toBe(201)
   })
 
-  it('rejects short name', async () => {
+  it('rejects short name with Problem Details', async () => {
     const res = await appDefaultHook.request('/users', post({ ...validUser, name: 'ab' }))
     expect(res.status).toBe(422)
     const body = await res.json()
-    expect(body.success).toBe(false)
+    expectProblemDetails(body)
     expect(body.errors).toEqual([
-      { field: 'name', message: 'Must be at least 3 characters', code: 'too_small' },
+      { pointer: '/name', detail: 'Must be at least 3 characters' },
     ])
   })
 
-  it('rejects invalid email', async () => {
+  it('rejects invalid email with Problem Details', async () => {
     const res = await appDefaultHook.request('/users', post({ ...validUser, email: 'bad' }))
     expect(res.status).toBe(422)
     const body = await res.json()
+    expectProblemDetails(body)
     expect(body.errors[0]).toEqual({
-      field: 'email',
-      message: 'Invalid email address',
-      code: 'invalid_format',
+      pointer: '/email',
+      detail: 'Invalid email address',
     })
   })
 
-  it('rejects negative age', async () => {
+  it('rejects negative age with Problem Details', async () => {
     const res = await appDefaultHook.request('/users', post({ ...validUser, age: -1 }))
     expect(res.status).toBe(422)
     const body = await res.json()
+    expectProblemDetails(body)
     expect(body.errors[0]).toEqual({
-      field: 'age',
-      message: 'Must be at least 0',
-      code: 'too_small',
+      pointer: '/age',
+      detail: 'Must be at least 0',
     })
   })
 
-  it('rejects too-long name', async () => {
+  it('rejects too-long name with Problem Details', async () => {
     const res = await appDefaultHook.request('/users', post({ ...validUser, name: 'a'.repeat(21) }))
     expect(res.status).toBe(422)
     const body = await res.json()
+    expectProblemDetails(body)
     expect(body.errors[0]).toEqual({
-      field: 'name',
-      message: 'Must be at most 20 characters',
-      code: 'too_big',
+      pointer: '/name',
+      detail: 'Must be at most 20 characters',
     })
   })
 
-  it('returns all messages for multiple violations', async () => {
+  it('returns all errors for multiple violations', async () => {
     const res = await appDefaultHook.request('/users', post({ name: 'ab', email: 'bad', age: -1 }))
     expect(res.status).toBe(422)
     const body = await res.json()
+    expectProblemDetails(body)
     expect(body.errors).toHaveLength(3)
-    const messages = body.errors.map((e: { message: string }) => e.message)
-    expect(messages).toContain('Must be at least 3 characters')
-    expect(messages).toContain('Invalid email address')
-    expect(messages).toContain('Must be at least 0')
+    const details = body.errors.map((e: { detail: string }) => e.detail)
+    expect(details).toContain('Must be at least 3 characters')
+    expect(details).toContain('Invalid email address')
+    expect(details).toContain('Must be at least 0')
   })
 })
 
 // ============================================================
-// Pattern 3: Per-route hook builds messages inline (422)
+// Pattern 3: Per-route hook builds RFC 9457 Problem Details
 // ============================================================
-describe('Pattern 3: Per-route hook (inline message building)', () => {
+describe('Pattern 3: Per-route hook (RFC 9457 Problem Details)', () => {
   it('accepts valid input', async () => {
     const res = await appRouteHook.request('/users', post(validUser))
     expect(res.status).toBe(201)
   })
 
-  it('rejects with 422 and formatted message', async () => {
+  it('rejects with 422 and Problem Details', async () => {
     const res = await appRouteHook.request('/users', post({ ...validUser, name: 'ab' }))
     expect(res.status).toBe(422)
     const body = await res.json()
-    expect(body.success).toBe(false)
+    expectProblemDetails(body)
     expect(body.errors).toEqual([
-      { field: 'name', message: 'Must be at least 3 characters', code: 'too_small' },
+      { pointer: '/name', detail: 'Must be at least 3 characters' },
     ])
   })
 
-  it('returns all messages for multiple violations', async () => {
+  it('returns all errors for multiple violations', async () => {
     const res = await appRouteHook.request('/users', post({ name: 'ab', email: 'bad', age: -1 }))
     expect(res.status).toBe(422)
     const body = await res.json()
-    expect(body.success).toBe(false)
+    expectProblemDetails(body)
     expect(body.errors).toHaveLength(3)
-    const messages = body.errors.map((e: { message: string }) => e.message)
-    expect(messages).toContain('Must be at least 3 characters')
-    expect(messages).toContain('Invalid email address')
-    expect(messages).toContain('Must be at least 0')
+    const details = body.errors.map((e: { detail: string }) => e.detail)
+    expect(details).toContain('Must be at least 3 characters')
+    expect(details).toContain('Invalid email address')
+    expect(details).toContain('Must be at least 0')
   })
 })

@@ -35,16 +35,18 @@ export const createUserRoute = createRoute({
       },
     },
     422: {
-      description: 'Validation Error',
+      description: 'Validation Error (RFC 9457 Problem Details)',
       content: {
         'application/json': {
           schema: z.object({
-            success: z.boolean(),
+            type: z.string(),
+            title: z.string(),
+            status: z.int(),
+            detail: z.string(),
             errors: z.array(
               z.object({
-                field: z.string(),
-                message: z.string(),
-                code: z.string(),
+                pointer: z.string(),
+                detail: z.string(),
               }),
             ),
           }),
