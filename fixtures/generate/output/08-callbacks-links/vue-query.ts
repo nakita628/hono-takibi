@@ -19,11 +19,14 @@ export function getPostSubscriptionsMutationKey() {
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export const getPostSubscriptionsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
-  mutationKey: getPostSubscriptionsMutationKey(),
-  mutationFn: async (args: InferRequestType<typeof client.subscriptions.$post>) =>
-    parseResponse(client.subscriptions.$post(args, clientOptions)),
-})
+export function getPostSubscriptionsMutationOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    mutationKey: getPostSubscriptionsMutationKey(),
+    async mutationFn(args: InferRequestType<typeof client.subscriptions.$post>) {
+      return parseResponse(client.subscriptions.$post(args, clientOptions))
+    },
+  }
+}
 
 /**
  * POST /subscriptions
@@ -64,19 +67,22 @@ export function getGetSubscriptionsIdQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetSubscriptionsIdQueryOptions = (
+export function getGetSubscriptionsIdQueryOptions(
   args: InferRequestType<(typeof client.subscriptions)[':id']['$get']>,
   clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetSubscriptionsIdQueryKey(args),
-  queryFn: ({ signal }: QueryFunctionContext) =>
-    parseResponse(
-      client.subscriptions[':id'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
+) {
+  return {
+    queryKey: getGetSubscriptionsIdQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.subscriptions[':id'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      )
+    },
+  }
+}
 
 /**
  * GET /subscriptions/{id}
@@ -123,11 +129,14 @@ export function getDeleteSubscriptionsIdMutationKey() {
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export const getDeleteSubscriptionsIdMutationOptions = (clientOptions?: ClientRequestOptions) => ({
-  mutationKey: getDeleteSubscriptionsIdMutationKey(),
-  mutationFn: async (args: InferRequestType<(typeof client.subscriptions)[':id']['$delete']>) =>
-    parseResponse(client.subscriptions[':id'].$delete(args, clientOptions)),
-})
+export function getDeleteSubscriptionsIdMutationOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    mutationKey: getDeleteSubscriptionsIdMutationKey(),
+    async mutationFn(args: InferRequestType<(typeof client.subscriptions)[':id']['$delete']>) {
+      return parseResponse(client.subscriptions[':id'].$delete(args, clientOptions))
+    },
+  }
+}
 
 /**
  * DELETE /subscriptions/{id}
@@ -171,11 +180,14 @@ export function getPostWebhooksTestMutationKey() {
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export const getPostWebhooksTestMutationOptions = (clientOptions?: ClientRequestOptions) => ({
-  mutationKey: getPostWebhooksTestMutationKey(),
-  mutationFn: async (args: InferRequestType<typeof client.webhooks.test.$post>) =>
-    parseResponse(client.webhooks.test.$post(args, clientOptions)),
-})
+export function getPostWebhooksTestMutationOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    mutationKey: getPostWebhooksTestMutationKey(),
+    async mutationFn(args: InferRequestType<typeof client.webhooks.test.$post>) {
+      return parseResponse(client.webhooks.test.$post(args, clientOptions))
+    },
+  }
+}
 
 /**
  * POST /webhooks/test

@@ -21,16 +21,19 @@ export function getGetPostsQueryKey(args: InferRequestType<typeof client.posts.$
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetPostsQueryOptions = (
+export function getGetPostsQueryOptions(
   args: InferRequestType<typeof client.posts.$get>,
   clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetPostsQueryKey(args),
-  queryFn: ({ signal }: QueryFunctionContext) =>
-    parseResponse(
-      client.posts.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-    ),
-})
+) {
+  return {
+    queryKey: getGetPostsQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.posts.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      )
+    },
+  }
+}
 
 /**
  * GET /posts
@@ -63,11 +66,14 @@ export function getPostPostsMutationKey() {
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export const getPostPostsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
-  mutationKey: getPostPostsMutationKey(),
-  mutationFn: async (args: InferRequestType<typeof client.posts.$post>) =>
-    parseResponse(client.posts.$post(args, clientOptions)),
-})
+export function getPostPostsMutationOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    mutationKey: getPostPostsMutationKey(),
+    async mutationFn(args: InferRequestType<typeof client.posts.$post>) {
+      return parseResponse(client.posts.$post(args, clientOptions))
+    },
+  }
+}
 
 /**
  * POST /posts
@@ -100,19 +106,22 @@ export function getGetPostsIdQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetPostsIdQueryOptions = (
+export function getGetPostsIdQueryOptions(
   args: InferRequestType<(typeof client.posts)[':id']['$get']>,
   clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetPostsIdQueryKey(args),
-  queryFn: ({ signal }: QueryFunctionContext) =>
-    parseResponse(
-      client.posts[':id'].$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
+) {
+  return {
+    queryKey: getGetPostsIdQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.posts[':id'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      )
+    },
+  }
+}
 
 /**
  * GET /posts/{id}
@@ -147,11 +156,14 @@ export function getPutPostsIdMutationKey() {
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export const getPutPostsIdMutationOptions = (clientOptions?: ClientRequestOptions) => ({
-  mutationKey: getPutPostsIdMutationKey(),
-  mutationFn: async (args: InferRequestType<(typeof client.posts)[':id']['$put']>) =>
-    parseResponse(client.posts[':id'].$put(args, clientOptions)),
-})
+export function getPutPostsIdMutationOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    mutationKey: getPutPostsIdMutationKey(),
+    async mutationFn(args: InferRequestType<(typeof client.posts)[':id']['$put']>) {
+      return parseResponse(client.posts[':id'].$put(args, clientOptions))
+    },
+  }
+}
 
 /**
  * PUT /posts/{id}
@@ -184,11 +196,14 @@ export function getDeletePostsIdMutationKey() {
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export const getDeletePostsIdMutationOptions = (clientOptions?: ClientRequestOptions) => ({
-  mutationKey: getDeletePostsIdMutationKey(),
-  mutationFn: async (args: InferRequestType<(typeof client.posts)[':id']['$delete']>) =>
-    parseResponse(client.posts[':id'].$delete(args, clientOptions)),
-})
+export function getDeletePostsIdMutationOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    mutationKey: getDeletePostsIdMutationKey(),
+    async mutationFn(args: InferRequestType<(typeof client.posts)[':id']['$delete']>) {
+      return parseResponse(client.posts[':id'].$delete(args, clientOptions))
+    },
+  }
+}
 
 /**
  * DELETE /posts/{id}
@@ -226,19 +241,22 @@ export function getGetPostsIdCommentsQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetPostsIdCommentsQueryOptions = (
+export function getGetPostsIdCommentsQueryOptions(
   args: InferRequestType<(typeof client.posts)[':id']['comments']['$get']>,
   clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetPostsIdCommentsQueryKey(args),
-  queryFn: ({ signal }: QueryFunctionContext) =>
-    parseResponse(
-      client.posts[':id'].comments.$get(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
+) {
+  return {
+    queryKey: getGetPostsIdCommentsQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.posts[':id'].comments.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      )
+    },
+  }
+}
 
 /**
  * GET /posts/{id}/comments
@@ -280,11 +298,14 @@ export function getPostPostsIdCommentsMutationKey() {
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export const getPostPostsIdCommentsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
-  mutationKey: getPostPostsIdCommentsMutationKey(),
-  mutationFn: async (args: InferRequestType<(typeof client.posts)[':id']['comments']['$post']>) =>
-    parseResponse(client.posts[':id'].comments.$post(args, clientOptions)),
-})
+export function getPostPostsIdCommentsMutationOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    mutationKey: getPostPostsIdCommentsMutationKey(),
+    async mutationFn(args: InferRequestType<(typeof client.posts)[':id']['comments']['$post']>) {
+      return parseResponse(client.posts[':id'].comments.$post(args, clientOptions))
+    },
+  }
+}
 
 /**
  * POST /posts/{id}/comments
@@ -320,13 +341,16 @@ export function getGetTagsQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetTagsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetTagsQueryKey(),
-  queryFn: ({ signal }: QueryFunctionContext) =>
-    parseResponse(
-      client.tags.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-    ),
-})
+export function getGetTagsQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetTagsQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.tags.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      )
+    },
+  }
+}
 
 /**
  * GET /tags

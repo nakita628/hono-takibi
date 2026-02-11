@@ -162,6 +162,4 @@ export const api = app
   .openapi(postPaymentsRoute, postPaymentsRouteHandler)
   .openapi(getItemsRoute, getItemsRouteHandler)
 
-export type AppType = typeof api
-
 export default app

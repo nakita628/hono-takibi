@@ -71,7 +71,6 @@ export function app(
     importSection,
     appInit,
     apiInit,
-    'export type AppType=typeof api',
     'export default app',
   ].join('\n\n')
 }

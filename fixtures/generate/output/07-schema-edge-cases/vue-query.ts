@@ -17,11 +17,14 @@ export function getPostNullableMutationKey() {
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export const getPostNullableMutationOptions = (clientOptions?: ClientRequestOptions) => ({
-  mutationKey: getPostNullableMutationKey(),
-  mutationFn: async (args: InferRequestType<typeof client.nullable.$post>) =>
-    parseResponse(client.nullable.$post(args, clientOptions)),
-})
+export function getPostNullableMutationOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    mutationKey: getPostNullableMutationKey(),
+    async mutationFn(args: InferRequestType<typeof client.nullable.$post>) {
+      return parseResponse(client.nullable.$post(args, clientOptions))
+    },
+  }
+}
 
 /**
  * POST /nullable
@@ -59,11 +62,14 @@ export function getPostDiscriminatedMutationKey() {
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export const getPostDiscriminatedMutationOptions = (clientOptions?: ClientRequestOptions) => ({
-  mutationKey: getPostDiscriminatedMutationKey(),
-  mutationFn: async (args: InferRequestType<typeof client.discriminated.$post>) =>
-    parseResponse(client.discriminated.$post(args, clientOptions)),
-})
+export function getPostDiscriminatedMutationOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    mutationKey: getPostDiscriminatedMutationKey(),
+    async mutationFn(args: InferRequestType<typeof client.discriminated.$post>) {
+      return parseResponse(client.discriminated.$post(args, clientOptions))
+    },
+  }
+}
 
 /**
  * POST /discriminated
@@ -102,16 +108,19 @@ export function getGetComposedQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetComposedQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetComposedQueryKey(),
-  queryFn: ({ signal }: QueryFunctionContext) =>
-    parseResponse(
-      client.composed.$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
+export function getGetComposedQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetComposedQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.composed.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      )
+    },
+  }
+}
 
 /**
  * GET /composed
@@ -146,16 +155,19 @@ export function getGetDeepNestedQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetDeepNestedQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetDeepNestedQueryKey(),
-  queryFn: ({ signal }: QueryFunctionContext) =>
-    parseResponse(
-      client['deep-nested'].$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
+export function getGetDeepNestedQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetDeepNestedQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client['deep-nested'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      )
+    },
+  }
+}
 
 /**
  * GET /deep-nested
@@ -194,16 +206,19 @@ export function getGetAdditionalPropsQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetAdditionalPropsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetAdditionalPropsQueryKey(),
-  queryFn: ({ signal }: QueryFunctionContext) =>
-    parseResponse(
-      client['additional-props'].$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
+export function getGetAdditionalPropsQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetAdditionalPropsQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client['additional-props'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      )
+    },
+  }
+}
 
 /**
  * GET /additional-props

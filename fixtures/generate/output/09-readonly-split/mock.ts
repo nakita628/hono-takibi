@@ -300,6 +300,4 @@ export const api = app
   .openapi(postPostsIdCommentsRoute, postPostsIdCommentsRouteHandler)
   .openapi(getTagsRoute, getTagsRouteHandler)
 
-export type AppType = typeof api
-
 export default app

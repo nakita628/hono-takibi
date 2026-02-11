@@ -116,6 +116,4 @@ export const api = app
   .openapi(postTreeRoute, postTreeRouteHandler)
   .openapi(getGraphRoute, getGraphRouteHandler)
 
-export type AppType = typeof api
-
 export default app

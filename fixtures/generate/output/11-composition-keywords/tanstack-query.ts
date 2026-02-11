@@ -21,11 +21,14 @@ export function getPostOneOfMutationKey() {
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export const getPostOneOfMutationOptions = (clientOptions?: ClientRequestOptions) => ({
-  mutationKey: getPostOneOfMutationKey(),
-  mutationFn: async (args: InferRequestType<(typeof client)['one-of']['$post']>) =>
-    parseResponse(client['one-of'].$post(args, clientOptions)),
-})
+export function getPostOneOfMutationOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    mutationKey: getPostOneOfMutationKey(),
+    async mutationFn(args: InferRequestType<(typeof client)['one-of']['$post']>) {
+      return parseResponse(client['one-of'].$post(args, clientOptions))
+    },
+  }
+}
 
 /**
  * POST /one-of
@@ -58,11 +61,14 @@ export function getPostAnyOfMutationKey() {
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export const getPostAnyOfMutationOptions = (clientOptions?: ClientRequestOptions) => ({
-  mutationKey: getPostAnyOfMutationKey(),
-  mutationFn: async (args: InferRequestType<(typeof client)['any-of']['$post']>) =>
-    parseResponse(client['any-of'].$post(args, clientOptions)),
-})
+export function getPostAnyOfMutationOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    mutationKey: getPostAnyOfMutationKey(),
+    async mutationFn(args: InferRequestType<(typeof client)['any-of']['$post']>) {
+      return parseResponse(client['any-of'].$post(args, clientOptions))
+    },
+  }
+}
 
 /**
  * POST /any-of
@@ -95,11 +101,14 @@ export function getPostAllOfMutationKey() {
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export const getPostAllOfMutationOptions = (clientOptions?: ClientRequestOptions) => ({
-  mutationKey: getPostAllOfMutationKey(),
-  mutationFn: async (args: InferRequestType<(typeof client)['all-of']['$post']>) =>
-    parseResponse(client['all-of'].$post(args, clientOptions)),
-})
+export function getPostAllOfMutationOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    mutationKey: getPostAllOfMutationKey(),
+    async mutationFn(args: InferRequestType<(typeof client)['all-of']['$post']>) {
+      return parseResponse(client['all-of'].$post(args, clientOptions))
+    },
+  }
+}
 
 /**
  * POST /all-of
@@ -132,11 +141,14 @@ export function getPostNotMutationKey() {
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export const getPostNotMutationOptions = (clientOptions?: ClientRequestOptions) => ({
-  mutationKey: getPostNotMutationKey(),
-  mutationFn: async (args: InferRequestType<typeof client.not.$post>) =>
-    parseResponse(client.not.$post(args, clientOptions)),
-})
+export function getPostNotMutationOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    mutationKey: getPostNotMutationKey(),
+    async mutationFn(args: InferRequestType<typeof client.not.$post>) {
+      return parseResponse(client.not.$post(args, clientOptions))
+    },
+  }
+}
 
 /**
  * POST /not
@@ -167,16 +179,19 @@ export function getGetNotRefQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetNotRefQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetNotRefQueryKey(),
-  queryFn: ({ signal }: QueryFunctionContext) =>
-    parseResponse(
-      client['not-ref'].$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
+export function getGetNotRefQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetNotRefQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client['not-ref'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      )
+    },
+  }
+}
 
 /**
  * GET /not-ref
@@ -208,16 +223,19 @@ export function getGetNotEnumQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetNotEnumQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetNotEnumQueryKey(),
-  queryFn: ({ signal }: QueryFunctionContext) =>
-    parseResponse(
-      client['not-enum'].$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
+export function getGetNotEnumQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetNotEnumQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client['not-enum'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      )
+    },
+  }
+}
 
 /**
  * GET /not-enum
@@ -249,16 +267,19 @@ export function getGetNotConstQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetNotConstQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetNotConstQueryKey(),
-  queryFn: ({ signal }: QueryFunctionContext) =>
-    parseResponse(
-      client['not-const'].$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
+export function getGetNotConstQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetNotConstQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client['not-const'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      )
+    },
+  }
+}
 
 /**
  * GET /not-const
@@ -290,16 +311,19 @@ export function getGetNotCompositionQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetNotCompositionQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetNotCompositionQueryKey(),
-  queryFn: ({ signal }: QueryFunctionContext) =>
-    parseResponse(
-      client['not-composition'].$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
+export function getGetNotCompositionQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetNotCompositionQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client['not-composition'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      )
+    },
+  }
+}
 
 /**
  * GET /not-composition
@@ -333,16 +357,19 @@ export function getGetAllOfSiblingQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetAllOfSiblingQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetAllOfSiblingQueryKey(),
-  queryFn: ({ signal }: QueryFunctionContext) =>
-    parseResponse(
-      client['all-of-sibling'].$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
+export function getGetAllOfSiblingQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetAllOfSiblingQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client['all-of-sibling'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      )
+    },
+  }
+}
 
 /**
  * GET /all-of-sibling
@@ -376,16 +403,19 @@ export function getGetNullableOneOfQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetNullableOneOfQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetNullableOneOfQueryKey(),
-  queryFn: ({ signal }: QueryFunctionContext) =>
-    parseResponse(
-      client['nullable-one-of'].$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
+export function getGetNullableOneOfQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetNullableOneOfQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client['nullable-one-of'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      )
+    },
+  }
+}
 
 /**
  * GET /nullable-one-of
@@ -419,16 +449,19 @@ export function getGetAnyOfThreeQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetAnyOfThreeQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetAnyOfThreeQueryKey(),
-  queryFn: ({ signal }: QueryFunctionContext) =>
-    parseResponse(
-      client['any-of-three'].$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
+export function getGetAnyOfThreeQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetAnyOfThreeQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client['any-of-three'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      )
+    },
+  }
+}
 
 /**
  * GET /any-of-three
@@ -460,16 +493,19 @@ export function getGetAnyOfRefQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetAnyOfRefQueryOptions = (clientOptions?: ClientRequestOptions) => ({
-  queryKey: getGetAnyOfRefQueryKey(),
-  queryFn: ({ signal }: QueryFunctionContext) =>
-    parseResponse(
-      client['any-of-ref'].$get(undefined, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      }),
-    ),
-})
+export function getGetAnyOfRefQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetAnyOfRefQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client['any-of-ref'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      )
+    },
+  }
+}
 
 /**
  * GET /any-of-ref

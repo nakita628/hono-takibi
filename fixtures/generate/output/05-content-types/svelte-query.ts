@@ -17,11 +17,14 @@ export function getPostJsonMutationKey() {
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export const getPostJsonMutationOptions = (clientOptions?: ClientRequestOptions) => ({
-  mutationKey: getPostJsonMutationKey(),
-  mutationFn: async (args: InferRequestType<typeof client.json.$post>) =>
-    parseResponse(client.json.$post(args, clientOptions)),
-})
+export function getPostJsonMutationOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    mutationKey: getPostJsonMutationKey(),
+    async mutationFn(args: InferRequestType<typeof client.json.$post>) {
+      return parseResponse(client.json.$post(args, clientOptions))
+    },
+  }
+}
 
 /**
  * POST /json
@@ -56,11 +59,14 @@ export function getPostFormMutationKey() {
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export const getPostFormMutationOptions = (clientOptions?: ClientRequestOptions) => ({
-  mutationKey: getPostFormMutationKey(),
-  mutationFn: async (args: InferRequestType<typeof client.form.$post>) =>
-    parseResponse(client.form.$post(args, clientOptions)),
-})
+export function getPostFormMutationOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    mutationKey: getPostFormMutationKey(),
+    async mutationFn(args: InferRequestType<typeof client.form.$post>) {
+      return parseResponse(client.form.$post(args, clientOptions))
+    },
+  }
+}
 
 /**
  * POST /form
@@ -95,11 +101,14 @@ export function getPostUploadMutationKey() {
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export const getPostUploadMutationOptions = (clientOptions?: ClientRequestOptions) => ({
-  mutationKey: getPostUploadMutationKey(),
-  mutationFn: async (args: InferRequestType<typeof client.upload.$post>) =>
-    parseResponse(client.upload.$post(args, clientOptions)),
-})
+export function getPostUploadMutationOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    mutationKey: getPostUploadMutationKey(),
+    async mutationFn(args: InferRequestType<typeof client.upload.$post>) {
+      return parseResponse(client.upload.$post(args, clientOptions))
+    },
+  }
+}
 
 /**
  * POST /upload
@@ -134,11 +143,14 @@ export function getPostTextMutationKey() {
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export const getPostTextMutationOptions = (clientOptions?: ClientRequestOptions) => ({
-  mutationKey: getPostTextMutationKey(),
-  mutationFn: async (args: InferRequestType<typeof client.text.$post>) =>
-    parseResponse(client.text.$post(args, clientOptions)),
-})
+export function getPostTextMutationOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    mutationKey: getPostTextMutationKey(),
+    async mutationFn(args: InferRequestType<typeof client.text.$post>) {
+      return parseResponse(client.text.$post(args, clientOptions))
+    },
+  }
+}
 
 /**
  * POST /text
@@ -173,11 +185,14 @@ export function getPostMultiContentMutationKey() {
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export const getPostMultiContentMutationOptions = (clientOptions?: ClientRequestOptions) => ({
-  mutationKey: getPostMultiContentMutationKey(),
-  mutationFn: async (args: InferRequestType<(typeof client)['multi-content']['$post']>) =>
-    parseResponse(client['multi-content'].$post(args, clientOptions)),
-})
+export function getPostMultiContentMutationOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    mutationKey: getPostMultiContentMutationKey(),
+    async mutationFn(args: InferRequestType<(typeof client)['multi-content']['$post']>) {
+      return parseResponse(client['multi-content'].$post(args, clientOptions))
+    },
+  }
+}
 
 /**
  * POST /multi-content

@@ -139,6 +139,4 @@ export const api = app
   .openapi(postUsersRoute, postUsersRouteHandler)
   .openapi(getUsersIdRoute, getUsersIdRouteHandler)
 
-export type AppType = typeof api
-
 export default app
