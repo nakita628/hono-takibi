@@ -93,7 +93,8 @@ export async function takibi(
 
     // --template: Generate app + handlers
     if (template) {
-      const dir = path.dirname(output)
+      const isIndexFile = output.endsWith('/index.ts')
+      const dir = isIndexFile ? path.dirname(path.dirname(output)) : path.dirname(output)
       const target = path.join(dir, 'index.ts')
 
       const [appFmtResult, stubHandlersResult] = await Promise.all([

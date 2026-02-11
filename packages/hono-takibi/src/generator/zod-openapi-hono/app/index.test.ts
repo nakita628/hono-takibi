@@ -93,10 +93,42 @@ const openapi: OpenAPI = {
 
 describe('app', () => {
   it.concurrent('app Test', () => {
-    const result = app(openapi, 'app.ts', '/api')
+    const result = app(openapi, 'app.ts', '/api', undefined)
     const expected = `import{OpenAPIHono}from'@hono/zod-openapi'
 import{getHonoRoute,getHonoXRoute,getZodOpenapiHonoRoute}from'./app'
 import{getHonoRouteHandler,getHonoXRouteHandler,getZodOpenapiHonoRouteHandler}from'./handlers'
+
+const app=new OpenAPIHono().basePath('/api')
+
+export const api=app.openapi(getHonoRoute,getHonoRouteHandler)
+.openapi(getHonoXRoute,getHonoXRouteHandler)
+.openapi(getZodOpenapiHonoRoute,getZodOpenapiHonoRouteHandler)
+
+export default app`
+    expect(result).toBe(expected)
+  })
+
+  it.concurrent('app with output ending in /index.ts uses directory name for import', () => {
+    const result = app(openapi, 'src/routes/index.ts', '/api', undefined)
+    const expected = `import{OpenAPIHono}from'@hono/zod-openapi'
+import{getHonoRoute,getHonoXRoute,getZodOpenapiHonoRoute}from'./routes'
+import{getHonoRouteHandler,getHonoXRouteHandler,getZodOpenapiHonoRouteHandler}from'./handlers'
+
+const app=new OpenAPIHono().basePath('/api')
+
+export const api=app.openapi(getHonoRoute,getHonoRouteHandler)
+.openapi(getHonoXRoute,getHonoXRouteHandler)
+.openapi(getZodOpenapiHonoRoute,getZodOpenapiHonoRouteHandler)
+
+export default app`
+    expect(result).toBe(expected)
+  })
+
+  it.concurrent('app with output ending in /index.ts and pathAlias', () => {
+    const result = app(openapi, 'src/routes/index.ts', '/api', '@/src')
+    const expected = `import{OpenAPIHono}from'@hono/zod-openapi'
+import{getHonoRoute,getHonoXRoute,getZodOpenapiHonoRoute}from'@/src/routes'
+import{getHonoRouteHandler,getHonoXRouteHandler,getZodOpenapiHonoRouteHandler}from'@/src/handlers'
 
 const app=new OpenAPIHono().basePath('/api')
 

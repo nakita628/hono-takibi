@@ -42,7 +42,10 @@ export function app(
   const routeMappings = getRouteMaps(openapi)
 
   const routeNames = [...new Set(routeMappings.map((m) => m.routeName))]
-  const routeBasename = output.replace(/^.*\//, '').replace(/\.ts$/, '')
+  const isIndexFile = output.endsWith('/index.ts')
+  const routeBasename = isIndexFile
+    ? output.replace(/\/index\.ts$/, '').replace(/^.*\//, '')
+    : output.replace(/^.*\//, '').replace(/\.ts$/, '')
   const routeModule = pathAlias ? `${pathAlias}/${routeBasename}` : `./${routeBasename}`
   const routesImport =
     routeNames.length > 0 ? `import{${routeNames.join(',')}}from'${routeModule}'` : ''
