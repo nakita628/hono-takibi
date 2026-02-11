@@ -1,34 +1,49 @@
-# Comprehensive EC API v1.0.0
+---
+title: Comprehensive EC API v1.0.0
+language_tabs:
+  - bash: Bash
+toc_footers: []
+includes: []
+search: true
+highlight_theme: darkula
+headingLevel: 2
 
-- `/users` [GET](#listusers) [POST](#createuser)
-- `/users/{userId}` [GET](#getuser) [PUT](#updateuser) [DELETE](#deleteuser)
-- `/products` [GET](#listproducts) [POST](#createproduct)
-- `/products/{productId}` [GET](#getproduct) [PUT](#updateproduct)
-- `/products/{productId}/reviews` [GET](#listreviews) [POST](#createreview)
-- `/orders` [GET](#listorders) [POST](#createorder)
-- `/orders/{orderId}` [GET](#getorder)
-- `/categories` [GET](#listcategories)
-- `/upload/image` [POST](#uploadimage)
+---
+
+<h1 id="comprehensive-ec-api">Comprehensive EC API v1.0.0</h1>
+
+> Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
+
+E-commerce API covering all generation modes
+
+# Authentication
+
+- HTTP Authentication, scheme: bearer
+
+<h1 id="comprehensive-ec-api-default">Default</h1>
 
 ## listUsers
 
-`GET /users`
+<a id="opIdlistUsers"></a>
 
 > Code samples
 
 ```bash
 hono request \
-  -P /users \
   -X GET \
+  -P /users \
+  -H 'Accept: application/json' \
   src/index.ts
 ```
 
-### Parameters
+`GET /users`
 
-| Name | In | Type | Required | Description |
-|------|----|------|----------|-------------|
-| page | query | integer | false | none |
-| limit | query | integer | false | none |
+<h3 id="listusers-parameters">Parameters</h3>
+
+|Name|In|Type|Required|Description|
+|---|---|---|---|---|
+|page|query|integer|false|none|
+|limit|query|integer|false|none|
 
 > Example responses
 
@@ -42,55 +57,67 @@ hono request \
       "name": "string",
       "email": "user@example.com",
       "role": "admin",
-      "createdAt": "2024-01-01T00:00:00Z"
+      "address": {
+        "street": "string",
+        "city": "string",
+        "state": "string",
+        "zip": "string",
+        "country": "string"
+      },
+      "createdAt": "1970-01-01T00:00:00Z"
     }
   ],
   "total": 0
 }
 ```
 
-### Responses
+<h3 id="listusers-responses">Responses</h3>
 
-| Status | Description | Schema |
-|--------|-------------|--------|
-| 200 | OK | Inline |
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|OK|OK|Inline|
 
-### Response Schema
+<h3 id="listusers-responseschema">Response Schema</h3>
 
 Status Code **200**
 
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| users | array | true | none |
-| users.id | integer | true | none |
-| users.name | string | true | none |
-| users.email | string | true | none |
-| users.role | string | true | none |
-| users.address | Address | false | none |
-| users.address.street | string | true | none |
-| users.address.city | string | true | none |
-| users.address.state | string | false | none |
-| users.address.zip | string | false | none |
-| users.address.country | string | true | none |
-| users.createdAt | string | true | none |
-| total | integer | true | none |
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|users|[[User](#schemauser)]|true|none|none|
+|» id|integer|true|none|none|
+|» name|string|true|none|none|
+|» email|string(email)|true|none|none|
+|» role|string|true|none|none|
+|» address|[Address](#schemaaddress)|false|none|none|
+|» » street|string|true|none|none|
+|» » city|string|true|none|none|
+|» » state|string|false|none|none|
+|» » zip|string|false|none|none|
+|» » country|string|true|none|none|
+|» createdAt|string(date-time)|true|none|none|
+|total|integer|true|none|none|
 
-> This operation does not require authentication
+<aside class="success">
+This operation does not require authentication
+</aside>
 
 ## createUser
 
-`POST /users`
+<a id="opIdcreateUser"></a>
 
 > Code samples
 
 ```bash
 hono request \
-  -P /users \
   -X POST \
-  -H "Authorization: Bearer ${TOKEN}" \
-  -d '{"name":"string","email":"user@example.com","password":"string"}' \
+  -P /users \
+  -H 'Content-Type: application/json' \
+  -H 'Accept: application/json' \
+  -H 'Authorization: Bearer {access-token}' \
   src/index.ts
 ```
+
+`POST /users`
 
 > Body parameter
 
@@ -98,19 +125,40 @@ hono request \
 {
   "name": "string",
   "email": "user@example.com",
-  "password": "string"
+  "password": "string",
+  "role": "admin",
+  "address": {
+    "street": "string",
+    "city": "string",
+    "state": "string",
+    "zip": "string",
+    "country": "string"
+  }
 }
 ```
 
-### Parameters
+<h3 id="createuser-parameters">Parameters</h3>
 
-| Name | In | Type | Required | Description |
-|------|----|------|----------|-------------|
-| name | body | string | true | none |
-| email | body | string | true | none |
-| password | body | string | true | none |
-| role | body | string | false | none |
-| address | body | Address | false | none |
+|Name|In|Type|Required|Description|
+|---|---|---|---|---|
+|body|body|[CreateUser](#schemacreateuser)|true|none|
+|» name|body|string|true|none|
+|» email|body|string(email)|true|none|
+|» password|body|string|true|none|
+|» role|body|string|false|none|
+|» address|body|[Address](#schemaaddress)|false|none|
+|» »  street|body|string|true|none|
+|» »  city|body|string|true|none|
+|» »  state|body|string|false|none|
+|» »  zip|body|string|false|none|
+|» »  country|body|string|true|none|
+
+#### Enumerated Values
+
+|Parameter|Value|
+|---|---|
+|» role|admin|
+|» role|customer|
 
 > Example responses
 
@@ -122,54 +170,49 @@ hono request \
   "name": "string",
   "email": "user@example.com",
   "role": "admin",
-  "createdAt": "2024-01-01T00:00:00Z"
+  "address": {
+    "street": "string",
+    "city": "string",
+    "state": "string",
+    "zip": "string",
+    "country": "string"
+  },
+  "createdAt": "1970-01-01T00:00:00Z"
 }
 ```
 
-### Responses
+<h3 id="createuser-responses">Responses</h3>
 
-| Status | Description | Schema |
-|--------|-------------|--------|
-| 201 | Created | Inline |
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|201|Created|Created|[User](#schemauser)|
 
-### Response Schema
-
-Status Code **201**
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| id | integer | true | none |
-| name | string | true | none |
-| email | string | true | none |
-| role | string | true | none |
-| address | Address | false | none |
-| address.street | string | true | none |
-| address.city | string | true | none |
-| address.state | string | false | none |
-| address.zip | string | false | none |
-| address.country | string | true | none |
-| createdAt | string | true | none |
-
-> Authentication: BearerAuth
+<aside class="warning">
+To perform this operation, you must be authenticated by means of one of the following methods:
+BearerAuth
+</aside>
 
 ## getUser
 
-`GET /users/{userId}`
+<a id="opIdgetUser"></a>
 
 > Code samples
 
 ```bash
 hono request \
-  -P /users/{userId} \
   -X GET \
+  -P /users/{userId} \
+  -H 'Accept: application/json' \
   src/index.ts
 ```
 
-### Parameters
+`GET /users/{userId}`
 
-| Name | In | Type | Required | Description |
-|------|----|------|----------|-------------|
-| userId | path | integer | true | none |
+<h3 id="getuser-parameters">Parameters</h3>
+
+|Name|In|Type|Required|Description|
+|---|---|---|---|---|
+|userId|path|integer|true|none|
 
 > Example responses
 
@@ -181,7 +224,14 @@ hono request \
   "name": "string",
   "email": "user@example.com",
   "role": "admin",
-  "createdAt": "2024-01-01T00:00:00Z"
+  "address": {
+    "street": "string",
+    "city": "string",
+    "state": "string",
+    "zip": "string",
+    "country": "string"
+  },
+  "createdAt": "1970-01-01T00:00:00Z"
 }
 ```
 
@@ -194,71 +244,65 @@ hono request \
 }
 ```
 
-### Responses
+<h3 id="getuser-responses">Responses</h3>
 
-| Status | Description | Schema |
-|--------|-------------|--------|
-| 200 | OK | Inline |
-| 404 | Resource not found | Inline |
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|OK|OK|[User](#schemauser)|
+|404|Not Found|Resource not found|[Error](#schemaerror)|
 
-### Response Schema
-
-Status Code **200**
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| id | integer | true | none |
-| name | string | true | none |
-| email | string | true | none |
-| role | string | true | none |
-| address | Address | false | none |
-| address.street | string | true | none |
-| address.city | string | true | none |
-| address.state | string | false | none |
-| address.zip | string | false | none |
-| address.country | string | true | none |
-| createdAt | string | true | none |
-
-### Response Schema
-
-Status Code **404**
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| code | integer | true | none |
-| message | string | true | none |
-
-> This operation does not require authentication
+<aside class="success">
+This operation does not require authentication
+</aside>
 
 ## updateUser
 
-`PUT /users/{userId}`
+<a id="opIdupdateUser"></a>
 
 > Code samples
 
 ```bash
 hono request \
-  -P /users/{userId} \
   -X PUT \
-  -H "Authorization: Bearer ${TOKEN}" \
-  -d '{}' \
+  -P /users/{userId} \
+  -H 'Content-Type: application/json' \
+  -H 'Accept: application/json' \
+  -H 'Authorization: Bearer {access-token}' \
   src/index.ts
 ```
+
+`PUT /users/{userId}`
 
 > Body parameter
 
 ```json
-{}
+{
+  "name": "string",
+  "email": "user@example.com",
+  "address": {
+    "street": "string",
+    "city": "string",
+    "state": "string",
+    "zip": "string",
+    "country": "string"
+  }
+}
 ```
 
-### Parameters
+<h3 id="updateuser-parameters">Parameters</h3>
 
-| Name | In | Type | Required | Description |
-|------|----|------|----------|-------------|
-| userId | path | integer | true | none |
-| name | body | string | false | none |
-| email | body | string | false | none |
-| address | body | Address | false | none |
+|Name|In|Type|Required|Description|
+|---|---|---|---|---|
+|userId|path|integer|true|none|
+|body|body|[UpdateUser](#schemaupdateuser)|true|none|
+|» name|body|string|false|none|
+|» email|body|string(email)|false|none|
+|» address|body|[Address](#schemaaddress)|false|none|
+|» »  street|body|string|true|none|
+|» »  city|body|string|true|none|
+|» »  state|body|string|false|none|
+|» »  zip|body|string|false|none|
+|» »  country|body|string|true|none|
 
 > Example responses
 
@@ -270,86 +314,86 @@ hono request \
   "name": "string",
   "email": "user@example.com",
   "role": "admin",
-  "createdAt": "2024-01-01T00:00:00Z"
+  "address": {
+    "street": "string",
+    "city": "string",
+    "state": "string",
+    "zip": "string",
+    "country": "string"
+  },
+  "createdAt": "1970-01-01T00:00:00Z"
 }
 ```
 
-### Responses
+<h3 id="updateuser-responses">Responses</h3>
 
-| Status | Description | Schema |
-|--------|-------------|--------|
-| 200 | OK | Inline |
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|OK|OK|[User](#schemauser)|
 
-### Response Schema
-
-Status Code **200**
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| id | integer | true | none |
-| name | string | true | none |
-| email | string | true | none |
-| role | string | true | none |
-| address | Address | false | none |
-| address.street | string | true | none |
-| address.city | string | true | none |
-| address.state | string | false | none |
-| address.zip | string | false | none |
-| address.country | string | true | none |
-| createdAt | string | true | none |
-
-> Authentication: BearerAuth
+<aside class="warning">
+To perform this operation, you must be authenticated by means of one of the following methods:
+BearerAuth
+</aside>
 
 ## deleteUser
 
-`DELETE /users/{userId}`
+<a id="opIddeleteUser"></a>
 
 > Code samples
 
 ```bash
 hono request \
-  -P /users/{userId} \
   -X DELETE \
-  -H "Authorization: Bearer ${TOKEN}" \
+  -P /users/{userId} \
+  -H 'Authorization: Bearer {access-token}' \
   src/index.ts
 ```
 
-### Parameters
+`DELETE /users/{userId}`
 
-| Name | In | Type | Required | Description |
-|------|----|------|----------|-------------|
-| userId | path | integer | true | none |
+<h3 id="deleteuser-parameters">Parameters</h3>
 
-### Responses
+|Name|In|Type|Required|Description|
+|---|---|---|---|---|
+|userId|path|integer|true|none|
 
-| Status | Description | Schema |
-|--------|-------------|--------|
-| 204 | Deleted | None |
+<h3 id="deleteuser-responses">Responses</h3>
 
-> Authentication: BearerAuth
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|204|No Content|Deleted|None|
+
+<aside class="warning">
+To perform this operation, you must be authenticated by means of one of the following methods:
+BearerAuth
+</aside>
 
 ## listProducts
 
-`GET /products`
+<a id="opIdlistProducts"></a>
 
 > Code samples
 
 ```bash
 hono request \
-  -P /products \
   -X GET \
+  -P /products \
+  -H 'Accept: application/json' \
   src/index.ts
 ```
 
-### Parameters
+`GET /products`
 
-| Name | In | Type | Required | Description |
-|------|----|------|----------|-------------|
-| page | query | integer | false | none |
-| limit | query | integer | false | none |
-| category | query | string | false | none |
-| minPrice | query | number | false | none |
-| maxPrice | query | number | false | none |
+<h3 id="listproducts-parameters">Parameters</h3>
+
+|Name|In|Type|Required|Description|
+|---|---|---|---|---|
+|page|query|integer|false|none|
+|limit|query|integer|false|none|
+|category|query|string|false|none|
+|minPrice|query|number|false|none|
+|maxPrice|query|number|false|none|
 
 > Example responses
 
@@ -361,81 +405,96 @@ hono request \
     {
       "id": 0,
       "name": "string",
+      "description": "string",
       "price": 0,
       "category": {
         "id": 0,
-        "name": "string"
+        "name": "string",
+        "parentId": null
       },
+      "tags": [
+        "string"
+      ],
       "inStock": true,
-      "createdAt": "2024-01-01T00:00:00Z"
+      "createdAt": "1970-01-01T00:00:00Z"
     }
   ],
   "total": 0
 }
 ```
 
-### Responses
+<h3 id="listproducts-responses">Responses</h3>
 
-| Status | Description | Schema |
-|--------|-------------|--------|
-| 200 | OK | Inline |
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|OK|OK|Inline|
 
-### Response Schema
+<h3 id="listproducts-responseschema">Response Schema</h3>
 
 Status Code **200**
 
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| products | array | true | none |
-| products.id | integer | true | none |
-| products.name | string | true | none |
-| products.description | string | false | none |
-| products.price | number | true | none |
-| products.category | Category | true | none |
-| products.category.id | integer | true | none |
-| products.category.name | string | true | none |
-| products.category.parentId | integer | null | false | none |
-| products.tags | array | false | none |
-| products.inStock | boolean | true | none |
-| products.createdAt | string | true | none |
-| total | integer | true | none |
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|products|[[Product](#schemaproduct)]|true|none|none|
+|» id|integer|true|none|none|
+|» name|string|true|none|none|
+|» description|string|false|none|none|
+|» price|number|true|none|none|
+|» category|[Category](#schemacategory)|true|none|none|
+|» » id|integer|true|none|none|
+|» » name|string|true|none|none|
+|» » parentId|integer | null|false|none|none|
+|» tags|[string]|false|none|none|
+|» inStock|boolean|true|none|none|
+|» createdAt|string(date-time)|true|none|none|
+|total|integer|true|none|none|
 
-> This operation does not require authentication
+<aside class="success">
+This operation does not require authentication
+</aside>
 
 ## createProduct
 
-`POST /products`
+<a id="opIdcreateProduct"></a>
 
 > Code samples
 
 ```bash
 hono request \
-  -P /products \
   -X POST \
-  -H "Authorization: Bearer ${TOKEN}" \
-  -d '{"name":"string","price":0,"categoryId":0}' \
+  -P /products \
+  -H 'Content-Type: application/json' \
+  -H 'Accept: application/json' \
+  -H 'Authorization: Bearer {access-token}' \
   src/index.ts
 ```
+
+`POST /products`
 
 > Body parameter
 
 ```json
 {
   "name": "string",
+  "description": "string",
   "price": 0,
-  "categoryId": 0
+  "categoryId": 0,
+  "tags": [
+    "string"
+  ]
 }
 ```
 
-### Parameters
+<h3 id="createproduct-parameters">Parameters</h3>
 
-| Name | In | Type | Required | Description |
-|------|----|------|----------|-------------|
-| name | body | string | true | none |
-| description | body | string | false | none |
-| price | body | number | true | none |
-| categoryId | body | integer | true | none |
-| tags | body | array | false | none |
+|Name|In|Type|Required|Description|
+|---|---|---|---|---|
+|body|body|[CreateProduct](#schemacreateproduct)|true|none|
+|» name|body|string|true|none|
+|» description|body|string|false|none|
+|» price|body|number|true|none|
+|» categoryId|body|integer|true|none|
+|» tags|body|[string]|false|none|
 
 > Example responses
 
@@ -445,60 +504,53 @@ hono request \
 {
   "id": 0,
   "name": "string",
+  "description": "string",
   "price": 0,
   "category": {
     "id": 0,
-    "name": "string"
+    "name": "string",
+    "parentId": null
   },
+  "tags": [
+    "string"
+  ],
   "inStock": true,
-  "createdAt": "2024-01-01T00:00:00Z"
+  "createdAt": "1970-01-01T00:00:00Z"
 }
 ```
 
-### Responses
+<h3 id="createproduct-responses">Responses</h3>
 
-| Status | Description | Schema |
-|--------|-------------|--------|
-| 201 | Created | Inline |
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|201|Created|Created|[Product](#schemaproduct)|
 
-### Response Schema
-
-Status Code **201**
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| id | integer | true | none |
-| name | string | true | none |
-| description | string | false | none |
-| price | number | true | none |
-| category | Category | true | none |
-| category.id | integer | true | none |
-| category.name | string | true | none |
-| category.parentId | integer | null | false | none |
-| tags | array | false | none |
-| inStock | boolean | true | none |
-| createdAt | string | true | none |
-
-> Authentication: BearerAuth
+<aside class="warning">
+To perform this operation, you must be authenticated by means of one of the following methods:
+BearerAuth
+</aside>
 
 ## getProduct
 
-`GET /products/{productId}`
+<a id="opIdgetProduct"></a>
 
 > Code samples
 
 ```bash
 hono request \
-  -P /products/{productId} \
   -X GET \
+  -P /products/{productId} \
+  -H 'Accept: application/json' \
   src/index.ts
 ```
 
-### Parameters
+`GET /products/{productId}`
 
-| Name | In | Type | Required | Description |
-|------|----|------|----------|-------------|
-| productId | path | integer | true | none |
+<h3 id="getproduct-parameters">Parameters</h3>
+
+|Name|In|Type|Required|Description|
+|---|---|---|---|---|
+|productId|path|integer|true|none|
 
 > Example responses
 
@@ -508,13 +560,18 @@ hono request \
 {
   "id": 0,
   "name": "string",
+  "description": "string",
   "price": 0,
   "category": {
     "id": 0,
-    "name": "string"
+    "name": "string",
+    "parentId": null
   },
+  "tags": [
+    "string"
+  ],
   "inStock": true,
-  "createdAt": "2024-01-01T00:00:00Z"
+  "createdAt": "1970-01-01T00:00:00Z"
 }
 ```
 
@@ -527,73 +584,60 @@ hono request \
 }
 ```
 
-### Responses
+<h3 id="getproduct-responses">Responses</h3>
 
-| Status | Description | Schema |
-|--------|-------------|--------|
-| 200 | OK | Inline |
-| 404 | Resource not found | Inline |
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|OK|OK|[Product](#schemaproduct)|
+|404|Not Found|Resource not found|[Error](#schemaerror)|
 
-### Response Schema
-
-Status Code **200**
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| id | integer | true | none |
-| name | string | true | none |
-| description | string | false | none |
-| price | number | true | none |
-| category | Category | true | none |
-| category.id | integer | true | none |
-| category.name | string | true | none |
-| category.parentId | integer | null | false | none |
-| tags | array | false | none |
-| inStock | boolean | true | none |
-| createdAt | string | true | none |
-
-### Response Schema
-
-Status Code **404**
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| code | integer | true | none |
-| message | string | true | none |
-
-> This operation does not require authentication
+<aside class="success">
+This operation does not require authentication
+</aside>
 
 ## updateProduct
 
-`PUT /products/{productId}`
+<a id="opIdupdateProduct"></a>
 
 > Code samples
 
 ```bash
 hono request \
-  -P /products/{productId} \
   -X PUT \
-  -H "Authorization: Bearer ${TOKEN}" \
-  -d '{}' \
+  -P /products/{productId} \
+  -H 'Content-Type: application/json' \
+  -H 'Accept: application/json' \
+  -H 'Authorization: Bearer {access-token}' \
   src/index.ts
 ```
+
+`PUT /products/{productId}`
 
 > Body parameter
 
 ```json
-{}
+{
+  "name": "string",
+  "description": "string",
+  "price": 0,
+  "categoryId": 0,
+  "tags": [
+    "string"
+  ]
+}
 ```
 
-### Parameters
+<h3 id="updateproduct-parameters">Parameters</h3>
 
-| Name | In | Type | Required | Description |
-|------|----|------|----------|-------------|
-| productId | path | integer | true | none |
-| name | body | string | false | none |
-| description | body | string | false | none |
-| price | body | number | false | none |
-| categoryId | body | integer | false | none |
-| tags | body | array | false | none |
+|Name|In|Type|Required|Description|
+|---|---|---|---|---|
+|productId|path|integer|true|none|
+|body|body|[UpdateProduct](#schemaupdateproduct)|true|none|
+|» name|body|string|false|none|
+|» description|body|string|false|none|
+|» price|body|number|false|none|
+|» categoryId|body|integer|false|none|
+|» tags|body|[string]|false|none|
 
 > Example responses
 
@@ -603,60 +647,53 @@ hono request \
 {
   "id": 0,
   "name": "string",
+  "description": "string",
   "price": 0,
   "category": {
     "id": 0,
-    "name": "string"
+    "name": "string",
+    "parentId": null
   },
+  "tags": [
+    "string"
+  ],
   "inStock": true,
-  "createdAt": "2024-01-01T00:00:00Z"
+  "createdAt": "1970-01-01T00:00:00Z"
 }
 ```
 
-### Responses
+<h3 id="updateproduct-responses">Responses</h3>
 
-| Status | Description | Schema |
-|--------|-------------|--------|
-| 200 | OK | Inline |
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|OK|OK|[Product](#schemaproduct)|
 
-### Response Schema
-
-Status Code **200**
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| id | integer | true | none |
-| name | string | true | none |
-| description | string | false | none |
-| price | number | true | none |
-| category | Category | true | none |
-| category.id | integer | true | none |
-| category.name | string | true | none |
-| category.parentId | integer | null | false | none |
-| tags | array | false | none |
-| inStock | boolean | true | none |
-| createdAt | string | true | none |
-
-> Authentication: BearerAuth
+<aside class="warning">
+To perform this operation, you must be authenticated by means of one of the following methods:
+BearerAuth
+</aside>
 
 ## listReviews
 
-`GET /products/{productId}/reviews`
+<a id="opIdlistReviews"></a>
 
 > Code samples
 
 ```bash
 hono request \
-  -P /products/{productId}/reviews \
   -X GET \
+  -P /products/{productId}/reviews \
+  -H 'Accept: application/json' \
   src/index.ts
 ```
 
-### Parameters
+`GET /products/{productId}/reviews`
 
-| Name | In | Type | Required | Description |
-|------|----|------|----------|-------------|
-| productId | path | integer | true | none |
+<h3 id="listreviews-parameters">Parameters</h3>
+
+|Name|In|Type|Required|Description|
+|---|---|---|---|---|
+|productId|path|integer|true|none|
 
 > Example responses
 
@@ -667,79 +704,95 @@ hono request \
   {
     "id": 0,
     "rating": 1,
+    "comment": "string",
     "author": {
       "id": 0,
       "name": "string",
       "email": "user@example.com",
       "role": "admin",
-      "createdAt": "2024-01-01T00:00:00Z"
+      "address": {
+        "street": "string",
+        "city": "string",
+        "state": "string",
+        "zip": "string",
+        "country": "string"
+      },
+      "createdAt": "1970-01-01T00:00:00Z"
     },
-    "createdAt": "2024-01-01T00:00:00Z"
+    "createdAt": "1970-01-01T00:00:00Z"
   }
 ]
 ```
 
-### Responses
+<h3 id="listreviews-responses">Responses</h3>
 
-| Status | Description | Schema |
-|--------|-------------|--------|
-| 200 | OK | Inline |
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|OK|OK|Inline|
 
-### Response Schema
+<h3 id="listreviews-responseschema">Response Schema</h3>
 
 Status Code **200**
 
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| id | integer | true | none |
-| rating | integer | true | none |
-| comment | string | false | none |
-| author | User | true | none |
-| author.id | integer | true | none |
-| author.name | string | true | none |
-| author.email | string | true | none |
-| author.role | string | true | none |
-| author.address | Address | false | none |
-| author.address.street | string | true | none |
-| author.address.city | string | true | none |
-| author.address.state | string | false | none |
-| author.address.zip | string | false | none |
-| author.address.country | string | true | none |
-| author.createdAt | string | true | none |
-| createdAt | string | true | none |
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|*anonymous*|[[Review](#schemareview)]|false|none|none|
+|» id|integer|true|none|none|
+|» rating|integer|true|none|none|
+|» comment|string|false|none|none|
+|» author|[User](#schemauser)|true|none|none|
+|» » id|integer|true|none|none|
+|» » name|string|true|none|none|
+|» » email|string(email)|true|none|none|
+|» » role|string|true|none|none|
+|» » address|[Address](#schemaaddress)|false|none|none|
+|»  » » street|string|true|none|none|
+|»  » » city|string|true|none|none|
+|»  » » state|string|false|none|none|
+|»  » » zip|string|false|none|none|
+|»  » » country|string|true|none|none|
+|» » createdAt|string(date-time)|true|none|none|
+|» createdAt|string(date-time)|true|none|none|
 
-> This operation does not require authentication
+<aside class="success">
+This operation does not require authentication
+</aside>
 
 ## createReview
 
-`POST /products/{productId}/reviews`
+<a id="opIdcreateReview"></a>
 
 > Code samples
 
 ```bash
 hono request \
-  -P /products/{productId}/reviews \
   -X POST \
-  -H "Authorization: Bearer ${TOKEN}" \
-  -d '{"rating":1}' \
+  -P /products/{productId}/reviews \
+  -H 'Content-Type: application/json' \
+  -H 'Accept: application/json' \
+  -H 'Authorization: Bearer {access-token}' \
   src/index.ts
 ```
+
+`POST /products/{productId}/reviews`
 
 > Body parameter
 
 ```json
 {
-  "rating": 1
+  "rating": 1,
+  "comment": "string"
 }
 ```
 
-### Parameters
+<h3 id="createreview-parameters">Parameters</h3>
 
-| Name | In | Type | Required | Description |
-|------|----|------|----------|-------------|
-| productId | path | integer | true | none |
-| rating | body | integer | true | none |
-| comment | body | string | false | none |
+|Name|In|Type|Required|Description|
+|---|---|---|---|---|
+|productId|path|integer|true|none|
+|body|body|[CreateReview](#schemacreatereview)|true|none|
+|» rating|body|integer|true|none|
+|» comment|body|string|false|none|
 
 > Example responses
 
@@ -749,69 +802,70 @@ hono request \
 {
   "id": 0,
   "rating": 1,
+  "comment": "string",
   "author": {
     "id": 0,
     "name": "string",
     "email": "user@example.com",
     "role": "admin",
-    "createdAt": "2024-01-01T00:00:00Z"
+    "address": {
+      "street": "string",
+      "city": "string",
+      "state": "string",
+      "zip": "string",
+      "country": "string"
+    },
+    "createdAt": "1970-01-01T00:00:00Z"
   },
-  "createdAt": "2024-01-01T00:00:00Z"
+  "createdAt": "1970-01-01T00:00:00Z"
 }
 ```
 
-### Responses
+<h3 id="createreview-responses">Responses</h3>
 
-| Status | Description | Schema |
-|--------|-------------|--------|
-| 201 | Created | Inline |
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|201|Created|Created|[Review](#schemareview)|
 
-### Response Schema
-
-Status Code **201**
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| id | integer | true | none |
-| rating | integer | true | none |
-| comment | string | false | none |
-| author | User | true | none |
-| author.id | integer | true | none |
-| author.name | string | true | none |
-| author.email | string | true | none |
-| author.role | string | true | none |
-| author.address | Address | false | none |
-| author.address.street | string | true | none |
-| author.address.city | string | true | none |
-| author.address.state | string | false | none |
-| author.address.zip | string | false | none |
-| author.address.country | string | true | none |
-| author.createdAt | string | true | none |
-| createdAt | string | true | none |
-
-> Authentication: BearerAuth
+<aside class="warning">
+To perform this operation, you must be authenticated by means of one of the following methods:
+BearerAuth
+</aside>
 
 ## listOrders
 
-`GET /orders`
+<a id="opIdlistOrders"></a>
 
 > Code samples
 
 ```bash
 hono request \
-  -P /orders \
   -X GET \
-  -H "Authorization: Bearer ${TOKEN}" \
+  -P /orders \
+  -H 'Accept: application/json' \
+  -H 'Authorization: Bearer {access-token}' \
   src/index.ts
 ```
 
-### Parameters
+`GET /orders`
 
-| Name | In | Type | Required | Description |
-|------|----|------|----------|-------------|
-| page | query | integer | false | none |
-| limit | query | integer | false | none |
-| status | query | string | false | none |
+<h3 id="listorders-parameters">Parameters</h3>
+
+|Name|In|Type|Required|Description|
+|---|---|---|---|---|
+|page|query|integer|false|none|
+|limit|query|integer|false|none|
+|status|query|string|false|none|
+
+#### Enumerated Values
+
+|Parameter|Value|
+|---|---|
+|status|pending|
+|status|confirmed|
+|status|shipped|
+|status|delivered|
+|status|cancelled|
 
 > Example responses
 
@@ -827,20 +881,32 @@ hono request \
         "name": "string",
         "email": "user@example.com",
         "role": "admin",
-        "createdAt": "2024-01-01T00:00:00Z"
+        "address": {
+          "street": "string",
+          "city": "string",
+          "state": "string",
+          "zip": "string",
+          "country": "string"
+        },
+        "createdAt": "1970-01-01T00:00:00Z"
       },
       "items": [
         {
           "product": {
             "id": 0,
             "name": "string",
+            "description": "string",
             "price": 0,
             "category": {
               "id": 0,
-              "name": "string"
+              "name": "string",
+              "parentId": null
             },
+            "tags": [
+              "string"
+            ],
             "inStock": true,
-            "createdAt": "2024-01-01T00:00:00Z"
+            "createdAt": "1970-01-01T00:00:00Z"
           },
           "quantity": 1,
           "price": 0
@@ -851,78 +917,91 @@ hono request \
       "shippingAddress": {
         "street": "string",
         "city": "string",
+        "state": "string",
+        "zip": "string",
         "country": "string"
       },
-      "createdAt": "2024-01-01T00:00:00Z"
+      "createdAt": "1970-01-01T00:00:00Z"
     }
   ],
   "total": 0
 }
 ```
 
-### Responses
+<h3 id="listorders-responses">Responses</h3>
 
-| Status | Description | Schema |
-|--------|-------------|--------|
-| 200 | OK | Inline |
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|OK|OK|Inline|
 
-### Response Schema
+<h3 id="listorders-responseschema">Response Schema</h3>
 
 Status Code **200**
 
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| orders | array | true | none |
-| orders.id | integer | true | none |
-| orders.user | User | true | none |
-| orders.user.id | integer | true | none |
-| orders.user.name | string | true | none |
-| orders.user.email | string | true | none |
-| orders.user.role | string | true | none |
-| orders.user.address | Address | false | none |
-| orders.user.address.street | string | true | none |
-| orders.user.address.city | string | true | none |
-| orders.user.address.state | string | false | none |
-| orders.user.address.zip | string | false | none |
-| orders.user.address.country | string | true | none |
-| orders.user.createdAt | string | true | none |
-| orders.items | array | true | none |
-| orders.items.product | Product | true | none |
-| orders.items.product.id | integer | true | none |
-| orders.items.product.name | string | true | none |
-| orders.items.product.description | string | false | none |
-| orders.items.product.price | number | true | none |
-| orders.items.product.category | Category | true | none |
-| orders.items.product.category.id | integer | true | none |
-| orders.items.product.category.name | string | true | none |
-| orders.items.product.category.parentId | integer | null | false | none |
-| orders.items.product.tags | array | false | none |
-| orders.items.product.inStock | boolean | true | none |
-| orders.items.product.createdAt | string | true | none |
-| orders.items.quantity | integer | true | none |
-| orders.items.price | number | true | none |
-| orders.status | string | true | none |
-| orders.totalPrice | number | true | none |
-| orders.shippingAddress | Address | true | none |
-| orders.createdAt | string | true | none |
-| total | integer | true | none |
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|orders|[[Order](#schemaorder)]|true|none|none|
+|» id|integer|true|none|none|
+|» user|[User](#schemauser)|true|none|none|
+|» » id|integer|true|none|none|
+|» » name|string|true|none|none|
+|» » email|string(email)|true|none|none|
+|» » role|string|true|none|none|
+|» » address|[Address](#schemaaddress)|false|none|none|
+|»  » » street|string|true|none|none|
+|»  » » city|string|true|none|none|
+|»  » » state|string|false|none|none|
+|»  » » zip|string|false|none|none|
+|»  » » country|string|true|none|none|
+|» » createdAt|string(date-time)|true|none|none|
+|» items|[[OrderItem](#schemaorderitem)]|true|none|none|
+|» » product|[Product](#schemaproduct)|true|none|none|
+|»  » » id|integer|true|none|none|
+|»  » » name|string|true|none|none|
+|»  » » description|string|false|none|none|
+|»  » » price|number|true|none|none|
+|»  » » category|[Category](#schemacategory)|true|none|none|
+|»   »  » » id|integer|true|none|none|
+|»   »  » » name|string|true|none|none|
+|»   »  » » parentId|integer | null|false|none|none|
+|»  » » tags|[string]|false|none|none|
+|»  » » inStock|boolean|true|none|none|
+|»  » » createdAt|string(date-time)|true|none|none|
+|» » quantity|integer|true|none|none|
+|» » price|number|true|none|none|
+|» status|string|true|none|none|
+|» totalPrice|number|true|none|none|
+|» shippingAddress|[Address](#schemaaddress)|true|none|none|
+|» » street|string|true|none|none|
+|» » city|string|true|none|none|
+|» » state|string|false|none|none|
+|» » zip|string|false|none|none|
+|» » country|string|true|none|none|
+|» createdAt|string(date-time)|true|none|none|
+|total|integer|true|none|none|
 
-> Authentication: BearerAuth
+<aside class="warning">
+To perform this operation, you must be authenticated by means of one of the following methods:
+BearerAuth
+</aside>
 
 ## createOrder
 
-`POST /orders`
+<a id="opIdcreateOrder"></a>
 
 > Code samples
 
 ```bash
 hono request \
-  -P /orders \
   -X POST \
-  -H "Authorization: Bearer ${TOKEN}" \
-  -d '{"items":[{"productId":0,"quantity":1}],"shippingAddress":{"street":"string","city":"string","country":"string"}}' \
+  -P /orders \
+  -H 'Content-Type: application/json' \
+  -H 'Accept: application/json' \
+  -H 'Authorization: Bearer {access-token}' \
   src/index.ts
 ```
+
+`POST /orders`
 
 > Body parameter
 
@@ -937,18 +1016,27 @@ hono request \
   "shippingAddress": {
     "street": "string",
     "city": "string",
+    "state": "string",
+    "zip": "string",
     "country": "string"
-  }
+  },
+  "callbackUrl": "http://example.com"
 }
 ```
 
-### Parameters
+<h3 id="createorder-parameters">Parameters</h3>
 
-| Name | In | Type | Required | Description |
-|------|----|------|----------|-------------|
-| items | body | array | true | none |
-| shippingAddress | body | Address | true | none |
-| callbackUrl | body | string | false | none |
+|Name|In|Type|Required|Description|
+|---|---|---|---|---|
+|body|body|[CreateOrder](#schemacreateorder)|true|none|
+|» items|body|[object]|true|none|
+|» shippingAddress|body|[Address](#schemaaddress)|true|none|
+|» »  street|body|string|true|none|
+|» »  city|body|string|true|none|
+|» »  state|body|string|false|none|
+|» »  zip|body|string|false|none|
+|» »  country|body|string|true|none|
+|» callbackUrl|body|string(uri)|false|none|
 
 > Example responses
 
@@ -962,20 +1050,32 @@ hono request \
     "name": "string",
     "email": "user@example.com",
     "role": "admin",
-    "createdAt": "2024-01-01T00:00:00Z"
+    "address": {
+      "street": "string",
+      "city": "string",
+      "state": "string",
+      "zip": "string",
+      "country": "string"
+    },
+    "createdAt": "1970-01-01T00:00:00Z"
   },
   "items": [
     {
       "product": {
         "id": 0,
         "name": "string",
+        "description": "string",
         "price": 0,
         "category": {
           "id": 0,
-          "name": "string"
+          "name": "string",
+          "parentId": null
         },
+        "tags": [
+          "string"
+        ],
         "inStock": true,
-        "createdAt": "2024-01-01T00:00:00Z"
+        "createdAt": "1970-01-01T00:00:00Z"
       },
       "quantity": 1,
       "price": 0
@@ -986,78 +1086,47 @@ hono request \
   "shippingAddress": {
     "street": "string",
     "city": "string",
+    "state": "string",
+    "zip": "string",
     "country": "string"
   },
-  "createdAt": "2024-01-01T00:00:00Z"
+  "createdAt": "1970-01-01T00:00:00Z"
 }
 ```
 
-### Responses
+<h3 id="createorder-responses">Responses</h3>
 
-| Status | Description | Schema |
-|--------|-------------|--------|
-| 201 | Created | Inline |
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|201|Created|Created|[Order](#schemaorder)|
 
-### Response Schema
-
-Status Code **201**
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| id | integer | true | none |
-| user | User | true | none |
-| user.id | integer | true | none |
-| user.name | string | true | none |
-| user.email | string | true | none |
-| user.role | string | true | none |
-| user.address | Address | false | none |
-| user.address.street | string | true | none |
-| user.address.city | string | true | none |
-| user.address.state | string | false | none |
-| user.address.zip | string | false | none |
-| user.address.country | string | true | none |
-| user.createdAt | string | true | none |
-| items | array | true | none |
-| items.product | Product | true | none |
-| items.product.id | integer | true | none |
-| items.product.name | string | true | none |
-| items.product.description | string | false | none |
-| items.product.price | number | true | none |
-| items.product.category | Category | true | none |
-| items.product.category.id | integer | true | none |
-| items.product.category.name | string | true | none |
-| items.product.category.parentId | integer | null | false | none |
-| items.product.tags | array | false | none |
-| items.product.inStock | boolean | true | none |
-| items.product.createdAt | string | true | none |
-| items.quantity | integer | true | none |
-| items.price | number | true | none |
-| status | string | true | none |
-| totalPrice | number | true | none |
-| shippingAddress | Address | true | none |
-| createdAt | string | true | none |
-
-> Authentication: BearerAuth
+<aside class="warning">
+To perform this operation, you must be authenticated by means of one of the following methods:
+BearerAuth
+</aside>
 
 ## getOrder
 
-`GET /orders/{orderId}`
+<a id="opIdgetOrder"></a>
 
 > Code samples
 
 ```bash
 hono request \
-  -P /orders/{orderId} \
   -X GET \
-  -H "Authorization: Bearer ${TOKEN}" \
+  -P /orders/{orderId} \
+  -H 'Accept: application/json' \
+  -H 'Authorization: Bearer {access-token}' \
   src/index.ts
 ```
 
-### Parameters
+`GET /orders/{orderId}`
 
-| Name | In | Type | Required | Description |
-|------|----|------|----------|-------------|
-| orderId | path | integer | true | none |
+<h3 id="getorder-parameters">Parameters</h3>
+
+|Name|In|Type|Required|Description|
+|---|---|---|---|---|
+|orderId|path|integer|true|none|
 
 > Example responses
 
@@ -1071,20 +1140,32 @@ hono request \
     "name": "string",
     "email": "user@example.com",
     "role": "admin",
-    "createdAt": "2024-01-01T00:00:00Z"
+    "address": {
+      "street": "string",
+      "city": "string",
+      "state": "string",
+      "zip": "string",
+      "country": "string"
+    },
+    "createdAt": "1970-01-01T00:00:00Z"
   },
   "items": [
     {
       "product": {
         "id": 0,
         "name": "string",
+        "description": "string",
         "price": 0,
         "category": {
           "id": 0,
-          "name": "string"
+          "name": "string",
+          "parentId": null
         },
+        "tags": [
+          "string"
+        ],
         "inStock": true,
-        "createdAt": "2024-01-01T00:00:00Z"
+        "createdAt": "1970-01-01T00:00:00Z"
       },
       "quantity": 1,
       "price": 0
@@ -1095,9 +1176,11 @@ hono request \
   "shippingAddress": {
     "street": "string",
     "city": "string",
+    "state": "string",
+    "zip": "string",
     "country": "string"
   },
-  "createdAt": "2024-01-01T00:00:00Z"
+  "createdAt": "1970-01-01T00:00:00Z"
 }
 ```
 
@@ -1110,75 +1193,33 @@ hono request \
 }
 ```
 
-### Responses
+<h3 id="getorder-responses">Responses</h3>
 
-| Status | Description | Schema |
-|--------|-------------|--------|
-| 200 | OK | Inline |
-| 404 | Resource not found | Inline |
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|OK|OK|[Order](#schemaorder)|
+|404|Not Found|Resource not found|[Error](#schemaerror)|
 
-### Response Schema
-
-Status Code **200**
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| id | integer | true | none |
-| user | User | true | none |
-| user.id | integer | true | none |
-| user.name | string | true | none |
-| user.email | string | true | none |
-| user.role | string | true | none |
-| user.address | Address | false | none |
-| user.address.street | string | true | none |
-| user.address.city | string | true | none |
-| user.address.state | string | false | none |
-| user.address.zip | string | false | none |
-| user.address.country | string | true | none |
-| user.createdAt | string | true | none |
-| items | array | true | none |
-| items.product | Product | true | none |
-| items.product.id | integer | true | none |
-| items.product.name | string | true | none |
-| items.product.description | string | false | none |
-| items.product.price | number | true | none |
-| items.product.category | Category | true | none |
-| items.product.category.id | integer | true | none |
-| items.product.category.name | string | true | none |
-| items.product.category.parentId | integer | null | false | none |
-| items.product.tags | array | false | none |
-| items.product.inStock | boolean | true | none |
-| items.product.createdAt | string | true | none |
-| items.quantity | integer | true | none |
-| items.price | number | true | none |
-| status | string | true | none |
-| totalPrice | number | true | none |
-| shippingAddress | Address | true | none |
-| createdAt | string | true | none |
-
-### Response Schema
-
-Status Code **404**
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| code | integer | true | none |
-| message | string | true | none |
-
-> Authentication: BearerAuth
+<aside class="warning">
+To perform this operation, you must be authenticated by means of one of the following methods:
+BearerAuth
+</aside>
 
 ## listCategories
 
-`GET /categories`
+<a id="opIdlistCategories"></a>
 
 > Code samples
 
 ```bash
 hono request \
-  -P /categories \
   -X GET \
+  -P /categories \
+  -H 'Accept: application/json' \
   src/index.ts
 ```
+
+`GET /categories`
 
 > Example responses
 
@@ -1188,42 +1229,50 @@ hono request \
 [
   {
     "id": 0,
-    "name": "string"
+    "name": "string",
+    "parentId": null
   }
 ]
 ```
 
-### Responses
+<h3 id="listcategories-responses">Responses</h3>
 
-| Status | Description | Schema |
-|--------|-------------|--------|
-| 200 | OK | Inline |
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|OK|OK|Inline|
 
-### Response Schema
+<h3 id="listcategories-responseschema">Response Schema</h3>
 
 Status Code **200**
 
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| id | integer | true | none |
-| name | string | true | none |
-| parentId | integer | null | false | none |
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|*anonymous*|[[Category](#schemacategory)]|false|none|none|
+|» id|integer|true|none|none|
+|» name|string|true|none|none|
+|» parentId|integer | null|false|none|none|
 
-> This operation does not require authentication
+<aside class="success">
+This operation does not require authentication
+</aside>
 
 ## uploadImage
 
-`POST /upload/image`
+<a id="opIduploadImage"></a>
 
 > Code samples
 
 ```bash
 hono request \
-  -P /upload/image \
   -X POST \
-  -H "Authorization: Bearer ${TOKEN}" \
+  -P /upload/image \
+  -H 'Content-Type: multipart/form-data' \
+  -H 'Accept: application/json' \
+  -H 'Authorization: Bearer {access-token}' \
   src/index.ts
 ```
+
+`POST /upload/image`
 
 > Example responses
 
@@ -1231,26 +1280,524 @@ hono request \
 
 ```json
 {
-  "url": "https://example.com",
+  "url": "http://example.com",
   "width": 0,
   "height": 0
 }
 ```
 
-### Responses
+<h3 id="uploadimage-responses">Responses</h3>
 
-| Status | Description | Schema |
-|--------|-------------|--------|
-| 200 | OK | Inline |
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|OK|OK|Inline|
 
-### Response Schema
+<h3 id="uploadimage-responseschema">Response Schema</h3>
 
 Status Code **200**
 
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| url | string | true | none |
-| width | integer | true | none |
-| height | integer | true | none |
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|url|string(uri)|true|none|none|
+|width|integer|true|none|none|
+|height|integer|true|none|none|
 
-> Authentication: BearerAuth
+<aside class="warning">
+To perform this operation, you must be authenticated by means of one of the following methods:
+BearerAuth
+</aside>
+
+# Schemas
+
+<h2 id="tocS_User">User</h2>
+<!-- backwards compatibility -->
+<a id="schemauser"></a>
+<a id="schema_User"></a>
+<a id="tocSuser"></a>
+<a id="tocsuser"></a>
+
+```json
+{
+  "id": 0,
+  "name": "string",
+  "email": "user@example.com",
+  "role": "admin",
+  "address": {
+    "street": "string",
+    "city": "string",
+    "state": "string",
+    "zip": "string",
+    "country": "string"
+  },
+  "createdAt": "1970-01-01T00:00:00Z"
+}
+```
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|id|integer|true|none|none|
+|name|string|true|none|none|
+|email|string(email)|true|none|none|
+|role|string|true|none|none|
+|address|[Address](#schemaaddress)|false|none|none|
+|createdAt|string(date-time)|true|none|none|
+
+#### Enumerated Values
+
+|Property|Value|
+|---|---|
+|role|admin|
+|role|customer|
+
+<h2 id="tocS_CreateUser">CreateUser</h2>
+<!-- backwards compatibility -->
+<a id="schemacreateuser"></a>
+<a id="schema_CreateUser"></a>
+<a id="tocScreateuser"></a>
+<a id="tocscreateuser"></a>
+
+```json
+{
+  "name": "string",
+  "email": "user@example.com",
+  "password": "string",
+  "role": "admin",
+  "address": {
+    "street": "string",
+    "city": "string",
+    "state": "string",
+    "zip": "string",
+    "country": "string"
+  }
+}
+```
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|name|string|true|none|none|
+|email|string(email)|true|none|none|
+|password|string|true|none|none|
+|role|string|false|none|none|
+|address|[Address](#schemaaddress)|false|none|none|
+
+#### Enumerated Values
+
+|Property|Value|
+|---|---|
+|role|admin|
+|role|customer|
+
+<h2 id="tocS_UpdateUser">UpdateUser</h2>
+<!-- backwards compatibility -->
+<a id="schemaupdateuser"></a>
+<a id="schema_UpdateUser"></a>
+<a id="tocSupdateuser"></a>
+<a id="tocsupdateuser"></a>
+
+```json
+{
+  "name": "string",
+  "email": "user@example.com",
+  "address": {
+    "street": "string",
+    "city": "string",
+    "state": "string",
+    "zip": "string",
+    "country": "string"
+  }
+}
+```
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|name|string|false|none|none|
+|email|string(email)|false|none|none|
+|address|[Address](#schemaaddress)|false|none|none|
+
+<h2 id="tocS_Address">Address</h2>
+<!-- backwards compatibility -->
+<a id="schemaaddress"></a>
+<a id="schema_Address"></a>
+<a id="tocSaddress"></a>
+<a id="tocsaddress"></a>
+
+```json
+{
+  "street": "string",
+  "city": "string",
+  "state": "string",
+  "zip": "string",
+  "country": "string"
+}
+```
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|street|string|true|none|none|
+|city|string|true|none|none|
+|state|string|false|none|none|
+|zip|string|false|none|none|
+|country|string|true|none|none|
+
+<h2 id="tocS_Product">Product</h2>
+<!-- backwards compatibility -->
+<a id="schemaproduct"></a>
+<a id="schema_Product"></a>
+<a id="tocSproduct"></a>
+<a id="tocsproduct"></a>
+
+```json
+{
+  "id": 0,
+  "name": "string",
+  "description": "string",
+  "price": 0,
+  "category": {
+    "id": 0,
+    "name": "string",
+    "parentId": null
+  },
+  "tags": [
+    "string"
+  ],
+  "inStock": true,
+  "createdAt": "1970-01-01T00:00:00Z"
+}
+```
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|id|integer|true|none|none|
+|name|string|true|none|none|
+|description|string|false|none|none|
+|price|number|true|none|none|
+|category|[Category](#schemacategory)|true|none|none|
+|tags|[string]|false|none|none|
+|inStock|boolean|true|none|none|
+|createdAt|string(date-time)|true|none|none|
+
+<h2 id="tocS_CreateProduct">CreateProduct</h2>
+<!-- backwards compatibility -->
+<a id="schemacreateproduct"></a>
+<a id="schema_CreateProduct"></a>
+<a id="tocScreateproduct"></a>
+<a id="tocscreateproduct"></a>
+
+```json
+{
+  "name": "string",
+  "description": "string",
+  "price": 0,
+  "categoryId": 0,
+  "tags": [
+    "string"
+  ]
+}
+```
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|name|string|true|none|none|
+|description|string|false|none|none|
+|price|number|true|none|none|
+|categoryId|integer|true|none|none|
+|tags|[string]|false|none|none|
+
+<h2 id="tocS_UpdateProduct">UpdateProduct</h2>
+<!-- backwards compatibility -->
+<a id="schemaupdateproduct"></a>
+<a id="schema_UpdateProduct"></a>
+<a id="tocSupdateproduct"></a>
+<a id="tocsupdateproduct"></a>
+
+```json
+{
+  "name": "string",
+  "description": "string",
+  "price": 0,
+  "categoryId": 0,
+  "tags": [
+    "string"
+  ]
+}
+```
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|name|string|false|none|none|
+|description|string|false|none|none|
+|price|number|false|none|none|
+|categoryId|integer|false|none|none|
+|tags|[string]|false|none|none|
+
+<h2 id="tocS_Category">Category</h2>
+<!-- backwards compatibility -->
+<a id="schemacategory"></a>
+<a id="schema_Category"></a>
+<a id="tocScategory"></a>
+<a id="tocscategory"></a>
+
+```json
+{
+  "id": 0,
+  "name": "string",
+  "parentId": null
+}
+```
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|id|integer|true|none|none|
+|name|string|true|none|none|
+|parentId|integer | null|false|none|none|
+
+<h2 id="tocS_Review">Review</h2>
+<!-- backwards compatibility -->
+<a id="schemareview"></a>
+<a id="schema_Review"></a>
+<a id="tocSreview"></a>
+<a id="tocsreview"></a>
+
+```json
+{
+  "id": 0,
+  "rating": 1,
+  "comment": "string",
+  "author": {
+    "id": 0,
+    "name": "string",
+    "email": "user@example.com",
+    "role": "admin",
+    "address": {
+      "street": "string",
+      "city": "string",
+      "state": "string",
+      "zip": "string",
+      "country": "string"
+    },
+    "createdAt": "1970-01-01T00:00:00Z"
+  },
+  "createdAt": "1970-01-01T00:00:00Z"
+}
+```
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|id|integer|true|none|none|
+|rating|integer|true|none|none|
+|comment|string|false|none|none|
+|author|[User](#schemauser)|true|none|none|
+|createdAt|string(date-time)|true|none|none|
+
+<h2 id="tocS_CreateReview">CreateReview</h2>
+<!-- backwards compatibility -->
+<a id="schemacreatereview"></a>
+<a id="schema_CreateReview"></a>
+<a id="tocScreatereview"></a>
+<a id="tocscreatereview"></a>
+
+```json
+{
+  "rating": 1,
+  "comment": "string"
+}
+```
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|rating|integer|true|none|none|
+|comment|string|false|none|none|
+
+<h2 id="tocS_Order">Order</h2>
+<!-- backwards compatibility -->
+<a id="schemaorder"></a>
+<a id="schema_Order"></a>
+<a id="tocSorder"></a>
+<a id="tocsorder"></a>
+
+```json
+{
+  "id": 0,
+  "user": {
+    "id": 0,
+    "name": "string",
+    "email": "user@example.com",
+    "role": "admin",
+    "address": {
+      "street": "string",
+      "city": "string",
+      "state": "string",
+      "zip": "string",
+      "country": "string"
+    },
+    "createdAt": "1970-01-01T00:00:00Z"
+  },
+  "items": [
+    {
+      "product": {
+        "id": 0,
+        "name": "string",
+        "description": "string",
+        "price": 0,
+        "category": {
+          "id": 0,
+          "name": "string",
+          "parentId": null
+        },
+        "tags": [
+          "string"
+        ],
+        "inStock": true,
+        "createdAt": "1970-01-01T00:00:00Z"
+      },
+      "quantity": 1,
+      "price": 0
+    }
+  ],
+  "status": "pending",
+  "totalPrice": 0,
+  "shippingAddress": {
+    "street": "string",
+    "city": "string",
+    "state": "string",
+    "zip": "string",
+    "country": "string"
+  },
+  "createdAt": "1970-01-01T00:00:00Z"
+}
+```
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|id|integer|true|none|none|
+|user|[User](#schemauser)|true|none|none|
+|items|[[OrderItem](#schemaorderitem)]|true|none|none|
+|status|string|true|none|none|
+|totalPrice|number|true|none|none|
+|shippingAddress|[Address](#schemaaddress)|true|none|none|
+|createdAt|string(date-time)|true|none|none|
+
+#### Enumerated Values
+
+|Property|Value|
+|---|---|
+|status|pending|
+|status|confirmed|
+|status|shipped|
+|status|delivered|
+|status|cancelled|
+
+<h2 id="tocS_OrderItem">OrderItem</h2>
+<!-- backwards compatibility -->
+<a id="schemaorderitem"></a>
+<a id="schema_OrderItem"></a>
+<a id="tocSorderitem"></a>
+<a id="tocsorderitem"></a>
+
+```json
+{
+  "product": {
+    "id": 0,
+    "name": "string",
+    "description": "string",
+    "price": 0,
+    "category": {
+      "id": 0,
+      "name": "string",
+      "parentId": null
+    },
+    "tags": [
+      "string"
+    ],
+    "inStock": true,
+    "createdAt": "1970-01-01T00:00:00Z"
+  },
+  "quantity": 1,
+  "price": 0
+}
+```
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|product|[Product](#schemaproduct)|true|none|none|
+|quantity|integer|true|none|none|
+|price|number|true|none|none|
+
+<h2 id="tocS_CreateOrder">CreateOrder</h2>
+<!-- backwards compatibility -->
+<a id="schemacreateorder"></a>
+<a id="schema_CreateOrder"></a>
+<a id="tocScreateorder"></a>
+<a id="tocscreateorder"></a>
+
+```json
+{
+  "items": [
+    {
+      "productId": 0,
+      "quantity": 1
+    }
+  ],
+  "shippingAddress": {
+    "street": "string",
+    "city": "string",
+    "state": "string",
+    "zip": "string",
+    "country": "string"
+  },
+  "callbackUrl": "http://example.com"
+}
+```
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|items|[object]|true|none|none|
+|shippingAddress|[Address](#schemaaddress)|true|none|none|
+|callbackUrl|string(uri)|false|none|none|
+
+<h2 id="tocS_Error">Error</h2>
+<!-- backwards compatibility -->
+<a id="schemaerror"></a>
+<a id="schema_Error"></a>
+<a id="tocSerror"></a>
+<a id="tocserror"></a>
+
+```json
+{
+  "code": 0,
+  "message": "string"
+}
+```
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|code|integer|true|none|none|
+|message|string|true|none|none|

@@ -1,22 +1,36 @@
-# Array & Object Constraints API v1.0.0
+---
+title: Array & Object Constraints API v1.0.0
+language_tabs:
+  - bash: Bash
+toc_footers: []
+includes: []
+search: true
+highlight_theme: darkula
+headingLevel: 2
 
-- `/tags` [GET](#gettags) [POST](#createtag)
-- `/settings` [GET](#getsettings) [PUT](#updatesettings)
-- `/config` [POST](#createconfig)
-- `/payment` [POST](#createpayment)
+---
+
+<h1 id="array-object-constraints-api">Array & Object Constraints API v1.0.0</h1>
+
+> Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
+
+<h1 id="array-object-constraints-api-default">Default</h1>
 
 ## getTags
 
-`GET /tags`
+<a id="opIdgetTags"></a>
 
 > Code samples
 
 ```bash
 hono request \
-  -P /tags \
   -X GET \
+  -P /tags \
+  -H 'Accept: application/json' \
   src/index.ts
 ```
+
+`GET /tags`
 
 > Example responses
 
@@ -36,80 +50,105 @@ hono request \
 }
 ```
 
-### Responses
+<h3 id="gettags-responses">Responses</h3>
 
-| Status | Description | Schema |
-|--------|-------------|--------|
-| 200 | OK | Inline |
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|OK|OK|Inline|
 
-### Response Schema
+<h3 id="gettags-responseschema">Response Schema</h3>
 
 Status Code **200**
 
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| tags | array | true | none |
-| ids | array | true | none |
-| labels | array | true | none |
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|tags|[string]|true|none|none|
+|ids|[integer]|true|none|none|
+|labels|[string]|true|none|none|
 
-> This operation does not require authentication
+<aside class="success">
+This operation does not require authentication
+</aside>
 
 ## createTag
 
-`POST /tags`
+<a id="opIdcreateTag"></a>
 
 > Code samples
 
 ```bash
 hono request \
-  -P /tags \
   -X POST \
-  -d '{"metadata":{}}' \
+  -P /tags \
+  -H 'Content-Type: application/json' \
   src/index.ts
 ```
+
+`POST /tags`
 
 > Body parameter
 
 ```json
 {
-  "metadata": {}
+  "metadata": {
+    "key": "string",
+    "value": "string"
+  },
+  "config": {
+    "name": "string"
+  },
+  "limited": {
+    "a": "string",
+    "b": "string"
+  }
 }
 ```
 
-### Parameters
+<h3 id="createtag-parameters">Parameters</h3>
 
-| Name | In | Type | Required | Description |
-|------|----|------|----------|-------------|
-| metadata | body | object | true | none |
-| config | body | object | false | none |
-| limited | body | object | false | none |
+|Name|In|Type|Required|Description|
+|---|---|---|---|---|
+|body|body|object|false|none|
+|» metadata|body|object|true|none|
+|» »  key|body|string|false|none|
+|» »  value|body|string|false|none|
+|» config|body|object|false|none|
+|» »  name|body|string|false|none|
+|» limited|body|object|false|none|
+|» »  a|body|string|false|none|
+|» »  b|body|string|false|none|
 
-### Responses
+<h3 id="createtag-responses">Responses</h3>
 
-| Status | Description | Schema |
-|--------|-------------|--------|
-| 201 | Created | None |
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|201|Created|Created|None|
 
-> This operation does not require authentication
+<aside class="success">
+This operation does not require authentication
+</aside>
 
 ## getSettings
 
-`GET /settings`
+<a id="opIdgetSettings"></a>
 
 > Code samples
 
 ```bash
 hono request \
-  -P /settings \
   -X GET \
+  -P /settings \
+  -H 'Accept: application/json' \
   src/index.ts
 ```
 
-### Parameters
+`GET /settings`
 
-| Name | In | Type | Required | Description |
-|------|----|------|----------|-------------|
-| filter | query | string | false | none |
+<h3 id="getsettings-parameters">Parameters</h3>
+
+|Name|In|Type|Required|Description|
+|---|---|---|---|---|
+|filter|query|string|false|none|
 
 > Example responses
 
@@ -119,27 +158,31 @@ hono request \
 null
 ```
 
-### Responses
+<h3 id="getsettings-responses">Responses</h3>
 
-| Status | Description | Schema |
-|--------|-------------|--------|
-| 200 | OK | Inline |
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|OK|OK|Inline|
 
-> This operation does not require authentication
+<aside class="success">
+This operation does not require authentication
+</aside>
 
 ## updateSettings
 
-`PUT /settings`
+<a id="opIdupdateSettings"></a>
 
 > Code samples
 
 ```bash
 hono request \
-  -P /settings \
   -X PUT \
-  -d '{"avatar":"string"}' \
+  -P /settings \
+  -H 'Content-Type: application/json' \
   src/index.ts
 ```
+
+`PUT /settings`
 
 > Body parameter
 
@@ -149,90 +192,109 @@ hono request \
 }
 ```
 
-### Parameters
+<h3 id="updatesettings-parameters">Parameters</h3>
 
-| Name | In | Type | Required | Description |
-|------|----|------|----------|-------------|
-| avatar | body | string | true | none |
+|Name|In|Type|Required|Description|
+|---|---|---|---|---|
+|body|body|object|false|none|
+|» avatar|body|string|true|none|
 
-### Responses
+<h3 id="updatesettings-responses">Responses</h3>
 
-| Status | Description | Schema |
-|--------|-------------|--------|
-| 200 | OK | None |
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|OK|OK|None|
 
-> This operation does not require authentication
+<aside class="success">
+This operation does not require authentication
+</aside>
 
 ## createConfig
 
-`POST /config`
+<a id="opIdcreateConfig"></a>
 
 > Code samples
 
 ```bash
 hono request \
-  -P /config \
   -X POST \
-  -d '{"data":null}' \
+  -P /config \
+  -H 'Content-Type: application/json' \
   src/index.ts
 ```
+
+`POST /config`
 
 > Body parameter
 
 ```json
 {
-  "data": null
+  "data": null,
+  "headers": null,
+  "keys": null
 }
 ```
 
-### Parameters
+<h3 id="createconfig-parameters">Parameters</h3>
 
-| Name | In | Type | Required | Description |
-|------|----|------|----------|-------------|
-| data | body | object | true | none |
-| headers | body | object | false | none |
-| keys | body | object | false | none |
+|Name|In|Type|Required|Description|
+|---|---|---|---|---|
+|body|body|object|false|none|
+|» data|body|object|true|none|
+|» headers|body|object|false|none|
+|» keys|body|object|false|none|
 
-### Responses
+<h3 id="createconfig-responses">Responses</h3>
 
-| Status | Description | Schema |
-|--------|-------------|--------|
-| 201 | Created | None |
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|201|Created|Created|None|
 
-> This operation does not require authentication
+<aside class="success">
+This operation does not require authentication
+</aside>
 
 ## createPayment
 
-`POST /payment`
+<a id="opIdcreatePayment"></a>
 
 > Code samples
 
 ```bash
 hono request \
-  -P /payment \
   -X POST \
-  -d '{}' \
+  -P /payment \
+  -H 'Content-Type: application/json' \
   src/index.ts
 ```
+
+`POST /payment`
 
 > Body parameter
 
 ```json
-{}
+{
+  "creditCard": "string",
+  "billingAddress": "string",
+  "email": "string"
+}
 ```
 
-### Parameters
+<h3 id="createpayment-parameters">Parameters</h3>
 
-| Name | In | Type | Required | Description |
-|------|----|------|----------|-------------|
-| creditCard | body | string | false | none |
-| billingAddress | body | string | false | none |
-| email | body | string | false | none |
+|Name|In|Type|Required|Description|
+|---|---|---|---|---|
+|body|body|object|false|none|
+|» creditCard|body|string|false|none|
+|» billingAddress|body|string|false|none|
+|» email|body|string|false|none|
 
-### Responses
+<h3 id="createpayment-responses">Responses</h3>
 
-| Status | Description | Schema |
-|--------|-------------|--------|
-| 201 | Created | None |
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|201|Created|Created|None|
 
-> This operation does not require authentication
+<aside class="success">
+This operation does not require authentication
+</aside>

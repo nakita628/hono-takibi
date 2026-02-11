@@ -1,40 +1,56 @@
-# Callbacks and Links API v1.0.0
+---
+title: Callbacks and Links API v1.0.0
+language_tabs:
+  - bash: Bash
+toc_footers: []
+includes: []
+search: true
+highlight_theme: darkula
+headingLevel: 2
 
-- `/subscriptions` [POST](#createsubscription)
-- `/subscriptions/{id}` [GET](#getsubscription) [DELETE](#deletesubscription)
-- `/webhooks/test` [POST](#testwebhook)
+---
+
+<h1 id="callbacks-and-links-api">Callbacks and Links API v1.0.0</h1>
+
+> Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
+
+<h1 id="callbacks-and-links-api-default">Default</h1>
 
 ## createSubscription
 
-`POST /subscriptions`
+<a id="opIdcreateSubscription"></a>
 
 > Code samples
 
 ```bash
 hono request \
-  -P /subscriptions \
   -X POST \
-  -d '{"callbackUrl":"https://example.com","events":["created"]}' \
+  -P /subscriptions \
+  -H 'Content-Type: application/json' \
+  -H 'Accept: application/json' \
   src/index.ts
 ```
+
+`POST /subscriptions`
 
 > Body parameter
 
 ```json
 {
-  "callbackUrl": "https://example.com",
+  "callbackUrl": "http://example.com",
   "events": [
     "created"
   ]
 }
 ```
 
-### Parameters
+<h3 id="createsubscription-parameters">Parameters</h3>
 
-| Name | In | Type | Required | Description |
-|------|----|------|----------|-------------|
-| callbackUrl | body | string | true | none |
-| events | body | array | true | none |
+|Name|In|Type|Required|Description|
+|---|---|---|---|---|
+|body|body|[SubscriptionRequest](#schemasubscriptionrequest)|true|none|
+|» callbackUrl|body|string(uri)|true|none|
+|» events|body|[string]|true|none|
 
 > Example responses
 
@@ -43,7 +59,7 @@ hono request \
 ```json
 {
   "id": "string",
-  "callbackUrl": "https://example.com",
+  "callbackUrl": "http://example.com",
   "events": [
     "string"
   ],
@@ -51,43 +67,37 @@ hono request \
 }
 ```
 
-### Responses
+<h3 id="createsubscription-responses">Responses</h3>
 
-| Status | Description | Schema |
-|--------|-------------|--------|
-| 201 | Created | Inline |
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|201|Created|Created|[Subscription](#schemasubscription)|
 
-### Response Schema
-
-Status Code **201**
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| id | string | true | none |
-| callbackUrl | string | true | none |
-| events | array | true | none |
-| status | string | true | none |
-
-> This operation does not require authentication
+<aside class="success">
+This operation does not require authentication
+</aside>
 
 ## getSubscription
 
-`GET /subscriptions/{id}`
+<a id="opIdgetSubscription"></a>
 
 > Code samples
 
 ```bash
 hono request \
-  -P /subscriptions/{id} \
   -X GET \
+  -P /subscriptions/{id} \
+  -H 'Accept: application/json' \
   src/index.ts
 ```
 
-### Parameters
+`GET /subscriptions/{id}`
 
-| Name | In | Type | Required | Description |
-|------|----|------|----------|-------------|
-| id | path | string | true | none |
+<h3 id="getsubscription-parameters">Parameters</h3>
+
+|Name|In|Type|Required|Description|
+|---|---|---|---|---|
+|id|path|string|true|none|
 
 > Example responses
 
@@ -96,7 +106,7 @@ hono request \
 ```json
 {
   "id": "string",
-  "callbackUrl": "https://example.com",
+  "callbackUrl": "http://example.com",
   "events": [
     "string"
   ],
@@ -104,79 +114,78 @@ hono request \
 }
 ```
 
-### Responses
+<h3 id="getsubscription-responses">Responses</h3>
 
-| Status | Description | Schema |
-|--------|-------------|--------|
-| 200 | OK | Inline |
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|OK|OK|[Subscription](#schemasubscription)|
 
-### Response Schema
-
-Status Code **200**
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| id | string | true | none |
-| callbackUrl | string | true | none |
-| events | array | true | none |
-| status | string | true | none |
-
-> This operation does not require authentication
+<aside class="success">
+This operation does not require authentication
+</aside>
 
 ## deleteSubscription
 
-`DELETE /subscriptions/{id}`
+<a id="opIddeleteSubscription"></a>
 
 > Code samples
 
 ```bash
 hono request \
-  -P /subscriptions/{id} \
   -X DELETE \
+  -P /subscriptions/{id} \
   src/index.ts
 ```
 
-### Parameters
+`DELETE /subscriptions/{id}`
 
-| Name | In | Type | Required | Description |
-|------|----|------|----------|-------------|
-| id | path | string | true | none |
+<h3 id="deletesubscription-parameters">Parameters</h3>
 
-### Responses
+|Name|In|Type|Required|Description|
+|---|---|---|---|---|
+|id|path|string|true|none|
 
-| Status | Description | Schema |
-|--------|-------------|--------|
-| 204 | Deleted | None |
+<h3 id="deletesubscription-responses">Responses</h3>
 
-> This operation does not require authentication
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|204|No Content|Deleted|None|
+
+<aside class="success">
+This operation does not require authentication
+</aside>
 
 ## testWebhook
 
-`POST /webhooks/test`
+<a id="opIdtestWebhook"></a>
 
 > Code samples
 
 ```bash
 hono request \
-  -P /webhooks/test \
   -X POST \
-  -d '{"url":"https://example.com"}' \
+  -P /webhooks/test \
+  -H 'Content-Type: application/json' \
+  -H 'Accept: application/json' \
   src/index.ts
 ```
+
+`POST /webhooks/test`
 
 > Body parameter
 
 ```json
 {
-  "url": "https://example.com"
+  "url": "http://example.com"
 }
 ```
 
-### Parameters
+<h3 id="testwebhook-parameters">Parameters</h3>
 
-| Name | In | Type | Required | Description |
-|------|----|------|----------|-------------|
-| url | body | string | true | none |
+|Name|In|Type|Required|Description|
+|---|---|---|---|---|
+|body|body|object|true|none|
+|» url|body|string(uri)|true|none|
 
 > Example responses
 
@@ -188,18 +197,103 @@ hono request \
 }
 ```
 
-### Responses
+<h3 id="testwebhook-responses">Responses</h3>
 
-| Status | Description | Schema |
-|--------|-------------|--------|
-| 200 | OK | Inline |
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|OK|OK|Inline|
 
-### Response Schema
+<h3 id="testwebhook-responseschema">Response Schema</h3>
 
 Status Code **200**
 
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| sent | boolean | true | none |
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|sent|boolean|true|none|none|
 
-> This operation does not require authentication
+<aside class="success">
+This operation does not require authentication
+</aside>
+
+# Schemas
+
+<h2 id="tocS_SubscriptionRequest">SubscriptionRequest</h2>
+<!-- backwards compatibility -->
+<a id="schemasubscriptionrequest"></a>
+<a id="schema_SubscriptionRequest"></a>
+<a id="tocSsubscriptionrequest"></a>
+<a id="tocssubscriptionrequest"></a>
+
+```json
+{
+  "callbackUrl": "http://example.com",
+  "events": [
+    "created"
+  ]
+}
+```
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|callbackUrl|string(uri)|true|none|none|
+|events|[string]|true|none|none|
+
+<h2 id="tocS_Subscription">Subscription</h2>
+<!-- backwards compatibility -->
+<a id="schemasubscription"></a>
+<a id="schema_Subscription"></a>
+<a id="tocSsubscription"></a>
+<a id="tocssubscription"></a>
+
+```json
+{
+  "id": "string",
+  "callbackUrl": "http://example.com",
+  "events": [
+    "string"
+  ],
+  "status": "active"
+}
+```
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|id|string|true|none|none|
+|callbackUrl|string(uri)|true|none|none|
+|events|[string]|true|none|none|
+|status|string|true|none|none|
+
+#### Enumerated Values
+
+|Property|Value|
+|---|---|
+|status|active|
+|status|paused|
+|status|cancelled|
+
+<h2 id="tocS_EventPayload">EventPayload</h2>
+<!-- backwards compatibility -->
+<a id="schemaeventpayload"></a>
+<a id="schema_EventPayload"></a>
+<a id="tocSeventpayload"></a>
+<a id="tocseventpayload"></a>
+
+```json
+{
+  "event": "string",
+  "timestamp": "1970-01-01T00:00:00Z",
+  "data": null
+}
+```
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|event|string|true|none|none|
+|timestamp|string(date-time)|true|none|none|
+|data|object|false|none|none|

@@ -6,10 +6,6 @@ export default defineConfig({
     output: 'src/routes.ts',
     template: true,
   },
-  test: {
-    output: 'src/index.test.ts',
-    import: './index',
-  },
   docs: {
     output: 'src/docs.md',
     entry: 'src/index.ts',

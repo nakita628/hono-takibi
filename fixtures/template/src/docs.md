@@ -1,22 +1,37 @@
-# Minimal API v1.0.0
+---
+title: Minimal API v1.0.0
+language_tabs:
+  - bash: Bash
+toc_footers: []
+includes: []
+search: true
+highlight_theme: darkula
+headingLevel: 2
 
-- `/health` [GET](#gethealth)
-- `/health/test` [GET](#gethealthtest)
-- `/health/test2` [POST](#posthealthtest2)
-- `/health/{id}` [GET](#gethealthbyid)
+---
+
+<h1 id="minimal-api">Minimal API v1.0.0</h1>
+
+> Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
+
+<h1 id="minimal-api-default">Default</h1>
 
 ## getHealth
 
-`GET /health`
+<a id="opIdgetHealth"></a>
 
 > Code samples
 
 ```bash
 hono request \
-  -P /health \
   -X GET \
+  -P /health \
+  -H 'Accept: application/json' \
   src/index.ts
+
 ```
+
+`GET /health`
 
 > Example responses
 
@@ -28,34 +43,40 @@ hono request \
 }
 ```
 
-### Responses
+<h3 id="gethealth-responses">Responses</h3>
 
-| Status | Description | Schema |
-|--------|-------------|--------|
-| 200 | OK | Inline |
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|OK|OK|Inline|
 
-### Response Schema
+<h3 id="gethealth-responseschema">Response Schema</h3>
 
 Status Code **200**
 
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| status | string | true | none |
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|status|string|true|none|none|
 
-> This operation does not require authentication
+<aside class="success">
+This operation does not require authentication
+</aside>
 
 ## getHealthTest
 
-`GET /health/test`
+<a id="opIdgetHealthTest"></a>
 
 > Code samples
 
 ```bash
 hono request \
-  -P /health/test \
   -X GET \
+  -P /health/test \
+  -H 'Accept: application/json' \
   src/index.ts
+
 ```
+
+`GET /health/test`
 
 > Example responses
 
@@ -67,48 +88,58 @@ hono request \
 }
 ```
 
-### Responses
+<h3 id="gethealthtest-responses">Responses</h3>
 
-| Status | Description | Schema |
-|--------|-------------|--------|
-| 200 | OK | Inline |
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|OK|OK|Inline|
 
-### Response Schema
+<h3 id="gethealthtest-responseschema">Response Schema</h3>
 
 Status Code **200**
 
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| status | string | true | none |
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|status|string|true|none|none|
 
-> This operation does not require authentication
+<aside class="success">
+This operation does not require authentication
+</aside>
 
 ## postHealthTest2
 
-`POST /health/test2`
+<a id="opIdpostHealthTest2"></a>
 
 > Code samples
 
 ```bash
 hono request \
-  -P /health/test2 \
   -X POST \
-  -d '{}' \
+  -P /health/test2 \
+  -H 'Content-Type: application/json' \
+  -H 'Accept: application/json' \
   src/index.ts
+
 ```
+
+`POST /health/test2`
 
 > Body parameter
 
 ```json
-{}
+{
+  "status": "string",
+  "required": null
+}
 ```
 
-### Parameters
+<h3 id="posthealthtest2-parameters">Parameters</h3>
 
-| Name | In | Type | Required | Description |
-|------|----|------|----------|-------------|
-| status | body | string | false | none |
-| required | body | object | false | none |
+|Name|In|Type|Required|Description|
+|---|---|---|---|---|
+|body|body|object|true|none|
+|» status|body|string|false|none|
+|» required|body|object|false|none|
 
 > Example responses
 
@@ -120,40 +151,46 @@ hono request \
 }
 ```
 
-### Responses
+<h3 id="posthealthtest2-responses">Responses</h3>
 
-| Status | Description | Schema |
-|--------|-------------|--------|
-| 200 | OK | Inline |
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|OK|OK|Inline|
 
-### Response Schema
+<h3 id="posthealthtest2-responseschema">Response Schema</h3>
 
 Status Code **200**
 
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| status | string | true | none |
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|status|string|true|none|none|
 
-> This operation does not require authentication
+<aside class="success">
+This operation does not require authentication
+</aside>
 
 ## getHealthById
 
-`GET /health/{id}`
+<a id="opIdgetHealthById"></a>
 
 > Code samples
 
 ```bash
 hono request \
-  -P /health/{id} \
   -X GET \
+  -P /health/{id} \
+  -H 'Accept: application/json' \
   src/index.ts
+
 ```
 
-### Parameters
+`GET /health/{id}`
 
-| Name | In | Type | Required | Description |
-|------|----|------|----------|-------------|
-| id | path | string | true | none |
+<h3 id="gethealthbyid-parameters">Parameters</h3>
+
+|Name|In|Type|Required|Description|
+|---|---|---|---|---|
+|id|path|string|true|none|
 
 > Example responses
 
@@ -165,18 +202,20 @@ hono request \
 }
 ```
 
-### Responses
+<h3 id="gethealthbyid-responses">Responses</h3>
 
-| Status | Description | Schema |
-|--------|-------------|--------|
-| 200 | OK | Inline |
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|OK|OK|Inline|
 
-### Response Schema
+<h3 id="gethealthbyid-responseschema">Response Schema</h3>
 
 Status Code **200**
 
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| status | string | true | none |
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|status|string|true|none|none|
 
-> This operation does not require authentication
+<aside class="success">
+This operation does not require authentication
+</aside>

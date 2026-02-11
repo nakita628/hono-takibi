@@ -1,24 +1,56 @@
-# Security Schemes API v1.0.0
+---
+title: Security Schemes API v1.0.0
+language_tabs:
+  - bash: Bash
+toc_footers: []
+includes: []
+search: true
+highlight_theme: darkula
+headingLevel: 2
 
-- `/public` [GET](#getpublic)
-- `/bearer-protected` [GET](#getbearerprotected)
-- `/api-key-protected` [GET](#getapikeyprotected)
-- `/basic-protected` [GET](#getbasicprotected)
-- `/oauth-protected` [GET](#getoauthprotected)
-- `/multi-auth` [GET](#getmultiauth)
+---
+
+<h1 id="security-schemes-api">Security Schemes API v1.0.0</h1>
+
+> Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
+
+# Authentication
+
+- HTTP Authentication, scheme: bearer
+
+* API Key (ApiKeyAuth)
+    - Parameter Name: **X-API-Key**, in: header.
+
+- HTTP Authentication, scheme: basic
+
+- oAuth2 authentication.
+
+    - Flow: authorizationCode
+    - Authorization URL = [https://example.com/oauth/authorize](https://example.com/oauth/authorize)
+    - Token URL = [https://example.com/oauth/token](https://example.com/oauth/token)
+
+|Scope|Scope Description|
+|---|---|
+|read|Read access|
+|write|Write access|
+
+<h1 id="security-schemes-api-default">Default</h1>
 
 ## getPublic
 
-`GET /public`
+<a id="opIdgetPublic"></a>
 
 > Code samples
 
 ```bash
 hono request \
-  -P /public \
   -X GET \
+  -P /public \
+  -H 'Accept: application/json' \
   src/index.ts
 ```
+
+`GET /public`
 
 > Example responses
 
@@ -30,35 +62,40 @@ hono request \
 }
 ```
 
-### Responses
+<h3 id="getpublic-responses">Responses</h3>
 
-| Status | Description | Schema |
-|--------|-------------|--------|
-| 200 | OK | Inline |
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|OK|OK|Inline|
 
-### Response Schema
+<h3 id="getpublic-responseschema">Response Schema</h3>
 
 Status Code **200**
 
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| message | string | true | none |
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|message|string|true|none|none|
 
-> This operation does not require authentication
+<aside class="success">
+This operation does not require authentication
+</aside>
 
 ## getBearerProtected
 
-`GET /bearer-protected`
+<a id="opIdgetBearerProtected"></a>
 
 > Code samples
 
 ```bash
 hono request \
-  -P /bearer-protected \
   -X GET \
-  -H "Authorization: Bearer ${TOKEN}" \
+  -P /bearer-protected \
+  -H 'Accept: application/json' \
+  -H 'Authorization: Bearer {access-token}' \
   src/index.ts
 ```
+
+`GET /bearer-protected`
 
 > Example responses
 
@@ -70,35 +107,41 @@ hono request \
 }
 ```
 
-### Responses
+<h3 id="getbearerprotected-responses">Responses</h3>
 
-| Status | Description | Schema |
-|--------|-------------|--------|
-| 200 | OK | Inline |
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|OK|OK|Inline|
 
-### Response Schema
+<h3 id="getbearerprotected-responseschema">Response Schema</h3>
 
 Status Code **200**
 
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| data | string | true | none |
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|data|string|true|none|none|
 
-> Authentication: BearerAuth
+<aside class="warning">
+To perform this operation, you must be authenticated by means of one of the following methods:
+BearerAuth
+</aside>
 
 ## getApiKeyProtected
 
-`GET /api-key-protected`
+<a id="opIdgetApiKeyProtected"></a>
 
 > Code samples
 
 ```bash
 hono request \
-  -P /api-key-protected \
   -X GET \
-  -H "X-API-Key: ${API_KEY}" \
+  -P /api-key-protected \
+  -H 'Accept: application/json' \
+  -H 'X-API-Key: API_KEY' \
   src/index.ts
 ```
+
+`GET /api-key-protected`
 
 > Example responses
 
@@ -110,35 +153,41 @@ hono request \
 }
 ```
 
-### Responses
+<h3 id="getapikeyprotected-responses">Responses</h3>
 
-| Status | Description | Schema |
-|--------|-------------|--------|
-| 200 | OK | Inline |
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|OK|OK|Inline|
 
-### Response Schema
+<h3 id="getapikeyprotected-responseschema">Response Schema</h3>
 
 Status Code **200**
 
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| data | string | true | none |
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|data|string|true|none|none|
 
-> Authentication: ApiKeyAuth
+<aside class="warning">
+To perform this operation, you must be authenticated by means of one of the following methods:
+ApiKeyAuth
+</aside>
 
 ## getBasicProtected
 
-`GET /basic-protected`
+<a id="opIdgetBasicProtected"></a>
 
 > Code samples
 
 ```bash
 hono request \
-  -P /basic-protected \
   -X GET \
-  -H "Authorization: Basic ${CREDENTIALS}" \
+  -P /basic-protected \
+  -H 'Accept: application/json' \
+  -H 'Authorization: Basic {credentials}' \
   src/index.ts
 ```
+
+`GET /basic-protected`
 
 > Example responses
 
@@ -150,34 +199,41 @@ hono request \
 }
 ```
 
-### Responses
+<h3 id="getbasicprotected-responses">Responses</h3>
 
-| Status | Description | Schema |
-|--------|-------------|--------|
-| 200 | OK | Inline |
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|OK|OK|Inline|
 
-### Response Schema
+<h3 id="getbasicprotected-responseschema">Response Schema</h3>
 
 Status Code **200**
 
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| data | string | true | none |
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|data|string|true|none|none|
 
-> Authentication: BasicAuth
+<aside class="warning">
+To perform this operation, you must be authenticated by means of one of the following methods:
+BasicAuth
+</aside>
 
 ## getOAuthProtected
 
-`GET /oauth-protected`
+<a id="opIdgetOAuthProtected"></a>
 
 > Code samples
 
 ```bash
 hono request \
-  -P /oauth-protected \
   -X GET \
+  -P /oauth-protected \
+  -H 'Accept: application/json' \
+  -H 'Authorization: Bearer {access-token}' \
   src/index.ts
 ```
+
+`GET /oauth-protected`
 
 > Example responses
 
@@ -189,35 +245,42 @@ hono request \
 }
 ```
 
-### Responses
+<h3 id="getoauthprotected-responses">Responses</h3>
 
-| Status | Description | Schema |
-|--------|-------------|--------|
-| 200 | OK | Inline |
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|OK|OK|Inline|
 
-### Response Schema
+<h3 id="getoauthprotected-responseschema">Response Schema</h3>
 
 Status Code **200**
 
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| data | string | true | none |
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|data|string|true|none|none|
 
-> Authentication: OAuth2
+<aside class="warning">
+To perform this operation, you must be authenticated by means of one of the following methods:
+OAuth2 ( Scopes: read )
+</aside>
 
 ## getMultiAuth
 
-`GET /multi-auth`
+<a id="opIdgetMultiAuth"></a>
 
 > Code samples
 
 ```bash
 hono request \
-  -P /multi-auth \
   -X GET \
-  -H "Authorization: Bearer ${TOKEN}" \
+  -P /multi-auth \
+  -H 'Accept: application/json' \
+  -H 'Authorization: Bearer {access-token}' \
+  -H 'X-API-Key: API_KEY' \
   src/index.ts
 ```
+
+`GET /multi-auth`
 
 > Example responses
 
@@ -229,18 +292,21 @@ hono request \
 }
 ```
 
-### Responses
+<h3 id="getmultiauth-responses">Responses</h3>
 
-| Status | Description | Schema |
-|--------|-------------|--------|
-| 200 | OK | Inline |
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|OK|OK|Inline|
 
-### Response Schema
+<h3 id="getmultiauth-responseschema">Response Schema</h3>
 
 Status Code **200**
 
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| data | string | true | none |
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|data|string|true|none|none|
 
-> Authentication: BearerAuth, ApiKeyAuth
+<aside class="warning">
+To perform this operation, you must be authenticated by means of one of the following methods:
+BearerAuth & ApiKeyAuth
+</aside>

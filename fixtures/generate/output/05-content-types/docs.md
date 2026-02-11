@@ -1,24 +1,37 @@
-# Content Types API v1.0.0
+---
+title: Content Types API v1.0.0
+language_tabs:
+  - bash: Bash
+toc_footers: []
+includes: []
+search: true
+highlight_theme: darkula
+headingLevel: 2
 
-- `/json` [POST](#postjson)
-- `/form` [POST](#postform)
-- `/upload` [POST](#uploadfile)
-- `/text` [POST](#posttext)
-- `/multi-content` [POST](#postmulticontent)
+---
+
+<h1 id="content-types-api">Content Types API v1.0.0</h1>
+
+> Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
+
+<h1 id="content-types-api-default">Default</h1>
 
 ## postJson
 
-`POST /json`
+<a id="opIdpostJson"></a>
 
 > Code samples
 
 ```bash
 hono request \
-  -P /json \
   -X POST \
-  -d '{"name":"string","value":0}' \
+  -P /json \
+  -H 'Content-Type: application/json' \
+  -H 'Accept: application/json' \
   src/index.ts
 ```
+
+`POST /json`
 
 > Body parameter
 
@@ -29,12 +42,13 @@ hono request \
 }
 ```
 
-### Parameters
+<h3 id="postjson-parameters">Parameters</h3>
 
-| Name | In | Type | Required | Description |
-|------|----|------|----------|-------------|
-| name | body | string | true | none |
-| value | body | integer | true | none |
+|Name|In|Type|Required|Description|
+|---|---|---|---|---|
+|body|body|object|true|none|
+|» name|body|string|true|none|
+|» value|body|integer|true|none|
 
 > Example responses
 
@@ -47,35 +61,41 @@ hono request \
 }
 ```
 
-### Responses
+<h3 id="postjson-responses">Responses</h3>
 
-| Status | Description | Schema |
-|--------|-------------|--------|
-| 200 | OK | Inline |
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|OK|OK|Inline|
 
-### Response Schema
+<h3 id="postjson-responseschema">Response Schema</h3>
 
 Status Code **200**
 
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| id | integer | true | none |
-| name | string | true | none |
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|id|integer|true|none|none|
+|name|string|true|none|none|
 
-> This operation does not require authentication
+<aside class="success">
+This operation does not require authentication
+</aside>
 
 ## postForm
 
-`POST /form`
+<a id="opIdpostForm"></a>
 
 > Code samples
 
 ```bash
 hono request \
-  -P /form \
   -X POST \
+  -P /form \
+  -H 'Content-Type: application/x-www-form-urlencoded' \
+  -H 'Accept: application/json' \
   src/index.ts
 ```
+
+`POST /form`
 
 > Example responses
 
@@ -87,34 +107,40 @@ hono request \
 }
 ```
 
-### Responses
+<h3 id="postform-responses">Responses</h3>
 
-| Status | Description | Schema |
-|--------|-------------|--------|
-| 200 | OK | Inline |
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|OK|OK|Inline|
 
-### Response Schema
+<h3 id="postform-responseschema">Response Schema</h3>
 
 Status Code **200**
 
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| success | boolean | true | none |
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|success|boolean|true|none|none|
 
-> This operation does not require authentication
+<aside class="success">
+This operation does not require authentication
+</aside>
 
 ## uploadFile
 
-`POST /upload`
+<a id="opIduploadFile"></a>
 
 > Code samples
 
 ```bash
 hono request \
-  -P /upload \
   -X POST \
+  -P /upload \
+  -H 'Content-Type: multipart/form-data' \
+  -H 'Accept: application/json' \
   src/index.ts
 ```
+
+`POST /upload`
 
 > Example responses
 
@@ -126,56 +152,65 @@ hono request \
 }
 ```
 
-### Responses
+<h3 id="uploadfile-responses">Responses</h3>
 
-| Status | Description | Schema |
-|--------|-------------|--------|
-| 200 | OK | Inline |
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|OK|OK|Inline|
 
-### Response Schema
+<h3 id="uploadfile-responseschema">Response Schema</h3>
 
 Status Code **200**
 
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| url | string | true | none |
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|url|string|true|none|none|
 
-> This operation does not require authentication
+<aside class="success">
+This operation does not require authentication
+</aside>
 
 ## postText
 
-`POST /text`
+<a id="opIdpostText"></a>
 
 > Code samples
 
 ```bash
 hono request \
-  -P /text \
   -X POST \
+  -P /text \
   src/index.ts
 ```
 
-### Responses
+`POST /text`
 
-| Status | Description | Schema |
-|--------|-------------|--------|
-| 200 | OK | None |
+<h3 id="posttext-responses">Responses</h3>
 
-> This operation does not require authentication
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|OK|OK|None|
+
+<aside class="success">
+This operation does not require authentication
+</aside>
 
 ## postMultiContent
 
-`POST /multi-content`
+<a id="opIdpostMultiContent"></a>
 
 > Code samples
 
 ```bash
 hono request \
-  -P /multi-content \
   -X POST \
-  -d '{"data":"string"}' \
+  -P /multi-content \
+  -H 'Content-Type: application/json' \
+  -H 'Accept: application/json' \
   src/index.ts
 ```
+
+`POST /multi-content`
 
 > Body parameter
 
@@ -185,11 +220,12 @@ hono request \
 }
 ```
 
-### Parameters
+<h3 id="postmulticontent-parameters">Parameters</h3>
 
-| Name | In | Type | Required | Description |
-|------|----|------|----------|-------------|
-| data | body | string | true | none |
+|Name|In|Type|Required|Description|
+|---|---|---|---|---|
+|body|body|object|true|none|
+|» data|body|string|true|none|
 
 > Example responses
 
@@ -201,18 +237,20 @@ hono request \
 }
 ```
 
-### Responses
+<h3 id="postmulticontent-responses">Responses</h3>
 
-| Status | Description | Schema |
-|--------|-------------|--------|
-| 200 | OK | Inline |
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|OK|OK|Inline|
 
-### Response Schema
+<h3 id="postmulticontent-responseschema">Response Schema</h3>
 
 Status Code **200**
 
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| received | boolean | true | none |
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|received|boolean|true|none|none|
 
-> This operation does not require authentication
+<aside class="success">
+This operation does not require authentication
+</aside>
