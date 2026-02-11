@@ -29,3 +29,5 @@ worker-configuration.d.ts
 .wrangler
 drizzle
 docs/hono-takibi/docs
+.next
+.open-next
