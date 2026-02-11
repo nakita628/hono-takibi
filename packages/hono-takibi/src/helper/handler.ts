@@ -135,10 +135,16 @@ function makePaths(
   readonly testImportFrom: string
 } {
   const isDot = output === '.' || output === './'
-  const baseDir = isDot ? '.' : (output.match(/^(.*)\/[^/]+\.ts$/)?.[1] ?? '.')
+  const isIndexFile = !isDot && output.endsWith('/index.ts')
+  const baseDir = isDot
+    ? '.'
+    : isIndexFile
+      ? (output.match(/^(.*)\/[^/]+\/index\.ts$/)?.[1] ?? '.')
+      : (output.match(/^(.*)\/[^/]+\.ts$/)?.[1] ?? '.')
   const handlerPath = baseDir === '.' ? 'handlers' : `${baseDir}/handlers`
-  const routeEntryBasename = output.match(/[^/]+\.ts$/)?.[0] ?? 'index.ts'
-  const routeModuleName = routeEntryBasename.replace(/\.ts$/, '')
+  const routeModuleName = isIndexFile
+    ? (output.match(/([^/]+)\/index\.ts$/)?.[1] ?? 'index')
+    : (output.match(/[^/]+\.ts$/)?.[0] ?? 'index.ts').replace(/\.ts$/, '')
   const importFrom = pathAlias ? `${pathAlias}/${routeModuleName}` : `../${routeModuleName}`
   const testImportFrom = pathAlias ?? '..'
   return { handlerPath, importFrom, testImportFrom }

@@ -596,4 +596,73 @@ export default app
       fs.rmSync(dir, { recursive: true, force: true })
     }
   })
+
+  it('generates correct paths when output is routes/index.ts', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-index-'))
+    try {
+      const srcDir = path.join(dir, 'src')
+      const routesDir = path.join(srcDir, 'routes')
+      fs.mkdirSync(routesDir, { recursive: true })
+
+      const out = path.join(srcDir, 'routes', 'index.ts') as `${string}.ts`
+      const result = await runTakibi(simpleOpenapi, out, { template: true, test: true })
+
+      expect(result).toStrictEqual({
+        ok: true,
+        value: '🔥 Generated code and template files written',
+      })
+
+      // routes/index.ts should contain route definitions
+      expect(fs.existsSync(path.join(srcDir, 'routes', 'index.ts'))).toBe(true)
+      // app template should be at src/index.ts (parent of routes dir)
+      expect(fs.existsSync(path.join(srcDir, 'index.ts'))).toBe(true)
+      // handlers should be at src/handlers/ (sibling of routes dir)
+      expect(fs.existsSync(path.join(srcDir, 'handlers', 'test.ts'))).toBe(true)
+      expect(fs.existsSync(path.join(srcDir, 'handlers', 'index.ts'))).toBe(true)
+      expect(fs.existsSync(path.join(srcDir, 'handlers', 'test.test.ts'))).toBe(true)
+
+      // Verify app template imports use directory name './routes'
+      const indexContent = fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf-8')
+      expect(indexContent).toContain("from './routes'")
+      expect(indexContent).toContain("from './handlers'")
+      expect(indexContent).not.toContain("from './index'")
+
+      // Verify handler imports '../routes' (resolves to routes/index.ts via Node resolution)
+      const handlerContent = fs.readFileSync(path.join(srcDir, 'handlers', 'test.ts'), 'utf-8')
+      expect(handlerContent).toContain("from '../routes'")
+
+      // Verify route file content is not overwritten by app template
+      const routeContent = fs.readFileSync(path.join(srcDir, 'routes', 'index.ts'), 'utf-8')
+      expect(routeContent).toContain('createRoute')
+      expect(routeContent).not.toContain('OpenAPIHono')
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+
+  it('generates correct paths when output is routes/index.ts with pathAlias', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-index-alias-'))
+    try {
+      const srcDir = path.join(dir, 'src')
+      fs.mkdirSync(path.join(srcDir, 'routes'), { recursive: true })
+
+      const out = path.join(srcDir, 'routes', 'index.ts') as `${string}.ts`
+      const result = await runTakibi(simpleOpenapi, out, {
+        template: true,
+        test: true,
+        pathAlias: '@/src',
+      })
+
+      expect(result.ok).toBe(true)
+
+      const indexContent = fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf-8')
+      expect(indexContent).toContain("from '@/src/routes'")
+      expect(indexContent).toContain("from '@/src/handlers'")
+
+      const handlerContent = fs.readFileSync(path.join(srcDir, 'handlers', 'test.ts'), 'utf-8')
+      expect(handlerContent).toContain("from '@/src/routes'")
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
 })
