@@ -5,14 +5,12 @@
   "private": true,
   "scripts": {
     "dev": "tsx src/index.ts",
-    "docs": "tsx scripts/generate-docs.ts",
     "takibi": "hono-takibi",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@hono/node-server": "^1.14.3",
     "@hono/zod-openapi": "^1.2.1",
-    "@scalar/hono-api-reference": "^0.9.23",
     "hono": "^4.11.7",
     "zod": "^4.3.6"
   },
@@ -20,8 +18,6 @@
     "@hono/cli": "^0.1.10",
     "@types/node": "^25.0.2",
     "hono-takibi": "workspace:^",
-    "widdershins": "^4.0.1",
-    "yaml": "^2.7.1",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
     "vitest": "^4.0.18"
