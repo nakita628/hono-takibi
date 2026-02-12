@@ -1,0 +1,43 @@
+{
+  "name": "nakita628-opennext-auth-js-twitter-clone",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "takibi": "hono-takibi",
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
+    "upload": "opennextjs-cloudflare build && opennextjs-cloudflare upload",
+    "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
+    "cf-typegen": "wrangler types --env-interface CloudflareEnv ./cloudflare-env.d.ts",
+    "typecheck": "tsgo --noEmit"
+  },
+  "dependencies": {
+    "@auth/core": "^0.34.3",
+    "@hono/auth-js": "^1.1.0",
+    "@hono/zod-openapi": "^1.2.1",
+    "@opennextjs/cloudflare": "^1.16.4",
+    "hono": "^4.11.9",
+    "next": "^16.1.6",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@faker-js/faker": "^10.3.0",
+    "@tailwindcss/postcss": "^4.1.18",
+    "@types/react": "^19.2.13",
+    "@types/react-dom": "^19.2.3",
+    "@typescript/native-preview": "7.0.0-dev.20260107.1",
+    "@typespec/http": "^1.9.0",
+    "@typespec/openapi": "^1.9.0",
+    "@typespec/openapi3": "^1.9.0",
+    "@typespec/versioning": "^0.79.0",
+    "hono-takibi": "workspace:^",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.18",
+    "vitest": "^4.0.18",
+    "wrangler": "^4.64.0"
+  }
+}
