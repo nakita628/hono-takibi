@@ -1,227 +1,166 @@
 import { relations, sql } from 'drizzle-orm'
-import { foreignKey, int, numeric, sqliteTable, text, uniqueIndex } from 'drizzle-orm/sqlite-core'
+import { integer, numeric, sqliteTable, text, uniqueIndex } from 'drizzle-orm/sqlite-core'
 
-export const User = sqliteTable('User', {
-  id: text('id').notNull().primaryKey().default(sql`uuid(4)`),
-  name: text('name').notNull(),
-  username: text('username').notNull().unique(),
-  bio: text('bio'),
-  email: text('email').notNull().unique(),
-  emailVerified: numeric('emailVerified'),
-  image: text('image'),
-  coverImage: text('coverImage'),
-  profileImage: text('profileImage'),
-  hashedPassword: text('hashedPassword'),
-  createdAt: numeric('createdAt').notNull().default(sql`DATE('now')`),
-  updatedAt: numeric('updatedAt').notNull(),
-  hasNotification: int('hasNotification', { mode: 'boolean' }),
+export const users = sqliteTable('users', {
+  id: text().primaryKey().$defaultFn(() => crypto.randomUUID()),
+  name: text().notNull(),
+  username: text().notNull().unique(),
+  bio: text(),
+  email: text().notNull().unique(),
+  emailVerified: numeric(),
+  image: text(),
+  coverImage: text(),
+  profileImage: text(),
+  hashedPassword: text(),
+  createdAt: numeric().notNull().default(sql`DATE('now')`),
+  updatedAt: numeric().notNull(),
+  hasNotification: integer({ mode: 'boolean' }),
 })
 
-export const Post = sqliteTable(
-  'Post',
+export const posts = sqliteTable('posts', {
+  id: text().primaryKey().$defaultFn(() => crypto.randomUUID()),
+  body: text().notNull(),
+  createdAt: numeric().notNull().default(sql`DATE('now')`),
+  updatedAt: numeric().notNull(),
+  userId: text()
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
+})
+
+export const follows = sqliteTable(
+  'follows',
   {
-    id: text('id').notNull().primaryKey().default(sql`uuid(4)`),
-    body: text('body').notNull(),
-    createdAt: numeric('createdAt').notNull().default(sql`DATE('now')`),
-    updatedAt: numeric('updatedAt').notNull(),
-    userId: text('userId').notNull(),
+    id: text().primaryKey().$defaultFn(() => crypto.randomUUID()),
+    followerId: text()
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
+    followingId: text()
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
+    createdAt: numeric().notNull().default(sql`DATE('now')`),
   },
-  (Post) => ({
-    Post_user_fkey: foreignKey({
-      name: 'Post_user_fkey',
-      columns: [Post.userId],
-      foreignColumns: [User.id],
-    })
-      .onDelete('cascade')
-      .onUpdate('cascade'),
-  }),
+  (t) => [
+    uniqueIndex('follows_followerId_followingId_key').on(t.followerId, t.followingId),
+  ],
 )
 
-export const Follow = sqliteTable(
-  'Follow',
+export const likes = sqliteTable(
+  'likes',
   {
-    id: text('id').notNull().primaryKey().default(sql`uuid(4)`),
-    followerId: text('followerId').notNull(),
-    followingId: text('followingId').notNull(),
-    createdAt: numeric('createdAt').notNull().default(sql`DATE('now')`),
+    id: text().primaryKey().$defaultFn(() => crypto.randomUUID()),
+    userId: text()
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
+    postId: text()
+      .notNull()
+      .references(() => posts.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
+    createdAt: numeric().notNull().default(sql`DATE('now')`),
   },
-  (Follow) => ({
-    Follow_follower_fkey: foreignKey({
-      name: 'Follow_follower_fkey',
-      columns: [Follow.followerId],
-      foreignColumns: [User.id],
-    })
-      .onDelete('cascade')
-      .onUpdate('cascade'),
-    Follow_following_fkey: foreignKey({
-      name: 'Follow_following_fkey',
-      columns: [Follow.followingId],
-      foreignColumns: [User.id],
-    })
-      .onDelete('cascade')
-      .onUpdate('cascade'),
-    Follow_followerId_followingId_unique_idx: uniqueIndex('Follow_followerId_followingId_key').on(
-      Follow.followerId,
-      Follow.followingId,
-    ),
-  }),
+  (t) => [
+    uniqueIndex('likes_userId_postId_key').on(t.userId, t.postId),
+  ],
 )
 
-export const Like = sqliteTable(
-  'Like',
-  {
-    id: text('id').notNull().primaryKey().default(sql`uuid(4)`),
-    userId: text('userId').notNull(),
-    postId: text('postId').notNull(),
-    createdAt: numeric('createdAt').notNull().default(sql`DATE('now')`),
-  },
-  (Like) => ({
-    Like_user_fkey: foreignKey({
-      name: 'Like_user_fkey',
-      columns: [Like.userId],
-      foreignColumns: [User.id],
-    })
-      .onDelete('cascade')
-      .onUpdate('cascade'),
-    Like_post_fkey: foreignKey({
-      name: 'Like_post_fkey',
-      columns: [Like.postId],
-      foreignColumns: [Post.id],
-    })
-      .onDelete('cascade')
-      .onUpdate('cascade'),
-    Like_userId_postId_unique_idx: uniqueIndex('Like_userId_postId_key').on(
-      Like.userId,
-      Like.postId,
-    ),
-  }),
-)
+export const comments = sqliteTable('comments', {
+  id: text().primaryKey().$defaultFn(() => crypto.randomUUID()),
+  body: text().notNull(),
+  createdAt: numeric().notNull().default(sql`DATE('now')`),
+  updatedAt: numeric().notNull(),
+  userId: text()
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
+  postId: text()
+    .notNull()
+    .references(() => posts.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
+})
 
-export const Comment = sqliteTable(
-  'Comment',
-  {
-    id: text('id').notNull().primaryKey().default(sql`uuid(4)`),
-    body: text('body').notNull(),
-    createdAt: numeric('createdAt').notNull().default(sql`DATE('now')`),
-    updatedAt: numeric('updatedAt').notNull(),
-    userId: text('userId').notNull(),
-    postId: text('postId').notNull(),
-  },
-  (Comment) => ({
-    Comment_user_fkey: foreignKey({
-      name: 'Comment_user_fkey',
-      columns: [Comment.userId],
-      foreignColumns: [User.id],
-    })
-      .onDelete('cascade')
-      .onUpdate('cascade'),
-    Comment_post_fkey: foreignKey({
-      name: 'Comment_post_fkey',
-      columns: [Comment.postId],
-      foreignColumns: [Post.id],
-    })
-      .onDelete('cascade')
-      .onUpdate('cascade'),
-  }),
-)
+export const notifications = sqliteTable('notifications', {
+  id: text().primaryKey().$defaultFn(() => crypto.randomUUID()),
+  body: text().notNull(),
+  userId: text()
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
+  createdAt: numeric().notNull().default(sql`DATE('now')`),
+})
 
-export const Notification = sqliteTable(
-  'Notification',
-  {
-    id: text('id').notNull().primaryKey().default(sql`uuid(4)`),
-    body: text('body').notNull(),
-    userId: text('userId').notNull(),
-    createdAt: numeric('createdAt').notNull().default(sql`DATE('now')`),
-  },
-  (Notification) => ({
-    Notification_user_fkey: foreignKey({
-      name: 'Notification_user_fkey',
-      columns: [Notification.userId],
-      foreignColumns: [User.id],
-    })
-      .onDelete('cascade')
-      .onUpdate('cascade'),
-  }),
-)
-
-export const UserRelations = relations(User, ({ many }) => ({
-  posts: many(Post, {
+export const usersRelations = relations(users, ({ many }) => ({
+  posts: many(posts, {
     relationName: 'PostToUser',
   }),
-  comments: many(Comment, {
+  comments: many(comments, {
     relationName: 'CommentToUser',
   }),
-  notifications: many(Notification, {
+  notifications: many(notifications, {
     relationName: 'NotificationToUser',
   }),
-  followers: many(Follow, {
+  followers: many(follows, {
     relationName: 'Follower',
   }),
-  following: many(Follow, {
+  following: many(follows, {
     relationName: 'Following',
   }),
-  likes: many(Like, {
+  likes: many(likes, {
     relationName: 'LikeToUser',
   }),
 }))
 
-export const PostRelations = relations(Post, ({ one, many }) => ({
-  user: one(User, {
+export const postsRelations = relations(posts, ({ one, many }) => ({
+  user: one(users, {
     relationName: 'PostToUser',
-    fields: [Post.userId],
-    references: [User.id],
+    fields: [posts.userId],
+    references: [users.id],
   }),
-  comments: many(Comment, {
+  comments: many(comments, {
     relationName: 'CommentToPost',
   }),
-  likes: many(Like, {
+  likes: many(likes, {
     relationName: 'LikeToPost',
   }),
 }))
 
-export const FollowRelations = relations(Follow, ({ one }) => ({
-  follower: one(User, {
+export const followsRelations = relations(follows, ({ one }) => ({
+  follower: one(users, {
     relationName: 'Following',
-    fields: [Follow.followerId],
-    references: [User.id],
+    fields: [follows.followerId],
+    references: [users.id],
   }),
-  following: one(User, {
+  following: one(users, {
     relationName: 'Follower',
-    fields: [Follow.followingId],
-    references: [User.id],
+    fields: [follows.followingId],
+    references: [users.id],
   }),
 }))
 
-export const LikeRelations = relations(Like, ({ one }) => ({
-  user: one(User, {
+export const likesRelations = relations(likes, ({ one }) => ({
+  user: one(users, {
     relationName: 'LikeToUser',
-    fields: [Like.userId],
-    references: [User.id],
+    fields: [likes.userId],
+    references: [users.id],
   }),
-  post: one(Post, {
+  post: one(posts, {
     relationName: 'LikeToPost',
-    fields: [Like.postId],
-    references: [Post.id],
+    fields: [likes.postId],
+    references: [posts.id],
   }),
 }))
 
-export const CommentRelations = relations(Comment, ({ one }) => ({
-  user: one(User, {
+export const commentsRelations = relations(comments, ({ one }) => ({
+  user: one(users, {
     relationName: 'CommentToUser',
-    fields: [Comment.userId],
-    references: [User.id],
+    fields: [comments.userId],
+    references: [users.id],
   }),
-  post: one(Post, {
+  post: one(posts, {
     relationName: 'CommentToPost',
-    fields: [Comment.postId],
-    references: [Post.id],
+    fields: [comments.postId],
+    references: [posts.id],
   }),
 }))
 
-export const NotificationRelations = relations(Notification, ({ one }) => ({
-  user: one(User, {
+export const notificationsRelations = relations(notifications, ({ one }) => ({
+  user: one(users, {
     relationName: 'NotificationToUser',
-    fields: [Notification.userId],
-    references: [User.id],
+    fields: [notifications.userId],
+    references: [users.id],
   }),
 }))
