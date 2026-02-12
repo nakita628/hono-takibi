@@ -448,7 +448,8 @@ function makeCodeSample(
   entry: string,
 ): string[] {
   const headers = makeCodeSampleHeaders(operation, securitySchemes)
-  const basePathPrefix = basePath !== '/' ? basePath : ''
+  const safePath = basePath ?? '/'
+  const basePathPrefix = safePath !== '/' ? safePath : ''
   const fullPath = `${basePathPrefix}${pathStr}`
 
   const parts: string[] = ['hono request']

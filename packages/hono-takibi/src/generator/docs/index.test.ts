@@ -176,4 +176,13 @@ describe('makeDocs', () => {
       )
     })
   })
+
+  describe('basePath: undefined (fallback to "/")', () => {
+    it('generates docs with -P /health when basePath is undefined', () => {
+      // biome-ignore lint/suspicious/noExplicitAny: testing runtime fallback for undefined basePath
+      expect(makeDocs(minimalOpenAPI, 'src/index.ts', undefined as any)).toBe(
+        expectedNoServers('/health'),
+      )
+    })
+  })
 })
