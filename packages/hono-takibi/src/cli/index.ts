@@ -9,7 +9,7 @@
  *   A["honoTakibi()"] --> B{"--help or -h?"}
  *   B -->|Yes| C["Return HELP_TEXT"]
  *   B -->|No| D{"hono-takibi.config.ts exists?"}
- *   D -->|No| E["Parse CLI args"]
+ *   D -->|No| E["Parse CLI args (input + output only)"]
  *   D -->|Yes| F["Load config file"]
  *   E --> G["parseOpenAPI(input)"]
  *   F --> G
@@ -49,28 +49,9 @@ import {
 } from '../core/index.js'
 import { parseOpenAPI } from '../openapi/index.js'
 
-const HELP_TEXT = `Usage: hono-takibi <input.{yaml,json,tsp}> -o <routes.ts> [options]
+const HELP_TEXT = `Usage: hono-takibi <input.{yaml,json,tsp}> -o <output.ts>
 
 Options:
-  --export-schemas            export schemas
-  --export-schemas-types      export schemas types
-  --export-responses          export responses
-  --export-parameters         export parameters
-  --export-parameters-types   export parameters types
-  --export-examples           export examples
-  --export-requestBodies      export requestBodies
-  --export-headers            export headers
-  --export-headers-types      export headers types
-  --export-securitySchemes    export securitySchemes
-  --export-links              export links
-  --export-callbacks          export callbacks
-  --export-pathItems          export pathItems
-  --export-mediaTypes         export mediaTypes
-  --export-mediaTypes-types   export mediaTypes types
-  --readonly                  make schemas immutable (adds .readonly() and 'as const')
-  --template                  generate app file and handler stubs
-  --test                      generate test files with vitest and faker.js
-  --base-path <path>          api prefix (default: /)
   -h, --help                  display help for command`
 
 /**
@@ -84,11 +65,11 @@ Options:
  *   A["Start"] --> B{"Args: --help/-h?"}
  *   B -->|Yes| C["Return help text"]
  *   B -->|No| D{"Config file exists?"}
- *   D -->|No| E["CLI Mode"]
+ *   D -->|No| E["CLI Mode (input + output only)"]
  *   D -->|Yes| F["Config Mode"]
  *   E --> G["parseCli(args)"]
  *   G --> H["parseOpenAPI(input)"]
- *   H --> I["takibi(openAPI, ...)"]
+ *   H --> I["takibi(openAPI, output, defaults)"]
  *   F --> J["config()"]
  *   J --> K["parseOpenAPI(config.input)"]
  *   K --> L["Generate all components"]
@@ -115,17 +96,13 @@ Options:
  *
  * - Validates `<input>` ends with `.yaml`/`.json`/`.tsp`
  * - Requires `-o <output.ts>`
- * - Extracts boolean flags for component exports and templates/tests
- * - Extracts optional `--base-path <path>`
  *
  * ```mermaid
  * flowchart TD
  *   A["parseCli(args)"] --> B["Extract input & output (-o)"]
  *   B --> C{"input endsWith .yaml/.json/.tsp AND output endsWith .ts?"}
- *   C -->|No| D["return { ok:false, error:'Usage: hono-takibi ...' }"]
- *   C -->|Yes| E["Read flags (--export-schemas-types, --export-schemas, ..., --template, --test)"]
- *   E --> F["Read optional --base-path value"]
- *   F --> G["return { ok:true, value:{ input, output, flags... } }"]
+ *   C -->|No| D["return { ok:false, error: HELP_TEXT }"]
+ *   C -->|Yes| E["return { ok:true, value:{ input, output } }"]
  * ```
  *
  * @param args - Raw CLI arguments (e.g., `process.argv.slice(2)`).
@@ -137,28 +114,6 @@ function parseCli(args: readonly string[]):
       readonly value: {
         readonly input: `${string}.yaml` | `${string}.json` | `${string}.tsp`
         readonly output: `${string}.ts`
-        readonly template: boolean
-        readonly test: boolean
-        readonly basePath: string
-        readonly pathAlias: string | undefined
-        readonly componentsOptions: {
-          readonly readonly: boolean
-          readonly exportSchemas: boolean
-          readonly exportSchemasTypes: boolean
-          readonly exportResponses: boolean
-          readonly exportParameters: boolean
-          readonly exportParametersTypes: boolean
-          readonly exportExamples: boolean
-          readonly exportRequestBodies: boolean
-          readonly exportHeaders: boolean
-          readonly exportHeadersTypes: boolean
-          readonly exportSecuritySchemes: boolean
-          readonly exportLinks: boolean
-          readonly exportCallbacks: boolean
-          readonly exportPathItems: boolean
-          readonly exportMediaTypes: boolean
-          readonly exportMediaTypesTypes: boolean
-        }
       }
     }
   | {
@@ -174,11 +129,6 @@ function parseCli(args: readonly string[]):
   ): i is `${string}.yaml` | `${string}.json` | `${string}.tsp` =>
     i.endsWith('.yaml') || i.endsWith('.json') || i.endsWith('.tsp')
   const isTs = (o: string): o is `${string}.ts` => o.endsWith('.ts')
-  const getFlagValue = (args: readonly string[], flag: string): string | undefined => {
-    const idx = args.indexOf(flag)
-    if (idx !== -1 && args[idx + 1] && !args[idx + 1].startsWith('-')) return args[idx + 1]
-    return undefined
-  }
   if (!(input && output && isYamlOrJsonOrTsp(input) && isTs(output))) {
     return {
       ok: false,
@@ -190,29 +140,6 @@ function parseCli(args: readonly string[]):
     value: {
       input,
       output,
-      template: args.includes('--template'),
-      test: args.includes('--test'),
-      basePath: getFlagValue(args, '--base-path') ?? '/',
-      pathAlias: getFlagValue(args, '--path-alias'),
-      componentsOptions: {
-        readonly: args.includes('--readonly'),
-        // OpenAPI Components Object order
-        exportSchemas: args.includes('--export-schemas'),
-        exportSchemasTypes: args.includes('--export-schemas-types'),
-        exportResponses: args.includes('--export-responses'),
-        exportParameters: args.includes('--export-parameters'),
-        exportParametersTypes: args.includes('--export-parameters-types'),
-        exportExamples: args.includes('--export-examples'),
-        exportRequestBodies: args.includes('--export-requestBodies'),
-        exportHeaders: args.includes('--export-headers'),
-        exportHeadersTypes: args.includes('--export-headers-types'),
-        exportSecuritySchemes: args.includes('--export-securitySchemes'),
-        exportLinks: args.includes('--export-links'),
-        exportCallbacks: args.includes('--export-callbacks'),
-        exportPathItems: args.includes('--export-pathItems'),
-        exportMediaTypes: args.includes('--export-mediaTypes'),
-        exportMediaTypesTypes: args.includes('--export-mediaTypes-types'),
-      },
     },
   }
 }
@@ -230,20 +157,28 @@ export async function honoTakibi(): Promise<
   if (!existsSync(abs)) {
     const cliResult = parseCli(args)
     if (!cliResult.ok) return { ok: false, error: cliResult.error }
-    const value = cliResult.value
-    const { input, output, template, test, basePath, pathAlias, componentsOptions } = value
+    const { input, output } = cliResult.value
     const openAPIResult = await parseOpenAPI(input)
     if (!openAPIResult.ok) return { ok: false, error: openAPIResult.error }
     const openAPI = openAPIResult.value
-    const takibiResult = await takibi(
-      openAPI,
-      output,
-      template,
-      test,
-      basePath,
-      pathAlias,
-      componentsOptions,
-    )
+    const takibiResult = await takibi(openAPI, output, false, false, '/', undefined, {
+      readonly: false,
+      exportSchemas: false,
+      exportSchemasTypes: false,
+      exportResponses: false,
+      exportParameters: false,
+      exportParametersTypes: false,
+      exportExamples: false,
+      exportRequestBodies: false,
+      exportHeaders: false,
+      exportHeadersTypes: false,
+      exportSecuritySchemes: false,
+      exportLinks: false,
+      exportCallbacks: false,
+      exportPathItems: false,
+      exportMediaTypes: false,
+      exportMediaTypesTypes: false,
+    })
     if (!takibiResult.ok) return { ok: false, error: takibiResult.error }
     return { ok: true, value: takibiResult.value }
   }
