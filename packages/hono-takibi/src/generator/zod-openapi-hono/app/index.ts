@@ -49,7 +49,8 @@ export function app(
     : output.replace(/^.*\//, '').replace(/\.ts$/, '')
   // Fallback: routeImport (routes.import) → pathAlias → relative path
   const aliasPrefix = pathAlias?.endsWith('/') ? pathAlias.slice(0, -1) : pathAlias
-  const routeModule = routeImport ?? (aliasPrefix ? `${aliasPrefix}/${routeBasename}` : `./${routeBasename}`)
+  const routeModule =
+    routeImport ?? (aliasPrefix ? `${aliasPrefix}/${routeBasename}` : `./${routeBasename}`)
   const routesImport =
     routeNames.length > 0 ? `import{${routeNames.join(',')}}from'${routeModule}'` : ''
 

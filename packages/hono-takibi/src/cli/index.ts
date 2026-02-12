@@ -26,9 +26,9 @@ import {
   callbacks,
   docs,
   examples,
-  makeTemplate,
   headers,
   links,
+  makeTemplate,
   mediaTypes,
   mock,
   parameters,
@@ -413,11 +413,20 @@ export async function honoTakibi(): Promise<
       ? test(openAPI, config.test.output, config.test.import)
       : Promise.resolve(undefined),
     config.mock
-      ? mock(openAPI, config.mock.output, config['zod-openapi']?.readonly)
+      ? mock(
+          openAPI,
+          config.mock.output,
+          config['zod-openapi']?.basePath ?? '/',
+          config['zod-openapi']?.readonly,
+        )
       : Promise.resolve(undefined),
-    config.docs ? docs(openAPI, config.docs.output, config.docs.entry) : Promise.resolve(undefined),
+    config.docs
+      ? docs(openAPI, config.docs.output, config.docs.entry, config['zod-openapi']?.basePath ?? '/')
+      : Promise.resolve(undefined),
     // routes + template (no output): generate app template from route output path
-    config['zod-openapi']?.routes && !config['zod-openapi']?.output && config['zod-openapi']?.template
+    config['zod-openapi']?.routes &&
+    !config['zod-openapi']?.output &&
+    config['zod-openapi']?.template
       ? makeTemplate(
           openAPI,
           (config['zod-openapi'].routes.output.endsWith('.ts')

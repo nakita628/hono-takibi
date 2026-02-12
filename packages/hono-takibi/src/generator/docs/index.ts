@@ -442,13 +442,14 @@ function makeCodeSampleHeaders(
 function makeCodeSample(
   method: HttpMethod,
   pathStr: string,
-  baseUrl: string | undefined,
+  basePath: string,
   operation: Operation,
   securitySchemes: Components['securitySchemes'] | undefined,
   entry: string,
 ): string[] {
   const headers = makeCodeSampleHeaders(operation, securitySchemes)
-  const fullPath = baseUrl ? `${baseUrl}${pathStr}` : pathStr
+  const basePathPrefix = basePath !== '/' ? basePath : ''
+  const fullPath = `${basePathPrefix}${pathStr}`
 
   const parts: string[] = ['hono request']
 
@@ -1141,14 +1142,13 @@ function groupByTag(endpoints: readonly Endpoint[], openAPI: OpenAPI): readonly 
  * Makes API reference Markdown from an OpenAPI specification.
  * Output format matches Widdershins v4.0.1, with hono request instead of curl.
  */
-export function makeDocs(openAPI: OpenAPI, entry: string): string {
+export function makeDocs(openAPI: OpenAPI, entry: string, basePath: string): string {
   const title = openAPI.info?.title ?? 'API'
   const version = openAPI.info?.version ?? ''
   const fullTitle = version ? `${title} v${version}` : title
   const titleSlug = toTitleSlug(title)
 
   const securitySchemes = openAPI.components?.securitySchemes
-  const baseUrl = openAPI.servers?.[0]?.url
 
   const lines: string[] = []
 
@@ -1163,7 +1163,6 @@ export function makeDocs(openAPI: OpenAPI, entry: string): string {
     'search: true',
     'highlight_theme: darkula',
     'headingLevel: 2',
-    '',
     '---',
     '',
   )
@@ -1239,7 +1238,14 @@ export function makeDocs(openAPI: OpenAPI, entry: string): string {
       }
 
       // Code sample
-      const codeSample = makeCodeSample(method, pathStr, baseUrl, operation, securitySchemes, entry)
+      const codeSample = makeCodeSample(
+        method,
+        pathStr,
+        basePath,
+        operation,
+        securitySchemes,
+        entry,
+      )
       lines.push(...codeSample, '')
 
       // Method + path

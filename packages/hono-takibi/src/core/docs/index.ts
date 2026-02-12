@@ -9,11 +9,12 @@ export async function docs(
   openAPI: OpenAPI,
   output: string,
   entry: string,
+  basePath: string,
 ): Promise<
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {
   try {
-    const markdown = makeDocs(openAPI, entry)
+    const markdown = makeDocs(openAPI, entry, basePath)
     const mkdirResult = await mkdir(path.dirname(output))
     if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error }
     const writeResult = await writeFile(output, markdown)

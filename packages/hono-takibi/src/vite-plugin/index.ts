@@ -276,6 +276,7 @@ const runAllGenerationTasks = async (
         config['zod-openapi']?.test ?? false,
         config['zod-openapi']?.basePath ?? '/',
         config['zod-openapi']?.pathAlias,
+        config['zod-openapi']?.routes?.import,
         {
           readonly: config['zod-openapi']?.readonly,
           exportSchemasTypes: config['zod-openapi']?.exportSchemasTypes ?? false,
@@ -575,7 +576,12 @@ const runAllGenerationTasks = async (
     if (!config.mock) return undefined
     return (async () => {
       const outputPath = toAbsolutePath(config.mock?.output ?? '')
-      const result = await mock(openAPI, outputPath, config['zod-openapi']?.readonly)
+      const result = await mock(
+        openAPI,
+        outputPath,
+        config['zod-openapi']?.basePath ?? '/',
+        config['zod-openapi']?.readonly,
+      )
       return result.ok ? `✅ mock -> ${outputPath}` : `❌ mock: ${result.error}`
     })()
   }
@@ -584,7 +590,12 @@ const runAllGenerationTasks = async (
     if (!config.docs) return undefined
     return (async () => {
       const outputPath = toAbsolutePath(config.docs?.output ?? '')
-      const result = await docs(openAPI, outputPath, config.docs?.entry ?? 'src/index.ts')
+      const result = await docs(
+        openAPI,
+        outputPath,
+        config.docs?.entry ?? 'src/index.ts',
+        config['zod-openapi']?.basePath ?? '/',
+      )
       return result.ok ? `✅ docs -> ${outputPath}` : `❌ docs: ${result.error}`
     })()
   }

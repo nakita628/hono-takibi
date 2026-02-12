@@ -25,7 +25,7 @@ headingLevel: 2
 ```bash
 hono request \
   -X GET \
-  -P /health \
+  -P /api/health \
   -H 'Accept: application/json' \
   src/index.ts
 ```
@@ -69,7 +69,7 @@ This operation does not require authentication
 ```bash
 hono request \
   -X GET \
-  -P /health/test \
+  -P /api/health/test \
   -H 'Accept: application/json' \
   src/index.ts
 ```

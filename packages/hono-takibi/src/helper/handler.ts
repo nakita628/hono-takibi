@@ -148,7 +148,8 @@ function makePaths(
     : (output.match(/[^/]+\.ts$/)?.[0] ?? 'index.ts').replace(/\.ts$/, '')
   const aliasPrefix = pathAlias?.endsWith('/') ? pathAlias.slice(0, -1) : pathAlias
   // Fallback: routeImport (routes.import) → pathAlias → relative path
-  const importFrom = routeImport ?? (aliasPrefix ? `${aliasPrefix}/${routeModuleName}` : `../${routeModuleName}`)
+  const importFrom =
+    routeImport ?? (aliasPrefix ? `${aliasPrefix}/${routeModuleName}` : `../${routeModuleName}`)
   const testImportFrom = aliasPrefix ?? '..'
   return { handlerPath, importFrom, testImportFrom }
 }

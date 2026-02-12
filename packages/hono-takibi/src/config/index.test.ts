@@ -327,9 +327,7 @@ describe('parseConfig()', () => {
       })
       expect(result.ok).toBe(true)
       if (result.ok) {
-        expect(result.value['zod-openapi']?.components?.webhooks?.import).toBe(
-          '@packages/webhooks',
-        )
+        expect(result.value['zod-openapi']?.components?.webhooks?.import).toBe('@packages/webhooks')
       }
     })
   })

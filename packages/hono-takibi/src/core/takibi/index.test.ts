@@ -1069,7 +1069,14 @@ describe('makeTemplate() unit tests', () => {
       fs.mkdirSync(srcDir, { recursive: true })
 
       const routeOutput = path.join(srcDir, 'routes.ts') as `${string}.ts`
-      const result = await makeTemplate(simpleOpenapi, routeOutput, false, '/', undefined, undefined)
+      const result = await makeTemplate(
+        simpleOpenapi,
+        routeOutput,
+        false,
+        '/',
+        undefined,
+        undefined,
+      )
 
       expect(result).toStrictEqual({
         ok: true,
@@ -1112,7 +1119,14 @@ export const getTestRouteHandler: RouteHandler<typeof getTestRoute> = async (c) 
       fs.mkdirSync(srcDir, { recursive: true })
 
       const routeOutput = path.join(srcDir, 'routes.ts') as `${string}.ts`
-      const result = await makeTemplate(simpleOpenapi, routeOutput, false, '/', '@/', '@packages/routes')
+      const result = await makeTemplate(
+        simpleOpenapi,
+        routeOutput,
+        false,
+        '/',
+        '@/',
+        '@packages/routes',
+      )
 
       expect(result).toStrictEqual({
         ok: true,
@@ -1171,7 +1185,14 @@ export const getTestRouteHandler: RouteHandler<typeof getTestRoute> = async (c) 
       fs.mkdirSync(path.join(srcDir, 'routes'), { recursive: true })
 
       const routeOutput = path.join(srcDir, 'routes', 'index.ts') as `${string}.ts`
-      const result = await makeTemplate(simpleOpenapi, routeOutput, false, '/', undefined, undefined)
+      const result = await makeTemplate(
+        simpleOpenapi,
+        routeOutput,
+        false,
+        '/',
+        undefined,
+        undefined,
+      )
 
       expect(result).toStrictEqual({
         ok: true,
