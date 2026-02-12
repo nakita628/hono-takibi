@@ -139,4 +139,68 @@ export const api=app.openapi(getHonoRoute,getHonoRouteHandler)
 export default app`
     expect(result).toBe(expected)
   })
+
+  it.concurrent('app with routeImport overrides route module specifier', () => {
+    const result = app(openapi, 'src/routes.ts', '/api', '@/', '@packages/routes')
+    const expected = `import{OpenAPIHono}from'@hono/zod-openapi'
+import{getHonoRoute,getHonoXRoute,getZodOpenapiHonoRoute}from'@packages/routes'
+import{getHonoRouteHandler,getHonoXRouteHandler,getZodOpenapiHonoRouteHandler}from'@/handlers'
+
+const app=new OpenAPIHono().basePath('/api')
+
+export const api=app.openapi(getHonoRoute,getHonoRouteHandler)
+.openapi(getHonoXRoute,getHonoXRouteHandler)
+.openapi(getZodOpenapiHonoRoute,getZodOpenapiHonoRouteHandler)
+
+export default app`
+    expect(result).toBe(expected)
+  })
+
+  it.concurrent('app with routeImport without pathAlias uses relative handler path', () => {
+    const result = app(openapi, 'src/routes.ts', '/api', undefined, '@packages/routes')
+    const expected = `import{OpenAPIHono}from'@hono/zod-openapi'
+import{getHonoRoute,getHonoXRoute,getZodOpenapiHonoRoute}from'@packages/routes'
+import{getHonoRouteHandler,getHonoXRouteHandler,getZodOpenapiHonoRouteHandler}from'./handlers'
+
+const app=new OpenAPIHono().basePath('/api')
+
+export const api=app.openapi(getHonoRoute,getHonoRouteHandler)
+.openapi(getHonoXRoute,getHonoXRouteHandler)
+.openapi(getZodOpenapiHonoRoute,getZodOpenapiHonoRouteHandler)
+
+export default app`
+    expect(result).toBe(expected)
+  })
+
+  it.concurrent('app with trailing slash pathAlias normalizes to no double slash', () => {
+    const result = app(openapi, 'src/routes.ts', '/api', '@/')
+    const expected = `import{OpenAPIHono}from'@hono/zod-openapi'
+import{getHonoRoute,getHonoXRoute,getZodOpenapiHonoRoute}from'@/routes'
+import{getHonoRouteHandler,getHonoXRouteHandler,getZodOpenapiHonoRouteHandler}from'@/handlers'
+
+const app=new OpenAPIHono().basePath('/api')
+
+export const api=app.openapi(getHonoRoute,getHonoRouteHandler)
+.openapi(getHonoXRoute,getHonoXRouteHandler)
+.openapi(getZodOpenapiHonoRoute,getZodOpenapiHonoRouteHandler)
+
+export default app`
+    expect(result).toBe(expected)
+  })
+
+  it.concurrent('app with routeImport and routes/index.ts output', () => {
+    const result = app(openapi, 'src/routes/index.ts', '/api', '@/', '@packages/routes')
+    const expected = `import{OpenAPIHono}from'@hono/zod-openapi'
+import{getHonoRoute,getHonoXRoute,getZodOpenapiHonoRoute}from'@packages/routes'
+import{getHonoRouteHandler,getHonoXRouteHandler,getZodOpenapiHonoRouteHandler}from'@/handlers'
+
+const app=new OpenAPIHono().basePath('/api')
+
+export const api=app.openapi(getHonoRoute,getHonoRouteHandler)
+.openapi(getHonoXRoute,getHonoXRouteHandler)
+.openapi(getZodOpenapiHonoRoute,getZodOpenapiHonoRouteHandler)
+
+export default app`
+    expect(result).toBe(expected)
+  })
 })

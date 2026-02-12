@@ -3,7 +3,7 @@ import os from 'node:os'
 import path from 'node:path'
 import { describe, expect, it } from 'vitest'
 import type { OpenAPI } from '../../openapi/index.js'
-import { takibi } from './index.js'
+import { makeTemplate, takibi } from './index.js'
 
 const openapi: OpenAPI = {
   openapi: '3.1.0',
@@ -84,6 +84,7 @@ const runTakibi = async (
     readonly test: boolean
     readonly basePath?: string
     readonly pathAlias?: string
+    readonly routeImport?: string
   },
 ) =>
   takibi(
@@ -93,6 +94,7 @@ const runTakibi = async (
     options.test,
     options.basePath ?? '/',
     options.pathAlias,
+    options.routeImport,
     {
       exportSchemasTypes: true,
       exportSchemas: true,
@@ -106,6 +108,9 @@ const runTakibi = async (
       exportExamples: false,
       exportLinks: false,
       exportCallbacks: false,
+      exportPathItems: false,
+      exportMediaTypes: false,
+      exportMediaTypesTypes: false,
     },
   )
 
@@ -303,7 +308,23 @@ describe('templateCode (sandbox)', () => {
       expect(fs.existsSync(path.join(srcDir, 'handlers', 'zodOpenapiHono.test.ts'))).toBe(true)
 
       const appCode = fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf-8')
-      expect(appCode).toContain("new OpenAPIHono().basePath('/api')")
+      expect(appCode).toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHonoRoute, getHonoXRoute, getZodOpenapiHonoRoute } from './route'
+import {
+  getHonoRouteHandler,
+  getHonoXRouteHandler,
+  getZodOpenapiHonoRouteHandler,
+} from './handlers'
+
+const app = new OpenAPIHono().basePath('/api')
+
+export const api = app
+  .openapi(getHonoRoute, getHonoRouteHandler)
+  .openapi(getHonoXRoute, getHonoXRouteHandler)
+  .openapi(getZodOpenapiHonoRoute, getZodOpenapiHonoRouteHandler)
+
+export default app
+`)
 
       expect(result).toStrictEqual({
         ok: true,
@@ -338,7 +359,23 @@ describe('templateCode (sandbox)', () => {
       expect(fs.existsSync(path.join(srcDir, 'handlers', 'zodOpenapiHono.ts'))).toBe(true)
 
       const appCode = fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf-8')
-      expect(appCode).toContain("new OpenAPIHono().basePath('/api')")
+      expect(appCode).toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHonoRoute, getHonoXRoute, getZodOpenapiHonoRoute } from './route'
+import {
+  getHonoRouteHandler,
+  getHonoXRouteHandler,
+  getZodOpenapiHonoRouteHandler,
+} from './handlers'
+
+const app = new OpenAPIHono().basePath('/api')
+
+export const api = app
+  .openapi(getHonoRoute, getHonoRouteHandler)
+  .openapi(getHonoXRoute, getHonoXRouteHandler)
+  .openapi(getZodOpenapiHonoRoute, getZodOpenapiHonoRouteHandler)
+
+export default app
+`)
 
       expect(result).toStrictEqual({
         ok: true,
@@ -554,11 +591,23 @@ export default app
       expect(fs.existsSync(path.join(dir, 'handlers', 'test.ts'))).toBe(true)
 
       const indexContent = fs.readFileSync(path.join(dir, 'index.ts'), 'utf-8')
-      expect(indexContent).toContain("import { getTestRoute } from './route'")
-      expect(indexContent).toContain("import { getTestRouteHandler } from './handlers'")
+      expect(indexContent).toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
+import { getTestRoute } from './route'
+import { getTestRouteHandler } from './handlers'
+
+const app = new OpenAPIHono()
+
+export const api = app.openapi(getTestRoute, getTestRouteHandler)
+
+export default app
+`)
 
       const handlerContent = fs.readFileSync(path.join(dir, 'handlers', 'test.ts'), 'utf-8')
-      expect(handlerContent).toContain("import type { getTestRoute } from '../route'")
+      expect(handlerContent).toBe(`import type { RouteHandler } from '@hono/zod-openapi'
+import type { getTestRoute } from '../route'
+
+export const getTestRouteHandler: RouteHandler<typeof getTestRoute> = async (c) => {}
+`)
     } finally {
       process.chdir(originalCwd)
       fs.rmSync(dir, { recursive: true, force: true })
@@ -578,20 +627,43 @@ export default app
       expect(result.ok).toBe(true)
 
       const indexContent = fs.readFileSync(path.join(dir, 'src', 'api', 'index.ts'), 'utf-8')
-      expect(indexContent).toContain("from '@/api/routes'")
-      expect(indexContent).toContain("from '@/api/handlers'")
+      expect(indexContent).toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
+import { getTestRoute } from '@/api/routes'
+import { getTestRouteHandler } from '@/api/handlers'
+
+const app = new OpenAPIHono()
+
+export const api = app.openapi(getTestRoute, getTestRouteHandler)
+
+export default app
+`)
 
       const handlerContent = fs.readFileSync(
         path.join(dir, 'src', 'api', 'handlers', 'test.ts'),
         'utf-8',
       )
-      expect(handlerContent).toContain("from '@/api/routes'")
+      expect(handlerContent).toBe(`import type { RouteHandler } from '@hono/zod-openapi'
+import type { getTestRoute } from '@/api/routes'
+
+export const getTestRouteHandler: RouteHandler<typeof getTestRoute> = async (c) => {}
+`)
 
       const testContent = fs.readFileSync(
         path.join(dir, 'src', 'api', 'handlers', 'test.test.ts'),
         'utf-8',
       )
-      expect(testContent).toContain("from '@/api'")
+      expect(testContent).toBe(`import { describe, it, expect } from 'vitest'
+import app from '@/api'
+
+describe('Test', () => {
+  describe('GET /test', () => {
+    it('should return 200', async () => {
+      const res = await app.request(\`/test\`, { method: 'GET' })
+      expect(res.status).toBe(200)
+    })
+  })
+})
+`)
     } finally {
       fs.rmSync(dir, { recursive: true, force: true })
     }
@@ -621,20 +693,41 @@ export default app
       expect(fs.existsSync(path.join(srcDir, 'handlers', 'index.ts'))).toBe(true)
       expect(fs.existsSync(path.join(srcDir, 'handlers', 'test.test.ts'))).toBe(true)
 
-      // Verify app template imports use directory name './routes'
       const indexContent = fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf-8')
-      expect(indexContent).toContain("from './routes'")
-      expect(indexContent).toContain("from './handlers'")
-      expect(indexContent).not.toContain("from './index'")
+      expect(indexContent).toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
+import { getTestRoute } from './routes'
+import { getTestRouteHandler } from './handlers'
 
-      // Verify handler imports '../routes' (resolves to routes/index.ts via Node resolution)
+const app = new OpenAPIHono()
+
+export const api = app.openapi(getTestRoute, getTestRouteHandler)
+
+export default app
+`)
+
       const handlerContent = fs.readFileSync(path.join(srcDir, 'handlers', 'test.ts'), 'utf-8')
-      expect(handlerContent).toContain("from '../routes'")
+      expect(handlerContent).toBe(`import type { RouteHandler } from '@hono/zod-openapi'
+import type { getTestRoute } from '../routes'
 
-      // Verify route file content is not overwritten by app template
+export const getTestRouteHandler: RouteHandler<typeof getTestRoute> = async (c) => {}
+`)
+
       const routeContent = fs.readFileSync(path.join(srcDir, 'routes', 'index.ts'), 'utf-8')
-      expect(routeContent).toContain('createRoute')
-      expect(routeContent).not.toContain('OpenAPIHono')
+      expect(routeContent).toBe(`import { createRoute, z } from '@hono/zod-openapi'
+
+export const getTestRoute = createRoute({
+  method: 'get',
+  path: '/test',
+  responses: {
+    200: {
+      description: 'OK',
+      content: {
+        'application/json': { schema: z.object({ id: z.string() }).openapi({ required: ['id'] }) },
+      },
+    },
+  },
+})
+`)
     } finally {
       fs.rmSync(dir, { recursive: true, force: true })
     }
@@ -656,11 +749,451 @@ export default app
       expect(result.ok).toBe(true)
 
       const indexContent = fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf-8')
-      expect(indexContent).toContain("from '@/src/routes'")
-      expect(indexContent).toContain("from '@/src/handlers'")
+      expect(indexContent).toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
+import { getTestRoute } from '@/src/routes'
+import { getTestRouteHandler } from '@/src/handlers'
+
+const app = new OpenAPIHono()
+
+export const api = app.openapi(getTestRoute, getTestRouteHandler)
+
+export default app
+`)
 
       const handlerContent = fs.readFileSync(path.join(srcDir, 'handlers', 'test.ts'), 'utf-8')
-      expect(handlerContent).toContain("from '@/src/routes'")
+      expect(handlerContent).toBe(`import type { RouteHandler } from '@hono/zod-openapi'
+import type { getTestRoute } from '@/src/routes'
+
+export const getTestRouteHandler: RouteHandler<typeof getTestRoute> = async (c) => {}
+`)
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+
+  it('generates monorepo imports with routeImport and pathAlias', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-route-import-'))
+    try {
+      const srcDir = path.join(dir, 'src')
+      fs.mkdirSync(srcDir, { recursive: true })
+
+      const out = path.join(srcDir, 'routes.ts') as `${string}.ts`
+      const result = await runTakibi(simpleOpenapi, out, {
+        template: true,
+        test: false,
+        basePath: '/api',
+        pathAlias: '@/',
+        routeImport: '@packages/routes',
+      })
+
+      expect(result.ok).toBe(true)
+
+      const indexContent = fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf-8')
+      expect(indexContent).toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
+import { getTestRoute } from '@packages/routes'
+import { getTestRouteHandler } from '@/handlers'
+
+const app = new OpenAPIHono().basePath('/api')
+
+export const api = app.openapi(getTestRoute, getTestRouteHandler)
+
+export default app
+`)
+
+      const handlerContent = fs.readFileSync(path.join(srcDir, 'handlers', 'test.ts'), 'utf-8')
+      expect(handlerContent).toBe(`import type { RouteHandler } from '@hono/zod-openapi'
+import type { getTestRoute } from '@packages/routes'
+
+export const getTestRouteHandler: RouteHandler<typeof getTestRoute> = async (c) => {}
+`)
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+
+  it('generates monorepo imports with routeImport without pathAlias', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-route-import-no-alias-'))
+    try {
+      const srcDir = path.join(dir, 'src')
+      fs.mkdirSync(srcDir, { recursive: true })
+
+      const out = path.join(srcDir, 'routes.ts') as `${string}.ts`
+      const result = await runTakibi(simpleOpenapi, out, {
+        template: true,
+        test: false,
+        basePath: '/api',
+        routeImport: '@packages/routes',
+      })
+
+      expect(result.ok).toBe(true)
+
+      const indexContent = fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf-8')
+      expect(indexContent).toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
+import { getTestRoute } from '@packages/routes'
+import { getTestRouteHandler } from './handlers'
+
+const app = new OpenAPIHono().basePath('/api')
+
+export const api = app.openapi(getTestRoute, getTestRouteHandler)
+
+export default app
+`)
+
+      const handlerContent = fs.readFileSync(path.join(srcDir, 'handlers', 'test.ts'), 'utf-8')
+      expect(handlerContent).toBe(`import type { RouteHandler } from '@hono/zod-openapi'
+import type { getTestRoute } from '@packages/routes'
+
+export const getTestRouteHandler: RouteHandler<typeof getTestRoute> = async (c) => {}
+`)
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+
+  it('trailing slash pathAlias does not produce double slashes', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-trailing-slash-'))
+    try {
+      const srcDir = path.join(dir, 'src')
+      fs.mkdirSync(srcDir, { recursive: true })
+
+      const out = path.join(srcDir, 'routes.ts') as `${string}.ts`
+      const result = await runTakibi(simpleOpenapi, out, {
+        template: true,
+        test: false,
+        basePath: '/api',
+        pathAlias: '@/',
+      })
+
+      expect(result.ok).toBe(true)
+
+      const indexContent = fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf-8')
+      expect(indexContent).toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
+import { getTestRoute } from '@/routes'
+import { getTestRouteHandler } from '@/handlers'
+
+const app = new OpenAPIHono().basePath('/api')
+
+export const api = app.openapi(getTestRoute, getTestRouteHandler)
+
+export default app
+`)
+
+      const handlerContent = fs.readFileSync(path.join(srcDir, 'handlers', 'test.ts'), 'utf-8')
+      expect(handlerContent).toBe(`import type { RouteHandler } from '@hono/zod-openapi'
+import type { getTestRoute } from '@/routes'
+
+export const getTestRouteHandler: RouteHandler<typeof getTestRoute> = async (c) => {}
+`)
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+
+  it('routeImport with routes/index.ts output format', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-routeimport-indexts-'))
+    try {
+      const srcDir = path.join(dir, 'src')
+      fs.mkdirSync(path.join(srcDir, 'routes'), { recursive: true })
+
+      const out = path.join(srcDir, 'routes', 'index.ts') as `${string}.ts`
+      const result = await runTakibi(simpleOpenapi, out, {
+        template: true,
+        test: false,
+        basePath: '/api',
+        pathAlias: '@/',
+        routeImport: '@packages/routes',
+      })
+
+      expect(result.ok).toBe(true)
+
+      const indexContent = fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf-8')
+      expect(indexContent).toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
+import { getTestRoute } from '@packages/routes'
+import { getTestRouteHandler } from '@/handlers'
+
+const app = new OpenAPIHono().basePath('/api')
+
+export const api = app.openapi(getTestRoute, getTestRouteHandler)
+
+export default app
+`)
+
+      const handlerContent = fs.readFileSync(path.join(srcDir, 'handlers', 'test.ts'), 'utf-8')
+      expect(handlerContent).toBe(`import type { RouteHandler } from '@hono/zod-openapi'
+import type { getTestRoute } from '@packages/routes'
+
+export const getTestRouteHandler: RouteHandler<typeof getTestRoute> = async (c) => {}
+`)
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+})
+
+describe('3-pattern strict tests (monorepo / pathAlias / plain)', () => {
+  it('Monorepo: routeImport + pathAlias', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-3p-monorepo-'))
+    try {
+      const srcDir = path.join(dir, 'src')
+      fs.mkdirSync(srcDir, { recursive: true })
+
+      const out = path.join(srcDir, 'routes.ts') as `${string}.ts`
+      const result = await runTakibi(simpleOpenapi, out, {
+        template: true,
+        test: false,
+        pathAlias: '@/',
+        routeImport: '@packages/routes',
+      })
+
+      expect(result).toStrictEqual({
+        ok: true,
+        value: '🔥 Generated code and template files written',
+      })
+
+      expect(fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf-8')).toBe(
+        `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getTestRoute } from '@packages/routes'
+import { getTestRouteHandler } from '@/handlers'
+
+const app = new OpenAPIHono()
+
+export const api = app.openapi(getTestRoute, getTestRouteHandler)
+
+export default app
+`,
+      )
+
+      expect(fs.readFileSync(path.join(srcDir, 'handlers', 'test.ts'), 'utf-8')).toBe(
+        `import type { RouteHandler } from '@hono/zod-openapi'
+import type { getTestRoute } from '@packages/routes'
+
+export const getTestRouteHandler: RouteHandler<typeof getTestRoute> = async (c) => {}
+`,
+      )
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+
+  it('PathAlias: pathAlias only (no routeImport)', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-3p-pathalias-'))
+    try {
+      const srcDir = path.join(dir, 'src')
+      fs.mkdirSync(srcDir, { recursive: true })
+
+      const out = path.join(srcDir, 'routes.ts') as `${string}.ts`
+      const result = await runTakibi(simpleOpenapi, out, {
+        template: true,
+        test: false,
+        pathAlias: '@/',
+      })
+
+      expect(result).toStrictEqual({
+        ok: true,
+        value: '🔥 Generated code and template files written',
+      })
+
+      expect(fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf-8')).toBe(
+        `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getTestRoute } from '@/routes'
+import { getTestRouteHandler } from '@/handlers'
+
+const app = new OpenAPIHono()
+
+export const api = app.openapi(getTestRoute, getTestRouteHandler)
+
+export default app
+`,
+      )
+
+      expect(fs.readFileSync(path.join(srcDir, 'handlers', 'test.ts'), 'utf-8')).toBe(
+        `import type { RouteHandler } from '@hono/zod-openapi'
+import type { getTestRoute } from '@/routes'
+
+export const getTestRouteHandler: RouteHandler<typeof getTestRoute> = async (c) => {}
+`,
+      )
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+
+  it('Plain: no pathAlias, no routeImport', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-3p-plain-'))
+    try {
+      const srcDir = path.join(dir, 'src')
+      fs.mkdirSync(srcDir, { recursive: true })
+
+      const out = path.join(srcDir, 'routes.ts') as `${string}.ts`
+      const result = await runTakibi(simpleOpenapi, out, {
+        template: true,
+        test: false,
+      })
+
+      expect(result).toStrictEqual({
+        ok: true,
+        value: '🔥 Generated code and template files written',
+      })
+
+      expect(fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf-8')).toBe(
+        `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getTestRoute } from './routes'
+import { getTestRouteHandler } from './handlers'
+
+const app = new OpenAPIHono()
+
+export const api = app.openapi(getTestRoute, getTestRouteHandler)
+
+export default app
+`,
+      )
+
+      expect(fs.readFileSync(path.join(srcDir, 'handlers', 'test.ts'), 'utf-8')).toBe(
+        `import type { RouteHandler } from '@hono/zod-openapi'
+import type { getTestRoute } from '../routes'
+
+export const getTestRouteHandler: RouteHandler<typeof getTestRoute> = async (c) => {}
+`,
+      )
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+})
+
+describe('makeTemplate() unit tests', () => {
+  it('generates app template and handler files (plain)', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-gentemplate-'))
+    try {
+      const srcDir = path.join(dir, 'src')
+      fs.mkdirSync(srcDir, { recursive: true })
+
+      const routeOutput = path.join(srcDir, 'routes.ts') as `${string}.ts`
+      const result = await makeTemplate(simpleOpenapi, routeOutput, false, '/', undefined, undefined)
+
+      expect(result).toStrictEqual({
+        ok: true,
+        value: '🔥 Generated code and template files written',
+      })
+
+      expect(fs.existsSync(path.join(srcDir, 'index.ts'))).toBe(true)
+      expect(fs.existsSync(path.join(srcDir, 'handlers', 'test.ts'))).toBe(true)
+      expect(fs.existsSync(path.join(srcDir, 'handlers', 'index.ts'))).toBe(true)
+
+      expect(fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf-8')).toBe(
+        `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getTestRoute } from './routes'
+import { getTestRouteHandler } from './handlers'
+
+const app = new OpenAPIHono()
+
+export const api = app.openapi(getTestRoute, getTestRouteHandler)
+
+export default app
+`,
+      )
+
+      expect(fs.readFileSync(path.join(srcDir, 'handlers', 'test.ts'), 'utf-8')).toBe(
+        `import type { RouteHandler } from '@hono/zod-openapi'
+import type { getTestRoute } from '../routes'
+
+export const getTestRouteHandler: RouteHandler<typeof getTestRoute> = async (c) => {}
+`,
+      )
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+
+  it('generates app template with monorepo imports', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-gentemplate-mono-'))
+    try {
+      const srcDir = path.join(dir, 'src')
+      fs.mkdirSync(srcDir, { recursive: true })
+
+      const routeOutput = path.join(srcDir, 'routes.ts') as `${string}.ts`
+      const result = await makeTemplate(simpleOpenapi, routeOutput, false, '/', '@/', '@packages/routes')
+
+      expect(result).toStrictEqual({
+        ok: true,
+        value: '🔥 Generated code and template files written',
+      })
+
+      expect(fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf-8')).toBe(
+        `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getTestRoute } from '@packages/routes'
+import { getTestRouteHandler } from '@/handlers'
+
+const app = new OpenAPIHono()
+
+export const api = app.openapi(getTestRoute, getTestRouteHandler)
+
+export default app
+`,
+      )
+
+      expect(fs.readFileSync(path.join(srcDir, 'handlers', 'test.ts'), 'utf-8')).toBe(
+        `import type { RouteHandler } from '@hono/zod-openapi'
+import type { getTestRoute } from '@packages/routes'
+
+export const getTestRouteHandler: RouteHandler<typeof getTestRoute> = async (c) => {}
+`,
+      )
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+
+  it('generates test files when test flag is true', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-gentemplate-test-'))
+    try {
+      const srcDir = path.join(dir, 'src')
+      fs.mkdirSync(srcDir, { recursive: true })
+
+      const routeOutput = path.join(srcDir, 'routes.ts') as `${string}.ts`
+      const result = await makeTemplate(simpleOpenapi, routeOutput, true, '/', undefined, undefined)
+
+      expect(result).toStrictEqual({
+        ok: true,
+        value: '🔥 Generated code and template files written',
+      })
+
+      expect(fs.existsSync(path.join(srcDir, 'handlers', 'test.test.ts'))).toBe(true)
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+
+  it('generates with routes/index.ts output path', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-gentemplate-indexts-'))
+    try {
+      const srcDir = path.join(dir, 'src')
+      fs.mkdirSync(path.join(srcDir, 'routes'), { recursive: true })
+
+      const routeOutput = path.join(srcDir, 'routes', 'index.ts') as `${string}.ts`
+      const result = await makeTemplate(simpleOpenapi, routeOutput, false, '/', undefined, undefined)
+
+      expect(result).toStrictEqual({
+        ok: true,
+        value: '🔥 Generated code and template files written',
+      })
+
+      // App template at parent dir (src/index.ts), not in routes/
+      expect(fs.existsSync(path.join(srcDir, 'index.ts'))).toBe(true)
+      expect(fs.existsSync(path.join(srcDir, 'handlers', 'test.ts'))).toBe(true)
+
+      expect(fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf-8')).toBe(
+        `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getTestRoute } from './routes'
+import { getTestRouteHandler } from './handlers'
+
+const app = new OpenAPIHono()
+
+export const api = app.openapi(getTestRoute, getTestRouteHandler)
+
+export default app
+`,
+      )
     } finally {
       fs.rmSync(dir, { recursive: true, force: true })
     }

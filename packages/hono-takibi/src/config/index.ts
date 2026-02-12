@@ -192,6 +192,10 @@ const ConfigSchema = z
           })
           .exactOptional(),
       })
+      .refine((v) => !(v.output && v.routes), {
+        message:
+          'output and routes are mutually exclusive. Use output for single-file mode, or routes for separate route output.',
+      })
       .exactOptional(),
     type: z
       .object({

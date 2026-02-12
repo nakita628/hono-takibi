@@ -21,6 +21,7 @@ export function app(
   output: `${string}.ts`,
   basePath: string,
   pathAlias: string | undefined,
+  routeImport: string | undefined = undefined,
 ): string {
   const getRouteMaps = (
     openapi: OpenAPI,
@@ -46,12 +47,14 @@ export function app(
   const routeBasename = isIndexFile
     ? output.replace(/\/index\.ts$/, '').replace(/^.*\//, '')
     : output.replace(/^.*\//, '').replace(/\.ts$/, '')
-  const routeModule = pathAlias ? `${pathAlias}/${routeBasename}` : `./${routeBasename}`
+  // Fallback: routeImport (routes.import) → pathAlias → relative path
+  const aliasPrefix = pathAlias?.endsWith('/') ? pathAlias.slice(0, -1) : pathAlias
+  const routeModule = routeImport ?? (aliasPrefix ? `${aliasPrefix}/${routeBasename}` : `./${routeBasename}`)
   const routesImport =
     routeNames.length > 0 ? `import{${routeNames.join(',')}}from'${routeModule}'` : ''
 
   const handlerNames = [...new Set(routeMappings.map((m) => m.handlerName))]
-  const handlerModule = pathAlias ? `${pathAlias}/handlers` : './handlers'
+  const handlerModule = aliasPrefix ? `${aliasPrefix}/handlers` : './handlers'
   const handlerImport =
     handlerNames.length > 0 ? `import{${handlerNames.join(',')}}from'${handlerModule}'` : ''
 

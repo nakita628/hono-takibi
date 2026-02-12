@@ -129,6 +129,7 @@ function makeTestFileName(fileName: `${string}.ts`): `${string}.ts` {
 function makePaths(
   output: string,
   pathAlias: string | undefined,
+  routeImport: string | undefined = undefined,
 ): {
   readonly handlerPath: string
   readonly importFrom: string
@@ -145,8 +146,10 @@ function makePaths(
   const routeModuleName = isIndexFile
     ? (output.match(/([^/]+)\/index\.ts$/)?.[1] ?? 'index')
     : (output.match(/[^/]+\.ts$/)?.[0] ?? 'index.ts').replace(/\.ts$/, '')
-  const importFrom = pathAlias ? `${pathAlias}/${routeModuleName}` : `../${routeModuleName}`
-  const testImportFrom = pathAlias ?? '..'
+  const aliasPrefix = pathAlias?.endsWith('/') ? pathAlias.slice(0, -1) : pathAlias
+  // Fallback: routeImport (routes.import) → pathAlias → relative path
+  const importFrom = routeImport ?? (aliasPrefix ? `${aliasPrefix}/${routeModuleName}` : `../${routeModuleName}`)
+  const testImportFrom = aliasPrefix ?? '..'
   return { handlerPath, importFrom, testImportFrom }
 }
 
@@ -332,6 +335,7 @@ export async function zodOpenAPIHonoHandler(
   output: string,
   test = false,
   pathAlias: string | undefined = undefined,
+  routeImport: string | undefined = undefined,
 ): Promise<
   { readonly ok: true; readonly value: undefined } | { readonly ok: false; readonly error: string }
 > {
@@ -347,7 +351,7 @@ export async function zodOpenAPIHonoHandler(
     ),
   )
 
-  const { handlerPath, importFrom, testImportFrom } = makePaths(output, pathAlias)
+  const { handlerPath, importFrom, testImportFrom } = makePaths(output, pathAlias, routeImport)
 
   const mkdirResult = await mkdir(handlerPath)
   if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error }
@@ -443,6 +447,7 @@ export async function mockZodOpenAPIHonoHandler(
   output: string,
   test: boolean,
   pathAlias: string | undefined = undefined,
+  routeImport: string | undefined = undefined,
 ): Promise<
   { readonly ok: true; readonly value: undefined } | { readonly ok: false; readonly error: string }
 > {
@@ -459,7 +464,7 @@ export async function mockZodOpenAPIHonoHandler(
     ),
   )
 
-  const { handlerPath, importFrom, testImportFrom } = makePaths(output, pathAlias)
+  const { handlerPath, importFrom, testImportFrom } = makePaths(output, pathAlias, routeImport)
 
   const mkdirResult = await mkdir(handlerPath)
   if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error }

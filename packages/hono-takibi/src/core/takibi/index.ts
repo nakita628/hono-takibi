@@ -8,6 +8,56 @@ import { core } from '../../helper/index.js'
 import { mergeAppFile } from '../../merge/index.js'
 import type { OpenAPI } from '../../openapi/index.js'
 
+type Result =
+  | { readonly ok: true; readonly value: string }
+  | { readonly ok: false; readonly error: string }
+
+/**
+ * Generates app template (index.ts) and stub handler files from an OpenAPI spec.
+ *
+ * Used by both `takibi()` (output + template mode) and the CLI (routes-only + template mode).
+ */
+export async function makeTemplate(
+  openAPI: OpenAPI,
+  routeOutput: `${string}.ts`,
+  test: boolean,
+  basePath: string,
+  pathAlias: string | undefined,
+  routeImport: string | undefined,
+): Promise<Result> {
+  try {
+    const isIndexFile = routeOutput.endsWith('/index.ts')
+    const dir = isIndexFile ? path.dirname(path.dirname(routeOutput)) : path.dirname(routeOutput)
+    const target = path.join(dir, 'index.ts')
+
+    const [appFmtResult, stubHandlersResult] = await Promise.all([
+      fmt(app(openAPI, routeOutput, basePath, pathAlias, routeImport)),
+      zodOpenAPIHonoHandler(openAPI, routeOutput, test, pathAlias, routeImport),
+    ])
+    if (!appFmtResult.ok) return { ok: false, error: appFmtResult.error }
+    if (!stubHandlersResult.ok) return { ok: false, error: stubHandlersResult.error }
+
+    // Merge app file (index.ts) with existing user modifications
+    const existingResult = await readFile(target)
+    if (!existingResult.ok) return { ok: false, error: existingResult.error }
+
+    const merged =
+      existingResult.value !== null
+        ? mergeAppFile(existingResult.value, appFmtResult.value)
+        : appFmtResult.value
+
+    const finalFmtResult = await fmt(merged)
+    const appContent = finalFmtResult.ok ? finalFmtResult.value : merged
+
+    const writeResult = await writeFile(target, appContent)
+    if (!writeResult.ok) return { ok: false, error: writeResult.error }
+
+    return { ok: true, value: '🔥 Generated code and template files written' }
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : String(e) }
+  }
+}
+
 /**
  * Generates TypeScript code from an OpenAPI spec and optional templates.
  *
@@ -28,22 +78,7 @@ import type { OpenAPI } from '../../openapi/index.js'
  *   M -->|No| N["return { ok:false, error: writeResult.error }"]
  *   M -->|Yes| O{"template ?"}
  *   O -->|No| P["return { ok:true, value: 'Generated code written to ' + output }"]
- *   O -->|Yes| Q["appResult = fmt(app(openAPI, output, basePath))"]
- *   Q --> R{"appResult.ok ?"}
- *   R -->|No| S["return { ok:false, error: appResult.error }"]
- *   R -->|Yes| T["dir = dirname(output)"]
- *   T --> U["readdirResult = readdir(dir)"]
- *   U --> V{"readdirResult.ok ?"}
- *   V -->|No| W["return { ok:false, error: readdirResult.error }"]
- *   V -->|Yes| X["files = readdirResult.value"]
- *   X --> Y["target = join(dir, files includes 'index.ts' ? 'main.ts' : 'index.ts')"]
- *   Y --> Z["writeResult2 = writeFile(target, appResult.value)"]
- *   Z --> ZA{"writeResult2.ok ?"}
- *   ZA -->|No| ZB["return { ok:false, error: writeResult2.error }"]
- *   ZA -->|Yes| ZC["stubHandlersResult = zodOpenAPIHonoHandler(openAPI, output, test)"]
- *   ZC --> ZD{"stubHandlersResult.ok ?"}
- *   ZD -->|No| ZE["return { ok:false, error: stubHandlersResult.error }"]
- *   ZD -->|Yes| ZF["return { ok:true, value: 'Generated code and template files written' }"]
+ *   O -->|Yes| Q["makeTemplate(...)"]
  * ```
  */
 export async function takibi(
@@ -53,6 +88,7 @@ export async function takibi(
   test: boolean,
   basePath: string,
   pathAlias: string | undefined,
+  routeImport: string | undefined,
   componentsOptions: {
     readonly readonly?: boolean | undefined
     // OpenAPI Components Object order
@@ -72,16 +108,7 @@ export async function takibi(
     readonly exportMediaTypes: boolean
     readonly exportMediaTypesTypes: boolean
   },
-): Promise<
-  | {
-      readonly ok: true
-      readonly value: string
-    }
-  | {
-      readonly ok: false
-      readonly error: string
-    }
-> {
+): Promise<Result> {
   try {
     // Normal generation (routes.ts)
     const coreResult = await core(
@@ -93,33 +120,7 @@ export async function takibi(
 
     // --template: Generate app + handlers
     if (template) {
-      const isIndexFile = output.endsWith('/index.ts')
-      const dir = isIndexFile ? path.dirname(path.dirname(output)) : path.dirname(output)
-      const target = path.join(dir, 'index.ts')
-
-      const [appFmtResult, stubHandlersResult] = await Promise.all([
-        fmt(app(openAPI, output, basePath, pathAlias)),
-        zodOpenAPIHonoHandler(openAPI, output, test, pathAlias),
-      ])
-      if (!appFmtResult.ok) return { ok: false, error: appFmtResult.error }
-      if (!stubHandlersResult.ok) return { ok: false, error: stubHandlersResult.error }
-
-      // Merge app file (index.ts) with existing user modifications
-      const existingResult = await readFile(target)
-      if (!existingResult.ok) return { ok: false, error: existingResult.error }
-
-      const merged =
-        existingResult.value !== null
-          ? mergeAppFile(existingResult.value, appFmtResult.value)
-          : appFmtResult.value
-
-      const finalFmtResult = await fmt(merged)
-      const appContent = finalFmtResult.ok ? finalFmtResult.value : merged
-
-      const writeResult = await writeFile(target, appContent)
-      if (!writeResult.ok) return { ok: false, error: writeResult.error }
-
-      return { ok: true, value: '🔥 Generated code and template files written' }
+      return makeTemplate(openAPI, output, test, basePath, pathAlias, routeImport)
     }
 
     return {

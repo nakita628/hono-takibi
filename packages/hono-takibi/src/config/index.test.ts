@@ -272,6 +272,68 @@ describe('parseConfig()', () => {
     })
   })
 
+  describe('routes.import and webhooks.import', () => {
+    it.concurrent('preserves routes.import through parsing', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        'zod-openapi': {
+          routes: { output: 'src/routes.ts', import: '@packages/routes' },
+        },
+      })
+      expect(result.ok).toBe(true)
+      if (result.ok) {
+        expect(result.value['zod-openapi']?.routes?.import).toBe('@packages/routes')
+        expect(result.value['zod-openapi']?.routes?.output).toBe('src/routes.ts')
+      }
+    })
+
+    it.concurrent('preserves routes.import with split and pathAlias', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        'zod-openapi': {
+          pathAlias: '@/',
+          routes: { output: 'src/routes', split: true, import: '@packages/routes' },
+        },
+      })
+      expect(result.ok).toBe(true)
+      if (result.ok) {
+        expect(result.value['zod-openapi']?.routes?.import).toBe('@packages/routes')
+        expect(result.value['zod-openapi']?.routes?.output).toBe('src/routes')
+        expect(result.value['zod-openapi']?.pathAlias).toBe('@/')
+      }
+    })
+
+    it.concurrent('routes without import field works (backward compat)', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        'zod-openapi': {
+          routes: { output: 'src/routes.ts' },
+        },
+      })
+      expect(result.ok).toBe(true)
+      if (result.ok) {
+        expect(result.value['zod-openapi']?.routes?.import).toBeUndefined()
+      }
+    })
+
+    it.concurrent('preserves webhooks.import through parsing', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        'zod-openapi': {
+          components: {
+            webhooks: { output: 'src/webhooks.ts', import: '@packages/webhooks' },
+          },
+        },
+      })
+      expect(result.ok).toBe(true)
+      if (result.ok) {
+        expect(result.value['zod-openapi']?.components?.webhooks?.import).toBe(
+          '@packages/webhooks',
+        )
+      }
+    })
+  })
+
   describe('validation errors', () => {
     it.concurrent('fails when split is true but output ends with .ts', () => {
       const result = parseConfig({
@@ -327,6 +389,52 @@ describe('parseConfig()', () => {
       if (!result.ok) {
         expect(result.error).toMatch(/rpc\.client.*expected string/)
       }
+    })
+  })
+
+  describe('output and routes mutual exclusivity', () => {
+    it.concurrent('fails when both output and routes are specified', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        'zod-openapi': {
+          output: 'src/routes.ts',
+          routes: { output: 'src/routes' },
+        },
+      })
+      expect(result.ok).toBe(false)
+      if (!result.ok) {
+        expect(result.error).toMatch(/output and routes are mutually exclusive/)
+      }
+    })
+
+    it.concurrent('passes with output only', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        'zod-openapi': {
+          output: 'src/routes.ts',
+        },
+      })
+      expect(result.ok).toBe(true)
+    })
+
+    it.concurrent('passes with routes only', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        'zod-openapi': {
+          routes: { output: 'src/routes.ts' },
+        },
+      })
+      expect(result.ok).toBe(true)
+    })
+
+    it.concurrent('passes with neither output nor routes', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        'zod-openapi': {
+          exportSchemas: true,
+        },
+      })
+      expect(result.ok).toBe(true)
     })
   })
 })
