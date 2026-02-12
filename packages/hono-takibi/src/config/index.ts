@@ -60,6 +60,7 @@ const ConfigSchema = z
           .object({
             output: z.custom<string | `${string}.ts`>((v) => typeof v === 'string'),
             split: z.boolean().exactOptional(),
+            import: z.string().exactOptional(),
           })
           .refine((v) => !(v.split === true && v.output.endsWith('.ts')), {
             message: 'split mode requires directory, not .ts file',
@@ -185,6 +186,7 @@ const ConfigSchema = z
               .object({
                 output: z.custom<string | `${string}.ts`>((v) => typeof v === 'string'),
                 split: z.boolean().exactOptional(),
+                import: z.string().exactOptional(),
               })
               .exactOptional(),
           })
