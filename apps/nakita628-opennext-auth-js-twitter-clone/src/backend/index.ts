@@ -1,5 +1,12 @@
 import { OpenAPIHono } from '@hono/zod-openapi'
 import {
+  initAuthConfig,
+  verifyAuth,
+  authHandler
+} from '@hono/auth-js'
+import { DrizzleAdapter } from '@auth/drizzle-adapter'
+import { db } from '@/db'
+import {
   deleteFollowRoute,
   deleteLikeRoute,
   getCurrentRoute,
@@ -34,7 +41,20 @@ import {
   postRegisterRouteHandler,
 } from '@/backend/handlers'
 
-const app = new OpenAPIHono()
+const app = new OpenAPIHono().basePath('/api')
+
+app.use(
+  '*',
+  initAuthConfig((c) => ({
+    adapter: DrizzleAdapter(db),
+    secret: c.env.AUTH_SECRET,
+    providers: [
+    ],
+    session: { strategy: 'jwt' },
+  }))
+)
+.use('*', verifyAuth())
+.use('/auth/*', authHandler())
 
 export const api = app
   .openapi(postCommentsRoute, postCommentsRouteHandler)

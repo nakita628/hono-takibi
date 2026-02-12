@@ -15,10 +15,10 @@ OpenNext Twitter Clone API
 ```bash
 hono request \
   -X POST \
-  -P /comments \
+  -P /api/comments \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  src/app/api/[[...route]]/route.ts
+  src/index.ts
 ```
 
 `POST /comments`
@@ -84,9 +84,9 @@ This operation does not require authentication
 ```bash
 hono request \
   -X GET \
-  -P /current \
+  -P /api/current \
   -H 'Accept: application/json' \
-  src/app/api/[[...route]]/route.ts
+  src/index.ts
 ```
 
 `GET /current`
@@ -166,10 +166,10 @@ This operation does not require authentication
 ```bash
 hono request \
   -X PATCH \
-  -P /edit \
+  -P /api/edit \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  src/app/api/[[...route]]/route.ts
+  src/index.ts
 ```
 
 `PATCH /edit`
@@ -249,10 +249,10 @@ This operation does not require authentication
 ```bash
 hono request \
   -X POST \
-  -P /follow \
+  -P /api/follow \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  src/app/api/[[...route]]/route.ts
+  src/index.ts
 ```
 
 `POST /follow`
@@ -310,10 +310,10 @@ This operation does not require authentication
 ```bash
 hono request \
   -X DELETE \
-  -P /follow \
+  -P /api/follow \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  src/app/api/[[...route]]/route.ts
+  src/index.ts
 ```
 
 `DELETE /follow`
@@ -373,10 +373,10 @@ This operation does not require authentication
 ```bash
 hono request \
   -X POST \
-  -P /like \
+  -P /api/like \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  src/app/api/[[...route]]/route.ts
+  src/index.ts
 ```
 
 `POST /like`
@@ -446,10 +446,10 @@ This operation does not require authentication
 ```bash
 hono request \
   -X DELETE \
-  -P /like \
+  -P /api/like \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  src/app/api/[[...route]]/route.ts
+  src/index.ts
 ```
 
 `DELETE /like`
@@ -521,9 +521,9 @@ This operation does not require authentication
 ```bash
 hono request \
   -X GET \
-  -P /notifications/{userId} \
+  -P /api/notifications/{userId} \
   -H 'Accept: application/json' \
-  src/app/api/[[...route]]/route.ts
+  src/index.ts
 ```
 
 `GET /notifications/{userId}`
@@ -589,9 +589,9 @@ This operation does not require authentication
 ```bash
 hono request \
   -X POST \
-  -P /notifications \
+  -P /api/notifications \
   -H 'Accept: application/json' \
-  src/app/api/[[...route]]/route.ts
+  src/index.ts
 ```
 
 `POST /notifications`
@@ -636,9 +636,9 @@ This operation does not require authentication
 ```bash
 hono request \
   -X GET \
-  -P /posts \
+  -P /api/posts \
   -H 'Accept: application/json' \
-  src/app/api/[[...route]]/route.ts
+  src/index.ts
 ```
 
 `GET /posts`
@@ -756,10 +756,10 @@ This operation does not require authentication
 ```bash
 hono request \
   -X POST \
-  -P /posts \
+  -P /api/posts \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  src/app/api/[[...route]]/route.ts
+  src/index.ts
 ```
 
 `POST /posts`
@@ -821,9 +821,9 @@ This operation does not require authentication
 ```bash
 hono request \
   -X GET \
-  -P /posts/{postId} \
+  -P /api/posts/{postId} \
   -H 'Accept: application/json' \
-  src/app/api/[[...route]]/route.ts
+  src/index.ts
 ```
 
 `GET /posts/{postId}`
@@ -926,10 +926,10 @@ This operation does not require authentication
 ```bash
 hono request \
   -X POST \
-  -P /register \
+  -P /api/register \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  src/app/api/[[...route]]/route.ts
+  src/index.ts
 ```
 
 `POST /register`
@@ -1007,9 +1007,9 @@ This operation does not require authentication
 ```bash
 hono request \
   -X GET \
-  -P /users/{userId} \
+  -P /api/users/{userId} \
   -H 'Accept: application/json' \
-  src/app/api/[[...route]]/route.ts
+  src/index.ts
 ```
 
 `GET /users/{userId}`
@@ -1083,9 +1083,9 @@ This operation does not require authentication
 ```bash
 hono request \
   -X GET \
-  -P /users \
+  -P /api/users \
   -H 'Accept: application/json' \
-  src/app/api/[[...route]]/route.ts
+  src/index.ts
 ```
 
 `GET /users`

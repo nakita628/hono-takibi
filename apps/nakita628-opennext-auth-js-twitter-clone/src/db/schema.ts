@@ -1,5 +1,5 @@
-import { relations, sql } from 'drizzle-orm'
-import { integer, numeric, sqliteTable, text, uniqueIndex } from 'drizzle-orm/sqlite-core'
+import { relations } from 'drizzle-orm'
+import { integer, primaryKey, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 
 export const users = sqliteTable('users', {
   id: text().primaryKey().$defaultFn(() => crypto.randomUUID()),
@@ -7,21 +7,21 @@ export const users = sqliteTable('users', {
   username: text().notNull().unique(),
   bio: text(),
   email: text().notNull().unique(),
-  emailVerified: numeric(),
+  emailVerified: integer({ mode: 'timestamp' }),
   image: text(),
   coverImage: text(),
   profileImage: text(),
   hashedPassword: text(),
-  createdAt: numeric().notNull().default(sql`DATE('now')`),
-  updatedAt: numeric().notNull(),
+  createdAt: integer({ mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
+  updatedAt: integer({ mode: 'timestamp' }).notNull().$defaultFn(() => new Date()).$onUpdateFn(() => new Date()),
   hasNotification: integer({ mode: 'boolean' }),
 })
 
 export const posts = sqliteTable('posts', {
   id: text().primaryKey().$defaultFn(() => crypto.randomUUID()),
   body: text().notNull(),
-  createdAt: numeric().notNull().default(sql`DATE('now')`),
-  updatedAt: numeric().notNull(),
+  createdAt: integer({ mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
+  updatedAt: integer({ mode: 'timestamp' }).notNull().$defaultFn(() => new Date()).$onUpdateFn(() => new Date()),
   userId: text()
     .notNull()
     .references(() => users.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
@@ -30,42 +30,40 @@ export const posts = sqliteTable('posts', {
 export const follows = sqliteTable(
   'follows',
   {
-    id: text().primaryKey().$defaultFn(() => crypto.randomUUID()),
     followerId: text()
       .notNull()
       .references(() => users.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
     followingId: text()
       .notNull()
       .references(() => users.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
-    createdAt: numeric().notNull().default(sql`DATE('now')`),
+    createdAt: integer({ mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
   },
   (t) => [
-    uniqueIndex('follows_followerId_followingId_key').on(t.followerId, t.followingId),
+    primaryKey({ columns: [t.followerId, t.followingId] }),
   ],
 )
 
 export const likes = sqliteTable(
   'likes',
   {
-    id: text().primaryKey().$defaultFn(() => crypto.randomUUID()),
     userId: text()
       .notNull()
       .references(() => users.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
     postId: text()
       .notNull()
       .references(() => posts.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
-    createdAt: numeric().notNull().default(sql`DATE('now')`),
+    createdAt: integer({ mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
   },
   (t) => [
-    uniqueIndex('likes_userId_postId_key').on(t.userId, t.postId),
+    primaryKey({ columns: [t.userId, t.postId] }),
   ],
 )
 
 export const comments = sqliteTable('comments', {
   id: text().primaryKey().$defaultFn(() => crypto.randomUUID()),
   body: text().notNull(),
-  createdAt: numeric().notNull().default(sql`DATE('now')`),
-  updatedAt: numeric().notNull(),
+  createdAt: integer({ mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
+  updatedAt: integer({ mode: 'timestamp' }).notNull().$defaultFn(() => new Date()).$onUpdateFn(() => new Date()),
   userId: text()
     .notNull()
     .references(() => users.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
@@ -80,7 +78,7 @@ export const notifications = sqliteTable('notifications', {
   userId: text()
     .notNull()
     .references(() => users.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
-  createdAt: numeric().notNull().default(sql`DATE('now')`),
+  createdAt: integer({ mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
 })
 
 export const usersRelations = relations(users, ({ many }) => ({

@@ -15,10 +15,12 @@
     "push": "drizzle-kit push",
     "generate": "drizzle-kit generate",
     "migrate": "drizzle-kit migrate",
-    "local-migrate": "wrangler d1 migrations apply DB --local"
+    "local-migrate": "wrangler d1 migrations apply DB --local",
+    "secret": "openssl rand -base64 32"
   },
   "dependencies": {
     "@auth/core": "^0.34.3",
+    "@auth/drizzle-adapter": "^1.11.1",
     "@hono/auth-js": "^1.1.0",
     "@hono/zod-openapi": "^1.2.1",
     "@opennextjs/cloudflare": "^1.16.4",
