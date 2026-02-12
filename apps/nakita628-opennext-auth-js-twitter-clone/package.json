@@ -35,6 +35,7 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^10.3.0",
+    "@hono/cli": "^0.1.10",
     "@tailwindcss/postcss": "^4.1.18",
     "@types/bcryptjs": "^3.0.0",
     "@types/react": "^19.2.13",

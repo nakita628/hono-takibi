@@ -18,7 +18,7 @@ hono request \
   -P /api/comments \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  src/index.ts
+  src/app/api/[[...route]]/route.ts
 ```
 
 `POST /comments`
@@ -104,7 +104,7 @@ hono request \
   -X GET \
   -P /api/current \
   -H 'Accept: application/json' \
-  src/index.ts
+  src/app/api/[[...route]]/route.ts
 ```
 
 `GET /current`
@@ -185,7 +185,7 @@ hono request \
   -P /api/edit \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  src/index.ts
+  src/app/api/[[...route]]/route.ts
 ```
 
 `PATCH /edit`
@@ -286,7 +286,7 @@ hono request \
   -P /api/follow \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  src/index.ts
+  src/app/api/[[...route]]/route.ts
 ```
 
 `POST /follow`
@@ -365,7 +365,7 @@ hono request \
   -P /api/follow \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  src/index.ts
+  src/app/api/[[...route]]/route.ts
 ```
 
 `DELETE /follow`
@@ -446,7 +446,7 @@ hono request \
   -P /api/like \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  src/index.ts
+  src/app/api/[[...route]]/route.ts
 ```
 
 `POST /like`
@@ -536,7 +536,7 @@ hono request \
   -P /api/like \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  src/index.ts
+  src/app/api/[[...route]]/route.ts
 ```
 
 `DELETE /like`
@@ -627,7 +627,7 @@ hono request \
   -X GET \
   -P /api/notifications/{userId} \
   -H 'Accept: application/json' \
-  src/index.ts
+  src/app/api/[[...route]]/route.ts
 ```
 
 `GET /notifications/{userId}`
@@ -713,7 +713,7 @@ hono request \
   -X POST \
   -P /api/notifications \
   -H 'Accept: application/json' \
-  src/index.ts
+  src/app/api/[[...route]]/route.ts
 ```
 
 `POST /notifications`
@@ -778,7 +778,7 @@ hono request \
   -X GET \
   -P /api/posts \
   -H 'Accept: application/json' \
-  src/index.ts
+  src/app/api/[[...route]]/route.ts
 ```
 
 `GET /posts`
@@ -915,7 +915,7 @@ hono request \
   -P /api/posts \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  src/index.ts
+  src/app/api/[[...route]]/route.ts
 ```
 
 `POST /posts`
@@ -997,7 +997,7 @@ hono request \
   -X GET \
   -P /api/posts/{postId} \
   -H 'Accept: application/json' \
-  src/index.ts
+  src/app/api/[[...route]]/route.ts
 ```
 
 `GET /posts/{postId}`
@@ -1121,7 +1121,7 @@ hono request \
   -P /api/register \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  src/index.ts
+  src/app/api/[[...route]]/route.ts
 ```
 
 `POST /register`
@@ -1219,7 +1219,7 @@ hono request \
   -X GET \
   -P /api/users/{userId} \
   -H 'Accept: application/json' \
-  src/index.ts
+  src/app/api/[[...route]]/route.ts
 ```
 
 `GET /users/{userId}`
@@ -1313,7 +1313,7 @@ hono request \
   -X GET \
   -P /api/users \
   -H 'Accept: application/json' \
-  src/index.ts
+  src/app/api/[[...route]]/route.ts
 ```
 
 `GET /users`

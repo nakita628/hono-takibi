@@ -12,5 +12,6 @@ export default defineConfig({
   },
   docs: {
     output: 'docs/api.md',
+    entry: 'src/app/api/[[...route]]/route.ts',
   },
 })
