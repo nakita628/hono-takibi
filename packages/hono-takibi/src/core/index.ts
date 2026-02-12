@@ -1,9 +1,3 @@
-/**
- * Core module re-exports.
- *
- * @module core
- */
-
 // Shared query module
 export { makeQueryHooks } from '../helper/query.js'
 export * from './components/index.js'

@@ -1,11 +1,3 @@
-/**
- * RequestBody component generation module.
- *
- * Handles generation of Zod schemas from OpenAPI requestBody components
- * with support for split mode.
- *
- * @module core/components/requestBodies
- */
 import path from 'node:path'
 import { requestBodiesCode } from '../../generator/zod-openapi-hono/openapi/components/request-bodies.js'
 import { core, makeImports } from '../../helper/index.js'

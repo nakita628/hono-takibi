@@ -1,17 +1,3 @@
-/**
- * AST-based merge module for generated files.
- *
- * Uses ts-morph for AST analysis and original text slicing for output,
- * preserving user edits (including comments) while syncing with OpenAPI spec changes.
- *
- * Supports four file types:
- * - Handler files: add/remove/preserve handlers based on OpenAPI routes
- * - App file (index.ts): replace the `.openapi()` chain while preserving middleware/comments
- * - Test files: preserve user mocks/tests, add/remove route test stubs based on OpenAPI routes
- * - Barrel files: sync with generated (source of truth)
- *
- * @module merge
- */
 import { Project } from 'ts-morph'
 
 /**

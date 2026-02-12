@@ -5,24 +5,10 @@ import { core } from './core.js'
 /**
  * Generates TypeScript export files for OpenAPI components in split mode.
  *
- * Creates individual TypeScript files for each component with proper exports.
- *
- * ```mermaid
- * flowchart TD
- *   A([Start]) --> B["Get component keys"]
- *   B --> C["Generate index.ts"]
- *   C --> D["For each component"]
- *   D --> E["Generate JSON export"]
- *   E --> F["Write to file"]
- *   F --> G{More components?}
- *   G -->|Yes| D
- *   G -->|No| H(["Return result"])
- * ```
- *
  * @param value - Object containing component definitions
  * @param suffix - Component type suffix (e.g., 'Example', 'Schema')
  * @param output - Output directory path
- * @param readonly - Whether to add `as const` assertion to the output.
+ * @param readonly - Whether to add `as const` assertion to the output
  * @returns Result object with success/error status
  */
 export async function makeExports(

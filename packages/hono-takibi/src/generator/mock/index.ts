@@ -1,14 +1,3 @@
-/**
- * Single-file mock server generator.
- *
- * Generates a complete mock server in one file with:
- * - Route definitions
- * - Faker-based mock functions
- * - Handler implementations
- * - App setup
- *
- * @module generator/mock
- */
 import {
   isHttpMethod,
   isMediaWithSchema,

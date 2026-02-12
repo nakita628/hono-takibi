@@ -1,11 +1,3 @@
-/**
- * Schema component generation module.
- *
- * Handles generation of Zod schemas from OpenAPI schema components
- * with support for split mode and circular dependency detection.
- *
- * @module core/components/schemas
- */
 import path from 'node:path'
 import { schemasCode } from '../../generator/zod-openapi-hono/openapi/components/schemas.js'
 import { analyzeCircularSchemas, ast, core, makeSplitSchemaFile } from '../../helper/index.js'

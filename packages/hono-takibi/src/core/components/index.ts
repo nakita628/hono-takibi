@@ -1,14 +1,3 @@
-/**
- * Component generation module.
- *
- * Provides individual functions for generating OpenAPI component files.
- * Export order follows OpenAPI Components Object specification.
- *
- * @see https://spec.openapis.org/oas/v3.1.0.html#components-object
- *
- * @module core/components
- */
-
 export { callbacks } from './callbacks.js'
 export { examples } from './examples.js'
 export { headers } from './headers.js'

@@ -1,11 +1,3 @@
-/**
- * Webhook generation module.
- *
- * Generates webhook exports from OpenAPI webhooks with split mode support.
- * Follows the same pattern as route generation.
- *
- * @module core/webhooks
- */
 import path from 'node:path'
 import { webhookCode } from '../../generator/zod-openapi-hono/openapi/webhooks/index.js'
 import { core, makeImports } from '../../helper/index.js'

@@ -1,27 +1,3 @@
-/**
- * Vite plugin module for hono-takibi.
- *
- * Provides a Vite plugin that automatically regenerates TypeScript code
- * from OpenAPI specifications during development. Watches for changes
- * in the OpenAPI spec and config file, triggering hot reloads.
- *
- * ```mermaid
- * flowchart TD
- *   A["honoTakibiVite()"] --> B["configureServer()"]
- *   B --> C["readConfigurationWithHotReload()"]
- *   C --> D["parseOpenAPI(input)"]
- *   D --> E["runAllGenerationTasks()"]
- *   E --> F["Generate schemas"]
- *   E --> G["Generate routes"]
- *   E --> H["Generate types/rpc"]
- *   F --> I["Write files"]
- *   G --> I
- *   H --> I
- *   I --> J["Hot reload"]
- * ```
- *
- * @module vite-plugin
- */
 import fsp from 'node:fs/promises'
 import path from 'node:path'
 import { parseConfig } from '../config/index.js'
@@ -211,22 +187,7 @@ const debounce = (delayMilliseconds: number, callback: () => void): (() => void)
  * ────────────────────────────────────────────────────────────── */
 
 /**
- * Runs all code generation tasks based on the provided configuration.
- *
- * Executes generation tasks in parallel for optimal performance.
- * Each task handles a specific component type (schemas, routes, etc.).
- *
- * ```mermaid
- * flowchart LR
- *   A["runAllGenerationTasks"] --> B["parseOpenAPI"]
- *   B --> C["Promise.all"]
- *   C --> D["schemas"]
- *   C --> E["routes"]
- *   C --> F["parameters"]
- *   C --> G["headers"]
- *   C --> H["responses"]
- *   C --> I["...others"]
- * ```
+ * Runs all code generation tasks in parallel based on the provided configuration.
  *
  * @param config - Parsed configuration object
  * @returns Promise resolving to object containing log messages
@@ -674,31 +635,8 @@ const addInputGlobsToWatcher = (server: ViteDevServer, absoluteInputPath: string
 /**
  * Creates a Vite plugin for hono-takibi code generation.
  *
- * This plugin automatically regenerates TypeScript code from OpenAPI
- * specifications during development. It watches for changes in:
- * - The OpenAPI spec file (yaml/json/tsp)
- * - The hono-takibi.config.ts configuration file
- *
- * ```mermaid
- * sequenceDiagram
- *   participant V as Vite
- *   participant P as Plugin
- *   participant C as Config
- *   participant G as Generator
- *
- *   V->>P: configureServer()
- *   P->>C: loadConfigurationWithHotReload()
- *   C-->>P: config
- *   P->>G: runAllGenerationTasks()
- *   G-->>P: logs
- *   P->>V: hot reload
- *
- *   Note over V,G: On file change
- *   V->>P: handleHotUpdate()
- *   P->>G: runAllGenerationTasks()
- *   G-->>P: logs
- *   P->>V: full-reload
- * ```
+ * Watches OpenAPI spec and config files for changes and
+ * automatically regenerates TypeScript code with hot reload.
  *
  * @returns Vite plugin object
  *

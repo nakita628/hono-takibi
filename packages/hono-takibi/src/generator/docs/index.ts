@@ -287,7 +287,7 @@ function makeAuthenticationSection(
           const flow = flowValue as {
             readonly authorizationUrl?: string
             readonly tokenUrl?: string
-            readonly scopes?: Readonly<Record<string, string>>
+            readonly scopes?: { readonly [k: string]: string }
           }
           lines.push(`    - Flow: ${flowName}`)
           if (flow.authorizationUrl) {

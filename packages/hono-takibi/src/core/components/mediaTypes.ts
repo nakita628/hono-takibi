@@ -1,11 +1,3 @@
-/**
- * Media type component generation module.
- *
- * Handles generation of Zod schemas from OpenAPI mediaTypes components
- * with support for split mode.
- *
- * @module core/components/mediaTypes
- */
 import path from 'node:path'
 import { zodToOpenAPI } from '../../generator/zod-to-openapi/index.js'
 import { core } from '../../helper/index.js'

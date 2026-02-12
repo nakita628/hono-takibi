@@ -1,11 +1,3 @@
-/**
- * Response component generation module.
- *
- * Handles generation of Zod schemas from OpenAPI response components
- * with support for split mode.
- *
- * @module core/components/responses
- */
 import path from 'node:path'
 import { responsesCode } from '../../generator/zod-openapi-hono/openapi/components/responses.js'
 import { core, makeImports } from '../../helper/index.js'

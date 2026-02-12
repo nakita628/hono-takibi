@@ -1,24 +1,3 @@
-/**
- * CLI module for hono-takibi.
- *
- * Provides the main entry point for the CLI tool that converts OpenAPI
- * specifications to Hono routes with Zod validation.
- *
- * ```mermaid
- * flowchart TD
- *   A["honoTakibi()"] --> B{"--help or -h?"}
- *   B -->|Yes| C["Return HELP_TEXT"]
- *   B -->|No| D{"hono-takibi.config.ts exists?"}
- *   D -->|No| E["Parse CLI args (input + output only)"]
- *   D -->|Yes| F["Load config file"]
- *   E --> G["parseOpenAPI(input)"]
- *   F --> G
- *   G --> H["takibi() + components"]
- *   H --> I["Return success/error"]
- * ```
- *
- * @module cli
- */
 import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { readConfig } from '../config/index.js'
@@ -56,60 +35,7 @@ const HELP_TEXT = `Usage: hono-takibi <input.{yaml,json,tsp}> -o <output.ts>
 Options:
   -h, --help                  display help for command`
 
-/**
- * Main CLI entry point for hono-takibi.
- *
- * Processes command-line arguments or config file to generate TypeScript
- * code from OpenAPI specifications. Supports both CLI mode and config file mode.
- *
- * ```mermaid
- * flowchart TD
- *   A["Start"] --> B{"Args: --help/-h?"}
- *   B -->|Yes| C["Return help text"]
- *   B -->|No| D{"Config file exists?"}
- *   D -->|No| E["CLI Mode (input + output only)"]
- *   D -->|Yes| F["Config Mode"]
- *   E --> G["parseCli(args)"]
- *   G --> H["parseOpenAPI(input)"]
- *   H --> I["takibi(openAPI, output, defaults)"]
- *   F --> J["config()"]
- *   J --> K["parseOpenAPI(config.input)"]
- *   K --> L["Generate all components"]
- *   L --> M["Return results"]
- *   I --> M
- * ```
- *
- * @returns Promise resolving to success with output message or error
- *
- * @example
- * ```ts
- * // CLI usage
- * const result = await honoTakibi()
- * if (result.ok) {
- *   console.log(result.value) // "Generated code written to routes.ts"
- * } else {
- *   console.error(result.error)
- * }
- * ```
- */
-
-/**
- * Parse raw CLI arguments into structured options.
- *
- * - Validates `<input>` ends with `.yaml`/`.json`/`.tsp`
- * - Requires `-o <output.ts>`
- *
- * ```mermaid
- * flowchart TD
- *   A["parseCli(args)"] --> B["Extract input & output (-o)"]
- *   B --> C{"input endsWith .yaml/.json/.tsp AND output endsWith .ts?"}
- *   C -->|No| D["return { ok:false, error: HELP_TEXT }"]
- *   C -->|Yes| E["return { ok:true, value:{ input, output } }"]
- * ```
- *
- * @param args - Raw CLI arguments (e.g., `process.argv.slice(2)`).
- * @returns `{ ok:true, value }` on success; `{ ok:false, error }` on invalid usage.
- */
+/** Parses raw CLI arguments into `{ input, output }`. */
 function parseCli(args: readonly string[]):
   | {
       readonly ok: true

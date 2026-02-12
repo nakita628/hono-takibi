@@ -1,28 +1,3 @@
-/**
- * TypeScript type string generation from OpenAPI schemas.
- *
- * Converts OpenAPI schema definitions to TypeScript type string representations,
- * handling complex constructs like unions, intersections, and recursive references.
- *
- * ```mermaid
- * flowchart TD
- *   A["makeTypeString(schema)"] --> B{"Has $ref?"}
- *   B -->|Yes| C["makeRefTypeString()"]
- *   B -->|No| D{"oneOf/anyOf?"}
- *   D -->|Yes| E["Union type (|)"]
- *   D -->|No| F{"allOf?"}
- *   F -->|Yes| G["Intersection type (&)"]
- *   F -->|No| H{"enum?"}
- *   H -->|Yes| I["Literal union"]
- *   H -->|No| J["makeSingleTypeString()"]
- *   J --> K{"type?"}
- *   K -->|array| L["makeArrayTypeString()"]
- *   K -->|object| M["makeObjectTypeString()"]
- *   K -->|primitive| N["string/number/boolean"]
- * ```
- *
- * @module helper/type
- */
 import { isSchemaArray } from '../guard/index.js'
 import type { Schema } from '../openapi/index.js'
 import { toIdentifierPascalCase } from '../utils/index.js'
@@ -30,29 +5,28 @@ import { toIdentifierPascalCase } from '../utils/index.js'
 /**
  * Generates a TypeScript type string from an OpenAPI schema.
  *
- * Handles various schema constructs including $ref, oneOf, anyOf, allOf,
- * enums, const values, and primitive/complex types.
+ * @param schema - The OpenAPI schema object
+ * @param selfTypeName - The name of the current type (for self-reference detection)
+ * @param cyclicGroup - Optional set of type names in a cyclic dependency group
+ * @param readonly - Whether to generate readonly array and object types
+ * @returns A TypeScript type string representation
  *
- * @param schema - The OpenAPI schema object.
- * @param selfTypeName - The name of the current type (for self-reference detection).
- * @param cyclicGroup - Optional set of type names in a cyclic dependency group.
- * @param readonly - Whether to generate readonly array and object types.
- * @returns A TypeScript type string representation.
- *
- * @example
- * ```ts
- * makeTypeString({ type: 'string' }, 'User')
- * // → 'string'
- *
- * makeTypeString({ type: 'object', properties: { name: { type: 'string' } } }, 'User')
- * // → '{name?:string}'
- *
- * makeTypeString({ type: 'array', items: { type: 'string' } }, 'User', undefined, true)
- * // → 'readonly string[]'
- *
- * makeTypeString({ type: 'object', properties: { name: { type: 'string' } } }, 'User', undefined, true)
- * // → '{readonly name?:string}'
- * ```
+ * @mermaid
+ * flowchart TD
+ *   A["makeTypeString(schema)"] --> B{"Has $ref?"}
+ *   B -->|Yes| C["Ref type string"]
+ *   B -->|No| D{"oneOf / anyOf?"}
+ *   D -->|Yes| E["Union type (|)"]
+ *   D -->|No| F{"allOf?"}
+ *   F -->|Yes| G["Intersection type (&)"]
+ *   F -->|No| H{"enum?"}
+ *   H -->|Yes| I["Literal union"]
+ *   H -->|No| J{"Primitive type?"}
+ *   J -->|string| K["string"]
+ *   J -->|number/integer| L["number"]
+ *   J -->|boolean| M["boolean"]
+ *   J -->|array| N["T[] / readonly T[]"]
+ *   J -->|object| O["{props}"]
  */
 export function makeTypeString(
   schema: Schema,

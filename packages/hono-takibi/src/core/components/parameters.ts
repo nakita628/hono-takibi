@@ -1,11 +1,3 @@
-/**
- * Parameter component generation module.
- *
- * Handles generation of Zod schemas from OpenAPI parameter components
- * with support for split mode.
- *
- * @module core/components/parameters
- */
 import path from 'node:path'
 import { parametersCode } from '../../generator/zod-openapi-hono/openapi/components/parameters.js'
 import { core, makeImports } from '../../helper/index.js'

@@ -1,14 +1,3 @@
-/**
- * OpenAPI format/type to faker.js mapping
- *
- * This module provides mappings from OpenAPI schema types and formats
- * to faker.js method calls for generating mock test data.
- *
- * Reference: Orval's /packages/mock/src/faker/constants.ts
- *
- * @module generator/test/faker-mapping
- */
-
 import type { Schema } from '../../openapi/index.js'
 
 /**

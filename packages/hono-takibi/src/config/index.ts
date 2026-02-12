@@ -1,20 +1,3 @@
-/**
- * Configuration module for hono-takibi.
- *
- * Provides configuration type definitions and utilities for loading
- * and validating hono-takibi configuration files.
- *
- * ```mermaid
- * flowchart TD
- *   A["hono-takibi.config.ts"] --> B["readConfig()"]
- *   B --> C["ConfigSchema.safeParse()"]
- *   C --> D{"Valid?"}
- *   D -->|Yes| E["Normalized Config"]
- *   D -->|No| F["Error message"]
- * ```
- *
- * @module config
- */
 import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'

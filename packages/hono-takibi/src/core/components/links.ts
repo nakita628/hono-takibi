@@ -1,11 +1,3 @@
-/**
- * Link component generation module.
- *
- * Handles generation of JSON exports from OpenAPI link components
- * with support for split mode.
- *
- * @module core/components/links
- */
 import path from 'node:path'
 import { makeExportConst } from '../../helper/code.js'
 import { core, makeExports } from '../../helper/index.js'
