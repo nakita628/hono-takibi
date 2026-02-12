@@ -8,8 +8,8 @@ export { makeDocs } from '../../generator/docs/index.js'
 export async function docs(
   openAPI: OpenAPI,
   output: string,
-  entry: string,
-  basePath: string,
+  entry = 'src/index.ts',
+  basePath = '/',
 ): Promise<
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {
