@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest'
 import { faker } from '@faker-js/faker'
+import { describe, expect, it } from 'vitest'
 import app from '@/backend'
 
 function mockCreateCommentRequest() {
@@ -12,7 +12,7 @@ describe('Comments', () => {
   describe('POST /comments', () => {
     it('should return 200', async () => {
       const body = mockCreateCommentRequest()
-      const res = await app.request(`/comments`, {
+      const res = await app.request('/comments', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),

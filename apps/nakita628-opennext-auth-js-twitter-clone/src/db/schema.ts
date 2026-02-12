@@ -2,7 +2,9 @@ import { relations } from 'drizzle-orm'
 import { integer, primaryKey, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 
 export const users = sqliteTable('users', {
-  id: text().primaryKey().$defaultFn(() => crypto.randomUUID()),
+  id: text()
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
   name: text().notNull(),
   username: text().notNull().unique(),
   bio: text(),
@@ -12,16 +14,28 @@ export const users = sqliteTable('users', {
   coverImage: text(),
   profileImage: text(),
   hashedPassword: text(),
-  createdAt: integer({ mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
-  updatedAt: integer({ mode: 'timestamp' }).notNull().$defaultFn(() => new Date()).$onUpdateFn(() => new Date()),
+  createdAt: integer({ mode: 'timestamp' })
+    .notNull()
+    .$defaultFn(() => new Date()),
+  updatedAt: integer({ mode: 'timestamp' })
+    .notNull()
+    .$defaultFn(() => new Date())
+    .$onUpdateFn(() => new Date()),
   hasNotification: integer({ mode: 'boolean' }),
 })
 
 export const posts = sqliteTable('posts', {
-  id: text().primaryKey().$defaultFn(() => crypto.randomUUID()),
+  id: text()
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
   body: text().notNull(),
-  createdAt: integer({ mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
-  updatedAt: integer({ mode: 'timestamp' }).notNull().$defaultFn(() => new Date()).$onUpdateFn(() => new Date()),
+  createdAt: integer({ mode: 'timestamp' })
+    .notNull()
+    .$defaultFn(() => new Date()),
+  updatedAt: integer({ mode: 'timestamp' })
+    .notNull()
+    .$defaultFn(() => new Date())
+    .$onUpdateFn(() => new Date()),
   userId: text()
     .notNull()
     .references(() => users.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
@@ -36,11 +50,11 @@ export const follows = sqliteTable(
     followingId: text()
       .notNull()
       .references(() => users.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
-    createdAt: integer({ mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
+    createdAt: integer({ mode: 'timestamp' })
+      .notNull()
+      .$defaultFn(() => new Date()),
   },
-  (t) => [
-    primaryKey({ columns: [t.followerId, t.followingId] }),
-  ],
+  (t) => [primaryKey({ columns: [t.followerId, t.followingId] })],
 )
 
 export const likes = sqliteTable(
@@ -52,18 +66,25 @@ export const likes = sqliteTable(
     postId: text()
       .notNull()
       .references(() => posts.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
-    createdAt: integer({ mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
+    createdAt: integer({ mode: 'timestamp' })
+      .notNull()
+      .$defaultFn(() => new Date()),
   },
-  (t) => [
-    primaryKey({ columns: [t.userId, t.postId] }),
-  ],
+  (t) => [primaryKey({ columns: [t.userId, t.postId] })],
 )
 
 export const comments = sqliteTable('comments', {
-  id: text().primaryKey().$defaultFn(() => crypto.randomUUID()),
+  id: text()
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
   body: text().notNull(),
-  createdAt: integer({ mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
-  updatedAt: integer({ mode: 'timestamp' }).notNull().$defaultFn(() => new Date()).$onUpdateFn(() => new Date()),
+  createdAt: integer({ mode: 'timestamp' })
+    .notNull()
+    .$defaultFn(() => new Date()),
+  updatedAt: integer({ mode: 'timestamp' })
+    .notNull()
+    .$defaultFn(() => new Date())
+    .$onUpdateFn(() => new Date()),
   userId: text()
     .notNull()
     .references(() => users.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
@@ -73,12 +94,16 @@ export const comments = sqliteTable('comments', {
 })
 
 export const notifications = sqliteTable('notifications', {
-  id: text().primaryKey().$defaultFn(() => crypto.randomUUID()),
+  id: text()
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
   body: text().notNull(),
   userId: text()
     .notNull()
     .references(() => users.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
-  createdAt: integer({ mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
+  createdAt: integer({ mode: 'timestamp' })
+    .notNull()
+    .$defaultFn(() => new Date()),
 })
 
 export const usersRelations = relations(users, ({ many }) => ({

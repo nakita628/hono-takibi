@@ -24,6 +24,7 @@
     "@hono/auth-js": "^1.1.0",
     "@hono/zod-openapi": "^1.2.1",
     "@opennextjs/cloudflare": "^1.16.4",
+    "bcryptjs": "^3.0.3",
     "drizzle-orm": "^0.39.3",
     "hono": "^4.11.9",
     "next": "^16.1.6",
@@ -34,6 +35,7 @@
   "devDependencies": {
     "@faker-js/faker": "^10.3.0",
     "@tailwindcss/postcss": "^4.1.18",
+    "@types/bcryptjs": "^3.0.0",
     "@types/react": "^19.2.13",
     "@types/react-dom": "^19.2.3",
     "@typescript/native-preview": "7.0.0-dev.20260107.1",

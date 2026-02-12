@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest'
 import { faker } from '@faker-js/faker'
+import { describe, expect, it } from 'vitest'
 import app from '@/backend'
 
 function mockCreatePostRequest() {
@@ -11,14 +11,14 @@ function mockCreatePostRequest() {
 describe('Posts', () => {
   describe('GET /posts', () => {
     it('should return 200', async () => {
-      const res = await app.request(`/posts`, { method: 'GET' })
+      const res = await app.request('/posts', { method: 'GET' })
       expect(res.status).toBe(200)
     })
   })
   describe('POST /posts', () => {
     it('should return 200', async () => {
       const body = mockCreatePostRequest()
-      const res = await app.request(`/posts`, {
+      const res = await app.request('/posts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
@@ -28,7 +28,7 @@ describe('Posts', () => {
   })
   describe('GET /posts/{postId}', () => {
     it('should return 200', async () => {
-      const res = await app.request(`/posts/{postId}`, { method: 'GET' })
+      const res = await app.request('/posts/{postId}', { method: 'GET' })
       expect(res.status).toBe(200)
     })
   })

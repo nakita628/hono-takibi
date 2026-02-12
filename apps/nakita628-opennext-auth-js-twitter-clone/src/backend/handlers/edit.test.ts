@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest'
 import { faker } from '@faker-js/faker'
+import { describe, expect, it } from 'vitest'
 import app from '@/backend'
 
 function mockEditUserRequest() {
@@ -19,7 +19,7 @@ describe('Edit', () => {
   describe('PATCH /edit', () => {
     it('should return 200', async () => {
       const body = mockEditUserRequest()
-      const res = await app.request(`/edit`, {
+      const res = await app.request('/edit', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
