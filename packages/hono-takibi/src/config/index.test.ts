@@ -390,6 +390,80 @@ describe('parseConfig()', () => {
     })
   })
 
+  describe('format option', () => {
+    it.concurrent('accepts format with standard options', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        format: {
+          printWidth: 80,
+          semi: true,
+          singleQuote: false,
+          tabWidth: 4,
+          useTabs: false,
+          trailingComma: 'es5',
+          arrowParens: 'avoid',
+          bracketSpacing: true,
+          bracketSameLine: false,
+          objectWrap: 'collapse',
+          endOfLine: 'lf',
+        },
+      })
+      expect(result.ok).toBe(true)
+      if (result.ok) {
+        expect(result.value.format?.printWidth).toBe(80)
+        expect(result.value.format?.semi).toBe(true)
+        expect(result.value.format?.singleQuote).toBe(false)
+        expect(result.value.format?.arrowParens).toBe('avoid')
+      }
+    })
+
+    it.concurrent('accepts format with experimental options', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        format: {
+          experimentalSortImports: {
+            order: 'asc',
+            newlinesBetween: true,
+            ignoreCase: true,
+          },
+          experimentalSortPackageJson: true,
+          experimentalTailwindcss: {
+            functions: ['clsx', 'cva'],
+            attributes: ['myClass'],
+          },
+        },
+      })
+      expect(result.ok).toBe(true)
+      if (result.ok) {
+        expect(result.value.format?.experimentalSortImports?.order).toBe('asc')
+        expect(result.value.format?.experimentalSortPackageJson).toBe(true)
+        expect(result.value.format?.experimentalTailwindcss?.functions).toStrictEqual([
+          'clsx',
+          'cva',
+        ])
+      }
+    })
+
+    it.concurrent('accepts config without format (optional)', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        'zod-openapi': { output: 'routes.ts' },
+      })
+      expect(result.ok).toBe(true)
+      if (result.ok) {
+        expect(result.value.format).toBeUndefined()
+      }
+    })
+
+    it.concurrent('rejects unknown format keys', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        format: { unknownOption: true },
+      })
+      expect(result.ok).toBe(false)
+    })
+  })
+
   describe('output and routes mutual exclusivity', () => {
     it.concurrent('fails when both output and routes are specified', () => {
       const result = parseConfig({

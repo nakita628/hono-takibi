@@ -2978,4 +2978,161 @@ export const getDataRoute = createRoute({
 })
 `)
   })
+
+  describe('format option in config', () => {
+    const formatTestSchema = {
+      openapi: '3.0.3',
+      info: { title: 'Format API', version: '1.0.0' },
+      paths: {
+        '/items': {
+          get: {
+            operationId: 'getItems',
+            responses: {
+              200: {
+                description: 'Success',
+                content: {
+                  'application/json': { schema: { $ref: '#/components/schemas/Item' } },
+                },
+              },
+            },
+          },
+        },
+      },
+      components: {
+        schemas: {
+          Item: {
+            type: 'object',
+            properties: {
+              id: { type: 'integer' },
+            },
+          },
+        },
+      },
+    }
+
+    it('default format: singleQuote true, semi false', () => {
+      fs.writeFileSync(`${testDir}/schema.json`, JSON.stringify(formatTestSchema))
+      fs.writeFileSync(
+        `${testDir}/hono-takibi.config.ts`,
+        `export default { input: 'schema.json', 'zod-openapi': { output: 'output.ts', exportSchemas: true } }`,
+      )
+      execSync(`node ${path.resolve('packages/hono-takibi/dist/index.js')}`, {
+        cwd: path.resolve(testDir),
+      })
+      const result = fs.readFileSync(`${testDir}/output.ts`, { encoding: 'utf-8' })
+      expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
+
+export const ItemSchema = z.object({ id: z.int().exactOptional() }).openapi('Item')
+
+export const getItemsRoute = createRoute({
+  method: 'get',
+  path: '/items',
+  operationId: 'getItems',
+  responses: {
+    200: { description: 'Success', content: { 'application/json': { schema: ItemSchema } } },
+  },
+})
+`)
+    })
+
+    it('format: semi true, singleQuote false', () => {
+      fs.writeFileSync(`${testDir}/schema.json`, JSON.stringify(formatTestSchema))
+      fs.writeFileSync(
+        `${testDir}/hono-takibi.config.ts`,
+        `export default { input: 'schema.json', format: { semi: true, singleQuote: false }, 'zod-openapi': { output: 'output.ts', exportSchemas: true } }`,
+      )
+      execSync(`node ${path.resolve('packages/hono-takibi/dist/index.js')}`, {
+        cwd: path.resolve(testDir),
+      })
+      const result = fs.readFileSync(`${testDir}/output.ts`, { encoding: 'utf-8' })
+      expect(result).toBe(`import { createRoute, z } from "@hono/zod-openapi";
+
+export const ItemSchema = z.object({ id: z.int().exactOptional() }).openapi("Item");
+
+export const getItemsRoute = createRoute({
+  method: "get",
+  path: "/items",
+  operationId: "getItems",
+  responses: {
+    200: { description: "Success", content: { "application/json": { schema: ItemSchema } } },
+  },
+});
+`)
+    })
+
+    it('format: semi true, singleQuote true', () => {
+      fs.writeFileSync(`${testDir}/schema.json`, JSON.stringify(formatTestSchema))
+      fs.writeFileSync(
+        `${testDir}/hono-takibi.config.ts`,
+        `export default { input: 'schema.json', format: { semi: true, singleQuote: true }, 'zod-openapi': { output: 'output.ts', exportSchemas: true } }`,
+      )
+      execSync(`node ${path.resolve('packages/hono-takibi/dist/index.js')}`, {
+        cwd: path.resolve(testDir),
+      })
+      const result = fs.readFileSync(`${testDir}/output.ts`, { encoding: 'utf-8' })
+      expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi';
+
+export const ItemSchema = z.object({ id: z.int().exactOptional() }).openapi('Item');
+
+export const getItemsRoute = createRoute({
+  method: 'get',
+  path: '/items',
+  operationId: 'getItems',
+  responses: {
+    200: { description: 'Success', content: { 'application/json': { schema: ItemSchema } } },
+  },
+});
+`)
+    })
+
+    it('format: tabWidth 4', () => {
+      fs.writeFileSync(`${testDir}/schema.json`, JSON.stringify(formatTestSchema))
+      fs.writeFileSync(
+        `${testDir}/hono-takibi.config.ts`,
+        `export default { input: 'schema.json', format: { tabWidth: 4, singleQuote: true, semi: false }, 'zod-openapi': { output: 'output.ts', exportSchemas: true } }`,
+      )
+      execSync(`node ${path.resolve('packages/hono-takibi/dist/index.js')}`, {
+        cwd: path.resolve(testDir),
+      })
+      const result = fs.readFileSync(`${testDir}/output.ts`, { encoding: 'utf-8' })
+      expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
+
+export const ItemSchema = z.object({ id: z.int().exactOptional() }).openapi('Item')
+
+export const getItemsRoute = createRoute({
+    method: 'get',
+    path: '/items',
+    operationId: 'getItems',
+    responses: {
+        200: { description: 'Success', content: { 'application/json': { schema: ItemSchema } } },
+    },
+})
+`)
+    })
+
+    it('format: useTabs true', () => {
+      fs.writeFileSync(`${testDir}/schema.json`, JSON.stringify(formatTestSchema))
+      fs.writeFileSync(
+        `${testDir}/hono-takibi.config.ts`,
+        `export default { input: 'schema.json', format: { useTabs: true, singleQuote: true, semi: false }, 'zod-openapi': { output: 'output.ts', exportSchemas: true } }`,
+      )
+      execSync(`node ${path.resolve('packages/hono-takibi/dist/index.js')}`, {
+        cwd: path.resolve(testDir),
+      })
+      const result = fs.readFileSync(`${testDir}/output.ts`, { encoding: 'utf-8' })
+      expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
+
+export const ItemSchema = z.object({ id: z.int().exactOptional() }).openapi('Item')
+
+export const getItemsRoute = createRoute({
+\tmethod: 'get',
+\tpath: '/items',
+\toperationId: 'getItems',
+\tresponses: {
+\t\t200: { description: 'Success', content: { 'application/json': { schema: ItemSchema } } },
+\t},
+})
+`)
+    })
+  })
 })

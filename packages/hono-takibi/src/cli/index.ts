@@ -22,6 +22,7 @@
 import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { readConfig } from '../config/index.js'
+import { setFormatOptions } from '../format/index.js'
 import {
   callbacks,
   docs,
@@ -187,6 +188,8 @@ export async function honoTakibi(): Promise<
   const readConfigResult = await readConfig()
   if (!readConfigResult.ok) return { ok: false, error: readConfigResult.error }
   const config = readConfigResult.value
+
+  if (config.format) setFormatOptions(config.format)
 
   const openAPIResult = await parseOpenAPI(config.input)
   if (!openAPIResult.ok) return { ok: false, error: openAPIResult.error }

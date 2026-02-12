@@ -1152,21 +1152,6 @@ export function makeDocs(openAPI: OpenAPI, entry: string, basePath: string): str
 
   const lines: string[] = []
 
-  // ── YAML Front Matter ──
-  lines.push(
-    '---',
-    `title: ${fullTitle}`,
-    'language_tabs:',
-    '  - bash: Bash',
-    'toc_footers: []',
-    'includes: []',
-    'search: true',
-    'highlight_theme: darkula',
-    'headingLevel: 2',
-    '---',
-    '',
-  )
-
   // ── Title ──
   lines.push(`<h1 id="${titleSlug}">${fullTitle}</h1>`, '')
 
@@ -1178,7 +1163,7 @@ export function makeDocs(openAPI: OpenAPI, entry: string, basePath: string): str
 
   // ── API Description ──
   if (openAPI.info?.description) {
-    lines.push(openAPI.info.description, '')
+    lines.push(openAPI.info.description.trimEnd(), '')
   }
 
   // ── Base URLs ──
