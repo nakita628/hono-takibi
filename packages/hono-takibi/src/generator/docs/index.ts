@@ -226,11 +226,11 @@ function makeExampleFromSchema(
 
   // allOf / oneOf / anyOf
   if (schema.allOf?.length) {
-    const merged: { [k: string]: unknown } = {}
+    let merged: { [k: string]: unknown } = {}
     for (const sub of schema.allOf) {
       const example = makeExampleFromSchema(sub, components, new Set(visited))
       if (typeof example === 'object' && example !== null && !Array.isArray(example)) {
-        Object.assign(merged, example)
+        merged = { ...merged, ...(example as { [k: string]: unknown }) }
       }
     }
     return merged
