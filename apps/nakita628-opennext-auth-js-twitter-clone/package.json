@@ -11,13 +11,18 @@
     "upload": "opennextjs-cloudflare build && opennextjs-cloudflare upload",
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "cf-typegen": "wrangler types --env-interface CloudflareEnv ./cloudflare-env.d.ts",
-    "typecheck": "tsgo --noEmit"
+    "typecheck": "tsgo --noEmit",
+    "push": "drizzle-kit push",
+    "generate": "drizzle-kit generate",
+    "migrate": "drizzle-kit migrate",
+    "local-migrate": "wrangler d1 migrations apply DB --local"
   },
   "dependencies": {
     "@auth/core": "^0.34.3",
     "@hono/auth-js": "^1.1.0",
     "@hono/zod-openapi": "^1.2.1",
     "@opennextjs/cloudflare": "^1.16.4",
+    "drizzle-orm": "^0.39.3",
     "hono": "^4.11.9",
     "next": "^16.1.6",
     "react": "^19.2.4",
@@ -34,6 +39,7 @@
     "@typespec/openapi": "^1.9.0",
     "@typespec/openapi3": "^1.9.0",
     "@typespec/versioning": "^0.79.0",
+    "drizzle-kit": "^0.30.6",
     "hono-takibi": "workspace:^",
     "postcss": "^8.5.6",
     "tailwindcss": "^4.1.18",
