@@ -144,9 +144,7 @@ describe('makeDocs', () => {
     })
 
     it('generates docs with -P /health (with servers)', () => {
-      expect(makeDocs(openAPIWithServers, 'src/index.ts', '/')).toBe(
-        expectedWithServers('/health'),
-      )
+      expect(makeDocs(openAPIWithServers, 'src/index.ts', '/')).toBe(expectedWithServers('/health'))
     })
   })
 

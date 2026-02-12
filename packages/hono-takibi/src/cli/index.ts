@@ -1,7 +1,6 @@
 import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { readConfig } from '../config/index.js'
-import { setFormatOptions } from '../format/index.js'
 import {
   callbacks,
   docs,
@@ -28,6 +27,7 @@ import {
   vueQuery,
   webhooks,
 } from '../core/index.js'
+import { setFormatOptions } from '../format/index.js'
 import { parseOpenAPI } from '../openapi/index.js'
 
 const HELP_TEXT = `Usage: hono-takibi <input.{yaml,json,tsp}> -o <output.ts>

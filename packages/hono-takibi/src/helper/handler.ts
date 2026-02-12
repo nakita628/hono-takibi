@@ -39,7 +39,11 @@ function makeRefs(schema: Schema, refs: Set<string> = new Set()): Set<string> {
 
 /* ─────────────────────────────── Mock Generation ─────────────────────────────── */
 
-function makeMockFunction(name: string, schema: Schema, schemas: { readonly [k: string]: Schema }): string {
+function makeMockFunction(
+  name: string,
+  schema: Schema,
+  schemas: { readonly [k: string]: Schema },
+): string {
   const mockBody = schemaToFaker(schema, undefined, { schemas })
   return `function mock${name}() {\n  return ${mockBody}\n}`
 }

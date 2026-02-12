@@ -67,7 +67,7 @@ describe('setFormatOptions', () => {
 
   it('trailingComma: none removes trailing commas', async () => {
     setFormatOptions({ trailingComma: 'none', singleQuote: true, semi: false })
-    const input = "const obj = {\n  a: 1,\n  b: 2,\n}"
+    const input = 'const obj = {\n  a: 1,\n  b: 2,\n}'
     const result = await fmt(input)
     expect(result.ok).toBe(true)
     if (result.ok) {
@@ -98,7 +98,7 @@ describe('setFormatOptions', () => {
 
   it('printWidth: 40 wraps long lines', async () => {
     setFormatOptions({ printWidth: 40, singleQuote: true, semi: false })
-    const input = "const result = { alpha: 1, beta: 2, gamma: 3 }"
+    const input = 'const result = { alpha: 1, beta: 2, gamma: 3 }'
     const result = await fmt(input)
     expect(result.ok).toBe(true)
     if (result.ok) {
