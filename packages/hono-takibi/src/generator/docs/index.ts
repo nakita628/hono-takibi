@@ -1143,7 +1143,7 @@ function groupByTag(endpoints: readonly Endpoint[], openAPI: OpenAPI): readonly 
  * Makes API reference Markdown from an OpenAPI specification.
  * Output format matches Widdershins v4.0.1, with hono request instead of curl.
  */
-export function makeDocs(openAPI: OpenAPI, entry: string, basePath: string): string {
+export function makeDocs(openAPI: OpenAPI, entry = 'src/index.ts', basePath = '/'): string {
   const title = openAPI.info?.title ?? 'API'
   const version = openAPI.info?.version ?? ''
   const fullTitle = version ? `${title} v${version}` : title

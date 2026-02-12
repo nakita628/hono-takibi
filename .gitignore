@@ -31,3 +31,4 @@ drizzle
 docs/hono-takibi/docs
 .next
 .open-next
+next-env.d.ts

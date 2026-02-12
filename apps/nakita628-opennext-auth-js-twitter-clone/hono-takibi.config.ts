@@ -8,4 +8,7 @@ export default defineConfig({
     test: true,
     pathAlias: '@/backend',
   },
+  docs: {
+    output: 'docs/api.md',
+  }
 })
