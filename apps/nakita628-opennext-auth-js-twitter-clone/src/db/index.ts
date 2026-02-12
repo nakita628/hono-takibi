@@ -4,4 +4,4 @@ import * as schema from './schema'
 
 export const db = drizzle(env.DB, { schema })
 
-export * from './schema'
+export * as schema from './schema'

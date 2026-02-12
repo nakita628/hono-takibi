@@ -8,7 +8,6 @@ describe('Users', () => {
       expect(res.status).toBe(200)
     })
   })
-
   describe('GET /users', () => {
     it('should return 200', async () => {
       const res = await app.request('/users', { method: 'GET' })

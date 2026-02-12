@@ -20,6 +20,7 @@ import {
   postPostsRouteHandler,
   postRegisterRouteHandler,
 } from '@/backend/handlers'
+import { formatZodErrors } from '@/backend/lib/error'
 import {
   deleteFollowRoute,
   deleteLikeRoute,
@@ -37,9 +38,17 @@ import {
   postPostsRoute,
   postRegisterRoute,
 } from '@/backend/routes'
-import { db, users } from '@/db'
+import { db, schema } from '@/db'
 
-const app = new OpenAPIHono().basePath('/api')
+const app = new OpenAPIHono({
+  defaultHook: (result, c) => {
+    if (!result.success) {
+      return c.json(formatZodErrors(result), 422, {
+        'Content-Type': 'application/problem+json',
+      })
+    }
+  },
+}).basePath('/api')
 
 app.use(
   '*',
@@ -63,7 +72,11 @@ app.use(
 
           const { email, password } = valid.data
 
-          const user = await db.select().from(users).where(eq(users.email, email)).get()
+          const user = await db
+            .select()
+            .from(schema.users)
+            .where(eq(schema.users.email, email))
+            .get()
 
           if (!user?.hashedPassword) return null
 
@@ -87,7 +100,7 @@ app.use('/auth/*', authHandler())
 
 app.use('*', async (c, next) => {
   const path = c.req.path.replace(/^\/api/, '')
-  if (path.startsWith('/auth/') || path === '/register') {
+  if (path.startsWith('/auth/') || path.startsWith('/register')) {
     return next()
   }
   return verifyAuth()(c, next)

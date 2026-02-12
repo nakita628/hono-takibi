@@ -4,6 +4,7 @@ export default defineConfig({
   input: 'main.tsp',
   'zod-openapi': {
     output: 'src/backend/routes/index.ts',
+    exportSchemas: true,
     basePath: '/api',
     template: true,
     test: true,

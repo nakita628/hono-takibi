@@ -54,6 +54,23 @@ hono request \
 }
 ```
 
+> 422 Response
+
+```json
+{
+  "type": "about:blank",
+  "title": "Unprocessable Content",
+  "status": 422,
+  "detail": "Request validation failed",
+  "errors": [
+    {
+      "pointer": "string",
+      "detail": "string"
+    }
+  ]
+}
+```
+
 > 500 Response
 
 ```json
@@ -67,6 +84,7 @@ hono request \
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
 |200|OK|The request has succeeded.|[Comment](#schemacomment)|
+|422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
 |500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
 
 <aside class="success">
@@ -109,7 +127,6 @@ hono request \
   "updatedAt": "string",
   "followers": [
     {
-      "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
       "followerId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
       "followingId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
       "createdAt": "1970-01-01T00:00:00Z"
@@ -117,7 +134,6 @@ hono request \
   ],
   "following": [
     {
-      "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
       "followerId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
       "followingId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
       "createdAt": "1970-01-01T00:00:00Z"
@@ -219,6 +235,23 @@ hono request \
 }
 ```
 
+> 422 Response
+
+```json
+{
+  "type": "about:blank",
+  "title": "Unprocessable Content",
+  "status": 422,
+  "detail": "Request validation failed",
+  "errors": [
+    {
+      "pointer": "string",
+      "detail": "string"
+    }
+  ]
+}
+```
+
 > 500 Response
 
 ```json
@@ -232,6 +265,7 @@ hono request \
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
 |200|OK|The request has succeeded.|[User](#schemauser)|
+|422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
 |500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
 
 <aside class="success">
@@ -282,6 +316,23 @@ hono request \
 }
 ```
 
+> 422 Response
+
+```json
+{
+  "type": "about:blank",
+  "title": "Unprocessable Content",
+  "status": 422,
+  "detail": "Request validation failed",
+  "errors": [
+    {
+      "pointer": "string",
+      "detail": "string"
+    }
+  ]
+}
+```
+
 > 500 Response
 
 ```json
@@ -295,6 +346,7 @@ hono request \
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
 |200|OK|The request has succeeded.|[MessageResponse](#schemamessageresponse)|
+|422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
 |500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
 
 <aside class="success">
@@ -343,6 +395,23 @@ hono request \
 }
 ```
 
+> 422 Response
+
+```json
+{
+  "type": "about:blank",
+  "title": "Unprocessable Content",
+  "status": 422,
+  "detail": "Request validation failed",
+  "errors": [
+    {
+      "pointer": "string",
+      "detail": "string"
+    }
+  ]
+}
+```
+
 > 500 Response
 
 ```json
@@ -356,6 +425,7 @@ hono request \
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
 |200|OK|The request has succeeded.|[MessageResponse](#schemamessageresponse)|
+|422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
 |500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
 
 <aside class="success">
@@ -409,10 +479,26 @@ hono request \
   "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
   "likes": [
     {
-      "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
       "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
       "postId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
       "createdAt": "string"
+    }
+  ]
+}
+```
+
+> 422 Response
+
+```json
+{
+  "type": "about:blank",
+  "title": "Unprocessable Content",
+  "status": 422,
+  "detail": "Request validation failed",
+  "errors": [
+    {
+      "pointer": "string",
+      "detail": "string"
     }
   ]
 }
@@ -431,6 +517,7 @@ hono request \
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
 |200|OK|The request has succeeded.|[PostWithLikes](#schemapostwithlikes)|
+|422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
 |500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
 
 <aside class="success">
@@ -482,10 +569,26 @@ hono request \
   "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
   "likes": [
     {
-      "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
       "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
       "postId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
       "createdAt": "string"
+    }
+  ]
+}
+```
+
+> 422 Response
+
+```json
+{
+  "type": "about:blank",
+  "title": "Unprocessable Content",
+  "status": 422,
+  "detail": "Request validation failed",
+  "errors": [
+    {
+      "pointer": "string",
+      "detail": "string"
     }
   ]
 }
@@ -504,6 +607,7 @@ hono request \
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
 |200|OK|The request has succeeded.|[PostWithLikes](#schemapostwithlikes)|
+|422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
 |500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
 
 <aside class="success">
@@ -549,6 +653,23 @@ hono request \
 ]
 ```
 
+> 422 Response
+
+```json
+{
+  "type": "about:blank",
+  "title": "Unprocessable Content",
+  "status": 422,
+  "detail": "Request validation failed",
+  "errors": [
+    {
+      "pointer": "string",
+      "detail": "string"
+    }
+  ]
+}
+```
+
 > 500 Response
 
 ```json
@@ -562,6 +683,7 @@ hono request \
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
 |200|OK|The request has succeeded.|Inline|
+|422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
 |500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
 
 <h3 id="getnotificationsuserid-responseschema">Response Schema</h3>
@@ -606,6 +728,23 @@ hono request \
 }
 ```
 
+> 422 Response
+
+```json
+{
+  "type": "about:blank",
+  "title": "Unprocessable Content",
+  "status": 422,
+  "detail": "Request validation failed",
+  "errors": [
+    {
+      "pointer": "string",
+      "detail": "string"
+    }
+  ]
+}
+```
+
 > 500 Response
 
 ```json
@@ -619,6 +758,7 @@ hono request \
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
 |200|OK|The request has succeeded.|[MessageResponse](#schemamessageresponse)|
+|422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
 |500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
 
 <aside class="success">
@@ -688,7 +828,6 @@ hono request \
     ],
     "likes": [
       {
-        "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
         "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
         "postId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
         "createdAt": "string"
@@ -698,11 +837,29 @@ hono request \
 ]
 ```
 
+> 422 Response
+
+```json
+{
+  "type": "about:blank",
+  "title": "Unprocessable Content",
+  "status": 422,
+  "detail": "Request validation failed",
+  "errors": [
+    {
+      "pointer": "string",
+      "detail": "string"
+    }
+  ]
+}
+```
+
 <h3 id="getposts-responses">Responses</h3>
 
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
 |200|OK|The request has succeeded.|Inline|
+|422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
 
 <h3 id="getposts-responseschema">Response Schema</h3>
 
@@ -738,7 +895,6 @@ Status Code **200**
 |» » userId|string(uuid)|true|none|none|
 |» » postId|string(uuid)|true|none|none|
 |» likes|[[Like](#schemalike)]|true|none|none|
-|» » id|string(uuid)|true|none|none|
 |» » userId|string(uuid)|true|none|none|
 |» » postId|string(uuid)|true|none|none|
 |» » createdAt|string|true|none|none|
@@ -793,6 +949,23 @@ hono request \
 }
 ```
 
+> 422 Response
+
+```json
+{
+  "type": "about:blank",
+  "title": "Unprocessable Content",
+  "status": 422,
+  "detail": "Request validation failed",
+  "errors": [
+    {
+      "pointer": "string",
+      "detail": "string"
+    }
+  ]
+}
+```
+
 > 500 Response
 
 ```json
@@ -806,6 +979,7 @@ hono request \
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
 |200|OK|The request has succeeded.|[Post](#schemapost)|
+|422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
 |500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
 
 <aside class="success">
@@ -896,6 +1070,23 @@ hono request \
 }
 ```
 
+> 422 Response
+
+```json
+{
+  "type": "about:blank",
+  "title": "Unprocessable Content",
+  "status": 422,
+  "detail": "Request validation failed",
+  "errors": [
+    {
+      "pointer": "string",
+      "detail": "string"
+    }
+  ]
+}
+```
+
 > 500 Response
 
 ```json
@@ -909,6 +1100,7 @@ hono request \
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
 |200|OK|The request has succeeded.|[PostDetail](#schemapostdetail)|
+|422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
 |500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
 
 <aside class="success">
@@ -977,6 +1169,23 @@ hono request \
 }
 ```
 
+> 422 Response
+
+```json
+{
+  "type": "about:blank",
+  "title": "Unprocessable Content",
+  "status": 422,
+  "detail": "Request validation failed",
+  "errors": [
+    {
+      "pointer": "string",
+      "detail": "string"
+    }
+  ]
+}
+```
+
 > 500 Response
 
 ```json
@@ -990,6 +1199,7 @@ hono request \
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
 |200|OK|The request has succeeded.|[User](#schemauser)|
+|422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
 |500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
 
 <aside class="success">
@@ -1054,6 +1264,23 @@ hono request \
 }
 ```
 
+> 422 Response
+
+```json
+{
+  "type": "about:blank",
+  "title": "Unprocessable Content",
+  "status": 422,
+  "detail": "Request validation failed",
+  "errors": [
+    {
+      "pointer": "string",
+      "detail": "string"
+    }
+  ]
+}
+```
+
 > 500 Response
 
 ```json
@@ -1068,6 +1295,7 @@ hono request \
 |---|---|---|---|
 |200|OK|The request has succeeded.|[UserWithFollowCount](#schemauserwithfollowcount)|
 |404|Not Found|The server cannot find the requested resource.|[MessageResponse](#schemamessageresponse)|
+|422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
 |500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
 
 <aside class="success">
@@ -1185,6 +1413,68 @@ This operation does not require authentication
 |userId|string(uuid)|true|none|none|
 |postId|string(uuid)|true|none|none|
 
+<h2 id="tocS_ValidationErrorDetail">ValidationErrorDetail</h2>
+<!-- backwards compatibility -->
+<a id="schemavalidationerrordetail"></a>
+<a id="schema_ValidationErrorDetail"></a>
+<a id="tocSvalidationerrordetail"></a>
+<a id="tocsvalidationerrordetail"></a>
+
+```json
+{
+  "pointer": "string",
+  "detail": "string"
+}
+```
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|pointer|string|true|none|none|
+|detail|string|true|none|none|
+
+<h2 id="tocS_ValidationError">ValidationError</h2>
+<!-- backwards compatibility -->
+<a id="schemavalidationerror"></a>
+<a id="schema_ValidationError"></a>
+<a id="tocSvalidationerror"></a>
+<a id="tocsvalidationerror"></a>
+
+```json
+{
+  "type": "about:blank",
+  "title": "Unprocessable Content",
+  "status": 422,
+  "detail": "Request validation failed",
+  "errors": [
+    {
+      "pointer": "string",
+      "detail": "string"
+    }
+  ]
+}
+```
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|type|string|true|none|none|
+|title|string|true|none|none|
+|status|number|true|none|none|
+|detail|string|true|none|none|
+|errors|[[ValidationErrorDetail](#schemavalidationerrordetail)]|true|none|none|
+
+#### Enumerated Values
+
+|Property|Value|
+|---|---|
+|type|about:blank|
+|title|Unprocessable Content|
+|status|422|
+|detail|Request validation failed|
+
 <h2 id="tocS_MessageResponse">MessageResponse</h2>
 <!-- backwards compatibility -->
 <a id="schemamessageresponse"></a>
@@ -1232,7 +1522,6 @@ This operation does not require authentication
 
 ```json
 {
-  "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
   "followerId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
   "followingId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
   "createdAt": "1970-01-01T00:00:00Z"
@@ -1243,7 +1532,6 @@ This operation does not require authentication
 
 |Name|Type|Required|Restrictions|Description|
 |---|---|---|---|---|
-|id|string(uuid)|true|none|none|
 |followerId|string(uuid)|true|none|none|
 |followingId|string(uuid)|true|none|none|
 |createdAt|string(date-time)|true|none|none|
@@ -1269,7 +1557,6 @@ This operation does not require authentication
   "updatedAt": "string",
   "followers": [
     {
-      "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
       "followerId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
       "followingId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
       "createdAt": "1970-01-01T00:00:00Z"
@@ -1277,7 +1564,6 @@ This operation does not require authentication
   ],
   "following": [
     {
-      "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
       "followerId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
       "followingId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
       "createdAt": "1970-01-01T00:00:00Z"
@@ -1403,7 +1689,6 @@ This operation does not require authentication
 
 ```json
 {
-  "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
   "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
   "postId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
   "createdAt": "string"
@@ -1414,7 +1699,6 @@ This operation does not require authentication
 
 |Name|Type|Required|Restrictions|Description|
 |---|---|---|---|---|
-|id|string(uuid)|true|none|none|
 |userId|string(uuid)|true|none|none|
 |postId|string(uuid)|true|none|none|
 |createdAt|string|true|none|none|
@@ -1435,7 +1719,6 @@ This operation does not require authentication
   "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
   "likes": [
     {
-      "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
       "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
       "postId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
       "createdAt": "string"
@@ -1540,7 +1823,6 @@ This operation does not require authentication
   ],
   "likes": [
     {
-      "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
       "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
       "postId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
       "createdAt": "string"
