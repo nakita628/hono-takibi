@@ -26,6 +26,7 @@ const minimalOpenAPI: OpenAPI = {
 
 const openAPIWithServers: OpenAPI = {
   ...minimalOpenAPI,
+  // biome-ignore lint/suspicious/noExplicitAny: OpenAPI Server type requires name field but test only needs url
   servers: [{ url: 'https://petstore3.swagger.io/api/v3' }] as any,
 }
 
