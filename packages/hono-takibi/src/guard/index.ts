@@ -1,11 +1,3 @@
-/**
- * Type guard utilities.
- *
- * This module consolidates type guards used throughout the codebase.
- * Each guard is self-contained and does not delegate to other guards.
- *
- * @module guard
- */
 import type {
   Media,
   OpenAPIPaths,

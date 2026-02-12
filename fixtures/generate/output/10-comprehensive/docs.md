@@ -1,15 +1,3 @@
----
-title: Comprehensive EC API v1.0.0
-language_tabs:
-  - bash: Bash
-toc_footers: []
-includes: []
-search: true
-highlight_theme: darkula
-headingLevel: 2
-
----
-
 <h1 id="comprehensive-ec-api">Comprehensive EC API v1.0.0</h1>
 
 > Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
@@ -113,7 +101,7 @@ hono request \
   -P /users \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  -H 'Authorization: Bearer {access-token}' \
+  -H "Authorization: Bearer ${ACCESS_TOKEN}" \
   src/index.ts
 ```
 
@@ -267,7 +255,7 @@ hono request \
   -P /users/{userId} \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  -H 'Authorization: Bearer {access-token}' \
+  -H "Authorization: Bearer ${ACCESS_TOKEN}" \
   src/index.ts
 ```
 
@@ -346,7 +334,7 @@ BearerAuth
 hono request \
   -X DELETE \
   -P /users/{userId} \
-  -H 'Authorization: Bearer {access-token}' \
+  -H "Authorization: Bearer ${ACCESS_TOKEN}" \
   src/index.ts
 ```
 
@@ -465,7 +453,7 @@ hono request \
   -P /products \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  -H 'Authorization: Bearer {access-token}' \
+  -H "Authorization: Bearer ${ACCESS_TOKEN}" \
   src/index.ts
 ```
 
@@ -607,7 +595,7 @@ hono request \
   -P /products/{productId} \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  -H 'Authorization: Bearer {access-token}' \
+  -H "Authorization: Bearer ${ACCESS_TOKEN}" \
   src/index.ts
 ```
 
@@ -770,7 +758,7 @@ hono request \
   -P /products/{productId}/reviews \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  -H 'Authorization: Bearer {access-token}' \
+  -H "Authorization: Bearer ${ACCESS_TOKEN}" \
   src/index.ts
 ```
 
@@ -843,7 +831,7 @@ hono request \
   -X GET \
   -P /orders \
   -H 'Accept: application/json' \
-  -H 'Authorization: Bearer {access-token}' \
+  -H "Authorization: Bearer ${ACCESS_TOKEN}" \
   src/index.ts
 ```
 
@@ -997,7 +985,7 @@ hono request \
   -P /orders \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  -H 'Authorization: Bearer {access-token}' \
+  -H "Authorization: Bearer ${ACCESS_TOKEN}" \
   src/index.ts
 ```
 
@@ -1116,7 +1104,7 @@ hono request \
   -X GET \
   -P /orders/{orderId} \
   -H 'Accept: application/json' \
-  -H 'Authorization: Bearer {access-token}' \
+  -H "Authorization: Bearer ${ACCESS_TOKEN}" \
   src/index.ts
 ```
 
@@ -1268,7 +1256,7 @@ hono request \
   -P /upload/image \
   -H 'Content-Type: multipart/form-data' \
   -H 'Accept: application/json' \
-  -H 'Authorization: Bearer {access-token}' \
+  -H "Authorization: Bearer ${ACCESS_TOKEN}" \
   src/index.ts
 ```
 

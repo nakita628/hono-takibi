@@ -1,11 +1,3 @@
-/**
- * SecurityScheme component generation module.
- *
- * Handles generation of JSON exports from OpenAPI securityScheme components
- * with support for split mode.
- *
- * @module core/components/securitySchemes
- */
 import path from 'node:path'
 import { makeExportConst } from '../../helper/code.js'
 import { core, makeExports } from '../../helper/index.js'

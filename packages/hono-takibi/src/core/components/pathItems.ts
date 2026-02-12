@@ -1,11 +1,3 @@
-/**
- * PathItems component generation module.
- *
- * Handles generation of pathItem exports from OpenAPI pathItems components
- * with support for split mode.
- *
- * @module core/components/pathItems
- */
 import path from 'node:path'
 import { pathItemsCode } from '../../generator/zod-openapi-hono/openapi/components/pathItems.js'
 import { core, makeImports } from '../../helper/index.js'

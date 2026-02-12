@@ -1,11 +1,3 @@
-/**
- * Example component generation module.
- *
- * Handles generation of JSON exports from OpenAPI example components
- * with support for split mode and $ref resolution.
- *
- * @module core/components/examples
- */
 import path from 'node:path'
 import { makeExportConst } from '../../helper/code.js'
 import { core, makeRef } from '../../helper/index.js'

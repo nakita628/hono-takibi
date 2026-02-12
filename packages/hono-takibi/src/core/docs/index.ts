@@ -9,17 +9,14 @@ export async function docs(
   openAPI: OpenAPI,
   output: string,
   entry: string,
+  basePath: string,
 ): Promise<
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {
-  try {
-    const markdown = makeDocs(openAPI, entry)
-    const mkdirResult = await mkdir(path.dirname(output))
-    if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error }
-    const writeResult = await writeFile(output, markdown)
-    if (!writeResult.ok) return { ok: false, error: writeResult.error }
-    return { ok: true, value: `Generated docs written to ${output}` }
-  } catch (e) {
-    return { ok: false, error: e instanceof Error ? e.message : String(e) }
-  }
+  const markdown = makeDocs(openAPI, entry, basePath)
+  const mkdirResult = await mkdir(path.dirname(output))
+  if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error }
+  const writeResult = await writeFile(output, markdown)
+  if (!writeResult.ok) return { ok: false, error: writeResult.error }
+  return { ok: true, value: `Generated docs written to ${output}` }
 }

@@ -1,27 +1,3 @@
-/**
- * OpenAPI code generation helpers.
- *
- * Provides functions for converting OpenAPI specification elements
- * into TypeScript/Zod code strings.
- *
- * ```mermaid
- * flowchart TD
- *   subgraph "Reference Handling"
- *     A["makeRef($ref)"] --> B["Parse component type"]
- *     B --> C["Return schema variable name"]
- *   end
- *   subgraph "Content Generation"
- *     D["makeContent()"] --> E["Process each media type"]
- *     E --> F["Generate Zod schema code"]
- *   end
- *   subgraph "Parameter Handling"
- *     G["makeParameters()"] --> H["Group by location"]
- *     H --> I["Generate Zod validators"]
- *   end
- * ```
- *
- * @module helper/openapi
- */
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import { isOperation, isRecord, isRefObject } from '../guard/index.js'
 import type {
@@ -47,28 +23,12 @@ import {
 } from '../utils/index.js'
 
 /**
- * Generates a schema reference variable name from an OpenAPI $ref string.
- *
- * Converts OpenAPI $ref paths to their corresponding schema variable names
- * with proper suffixes based on component type.
- *
- * ```mermaid
- * flowchart LR
- *   A["#/components/schemas/User"] --> B["makeRef()"]
- *   B --> C["UserSchema"]
- *   D["#/components/parameters/Id"] --> B
- *   B --> E["IdParamsSchema"]
- * ```
- *
- * @param $ref - OpenAPI $ref string (e.g., "#/components/schemas/User")
- * @returns Schema variable name (e.g., "UserSchema")
+ * Converts an OpenAPI `$ref` string to a variable name with the appropriate suffix.
  *
  * @example
  * ```ts
  * makeRef('#/components/schemas/User')      // → 'UserSchema'
  * makeRef('#/components/parameters/UserId') // → 'UserIdParamsSchema'
- * makeRef('#/components/headers/Auth')      // → 'AuthHeaderSchema'
- * makeRef('#/components/pathItems/User')    // → 'UserPathItem'
  * ```
  */
 export function makeRef($ref: string): string {
@@ -115,46 +75,10 @@ export function makeRef($ref: string): string {
 }
 
 /**
- * Generates examples code from the given examples object.
- *
- * **Important:** `$ref` is only resolved at the top level of an example object.
- * If `$ref` appears inside the `value` property (e.g., `employees: [{ $ref: '...' }]`),
- * it will NOT be resolved - it will be serialized as a literal JSON object.
- *
- * This is correct behavior per OpenAPI specification. The spec only supports
- * `$ref` to reference entire example objects, not nested values within `value`.
- *
- * **Custom extensions (x-*)** like `x-extends` are NOT resolved by
- * @apidevtools/swagger-parser bundle() and are treated as opaque data.
- * For example:
- * ```yaml
- * UserMinimalWithMeta:
- *   x-extends:
- *     $ref: "#/components/examples/UserMinimal"
- *   value:
- *     meta: { createdAt: "2026-01-04T00:00:00Z" }
- * ```
- * Generates:
- * ```ts
- * {"x-extends":{"$ref":"#/components/examples/UserMinimal"},"value":{...}}
- * ```
+ * Generates examples code. Top-level `$ref` is resolved to a variable reference;
+ * `$ref` inside `value` or custom extensions (`x-*`) is serialized as-is.
  *
  * @see https://swagger.io/docs/specification/v3_0/adding-examples/
- *
- * @example
- * ```ts
- * // $ref at top level - RESOLVED to variable reference
- * { $ref: '#/components/examples/UserExample' } → UserExample
- *
- * // $ref inside value - NOT resolved, serialized as-is
- * { value: { employees: [{ $ref: '#/...' }] } } → {"value":{"employees":[{"$ref":"#/..."}]}}
- *
- * // x-extends with $ref - NOT resolved, serialized as-is
- * { x-extends: { $ref: '#/...' }, value: {...} } → {"x-extends":{"$ref":"#/..."},"value":{...}}
- * ```
- *
- * @param examples - Examples object from OpenAPI components
- * @returns Generated TypeScript code string
  */
 export function makeExamples(examples: {
   readonly [k: string]:
@@ -222,26 +146,9 @@ export function makeExamples(examples: {
   return `{${result}}`
 }
 
-/**
- * Generates response code for an operation's responses object.
- *
- * Converts OpenAPI operation responses into a TypeScript object literal string
- * with status codes as keys and response definitions as values.
- *
- * @param responses - The responses object from an OpenAPI operation
- * @returns Object literal string with status code keys and response values
- *
- * @example
- * ```ts
- * makeOperationResponses({
- *   '200': { description: 'Success', content: {...} },
- *   'default': { description: 'Error' }
- * })
- * // → '{200:{description:"Success",content:{...}},"default":{description:"Error"}}'
- * ```
- */
+/** Generates code for an operation's responses object. */
 export function makeOperationResponses(
-  responses: Operation['responses'] | Record<string, unknown>,
+  responses: Operation['responses'] | { readonly [k: string]: unknown },
 ) {
   const isResponse = (v: unknown): v is Responses =>
     typeof v === 'object' && v !== null && !Array.isArray(v)
@@ -255,12 +162,7 @@ export function makeOperationResponses(
   return `{${result}}`
 }
 
-/**
- * Generates a Zod object schema for response headers.
- *
- * @param headers - Object containing header definitions or references.
- * @returns A Zod object schema string for the headers.
- */
+/** Generates a Zod object schema for response headers. */
 export function makeHeaderResponses(headers: { readonly [k: string]: Header | Reference }) {
   const result = Object.entries(headers)
     .map(([k, header]) => `${JSON.stringify(k)}:${makeHeadersAndReferences(header)}`)
@@ -268,26 +170,7 @@ export function makeHeaderResponses(headers: { readonly [k: string]: Header | Re
   return `z.object({${result}})`
 }
 
-/**
- * Generates code for a single response object.
- *
- * Handles both $ref references and inline response definitions,
- * including headers, content, and links.
- *
- * @param responses - OpenAPI response object or reference
- * @returns TypeScript code string for the response
- *
- * @example
- * ```ts
- * // Reference
- * makeResponses({ $ref: '#/components/responses/NotFound' })
- * // → 'NotFoundResponse'
- *
- * // Inline
- * makeResponses({ description: 'Success', content: {...} })
- * // → '{description:"Success",content:{...}}'
- * ```
- */
+/** Generates code for a single response object (handles `$ref` and inline). */
 export function makeResponses(responses: Responses) {
   if (responses.$ref) {
     return makeRef(responses.$ref)
@@ -313,26 +196,7 @@ export function makeResponses(responses: Responses) {
   return `{${result}}`
 }
 
-/**
- * Generates code for a header or header reference.
- *
- * Handles both $ref references and inline header definitions with
- * all OpenAPI header properties (description, required, schema, etc.).
- *
- * @param headers - OpenAPI header object or reference
- * @returns TypeScript code string for the header
- *
- * @example
- * ```ts
- * // Reference
- * makeHeadersAndReferences({ $ref: '#/components/headers/XRequestId' })
- * // → 'XRequestIdHeaderSchema'
- *
- * // Inline
- * makeHeadersAndReferences({ schema: { type: 'string' }, required: true })
- * // → '{required:true,schema:z.string()}'
- * ```
- */
+/** Generates code for a header or header reference. */
 export function makeHeadersAndReferences(headers: Header | Reference) {
   if ('$ref' in headers && headers.$ref) {
     return makeRef(headers.$ref)
@@ -365,24 +229,7 @@ export function makeHeadersAndReferences(headers: Header | Reference) {
   return `{${result}}`
 }
 
-/**
- * Generates code for a link or link reference.
- *
- * Handles OpenAPI link objects with operationRef, operationId,
- * parameters, requestBody, and other link properties.
- *
- * @param linkOrReference - OpenAPI link object or reference
- * @returns TypeScript code string for the link
- *
- * @example
- * ```ts
- * makeLinkOrReference({
- *   operationId: 'getUser',
- *   parameters: { userId: '$response.body#/id' }
- * })
- * // → '{operationId:"getUser",parameters:{"userId":"$response.body#/id"}}'
- * ```
- */
+/** Generates code for a link or link reference. */
 export function makeLinkOrReference(linkOrReference: Link | Reference) {
   const result = [
     'operationRef' in linkOrReference
@@ -412,14 +259,9 @@ export function makeLinkOrReference(linkOrReference: Link | Reference) {
   return `{${result}}`
 }
 
-/**
- * Generates callbacks code for an operation.
- *
- * @param callbacks - The callbacks object from an operation.
- * @returns Callbacks code string or undefined if no callbacks.
- */
+/** Generates callbacks code for an operation. */
 export function makeOperationCallbacks(
-  callbacks: Operation['callbacks'] | Record<string, unknown> | undefined,
+  callbacks: Operation['callbacks'] | { readonly [k: string]: unknown } | undefined,
 ) {
   if (!callbacks) return undefined
   const result = Object.entries(callbacks)
@@ -443,27 +285,7 @@ export function makeOperationCallbacks(
   return `{${result}}`
 }
 
-/**
- * Generates code for OpenAPI callbacks object.
- *
- * Converts callbacks with their path items and operations into
- * TypeScript code. Handles $ref references to callback components.
- *
- * @param callbacks - OpenAPI callbacks object with path expressions
- * @returns TypeScript code string for the callbacks
- *
- * @example
- * ```ts
- * makeCallbacks({
- *   onPaymentComplete: {
- *     '{$request.body#/callbackUrl}': {
- *       post: { requestBody: {...}, responses: {...} }
- *     }
- *   }
- * })
- * // → '"onPaymentComplete":{post:{requestBody:{...},responses:{...}}}'
- * ```
- */
+/** Generates code for an OpenAPI callbacks object. */
 export function makeCallback(callback: Callbacks): string {
   return Object.entries(callback)
     .map(([callbackKey, pathItem]) => {
@@ -507,7 +329,7 @@ export function makeCallbacks(
         return `${JSON.stringify(callbackKey)}:${makeRef(pathItem.$ref)}`
       }
       if (!isRecord(pathItem)) return undefined
-      const pathItemRecord: Record<string, unknown> = pathItem
+      const pathItemRecord: { [k: string]: unknown } = pathItem
       // Try direct pathItem (pathExpression → {method: operation})
       const pathItemCode = makeMethodsCode(pathItemRecord)
       if (pathItemCode) {
@@ -517,7 +339,7 @@ export function makeCallbacks(
       const nestedCode = Object.entries(pathItemRecord)
         .map(([pathExpr, inner]) => {
           if (!isRecord(inner)) return undefined
-          const innerRecord: Record<string, unknown> = inner
+          const innerRecord: { [k: string]: unknown } = inner
           const code = makeMethodsCode(innerRecord)
           return code ? `${JSON.stringify(pathExpr)}:{${code}}` : undefined
         })
@@ -529,24 +351,7 @@ export function makeCallbacks(
     .join(',')
 }
 
-/**
- * Generates code for OpenAPI content object.
- *
- * Processes each media type in the content object and generates
- * corresponding TypeScript code. Handles both $ref references
- * and inline media definitions.
- *
- * @param content - OpenAPI content object with media types
- * @returns Array of media type code strings
- *
- * @example
- * ```ts
- * makeContent({
- *   'application/json': { schema: { type: 'object', properties: {...} } }
- * })
- * // → ["'application/json':{schema:z.object({...})}"]
- * ```
- */
+/** Generates code for an OpenAPI content object. */
 export function makeContent(
   content: Content | { readonly [k: string]: Media | Reference },
 ): string[] {

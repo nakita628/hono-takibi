@@ -1,57 +1,14 @@
-/**
- * Zod schema wrapper with OpenAPI metadata.
- *
- * Wraps generated Zod schemas with OpenAPI-specific metadata
- * like default values, nullable, and custom openapi() properties.
- *
- * ```mermaid
- * flowchart LR
- *   A["Base Zod schema"] --> B["wrap()"]
- *   B --> C["Add .default()"]
- *   C --> D["Add .nullable()"]
- *   D --> E["Add .openapi({...})"]
- *   E --> F["Final schema string"]
- * ```
- *
- * @module helper/wrap
- */
 import { isRecord } from '../guard/index.js'
 import type { Header, Parameter, Schema } from '../openapi/index.js'
 import { makeExamples } from './openapi.js'
 
 /**
- * Wraps a Zod schema string with OpenAPI metadata.
- *
- * Applies default values, nullable modifiers, and OpenAPI-specific
- * properties to a base Zod schema string.
- *
- * ```mermaid
- * flowchart TD
- *   A["wrap(zod, schema, meta)"] --> B{"Has default?"}
- *   B -->|Yes| C["zod.default(value)"]
- *   B -->|No| D["zod"]
- *   C --> E{"Is nullable?"}
- *   D --> E
- *   E -->|Yes| F[".nullable()"]
- *   E -->|No| G["(unchanged)"]
- *   F --> H{"Has openapi props?"}
- *   G --> H
- *   H -->|Yes| I[".openapi({...})"]
- *   H -->|No| J["Return as-is"]
- * ```
- *
- * @param zod - Base Zod schema string (e.g., "z.string()")
- * @param schema - OpenAPI schema with metadata
- * @param meta - Optional parameter/header metadata
- * @returns Wrapped Zod schema string with modifiers
+ * Wraps a Zod schema string with `.default()`, `.nullable()`, and `.openapi({...})` as needed.
  *
  * @example
  * ```ts
  * wrap('z.string()', { default: 'hello', nullable: true })
  * // → 'z.string().default("hello").nullable()'
- *
- * wrap('z.number()', { description: 'User age' })
- * // → 'z.number().openapi({description:"User age"})'
  * ```
  */
 export function wrap(
@@ -90,7 +47,7 @@ export function wrap(
     if (Array.isArray(obj)) {
       return obj.map(filterUnsupportedProps)
     }
-    const filtered: Record<string, unknown> = {}
+    const filtered: { [k: string]: unknown } = {}
     for (const [key, value] of Object.entries(obj)) {
       if (unsupportedProps.has(key)) {
         continue
@@ -243,7 +200,7 @@ export function wrap(
   /**
    * Serializes content object with examples handled as code references.
    */
-  const serializeContent = (content: Record<string, unknown>): string => {
+  const serializeContent = (content: { readonly [k: string]: unknown }): string => {
     const entries = Object.entries(content).map(
       ([mediaType, mediaObj]) => `${JSON.stringify(mediaType)}:${serializeMedia(mediaObj)}`,
     )

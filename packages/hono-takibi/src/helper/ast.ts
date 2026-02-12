@@ -1,31 +1,3 @@
-/**
- * AST-based utilities for schema dependency analysis and topological sorting.
- *
- * This module provides:
- * - Circular dependency detection using Tarjan's algorithm
- * - Topological sorting for schema declarations
- * - AST-based identifier extraction
- *
- * ```mermaid
- * flowchart TD
- *   subgraph "Circular Analysis"
- *     A["analyzeCircularSchemas(schemas, names)"] --> B["Generate zod code for each schema"]
- *     B --> C["Extract identifier references"]
- *     C --> D["Build dependency graph"]
- *     D --> E["Run Tarjan's SCC algorithm"]
- *     E --> F["Return analysis result"]
- *   end
- *   subgraph "Topological Sort"
- *     G["ast(code)"] --> H["Parse TypeScript AST"]
- *     H --> I["Extract declarations"]
- *     I --> J["Analyze references"]
- *     J --> K["Topological sort"]
- *     K --> L["Return sorted code"]
- *   end
- * ```
- *
- * @module helper/ast
- */
 import ts from 'typescript'
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import type { Schema } from '../openapi/index.js'
@@ -190,39 +162,27 @@ const findCyclicSchemas = (
 }
 
 /**
- * Analyzes OpenAPI schemas for circular dependencies using Tarjan's algorithm.
- *
- * This function:
- * 1. Generates Zod code for each schema
- * 2. Extracts identifier references from the code
- * 3. Builds a dependency graph
- * 4. Detects strongly connected components (cycles)
- *
- * ```mermaid
- * flowchart LR
- *   A["Schema A"] --> B["Schema B"]
- *   B --> C["Schema C"]
- *   C --> A
- *   D["Schema D"] --> B
- * ```
- *
- * In this example, A, B, C form a cycle. D depends on B but is not cyclic.
+ * Analyzes OpenAPI schemas for circular dependencies using Tarjan's SCC algorithm.
  *
  * @param schemas - Record of schema name to Schema definition
  * @param schemaNames - Array of schema names to analyze
- * @returns Analysis result containing dependency information
+ * @returns Analysis result containing dependency graph and cyclic schemas
  *
- * @example
- * ```ts
- * const schemas = {
- *   User: { type: 'object', properties: { friend: { $ref: '#/components/schemas/User' } } }
- * }
- * const analysis = analyzeCircularSchemas(schemas, ['User'])
- * // analysis.cyclicSchemas contains 'User' (self-referential)
- * ```
+ * @mermaid
+ * flowchart TD
+ *   A["analyzeCircularSchemas()"] --> B["Generate Zod code for each schema"]
+ *   B --> C["Extract identifier references via AST"]
+ *   C --> D["Build dependency graph"]
+ *   D --> E["Run Tarjan's SCC algorithm"]
+ *   E --> F{"SCC size > 1?"}
+ *   F -->|Yes| G["Mark as cyclic"]
+ *   F -->|No| H{"Self-referencing?"}
+ *   H -->|Yes| G
+ *   H -->|No| I["Non-cyclic"]
+ *   G --> J["Extend with direct dependencies"]
  */
 export function analyzeCircularSchemas(
-  schemas: Record<string, Schema>,
+  schemas: { readonly [k: string]: Schema },
   schemaNames: readonly string[],
 ): {
   /** Map from schema name to generated Zod code */
@@ -424,34 +384,15 @@ const topoSort = (
 /**
  * Sorts TypeScript declarations by dependency order using topological sort.
  *
- * Parses the given TypeScript code, extracts variable/type/interface declarations,
- * analyzes their dependencies, and returns the code with declarations reordered
- * so that dependencies appear before dependents.
- *
- * ```mermaid
- * flowchart TD
- *   A["Input: const B = A; const A = z.string();"] --> B["Parse AST"]
- *   B --> C["Extract declarations: B, A"]
- *   C --> D["Analyze refs: B depends on A"]
- *   D --> E["Topological sort: A, B"]
- *   E --> F["Output: const A = z.string(); const B = A;"]
- * ```
- *
  * @param code - TypeScript source code containing declarations
  * @returns Code with declarations sorted by dependency order
  *
- * @example
- * ```ts
- * const input = `
- *   const UserSchema = z.object({ name: NameSchema })
- *   const NameSchema = z.string()
- * `
- * const sorted = ast(input)
- * // Result:
- * // const NameSchema = z.string()
- * //
- * // const UserSchema = z.object({ name: NameSchema })
- * ```
+ * @mermaid
+ * flowchart LR
+ *   A["Parse TS source"] --> B["Extract declarations"]
+ *   B --> C["Resolve references"]
+ *   C --> D["Topological sort"]
+ *   D --> E["Emit sorted code"]
  */
 export function ast(code: string): string {
   const sourceFile = createSourceFile(code)

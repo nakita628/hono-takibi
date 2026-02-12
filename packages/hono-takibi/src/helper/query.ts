@@ -1,26 +1,3 @@
-/**
- * Shared Query hook generation module.
- *
- * Provides common logic for generating type-safe Query hooks from OpenAPI specifications
- * for use with Hono's RPC client. Supports TanStack Query, Svelte Query, and Vue Query.
- *
- * - GET operations generate query hooks
- * - POST/PUT/DELETE/PATCH operations generate mutation hooks
- *
- * ```mermaid
- * flowchart TD
- *   A["makeQueryHooks(openAPI, output, config)"] --> B["Parse OpenAPI paths"]
- *   B --> C["Build hook codes"]
- *   C --> D{"split mode?"}
- *   D -->|No| E["Write single file"]
- *   D -->|Yes| F["Write per-hook files"]
- *   F --> G["Write index.ts barrel"]
- * ```
- *
- * @module helper/query
- * @link https://tanstack.com/query/latest
- * @link https://hono.dev/docs/guides/rpc
- */
 import path from 'node:path'
 import { isOpenAPIPaths, isOperationLike, isRecord } from '../guard/index.js'
 import type { OpenAPI, OpenAPIPaths } from '../openapi/index.js'
@@ -730,7 +707,7 @@ function makeHookCodes(
   },
 ): { hookName: string; code: string; isQuery: boolean; hasArgs: boolean }[] {
   return Object.entries(paths)
-    .filter((entry): entry is [string, Record<string, unknown>] => isRecord(entry[1]))
+    .filter((entry): entry is [string, { [k: string]: unknown }] => isRecord(entry[1]))
     .flatMap(([p, rawItem]) => {
       const pathItem = parsePathItem(rawItem)
       const methods = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'] as const
@@ -830,22 +807,8 @@ function makeHeader(
 /**
  * Generates Query hooks from OpenAPI specification.
  *
- * Creates type-safe Query hooks that wrap Hono RPC client calls,
- * with proper TypeScript types derived from OpenAPI schemas.
- *
  * - GET operations generate query hooks
  * - POST/PUT/DELETE/PATCH operations generate mutation hooks
- *
- * ```mermaid
- * flowchart LR
- *   subgraph "Generated Code"
- *     A["export function useGetUsers(...) { return useQuery(...) }"]
- *   end
- *   subgraph "Usage"
- *     B["const { data, error } = useGetUsers({ query: { limit: 10 } })"]
- *   end
- *   A --> B
- * ```
  *
  * @param openAPI - Parsed OpenAPI specification
  * @param output - Output file path or directory
@@ -854,17 +817,6 @@ function makeHeader(
  * @param split - Whether to split into multiple files (one per hook)
  * @param clientName - Name of the client export (default: 'client')
  * @returns Promise resolving to success message or error
- *
- * @example
- * ```ts
- * // Single file output
- * await makeQueryHooks(openAPI, 'src/hooks.ts', './client', TANSTACK_QUERY_CONFIG)
- * // Generates: src/hooks.ts with all Query hooks
- *
- * // Split mode output
- * await makeQueryHooks(openAPI, 'src/hooks', './client', TANSTACK_QUERY_CONFIG, true)
- * // Generates: src/hooks/useGetUsers.ts, src/hooks/usePostUsers.ts, src/hooks/index.ts
- * ```
  */
 export async function makeQueryHooks(
   openAPI: OpenAPI,

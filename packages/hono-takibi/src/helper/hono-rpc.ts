@@ -1,11 +1,3 @@
-/**
- * Shared utilities for Hono RPC code generation.
- *
- * Common functions used by both RPC client and SWR hook generators.
- *
- * @module helper/hono-rpc
- * @link https://hono.dev/docs/guides/rpc
- */
 import path from 'node:path'
 import {
   isOperationLike,
@@ -279,25 +271,6 @@ export function makeParseResponseType(
     : `typeof ${clientName}${runtimePath}.$${method}`
   return `Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<${clientMethodType}>>>>>`
 }
-
-/* ─────────────────────────────── Parameter analysis ─────────────────────────────── */
-
-/**
- * Dependencies for operation analysis.
- */
-// export type OperationDeps = {
-//   client: string
-//   toParameterLikes: (
-//     arr?: unknown,
-//   ) => readonly { name: string; in: 'path' | 'query' | 'header' | 'cookie'; required?: boolean }[]
-//   pickAllBodyInfo: (op: {
-//     summary?: string
-//     description?: string
-//     parameters?: unknown
-//     requestBody?: unknown
-//     responses?: unknown
-//   }) => AllBodyInfo | undefined
-// }
 
 /**
  * Create operation dependencies from OpenAPI components.

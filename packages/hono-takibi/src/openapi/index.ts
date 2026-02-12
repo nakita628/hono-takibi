@@ -1,99 +1,9 @@
-/**
- * OpenAPI specification types and parser.
- *
- * Provides TypeScript type definitions for OpenAPI 3.x specifications
- * and a parser that supports both YAML/JSON and TypeSpec inputs.
- *
- * ```mermaid
- * flowchart TD
- *   A["parseOpenAPI(input)"] --> B{"File extension?"}
- *   B -->|.tsp| C["TypeSpec compile"]
- *   B -->|.yaml/.json| D["SwaggerParser.bundle"]
- *   C --> E["getOpenAPI3"]
- *   E --> D
- *   D --> F["Return OpenAPI object"]
- * ```
- *
- * @module openapi
- */
 import path from 'node:path'
 /**
- * @apidevtools/swagger-parser is used for parsing and bundling OpenAPI specs.
+ * Uses `bundle()` to resolve external $refs while preserving internal ones.
+ * This enables variable references (e.g., `UserSchema`) instead of duplicated inline schemas,
+ * supports circular references via `z.lazy()`, and allows dependency-aware topological sorting.
  *
- * ## Actual Processing Flow
- *
- * ```
- * User's openapi.yaml                    After bundle()                  hono-takibi output
- * ─────────────────────────────────────────────────────────────────────────────────────────
- * schemas:                               schemas:                        export const UserSchema = z.object({...})
- *   User: { type: object }                 User: { type: object }
- *   Company:                               Company:                      export const CompanySchema = z.object({
- *     employees:                             employees:                    employees: z.array(UserSchema)  ← Variable ref
- *       items:                                 items:
- *         $ref: '#/.../User'    ───────────►   $ref: '#/.../User'  ─────► (detected, generates variable)
- *
- * examples:                              examples:
- *   CompanyExample:                        CompanyExample:               export const CompanyExample = {
- *     value:                                 value:                        "value": {
- *       employees:                             employees:                    "employees": [{"$ref":"#/..."}]  ← Literal
- *         - $ref: '#/...User'  ───────────►      - $ref: '#/...User' ────► (NOT resolved, JSON.stringify)
- * ```
- *
- * ## Why bundle() Was Necessary (Problems Solved)
- *
- * **Problem 1: Code duplication without preserved $refs**
- * ```ts
- * // If dereference() was used, every User reference becomes duplicated:
- * export const CompanySchema = z.object({
- *   employees: z.array(z.object({ id: z.string(), name: z.string() }))  // ✗ Duplicated
- * })
- * // With bundle(), we get clean variable references:
- * export const CompanySchema = z.object({
- *   employees: z.array(UserSchema)  // ✓ Single source of truth
- * })
- * ```
- *
- * **Problem 2: Circular references would break without bundle()**
- * ```ts
- * // Self-referencing schema (e.g., tree node):
- * // bundle() preserves $ref → hono-takibi can generate z.lazy()
- * export const NodeSchema = z.object({
- *   children: z.array(z.lazy(() => NodeSchema))  // ✓ Works
- * })
- * ```
- *
- * **Problem 3: Dependency ordering requires $ref information**
- * - bundle() preserves $refs in components section
- * - hono-takibi parses $refs to build dependency graph
- * - Topological sort ensures UserSchema defined before CompanySchema
- *
- * ## SwaggerParser Methods Comparison
- *
- * | Method        | External $ref | Internal $ref | Use Case                    |
- * |---------------|---------------|---------------|-----------------------------|
- * | `parse()`     | Not resolved  | Not resolved  | Just parse YAML/JSON        |
- * | `resolve()`   | Resolved      | Not resolved  | Get $Refs map               |
- * | `bundle()`    | Resolved      | **Preserved** | Code generation (we use this)|
- * | `dereference()`| Resolved     | Resolved      | Full inline expansion       |
- * | `validate()`  | Not resolved  | Not resolved  | Schema validation           |
- *
- * ## What bundle() Does NOT Resolve (By Design)
- *
- * - `$ref` inside example `value` properties → remains as literal JSON
- *   - OpenAPI spec doesn't support $ref inside values (user error)
- *   - Correct usage: inline values or reference entire example object
- *
- * - Sibling properties alongside `$ref` → preserved but generator ignores them
- *   - OpenAPI 3.0: siblings should be ignored when $ref present
- *   - OpenAPI 3.1: siblings allowed (future enhancement potential)
- *
- * - Custom extensions (x-*) like `x-extends` → treated as opaque data
- *   - `x-extends.$ref` is NOT resolved - custom extensions are tool-specific
- *   - bundle() only processes standard OpenAPI $ref locations
- *   - Example: `{ x-extends: { $ref: '#/.../UserMinimal' } }` stays as-is
- *   - For schema inheritance, use standard `allOf` instead of custom extensions
- *
- * @see https://github.com/APIDevTools/swagger-parser
  * @see https://apitools.dev/swagger-parser/docs/
  */
 import SwaggerParser from '@apidevtools/swagger-parser'
@@ -103,38 +13,10 @@ import { getOpenAPI3 } from '@typespec/openapi3'
 /**
  * Parses input into an OpenAPI document.
  *
- * Supports multiple input formats:
- * - `.yaml` / `.json`: Direct OpenAPI specification files
- * - `.tsp`: TypeSpec files (compiled to OpenAPI first)
- *
- * ```mermaid
- * flowchart LR
- *   subgraph Input
- *     A["openapi.yaml"]
- *     B["openapi.json"]
- *     C["main.tsp"]
- *   end
- *   subgraph Output
- *     D["OpenAPI Object"]
- *   end
- *   A --> D
- *   B --> D
- *   C --> D
- * ```
+ * Supports `.yaml`, `.json`, and `.tsp` (TypeSpec) inputs.
  *
  * @param input - Path to OpenAPI file (.yaml, .json) or TypeSpec file (.tsp)
  * @returns Result object with parsed OpenAPI or error message
- *
- * @example
- * ```ts
- * const result = await parseOpenAPI('api.yaml')
- * if (result.ok) {
- *   console.log(result.value.paths) // Access OpenAPI paths
- * }
- *
- * // TypeSpec input
- * const tspResult = await parseOpenAPI('main.tsp')
- * ```
  */
 export async function parseOpenAPI(input: string): Promise<
   | {

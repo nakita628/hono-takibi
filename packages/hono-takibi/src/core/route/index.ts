@@ -1,20 +1,3 @@
-/**
- * Route generation module.
- *
- * Generates Hono route definitions from OpenAPI path operations.
- *
- * ```mermaid
- * flowchart TD
- *   A["route(openAPI, routes, components)"] --> B["routeCode(openAPI)"]
- *   B --> C{"split mode?"}
- *   C -->|No| D["Write single file"]
- *   C -->|Yes| E["Extract route blocks"]
- *   E --> F["Write individual files"]
- *   F --> G["Write index.ts barrel"]
- * ```
- *
- * @module core/route
- */
 import path from 'node:path'
 import { routeCode } from '../../generator/zod-openapi-hono/openapi/routes/index.js'
 import { core, makeImports } from '../../helper/index.js'
@@ -24,41 +7,11 @@ import { makeBarrel, uncapitalize } from '../../utils/index.js'
 /**
  * Generates Hono route files from OpenAPI specification.
  *
- * Creates route definitions with Zod validation based on OpenAPI paths.
- * Supports both single file output and split mode (one file per route).
- *
- * ```mermaid
- * flowchart LR
- *   subgraph Input
- *     A["OpenAPI Spec"]
- *   end
- *   subgraph Output
- *     B["routes.ts"]
- *     C["routes/getUsers.ts"]
- *     D["routes/postUsers.ts"]
- *     E["routes/index.ts"]
- *   end
- *   A -->|split=false| B
- *   A -->|split=true| C
- *   A -->|split=true| D
- *   A -->|split=true| E
- * ```
- *
  * @param openAPI - Parsed OpenAPI specification
  * @param routes - Route output configuration
  * @param components - Component import configuration
  * @param readonly - Whether to add `as const` assertion to route definitions
  * @returns Promise resolving to success message or error
- *
- * @example
- * ```ts
- * // Single file output
- * await route(openAPI, { output: 'src/routes.ts' })
- *
- * // Split mode output
- * await route(openAPI, { output: 'src/routes', split: true })
- * // Creates: src/routes/getUsers.ts, src/routes/postUsers.ts, src/routes/index.ts
- * ```
  */
 export async function route(
   openAPI: OpenAPI,

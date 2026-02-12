@@ -66,7 +66,7 @@ export function makeSchemaInfo(
  * ```
  */
 export function makeSchemaInfos(
-  schemas: Record<string, Schema>,
+  schemas: { readonly [k: string]: Schema },
   schemaNames: readonly string[],
   analysis: ReturnType<typeof analyzeCircularSchemas>,
 ): readonly ReturnType<typeof makeSchemaInfo>[] {
@@ -159,7 +159,7 @@ export function makeTypeDefinition(
  */
 export function makeTypeDefinitions(
   infos: readonly ReturnType<typeof makeSchemaInfo>[],
-  schemas: Record<string, Schema>,
+  schemas: { readonly [k: string]: Schema },
   cyclicGroupPascal: ReadonlySet<string>,
   readonly?: boolean,
 ): readonly string[] {
@@ -241,7 +241,7 @@ export function findSchemaRefs(code: string, selfName: string): readonly string[
 export function makeSplitSchemaFile(
   schemaName: string,
   schema: Schema,
-  schemas: Record<string, Schema>,
+  schemas: { readonly [k: string]: Schema },
   analysis: ReturnType<typeof analyzeCircularSchemas>,
   exportType: boolean,
   readonly?: boolean,

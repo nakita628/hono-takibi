@@ -9,8 +9,6 @@ export default defineConfig({
       '**/dist/**',
       'apps/nakita628-react-router-swr-todo/**',
       'apps/nakita628-react-tanstack-todo/**',
-      'apps/nakita628-sveltekit-todo/**',
-      'apps/nakita628-vue-todo/**',
     ],
     alias: {
       '@/': `${path.resolve(__dirname, 'apps/nakita628-todo/src')}/`,

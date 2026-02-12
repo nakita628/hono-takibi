@@ -1,15 +1,3 @@
----
-title: Security Schemes API v1.0.0
-language_tabs:
-  - bash: Bash
-toc_footers: []
-includes: []
-search: true
-highlight_theme: darkula
-headingLevel: 2
-
----
-
 <h1 id="security-schemes-api">Security Schemes API v1.0.0</h1>
 
 > Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
@@ -91,7 +79,7 @@ hono request \
   -X GET \
   -P /bearer-protected \
   -H 'Accept: application/json' \
-  -H 'Authorization: Bearer {access-token}' \
+  -H "Authorization: Bearer ${ACCESS_TOKEN}" \
   src/index.ts
 ```
 
@@ -137,7 +125,7 @@ hono request \
   -X GET \
   -P /api-key-protected \
   -H 'Accept: application/json' \
-  -H 'X-API-Key: API_KEY' \
+  -H "X-API-Key: ${API_KEY}" \
   src/index.ts
 ```
 
@@ -183,7 +171,7 @@ hono request \
   -X GET \
   -P /basic-protected \
   -H 'Accept: application/json' \
-  -H 'Authorization: Basic {credentials}' \
+  -H "Authorization: Basic ${CREDENTIALS}" \
   src/index.ts
 ```
 
@@ -229,7 +217,7 @@ hono request \
   -X GET \
   -P /oauth-protected \
   -H 'Accept: application/json' \
-  -H 'Authorization: Bearer {access-token}' \
+  -H "Authorization: Bearer ${ACCESS_TOKEN}" \
   src/index.ts
 ```
 
@@ -275,8 +263,8 @@ hono request \
   -X GET \
   -P /multi-auth \
   -H 'Accept: application/json' \
-  -H 'Authorization: Bearer {access-token}' \
-  -H 'X-API-Key: API_KEY' \
+  -H "Authorization: Bearer ${ACCESS_TOKEN}" \
+  -H "X-API-Key: ${API_KEY}" \
   src/index.ts
 ```
 

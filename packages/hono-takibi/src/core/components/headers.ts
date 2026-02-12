@@ -1,11 +1,3 @@
-/**
- * Header component generation module.
- *
- * Handles generation of Zod schemas from OpenAPI header components
- * with support for split mode.
- *
- * @module core/components/headers
- */
 import path from 'node:path'
 import { headersCode } from '../../generator/zod-openapi-hono/openapi/components/headers.js'
 import { core, makeImports } from '../../helper/index.js'

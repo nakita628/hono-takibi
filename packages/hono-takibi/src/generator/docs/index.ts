@@ -226,11 +226,11 @@ function makeExampleFromSchema(
 
   // allOf / oneOf / anyOf
   if (schema.allOf?.length) {
-    const merged: { [k: string]: unknown } = {}
+    let merged: { [k: string]: unknown } = {}
     for (const sub of schema.allOf) {
       const example = makeExampleFromSchema(sub, components, new Set(visited))
       if (typeof example === 'object' && example !== null && !Array.isArray(example)) {
-        Object.assign(merged, example)
+        merged = { ...merged, ...(example as { [k: string]: unknown }) }
       }
     }
     return merged
@@ -287,7 +287,7 @@ function makeAuthenticationSection(
           const flow = flowValue as {
             readonly authorizationUrl?: string
             readonly tokenUrl?: string
-            readonly scopes?: Readonly<Record<string, string>>
+            readonly scopes?: { readonly [k: string]: string }
           }
           lines.push(`    - Flow: ${flowName}`)
           if (flow.authorizationUrl) {
@@ -395,7 +395,7 @@ function makeCodeSampleHeaders(
     headers.push("  -H 'Accept: application/json'")
   }
 
-  // Auth headers
+  // Auth headers – use shell-style ${VAR} so users can `export` and paste
   const security = operation.security
   const reqs = extractSecurityRequirements(security)
   if (reqs.length > 0 && securitySchemes) {
@@ -406,25 +406,25 @@ function makeCodeSampleHeaders(
         const scheme = securitySchemes[name]
         if (!(scheme && isSecurityScheme(scheme))) continue
         if (scheme.type === 'http' && scheme.scheme === 'bearer') {
-          const h = "  -H 'Authorization: Bearer {access-token}'"
+          const h = `  -H "Authorization: Bearer \${ACCESS_TOKEN}"`
           if (!addedHeaders.has(h)) {
             headers.push(h)
             addedHeaders.add(h)
           }
         } else if (scheme.type === 'http' && scheme.scheme === 'basic') {
-          const h = "  -H 'Authorization: Basic {credentials}'"
+          const h = `  -H "Authorization: Basic \${CREDENTIALS}"`
           if (!addedHeaders.has(h)) {
             headers.push(h)
             addedHeaders.add(h)
           }
         } else if (scheme.type === 'apiKey' && scheme.in === 'header' && scheme.name) {
-          const h = `  -H '${scheme.name}: API_KEY'`
+          const h = `  -H "${scheme.name}: \${API_KEY}"`
           if (!addedHeaders.has(h)) {
             headers.push(h)
             addedHeaders.add(h)
           }
         } else if (scheme.type === 'oauth2') {
-          const h = "  -H 'Authorization: Bearer {access-token}'"
+          const h = `  -H "Authorization: Bearer \${ACCESS_TOKEN}"`
           if (!addedHeaders.has(h)) {
             headers.push(h)
             addedHeaders.add(h)
@@ -442,13 +442,14 @@ function makeCodeSampleHeaders(
 function makeCodeSample(
   method: HttpMethod,
   pathStr: string,
-  baseUrl: string | undefined,
+  basePath: string,
   operation: Operation,
   securitySchemes: Components['securitySchemes'] | undefined,
   entry: string,
 ): string[] {
   const headers = makeCodeSampleHeaders(operation, securitySchemes)
-  const fullPath = baseUrl ? `${baseUrl}${pathStr}` : pathStr
+  const basePathPrefix = basePath !== '/' ? basePath : ''
+  const fullPath = `${basePathPrefix}${pathStr}`
 
   const parts: string[] = ['hono request']
 
@@ -1141,32 +1142,15 @@ function groupByTag(endpoints: readonly Endpoint[], openAPI: OpenAPI): readonly 
  * Makes API reference Markdown from an OpenAPI specification.
  * Output format matches Widdershins v4.0.1, with hono request instead of curl.
  */
-export function makeDocs(openAPI: OpenAPI, entry: string): string {
+export function makeDocs(openAPI: OpenAPI, entry: string, basePath: string): string {
   const title = openAPI.info?.title ?? 'API'
   const version = openAPI.info?.version ?? ''
   const fullTitle = version ? `${title} v${version}` : title
   const titleSlug = toTitleSlug(title)
 
   const securitySchemes = openAPI.components?.securitySchemes
-  const baseUrl = openAPI.servers?.[0]?.url
 
   const lines: string[] = []
-
-  // ── YAML Front Matter ──
-  lines.push(
-    '---',
-    `title: ${fullTitle}`,
-    'language_tabs:',
-    '  - bash: Bash',
-    'toc_footers: []',
-    'includes: []',
-    'search: true',
-    'highlight_theme: darkula',
-    'headingLevel: 2',
-    '',
-    '---',
-    '',
-  )
 
   // ── Title ──
   lines.push(`<h1 id="${titleSlug}">${fullTitle}</h1>`, '')
@@ -1179,7 +1163,7 @@ export function makeDocs(openAPI: OpenAPI, entry: string): string {
 
   // ── API Description ──
   if (openAPI.info?.description) {
-    lines.push(openAPI.info.description, '')
+    lines.push(openAPI.info.description.trimEnd(), '')
   }
 
   // ── Base URLs ──
@@ -1239,7 +1223,14 @@ export function makeDocs(openAPI: OpenAPI, entry: string): string {
       }
 
       // Code sample
-      const codeSample = makeCodeSample(method, pathStr, baseUrl, operation, securitySchemes, entry)
+      const codeSample = makeCodeSample(
+        method,
+        pathStr,
+        basePath,
+        operation,
+        securitySchemes,
+        entry,
+      )
       lines.push(...codeSample, '')
 
       // Method + path

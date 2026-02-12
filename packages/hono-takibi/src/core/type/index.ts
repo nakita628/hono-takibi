@@ -1,22 +1,3 @@
-/**
- * TypeScript type generation module.
- *
- * Generates TypeScript type declarations from OpenAPI specifications
- * by directly analyzing the OpenAPI structure.
- *
- * ```mermaid
- * flowchart TD
- *   A["type(openAPI, output)"] --> B["makeHonoSchemaType()"]
- *   B --> C["For each path/method"]
- *   C --> D["makeInputType()"]
- *   C --> E["makeOutputTypes()"]
- *   D --> F["Combine into Schema"]
- *   E --> F
- *   F --> G["Write declaration file"]
- * ```
- *
- * @module core/type
- */
 import path from 'node:path'
 import {
   isHttpMethod,
@@ -66,18 +47,14 @@ export async function type(
 ): Promise<
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {
-  try {
-    const schemaType = makeHonoSchemaType(openAPI)
-    const wrappedType = readonly ? `DeepReadonly<${schemaType}>` : schemaType
-    const typeDecl = readonly ? DEEP_READONLY_TYPE : ''
-    const dts = `${typeDecl}declare const routes:import('@hono/zod-openapi').OpenAPIHono<import('hono/types').Env,${wrappedType},'/'>\nexport default routes\n`
-    const coreResult = await core(dts, path.dirname(output), output)
-    return coreResult.ok
-      ? { ok: true, value: `Generated type code written to ${output}` }
-      : { ok: false, error: coreResult.error }
-  } catch (e) {
-    return { ok: false, error: e instanceof Error ? e.message : String(e) }
-  }
+  const schemaType = makeHonoSchemaType(openAPI)
+  const wrappedType = readonly ? `DeepReadonly<${schemaType}>` : schemaType
+  const typeDecl = readonly ? DEEP_READONLY_TYPE : ''
+  const dts = `${typeDecl}declare const routes:import('@hono/zod-openapi').OpenAPIHono<import('hono/types').Env,${wrappedType},'/'>\nexport default routes\n`
+  const coreResult = await core(dts, path.dirname(output), output)
+  return coreResult.ok
+    ? { ok: true, value: `Generated type code written to ${output}` }
+    : { ok: false, error: coreResult.error }
 }
 
 // ============================================================================
@@ -429,7 +406,7 @@ function makeBaseTypeString(
     : makeSingleTypeString(schema, types[0] ?? 'object', components, visited)
 }
 
-const PRIMITIVE_TYPE_MAP: Readonly<Record<string, string>> = {
+const PRIMITIVE_TYPE_MAP: { readonly [k: string]: string } = {
   boolean: 'boolean',
   null: 'null',
 }

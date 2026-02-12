@@ -1,11 +1,3 @@
-/**
- * Callback component generation module.
- *
- * Handles generation of OpenAPI callback components with proper $ref resolution
- * and support for split mode.
- *
- * @module core/components/callbacks
- */
 import path from 'node:path'
 import { makeConst } from '../../helper/code.js'
 import { core, makeCallback, makeImports } from '../../helper/index.js'

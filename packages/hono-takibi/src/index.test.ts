@@ -3,7 +3,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
-describe('CLI options test with string matching', () => {
+describe('CLI and config options test with string matching', () => {
   beforeEach(() => {
     fs.rmSync('tmp-cli-test', { recursive: true, force: true })
     fs.mkdirSync('tmp-cli-test', { recursive: true })
@@ -17,28 +17,9 @@ describe('CLI options test with string matching', () => {
     const result = execSync(
       `node ${path.resolve('packages/hono-takibi/dist/index.js')} --help`,
     ).toString()
-    expect(result).toBe(`Usage: hono-takibi <input.{yaml,json,tsp}> -o <routes.ts> [options]
+    expect(result).toBe(`Usage: hono-takibi <input.{yaml,json,tsp}> -o <output.ts>
 
 Options:
-  --export-schemas            export schemas
-  --export-schemas-types      export schemas types
-  --export-responses          export responses
-  --export-parameters         export parameters
-  --export-parameters-types   export parameters types
-  --export-examples           export examples
-  --export-requestBodies      export requestBodies
-  --export-headers            export headers
-  --export-headers-types      export headers types
-  --export-securitySchemes    export securitySchemes
-  --export-links              export links
-  --export-callbacks          export callbacks
-  --export-pathItems          export pathItems
-  --export-mediaTypes         export mediaTypes
-  --export-mediaTypes-types   export mediaTypes types
-  --readonly                  make schemas immutable (adds .readonly() and 'as const')
-  --template                  generate app file and handler stubs
-  --test                      generate test files with vitest and faker.js
-  --base-path <path>          api prefix (default: /)
   -h, --help                  display help for command
 `)
   })
@@ -47,33 +28,14 @@ Options:
     const result = execSync(
       `node ${path.resolve('packages/hono-takibi/dist/index.js')} -h`,
     ).toString()
-    expect(result).toBe(`Usage: hono-takibi <input.{yaml,json,tsp}> -o <routes.ts> [options]
+    expect(result).toBe(`Usage: hono-takibi <input.{yaml,json,tsp}> -o <output.ts>
 
 Options:
-  --export-schemas            export schemas
-  --export-schemas-types      export schemas types
-  --export-responses          export responses
-  --export-parameters         export parameters
-  --export-parameters-types   export parameters types
-  --export-examples           export examples
-  --export-requestBodies      export requestBodies
-  --export-headers            export headers
-  --export-headers-types      export headers types
-  --export-securitySchemes    export securitySchemes
-  --export-links              export links
-  --export-callbacks          export callbacks
-  --export-pathItems          export pathItems
-  --export-mediaTypes         export mediaTypes
-  --export-mediaTypes-types   export mediaTypes types
-  --readonly                  make schemas immutable (adds .readonly() and 'as const')
-  --template                  generate app file and handler stubs
-  --test                      generate test files with vitest and faker.js
-  --base-path <path>          api prefix (default: /)
   -h, --help                  display help for command
 `)
   })
 
-  it('--export-schemas exports schema with export keyword', () => {
+  it('config exportSchemas exports schema with export keyword', () => {
     const schemaOpenAPI = {
       openapi: '3.0.3',
       info: { title: 'Schema API', version: '1.0.0' },
@@ -104,9 +66,13 @@ Options:
       },
     }
     fs.writeFileSync('tmp-cli-test/schema.json', JSON.stringify(schemaOpenAPI))
-    execSync(
-      `node ${path.resolve('packages/hono-takibi/dist/index.js')} tmp-cli-test/schema.json -o tmp-cli-test/output.ts --export-schemas`,
+    fs.writeFileSync(
+      'tmp-cli-test/hono-takibi.config.ts',
+      `export default { input: 'schema.json', 'zod-openapi': { output: 'output.ts', exportSchemas: true } }`,
     )
+    execSync(`node ${path.resolve('packages/hono-takibi/dist/index.js')}`, {
+      cwd: path.resolve('tmp-cli-test'),
+    })
     const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
     expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
 
@@ -123,7 +89,7 @@ export const getItemsRoute = createRoute({
 `)
   })
 
-  it('--export-schemas-types exports schema type', () => {
+  it('config exportSchemasTypes exports schema type', () => {
     const schemaOpenAPI = {
       openapi: '3.0.3',
       info: { title: 'Schema API', version: '1.0.0' },
@@ -154,9 +120,13 @@ export const getItemsRoute = createRoute({
       },
     }
     fs.writeFileSync('tmp-cli-test/schema.json', JSON.stringify(schemaOpenAPI))
-    execSync(
-      `node ${path.resolve('packages/hono-takibi/dist/index.js')} tmp-cli-test/schema.json -o tmp-cli-test/output.ts --export-schemas-types`,
+    fs.writeFileSync(
+      'tmp-cli-test/hono-takibi.config.ts',
+      `export default { input: 'schema.json', 'zod-openapi': { output: 'output.ts', exportSchemasTypes: true } }`,
     )
+    execSync(`node ${path.resolve('packages/hono-takibi/dist/index.js')}`, {
+      cwd: path.resolve('tmp-cli-test'),
+    })
     const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
     expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
 
@@ -175,7 +145,7 @@ export const getItemsRoute = createRoute({
 `)
   })
 
-  it('--export-parameters exports parameters with export keyword', () => {
+  it('config exportParameters exports parameters with export keyword', () => {
     const paramOpenAPI = {
       openapi: '3.0.3',
       info: { title: 'Param API', version: '1.0.0' },
@@ -200,9 +170,13 @@ export const getItemsRoute = createRoute({
       },
     }
     fs.writeFileSync('tmp-cli-test/param.json', JSON.stringify(paramOpenAPI))
-    execSync(
-      `node ${path.resolve('packages/hono-takibi/dist/index.js')} tmp-cli-test/param.json -o tmp-cli-test/output.ts --export-parameters`,
+    fs.writeFileSync(
+      'tmp-cli-test/hono-takibi.config.ts',
+      `export default { input: 'param.json', 'zod-openapi': { output: 'output.ts', exportParameters: true } }`,
     )
+    execSync(`node ${path.resolve('packages/hono-takibi/dist/index.js')}`, {
+      cwd: path.resolve('tmp-cli-test'),
+    })
     const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
     expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
 
@@ -220,7 +194,7 @@ export const getItemsIdRoute = createRoute({
 `)
   })
 
-  it('--export-parameters-types exports parameter types', () => {
+  it('config exportParametersTypes exports parameter types', () => {
     const paramOpenAPI = {
       openapi: '3.0.3',
       info: { title: 'Param API', version: '1.0.0' },
@@ -245,9 +219,13 @@ export const getItemsIdRoute = createRoute({
       },
     }
     fs.writeFileSync('tmp-cli-test/param.json', JSON.stringify(paramOpenAPI))
-    execSync(
-      `node ${path.resolve('packages/hono-takibi/dist/index.js')} tmp-cli-test/param.json -o tmp-cli-test/output.ts --export-parameters-types`,
+    fs.writeFileSync(
+      'tmp-cli-test/hono-takibi.config.ts',
+      `export default { input: 'param.json', 'zod-openapi': { output: 'output.ts', exportParametersTypes: true } }`,
     )
+    execSync(`node ${path.resolve('packages/hono-takibi/dist/index.js')}`, {
+      cwd: path.resolve('tmp-cli-test'),
+    })
     const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
     expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
 
@@ -267,7 +245,7 @@ export const getItemsIdRoute = createRoute({
 `)
   })
 
-  it('--export-securitySchemes exports security schemes with export keyword', () => {
+  it('config exportSecuritySchemes exports security schemes with export keyword', () => {
     const securityOpenAPI = {
       openapi: '3.0.3',
       info: { title: 'Security API', version: '1.0.0' },
@@ -290,9 +268,13 @@ export const getItemsIdRoute = createRoute({
       },
     }
     fs.writeFileSync('tmp-cli-test/security.json', JSON.stringify(securityOpenAPI))
-    execSync(
-      `node ${path.resolve('packages/hono-takibi/dist/index.js')} tmp-cli-test/security.json -o tmp-cli-test/output.ts --export-securitySchemes`,
+    fs.writeFileSync(
+      'tmp-cli-test/hono-takibi.config.ts',
+      `export default { input: 'security.json', 'zod-openapi': { output: 'output.ts', exportSecuritySchemes: true } }`,
     )
+    execSync(`node ${path.resolve('packages/hono-takibi/dist/index.js')}`, {
+      cwd: path.resolve('tmp-cli-test'),
+    })
     const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
     expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
 
@@ -308,7 +290,7 @@ export const getSecureRoute = createRoute({
 `)
   })
 
-  it('--export-requestBodies exports request bodies with export keyword', () => {
+  it('config exportRequestBodies exports request bodies with export keyword', () => {
     const requestBodyOpenAPI = {
       openapi: '3.0.3',
       info: { title: 'RequestBody API', version: '1.0.0' },
@@ -335,9 +317,13 @@ export const getSecureRoute = createRoute({
       },
     }
     fs.writeFileSync('tmp-cli-test/requestbody.json', JSON.stringify(requestBodyOpenAPI))
-    execSync(
-      `node ${path.resolve('packages/hono-takibi/dist/index.js')} tmp-cli-test/requestbody.json -o tmp-cli-test/output.ts --export-requestBodies`,
+    fs.writeFileSync(
+      'tmp-cli-test/hono-takibi.config.ts',
+      `export default { input: 'requestbody.json', 'zod-openapi': { output: 'output.ts', exportRequestBodies: true } }`,
     )
+    execSync(`node ${path.resolve('packages/hono-takibi/dist/index.js')}`, {
+      cwd: path.resolve('tmp-cli-test'),
+    })
     const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
     expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
 
@@ -356,7 +342,7 @@ export const postUsersRoute = createRoute({
 `)
   })
 
-  it('--export-responses exports responses with export keyword', () => {
+  it('config exportResponses exports responses with export keyword', () => {
     const responseOpenAPI = {
       openapi: '3.0.3',
       info: { title: 'Response API', version: '1.0.0' },
@@ -382,9 +368,13 @@ export const postUsersRoute = createRoute({
       },
     }
     fs.writeFileSync('tmp-cli-test/response.json', JSON.stringify(responseOpenAPI))
-    execSync(
-      `node ${path.resolve('packages/hono-takibi/dist/index.js')} tmp-cli-test/response.json -o tmp-cli-test/output.ts --export-responses`,
+    fs.writeFileSync(
+      'tmp-cli-test/hono-takibi.config.ts',
+      `export default { input: 'response.json', 'zod-openapi': { output: 'output.ts', exportResponses: true } }`,
     )
+    execSync(`node ${path.resolve('packages/hono-takibi/dist/index.js')}`, {
+      cwd: path.resolve('tmp-cli-test'),
+    })
     const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
     expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
 
@@ -402,7 +392,7 @@ export const getUsersRoute = createRoute({
 `)
   })
 
-  it('--export-headers exports headers with export keyword', () => {
+  it('config exportHeaders exports headers with export keyword', () => {
     const headerOpenAPI = {
       openapi: '3.0.3',
       info: { title: 'Header API', version: '1.0.0' },
@@ -429,9 +419,13 @@ export const getUsersRoute = createRoute({
       },
     }
     fs.writeFileSync('tmp-cli-test/header.json', JSON.stringify(headerOpenAPI))
-    execSync(
-      `node ${path.resolve('packages/hono-takibi/dist/index.js')} tmp-cli-test/header.json -o tmp-cli-test/output.ts --export-headers`,
+    fs.writeFileSync(
+      'tmp-cli-test/hono-takibi.config.ts',
+      `export default { input: 'header.json', 'zod-openapi': { output: 'output.ts', exportHeaders: true } }`,
     )
+    execSync(`node ${path.resolve('packages/hono-takibi/dist/index.js')}`, {
+      cwd: path.resolve('tmp-cli-test'),
+    })
     const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
     expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
 
@@ -448,7 +442,7 @@ export const getUsersRoute = createRoute({
 `)
   })
 
-  it('--export-headers-types exports header types', () => {
+  it('config exportHeadersTypes exports header types', () => {
     const headerOpenAPI = {
       openapi: '3.0.3',
       info: { title: 'Header API', version: '1.0.0' },
@@ -475,9 +469,13 @@ export const getUsersRoute = createRoute({
       },
     }
     fs.writeFileSync('tmp-cli-test/header.json', JSON.stringify(headerOpenAPI))
-    execSync(
-      `node ${path.resolve('packages/hono-takibi/dist/index.js')} tmp-cli-test/header.json -o tmp-cli-test/output.ts --export-headers-types`,
+    fs.writeFileSync(
+      'tmp-cli-test/hono-takibi.config.ts',
+      `export default { input: 'header.json', 'zod-openapi': { output: 'output.ts', exportHeadersTypes: true } }`,
     )
+    execSync(`node ${path.resolve('packages/hono-takibi/dist/index.js')}`, {
+      cwd: path.resolve('tmp-cli-test'),
+    })
     const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
     expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
 
@@ -496,7 +494,7 @@ export const getUsersRoute = createRoute({
 `)
   })
 
-  it('--export-examples exports examples with export keyword', () => {
+  it('config exportExamples exports examples with export keyword', () => {
     const exampleOpenAPI = {
       openapi: '3.0.3',
       info: { title: 'Example API', version: '1.0.0' },
@@ -528,9 +526,13 @@ export const getUsersRoute = createRoute({
       },
     }
     fs.writeFileSync('tmp-cli-test/example.json', JSON.stringify(exampleOpenAPI))
-    execSync(
-      `node ${path.resolve('packages/hono-takibi/dist/index.js')} tmp-cli-test/example.json -o tmp-cli-test/output.ts --export-examples`,
+    fs.writeFileSync(
+      'tmp-cli-test/hono-takibi.config.ts',
+      `export default { input: 'example.json', 'zod-openapi': { output: 'output.ts', exportExamples: true } }`,
     )
+    execSync(`node ${path.resolve('packages/hono-takibi/dist/index.js')}`, {
+      cwd: path.resolve('tmp-cli-test'),
+    })
     const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
     expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
 
@@ -552,7 +554,7 @@ export const getUsersRoute = createRoute({
 `)
   })
 
-  it('--export-links exports links with export keyword', () => {
+  it('config exportLinks exports links with export keyword', () => {
     const linkOpenAPI = {
       openapi: '3.0.3',
       info: { title: 'Link API', version: '1.0.0' },
@@ -580,9 +582,13 @@ export const getUsersRoute = createRoute({
       },
     }
     fs.writeFileSync('tmp-cli-test/link.json', JSON.stringify(linkOpenAPI))
-    execSync(
-      `node ${path.resolve('packages/hono-takibi/dist/index.js')} tmp-cli-test/link.json -o tmp-cli-test/output.ts --export-links`,
+    fs.writeFileSync(
+      'tmp-cli-test/hono-takibi.config.ts',
+      `export default { input: 'link.json', 'zod-openapi': { output: 'output.ts', exportLinks: true } }`,
     )
+    execSync(`node ${path.resolve('packages/hono-takibi/dist/index.js')}`, {
+      cwd: path.resolve('tmp-cli-test'),
+    })
     const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
     expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
 
@@ -607,7 +613,7 @@ export const getUsersIdRoute = createRoute({
 `)
   })
 
-  it('--export-callbacks exports callbacks with export keyword', () => {
+  it('config exportCallbacks exports callbacks with export keyword', () => {
     const callbackOpenAPI = {
       openapi: '3.0.3',
       info: { title: 'Callback API', version: '1.0.0' },
@@ -643,9 +649,13 @@ export const getUsersIdRoute = createRoute({
       },
     }
     fs.writeFileSync('tmp-cli-test/callback.json', JSON.stringify(callbackOpenAPI))
-    execSync(
-      `node ${path.resolve('packages/hono-takibi/dist/index.js')} tmp-cli-test/callback.json -o tmp-cli-test/output.ts --export-callbacks`,
+    fs.writeFileSync(
+      'tmp-cli-test/hono-takibi.config.ts',
+      `export default { input: 'callback.json', 'zod-openapi': { output: 'output.ts', exportCallbacks: true } }`,
     )
+    execSync(`node ${path.resolve('packages/hono-takibi/dist/index.js')}`, {
+      cwd: path.resolve('tmp-cli-test'),
+    })
     const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
     expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
 
@@ -675,7 +685,7 @@ export const postSubscribeRoute = createRoute({
 `)
   })
 
-  it('all export options enabled', () => {
+  it('config all export options enabled', () => {
     const allOptionsOpenAPI = {
       openapi: '3.0.3',
       info: { title: 'All Options API', version: '1.0.0' },
@@ -741,9 +751,13 @@ export const postSubscribeRoute = createRoute({
       },
     }
     fs.writeFileSync('tmp-cli-test/all-options.json', JSON.stringify(allOptionsOpenAPI))
-    execSync(
-      `node ${path.resolve('packages/hono-takibi/dist/index.js')} tmp-cli-test/all-options.json -o tmp-cli-test/output.ts --export-schemas-types --export-schemas --export-parameters-types --export-parameters --export-securitySchemes --export-requestBodies --export-responses --export-headers-types --export-headers --export-examples --export-links --export-callbacks`,
+    fs.writeFileSync(
+      'tmp-cli-test/hono-takibi.config.ts',
+      `export default { input: 'all-options.json', 'zod-openapi': { output: 'output.ts', exportSchemas: true, exportSchemasTypes: true, exportParameters: true, exportParametersTypes: true, exportSecuritySchemes: true, exportRequestBodies: true, exportResponses: true, exportHeaders: true, exportHeadersTypes: true, exportExamples: true, exportLinks: true, exportCallbacks: true } }`,
     )
+    execSync(`node ${path.resolve('packages/hono-takibi/dist/index.js')}`, {
+      cwd: path.resolve('tmp-cli-test'),
+    })
     const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
     expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
 
@@ -835,7 +849,7 @@ export const postItemsIdRoute = createRoute({
   })
 })
 
-describe('--template mode tests', () => {
+describe('config template mode tests', () => {
   const testDir = 'tmp-template-test'
 
   beforeEach(() => {
@@ -847,7 +861,7 @@ describe('--template mode tests', () => {
     fs.rmSync(testDir, { recursive: true, force: true })
   })
 
-  it('generates app file and handler stubs with --template', () => {
+  it('generates app file and handler stubs with config template', () => {
     const openAPI = {
       openapi: '3.0.3',
       info: { title: 'Template API', version: '1.0.0' },
@@ -878,10 +892,14 @@ describe('--template mode tests', () => {
     }
 
     fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI))
-
-    execSync(
-      `node ${path.resolve('packages/hono-takibi/dist/index.js')} ${path.join(testDir, 'openapi.json')} -o ${path.join(testDir, 'src/routes.ts')} --template`,
+    fs.writeFileSync(
+      path.join(testDir, 'hono-takibi.config.ts'),
+      `export default { input: 'openapi.json', 'zod-openapi': { output: 'src/routes.ts', template: true } }`,
     )
+
+    execSync(`node ${path.resolve('packages/hono-takibi/dist/index.js')}`, {
+      cwd: path.resolve(testDir),
+    })
 
     // Verify routes file
     const routesFile = fs.readFileSync(path.join(testDir, 'src/routes.ts'), 'utf-8')
@@ -929,7 +947,7 @@ export const getUsersRouteHandler: RouteHandler<typeof getUsersRoute> = async (c
 `)
   })
 
-  it('generates test files with --template --test', () => {
+  it('generates test files with config template and test', () => {
     const openAPI = {
       openapi: '3.0.3',
       info: { title: 'Test API', version: '1.0.0' },
@@ -944,10 +962,14 @@ export const getUsersRouteHandler: RouteHandler<typeof getUsersRoute> = async (c
     }
 
     fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI))
-
-    execSync(
-      `node ${path.resolve('packages/hono-takibi/dist/index.js')} ${path.join(testDir, 'openapi.json')} -o ${path.join(testDir, 'src/routes.ts')} --template --test`,
+    fs.writeFileSync(
+      path.join(testDir, 'hono-takibi.config.ts'),
+      `export default { input: 'openapi.json', 'zod-openapi': { output: 'src/routes.ts', template: true, test: true } }`,
     )
+
+    execSync(`node ${path.resolve('packages/hono-takibi/dist/index.js')}`, {
+      cwd: path.resolve(testDir),
+    })
 
     // Verify test file exists and contains vitest code
     const testFileExists = fs.existsSync(path.join(testDir, 'src/handlers/items.test.ts'))
@@ -990,10 +1012,14 @@ describe('Items', () => {
     }
 
     fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI))
-
-    execSync(
-      `node ${path.resolve('packages/hono-takibi/dist/index.js')} ${path.join(testDir, 'openapi.json')} -o ${path.join(testDir, 'src/routes.ts')} --template`,
+    fs.writeFileSync(
+      path.join(testDir, 'hono-takibi.config.ts'),
+      `export default { input: 'openapi.json', 'zod-openapi': { output: 'src/routes.ts', template: true } }`,
     )
+
+    execSync(`node ${path.resolve('packages/hono-takibi/dist/index.js')}`, {
+      cwd: path.resolve(testDir),
+    })
 
     const handlerFile = fs.readFileSync(path.join(testDir, 'src/handlers/products.ts'), 'utf-8')
     expect(handlerFile).toBe(`import type { RouteHandler } from '@hono/zod-openapi'
@@ -2951,5 +2977,162 @@ export const getDataRoute = createRoute({
   responses: { 200: { description: 'OK' } },
 })
 `)
+  })
+
+  describe('format option in config', () => {
+    const formatTestSchema = {
+      openapi: '3.0.3',
+      info: { title: 'Format API', version: '1.0.0' },
+      paths: {
+        '/items': {
+          get: {
+            operationId: 'getItems',
+            responses: {
+              200: {
+                description: 'Success',
+                content: {
+                  'application/json': { schema: { $ref: '#/components/schemas/Item' } },
+                },
+              },
+            },
+          },
+        },
+      },
+      components: {
+        schemas: {
+          Item: {
+            type: 'object',
+            properties: {
+              id: { type: 'integer' },
+            },
+          },
+        },
+      },
+    }
+
+    it('default format: singleQuote true, semi false', () => {
+      fs.writeFileSync(`${testDir}/schema.json`, JSON.stringify(formatTestSchema))
+      fs.writeFileSync(
+        `${testDir}/hono-takibi.config.ts`,
+        `export default { input: 'schema.json', 'zod-openapi': { output: 'output.ts', exportSchemas: true } }`,
+      )
+      execSync(`node ${path.resolve('packages/hono-takibi/dist/index.js')}`, {
+        cwd: path.resolve(testDir),
+      })
+      const result = fs.readFileSync(`${testDir}/output.ts`, { encoding: 'utf-8' })
+      expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
+
+export const ItemSchema = z.object({ id: z.int().exactOptional() }).openapi('Item')
+
+export const getItemsRoute = createRoute({
+  method: 'get',
+  path: '/items',
+  operationId: 'getItems',
+  responses: {
+    200: { description: 'Success', content: { 'application/json': { schema: ItemSchema } } },
+  },
+})
+`)
+    })
+
+    it('format: semi true, singleQuote false', () => {
+      fs.writeFileSync(`${testDir}/schema.json`, JSON.stringify(formatTestSchema))
+      fs.writeFileSync(
+        `${testDir}/hono-takibi.config.ts`,
+        `export default { input: 'schema.json', format: { semi: true, singleQuote: false }, 'zod-openapi': { output: 'output.ts', exportSchemas: true } }`,
+      )
+      execSync(`node ${path.resolve('packages/hono-takibi/dist/index.js')}`, {
+        cwd: path.resolve(testDir),
+      })
+      const result = fs.readFileSync(`${testDir}/output.ts`, { encoding: 'utf-8' })
+      expect(result).toBe(`import { createRoute, z } from "@hono/zod-openapi";
+
+export const ItemSchema = z.object({ id: z.int().exactOptional() }).openapi("Item");
+
+export const getItemsRoute = createRoute({
+  method: "get",
+  path: "/items",
+  operationId: "getItems",
+  responses: {
+    200: { description: "Success", content: { "application/json": { schema: ItemSchema } } },
+  },
+});
+`)
+    })
+
+    it('format: semi true, singleQuote true', () => {
+      fs.writeFileSync(`${testDir}/schema.json`, JSON.stringify(formatTestSchema))
+      fs.writeFileSync(
+        `${testDir}/hono-takibi.config.ts`,
+        `export default { input: 'schema.json', format: { semi: true, singleQuote: true }, 'zod-openapi': { output: 'output.ts', exportSchemas: true } }`,
+      )
+      execSync(`node ${path.resolve('packages/hono-takibi/dist/index.js')}`, {
+        cwd: path.resolve(testDir),
+      })
+      const result = fs.readFileSync(`${testDir}/output.ts`, { encoding: 'utf-8' })
+      expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi';
+
+export const ItemSchema = z.object({ id: z.int().exactOptional() }).openapi('Item');
+
+export const getItemsRoute = createRoute({
+  method: 'get',
+  path: '/items',
+  operationId: 'getItems',
+  responses: {
+    200: { description: 'Success', content: { 'application/json': { schema: ItemSchema } } },
+  },
+});
+`)
+    })
+
+    it('format: tabWidth 4', () => {
+      fs.writeFileSync(`${testDir}/schema.json`, JSON.stringify(formatTestSchema))
+      fs.writeFileSync(
+        `${testDir}/hono-takibi.config.ts`,
+        `export default { input: 'schema.json', format: { tabWidth: 4, singleQuote: true, semi: false }, 'zod-openapi': { output: 'output.ts', exportSchemas: true } }`,
+      )
+      execSync(`node ${path.resolve('packages/hono-takibi/dist/index.js')}`, {
+        cwd: path.resolve(testDir),
+      })
+      const result = fs.readFileSync(`${testDir}/output.ts`, { encoding: 'utf-8' })
+      expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
+
+export const ItemSchema = z.object({ id: z.int().exactOptional() }).openapi('Item')
+
+export const getItemsRoute = createRoute({
+    method: 'get',
+    path: '/items',
+    operationId: 'getItems',
+    responses: {
+        200: { description: 'Success', content: { 'application/json': { schema: ItemSchema } } },
+    },
+})
+`)
+    })
+
+    it('format: useTabs true', () => {
+      fs.writeFileSync(`${testDir}/schema.json`, JSON.stringify(formatTestSchema))
+      fs.writeFileSync(
+        `${testDir}/hono-takibi.config.ts`,
+        `export default { input: 'schema.json', format: { useTabs: true, singleQuote: true, semi: false }, 'zod-openapi': { output: 'output.ts', exportSchemas: true } }`,
+      )
+      execSync(`node ${path.resolve('packages/hono-takibi/dist/index.js')}`, {
+        cwd: path.resolve(testDir),
+      })
+      const result = fs.readFileSync(`${testDir}/output.ts`, { encoding: 'utf-8' })
+      expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
+
+export const ItemSchema = z.object({ id: z.int().exactOptional() }).openapi('Item')
+
+export const getItemsRoute = createRoute({
+\tmethod: 'get',
+\tpath: '/items',
+\toperationId: 'getItems',
+\tresponses: {
+\t\t200: { description: 'Success', content: { 'application/json': { schema: ItemSchema } } },
+\t},
+})
+`)
+    })
   })
 })

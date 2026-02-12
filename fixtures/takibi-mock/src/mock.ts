@@ -1,6 +1,5 @@
 import { faker } from '@faker-js/faker'
-import type { RouteHandler } from '@hono/zod-openapi'
-import { createRoute, OpenAPIHono, z } from '@hono/zod-openapi'
+import { createRoute, OpenAPIHono, type RouteHandler, z } from '@hono/zod-openapi'
 
 const HealthResponseSchema = z
   .object({
@@ -751,7 +750,7 @@ const deleteProductsProductIdRouteHandler: RouteHandler<
   if (!c.req.header('X-API-Key')) {
     return c.json({ message: 'Unauthorized' }, 401)
   }
-  return c.body(null, 204)
+  return new Response(null, { status: 204 })
 }
 
 const getOrdersRouteHandler: RouteHandler<typeof getOrdersRoute> = async (c) => {
@@ -801,7 +800,5 @@ export const api = app
   .openapi(postOrdersRoute, postOrdersRouteHandler)
   .openapi(getOrdersOrderIdRoute, getOrdersOrderIdRouteHandler)
   .openapi(patchOrdersOrderIdRoute, patchOrdersOrderIdRouteHandler)
-
-export type AppType = typeof api
 
 export default app
