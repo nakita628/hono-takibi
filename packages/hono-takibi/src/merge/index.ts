@@ -460,7 +460,7 @@ export function mergeTestFile(existingCode: string, generatedCode: string): stri
         '\n' +
         bodyWithRemovals.slice(insertPos)
     } else {
-      bodyWithRemovals = '\n' + missingMocks.join('\n\n') + '\n' + bodyWithRemovals
+      bodyWithRemovals = `\n${missingMocks.join('\n\n')}\n${bodyWithRemovals}`
     }
     bodyWithRemovals = bodyWithRemovals.replace(/\n{3,}/g, '\n\n')
   }
