@@ -44,7 +44,17 @@ export function parametersCode(
       }
       // Handle parameters with content instead of schema (OpenAPI 3.x)
       const schema = parameter.schema ?? getSchemaFromContent(parameter.content)
-      const z = schema ? zodToOpenAPI(schema, meta) : 'z.any()'
+      const baseSchema = schema ? zodToOpenAPI(schema, meta) : 'z.any()'
+
+      // Apply coercion for query parameters
+      const z =
+        parameter.in === 'query' && schema?.type === 'number'
+          ? `z.coerce.${baseSchema.replace('z.', '')}`
+          : parameter.in === 'query' && schema?.type === 'boolean'
+            ? baseSchema.replace('boolean', 'stringbool')
+            : parameter.in === 'query' && schema?.type === 'date'
+              ? `z.coerce.${baseSchema.replace('z.', '')}`
+              : baseSchema
       return zodToOpenAPISchema(
         toIdentifierPascalCase(ensureSuffix(k, 'ParamsSchema')),
         z,

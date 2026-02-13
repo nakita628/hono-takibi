@@ -51,6 +51,7 @@ hono request \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
   -H "Authorization: Bearer ${ACCESS_TOKEN}" \
+  -d '{"id":10,"name":"doggie","category":{"id":1,"name":"Dogs"},"photoUrls":["string"],"tags":[{"id":0,"name":"string"}],"status":"available"}' \
   src/index.ts
 ```
 
@@ -155,6 +156,7 @@ hono request \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
   -H "Authorization: Bearer ${ACCESS_TOKEN}" \
+  -d '{"id":10,"name":"doggie","category":{"id":1,"name":"Dogs"},"photoUrls":["string"],"tags":[{"id":0,"name":"string"}],"status":"available"}' \
   src/index.ts
 ```
 
@@ -652,6 +654,7 @@ hono request \
   -P /store/order \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
+  -d '{"id":10,"petId":198772,"quantity":7,"shipDate":"1970-01-01T00:00:00Z","status":"approved","complete":true}' \
   src/index.ts
 ```
 
@@ -820,6 +823,7 @@ hono request \
   -P /user \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
+  -d '{"id":10,"username":"theUser","firstName":"John","lastName":"James","email":"john@email.com","password":"12345","phone":"12345","userStatus":1}' \
   src/index.ts
 ```
 
@@ -895,6 +899,7 @@ hono request \
   -P /user/createWithList \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
+  -d '[{"id":10,"username":"theUser","firstName":"John","lastName":"James","email":"john@email.com","password":"12345","phone":"12345","userStatus":1}]' \
   src/index.ts
 ```
 
@@ -1082,6 +1087,7 @@ hono request \
   -X PUT \
   -P /user/{username} \
   -H 'Content-Type: application/json' \
+  -d '{"id":10,"username":"theUser","firstName":"John","lastName":"James","email":"john@email.com","password":"12345","phone":"12345","userStatus":1}' \
   src/index.ts
 ```
 

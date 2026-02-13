@@ -1,6 +1,9 @@
-import { describe, expect, it } from 'vitest'
 import { faker } from '@faker-js/faker'
+import { Effect } from 'effect'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import app from '@/backend'
+import { DatabaseError, UnauthorizedError } from '@/backend/domain'
+import * as EditTransaction from '@/backend/transactions/edit'
 
 function mockEditUserRequest() {
   return {
@@ -15,16 +18,31 @@ function mockEditUserRequest() {
   }
 }
 
-describe('Edit', () => {
-  describe('PATCH /edit', () => {
-    it('should return 200', async () => {
-      const body = mockEditUserRequest()
-      const res = await app.request(`/edit`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      })
-      expect(res.status).toBe(200)
+function mockUserResponse() {
+  return {
+    id: faker.string.uuid(),
+    name: 'Updated User',
+    username: 'updated',
+    bio: 'Hello',
+    email: 'test@example.com',
+    emailVerified: null,
+    image: null,
+    coverImage: null,
+    profileImage: null,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    hasNotification: null,
+  }
+}
+
+describe('PATCH /edit', () => {
+  it('should return 200', async () => {
+    const body = mockEditUserRequest()
+    const res = await app.request('/edit', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
     })
+    expect(res.status).toBe(200)
   })
 })

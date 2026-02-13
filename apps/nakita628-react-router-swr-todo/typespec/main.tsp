@@ -114,12 +114,12 @@ alias CommonErrors = UnprocessableContent | InternalServerError | ServiceUnavail
 model PaginationQuery {
   @query
   @minValue(1)
-  page?: int32 = 1;
+  page?: float64 = 1;
 
   @query
   @minValue(1)
   @maxValue(100)
-  rows?: int32 = 10;
+  rows?: float64 = 10;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

@@ -185,4 +185,91 @@ describe('makeDocs', () => {
       )
     })
   })
+
+  describe('-d flag for request body', () => {
+    const postOpenAPI: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Test API', version: '1.0.0' },
+      paths: {
+        '/users': {
+          post: {
+            operationId: 'createUser',
+            requestBody: {
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      name: { type: 'string' },
+                    },
+                  },
+                },
+              },
+            },
+            responses: {
+              '201': {
+                description: 'Created',
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        id: { type: 'integer' },
+                        name: { type: 'string' },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    it('generates -d flag with request body example', () => {
+      const result = makeDocs(postOpenAPI, 'src/index.ts', '/')
+      expect(result).toContain('-d \'{"name":"string"}\'')
+      expect(result).toContain('-X POST')
+      expect(result).toContain('-P /users')
+    })
+
+    it('prioritizes schema.example for -d value', () => {
+      const withExample: OpenAPI = {
+        openapi: '3.1.0',
+        info: { title: 'Test API', version: '1.0.0' },
+        paths: {
+          '/users': {
+            post: {
+              operationId: 'createUser',
+              requestBody: {
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        name: { type: 'string', example: 'Alice' },
+                      },
+                    },
+                  },
+                },
+              },
+              responses: {
+                '201': {
+                  description: 'Created',
+                },
+              },
+            },
+          },
+        },
+      }
+      const result = makeDocs(withExample, 'src/index.ts', '/')
+      expect(result).toContain('-d \'{"name":"Alice"}\'')
+    })
+
+    it('generates 201 response in responses table', () => {
+      const result = makeDocs(postOpenAPI, 'src/index.ts', '/')
+      expect(result).toContain('|201|Created|Created|Inline|')
+    })
+  })
 })

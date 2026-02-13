@@ -184,6 +184,7 @@ const findCyclicSchemas = (
 export function analyzeCircularSchemas(
   schemas: { readonly [k: string]: Schema },
   schemaNames: readonly string[],
+  readonly?: boolean,
 ): {
   /** Map from schema name to generated Zod code */
   readonly zSchemaMap: ReadonlyMap<string, string>
@@ -205,7 +206,9 @@ export function analyzeCircularSchemas(
     schemaNames.map((n) => [toIdentifierPascalCase(ensureSuffix(n, 'Schema')), n]),
   )
 
-  const zSchemaMap = new Map(schemaNames.map((n) => [n, zodToOpenAPI(schemas[n])]))
+  const zSchemaMap = new Map(
+    schemaNames.map((n) => [n, zodToOpenAPI(schemas[n], undefined, readonly)]),
+  )
 
   const depsMap = new Map(
     schemaNames.map((n) => {

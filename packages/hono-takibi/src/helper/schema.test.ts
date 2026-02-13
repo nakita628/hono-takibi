@@ -101,7 +101,7 @@ describe('makeSchemaCode', () => {
   })
 
   it.concurrent('should generate schema code with readonly modifier', () => {
-    const analysis = analyzeCircularSchemas(schemas, ['User'])
+    const analysis = analyzeCircularSchemas(schemas, ['User'], true)
     const info = makeSchemaInfo('User', schemas.User, analysis)
     const code = makeSchemaCode(info, {
       exportKeyword: 'export ',
@@ -115,7 +115,7 @@ describe('makeSchemaCode', () => {
   })
 
   it.concurrent('should generate schema code with readonly and type export', () => {
-    const analysis = analyzeCircularSchemas(schemas, ['User'])
+    const analysis = analyzeCircularSchemas(schemas, ['User'], true)
     const info = makeSchemaInfo('User', schemas.User, analysis)
     const code = makeSchemaCode(info, {
       exportKeyword: 'export ',
@@ -250,12 +250,73 @@ describe('makeSplitSchemaFile', () => {
 
     it.concurrent('should generate schema with readonly modifier', () => {
       const schemaNames = Object.keys(schemas)
-      const analysis = analyzeCircularSchemas(schemas, schemaNames)
+      const analysis = analyzeCircularSchemas(schemas, schemaNames, true)
       const result = makeSplitSchemaFile('Profile', schemas.Profile, schemas, analysis, true, true)
 
       expect(result).toBe(
         "import{z}from'@hono/zod-openapi'\nimport{UserSchema}from'./user'\n\n\nexport const ProfileSchema=z.object({user:UserSchema.exactOptional()}).readonly().openapi('Profile')\n\nexport type Profile=z.infer<typeof ProfileSchema>",
       )
+    })
+
+    it.concurrent('should apply readonly to nested inline objects', () => {
+      const nestedSchemas = {
+        Outer: {
+          type: 'object',
+          properties: {
+            name: { type: 'string' },
+            inner: {
+              type: 'object',
+              properties: {
+                city: { type: 'string' },
+              },
+            },
+          },
+        },
+      } as const
+      const schemaNames = Object.keys(nestedSchemas)
+      const analysis = analyzeCircularSchemas(nestedSchemas, schemaNames, true)
+      const result = makeSplitSchemaFile(
+        'Outer',
+        nestedSchemas.Outer,
+        nestedSchemas,
+        analysis,
+        true,
+        true,
+      )
+
+      // The nested z.object({city:...}) should also have .readonly()
+      expect(result).toContain(
+        'z.object({city:z.string().exactOptional()}).readonly().exactOptional()',
+      )
+      // The outer object should also have .readonly()
+      expect(result).toContain('.readonly().openapi(')
+    })
+
+    it.concurrent('should apply readonly to nested arrays', () => {
+      const arraySchemas = {
+        Container: {
+          type: 'object',
+          properties: {
+            items: {
+              type: 'array',
+              items: { type: 'string' },
+            },
+          },
+        },
+      } as const
+      const schemaNames = Object.keys(arraySchemas)
+      const analysis = analyzeCircularSchemas(arraySchemas, schemaNames, true)
+      const result = makeSplitSchemaFile(
+        'Container',
+        arraySchemas.Container,
+        arraySchemas,
+        analysis,
+        true,
+        true,
+      )
+
+      // The nested z.array() should have .readonly()
+      expect(result).toContain('z.array(z.string()).readonly().exactOptional()')
     })
   })
 })

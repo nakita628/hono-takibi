@@ -1,6 +1,6 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
-const CommentSchema = z
+export const CommentSchema = z
   .object({
     id: z.uuid(),
     body: z.string(),
@@ -12,32 +12,43 @@ const CommentSchema = z
   .openapi({ required: ['id', 'body', 'createdAt', 'updatedAt', 'userId', 'postId'] })
   .openapi('Comment')
 
-const MessageResponseSchema = z
+export const ValidationErrorDetailSchema = z
+  .object({ pointer: z.string(), detail: z.string() })
+  .openapi({ required: ['pointer', 'detail'] })
+  .openapi('ValidationErrorDetail')
+
+export const ValidationErrorSchema = z
+  .object({
+    type: z.literal('about:blank'),
+    title: z.literal('Unprocessable Content'),
+    status: z.literal(422),
+    detail: z.literal('Request validation failed'),
+    errors: z.array(ValidationErrorDetailSchema),
+  })
+  .openapi({ required: ['type', 'title', 'status', 'detail', 'errors'] })
+  .openapi('ValidationError')
+
+export const MessageResponseSchema = z
   .object({ message: z.string() })
   .openapi({ required: ['message'] })
   .openapi('MessageResponse')
 
-const CreateCommentRequestSchema = z
+export const CreateCommentRequestSchema = z
   .object({ body: z.string() })
   .openapi({ required: ['body'] })
   .openapi('CreateCommentRequest')
 
-const FollowSchema = z
-  .object({
-    id: z.uuid(),
-    followerId: z.uuid(),
-    followingId: z.uuid(),
-    createdAt: z.iso.datetime(),
-  })
-  .openapi({ required: ['id', 'followerId', 'followingId', 'createdAt'] })
+export const FollowSchema = z
+  .object({ followerId: z.uuid(), followingId: z.uuid(), createdAt: z.iso.datetime() })
+  .openapi({ required: ['followerId', 'followingId', 'createdAt'] })
   .openapi('Follow')
 
-const CurrentUserSchema = z
+export const CurrentUserSchema = z
   .object({
     id: z.uuid(),
     name: z.string(),
     username: z.string(),
-    bio: z.string().exactOptional(),
+    bio: z.string().nullable().exactOptional(),
     email: z.email(),
     image: z.url().nullable(),
     coverImage: z.url().nullable(),
@@ -46,7 +57,7 @@ const CurrentUserSchema = z
     updatedAt: z.string(),
     followers: z.array(FollowSchema),
     following: z.array(FollowSchema),
-    hasNotification: z.boolean(),
+    hasNotification: z.boolean().nullable(),
   })
   .openapi({
     required: [
@@ -66,21 +77,20 @@ const CurrentUserSchema = z
   })
   .openapi('CurrentUser')
 
-const UserSchema = z
+export const UserSchema = z
   .object({
     id: z.uuid(),
     name: z.string(),
     username: z.string(),
-    bio: z.string().exactOptional(),
+    bio: z.string().nullable().exactOptional(),
     email: z.email(),
     emailVerified: z.string().nullable(),
     image: z.url().nullable(),
     coverImage: z.url().nullable(),
     profileImage: z.url().nullable(),
-    hashedPassword: z.string(),
     createdAt: z.string(),
     updatedAt: z.string(),
-    hasNotification: z.boolean().exactOptional(),
+    hasNotification: z.boolean().nullable().exactOptional(),
   })
   .openapi({
     required: [
@@ -92,14 +102,13 @@ const UserSchema = z
       'image',
       'coverImage',
       'profileImage',
-      'hashedPassword',
       'createdAt',
       'updatedAt',
     ],
   })
   .openapi('User')
 
-const EditUserRequestSchema = z
+export const EditUserRequestSchema = z
   .object({
     name: z.string().exactOptional(),
     username: z.string().exactOptional(),
@@ -109,17 +118,17 @@ const EditUserRequestSchema = z
   })
   .openapi('EditUserRequest')
 
-const FollowUserRequestSchema = z
+export const FollowUserRequestSchema = z
   .object({ userId: z.uuid() })
   .openapi({ required: ['userId'] })
   .openapi('FollowUserRequest')
 
-const LikeSchema = z
-  .object({ id: z.uuid(), userId: z.uuid(), postId: z.uuid(), createdAt: z.string() })
-  .openapi({ required: ['id', 'userId', 'postId', 'createdAt'] })
+export const LikeSchema = z
+  .object({ userId: z.uuid(), postId: z.uuid(), createdAt: z.string() })
+  .openapi({ required: ['userId', 'postId', 'createdAt'] })
   .openapi('Like')
 
-const PostWithLikesSchema = z
+export const PostWithLikesSchema = z
   .object({
     id: z.uuid(),
     body: z.string(),
@@ -131,17 +140,17 @@ const PostWithLikesSchema = z
   .openapi({ required: ['id', 'body', 'createdAt', 'updatedAt', 'userId', 'likes'] })
   .openapi('PostWithLikes')
 
-const LikePostRequestSchema = z
+export const LikePostRequestSchema = z
   .object({ postId: z.uuid() })
   .openapi({ required: ['postId'] })
   .openapi('LikePostRequest')
 
-const NotificationSchema = z
+export const NotificationSchema = z
   .object({ id: z.uuid(), body: z.string(), userId: z.uuid(), createdAt: z.string() })
   .openapi({ required: ['id', 'body', 'userId', 'createdAt'] })
   .openapi('Notification')
 
-const PostWithDetailsSchema = z
+export const PostWithDetailsSchema = z
   .object({
     id: z.uuid(),
     body: z.string(),
@@ -157,7 +166,7 @@ const PostWithDetailsSchema = z
   })
   .openapi('PostWithDetails')
 
-const PostSchema = z
+export const PostSchema = z
   .object({
     id: z.uuid(),
     body: z.string(),
@@ -168,12 +177,12 @@ const PostSchema = z
   .openapi({ required: ['id', 'body', 'createdAt', 'updatedAt', 'userId'] })
   .openapi('Post')
 
-const CreatePostRequestSchema = z
+export const CreatePostRequestSchema = z
   .object({ body: z.string() })
   .openapi({ required: ['body'] })
   .openapi('CreatePostRequest')
 
-const CommentWithUserSchema = z
+export const CommentWithUserSchema = z
   .object({
     id: z.uuid(),
     body: z.string(),
@@ -186,7 +195,7 @@ const CommentWithUserSchema = z
   .openapi({ required: ['id', 'body', 'createdAt', 'updatedAt', 'userId', 'postId', 'user'] })
   .openapi('CommentWithUser')
 
-const PostDetailSchema = z
+export const PostDetailSchema = z
   .object({
     id: z.uuid(),
     body: z.string(),
@@ -213,26 +222,25 @@ const PostDetailSchema = z
   })
   .openapi('PostDetail')
 
-const RegisterRequestSchema = z
+export const RegisterRequestSchema = z
   .object({ email: z.email(), name: z.string(), username: z.string(), password: z.string() })
   .openapi({ required: ['email', 'name', 'username', 'password'] })
   .openapi('RegisterRequest')
 
-const UserWithFollowCountSchema = z
+export const UserWithFollowCountSchema = z
   .object({
     id: z.uuid(),
     name: z.string(),
     username: z.string(),
-    bio: z.string().exactOptional(),
+    bio: z.string().nullable().exactOptional(),
     email: z.email(),
     emailVerified: z.string().nullable(),
     image: z.url().nullable(),
     coverImage: z.url().nullable(),
     profileImage: z.url().nullable(),
-    hashedPassword: z.string(),
     createdAt: z.string(),
     updatedAt: z.string(),
-    hasNotification: z.boolean().exactOptional(),
+    hasNotification: z.boolean().nullable().exactOptional(),
     _count: z
       .object({ followers: z.number(), following: z.number() })
       .openapi({ required: ['followers', 'following'] }),
@@ -247,7 +255,6 @@ const UserWithFollowCountSchema = z
       'image',
       'coverImage',
       'profileImage',
-      'hashedPassword',
       'createdAt',
       'updatedAt',
       '_count',
@@ -316,6 +323,10 @@ export const postCommentsRoute = createRoute({
       description: 'The request has succeeded.',
       content: { 'application/json': { schema: CommentSchema } },
     },
+    422: {
+      description: 'Client error',
+      content: { 'application/json': { schema: ValidationErrorSchema } },
+    },
     500: {
       description: 'Server error',
       content: { 'application/json': { schema: MessageResponseSchema } },
@@ -357,6 +368,10 @@ export const patchEditRoute = createRoute({
       description: 'The request has succeeded.',
       content: { 'application/json': { schema: UserSchema } },
     },
+    422: {
+      description: 'Client error',
+      content: { 'application/json': { schema: ValidationErrorSchema } },
+    },
     500: {
       description: 'Server error',
       content: { 'application/json': { schema: MessageResponseSchema } },
@@ -376,6 +391,10 @@ export const postFollowRoute = createRoute({
     200: {
       description: 'The request has succeeded.',
       content: { 'application/json': { schema: MessageResponseSchema } },
+    },
+    422: {
+      description: 'Client error',
+      content: { 'application/json': { schema: ValidationErrorSchema } },
     },
     500: {
       description: 'Server error',
@@ -397,6 +416,10 @@ export const deleteFollowRoute = createRoute({
       description: 'The request has succeeded.',
       content: { 'application/json': { schema: MessageResponseSchema } },
     },
+    422: {
+      description: 'Client error',
+      content: { 'application/json': { schema: ValidationErrorSchema } },
+    },
     500: {
       description: 'Server error',
       content: { 'application/json': { schema: MessageResponseSchema } },
@@ -416,6 +439,10 @@ export const postLikeRoute = createRoute({
     200: {
       description: 'The request has succeeded.',
       content: { 'application/json': { schema: PostWithLikesSchema } },
+    },
+    422: {
+      description: 'Client error',
+      content: { 'application/json': { schema: ValidationErrorSchema } },
     },
     500: {
       description: 'Server error',
@@ -437,6 +464,10 @@ export const deleteLikeRoute = createRoute({
       description: 'The request has succeeded.',
       content: { 'application/json': { schema: PostWithLikesSchema } },
     },
+    422: {
+      description: 'Client error',
+      content: { 'application/json': { schema: ValidationErrorSchema } },
+    },
     500: {
       description: 'Server error',
       content: { 'application/json': { schema: MessageResponseSchema } },
@@ -454,6 +485,10 @@ export const getNotificationsUserIdRoute = createRoute({
     200: {
       description: 'The request has succeeded.',
       content: { 'application/json': { schema: z.array(NotificationSchema) } },
+    },
+    422: {
+      description: 'Client error',
+      content: { 'application/json': { schema: ValidationErrorSchema } },
     },
     500: {
       description: 'Server error',
@@ -473,6 +508,10 @@ export const postNotificationsRoute = createRoute({
       description: 'The request has succeeded.',
       content: { 'application/json': { schema: MessageResponseSchema } },
     },
+    422: {
+      description: 'Client error',
+      content: { 'application/json': { schema: ValidationErrorSchema } },
+    },
     500: {
       description: 'Server error',
       content: { 'application/json': { schema: MessageResponseSchema } },
@@ -491,6 +530,10 @@ export const getPostsRoute = createRoute({
       description: 'The request has succeeded.',
       content: { 'application/json': { schema: z.array(PostWithDetailsSchema) } },
     },
+    422: {
+      description: 'Client error',
+      content: { 'application/json': { schema: ValidationErrorSchema } },
+    },
   },
 })
 
@@ -506,6 +549,10 @@ export const postPostsRoute = createRoute({
     200: {
       description: 'The request has succeeded.',
       content: { 'application/json': { schema: PostSchema } },
+    },
+    422: {
+      description: 'Client error',
+      content: { 'application/json': { schema: ValidationErrorSchema } },
     },
     500: {
       description: 'Server error',
@@ -525,6 +572,10 @@ export const getPostsPostIdRoute = createRoute({
       description: 'The request has succeeded.',
       content: { 'application/json': { schema: PostDetailSchema } },
     },
+    422: {
+      description: 'Client error',
+      content: { 'application/json': { schema: ValidationErrorSchema } },
+    },
     500: {
       description: 'Server error',
       content: { 'application/json': { schema: MessageResponseSchema } },
@@ -541,12 +592,28 @@ export const postRegisterRoute = createRoute({
     body: { content: { 'application/json': { schema: RegisterRequestSchema } }, required: true },
   },
   responses: {
-    200: {
-      description: 'The request has succeeded.',
+    201: {
+      description: 'The request has succeeded and a new resource has been created as a result.',
       content: { 'application/json': { schema: UserSchema } },
+    },
+    404: {
+      description: 'The server cannot find the requested resource.',
+      content: { 'application/json': { schema: MessageResponseSchema } },
+    },
+    409: {
+      description: 'The request conflicts with the current state of the server.',
+      content: { 'application/json': { schema: MessageResponseSchema } },
+    },
+    422: {
+      description: 'Client error',
+      content: { 'application/json': { schema: ValidationErrorSchema } },
     },
     500: {
       description: 'Server error',
+      content: { 'application/json': { schema: MessageResponseSchema } },
+    },
+    503: {
+      description: 'Service unavailable.',
       content: { 'application/json': { schema: MessageResponseSchema } },
     },
   },
@@ -566,6 +633,10 @@ export const getUsersUserIdRoute = createRoute({
     404: {
       description: 'The server cannot find the requested resource.',
       content: { 'application/json': { schema: MessageResponseSchema } },
+    },
+    422: {
+      description: 'Client error',
+      content: { 'application/json': { schema: ValidationErrorSchema } },
     },
     500: {
       description: 'Server error',

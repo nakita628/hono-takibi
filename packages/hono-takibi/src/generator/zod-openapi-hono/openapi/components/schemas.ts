@@ -39,7 +39,7 @@ export function schemasCode(
   const schemaNames = Object.keys(schemas)
   if (schemaNames.length === 0) return ''
 
-  const analysis = analyzeCircularSchemas(schemas, schemaNames)
+  const analysis = analyzeCircularSchemas(schemas, schemaNames, readonly)
   const infos = makeSchemaInfos(schemas, schemaNames, analysis)
 
   const typeDefs = makeTypeDefinitions(infos, schemas, analysis.cyclicGroupPascal, readonly)

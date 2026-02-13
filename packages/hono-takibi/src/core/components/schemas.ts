@@ -53,7 +53,7 @@ export async function schemas(
 
   if (split) {
     const outDir = String(output).replace(/\.ts$/, '')
-    const analysis = analyzeCircularSchemas(schemas, schemaNames)
+    const analysis = analyzeCircularSchemas(schemas, schemaNames, readonly)
 
     const allResults = await Promise.all([
       ...schemaNames.map((schemaName) => {

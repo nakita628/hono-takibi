@@ -26,6 +26,8 @@ type Endpoint = {
   readonly operation: Operation
 }
 
+const MAX_SCHEMA_DEPTH = 50
+
 // ---------------------------------------------------------------------------
 // Slug / anchor helpers
 // ---------------------------------------------------------------------------
@@ -35,7 +37,8 @@ type Endpoint = {
  * Lowercases ASCII, keeps non-ASCII (e.g. Japanese), removes special chars.
  */
 function toSlug(text: string): string {
-  return text
+  const str = typeof text === 'string' ? text : String(text ?? '')
+  return str
     .replace(/[A-Z]/g, (c) => c.toLowerCase())
     .replace(/[^a-z0-9\u3000-\u9fff\uff00-\uffef -]/g, '')
     .replace(/\s+/g, '-')
@@ -45,7 +48,8 @@ function toSlug(text: string): string {
  * Converts an API title to a widdershins-style anchor slug.
  */
 function toTitleSlug(title: string): string {
-  return title
+  const str = typeof title === 'string' ? title : String(title ?? '')
+  return str
     .toLowerCase()
     .replace(/[^a-z0-9 -]/g, '')
     .replace(/\s+/g, '-')
@@ -117,6 +121,7 @@ function resolveResponse(response: Responses, components: Components | undefined
  * Examples: "string(email)", "integer(int64)", "[User](#schemauser)", "[[User](#schemauser)]"
  */
 function formatSchemaType(schema: Schema, components: Components | undefined): string {
+  if (!schema) return 'object'
   if (schema.$ref) {
     const name = refName(schema.$ref)
     return `[${name}](#schema${name.toLowerCase()})`
@@ -196,13 +201,16 @@ function makeExampleFromSchema(
   schema: Schema,
   components: Components | undefined,
   visited: Set<string> = new Set(),
+  depth = 0,
 ): unknown {
+  if (depth > MAX_SCHEMA_DEPTH) return {}
+
   if (schema.$ref) {
     if (visited.has(schema.$ref)) return {}
     visited.add(schema.$ref)
     const name = refName(schema.$ref)
     const resolved = components?.schemas?.[name]
-    if (resolved) return makeExampleFromSchema(resolved, components, visited)
+    if (resolved) return makeExampleFromSchema(resolved, components, visited, depth + 1)
     return {}
   }
 
@@ -213,14 +221,14 @@ function makeExampleFromSchema(
   if (schema.type === 'object' && schema.properties) {
     const result: { [k: string]: unknown } = {}
     for (const [key, propSchema] of Object.entries(schema.properties)) {
-      result[key] = makeExampleFromSchema(propSchema, components, new Set(visited))
+      result[key] = makeExampleFromSchema(propSchema, components, visited, depth + 1)
     }
     return result
   }
 
   if (schema.type === 'array' && schema.items) {
     const item = Array.isArray(schema.items) ? schema.items[0] : schema.items
-    if (item) return [makeExampleFromSchema(item, components, new Set(visited))]
+    if (item) return [makeExampleFromSchema(item, components, visited, depth + 1)]
     return []
   }
 
@@ -228,7 +236,7 @@ function makeExampleFromSchema(
   if (schema.allOf?.length) {
     let merged: { [k: string]: unknown } = {}
     for (const sub of schema.allOf) {
-      const example = makeExampleFromSchema(sub, components, new Set(visited))
+      const example = makeExampleFromSchema(sub, components, visited, depth + 1)
       if (typeof example === 'object' && example !== null && !Array.isArray(example)) {
         merged = { ...merged, ...(example as { [k: string]: unknown }) }
       }
@@ -236,10 +244,10 @@ function makeExampleFromSchema(
     return merged
   }
   if (schema.oneOf?.length) {
-    return makeExampleFromSchema(schema.oneOf[0], components, new Set(visited))
+    return makeExampleFromSchema(schema.oneOf[0], components, visited, depth + 1)
   }
   if (schema.anyOf?.length) {
-    return makeExampleFromSchema(schema.anyOf[0], components, new Set(visited))
+    return makeExampleFromSchema(schema.anyOf[0], components, visited, depth + 1)
   }
 
   return makeDefaultValue(schema)
@@ -439,34 +447,59 @@ function makeCodeSampleHeaders(
   return headers
 }
 
+function extractMediaExample(jsonMedia: {
+  readonly example?: unknown
+  readonly examples?: {
+    readonly [k: string]: { readonly value?: unknown } | { readonly $ref?: string }
+  }
+}): unknown | undefined {
+  if (jsonMedia.example !== undefined) return jsonMedia.example
+  if (jsonMedia.examples) {
+    const first = Object.values(jsonMedia.examples)[0]
+    if (first && 'value' in first && first.value !== undefined) return first.value
+  }
+  return undefined
+}
+
+function makeCodeSampleBody(
+  operation: Operation,
+  components: Components | undefined,
+): string | undefined {
+  if (!operation.requestBody) return undefined
+  if (!isRequestBody(operation.requestBody)) return undefined
+  const jsonMedia = operation.requestBody.content?.['application/json']
+  if (!(jsonMedia && isMedia(jsonMedia) && jsonMedia.schema)) return undefined
+  const mediaExample = extractMediaExample(jsonMedia)
+  if (mediaExample !== undefined) return JSON.stringify(mediaExample)
+  const example = makeExampleFromSchema(jsonMedia.schema, components)
+  return JSON.stringify(example)
+}
+
 function makeCodeSample(
   method: HttpMethod,
   pathStr: string,
   basePath: string,
   operation: Operation,
   securitySchemes: Components['securitySchemes'] | undefined,
+  components: Components | undefined,
   entry: string,
 ): string[] {
   const headers = makeCodeSampleHeaders(operation, securitySchemes)
   const safePath = basePath ?? '/'
   const basePathPrefix = safePath !== '/' ? safePath : ''
   const fullPath = `${basePathPrefix}${pathStr}`
+  const body = makeCodeSampleBody(operation, components)
 
-  const parts: string[] = ['hono request']
+  const cmdParts = ['hono request \\', `  -X ${method.toUpperCase()} \\`, `  -P ${fullPath} \\`]
 
-  // If no headers, single line with path
-  if (headers.length === 0) {
-    parts[0] = `hono request \\\n  -X ${method.toUpperCase()} \\\n  -P ${fullPath} \\\n  ${entry}`
-    return ['> Code samples', '', '```bash', parts[0], '```']
+  cmdParts.push(...headers.map((h) => `${h} \\`))
+
+  if (body) {
+    cmdParts.push(`  -d '${body}' \\`)
   }
 
-  const cmdParts = [
-    'hono request \\',
-    `  -X ${method.toUpperCase()} \\`,
-    `  -P ${fullPath} \\`,
-    ...headers.map((h) => `${h} \\`),
-    `  ${entry}`,
-  ]
+  cmdParts.push(`  ${entry}`)
+
   return ['> Code samples', '', '```bash', cmdParts.join('\n'), '```']
 }
 
@@ -533,13 +566,16 @@ function flattenBodyParams(
   components: Components | undefined,
   prefix: string,
   visited: Set<string> = new Set(),
+  depth = 0,
 ): readonly { name: string; in_: string; type: string; required: boolean; description: string }[] {
+  if (depth > MAX_SCHEMA_DEPTH) return []
+
   if (schema.$ref) {
     if (visited.has(schema.$ref)) return []
     visited.add(schema.$ref)
     const resolved = resolveRef(schema.$ref, components)
     if (isSchemaLike(resolved)) {
-      return flattenBodyParams(resolved, components, prefix, visited)
+      return flattenBodyParams(resolved, components, prefix, visited, depth + 1)
     }
     return []
   }
@@ -560,7 +596,13 @@ function flattenBodyParams(
         const nextPrefix = prefix ? `${prefix}»` : '»»'
         return [
           row,
-          ...flattenBodyParams(propSchema, components, nextPrefix.replace(/»/g, '» '), visited),
+          ...flattenBodyParams(
+            propSchema,
+            components,
+            nextPrefix.replace(/»/g, '» '),
+            visited,
+            depth + 1,
+          ),
         ]
       }
       if (propSchema.$ref) {
@@ -573,7 +615,8 @@ function flattenBodyParams(
               innerResolved,
               components,
               deepPrefix.replace(/»/g, '» '),
-              new Set(visited),
+              visited,
+              depth + 1,
             ),
           ]
         }
@@ -712,6 +755,7 @@ function flattenResponseSchemaFields(
   components: Components | undefined,
   prefix: string,
   visited: Set<string> = new Set(),
+  depth = 0,
 ): readonly {
   name: string
   type: string
@@ -719,12 +763,14 @@ function flattenResponseSchemaFields(
   restrictions: string
   description: string
 }[] {
+  if (depth > MAX_SCHEMA_DEPTH) return []
+
   if (schema.$ref) {
     if (visited.has(schema.$ref)) return []
     visited.add(schema.$ref)
     const resolved = resolveRef(schema.$ref, components)
     if (isSchemaLike(resolved)) {
-      return flattenResponseSchemaFields(resolved, components, prefix, visited)
+      return flattenResponseSchemaFields(resolved, components, prefix, visited, depth + 1)
     }
     return []
   }
@@ -746,7 +792,13 @@ function flattenResponseSchemaFields(
       if (propSchema.type === 'object' && propSchema.properties) {
         return [
           row,
-          ...flattenResponseSchemaFields(propSchema, components, `${nestedPrefix}`, visited),
+          ...flattenResponseSchemaFields(
+            propSchema,
+            components,
+            `${nestedPrefix}`,
+            visited,
+            depth + 1,
+          ),
         ]
       }
       if (propSchema.$ref) {
@@ -758,7 +810,8 @@ function flattenResponseSchemaFields(
               innerResolved,
               components,
               `${nestedPrefix}`,
-              new Set(visited),
+              visited,
+              depth + 1,
             ),
           ]
         }
@@ -774,7 +827,8 @@ function flattenResponseSchemaFields(
                 resolvedItem,
                 components,
                 `${nestedPrefix}`,
-                new Set(visited),
+                visited,
+                depth + 1,
               ),
             ]
           }
@@ -799,7 +853,7 @@ function flattenResponseSchemaFields(
       if (resolvedItem.type === 'object' && resolvedItem.properties) {
         return [
           anonRow,
-          ...flattenResponseSchemaFields(resolvedItem, components, '»', new Set(visited)),
+          ...flattenResponseSchemaFields(resolvedItem, components, '»', visited, depth + 1),
         ]
       }
       return [anonRow]
@@ -868,7 +922,11 @@ function makeResponseExamples(
     if (!isMedia(jsonMedia)) continue
     if (!jsonMedia.schema) continue
 
-    const example = makeExampleFromSchema(jsonMedia.schema, components)
+    const mediaExample = extractMediaExample(jsonMedia)
+    const example =
+      mediaExample !== undefined
+        ? mediaExample
+        : makeExampleFromSchema(jsonMedia.schema, components)
     const json = JSON.stringify(example, null, 2)
     lines.push(`> ${statusCode} Response`, '', '```json', json, '```', '')
   }
@@ -952,6 +1010,7 @@ function flattenSchemaProperties(
   components: Components | undefined,
   prefix: string,
   visited: Set<string> = new Set(),
+  depth = 0,
 ): readonly {
   name: string
   type: string
@@ -959,12 +1018,14 @@ function flattenSchemaProperties(
   restrictions: string
   description: string
 }[] {
+  if (depth > MAX_SCHEMA_DEPTH) return []
+
   if (schema.$ref) {
     if (visited.has(schema.$ref)) return []
     visited.add(schema.$ref)
     const resolved = resolveRef(schema.$ref, components)
     if (isSchemaLike(resolved)) {
-      return flattenSchemaProperties(resolved, components, prefix, visited)
+      return flattenSchemaProperties(resolved, components, prefix, visited, depth + 1)
     }
     return []
   }
@@ -1230,6 +1291,7 @@ export function makeDocs(openAPI: OpenAPI, entry = 'src/index.ts', basePath = '/
         basePath,
         operation,
         securitySchemes,
+        openAPI.components,
         entry,
       )
       lines.push(...codeSample, '')

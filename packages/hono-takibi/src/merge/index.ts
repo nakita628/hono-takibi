@@ -322,6 +322,47 @@ function mergeImports(existingCode: string, generatedCode: string): string[] {
 }
 
 /**
+ * Finds the end position of a balanced brace expression.
+ *
+ * Scans from `start`, counting opening/closing braces,
+ * and returns the position just after the matching closing brace.
+ */
+function findBalancedBraceEnd(code: string, start: number): number {
+  const scan = (pos: number, depth: number): number => {
+    if (pos >= code.length) return start
+    const ch = code[pos]
+    const nextDepth = depth + (ch === '{' ? 1 : ch === '}' ? -1 : 0)
+    if (ch === '}' && nextDepth === 0) return pos + 1
+    return scan(pos + 1, nextDepth)
+  }
+  return scan(start, 0)
+}
+
+/**
+ * Extracts `function mockXxx(...)` definitions from test code.
+ *
+ * Uses balanced-brace counting to find the full extent of each function body.
+ * Returns a map of function name to block info including text and source positions.
+ */
+function extractMockFunctions(
+  code: string,
+): Map<string, { readonly text: string; readonly start: number; readonly end: number }> {
+  const regex = /function\s+(mock[A-Z]\w*)\s*\([^)]*\)\s*\{/g
+
+  return new Map(
+    [...code.matchAll(regex)]
+      .filter((match) => match.index !== undefined)
+      .map((match) => {
+        const name = match[1]
+        const start = match.index
+        const braceStart = code.indexOf('{', start + match[0].length - 1)
+        const end = findBalancedBraceEnd(code, braceStart)
+        return [name, { text: code.slice(start, end), start, end }] as const
+      }),
+  )
+}
+
+/**
  * Extracts `describe('METHOD /path', ...)` blocks from test code.
  *
  * Uses balanced-paren counting to find the full extent of each describe call.
@@ -398,7 +439,31 @@ export function mergeTestFile(existingCode: string, generatedCode: string): stri
       filteredRanges.length > 0 ? filteredRanges[filteredRanges.length - 1][1] : bodyStart,
     ),
   ]
-  const bodyWithRemovals = keepSlices.join('').replace(/\n{3,}/g, '\n\n')
+  let bodyWithRemovals = keepSlices.join('').replace(/\n{3,}/g, '\n\n')
+
+  // 7. Merge mock functions: add missing mock functions from generated code
+  const existingMocks = extractMockFunctions(existingCode)
+  const generatedMocks = extractMockFunctions(generatedCode)
+  const missingMocks = [...generatedMocks.entries()]
+    .filter(([name]) => !existingMocks.has(name))
+    .map(([, block]) => block.text)
+
+  if (missingMocks.length > 0) {
+    // Insert before first describe block (or at the start of body)
+    const describeMatch = bodyWithRemovals.match(/\n(?=describe\s*\()/)
+    if (describeMatch?.index !== undefined) {
+      const insertPos = describeMatch.index
+      bodyWithRemovals =
+        bodyWithRemovals.slice(0, insertPos) +
+        '\n' +
+        missingMocks.join('\n\n') +
+        '\n' +
+        bodyWithRemovals.slice(insertPos)
+    } else {
+      bodyWithRemovals = `\n${missingMocks.join('\n\n')}\n${bodyWithRemovals}`
+    }
+    bodyWithRemovals = bodyWithRemovals.replace(/\n{3,}/g, '\n\n')
+  }
 
   if (newBlocks.length === 0) {
     const parts = [
@@ -408,7 +473,7 @@ export function mergeTestFile(existingCode: string, generatedCode: string): stri
     return `${parts.join('\n\n')}\n`
   }
 
-  // 7. Find insertion point: last line matching /^\s*\}\s*\)\s*;?\s*$/ (outer describe close)
+  // 8. Find insertion point: last line matching /^\s*\}\s*\)\s*;?\s*$/ (outer describe close)
   const lines = bodyWithRemovals.split('\n')
   const insertLineIndex = lines.findLastIndex((line) => /^\s*\}\s*\)\s*;?\s*$/.test(line))
 

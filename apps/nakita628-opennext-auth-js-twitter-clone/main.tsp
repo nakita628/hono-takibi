@@ -18,23 +18,22 @@ model User {
   @format("uuid") id: string;
   name: string;
   username: string;
-  bio?: string;
+  bio?: string | null;
   @format("email") email: string;
   emailVerified: string | null;
   image: url | null;
   coverImage: url | null;
   profileImage: url | null;
-  hashedPassword: string;
   createdAt: string;
   updatedAt: string;
-  hasNotification?: boolean;
+  hasNotification?: boolean | null;
 }
 
 model CurrentUser {
   @format("uuid") id: string;
   name: string;
   username: string;
-  bio?: string;
+  bio?: string | null;
   @format("email") email: string;
   image: url | null;
   coverImage: url | null;
@@ -43,23 +42,22 @@ model CurrentUser {
   updatedAt: string;
   followers: Follow[];
   following: Follow[];
-  hasNotification: boolean;
+  hasNotification: boolean | null;
 }
 
 model UserWithFollowCount {
   @format("uuid") id: string;
   name: string;
   username: string;
-  bio?: string;
+  bio?: string | null;
   @format("email") email: string;
   emailVerified: string | null;
   image: url | null;
   coverImage: url | null;
   profileImage: url | null;
-  hashedPassword: string;
   createdAt: string;
   updatedAt: string;
-  hasNotification?: boolean;
+  hasNotification?: boolean | null;
   _count: {
     followers: numeric;
     following: numeric;
@@ -67,7 +65,6 @@ model UserWithFollowCount {
 }
 
 model Follow {
-  @format("uuid") id: string;
   @format("uuid") followerId: string;
   @format("uuid") followingId: string;
   createdAt: utcDateTime;
@@ -93,7 +90,6 @@ model CommentWithUser {
 }
 
 model Like {
-  @format("uuid") id: string;
   @format("uuid") userId: string;
   @format("uuid") postId: string;
   createdAt: string;
@@ -182,10 +178,26 @@ model RegisterRequest {
   password: string;
 }
 
+model ValidationErrorDetail {
+  pointer: string;
+  detail: string;
+}
+
+model ValidationError {
+  type: "about:blank";
+  title: "Unprocessable Content";
+  status: 422;
+  detail: "Request validation failed";
+  errors: ValidationErrorDetail[];
+}
+
 @tag("comments")
 @route("/comments")
 @post
 op postComments(...Parameters.PostIdQuery, @body body: CreateCommentRequest): Comment | {
+  @statusCode statusCode: 422;
+  @body body: ValidationError;
+} | {
   @statusCode statusCode: 500;
   @body body: MessageResponse;
 };
@@ -202,6 +214,9 @@ op getCurrentUser(): CurrentUser | (UnauthorizedResponse & MessageResponse) | {
 @route("/edit")
 @patch(#{implicitOptionality: true})
 op patchEdit(@body body: EditUserRequest): User | {
+  @statusCode statusCode: 422;
+  @body body: ValidationError;
+} | {
   @statusCode statusCode: 500;
   @body body: MessageResponse;
 };
@@ -210,6 +225,9 @@ op patchEdit(@body body: EditUserRequest): User | {
 @route("/follow")
 @delete
 op deleteFollowUserId(@body body: FollowUserRequest): MessageResponse | {
+  @statusCode statusCode: 422;
+  @body body: ValidationError;
+} | {
   @statusCode statusCode: 500;
   @body body: MessageResponse;
 };
@@ -218,6 +236,9 @@ op deleteFollowUserId(@body body: FollowUserRequest): MessageResponse | {
 @route("/follow")
 @post
 op postFollowUesrId(@body body: FollowUserRequest): MessageResponse | {
+  @statusCode statusCode: 422;
+  @body body: ValidationError;
+} | {
   @statusCode statusCode: 500;
   @body body: MessageResponse;
 };
@@ -226,6 +247,9 @@ op postFollowUesrId(@body body: FollowUserRequest): MessageResponse | {
 @route("/like")
 @delete
 op deleteLikePostId(@body body: LikePostRequest): PostWithLikes | {
+  @statusCode statusCode: 422;
+  @body body: ValidationError;
+} | {
   @statusCode statusCode: 500;
   @body body: MessageResponse;
 };
@@ -234,6 +258,9 @@ op deleteLikePostId(@body body: LikePostRequest): PostWithLikes | {
 @route("/like")
 @post
 op postLikePostId(@body body: LikePostRequest): PostWithLikes | {
+  @statusCode statusCode: 422;
+  @body body: ValidationError;
+} | {
   @statusCode statusCode: 500;
   @body body: MessageResponse;
 };
@@ -242,6 +269,9 @@ op postLikePostId(@body body: LikePostRequest): PostWithLikes | {
 @route("/notifications/{userId}")
 @get
 op getNotificationsUserId(...Parameters.UserIdPath): Body<Notification[]> | {
+  @statusCode statusCode: 422;
+  @body body: ValidationError;
+} | {
   @statusCode statusCode: 500;
   @body body: MessageResponse;
 };
@@ -250,6 +280,9 @@ op getNotificationsUserId(...Parameters.UserIdPath): Body<Notification[]> | {
 @route("/notifications")
 @post
 op postNotificationsUserId(@body body: string): MessageResponse | {
+  @statusCode statusCode: 422;
+  @body body: ValidationError;
+} | {
   @statusCode statusCode: 500;
   @body body: MessageResponse;
 };
@@ -257,12 +290,18 @@ op postNotificationsUserId(@body body: string): MessageResponse | {
 @tag("posts")
 @route("/posts")
 @get
-op getPosts(...Parameters.UserIdQuery): Body<PostWithDetails[]>;
+op getPosts(...Parameters.UserIdQuery): Body<PostWithDetails[]> | {
+  @statusCode statusCode: 422;
+  @body body: ValidationError;
+};
 
 @tag("posts")
 @route("/posts")
 @post
 op postPosts(@body body: CreatePostRequest): Post | {
+  @statusCode statusCode: 422;
+  @body body: ValidationError;
+} | {
   @statusCode statusCode: 500;
   @body body: MessageResponse;
 };
@@ -271,6 +310,9 @@ op postPosts(@body body: CreatePostRequest): Post | {
 @route("/posts/{postId}")
 @get
 op getPostsPostId(...Parameters.PostIdPath): PostDetail | {
+  @statusCode statusCode: 422;
+  @body body: ValidationError;
+} | {
   @statusCode statusCode: 500;
   @body body: MessageResponse;
 };
@@ -278,8 +320,20 @@ op getPostsPostId(...Parameters.PostIdPath): PostDetail | {
 @tag("register")
 @route("/register")
 @post
-op postRegister(@body body: RegisterRequest): User | {
+op postRegister(@body body: RegisterRequest): {
+  @statusCode statusCode: 201;
+  @body body: User;
+} | (NotFoundResponse & MessageResponse) | {
+  @statusCode statusCode: 409;
+  @body body: MessageResponse;
+} | {
+  @statusCode statusCode: 422;
+  @body body: ValidationError;
+} | {
   @statusCode statusCode: 500;
+  @body body: MessageResponse;
+} | {
+  @statusCode statusCode: 503;
   @body body: MessageResponse;
 };
 
@@ -288,6 +342,9 @@ op postRegister(@body body: RegisterRequest): User | {
 @get
 op getUserUserId(...Parameters.UserIdPath): UserWithFollowCount | (NotFoundResponse &
   MessageResponse) | {
+  @statusCode statusCode: 422;
+  @body body: ValidationError;
+} | {
   @statusCode statusCode: 500;
   @body body: MessageResponse;
 };

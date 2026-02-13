@@ -15,9 +15,10 @@ OpenNext Twitter Clone API
 ```bash
 hono request \
   -X POST \
-  -P /comments \
+  -P /api/comments \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
+  -d '{"body":"string"}' \
   src/app/api/[[...route]]/route.ts
 ```
 
@@ -54,6 +55,23 @@ hono request \
 }
 ```
 
+> 422 Response
+
+```json
+{
+  "type": "about:blank",
+  "title": "Unprocessable Content",
+  "status": 422,
+  "detail": "Request validation failed",
+  "errors": [
+    {
+      "pointer": "string",
+      "detail": "string"
+    }
+  ]
+}
+```
+
 > 500 Response
 
 ```json
@@ -67,6 +85,7 @@ hono request \
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
 |200|OK|The request has succeeded.|[Comment](#schemacomment)|
+|422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
 |500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
 
 <aside class="success">
@@ -84,7 +103,7 @@ This operation does not require authentication
 ```bash
 hono request \
   -X GET \
-  -P /current \
+  -P /api/current \
   -H 'Accept: application/json' \
   src/app/api/[[...route]]/route.ts
 ```
@@ -109,19 +128,13 @@ hono request \
   "updatedAt": "string",
   "followers": [
     {
-      "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
       "followerId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
       "followingId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
       "createdAt": "1970-01-01T00:00:00Z"
     }
   ],
   "following": [
-    {
-      "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-      "followerId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-      "followingId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-      "createdAt": "1970-01-01T00:00:00Z"
-    }
+    {}
   ],
   "hasNotification": true
 }
@@ -166,9 +179,10 @@ This operation does not require authentication
 ```bash
 hono request \
   -X PATCH \
-  -P /edit \
+  -P /api/edit \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
+  -d '{"name":"string","username":"string","bio":"string","coverImage":"http://example.com","profileImage":"http://example.com"}' \
   src/app/api/[[...route]]/route.ts
 ```
 
@@ -212,10 +226,26 @@ hono request \
   "image": "http://example.com",
   "coverImage": "http://example.com",
   "profileImage": "http://example.com",
-  "hashedPassword": "string",
   "createdAt": "string",
   "updatedAt": "string",
   "hasNotification": true
+}
+```
+
+> 422 Response
+
+```json
+{
+  "type": "about:blank",
+  "title": "Unprocessable Content",
+  "status": 422,
+  "detail": "Request validation failed",
+  "errors": [
+    {
+      "pointer": "string",
+      "detail": "string"
+    }
+  ]
 }
 ```
 
@@ -232,6 +262,7 @@ hono request \
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
 |200|OK|The request has succeeded.|[User](#schemauser)|
+|422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
 |500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
 
 <aside class="success">
@@ -249,9 +280,10 @@ This operation does not require authentication
 ```bash
 hono request \
   -X POST \
-  -P /follow \
+  -P /api/follow \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
+  -d '{"userId":"497f6eca-6276-4993-bfeb-53cbbbba6f08"}' \
   src/app/api/[[...route]]/route.ts
 ```
 
@@ -282,6 +314,23 @@ hono request \
 }
 ```
 
+> 422 Response
+
+```json
+{
+  "type": "about:blank",
+  "title": "Unprocessable Content",
+  "status": 422,
+  "detail": "Request validation failed",
+  "errors": [
+    {
+      "pointer": "string",
+      "detail": "string"
+    }
+  ]
+}
+```
+
 > 500 Response
 
 ```json
@@ -295,6 +344,7 @@ hono request \
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
 |200|OK|The request has succeeded.|[MessageResponse](#schemamessageresponse)|
+|422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
 |500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
 
 <aside class="success">
@@ -310,9 +360,10 @@ This operation does not require authentication
 ```bash
 hono request \
   -X DELETE \
-  -P /follow \
+  -P /api/follow \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
+  -d '{"userId":"497f6eca-6276-4993-bfeb-53cbbbba6f08"}' \
   src/app/api/[[...route]]/route.ts
 ```
 
@@ -343,6 +394,23 @@ hono request \
 }
 ```
 
+> 422 Response
+
+```json
+{
+  "type": "about:blank",
+  "title": "Unprocessable Content",
+  "status": 422,
+  "detail": "Request validation failed",
+  "errors": [
+    {
+      "pointer": "string",
+      "detail": "string"
+    }
+  ]
+}
+```
+
 > 500 Response
 
 ```json
@@ -356,6 +424,7 @@ hono request \
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
 |200|OK|The request has succeeded.|[MessageResponse](#schemamessageresponse)|
+|422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
 |500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
 
 <aside class="success">
@@ -373,9 +442,10 @@ This operation does not require authentication
 ```bash
 hono request \
   -X POST \
-  -P /like \
+  -P /api/like \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
+  -d '{"postId":"497f6eca-6276-4993-bfeb-53cbbbba6f08"}' \
   src/app/api/[[...route]]/route.ts
 ```
 
@@ -409,10 +479,26 @@ hono request \
   "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
   "likes": [
     {
-      "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
       "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
       "postId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
       "createdAt": "string"
+    }
+  ]
+}
+```
+
+> 422 Response
+
+```json
+{
+  "type": "about:blank",
+  "title": "Unprocessable Content",
+  "status": 422,
+  "detail": "Request validation failed",
+  "errors": [
+    {
+      "pointer": "string",
+      "detail": "string"
     }
   ]
 }
@@ -431,6 +517,7 @@ hono request \
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
 |200|OK|The request has succeeded.|[PostWithLikes](#schemapostwithlikes)|
+|422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
 |500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
 
 <aside class="success">
@@ -446,9 +533,10 @@ This operation does not require authentication
 ```bash
 hono request \
   -X DELETE \
-  -P /like \
+  -P /api/like \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
+  -d '{"postId":"497f6eca-6276-4993-bfeb-53cbbbba6f08"}' \
   src/app/api/[[...route]]/route.ts
 ```
 
@@ -482,10 +570,26 @@ hono request \
   "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
   "likes": [
     {
-      "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
       "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
       "postId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
       "createdAt": "string"
+    }
+  ]
+}
+```
+
+> 422 Response
+
+```json
+{
+  "type": "about:blank",
+  "title": "Unprocessable Content",
+  "status": 422,
+  "detail": "Request validation failed",
+  "errors": [
+    {
+      "pointer": "string",
+      "detail": "string"
     }
   ]
 }
@@ -504,6 +608,7 @@ hono request \
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
 |200|OK|The request has succeeded.|[PostWithLikes](#schemapostwithlikes)|
+|422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
 |500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
 
 <aside class="success">
@@ -521,7 +626,7 @@ This operation does not require authentication
 ```bash
 hono request \
   -X GET \
-  -P /notifications/{userId} \
+  -P /api/notifications/{userId} \
   -H 'Accept: application/json' \
   src/app/api/[[...route]]/route.ts
 ```
@@ -549,6 +654,23 @@ hono request \
 ]
 ```
 
+> 422 Response
+
+```json
+{
+  "type": "about:blank",
+  "title": "Unprocessable Content",
+  "status": 422,
+  "detail": "Request validation failed",
+  "errors": [
+    {
+      "pointer": "string",
+      "detail": "string"
+    }
+  ]
+}
+```
+
 > 500 Response
 
 ```json
@@ -562,6 +684,7 @@ hono request \
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
 |200|OK|The request has succeeded.|Inline|
+|422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
 |500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
 
 <h3 id="getnotificationsuserid-responseschema">Response Schema</h3>
@@ -589,7 +712,7 @@ This operation does not require authentication
 ```bash
 hono request \
   -X POST \
-  -P /notifications \
+  -P /api/notifications \
   -H 'Accept: application/json' \
   src/app/api/[[...route]]/route.ts
 ```
@@ -606,6 +729,23 @@ hono request \
 }
 ```
 
+> 422 Response
+
+```json
+{
+  "type": "about:blank",
+  "title": "Unprocessable Content",
+  "status": 422,
+  "detail": "Request validation failed",
+  "errors": [
+    {
+      "pointer": "string",
+      "detail": "string"
+    }
+  ]
+}
+```
+
 > 500 Response
 
 ```json
@@ -619,6 +759,7 @@ hono request \
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
 |200|OK|The request has succeeded.|[MessageResponse](#schemamessageresponse)|
+|422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
 |500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
 
 <aside class="success">
@@ -636,7 +777,7 @@ This operation does not require authentication
 ```bash
 hono request \
   -X GET \
-  -P /posts \
+  -P /api/posts \
   -H 'Accept: application/json' \
   src/app/api/[[...route]]/route.ts
 ```
@@ -671,7 +812,6 @@ hono request \
       "image": "http://example.com",
       "coverImage": "http://example.com",
       "profileImage": "http://example.com",
-      "hashedPassword": "string",
       "createdAt": "string",
       "updatedAt": "string",
       "hasNotification": true
@@ -688,7 +828,6 @@ hono request \
     ],
     "likes": [
       {
-        "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
         "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
         "postId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
         "createdAt": "string"
@@ -698,11 +837,29 @@ hono request \
 ]
 ```
 
+> 422 Response
+
+```json
+{
+  "type": "about:blank",
+  "title": "Unprocessable Content",
+  "status": 422,
+  "detail": "Request validation failed",
+  "errors": [
+    {
+      "pointer": "string",
+      "detail": "string"
+    }
+  ]
+}
+```
+
 <h3 id="getposts-responses">Responses</h3>
 
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
 |200|OK|The request has succeeded.|Inline|
+|422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
 
 <h3 id="getposts-responseschema">Response Schema</h3>
 
@@ -726,7 +883,6 @@ Status Code **200**
 |» » image|string(uri)|true|none|none|
 |» » coverImage|string(uri)|true|none|none|
 |» » profileImage|string(uri)|true|none|none|
-|» » hashedPassword|string|true|none|none|
 |» » createdAt|string|true|none|none|
 |» » updatedAt|string|true|none|none|
 |» » hasNotification|boolean|false|none|none|
@@ -738,7 +894,6 @@ Status Code **200**
 |» » userId|string(uuid)|true|none|none|
 |» » postId|string(uuid)|true|none|none|
 |» likes|[[Like](#schemalike)]|true|none|none|
-|» » id|string(uuid)|true|none|none|
 |» » userId|string(uuid)|true|none|none|
 |» » postId|string(uuid)|true|none|none|
 |» » createdAt|string|true|none|none|
@@ -756,9 +911,10 @@ This operation does not require authentication
 ```bash
 hono request \
   -X POST \
-  -P /posts \
+  -P /api/posts \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
+  -d '{"body":"string"}' \
   src/app/api/[[...route]]/route.ts
 ```
 
@@ -793,6 +949,23 @@ hono request \
 }
 ```
 
+> 422 Response
+
+```json
+{
+  "type": "about:blank",
+  "title": "Unprocessable Content",
+  "status": 422,
+  "detail": "Request validation failed",
+  "errors": [
+    {
+      "pointer": "string",
+      "detail": "string"
+    }
+  ]
+}
+```
+
 > 500 Response
 
 ```json
@@ -806,6 +979,7 @@ hono request \
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
 |200|OK|The request has succeeded.|[Post](#schemapost)|
+|422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
 |500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
 
 <aside class="success">
@@ -821,7 +995,7 @@ This operation does not require authentication
 ```bash
 hono request \
   -X GET \
-  -P /posts/{postId} \
+  -P /api/posts/{postId} \
   -H 'Accept: application/json' \
   src/app/api/[[...route]]/route.ts
 ```
@@ -855,7 +1029,6 @@ hono request \
     "image": "http://example.com",
     "coverImage": "http://example.com",
     "profileImage": "http://example.com",
-    "hashedPassword": "string",
     "createdAt": "string",
     "updatedAt": "string",
     "hasNotification": true
@@ -868,21 +1041,7 @@ hono request \
       "updatedAt": "string",
       "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
       "postId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-      "user": {
-        "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-        "name": "string",
-        "username": "string",
-        "bio": "string",
-        "email": "user@example.com",
-        "emailVerified": "string",
-        "image": "http://example.com",
-        "coverImage": "http://example.com",
-        "profileImage": "http://example.com",
-        "hashedPassword": "string",
-        "createdAt": "string",
-        "updatedAt": "string",
-        "hasNotification": true
-      }
+      "user": {}
     }
   ],
   "likes": [
@@ -893,6 +1052,23 @@ hono request \
   "_count": {
     "likes": 0
   }
+}
+```
+
+> 422 Response
+
+```json
+{
+  "type": "about:blank",
+  "title": "Unprocessable Content",
+  "status": 422,
+  "detail": "Request validation failed",
+  "errors": [
+    {
+      "pointer": "string",
+      "detail": "string"
+    }
+  ]
 }
 ```
 
@@ -909,6 +1085,7 @@ hono request \
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
 |200|OK|The request has succeeded.|[PostDetail](#schemapostdetail)|
+|422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
 |500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
 
 <aside class="success">
@@ -926,9 +1103,10 @@ This operation does not require authentication
 ```bash
 hono request \
   -X POST \
-  -P /register \
+  -P /api/register \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
+  -d '{"email":"user@example.com","name":"string","username":"string","password":"string"}' \
   src/app/api/[[...route]]/route.ts
 ```
 
@@ -957,7 +1135,7 @@ hono request \
 
 > Example responses
 
-> 200 Response
+> 201 Response
 
 ```json
 {
@@ -970,10 +1148,42 @@ hono request \
   "image": "http://example.com",
   "coverImage": "http://example.com",
   "profileImage": "http://example.com",
-  "hashedPassword": "string",
   "createdAt": "string",
   "updatedAt": "string",
   "hasNotification": true
+}
+```
+
+> 404 Response
+
+```json
+{
+  "message": "string"
+}
+```
+
+> 409 Response
+
+```json
+{
+  "message": "string"
+}
+```
+
+> 422 Response
+
+```json
+{
+  "type": "about:blank",
+  "title": "Unprocessable Content",
+  "status": 422,
+  "detail": "Request validation failed",
+  "errors": [
+    {
+      "pointer": "string",
+      "detail": "string"
+    }
+  ]
 }
 ```
 
@@ -985,12 +1195,24 @@ hono request \
 }
 ```
 
+> 503 Response
+
+```json
+{
+  "message": "string"
+}
+```
+
 <h3 id="postregister-responses">Responses</h3>
 
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
-|200|OK|The request has succeeded.|[User](#schemauser)|
+|201|Created|The request has succeeded and a new resource has been created as a result.|[User](#schemauser)|
+|404|Not Found|The server cannot find the requested resource.|[MessageResponse](#schemamessageresponse)|
+|409|Conflict|The request conflicts with the current state of the server.|[MessageResponse](#schemamessageresponse)|
+|422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
 |500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
+|503|Service Unavailable|Service unavailable.|[MessageResponse](#schemamessageresponse)|
 
 <aside class="success">
 This operation does not require authentication
@@ -1007,7 +1229,7 @@ This operation does not require authentication
 ```bash
 hono request \
   -X GET \
-  -P /users/{userId} \
+  -P /api/users/{userId} \
   -H 'Accept: application/json' \
   src/app/api/[[...route]]/route.ts
 ```
@@ -1035,7 +1257,6 @@ hono request \
   "image": "http://example.com",
   "coverImage": "http://example.com",
   "profileImage": "http://example.com",
-  "hashedPassword": "string",
   "createdAt": "string",
   "updatedAt": "string",
   "hasNotification": true,
@@ -1054,6 +1275,23 @@ hono request \
 }
 ```
 
+> 422 Response
+
+```json
+{
+  "type": "about:blank",
+  "title": "Unprocessable Content",
+  "status": 422,
+  "detail": "Request validation failed",
+  "errors": [
+    {
+      "pointer": "string",
+      "detail": "string"
+    }
+  ]
+}
+```
+
 > 500 Response
 
 ```json
@@ -1068,6 +1306,7 @@ hono request \
 |---|---|---|---|
 |200|OK|The request has succeeded.|[UserWithFollowCount](#schemauserwithfollowcount)|
 |404|Not Found|The server cannot find the requested resource.|[MessageResponse](#schemamessageresponse)|
+|422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
 |500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
 
 <aside class="success">
@@ -1083,7 +1322,7 @@ This operation does not require authentication
 ```bash
 hono request \
   -X GET \
-  -P /users \
+  -P /api/users \
   -H 'Accept: application/json' \
   src/app/api/[[...route]]/route.ts
 ```
@@ -1106,7 +1345,6 @@ hono request \
     "image": "http://example.com",
     "coverImage": "http://example.com",
     "profileImage": "http://example.com",
-    "hashedPassword": "string",
     "createdAt": "string",
     "updatedAt": "string",
     "hasNotification": true
@@ -1145,7 +1383,6 @@ Status Code **200**
 |» image|string(uri)|true|none|none|
 |» coverImage|string(uri)|true|none|none|
 |» profileImage|string(uri)|true|none|none|
-|» hashedPassword|string|true|none|none|
 |» createdAt|string|true|none|none|
 |» updatedAt|string|true|none|none|
 |» hasNotification|boolean|false|none|none|
@@ -1184,6 +1421,68 @@ This operation does not require authentication
 |updatedAt|string|true|none|none|
 |userId|string(uuid)|true|none|none|
 |postId|string(uuid)|true|none|none|
+
+<h2 id="tocS_ValidationErrorDetail">ValidationErrorDetail</h2>
+<!-- backwards compatibility -->
+<a id="schemavalidationerrordetail"></a>
+<a id="schema_ValidationErrorDetail"></a>
+<a id="tocSvalidationerrordetail"></a>
+<a id="tocsvalidationerrordetail"></a>
+
+```json
+{
+  "pointer": "string",
+  "detail": "string"
+}
+```
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|pointer|string|true|none|none|
+|detail|string|true|none|none|
+
+<h2 id="tocS_ValidationError">ValidationError</h2>
+<!-- backwards compatibility -->
+<a id="schemavalidationerror"></a>
+<a id="schema_ValidationError"></a>
+<a id="tocSvalidationerror"></a>
+<a id="tocsvalidationerror"></a>
+
+```json
+{
+  "type": "about:blank",
+  "title": "Unprocessable Content",
+  "status": 422,
+  "detail": "Request validation failed",
+  "errors": [
+    {
+      "pointer": "string",
+      "detail": "string"
+    }
+  ]
+}
+```
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|type|string|true|none|none|
+|title|string|true|none|none|
+|status|number|true|none|none|
+|detail|string|true|none|none|
+|errors|[[ValidationErrorDetail](#schemavalidationerrordetail)]|true|none|none|
+
+#### Enumerated Values
+
+|Property|Value|
+|---|---|
+|type|about:blank|
+|title|Unprocessable Content|
+|status|422|
+|detail|Request validation failed|
 
 <h2 id="tocS_MessageResponse">MessageResponse</h2>
 <!-- backwards compatibility -->
@@ -1232,7 +1531,6 @@ This operation does not require authentication
 
 ```json
 {
-  "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
   "followerId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
   "followingId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
   "createdAt": "1970-01-01T00:00:00Z"
@@ -1243,7 +1541,6 @@ This operation does not require authentication
 
 |Name|Type|Required|Restrictions|Description|
 |---|---|---|---|---|
-|id|string(uuid)|true|none|none|
 |followerId|string(uuid)|true|none|none|
 |followingId|string(uuid)|true|none|none|
 |createdAt|string(date-time)|true|none|none|
@@ -1269,19 +1566,13 @@ This operation does not require authentication
   "updatedAt": "string",
   "followers": [
     {
-      "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
       "followerId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
       "followingId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
       "createdAt": "1970-01-01T00:00:00Z"
     }
   ],
   "following": [
-    {
-      "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-      "followerId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-      "followingId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-      "createdAt": "1970-01-01T00:00:00Z"
-    }
+    {}
   ],
   "hasNotification": true
 }
@@ -1323,7 +1614,6 @@ This operation does not require authentication
   "image": "http://example.com",
   "coverImage": "http://example.com",
   "profileImage": "http://example.com",
-  "hashedPassword": "string",
   "createdAt": "string",
   "updatedAt": "string",
   "hasNotification": true
@@ -1343,7 +1633,6 @@ This operation does not require authentication
 |image|string(uri)|true|none|none|
 |coverImage|string(uri)|true|none|none|
 |profileImage|string(uri)|true|none|none|
-|hashedPassword|string|true|none|none|
 |createdAt|string|true|none|none|
 |updatedAt|string|true|none|none|
 |hasNotification|boolean|false|none|none|
@@ -1403,7 +1692,6 @@ This operation does not require authentication
 
 ```json
 {
-  "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
   "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
   "postId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
   "createdAt": "string"
@@ -1414,7 +1702,6 @@ This operation does not require authentication
 
 |Name|Type|Required|Restrictions|Description|
 |---|---|---|---|---|
-|id|string(uuid)|true|none|none|
 |userId|string(uuid)|true|none|none|
 |postId|string(uuid)|true|none|none|
 |createdAt|string|true|none|none|
@@ -1435,7 +1722,6 @@ This operation does not require authentication
   "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
   "likes": [
     {
-      "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
       "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
       "postId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
       "createdAt": "string"
@@ -1523,7 +1809,6 @@ This operation does not require authentication
     "image": "http://example.com",
     "coverImage": "http://example.com",
     "profileImage": "http://example.com",
-    "hashedPassword": "string",
     "createdAt": "string",
     "updatedAt": "string",
     "hasNotification": true
@@ -1540,7 +1825,6 @@ This operation does not require authentication
   ],
   "likes": [
     {
-      "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
       "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
       "postId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
       "createdAt": "string"
@@ -1633,7 +1917,6 @@ This operation does not require authentication
     "image": "http://example.com",
     "coverImage": "http://example.com",
     "profileImage": "http://example.com",
-    "hashedPassword": "string",
     "createdAt": "string",
     "updatedAt": "string",
     "hasNotification": true
@@ -1677,7 +1960,6 @@ This operation does not require authentication
     "image": "http://example.com",
     "coverImage": "http://example.com",
     "profileImage": "http://example.com",
-    "hashedPassword": "string",
     "createdAt": "string",
     "updatedAt": "string",
     "hasNotification": true
@@ -1690,21 +1972,7 @@ This operation does not require authentication
       "updatedAt": "string",
       "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
       "postId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-      "user": {
-        "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-        "name": "string",
-        "username": "string",
-        "bio": "string",
-        "email": "user@example.com",
-        "emailVerified": "string",
-        "image": "http://example.com",
-        "coverImage": "http://example.com",
-        "profileImage": "http://example.com",
-        "hashedPassword": "string",
-        "createdAt": "string",
-        "updatedAt": "string",
-        "hasNotification": true
-      }
+      "user": {}
     }
   ],
   "likes": [
@@ -1775,7 +2043,6 @@ This operation does not require authentication
   "image": "http://example.com",
   "coverImage": "http://example.com",
   "profileImage": "http://example.com",
-  "hashedPassword": "string",
   "createdAt": "string",
   "updatedAt": "string",
   "hasNotification": true,
@@ -1799,7 +2066,6 @@ This operation does not require authentication
 |image|string(uri)|true|none|none|
 |coverImage|string(uri)|true|none|none|
 |profileImage|string(uri)|true|none|none|
-|hashedPassword|string|true|none|none|
 |createdAt|string|true|none|none|
 |updatedAt|string|true|none|none|
 |hasNotification|boolean|false|none|none|
