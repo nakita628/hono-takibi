@@ -5,7 +5,7 @@ import { useLoginModal } from '@/hooks/useLoginModal'
 import { useRegisterModal } from '@/hooks/useRegisterModal'
 import { signIn } from '@/lib'
 import { Modal } from '@/components/molecules/Modal'
-import { FormField } from '@/components/molecules/FormField'
+import { Input } from '@/components/atoms/Input'
 
 export function LoginModal() {
   const loginModal = useLoginModal()
@@ -14,36 +14,36 @@ export function LoginModal() {
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
-  const onSubmit = useCallback(async () => {
-    setIsLoading(true)
-    const result = await signIn(email, password)
-    if (result.ok) {
-      loginModal.onClose()
-      window.location.reload()
-    }
-    setIsLoading(false)
-  }, [email, password, loginModal])
-
   const onToggle = useCallback(() => {
+    if (isLoading) return
     loginModal.onClose()
     registerModal.onOpen()
-  }, [loginModal, registerModal])
+  }, [isLoading, loginModal, registerModal])
+
+  const onSubmit = useCallback(async () => {
+    try {
+      setIsLoading(true)
+      const result = await signIn(email, password)
+      if (result.ok) {
+        loginModal.onClose()
+      }
+    } catch {
+      // Login failed
+    } finally {
+      setIsLoading(false)
+    }
+  }, [email, password, loginModal])
 
   const bodyContent = (
     <div className='flex flex-col gap-4'>
-      <FormField
-        label='メールアドレス'
-        id='email'
-        placeholder='メールアドレスを入力'
+      <Input
+        placeholder='Email'
         value={email}
-        type='email'
         disabled={isLoading}
         onChange={(e) => setEmail(e.target.value)}
       />
-      <FormField
-        label='パスワード'
-        id='password'
-        placeholder='パスワードを入力'
+      <Input
+        placeholder='Password'
         value={password}
         type='password'
         disabled={isLoading}
@@ -55,12 +55,12 @@ export function LoginModal() {
   const footerContent = (
     <div className='mt-4 text-center text-neutral-400'>
       <p>
-        アカウントがありませんか？{' '}
+        First time using Twitter?{' '}
         <span
           onClick={onToggle}
           className='text-white cursor-pointer hover:underline'
         >
-          登録する
+          Create an account
         </span>
       </p>
     </div>
@@ -68,14 +68,14 @@ export function LoginModal() {
 
   return (
     <Modal
+      disabled={isLoading}
       isOpen={loginModal.isOpen}
+      title='Login'
+      actionLabel='Sign in'
       onClose={loginModal.onClose}
       onSubmit={onSubmit}
-      title='ログイン'
       body={bodyContent}
       footer={footerContent}
-      actionLabel='ログイン'
-      disabled={isLoading}
     />
   )
 }

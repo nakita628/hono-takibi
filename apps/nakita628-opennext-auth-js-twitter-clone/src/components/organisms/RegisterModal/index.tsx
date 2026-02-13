@@ -6,7 +6,7 @@ import { useRegisterModal } from '@/hooks/useRegisterModal'
 import { usePostRegister } from '@/hooks/swr'
 import { signIn } from '@/lib'
 import { Modal } from '@/components/molecules/Modal'
-import { FormField } from '@/components/molecules/FormField'
+import { Input } from '@/components/atoms/Input'
 
 export function RegisterModal() {
   const loginModal = useLoginModal()
@@ -18,62 +18,53 @@ export function RegisterModal() {
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
+  const onToggle = useCallback(() => {
+    if (isLoading) return
+    registerModal.onClose()
+    loginModal.onOpen()
+  }, [isLoading, registerModal, loginModal])
+
   const onSubmit = useCallback(async () => {
-    setIsLoading(true)
     try {
+      setIsLoading(true)
+
       await register({
-        json: { email, name, username, password },
+        json: { email, username, name, password },
       })
-      const result = await signIn(email, password)
-      if (result.ok) {
-        registerModal.onClose()
-        window.location.reload()
-      }
+
+      signIn(email, password)
+
+      registerModal.onClose()
     } catch {
       // Registration failed
     } finally {
       setIsLoading(false)
     }
-  }, [email, name, username, password, register, registerModal])
-
-  const onToggle = useCallback(() => {
-    registerModal.onClose()
-    loginModal.onOpen()
-  }, [registerModal, loginModal])
+  }, [email, username, name, password, register, registerModal])
 
   const bodyContent = (
     <div className='flex flex-col gap-4'>
-      <FormField
-        label='メールアドレス'
-        id='register-email'
-        placeholder='メールアドレスを入力'
+      <Input
+        placeholder='Email'
         value={email}
-        type='email'
         disabled={isLoading}
         onChange={(e) => setEmail(e.target.value)}
       />
-      <FormField
-        label='名前'
-        id='register-name'
-        placeholder='名前を入力'
+      <Input
+        placeholder='Name'
         value={name}
         disabled={isLoading}
         onChange={(e) => setName(e.target.value)}
       />
-      <FormField
-        label='ユーザー名'
-        id='register-username'
-        placeholder='ユーザー名を入力'
+      <Input
+        placeholder='Username'
         value={username}
         disabled={isLoading}
         onChange={(e) => setUsername(e.target.value)}
       />
-      <FormField
-        label='パスワード'
-        id='register-password'
-        placeholder='パスワードを入力'
+      <Input
+        placeholder='Password'
         value={password}
-        type='password'
         disabled={isLoading}
         onChange={(e) => setPassword(e.target.value)}
       />
@@ -83,12 +74,12 @@ export function RegisterModal() {
   const footerContent = (
     <div className='mt-4 text-center text-neutral-400'>
       <p>
-        すでにアカウントをお持ちですか？{' '}
+        Already have an account?{' '}
         <span
           onClick={onToggle}
           className='text-white cursor-pointer hover:underline'
         >
-          ログインする
+          Sign in
         </span>
       </p>
     </div>
@@ -96,14 +87,14 @@ export function RegisterModal() {
 
   return (
     <Modal
+      disabled={isLoading}
       isOpen={registerModal.isOpen}
+      title='Create an account'
+      actionLabel='Register'
       onClose={registerModal.onClose}
       onSubmit={onSubmit}
-      title='アカウント登録'
       body={bodyContent}
       footer={footerContent}
-      actionLabel='登録'
-      disabled={isLoading}
     />
   )
 }
