@@ -1,10 +1,10 @@
+import { useQuery, useMutation } from '@tanstack/react-query'
 import type {
+  UseQueryOptions,
   QueryFunctionContext,
   UseMutationOptions,
-  UseQueryOptions,
 } from '@tanstack/react-query'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '@/lib'
 
@@ -21,16 +21,19 @@ export function getGetTodoQueryKey(args: InferRequestType<typeof client.todo.$ge
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetTodoQueryOptions = (
+export function getGetTodoQueryOptions(
   args: InferRequestType<typeof client.todo.$get>,
   clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetTodoQueryKey(args),
-  queryFn: ({ signal }: QueryFunctionContext) =>
-    parseResponse(
-      client.todo.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-    ),
-})
+) {
+  return {
+    queryKey: getGetTodoQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.todo.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      )
+    },
+  }
+}
 
 /**
  * GET /todo
@@ -67,11 +70,14 @@ export function getPostTodoMutationKey() {
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export const getPostTodoMutationOptions = (clientOptions?: ClientRequestOptions) => ({
-  mutationKey: getPostTodoMutationKey(),
-  mutationFn: async (args: InferRequestType<typeof client.todo.$post>) =>
-    parseResponse(client.todo.$post(args, clientOptions)),
-})
+export function getPostTodoMutationOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    mutationKey: getPostTodoMutationKey(),
+    async mutationFn(args: InferRequestType<typeof client.todo.$post>) {
+      return parseResponse(client.todo.$post(args, clientOptions))
+    },
+  }
+}
 
 /**
  * POST /todo
@@ -106,16 +112,22 @@ export function getGetTodoIdQueryKey(args: InferRequestType<(typeof client.todo)
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetTodoIdQueryOptions = (
+export function getGetTodoIdQueryOptions(
   args: InferRequestType<(typeof client.todo)[':id']['$get']>,
   clientOptions?: ClientRequestOptions,
-) => ({
-  queryKey: getGetTodoIdQueryKey(args),
-  queryFn: ({ signal }: QueryFunctionContext) =>
-    parseResponse(
-      client.todo[':id'].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-    ),
-})
+) {
+  return {
+    queryKey: getGetTodoIdQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.todo[':id'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      )
+    },
+  }
+}
 
 /**
  * GET /todo/{id}
@@ -154,11 +166,14 @@ export function getPutTodoIdMutationKey() {
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export const getPutTodoIdMutationOptions = (clientOptions?: ClientRequestOptions) => ({
-  mutationKey: getPutTodoIdMutationKey(),
-  mutationFn: async (args: InferRequestType<(typeof client.todo)[':id']['$put']>) =>
-    parseResponse(client.todo[':id'].$put(args, clientOptions)),
-})
+export function getPutTodoIdMutationOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    mutationKey: getPutTodoIdMutationKey(),
+    async mutationFn(args: InferRequestType<(typeof client.todo)[':id']['$put']>) {
+      return parseResponse(client.todo[':id'].$put(args, clientOptions))
+    },
+  }
+}
 
 /**
  * PUT /todo/{id}
@@ -196,11 +211,14 @@ export function getDeleteTodoIdMutationKey() {
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export const getDeleteTodoIdMutationOptions = (clientOptions?: ClientRequestOptions) => ({
-  mutationKey: getDeleteTodoIdMutationKey(),
-  mutationFn: async (args: InferRequestType<(typeof client.todo)[':id']['$delete']>) =>
-    parseResponse(client.todo[':id'].$delete(args, clientOptions)),
-})
+export function getDeleteTodoIdMutationOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    mutationKey: getDeleteTodoIdMutationKey(),
+    async mutationFn(args: InferRequestType<(typeof client.todo)[':id']['$delete']>) {
+      return parseResponse(client.todo[':id'].$delete(args, clientOptions))
+    },
+  }
+}
 
 /**
  * DELETE /todo/{id}

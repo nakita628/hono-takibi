@@ -75,8 +75,8 @@ export const UpdateTodoRequestSchema = z
 
 export type UpdateTodoRequest = z.infer<typeof UpdateTodoRequestSchema>
 
-const PaginationQueryPageParamsSchema = z
-  .int32()
+const PaginationQueryPageParamsSchema = z.coerce
+  .number()
   .min(1)
   .default(1)
   .exactOptional()
@@ -85,13 +85,13 @@ const PaginationQueryPageParamsSchema = z
       name: 'page',
       in: 'query',
       required: false,
-      schema: { type: 'integer', format: 'int32', minimum: 1, default: 1 },
+      schema: { type: 'number', format: 'double', minimum: 1, default: 1 },
       explode: false,
     },
   })
 
-const PaginationQueryRowsParamsSchema = z
-  .int32()
+const PaginationQueryRowsParamsSchema = z.coerce
+  .number()
   .min(1)
   .max(100)
   .default(10)
@@ -101,7 +101,7 @@ const PaginationQueryRowsParamsSchema = z
       name: 'rows',
       in: 'query',
       required: false,
-      schema: { type: 'integer', format: 'int32', minimum: 1, maximum: 100, default: 10 },
+      schema: { type: 'number', format: 'double', minimum: 1, maximum: 100, default: 10 },
       explode: false,
     },
   })
