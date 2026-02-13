@@ -844,6 +844,109 @@ describe('Health', () => {
       const importAppCount = (result.match(/import app from/g) || []).length
       expect(importAppCount).toBe(1)
     })
+
+    it('adds missing mock functions from generated code', () => {
+      const existing = `import { describe, it, expect } from 'vitest'
+import app from '..'
+
+describe('Register', () => {
+  describe('POST /register', () => {
+    it('Register user', async () => {
+      const body = mockRegisterRequest()
+      const res = await app.request('/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+      expect(res.status).toBe(200)
+    })
+  })
+})
+`
+
+      const generated = `import { describe, it, expect } from 'vitest'
+import { faker } from '@faker-js/faker'
+import app from '..'
+
+function mockRegisterRequest() {
+  return {
+    username: faker.internet.username(),
+    password: faker.internet.password(),
+  }
+}
+
+describe('Register', () => {
+  describe('POST /register', () => {
+    it('Register user', async () => {
+      const body = mockRegisterRequest()
+      const res = await app.request('/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+      expect(res.status).toBe(200)
+    })
+  })
+})
+`
+
+      const result = mergeTestFile(existing, generated)
+      // Mock function added from generated
+      expect(result).toContain('function mockRegisterRequest()')
+      expect(result).toContain('faker.internet.username()')
+      // Existing describe block preserved
+      expect(result).toContain("describe('POST /register'")
+      // Mock function should appear before describe
+      const mockPos = result.indexOf('function mockRegisterRequest()')
+      const describePos = result.indexOf("describe('Register'")
+      expect(mockPos).toBeLessThan(describePos)
+    })
+
+    it('preserves existing mock functions when present in both', () => {
+      const existing = `import { describe, it, expect } from 'vitest'
+import { faker } from '@faker-js/faker'
+import app from '..'
+
+function mockRegisterRequest() {
+  return {
+    username: 'custom-user',
+    password: 'custom-pass',
+  }
+}
+
+describe('Register', () => {
+  describe('POST /register', () => {
+    it('Register user', async () => {
+      const body = mockRegisterRequest()
+      const res = await app.request('/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+      expect(res.status).toBe(200)
+    })
+  })
+})
+`
+
+      const generated = `import { describe, it, expect } from 'vitest'
+import { faker } from '@faker-js/faker'
+import app from '..'
+
+function mockRegisterRequest() {
+  return {
+    username: faker.internet.username(),
+    password: faker.internet.password(),
+  }
+}
+
+describe('Register', () => {
+  describe('POST /register', () => {
+    it('Register user', async () => {
+      const body = mockRegisterRequest()
+      const res = await app.request('/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+      expect(res.status).toBe(200)
+    })
+  })
+})
+`
+
+      const result = mergeTestFile(existing, generated)
+      // User's custom mock preserved (not replaced with generated)
+      expect(result).toContain("username: 'custom-user'")
+      expect(result).not.toContain('faker.internet.username()')
+      // Should not duplicate
+      const mockCount = (result.match(/function mockRegisterRequest\(\)/g) || []).length
+      expect(mockCount).toBe(1)
+    })
   })
 
   describe('mergeBarrelFile', () => {

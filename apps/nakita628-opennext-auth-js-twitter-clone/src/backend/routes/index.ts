@@ -593,15 +593,15 @@ export const postRegisterRoute = createRoute({
   },
   responses: {
     201: {
-      description: 'User created successfully.',
+      description: 'The request has succeeded and a new resource has been created as a result.',
       content: { 'application/json': { schema: UserSchema } },
     },
     404: {
-      description: 'Not found',
+      description: 'The server cannot find the requested resource.',
       content: { 'application/json': { schema: MessageResponseSchema } },
     },
     409: {
-      description: 'Conflict',
+      description: 'The request conflicts with the current state of the server.',
       content: { 'application/json': { schema: MessageResponseSchema } },
     },
     422: {
@@ -613,7 +613,7 @@ export const postRegisterRoute = createRoute({
       content: { 'application/json': { schema: MessageResponseSchema } },
     },
     503: {
-      description: 'Service unavailable',
+      description: 'Service unavailable.',
       content: { 'application/json': { schema: MessageResponseSchema } },
     },
   },

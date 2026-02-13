@@ -18,6 +18,7 @@ hono request \
   -P /api/comments \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
+  -d '{"body":"string"}' \
   src/app/api/[[...route]]/route.ts
 ```
 
@@ -133,11 +134,7 @@ hono request \
     }
   ],
   "following": [
-    {
-      "followerId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-      "followingId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-      "createdAt": "1970-01-01T00:00:00Z"
-    }
+    {}
   ],
   "hasNotification": true
 }
@@ -185,6 +182,7 @@ hono request \
   -P /api/edit \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
+  -d '{"name":"string","username":"string","bio":"string","coverImage":"http://example.com","profileImage":"http://example.com"}' \
   src/app/api/[[...route]]/route.ts
 ```
 
@@ -228,7 +226,6 @@ hono request \
   "image": "http://example.com",
   "coverImage": "http://example.com",
   "profileImage": "http://example.com",
-  "hashedPassword": "string",
   "createdAt": "string",
   "updatedAt": "string",
   "hasNotification": true
@@ -286,6 +283,7 @@ hono request \
   -P /api/follow \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
+  -d '{"userId":"497f6eca-6276-4993-bfeb-53cbbbba6f08"}' \
   src/app/api/[[...route]]/route.ts
 ```
 
@@ -365,6 +363,7 @@ hono request \
   -P /api/follow \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
+  -d '{"userId":"497f6eca-6276-4993-bfeb-53cbbbba6f08"}' \
   src/app/api/[[...route]]/route.ts
 ```
 
@@ -446,6 +445,7 @@ hono request \
   -P /api/like \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
+  -d '{"postId":"497f6eca-6276-4993-bfeb-53cbbbba6f08"}' \
   src/app/api/[[...route]]/route.ts
 ```
 
@@ -536,6 +536,7 @@ hono request \
   -P /api/like \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
+  -d '{"postId":"497f6eca-6276-4993-bfeb-53cbbbba6f08"}' \
   src/app/api/[[...route]]/route.ts
 ```
 
@@ -811,7 +812,6 @@ hono request \
       "image": "http://example.com",
       "coverImage": "http://example.com",
       "profileImage": "http://example.com",
-      "hashedPassword": "string",
       "createdAt": "string",
       "updatedAt": "string",
       "hasNotification": true
@@ -883,7 +883,6 @@ Status Code **200**
 |» » image|string(uri)|true|none|none|
 |» » coverImage|string(uri)|true|none|none|
 |» » profileImage|string(uri)|true|none|none|
-|» » hashedPassword|string|true|none|none|
 |» » createdAt|string|true|none|none|
 |» » updatedAt|string|true|none|none|
 |» » hasNotification|boolean|false|none|none|
@@ -915,6 +914,7 @@ hono request \
   -P /api/posts \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
+  -d '{"body":"string"}' \
   src/app/api/[[...route]]/route.ts
 ```
 
@@ -1029,7 +1029,6 @@ hono request \
     "image": "http://example.com",
     "coverImage": "http://example.com",
     "profileImage": "http://example.com",
-    "hashedPassword": "string",
     "createdAt": "string",
     "updatedAt": "string",
     "hasNotification": true
@@ -1042,21 +1041,7 @@ hono request \
       "updatedAt": "string",
       "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
       "postId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-      "user": {
-        "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-        "name": "string",
-        "username": "string",
-        "bio": "string",
-        "email": "user@example.com",
-        "emailVerified": "string",
-        "image": "http://example.com",
-        "coverImage": "http://example.com",
-        "profileImage": "http://example.com",
-        "hashedPassword": "string",
-        "createdAt": "string",
-        "updatedAt": "string",
-        "hasNotification": true
-      }
+      "user": {}
     }
   ],
   "likes": [
@@ -1121,6 +1106,7 @@ hono request \
   -P /api/register \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
+  -d '{"email":"user@example.com","name":"string","username":"string","password":"string"}' \
   src/app/api/[[...route]]/route.ts
 ```
 
@@ -1149,7 +1135,7 @@ hono request \
 
 > Example responses
 
-> 200 Response
+> 201 Response
 
 ```json
 {
@@ -1162,10 +1148,25 @@ hono request \
   "image": "http://example.com",
   "coverImage": "http://example.com",
   "profileImage": "http://example.com",
-  "hashedPassword": "string",
   "createdAt": "string",
   "updatedAt": "string",
   "hasNotification": true
+}
+```
+
+> 404 Response
+
+```json
+{
+  "message": "string"
+}
+```
+
+> 409 Response
+
+```json
+{
+  "message": "string"
 }
 ```
 
@@ -1194,13 +1195,24 @@ hono request \
 }
 ```
 
+> 503 Response
+
+```json
+{
+  "message": "string"
+}
+```
+
 <h3 id="postregister-responses">Responses</h3>
 
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
-|200|OK|The request has succeeded.|[User](#schemauser)|
+|201|Created|The request has succeeded and a new resource has been created as a result.|[User](#schemauser)|
+|404|Not Found|The server cannot find the requested resource.|[MessageResponse](#schemamessageresponse)|
+|409|Conflict|The request conflicts with the current state of the server.|[MessageResponse](#schemamessageresponse)|
 |422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
 |500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
+|503|Service Unavailable|Service unavailable.|[MessageResponse](#schemamessageresponse)|
 
 <aside class="success">
 This operation does not require authentication
@@ -1245,7 +1257,6 @@ hono request \
   "image": "http://example.com",
   "coverImage": "http://example.com",
   "profileImage": "http://example.com",
-  "hashedPassword": "string",
   "createdAt": "string",
   "updatedAt": "string",
   "hasNotification": true,
@@ -1334,7 +1345,6 @@ hono request \
     "image": "http://example.com",
     "coverImage": "http://example.com",
     "profileImage": "http://example.com",
-    "hashedPassword": "string",
     "createdAt": "string",
     "updatedAt": "string",
     "hasNotification": true
@@ -1373,7 +1383,6 @@ Status Code **200**
 |» image|string(uri)|true|none|none|
 |» coverImage|string(uri)|true|none|none|
 |» profileImage|string(uri)|true|none|none|
-|» hashedPassword|string|true|none|none|
 |» createdAt|string|true|none|none|
 |» updatedAt|string|true|none|none|
 |» hasNotification|boolean|false|none|none|
@@ -1563,11 +1572,7 @@ This operation does not require authentication
     }
   ],
   "following": [
-    {
-      "followerId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-      "followingId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-      "createdAt": "1970-01-01T00:00:00Z"
-    }
+    {}
   ],
   "hasNotification": true
 }
@@ -1609,7 +1614,6 @@ This operation does not require authentication
   "image": "http://example.com",
   "coverImage": "http://example.com",
   "profileImage": "http://example.com",
-  "hashedPassword": "string",
   "createdAt": "string",
   "updatedAt": "string",
   "hasNotification": true
@@ -1629,7 +1633,6 @@ This operation does not require authentication
 |image|string(uri)|true|none|none|
 |coverImage|string(uri)|true|none|none|
 |profileImage|string(uri)|true|none|none|
-|hashedPassword|string|true|none|none|
 |createdAt|string|true|none|none|
 |updatedAt|string|true|none|none|
 |hasNotification|boolean|false|none|none|
@@ -1806,7 +1809,6 @@ This operation does not require authentication
     "image": "http://example.com",
     "coverImage": "http://example.com",
     "profileImage": "http://example.com",
-    "hashedPassword": "string",
     "createdAt": "string",
     "updatedAt": "string",
     "hasNotification": true
@@ -1915,7 +1917,6 @@ This operation does not require authentication
     "image": "http://example.com",
     "coverImage": "http://example.com",
     "profileImage": "http://example.com",
-    "hashedPassword": "string",
     "createdAt": "string",
     "updatedAt": "string",
     "hasNotification": true
@@ -1959,7 +1960,6 @@ This operation does not require authentication
     "image": "http://example.com",
     "coverImage": "http://example.com",
     "profileImage": "http://example.com",
-    "hashedPassword": "string",
     "createdAt": "string",
     "updatedAt": "string",
     "hasNotification": true
@@ -1972,21 +1972,7 @@ This operation does not require authentication
       "updatedAt": "string",
       "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
       "postId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-      "user": {
-        "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-        "name": "string",
-        "username": "string",
-        "bio": "string",
-        "email": "user@example.com",
-        "emailVerified": "string",
-        "image": "http://example.com",
-        "coverImage": "http://example.com",
-        "profileImage": "http://example.com",
-        "hashedPassword": "string",
-        "createdAt": "string",
-        "updatedAt": "string",
-        "hasNotification": true
-      }
+      "user": {}
     }
   ],
   "likes": [
@@ -2057,7 +2043,6 @@ This operation does not require authentication
   "image": "http://example.com",
   "coverImage": "http://example.com",
   "profileImage": "http://example.com",
-  "hashedPassword": "string",
   "createdAt": "string",
   "updatedAt": "string",
   "hasNotification": true,
@@ -2081,7 +2066,6 @@ This operation does not require authentication
 |image|string(uri)|true|none|none|
 |coverImage|string(uri)|true|none|none|
 |profileImage|string(uri)|true|none|none|
-|hashedPassword|string|true|none|none|
 |createdAt|string|true|none|none|
 |updatedAt|string|true|none|none|
 |hasNotification|boolean|false|none|none|

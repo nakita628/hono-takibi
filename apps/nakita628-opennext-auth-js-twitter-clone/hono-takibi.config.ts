@@ -14,4 +14,9 @@ export default defineConfig({
     output: 'docs/api.md',
     entry: 'src/app/api/[[...route]]/route.ts',
   },
+  swr: {
+    output: 'src/hooks/swr.ts',
+    import: '@/lib',
+    client: 'client',
+  },
 })

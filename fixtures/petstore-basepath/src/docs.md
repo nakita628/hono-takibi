@@ -33,10 +33,10 @@ Everything about your Pets
 hono request \
   -X PUT \
   -P /api/v3/pet \
-  -d '{"id":10,"name":"doggie","category":{"id":1,"name":"Dogs"},"photoUrls":["string"],"tags":[{"id":0,"name":"string"}],"status":"available"}' \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
   -H "Authorization: Bearer ${ACCESS_TOKEN}" \
+  -d '{"id":10,"name":"doggie","category":{"id":1,"name":"Dogs"},"photoUrls":["string"],"tags":[{"id":0,"name":"string"}],"status":"available"}' \
   src/index.ts
 ```
 
@@ -137,10 +137,10 @@ petstore_auth ( Scopes: write:pets read:pets )
 hono request \
   -X POST \
   -P /api/v3/pet \
-  -d '{"id":10,"name":"doggie","category":{"id":1,"name":"Dogs"},"photoUrls":["string"],"tags":[{"id":0,"name":"string"}],"status":"available"}' \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
   -H "Authorization: Bearer ${ACCESS_TOKEN}" \
+  -d '{"id":10,"name":"doggie","category":{"id":1,"name":"Dogs"},"photoUrls":["string"],"tags":[{"id":0,"name":"string"}],"status":"available"}' \
   src/index.ts
 ```
 
@@ -462,9 +462,9 @@ api_key
 hono request \
   -X POST \
   -P /api/v3/store/order \
-  -d '{"id":10,"petId":198772,"quantity":7,"shipDate":"1970-01-01T00:00:00Z","status":"placed","complete":true}' \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
+  -d '{"id":10,"petId":198772,"quantity":7,"shipDate":"1970-01-01T00:00:00Z","status":"placed","complete":true}' \
   src/index.ts
 ```
 
@@ -543,9 +543,9 @@ Operations about user
 hono request \
   -X POST \
   -P /api/v3/user \
-  -d '{"id":10,"username":"theUser","firstName":"John","lastName":"James","email":"john@email.com","password":"12345","phone":"12345","userStatus":1}' \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
+  -d '{"id":10,"username":"theUser","firstName":"John","lastName":"James","email":"john@email.com","password":"12345","phone":"12345","userStatus":1}' \
   src/index.ts
 ```
 

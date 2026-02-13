@@ -491,11 +491,12 @@ function makeCodeSample(
     `  -P ${fullPath} \\`,
   ]
 
+  cmdParts.push(...headers.map((h) => `${h} \\`))
+
   if (body) {
     cmdParts.push(`  -d '${body}' \\`)
   }
 
-  cmdParts.push(...headers.map((h) => `${h} \\`))
   cmdParts.push(`  ${entry}`)
 
   return ['> Code samples', '', '```bash', cmdParts.join('\n'), '```']

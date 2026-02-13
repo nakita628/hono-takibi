@@ -1,5 +1,5 @@
+import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
-import { createRoute, OpenAPIHono, type RouteHandler, z } from '@hono/zod-openapi'
 
 const HealthResponseSchema = z
   .object({
@@ -369,14 +369,16 @@ export const getProductsProductIdRoute = createRoute({
   operationId: 'getProduct',
   request: {
     params: z.object({
-      productId: z.uuid().openapi({
-        param: {
-          name: 'productId',
-          in: 'path',
-          required: true,
-          schema: { type: 'string', format: 'uuid' },
-        },
-      }),
+      productId: z
+        .uuid()
+        .openapi({
+          param: {
+            name: 'productId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
+        }),
     }),
   },
   responses: {
@@ -396,14 +398,16 @@ export const putProductsProductIdRoute = createRoute({
   operationId: 'updateProduct',
   request: {
     params: z.object({
-      productId: z.uuid().openapi({
-        param: {
-          name: 'productId',
-          in: 'path',
-          required: true,
-          schema: { type: 'string', format: 'uuid' },
-        },
-      }),
+      productId: z
+        .uuid()
+        .openapi({
+          param: {
+            name: 'productId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
+        }),
     }),
     body: { content: { 'application/json': { schema: UpdateProductInputSchema } }, required: true },
   },
@@ -426,14 +430,16 @@ export const deleteProductsProductIdRoute = createRoute({
   operationId: 'deleteProduct',
   request: {
     params: z.object({
-      productId: z.uuid().openapi({
-        param: {
-          name: 'productId',
-          in: 'path',
-          required: true,
-          schema: { type: 'string', format: 'uuid' },
-        },
-      }),
+      productId: z
+        .uuid()
+        .openapi({
+          param: {
+            name: 'productId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
+        }),
     }),
   },
   responses: {
@@ -514,14 +520,16 @@ export const getOrdersOrderIdRoute = createRoute({
   operationId: 'getOrder',
   request: {
     params: z.object({
-      orderId: z.uuid().openapi({
-        param: {
-          name: 'orderId',
-          in: 'path',
-          required: true,
-          schema: { type: 'string', format: 'uuid' },
-        },
-      }),
+      orderId: z
+        .uuid()
+        .openapi({
+          param: {
+            name: 'orderId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
+        }),
     }),
   },
   responses: {
@@ -540,14 +548,16 @@ export const patchOrdersOrderIdRoute = createRoute({
   operationId: 'updateOrderStatus',
   request: {
     params: z.object({
-      orderId: z.uuid().openapi({
-        param: {
-          name: 'orderId',
-          in: 'path',
-          required: true,
-          schema: { type: 'string', format: 'uuid' },
-        },
-      }),
+      orderId: z
+        .uuid()
+        .openapi({
+          param: {
+            name: 'orderId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
+        }),
     }),
     body: {
       content: { 'application/json': { schema: UpdateOrderStatusInputSchema } },
