@@ -12,7 +12,7 @@ export async function create(args: {
 }) {
   const hashedPassword = await bcrypt.hash(args.password, 12)
 
-  return UserService.getExists(args).andThen(() => {
+  return UserService.exists({ email: args.email }).andThen(() => {
     return UserService.create({ ...args, hashedPassword }).andThen((user) => {
       const data = {
         id: user.id,

@@ -3,7 +3,7 @@ import { errAsync, okAsync, ResultAsync } from 'neverthrow'
 import { ConflictError, DatabaseError, NotFoundError } from '@/backend/domain'
 import { db, schema } from '@/db'
 
-export function getExists(args: { email: string }) {
+export function exists(args: { email: string }) {
   return ResultAsync.fromPromise(
     db.select().from(schema.users).where(eq(schema.users.email, args.email)).get(),
     () => new DatabaseError('Database error'),
