@@ -1,21 +1,22 @@
 import { and, eq } from 'drizzle-orm'
 import { Effect } from 'effect'
 import { DatabaseError } from '@/backend/domain'
-import { DbClient } from '@/backend/types'
+import { DB } from '@/db'
 import * as schema from '@/db/schema'
 
-export const create = (args: { followerId: string; followingId: string }) =>
-  Effect.gen(function* () {
-    const db = yield* DbClient
+export function create(args: { followerId: string; followingId: string }) {
+  return Effect.gen(function* () {
+    const db = yield* DB
     return yield* Effect.tryPromise({
       try: () => db.insert(schema.follows).values(args).returning().get(),
       catch: () => new DatabaseError({ message: 'Database error' }),
     })
   })
+}
 
-export const remove = (args: { followerId: string; followingId: string }) =>
-  Effect.gen(function* () {
-    const db = yield* DbClient
+export function remove(args: { followerId: string; followingId: string }) {
+  return Effect.gen(function* () {
+    const db = yield* DB
     return yield* Effect.tryPromise({
       try: () =>
         db
@@ -31,3 +32,4 @@ export const remove = (args: { followerId: string; followingId: string }) =>
       catch: () => new DatabaseError({ message: 'Database error' }),
     })
   })
+}

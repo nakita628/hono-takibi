@@ -4,7 +4,7 @@ import { useState, useCallback } from 'react'
 import { useLoginModal } from '@/hooks/useLoginModal'
 import { useRegisterModal } from '@/hooks/useRegisterModal'
 import { usePostRegister } from '@/hooks/swr'
-import { signIn } from '@/lib'
+import { signIn } from '@hono/auth-js/react'
 import { Modal } from '@/components/molecules/Modal'
 import { Input } from '@/components/atoms/Input'
 
@@ -32,7 +32,7 @@ export function RegisterModal() {
         json: { email, username, name, password },
       })
 
-      signIn(email, password)
+      await signIn('credentials', { email, password, redirect: false })
 
       registerModal.onClose()
     } catch {

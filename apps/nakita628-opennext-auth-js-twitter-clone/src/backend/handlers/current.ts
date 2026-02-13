@@ -1,23 +1,28 @@
 import type { RouteHandler } from '@hono/zod-openapi'
-import { Effect, Layer } from 'effect'
+import { drizzle } from 'drizzle-orm/d1'
+import { Effect } from 'effect'
 import { DatabaseError, UnauthorizedError } from '@/backend/domain'
+import type { Bindings } from '@/backend/env'
 import type { getCurrentRoute } from '@/backend/routes'
-import type { AppEnv } from '@/backend/types'
-import { DbClient } from '@/backend/types'
+import * as schema from '@/db/schema'
+import { DB } from '@/db'
 import * as CurrentTransaction from '@/backend/transactions/current'
 
-export const getCurrentRouteHandler: RouteHandler<typeof getCurrentRoute, AppEnv> = async (c) => {
+export const getCurrentRouteHandler: RouteHandler<
+  typeof getCurrentRoute,
+  { Bindings: Bindings }
+> = async (c) => {
   const authUser = c.get('authUser')
   const email = authUser?.token?.email
   if (!email) {
     return c.json({ message: 'Not signed in' }, 401)
   }
 
-  const layer = Layer.succeed(DbClient, c.get('db'))
+  const db = drizzle(c.env.DB, { schema })
 
   return Effect.runPromise(
-    CurrentTransaction.get(email as string).pipe(
-      Effect.provide(layer),
+    CurrentTransaction.get(email).pipe(
+      Effect.provideService(DB, db),
       Effect.match({
         onSuccess: (user) => c.json(user, 200),
         onFailure: (e) => {

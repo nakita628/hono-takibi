@@ -28,8 +28,8 @@ function formatPostWithLikes(post: {
   }
 }
 
-export const create = (email: string, args: { postId: string }) =>
-  Effect.gen(function* () {
+export function create(email: string, args: { postId: string }) {
+  return Effect.gen(function* () {
     const user = yield* UserService.findByEmail(email)
     if (!user) {
       return yield* Effect.fail(new UnauthorizedError({ message: 'Not signed in' }))
@@ -66,9 +66,10 @@ export const create = (email: string, args: { postId: string }) =>
     }
     return valid.data
   })
+}
 
-export const remove = (email: string, args: { postId: string }) =>
-  Effect.gen(function* () {
+export function remove(email: string, args: { postId: string }) {
+  return Effect.gen(function* () {
     const user = yield* UserService.findByEmail(email)
     if (!user) {
       return yield* Effect.fail(new UnauthorizedError({ message: 'Not signed in' }))
@@ -88,3 +89,4 @@ export const remove = (email: string, args: { postId: string }) =>
     }
     return valid.data
   })
+}

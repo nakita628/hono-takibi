@@ -1,18 +1,23 @@
 import type { RouteHandler } from '@hono/zod-openapi'
-import { Effect, Layer } from 'effect'
+import { drizzle } from 'drizzle-orm/d1'
+import { Effect } from 'effect'
 import { DatabaseError, NotFoundError, UnauthorizedError } from '@/backend/domain'
+import type { Bindings } from '@/backend/env'
 import type { getPostsPostIdRoute, getPostsRoute, postPostsRoute } from '@/backend/routes'
-import type { AppEnv } from '@/backend/types'
-import { DbClient } from '@/backend/types'
+import * as schema from '@/db/schema'
+import { DB } from '@/db'
 import * as PostsTransaction from '@/backend/transactions/posts'
 
-export const getPostsRouteHandler: RouteHandler<typeof getPostsRoute, AppEnv> = async (c) => {
+export const getPostsRouteHandler: RouteHandler<
+  typeof getPostsRoute,
+  { Bindings: Bindings }
+> = async (c) => {
   const { userId } = c.req.valid('query')
-  const layer = Layer.succeed(DbClient, c.get('db'))
+  const db = drizzle(c.env.DB, { schema })
 
   return Effect.runPromise(
     PostsTransaction.getAll(userId).pipe(
-      Effect.provide(layer),
+      Effect.provideService(DB, db),
       Effect.match({
         onSuccess: (posts) => c.json(posts, 200),
         onFailure: (e) => {
@@ -24,7 +29,10 @@ export const getPostsRouteHandler: RouteHandler<typeof getPostsRoute, AppEnv> = 
   )
 }
 
-export const postPostsRouteHandler: RouteHandler<typeof postPostsRoute, AppEnv> = async (c) => {
+export const postPostsRouteHandler: RouteHandler<
+  typeof postPostsRoute,
+  { Bindings: Bindings }
+> = async (c) => {
   const authUser = c.get('authUser')
   const email = authUser?.token?.email
   if (!email) {
@@ -32,11 +40,11 @@ export const postPostsRouteHandler: RouteHandler<typeof postPostsRoute, AppEnv> 
   }
 
   const { body } = c.req.valid('json')
-  const layer = Layer.succeed(DbClient, c.get('db'))
+  const db = drizzle(c.env.DB, { schema })
 
   return Effect.runPromise(
-    PostsTransaction.create(email as string, { body }).pipe(
-      Effect.provide(layer),
+    PostsTransaction.create(email, { body }).pipe(
+      Effect.provideService(DB, db),
       Effect.match({
         onSuccess: (post) => c.json(post, 200),
         onFailure: (e) => {
@@ -49,15 +57,16 @@ export const postPostsRouteHandler: RouteHandler<typeof postPostsRoute, AppEnv> 
   )
 }
 
-export const getPostsPostIdRouteHandler: RouteHandler<typeof getPostsPostIdRoute, AppEnv> = async (
-  c,
-) => {
+export const getPostsPostIdRouteHandler: RouteHandler<
+  typeof getPostsPostIdRoute,
+  { Bindings: Bindings }
+> = async (c) => {
   const { postId } = c.req.valid('param')
-  const layer = Layer.succeed(DbClient, c.get('db'))
+  const db = drizzle(c.env.DB, { schema })
 
   return Effect.runPromise(
     PostsTransaction.getById(postId).pipe(
-      Effect.provide(layer),
+      Effect.provideService(DB, db),
       Effect.match({
         onSuccess: (post) => c.json(post, 200),
         onFailure: (e) => {

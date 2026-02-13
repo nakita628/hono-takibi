@@ -5,8 +5,8 @@ import * as FollowService from '@/backend/services/follow'
 import * as NotificationService from '@/backend/services/notification'
 import * as UserService from '@/backend/services/user'
 
-export const create = (email: string, args: { userId: string }) =>
-  Effect.gen(function* () {
+export function create(email: string, args: { userId: string }) {
+  return Effect.gen(function* () {
     const currentUser = yield* UserService.findByEmail(email)
     if (!currentUser) {
       return yield* Effect.fail(new UnauthorizedError({ message: 'Not signed in' }))
@@ -35,9 +35,10 @@ export const create = (email: string, args: { userId: string }) =>
     }
     return valid.data
   })
+}
 
-export const remove = (email: string, args: { userId: string }) =>
-  Effect.gen(function* () {
+export function remove(email: string, args: { userId: string }) {
+  return Effect.gen(function* () {
     const currentUser = yield* UserService.findByEmail(email)
     if (!currentUser) {
       return yield* Effect.fail(new UnauthorizedError({ message: 'Not signed in' }))
@@ -55,3 +56,4 @@ export const remove = (email: string, args: { userId: string }) =>
     }
     return valid.data
   })
+}

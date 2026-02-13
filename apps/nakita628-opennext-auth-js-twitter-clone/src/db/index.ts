@@ -1,9 +1,7 @@
-import { getCloudflareContext } from '@opennextjs/cloudflare'
-import { drizzle } from 'drizzle-orm/d1'
-import * as schema from './schema'
+import { Context } from 'effect'
+import type { DrizzleD1Database } from 'drizzle-orm/d1'
+import type * as schema from './schema'
 
-export function getDb() {
-  const { env } = getCloudflareContext()
-  return drizzle(env.DB, { schema })
-}
+export type Db = DrizzleD1Database<typeof schema>
+export class DB extends Context.Tag('DB')<DB, Db>() {}
 export * as schema from './schema'

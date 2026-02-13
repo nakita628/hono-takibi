@@ -1,12 +1,17 @@
 import type { RouteHandler } from '@hono/zod-openapi'
-import { Effect, Layer } from 'effect'
+import { drizzle } from 'drizzle-orm/d1'
+import { Effect } from 'effect'
 import { DatabaseError, NotFoundError, UnauthorizedError } from '@/backend/domain'
+import type { Bindings } from '@/backend/env'
 import type { deleteLikeRoute, postLikeRoute } from '@/backend/routes'
-import type { AppEnv } from '@/backend/types'
-import { DbClient } from '@/backend/types'
+import * as schema from '@/db/schema'
+import { DB } from '@/db'
 import * as LikeTransaction from '@/backend/transactions/like'
 
-export const postLikeRouteHandler: RouteHandler<typeof postLikeRoute, AppEnv> = async (c) => {
+export const postLikeRouteHandler: RouteHandler<
+  typeof postLikeRoute,
+  { Bindings: Bindings }
+> = async (c) => {
   const authUser = c.get('authUser')
   const email = authUser?.token?.email
   if (!email) {
@@ -14,11 +19,11 @@ export const postLikeRouteHandler: RouteHandler<typeof postLikeRoute, AppEnv> = 
   }
 
   const { postId } = c.req.valid('json')
-  const layer = Layer.succeed(DbClient, c.get('db'))
+  const db = drizzle(c.env.DB, { schema })
 
   return Effect.runPromise(
     LikeTransaction.create(email, { postId }).pipe(
-      Effect.provide(layer),
+      Effect.provideService(DB, db),
       Effect.match({
         onSuccess: (result) => c.json(result, 200),
         onFailure: (e) => {
@@ -32,7 +37,10 @@ export const postLikeRouteHandler: RouteHandler<typeof postLikeRoute, AppEnv> = 
   )
 }
 
-export const deleteLikeRouteHandler: RouteHandler<typeof deleteLikeRoute, AppEnv> = async (c) => {
+export const deleteLikeRouteHandler: RouteHandler<
+  typeof deleteLikeRoute,
+  { Bindings: Bindings }
+> = async (c) => {
   const authUser = c.get('authUser')
   const email = authUser?.token?.email
   if (!email) {
@@ -40,11 +48,11 @@ export const deleteLikeRouteHandler: RouteHandler<typeof deleteLikeRoute, AppEnv
   }
 
   const { postId } = c.req.valid('json')
-  const layer = Layer.succeed(DbClient, c.get('db'))
+  const db = drizzle(c.env.DB, { schema })
 
   return Effect.runPromise(
     LikeTransaction.remove(email, { postId }).pipe(
-      Effect.provide(layer),
+      Effect.provideService(DB, db),
       Effect.match({
         onSuccess: (result) => c.json(result, 200),
         onFailure: (e) => {

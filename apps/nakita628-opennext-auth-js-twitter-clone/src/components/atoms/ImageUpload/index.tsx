@@ -19,8 +19,9 @@ export function ImageUpload({ value, disabled, onChange, label }: Props) {
 
       const reader = new FileReader()
       reader.onload = (event: ProgressEvent<FileReader>) => {
-        if (event.target?.result) {
-          onChange(event.target.result as string)
+        const result = event.target?.result
+        if (typeof result === 'string') {
+          onChange(result)
         }
       }
       reader.readAsDataURL(file)

@@ -6,8 +6,8 @@ import * as NotificationService from '@/backend/services/notification'
 import * as PostService from '@/backend/services/post'
 import * as UserService from '@/backend/services/user'
 
-export const create = (email: string, args: { body: string; postId: string }) =>
-  Effect.gen(function* () {
+export function create(email: string, args: { body: string; postId: string }) {
+  return Effect.gen(function* () {
     const user = yield* UserService.findByEmail(email)
     if (!user) {
       return yield* Effect.fail(new UnauthorizedError({ message: 'Not signed in' }))
@@ -43,3 +43,4 @@ export const create = (email: string, args: { body: string; postId: string }) =>
     }
     return valid.data
   })
+}

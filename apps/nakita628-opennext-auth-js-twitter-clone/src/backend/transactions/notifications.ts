@@ -4,8 +4,8 @@ import { MessageResponseSchema, NotificationSchema } from '@/backend/routes'
 import * as NotificationService from '@/backend/services/notification'
 import { z } from '@hono/zod-openapi'
 
-export const getByUserId = (userId: string) =>
-  Effect.gen(function* () {
+export function getByUserId(userId: string) {
+  return Effect.gen(function* () {
     const notifications = yield* NotificationService.findByUserId(userId)
 
     const data = notifications.map((n) => ({
@@ -21,9 +21,10 @@ export const getByUserId = (userId: string) =>
     }
     return valid.data
   })
+}
 
-export const markAsRead = (userId: string) =>
-  Effect.gen(function* () {
+export function markAsRead(userId: string) {
+  return Effect.gen(function* () {
     yield* NotificationService.updateUserHasNotification(userId, false)
 
     const data = { message: 'Notifications updated' }
@@ -33,3 +34,4 @@ export const markAsRead = (userId: string) =>
     }
     return valid.data
   })
+}

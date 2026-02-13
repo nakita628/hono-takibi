@@ -1,12 +1,12 @@
 import { eq } from 'drizzle-orm'
 import { Effect } from 'effect'
 import { ConflictError, DatabaseError } from '@/backend/domain'
-import { DbClient } from '@/backend/types'
+import { DB } from '@/db'
 import * as schema from '@/db/schema'
 
-export const exists = (args: { email: string }) =>
-  Effect.gen(function* () {
-    const db = yield* DbClient
+export function exists(args: { email: string }) {
+  return Effect.gen(function* () {
+    const db = yield* DB
     const user = yield* Effect.tryPromise({
       try: () => db.select().from(schema.users).where(eq(schema.users.email, args.email)).get(),
       catch: () => new DatabaseError({ message: 'Database error' }),
@@ -16,24 +16,26 @@ export const exists = (args: { email: string }) =>
     }
     return null
   })
+}
 
-export const create = (args: {
+export function create(args: {
   email: string
   name: string
   username: string
   hashedPassword: string
-}) =>
-  Effect.gen(function* () {
-    const db = yield* DbClient
+}) {
+  return Effect.gen(function* () {
+    const db = yield* DB
     return yield* Effect.tryPromise({
       try: () => db.insert(schema.users).values(args).returning().get(),
       catch: () => new DatabaseError({ message: 'Database error' }),
     })
   })
+}
 
-export const findByEmail = (email: string) =>
-  Effect.gen(function* () {
-    const db = yield* DbClient
+export function findByEmail(email: string) {
+  return Effect.gen(function* () {
+    const db = yield* DB
     return yield* Effect.tryPromise({
       try: () =>
         db.query.users.findFirst({
@@ -42,10 +44,11 @@ export const findByEmail = (email: string) =>
       catch: () => new DatabaseError({ message: 'Database error' }),
     })
   })
+}
 
-export const findByEmailWithFollows = (email: string) =>
-  Effect.gen(function* () {
-    const db = yield* DbClient
+export function findByEmailWithFollows(email: string) {
+  return Effect.gen(function* () {
+    const db = yield* DB
     return yield* Effect.tryPromise({
       try: () =>
         db.query.users.findFirst({
@@ -58,10 +61,11 @@ export const findByEmailWithFollows = (email: string) =>
       catch: () => new DatabaseError({ message: 'Database error' }),
     })
   })
+}
 
-export const findById = (id: string) =>
-  Effect.gen(function* () {
-    const db = yield* DbClient
+export function findById(id: string) {
+  return Effect.gen(function* () {
+    const db = yield* DB
     return yield* Effect.tryPromise({
       try: () =>
         db.query.users.findFirst({
@@ -70,10 +74,11 @@ export const findById = (id: string) =>
       catch: () => new DatabaseError({ message: 'Database error' }),
     })
   })
+}
 
-export const findByIdWithFollowCount = (id: string) =>
-  Effect.gen(function* () {
-    const db = yield* DbClient
+export function findByIdWithFollowCount(id: string) {
+  return Effect.gen(function* () {
+    const db = yield* DB
     return yield* Effect.tryPromise({
       try: () =>
         db.query.users.findFirst({
@@ -86,10 +91,11 @@ export const findByIdWithFollowCount = (id: string) =>
       catch: () => new DatabaseError({ message: 'Database error' }),
     })
   })
+}
 
-export const findAll = () =>
-  Effect.gen(function* () {
-    const db = yield* DbClient
+export function findAll() {
+  return Effect.gen(function* () {
+    const db = yield* DB
     return yield* Effect.tryPromise({
       try: () =>
         db.query.users.findMany({
@@ -98,8 +104,9 @@ export const findAll = () =>
       catch: () => new DatabaseError({ message: 'Database error' }),
     })
   })
+}
 
-export const update = (
+export function update(
   id: string,
   data: {
     name?: string
@@ -108,11 +115,12 @@ export const update = (
     coverImage?: string | null
     profileImage?: string | null
   },
-) =>
-  Effect.gen(function* () {
-    const db = yield* DbClient
+) {
+  return Effect.gen(function* () {
+    const db = yield* DB
     return yield* Effect.tryPromise({
       try: () => db.update(schema.users).set(data).where(eq(schema.users.id, id)).returning().get(),
       catch: () => new DatabaseError({ message: 'Database error' }),
     })
   })
+}

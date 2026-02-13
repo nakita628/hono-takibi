@@ -3,8 +3,8 @@ import { UnauthorizedError, ValidationError } from '@/backend/domain'
 import { CurrentUserSchema } from '@/backend/routes'
 import * as UserService from '@/backend/services/user'
 
-export const get = (email: string) =>
-  Effect.gen(function* () {
+export function get(email: string) {
+  return Effect.gen(function* () {
     const user = yield* UserService.findByEmailWithFollows(email)
     if (!user) {
       return yield* Effect.fail(new UnauthorizedError({ message: 'Not signed in' }))
@@ -40,3 +40,4 @@ export const get = (email: string) =>
     }
     return valid.data
   })
+}

@@ -1,14 +1,17 @@
 import type { RouteHandler } from '@hono/zod-openapi'
-import { Effect, Layer } from 'effect'
+import { drizzle } from 'drizzle-orm/d1'
+import { Effect } from 'effect'
 import { DatabaseError, UnauthorizedError } from '@/backend/domain'
+import type { Bindings } from '@/backend/env'
 import type { postCommentsRoute } from '@/backend/routes'
-import type { AppEnv } from '@/backend/types'
-import { DbClient } from '@/backend/types'
+import * as schema from '@/db/schema'
+import { DB } from '@/db'
 import * as CommentsTransaction from '@/backend/transactions/comments'
 
-export const postCommentsRouteHandler: RouteHandler<typeof postCommentsRoute, AppEnv> = async (
-  c,
-) => {
+export const postCommentsRouteHandler: RouteHandler<
+  typeof postCommentsRoute,
+  { Bindings: Bindings }
+> = async (c) => {
   const authUser = c.get('authUser')
   const email = authUser?.token?.email
   if (!email) {
@@ -17,11 +20,11 @@ export const postCommentsRouteHandler: RouteHandler<typeof postCommentsRoute, Ap
 
   const { postId } = c.req.valid('query')
   const { body } = c.req.valid('json')
-  const layer = Layer.succeed(DbClient, c.get('db'))
+  const db = drizzle(c.env.DB, { schema })
 
   return Effect.runPromise(
     CommentsTransaction.create(email, { body, postId }).pipe(
-      Effect.provide(layer),
+      Effect.provideService(DB, db),
       Effect.match({
         onSuccess: (comment) => c.json(comment, 200),
         onFailure: (e) => {

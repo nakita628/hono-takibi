@@ -1,6 +1,9 @@
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { faker } from '@faker-js/faker'
+import { Effect } from 'effect'
+import { ConflictError, DatabaseError } from '@/backend/domain'
 import app from '@/backend'
+import * as RegisterTransaction from '@/backend/transactions/register'
 
 function mockRegisterRequest() {
   return {
@@ -8,6 +11,23 @@ function mockRegisterRequest() {
     name: faker.person.fullName(),
     username: faker.internet.username(),
     password: faker.internet.password(),
+  }
+}
+
+function mockUserResponse() {
+  return {
+    id: faker.string.uuid(),
+    name: 'Test User',
+    username: 'testuser',
+    bio: null,
+    email: 'test@example.com',
+    emailVerified: null,
+    image: null,
+    coverImage: null,
+    profileImage: null,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    hasNotification: null,
   }
 }
 

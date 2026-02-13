@@ -3,7 +3,7 @@
 import { useState, useCallback } from 'react'
 import { useLoginModal } from '@/hooks/useLoginModal'
 import { useRegisterModal } from '@/hooks/useRegisterModal'
-import { signIn } from '@/lib'
+import { signIn } from '@hono/auth-js/react'
 import { Modal } from '@/components/molecules/Modal'
 import { Input } from '@/components/atoms/Input'
 
@@ -23,8 +23,8 @@ export function LoginModal() {
   const onSubmit = useCallback(async () => {
     try {
       setIsLoading(true)
-      const result = await signIn(email, password)
-      if (result.ok) {
+      const result = await signIn('credentials', { email, password, redirect: false })
+      if (result?.ok) {
         loginModal.onClose()
       }
     } catch {

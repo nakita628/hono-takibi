@@ -1,12 +1,17 @@
 import type { RouteHandler } from '@hono/zod-openapi'
-import { Effect, Layer } from 'effect'
+import { drizzle } from 'drizzle-orm/d1'
+import { Effect } from 'effect'
 import { DatabaseError, NotFoundError, UnauthorizedError } from '@/backend/domain'
+import type { Bindings } from '@/backend/env'
 import type { deleteFollowRoute, postFollowRoute } from '@/backend/routes'
-import type { AppEnv } from '@/backend/types'
-import { DbClient } from '@/backend/types'
+import * as schema from '@/db/schema'
+import { DB } from '@/db'
 import * as FollowTransaction from '@/backend/transactions/follow'
 
-export const postFollowRouteHandler: RouteHandler<typeof postFollowRoute, AppEnv> = async (c) => {
+export const postFollowRouteHandler: RouteHandler<
+  typeof postFollowRoute,
+  { Bindings: Bindings }
+> = async (c) => {
   const authUser = c.get('authUser')
   const email = authUser?.token?.email
   if (!email) {
@@ -14,11 +19,11 @@ export const postFollowRouteHandler: RouteHandler<typeof postFollowRoute, AppEnv
   }
 
   const { userId } = c.req.valid('json')
-  const layer = Layer.succeed(DbClient, c.get('db'))
+  const db = drizzle(c.env.DB, { schema })
 
   return Effect.runPromise(
-    FollowTransaction.create(email as string, { userId }).pipe(
-      Effect.provide(layer),
+    FollowTransaction.create(email, { userId }).pipe(
+      Effect.provideService(DB, db),
       Effect.match({
         onSuccess: (result) => c.json(result, 200),
         onFailure: (e) => {
@@ -32,9 +37,10 @@ export const postFollowRouteHandler: RouteHandler<typeof postFollowRoute, AppEnv
   )
 }
 
-export const deleteFollowRouteHandler: RouteHandler<typeof deleteFollowRoute, AppEnv> = async (
-  c,
-) => {
+export const deleteFollowRouteHandler: RouteHandler<
+  typeof deleteFollowRoute,
+  { Bindings: Bindings }
+> = async (c) => {
   const authUser = c.get('authUser')
   const email = authUser?.token?.email
   if (!email) {
@@ -42,11 +48,11 @@ export const deleteFollowRouteHandler: RouteHandler<typeof deleteFollowRoute, Ap
   }
 
   const { userId } = c.req.valid('json')
-  const layer = Layer.succeed(DbClient, c.get('db'))
+  const db = drizzle(c.env.DB, { schema })
 
   return Effect.runPromise(
-    FollowTransaction.remove(email as string, { userId }).pipe(
-      Effect.provide(layer),
+    FollowTransaction.remove(email, { userId }).pipe(
+      Effect.provideService(DB, db),
       Effect.match({
         onSuccess: (result) => c.json(result, 200),
         onFailure: (e) => {

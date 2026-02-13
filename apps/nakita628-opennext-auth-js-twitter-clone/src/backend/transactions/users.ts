@@ -4,8 +4,8 @@ import { UserSchema, UserWithFollowCountSchema } from '@/backend/routes'
 import * as UserService from '@/backend/services/user'
 import { z } from '@hono/zod-openapi'
 
-export const getById = (userId: string) =>
-  Effect.gen(function* () {
+export function getById(userId: string) {
+  return Effect.gen(function* () {
     const user = yield* UserService.findByIdWithFollowCount(userId)
     if (!user) {
       return yield* Effect.fail(new NotFoundError({ message: 'User not found' }))
@@ -36,9 +36,10 @@ export const getById = (userId: string) =>
     }
     return valid.data
   })
+}
 
-export const getAll = () =>
-  Effect.gen(function* () {
+export function getAll() {
+  return Effect.gen(function* () {
     const users = yield* UserService.findAll()
 
     const data = users.map((u) => ({
@@ -62,3 +63,4 @@ export const getAll = () =>
     }
     return valid.data
   })
+}

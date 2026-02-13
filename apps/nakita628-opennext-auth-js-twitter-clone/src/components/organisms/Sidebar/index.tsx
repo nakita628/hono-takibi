@@ -1,7 +1,7 @@
 'use client'
 
 import { useGetCurrent } from '@/hooks/swr'
-import { signOut } from '@/lib'
+import { signOut } from '@hono/auth-js/react'
 import { SidebarLogo } from '@/components/atoms/SidebarLogo'
 import { SidebarItem } from '@/components/atoms/SidebarItem'
 import { SidebarTweetButton } from '@/components/atoms/SidebarTweetButton'

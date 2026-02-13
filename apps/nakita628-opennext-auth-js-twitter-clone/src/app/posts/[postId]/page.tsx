@@ -11,8 +11,12 @@ export default function PostView() {
   const params = useParams()
   const { postId } = params
 
+  if (!postId || typeof postId !== 'string') {
+    throw new Error('Invalid post ID')
+  }
+
   const { data: fetchedPost, isLoading } = useGetPostsPostId({
-    param: { postId: postId as string },
+    param: { postId },
   })
 
   if (isLoading || !fetchedPost) {
@@ -27,7 +31,7 @@ export default function PostView() {
     <>
       <Header showBackArrow label='Post' />
       <PostItem data={fetchedPost} />
-      <Form postId={postId as string} isComment placeholder='Tweet your reply' />
+      <Form postId={postId} isComment placeholder='Tweet your reply' />
       <CommentFeed comments={fetchedPost.comments} />
     </>
   )

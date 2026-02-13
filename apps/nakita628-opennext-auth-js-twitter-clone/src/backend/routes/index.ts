@@ -295,18 +295,6 @@ const ParametersUserIdQueryParamsSchema = z
     },
   })
 
-const ParametersUserIdOptionalQueryParamsSchema = z
-  .uuid()
-  .optional()
-  .openapi({
-    param: {
-      name: 'userId',
-      in: 'query',
-      required: false,
-      schema: { type: 'string', format: 'uuid' },
-    },
-  })
-
 const ParametersPostIdPathParamsSchema = z
   .uuid()
   .openapi({
@@ -536,7 +524,7 @@ export const getPostsRoute = createRoute({
   path: '/posts',
   tags: ['posts'],
   operationId: 'getPosts',
-  request: { query: z.object({ userId: ParametersUserIdOptionalQueryParamsSchema }) },
+  request: { query: z.object({ userId: ParametersUserIdQueryParamsSchema }) },
   responses: {
     200: {
       description: 'The request has succeeded.',
@@ -545,10 +533,6 @@ export const getPostsRoute = createRoute({
     422: {
       description: 'Client error',
       content: { 'application/json': { schema: ValidationErrorSchema } },
-    },
-    500: {
-      description: 'Server error',
-      content: { 'application/json': { schema: MessageResponseSchema } },
     },
   },
 })

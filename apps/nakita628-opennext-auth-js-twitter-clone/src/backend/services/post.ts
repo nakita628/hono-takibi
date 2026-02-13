@@ -1,21 +1,22 @@
 import { eq } from 'drizzle-orm'
 import { Effect } from 'effect'
 import { DatabaseError } from '@/backend/domain'
-import { DbClient } from '@/backend/types'
+import { DB } from '@/db'
 import * as schema from '@/db/schema'
 
-export const create = (args: { body: string; userId: string }) =>
-  Effect.gen(function* () {
-    const db = yield* DbClient
+export function create(args: { body: string; userId: string }) {
+  return Effect.gen(function* () {
+    const db = yield* DB
     return yield* Effect.tryPromise({
       try: () => db.insert(schema.posts).values(args).returning().get(),
       catch: () => new DatabaseError({ message: 'Database error' }),
     })
   })
+}
 
-export const findById = (id: string) =>
-  Effect.gen(function* () {
-    const db = yield* DbClient
+export function findById(id: string) {
+  return Effect.gen(function* () {
+    const db = yield* DB
     return yield* Effect.tryPromise({
       try: () =>
         db.query.posts.findFirst({
@@ -24,10 +25,11 @@ export const findById = (id: string) =>
       catch: () => new DatabaseError({ message: 'Database error' }),
     })
   })
+}
 
-export const findByIdWithRelations = (id: string) =>
-  Effect.gen(function* () {
-    const db = yield* DbClient
+export function findByIdWithRelations(id: string) {
+  return Effect.gen(function* () {
+    const db = yield* DB
     return yield* Effect.tryPromise({
       try: () =>
         db.query.posts.findFirst({
@@ -44,10 +46,11 @@ export const findByIdWithRelations = (id: string) =>
       catch: () => new DatabaseError({ message: 'Database error' }),
     })
   })
+}
 
-export const findByIdWithLikes = (id: string) =>
-  Effect.gen(function* () {
-    const db = yield* DbClient
+export function findByIdWithLikes(id: string) {
+  return Effect.gen(function* () {
+    const db = yield* DB
     return yield* Effect.tryPromise({
       try: () =>
         db.query.posts.findFirst({
@@ -57,10 +60,11 @@ export const findByIdWithLikes = (id: string) =>
       catch: () => new DatabaseError({ message: 'Database error' }),
     })
   })
+}
 
-export const findAllWithRelations = (userId?: string) =>
-  Effect.gen(function* () {
-    const db = yield* DbClient
+export function findAllWithRelations(userId?: string) {
+  return Effect.gen(function* () {
+    const db = yield* DB
     return yield* Effect.tryPromise({
       try: () =>
         db.query.posts.findMany({
@@ -75,3 +79,4 @@ export const findAllWithRelations = (userId?: string) =>
       catch: () => new DatabaseError({ message: 'Database error' }),
     })
   })
+}

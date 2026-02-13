@@ -1,9 +1,11 @@
 import Credentials from '@auth/core/providers/credentials'
 import { authHandler, initAuthConfig, verifyAuth } from '@hono/auth-js'
+import { DrizzleAdapter } from '@auth/drizzle-adapter'
 import { OpenAPIHono, z } from '@hono/zod-openapi'
-import { getCloudflareContext } from '@opennextjs/cloudflare'
 import bcrypt from 'bcryptjs'
+import { drizzle } from 'drizzle-orm/d1'
 import { eq } from 'drizzle-orm'
+import type { Bindings } from '@/backend/env'
 import {
   deleteFollowRouteHandler,
   deleteLikeRouteHandler,
@@ -39,11 +41,9 @@ import {
   postPostsRoute,
   postRegisterRoute,
 } from '@/backend/routes'
-import type { AppEnv } from '@/backend/types'
-import { getDb } from '@/db'
 import * as schema from '@/db/schema'
 
-const app = new OpenAPIHono<AppEnv>({
+const app = new OpenAPIHono<{ Bindings: Bindings }>({
   defaultHook: (result, c) => {
     if (!result.success) {
       return c.json(formatZodErrors(result), 422, {
@@ -53,18 +53,11 @@ const app = new OpenAPIHono<AppEnv>({
   },
 }).basePath('/api')
 
-// Cloudflare bindings → c.env に注入 + DB セット
-app.use('*', async (c, next) => {
-  const { env } = getCloudflareContext()
-  c.env = env as typeof c.env
-  c.set('db', getDb())
-  await next()
-})
-
 app.use(
   '*',
   initAuthConfig((c) => ({
     secret: c.env.AUTH_SECRET,
+    adapter: DrizzleAdapter(drizzle(c.env.DB)),
     basePath: '/api/auth',
     providers: [
       Credentials({
@@ -74,7 +67,7 @@ app.use(
         },
         async authorize(credentials) {
           const CredentialsSchema = z.object({
-            email: z.string().email(),
+            email: z.email(),
             password: z.string().min(8).max(72),
           })
 
@@ -84,7 +77,7 @@ app.use(
 
           const { email, password } = valid.data
 
-          const db = getDb()
+          const db = drizzle(c.env.DB)
           const user = await db
             .select()
             .from(schema.users)

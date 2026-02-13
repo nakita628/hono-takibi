@@ -1,21 +1,23 @@
 import type { RouteHandler } from '@hono/zod-openapi'
-import { Effect, Layer } from 'effect'
+import { drizzle } from 'drizzle-orm/d1'
+import { Effect } from 'effect'
 import { DatabaseError } from '@/backend/domain'
+import type { Bindings } from '@/backend/env'
 import type { getNotificationsUserIdRoute, postNotificationsRoute } from '@/backend/routes'
-import type { AppEnv } from '@/backend/types'
-import { DbClient } from '@/backend/types'
+import * as schema from '@/db/schema'
+import { DB } from '@/db'
 import * as NotificationsTransaction from '@/backend/transactions/notifications'
 
 export const getNotificationsUserIdRouteHandler: RouteHandler<
   typeof getNotificationsUserIdRoute,
-  AppEnv
+  { Bindings: Bindings }
 > = async (c) => {
   const { userId } = c.req.valid('param')
-  const layer = Layer.succeed(DbClient, c.get('db'))
+  const db = drizzle(c.env.DB, { schema })
 
   return Effect.runPromise(
     NotificationsTransaction.getByUserId(userId).pipe(
-      Effect.provide(layer),
+      Effect.provideService(DB, db),
       Effect.match({
         onSuccess: (notifications) => c.json(notifications, 200),
         onFailure: (e) => {
@@ -29,14 +31,14 @@ export const getNotificationsUserIdRouteHandler: RouteHandler<
 
 export const postNotificationsRouteHandler: RouteHandler<
   typeof postNotificationsRoute,
-  AppEnv
+  { Bindings: Bindings }
 > = async (c) => {
   const userId = await c.req.text()
-  const layer = Layer.succeed(DbClient, c.get('db'))
+  const db = drizzle(c.env.DB, { schema })
 
   return Effect.runPromise(
     NotificationsTransaction.markAsRead(userId).pipe(
-      Effect.provide(layer),
+      Effect.provideService(DB, db),
       Effect.match({
         onSuccess: (result) => c.json(result, 200),
         onFailure: (e) => {

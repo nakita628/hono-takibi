@@ -5,30 +5,6 @@ import * as PostService from '@/backend/services/post'
 import * as UserService from '@/backend/services/user'
 import { z } from '@hono/zod-openapi'
 
-export const create = (email: string, args: { body: string }) =>
-  Effect.gen(function* () {
-    const user = yield* UserService.findByEmail(email)
-    if (!user) {
-      return yield* Effect.fail(new UnauthorizedError({ message: 'Not signed in' }))
-    }
-
-    const post = yield* PostService.create({ body: args.body, userId: user.id })
-
-    const data = {
-      id: post.id,
-      body: post.body,
-      createdAt: post.createdAt.toISOString(),
-      updatedAt: post.updatedAt.toISOString(),
-      userId: post.userId,
-    }
-
-    const valid = PostSchema.safeParse(data)
-    if (!valid.success) {
-      return yield* Effect.fail(new ValidationError({ message: 'Invalid post data' }))
-    }
-    return valid.data
-  })
-
 function formatUser(u: {
   id: string
   name: string
@@ -59,8 +35,33 @@ function formatUser(u: {
   }
 }
 
-export const getAll = (userId?: string) =>
-  Effect.gen(function* () {
+export function create(email: string, args: { body: string }) {
+  return Effect.gen(function* () {
+    const user = yield* UserService.findByEmail(email)
+    if (!user) {
+      return yield* Effect.fail(new UnauthorizedError({ message: 'Not signed in' }))
+    }
+
+    const post = yield* PostService.create({ body: args.body, userId: user.id })
+
+    const data = {
+      id: post.id,
+      body: post.body,
+      createdAt: post.createdAt.toISOString(),
+      updatedAt: post.updatedAt.toISOString(),
+      userId: post.userId,
+    }
+
+    const valid = PostSchema.safeParse(data)
+    if (!valid.success) {
+      return yield* Effect.fail(new ValidationError({ message: 'Invalid post data' }))
+    }
+    return valid.data
+  })
+}
+
+export function getAll(userId?: string) {
+  return Effect.gen(function* () {
     const posts = yield* PostService.findAllWithRelations(userId)
 
     const data = posts.map((p) => ({
@@ -91,9 +92,10 @@ export const getAll = (userId?: string) =>
     }
     return valid.data
   })
+}
 
-export const getById = (postId: string) =>
-  Effect.gen(function* () {
+export function getById(postId: string) {
+  return Effect.gen(function* () {
     const post = yield* PostService.findByIdWithRelations(postId)
     if (!post) {
       return yield* Effect.fail(new NotFoundError({ message: 'Post not found' }))
@@ -125,3 +127,4 @@ export const getById = (postId: string) =>
     }
     return valid.data
   })
+}

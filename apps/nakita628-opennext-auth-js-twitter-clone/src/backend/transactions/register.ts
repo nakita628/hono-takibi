@@ -4,13 +4,8 @@ import { ValidationError } from '@/backend/domain'
 import { UserSchema } from '@/backend/routes'
 import * as UserService from '@/backend/services/user'
 
-export const create = (args: {
-  email: string
-  name: string
-  username: string
-  password: string
-}) =>
-  Effect.gen(function* () {
+export function create(args: { email: string; name: string; username: string; password: string }) {
+  return Effect.gen(function* () {
     const hashedPassword = yield* Effect.tryPromise({
       try: () => bcrypt.hash(args.password, 12),
       catch: () => new ValidationError({ message: 'Failed to hash password' }),
@@ -31,3 +26,4 @@ export const create = (args: {
     }
     return valid.data
   })
+}
