@@ -1,10 +1,10 @@
 import Credentials from '@auth/core/providers/credentials'
-import { authHandler, initAuthConfig, verifyAuth } from '@hono/auth-js'
 import { DrizzleAdapter } from '@auth/drizzle-adapter'
+import { authHandler, initAuthConfig, verifyAuth } from '@hono/auth-js'
 import { OpenAPIHono, z } from '@hono/zod-openapi'
 import bcrypt from 'bcryptjs'
-import { drizzle } from 'drizzle-orm/d1'
 import { eq } from 'drizzle-orm'
+import { drizzle } from 'drizzle-orm/d1'
 import type { Bindings } from '@/backend/env'
 import {
   deleteFollowRouteHandler,

@@ -1,8 +1,8 @@
 import { faker } from '@faker-js/faker'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { Effect } from 'effect'
-import { DatabaseError, UnauthorizedError } from '@/backend/domain'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import app from '@/backend'
+import { DatabaseError, UnauthorizedError } from '@/backend/domain'
 import * as CommentsTransaction from '@/backend/transactions/comments'
 
 function mockCommentResponse() {
@@ -30,7 +30,7 @@ describe('Comments', () => {
   describe('POST /comments', () => {
     it('should return 200', async () => {
       const body = mockCreateCommentRequest()
-      const res = await app.request(`/comments`, {
+      const res = await app.request('/comments', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),

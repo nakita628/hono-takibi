@@ -1,11 +1,11 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { signIn } from '@hono/auth-js/react'
+import { useCallback, useState } from 'react'
+import { Input } from '@/components/atoms/Input'
+import { Modal } from '@/components/molecules/Modal'
 import { useLoginModal } from '@/hooks/useLoginModal'
 import { useRegisterModal } from '@/hooks/useRegisterModal'
-import { signIn } from '@hono/auth-js/react'
-import { Modal } from '@/components/molecules/Modal'
-import { Input } from '@/components/atoms/Input'
 
 export function LoginModal() {
   const loginModal = useLoginModal()
@@ -56,10 +56,7 @@ export function LoginModal() {
     <div className='mt-4 text-center text-neutral-400'>
       <p>
         First time using Twitter?{' '}
-        <span
-          onClick={onToggle}
-          className='text-white cursor-pointer hover:underline'
-        >
+        <span onClick={onToggle} className='text-white cursor-pointer hover:underline'>
           Create an account
         </span>
       </p>

@@ -1,8 +1,8 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { faker } from '@faker-js/faker'
 import { Effect } from 'effect'
-import { ConflictError, DatabaseError } from '@/backend/domain'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import app from '@/backend'
+import { ConflictError, DatabaseError } from '@/backend/domain'
 import * as RegisterTransaction from '@/backend/transactions/register'
 
 function mockRegisterRequest() {
@@ -34,7 +34,7 @@ function mockUserResponse() {
 describe('POST /register', () => {
   it('should return 201', async () => {
     const body = mockRegisterRequest()
-    const res = await app.request(`/register`, {
+    const res = await app.request('/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),

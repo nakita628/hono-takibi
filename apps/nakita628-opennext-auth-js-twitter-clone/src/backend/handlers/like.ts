@@ -4,9 +4,9 @@ import { Effect } from 'effect'
 import { DatabaseError, NotFoundError, UnauthorizedError } from '@/backend/domain'
 import type { Bindings } from '@/backend/env'
 import type { deleteLikeRoute, postLikeRoute } from '@/backend/routes'
-import * as schema from '@/db/schema'
-import { DB } from '@/db'
 import * as LikeTransaction from '@/backend/transactions/like'
+import { DB } from '@/db'
+import * as schema from '@/db/schema'
 
 export const postLikeRouteHandler: RouteHandler<
   typeof postLikeRoute,

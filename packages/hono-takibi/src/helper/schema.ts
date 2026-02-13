@@ -102,9 +102,8 @@ export function makeSchemaCode(
 ): string {
   const zExpr = info.needsLazy ? `z.lazy(()=>${info.zSchema})` : info.zSchema
   const returnType = info.needsTypeDef ? `:z.ZodType<${info.safeSchemaName}Type>` : ''
-  const readonlyModifier = options.readonly ? '.readonly()' : ''
 
-  const schemaCode = `${options.exportKeyword}const ${info.variableName}${returnType}=${zExpr}${readonlyModifier}.openapi('${info.safeSchemaName}')`
+  const schemaCode = `${options.exportKeyword}const ${info.variableName}${returnType}=${zExpr}.openapi('${info.safeSchemaName}')`
   const zodInferCode = options.exportType
     ? `\n\nexport type ${info.safeSchemaName}=z.infer<typeof ${info.variableName}>`
     : ''

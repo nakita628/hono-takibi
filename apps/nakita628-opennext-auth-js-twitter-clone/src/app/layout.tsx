@@ -1,7 +1,7 @@
 import '@/app/globals.css'
-import { Providers } from '@/components/Providers'
-import { Sidebar } from '@/components/organisms/Sidebar'
 import { FollowBar } from '@/components/organisms/FollowBar'
+import { Sidebar } from '@/components/organisms/Sidebar'
+import { Providers } from '@/components/Providers'
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

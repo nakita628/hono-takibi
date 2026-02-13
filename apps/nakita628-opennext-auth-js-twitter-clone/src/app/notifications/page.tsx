@@ -1,10 +1,10 @@
 'use client'
 
-import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { useGetCurrent } from '@/hooks/swr'
+import { useEffect, useState } from 'react'
 import { Header } from '@/components/atoms/Header'
 import { NotificationsFeed } from '@/components/organisms/NotificationsFeed'
+import { useGetCurrent } from '@/hooks/swr'
 
 export default function Notifications() {
   const router = useRouter()
@@ -13,10 +13,10 @@ export default function Notifications() {
 
   useEffect(() => {
     if (!isLoading) {
-      if (!currentUser) {
-        router.push('/')
-      } else {
+      if (currentUser) {
         setReady(true)
+      } else {
+        router.push('/')
       }
     }
   }, [isLoading, currentUser, router])

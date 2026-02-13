@@ -1,7 +1,7 @@
 'use client'
 
-import { useGetPosts } from '@/hooks/swr'
 import { PostItem } from '@/components/molecules/PostItem'
+import { useGetPosts } from '@/hooks/swr'
 
 type Props = {
   userId?: string

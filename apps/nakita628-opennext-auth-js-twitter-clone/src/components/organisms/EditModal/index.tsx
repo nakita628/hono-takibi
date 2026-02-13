@@ -2,11 +2,11 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import { mutate } from 'swr'
-import { useGetCurrent, getGetCurrentKey, usePatchEdit } from '@/hooks/swr'
-import { useEditModal } from '@/hooks/useEditModal'
-import { Modal } from '@/components/molecules/Modal'
-import { Input } from '@/components/atoms/Input'
 import { ImageUpload } from '@/components/atoms/ImageUpload'
+import { Input } from '@/components/atoms/Input'
+import { Modal } from '@/components/molecules/Modal'
+import { getGetCurrentKey, useGetCurrent, usePatchEdit } from '@/hooks/swr'
+import { useEditModal } from '@/hooks/useEditModal'
 
 export function EditModal() {
   const { data: currentUser } = useGetCurrent()
@@ -35,7 +35,13 @@ export function EditModal() {
       setIsLoading(true)
 
       await patchEdit({
-        json: { name, username, bio, coverImage: coverImage || null, profileImage: profileImage || null },
+        json: {
+          name,
+          username,
+          bio,
+          coverImage: coverImage || null,
+          profileImage: profileImage || null,
+        },
       })
 
       await mutate(getGetCurrentKey())

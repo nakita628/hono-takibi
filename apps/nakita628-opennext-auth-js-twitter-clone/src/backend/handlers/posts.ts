@@ -4,9 +4,9 @@ import { Effect } from 'effect'
 import { DatabaseError, NotFoundError, UnauthorizedError } from '@/backend/domain'
 import type { Bindings } from '@/backend/env'
 import type { getPostsPostIdRoute, getPostsRoute, postPostsRoute } from '@/backend/routes'
-import * as schema from '@/db/schema'
-import { DB } from '@/db'
 import * as PostsTransaction from '@/backend/transactions/posts'
+import { DB } from '@/db'
+import * as schema from '@/db/schema'
 
 export const getPostsRouteHandler: RouteHandler<
   typeof getPostsRoute,

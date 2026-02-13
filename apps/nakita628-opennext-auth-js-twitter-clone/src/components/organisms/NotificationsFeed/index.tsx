@@ -2,8 +2,8 @@
 
 import { useEffect } from 'react'
 import { mutate } from 'swr'
-import { useGetCurrent, getGetCurrentKey, useGetNotificationsUserId } from '@/hooks/swr'
 import { Logo } from '@/components/atoms/Logo'
+import { getGetCurrentKey, useGetCurrent, useGetNotificationsUserId } from '@/hooks/swr'
 
 export function NotificationsFeed() {
   const { data: currentUser } = useGetCurrent()

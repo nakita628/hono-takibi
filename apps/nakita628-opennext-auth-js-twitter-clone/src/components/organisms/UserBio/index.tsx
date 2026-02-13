@@ -1,10 +1,10 @@
 'use client'
 
 import { useMemo } from 'react'
+import { Button } from '@/components/atoms/Button'
 import { useGetCurrent, useGetUsersUserId } from '@/hooks/swr'
 import { useEditModal } from '@/hooks/useEditModal'
 import { useFollow } from '@/hooks/useFollow'
-import { Button } from '@/components/atoms/Button'
 import { formatJoinDate } from '@/lib/format'
 
 type Props = {

@@ -1,8 +1,8 @@
 import { faker } from '@faker-js/faker'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { Effect } from 'effect'
-import { DatabaseError, NotFoundError, UnauthorizedError } from '@/backend/domain'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import app from '@/backend'
+import { DatabaseError, NotFoundError, UnauthorizedError } from '@/backend/domain'
 import * as PostsTransaction from '@/backend/transactions/posts'
 
 function mockUser() {
@@ -74,14 +74,14 @@ describe('Posts', () => {
 
   describe('GET /posts', () => {
     it('should return 200', async () => {
-      const res = await app.request(`/posts`, { method: 'GET' })
+      const res = await app.request('/posts', { method: 'GET' })
       expect(res.status).toBe(200)
     })
   })
   describe('POST /posts', () => {
     it('should return 200', async () => {
       const body = mockCreatePostRequest()
-      const res = await app.request(`/posts`, {
+      const res = await app.request('/posts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
@@ -91,7 +91,7 @@ describe('Posts', () => {
   })
   describe('GET /posts/{postId}', () => {
     it('should return 200', async () => {
-      const res = await app.request(`/posts/{postId}`, { method: 'GET' })
+      const res = await app.request('/posts/{postId}', { method: 'GET' })
       expect(res.status).toBe(200)
     })
   })

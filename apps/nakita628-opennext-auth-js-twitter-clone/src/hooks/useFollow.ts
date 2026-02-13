@@ -3,11 +3,11 @@
 import { useCallback, useMemo } from 'react'
 import { mutate } from 'swr'
 import {
-  useGetCurrent,
   getGetCurrentKey,
-  usePostFollow,
-  useDeleteFollow,
   getGetUsersUserIdKey,
+  useDeleteFollow,
+  useGetCurrent,
+  usePostFollow,
 } from '@/hooks/swr'
 import { useLoginModal } from '@/hooks/useLoginModal'
 

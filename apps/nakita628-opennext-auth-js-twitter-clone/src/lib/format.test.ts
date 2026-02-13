@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { formatRelativeTime, formatJoinDate } from './format'
+import { formatJoinDate, formatRelativeTime } from './format'
 
 describe('formatRelativeTime', () => {
   it('should return seconds for less than 60 seconds ago', () => {

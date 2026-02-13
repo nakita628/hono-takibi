@@ -4,9 +4,9 @@ import { Effect } from 'effect'
 import { DatabaseError, UnauthorizedError } from '@/backend/domain'
 import type { Bindings } from '@/backend/env'
 import type { getCurrentRoute } from '@/backend/routes'
-import * as schema from '@/db/schema'
-import { DB } from '@/db'
 import * as CurrentTransaction from '@/backend/transactions/current'
+import { DB } from '@/db'
+import * as schema from '@/db/schema'
 
 export const getCurrentRouteHandler: RouteHandler<
   typeof getCurrentRoute,

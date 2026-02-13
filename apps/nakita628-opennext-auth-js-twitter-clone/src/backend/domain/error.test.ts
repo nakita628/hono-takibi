@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import {
+  ConflictError,
   DatabaseError,
   NotFoundError,
-  ValidationError,
-  ConflictError,
   UnauthorizedError,
+  ValidationError,
 } from './error'
 
 describe('Domain Errors', () => {

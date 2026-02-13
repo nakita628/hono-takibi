@@ -1,7 +1,7 @@
 'use client'
 
-import { useGetUsers } from '@/hooks/swr'
 import { AvatarLink } from '@/components/molecules/AvatarLink'
+import { useGetUsers } from '@/hooks/swr'
 
 export function FollowBar() {
   const { data: users = [] } = useGetUsers()
@@ -17,10 +17,7 @@ export function FollowBar() {
         <div className='flex flex-col gap-6 mt-4'>
           {users.map((user) => (
             <div key={user.id} className='flex flex-row gap-4'>
-              <AvatarLink
-                userId={user.id}
-                src={user.profileImage || '/images/placeholder.png'}
-              />
+              <AvatarLink userId={user.id} src={user.profileImage || '/images/placeholder.png'} />
               <div className='flex flex-col'>
                 <p className='text-white font-semibold text-sm'>{user.name}</p>
                 <p className='text-neutral-400 text-sm'>@{user.username}</p>

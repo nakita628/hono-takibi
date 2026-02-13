@@ -1,11 +1,11 @@
 'use client'
 
 import { useParams } from 'next/navigation'
-import { useGetPostsPostId } from '@/hooks/swr'
 import { Header } from '@/components/atoms/Header'
+import { CommentFeed } from '@/components/molecules/CommentFeed'
 import { PostItem } from '@/components/molecules/PostItem'
 import { Form } from '@/components/organisms/Form'
-import { CommentFeed } from '@/components/molecules/CommentFeed'
+import { useGetPostsPostId } from '@/hooks/swr'
 
 export default function PostView() {
   const params = useParams()

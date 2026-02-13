@@ -1,8 +1,8 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { faker } from '@faker-js/faker'
 import { Effect } from 'effect'
-import { DatabaseError, UnauthorizedError } from '@/backend/domain'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import app from '@/backend'
+import { DatabaseError, UnauthorizedError } from '@/backend/domain'
 import * as EditTransaction from '@/backend/transactions/edit'
 
 function mockEditUserRequest() {
@@ -38,7 +38,7 @@ function mockUserResponse() {
 describe('PATCH /edit', () => {
   it('should return 200', async () => {
     const body = mockEditUserRequest()
-    const res = await app.request(`/edit`, {
+    const res = await app.request('/edit', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),

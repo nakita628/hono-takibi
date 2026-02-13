@@ -7,14 +7,7 @@ type Props = {
   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void
 }
 
-export function Input({
-  id,
-  placeholder,
-  value,
-  type,
-  disabled,
-  onChange,
-}: Props) {
+export function Input({ id, placeholder, value, type, disabled, onChange }: Props) {
   return (
     <input
       id={id}
@@ -23,7 +16,7 @@ export function Input({
       value={value}
       placeholder={placeholder}
       type={type}
-      className="
+      className='
         w-full
         p-4
         text-lg
@@ -38,7 +31,7 @@ export function Input({
         disabled:bg-neutral-900
         disabled:opacity-70
         disabled:cursor-not-allowed
-      "
+      '
     />
   )
 }

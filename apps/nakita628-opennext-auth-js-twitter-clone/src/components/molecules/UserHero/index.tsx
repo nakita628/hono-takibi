@@ -1,8 +1,8 @@
 'use client'
 
 import Image from 'next/image'
-import { useGetUsersUserId } from '@/hooks/swr'
 import { Avatar } from '@/components/atoms/Avatar'
+import { useGetUsersUserId } from '@/hooks/swr'
 
 type Props = {
   userId: string
@@ -23,11 +23,7 @@ export function UserHero({ userId }: Props) {
           />
         )}
         <div className='absolute -bottom-16 left-4'>
-          <Avatar
-            src={fetchedUser?.profileImage || '/images/placeholder.png'}
-            isLarge
-            hasBorder
-          />
+          <Avatar src={fetchedUser?.profileImage || '/images/placeholder.png'} isLarge hasBorder />
         </div>
       </div>
     </div>

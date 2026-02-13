@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest'
 import { z } from '@hono/zod-openapi'
+import { describe, expect, it } from 'vitest'
 import { formatZodErrors } from './error'
 
 describe('formatZodErrors', () => {
@@ -12,9 +12,7 @@ describe('formatZodErrors', () => {
 
     const formatted = formatZodErrors(result)
 
-    expect(formatted.type).toBe(
-      'https://datatracker.ietf.org/doc/html/rfc9110#section-15.5.21',
-    )
+    expect(formatted.type).toBe('https://datatracker.ietf.org/doc/html/rfc9110#section-15.5.21')
     expect(formatted.title).toBe('Unprocessable Content')
     expect(formatted.status).toBe(422)
     expect(formatted.detail).toBe('The request contains invalid parameters')

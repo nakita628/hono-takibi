@@ -1,10 +1,10 @@
 'use client'
 
-import { useGetCurrent } from '@/hooks/swr'
 import { signOut } from '@hono/auth-js/react'
-import { SidebarLogo } from '@/components/atoms/SidebarLogo'
 import { SidebarItem } from '@/components/atoms/SidebarItem'
+import { SidebarLogo } from '@/components/atoms/SidebarLogo'
 import { SidebarTweetButton } from '@/components/atoms/SidebarTweetButton'
+import { useGetCurrent } from '@/hooks/swr'
 
 const HomeIcon = (
   <svg width={24} height={24} viewBox='0 0 24 24' fill='white'>

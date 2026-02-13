@@ -4,9 +4,9 @@ import { Effect } from 'effect'
 import { DatabaseError, NotFoundError } from '@/backend/domain'
 import type { Bindings } from '@/backend/env'
 import type { getUsersRoute, getUsersUserIdRoute } from '@/backend/routes'
-import * as schema from '@/db/schema'
-import { DB } from '@/db'
 import * as UsersTransaction from '@/backend/transactions/users'
+import { DB } from '@/db'
+import * as schema from '@/db/schema'
 
 export const getUsersUserIdRouteHandler: RouteHandler<
   typeof getUsersUserIdRoute,

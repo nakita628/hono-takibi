@@ -4,9 +4,9 @@ import { Effect } from 'effect'
 import { ConflictError, DatabaseError } from '@/backend/domain'
 import type { Bindings } from '@/backend/env'
 import type { postRegisterRoute } from '@/backend/routes'
-import * as schema from '@/db/schema'
-import { DB } from '@/db'
 import * as UserTransaction from '@/backend/transactions/register'
+import { DB } from '@/db'
+import * as schema from '@/db/schema'
 
 export const postRegisterRouteHandler: RouteHandler<
   typeof postRegisterRoute,

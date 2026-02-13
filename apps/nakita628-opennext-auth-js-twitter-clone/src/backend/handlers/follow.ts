@@ -4,9 +4,9 @@ import { Effect } from 'effect'
 import { DatabaseError, NotFoundError, UnauthorizedError } from '@/backend/domain'
 import type { Bindings } from '@/backend/env'
 import type { deleteFollowRoute, postFollowRoute } from '@/backend/routes'
-import * as schema from '@/db/schema'
-import { DB } from '@/db'
 import * as FollowTransaction from '@/backend/transactions/follow'
+import { DB } from '@/db'
+import * as schema from '@/db/schema'
 
 export const postFollowRouteHandler: RouteHandler<
   typeof postFollowRoute,

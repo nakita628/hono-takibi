@@ -18,12 +18,7 @@ export function Avatar({ src, alt = 'Avatar', isLarge, hasBorder }: Props) {
         overflow-hidden
       `}
     >
-      <Image
-        fill
-        alt={alt}
-        src={src}
-        style={{ objectFit: 'cover' }}
-      />
+      <Image fill alt={alt} src={src} style={{ objectFit: 'cover' }} />
     </div>
   )
 }

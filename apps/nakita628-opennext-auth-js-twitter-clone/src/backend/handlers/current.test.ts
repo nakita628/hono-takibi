@@ -1,8 +1,8 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { faker } from '@faker-js/faker'
 import { Effect } from 'effect'
-import { DatabaseError, UnauthorizedError } from '@/backend/domain'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import app from '@/backend'
+import { DatabaseError, UnauthorizedError } from '@/backend/domain'
 import * as CurrentTransaction from '@/backend/transactions/current'
 
 function mockCurrentUserResponse() {
@@ -24,7 +24,7 @@ function mockCurrentUserResponse() {
 
 describe('GET /current', () => {
   it('should return 200', async () => {
-    const res = await app.request(`/current`, { method: 'GET' })
+    const res = await app.request('/current', { method: 'GET' })
     expect(res.status).toBe(200)
   })
 })

@@ -1,11 +1,11 @@
 'use client'
 
 import { useParams } from 'next/navigation'
-import { useGetUsersUserId } from '@/hooks/swr'
 import { Header } from '@/components/atoms/Header'
 import { UserHero } from '@/components/molecules/UserHero'
-import { UserBio } from '@/components/organisms/UserBio'
 import { PostFeed } from '@/components/organisms/PostFeed'
+import { UserBio } from '@/components/organisms/UserBio'
+import { useGetUsersUserId } from '@/hooks/swr'
 
 export default function UserView() {
   const params = useParams()

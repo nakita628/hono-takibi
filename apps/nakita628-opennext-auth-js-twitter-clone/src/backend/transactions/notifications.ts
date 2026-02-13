@@ -1,8 +1,8 @@
+import { z } from '@hono/zod-openapi'
 import { Effect } from 'effect'
 import { ValidationError } from '@/backend/domain'
 import { MessageResponseSchema, NotificationSchema } from '@/backend/routes'
 import * as NotificationService from '@/backend/services/notification'
-import { z } from '@hono/zod-openapi'
 
 export function getByUserId(userId: string) {
   return Effect.gen(function* () {

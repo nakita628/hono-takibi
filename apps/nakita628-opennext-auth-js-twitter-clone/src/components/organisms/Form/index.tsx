@@ -2,11 +2,11 @@
 
 import { useCallback, useState } from 'react'
 import { mutate } from 'swr'
-import { useGetCurrent, usePostPosts, usePostComments } from '@/hooks/swr'
-import { useLoginModal } from '@/hooks/useLoginModal'
-import { useRegisterModal } from '@/hooks/useRegisterModal'
 import { Button } from '@/components/atoms/Button'
 import { AvatarLink } from '@/components/molecules/AvatarLink'
+import { useGetCurrent, usePostComments, usePostPosts } from '@/hooks/swr'
+import { useLoginModal } from '@/hooks/useLoginModal'
+import { useRegisterModal } from '@/hooks/useRegisterModal'
 
 type Props = {
   placeholder: string

@@ -2,10 +2,10 @@
 
 import { useRouter } from 'next/navigation'
 import { useCallback, useMemo } from 'react'
-import { useGetCurrent } from '@/hooks/swr'
-import { useLoginModal } from '@/hooks/useLoginModal'
-import { useLike } from '@/hooks/useLike'
 import { AvatarLink } from '@/components/molecules/AvatarLink'
+import { useGetCurrent } from '@/hooks/swr'
+import { useLike } from '@/hooks/useLike'
+import { useLoginModal } from '@/hooks/useLoginModal'
 import { formatRelativeTime } from '@/lib/format'
 
 type Props = {

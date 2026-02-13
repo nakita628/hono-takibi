@@ -229,7 +229,7 @@ describe('makeDocs', () => {
 
     it('generates -d flag with request body example', () => {
       const result = makeDocs(postOpenAPI, 'src/index.ts', '/')
-      expect(result).toContain("-d '{\"name\":\"string\"}'")
+      expect(result).toContain('-d \'{"name":"string"}\'')
       expect(result).toContain('-X POST')
       expect(result).toContain('-P /users')
     })
@@ -264,7 +264,7 @@ describe('makeDocs', () => {
         },
       }
       const result = makeDocs(withExample, 'src/index.ts', '/')
-      expect(result).toContain("-d '{\"name\":\"Alice\"}'")
+      expect(result).toContain('-d \'{"name":"Alice"}\'')
     })
 
     it('generates 201 response in responses table', () => {

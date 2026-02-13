@@ -4,9 +4,9 @@ import { Effect } from 'effect'
 import { DatabaseError, UnauthorizedError } from '@/backend/domain'
 import type { Bindings } from '@/backend/env'
 import type { postCommentsRoute } from '@/backend/routes'
-import * as schema from '@/db/schema'
-import { DB } from '@/db'
 import * as CommentsTransaction from '@/backend/transactions/comments'
+import { DB } from '@/db'
+import * as schema from '@/db/schema'
 
 export const postCommentsRouteHandler: RouteHandler<
   typeof postCommentsRoute,

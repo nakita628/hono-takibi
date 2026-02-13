@@ -1,8 +1,8 @@
+import { z } from '@hono/zod-openapi'
 import { Effect } from 'effect'
 import { NotFoundError, ValidationError } from '@/backend/domain'
 import { UserSchema, UserWithFollowCountSchema } from '@/backend/routes'
 import * as UserService from '@/backend/services/user'
-import { z } from '@hono/zod-openapi'
 
 export function getById(userId: string) {
   return Effect.gen(function* () {

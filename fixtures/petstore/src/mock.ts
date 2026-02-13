@@ -1,5 +1,5 @@
-import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
+import { createRoute, OpenAPIHono, type RouteHandler, z } from '@hono/zod-openapi'
 
 const OrderSchema = z
   .object({
@@ -276,17 +276,15 @@ export const getPetPetIdRoute = createRoute({
   operationId: 'getPetById',
   request: {
     params: z.object({
-      petId: z
-        .int64()
-        .openapi({
-          param: {
-            name: 'petId',
-            in: 'path',
-            description: 'ID of pet to return',
-            required: true,
-            schema: { type: 'integer', format: 'int64' },
-          },
-        }),
+      petId: z.int64().openapi({
+        param: {
+          name: 'petId',
+          in: 'path',
+          description: 'ID of pet to return',
+          required: true,
+          schema: { type: 'integer', format: 'int64' },
+        },
+      }),
     }),
   },
   responses: {
@@ -311,17 +309,15 @@ export const postPetPetIdRoute = createRoute({
   operationId: 'updatePetWithForm',
   request: {
     params: z.object({
-      petId: z
-        .int64()
-        .openapi({
-          param: {
-            name: 'petId',
-            in: 'path',
-            description: 'ID of pet that needs to be updated',
-            required: true,
-            schema: { type: 'integer', format: 'int64' },
-          },
-        }),
+      petId: z.int64().openapi({
+        param: {
+          name: 'petId',
+          in: 'path',
+          description: 'ID of pet that needs to be updated',
+          required: true,
+          schema: { type: 'integer', format: 'int64' },
+        },
+      }),
     }),
     query: z.object({
       name: z
@@ -375,17 +371,15 @@ export const deletePetPetIdRoute = createRoute({
         }),
     }),
     params: z.object({
-      petId: z
-        .int64()
-        .openapi({
-          param: {
-            name: 'petId',
-            in: 'path',
-            description: 'Pet id to delete',
-            required: true,
-            schema: { type: 'integer', format: 'int64' },
-          },
-        }),
+      petId: z.int64().openapi({
+        param: {
+          name: 'petId',
+          in: 'path',
+          description: 'Pet id to delete',
+          required: true,
+          schema: { type: 'integer', format: 'int64' },
+        },
+      }),
     }),
   },
   responses: { 400: { description: 'Invalid pet value' } },
@@ -400,17 +394,15 @@ export const postPetPetIdUploadImageRoute = createRoute({
   operationId: 'uploadFile',
   request: {
     params: z.object({
-      petId: z
-        .int64()
-        .openapi({
-          param: {
-            name: 'petId',
-            in: 'path',
-            description: 'ID of pet to update',
-            required: true,
-            schema: { type: 'integer', format: 'int64' },
-          },
-        }),
+      petId: z.int64().openapi({
+        param: {
+          name: 'petId',
+          in: 'path',
+          description: 'ID of pet to update',
+          required: true,
+          schema: { type: 'integer', format: 'int64' },
+        },
+      }),
     }),
     query: z.object({
       additionalMetadata: z
@@ -481,17 +473,15 @@ export const getStoreOrderOrderIdRoute = createRoute({
   operationId: 'getOrderById',
   request: {
     params: z.object({
-      orderId: z
-        .int64()
-        .openapi({
-          param: {
-            name: 'orderId',
-            in: 'path',
-            description: 'ID of order that needs to be fetched',
-            required: true,
-            schema: { type: 'integer', format: 'int64' },
-          },
-        }),
+      orderId: z.int64().openapi({
+        param: {
+          name: 'orderId',
+          in: 'path',
+          description: 'ID of order that needs to be fetched',
+          required: true,
+          schema: { type: 'integer', format: 'int64' },
+        },
+      }),
     }),
   },
   responses: {
@@ -517,17 +507,15 @@ export const deleteStoreOrderOrderIdRoute = createRoute({
   operationId: 'deleteOrder',
   request: {
     params: z.object({
-      orderId: z
-        .int64()
-        .openapi({
-          param: {
-            name: 'orderId',
-            in: 'path',
-            description: 'ID of the order that needs to be deleted',
-            required: true,
-            schema: { type: 'integer', format: 'int64' },
-          },
-        }),
+      orderId: z.int64().openapi({
+        param: {
+          name: 'orderId',
+          in: 'path',
+          description: 'ID of the order that needs to be deleted',
+          required: true,
+          schema: { type: 'integer', format: 'int64' },
+        },
+      }),
     }),
   },
   responses: {
@@ -659,17 +647,15 @@ export const getUserUsernameRoute = createRoute({
   operationId: 'getUserByName',
   request: {
     params: z.object({
-      username: z
-        .string()
-        .openapi({
-          param: {
-            name: 'username',
-            in: 'path',
-            description: 'The name that needs to be fetched. Use user1 for testing. ',
-            required: true,
-            schema: { type: 'string' },
-          },
-        }),
+      username: z.string().openapi({
+        param: {
+          name: 'username',
+          in: 'path',
+          description: 'The name that needs to be fetched. Use user1 for testing. ',
+          required: true,
+          schema: { type: 'string' },
+        },
+      }),
     }),
   },
   responses: {
@@ -694,17 +680,15 @@ export const putUserUsernameRoute = createRoute({
   operationId: 'updateUser',
   request: {
     params: z.object({
-      username: z
-        .string()
-        .openapi({
-          param: {
-            name: 'username',
-            in: 'path',
-            description: 'name that need to be deleted',
-            required: true,
-            schema: { type: 'string' },
-          },
-        }),
+      username: z.string().openapi({
+        param: {
+          name: 'username',
+          in: 'path',
+          description: 'name that need to be deleted',
+          required: true,
+          schema: { type: 'string' },
+        },
+      }),
     }),
     body: {
       description: 'Update an existent user in the store',
@@ -723,17 +707,15 @@ export const deleteUserUsernameRoute = createRoute({
   operationId: 'deleteUser',
   request: {
     params: z.object({
-      username: z
-        .string()
-        .openapi({
-          param: {
-            name: 'username',
-            in: 'path',
-            description: 'The name that needs to be deleted',
-            required: true,
-            schema: { type: 'string' },
-          },
-        }),
+      username: z.string().openapi({
+        param: {
+          name: 'username',
+          in: 'path',
+          description: 'The name that needs to be deleted',
+          required: true,
+          schema: { type: 'string' },
+        },
+      }),
     }),
   },
   responses: {

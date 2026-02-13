@@ -1,12 +1,12 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { signIn } from '@hono/auth-js/react'
+import { useCallback, useState } from 'react'
+import { Input } from '@/components/atoms/Input'
+import { Modal } from '@/components/molecules/Modal'
+import { usePostRegister } from '@/hooks/swr'
 import { useLoginModal } from '@/hooks/useLoginModal'
 import { useRegisterModal } from '@/hooks/useRegisterModal'
-import { usePostRegister } from '@/hooks/swr'
-import { signIn } from '@hono/auth-js/react'
-import { Modal } from '@/components/molecules/Modal'
-import { Input } from '@/components/atoms/Input'
 
 export function RegisterModal() {
   const loginModal = useLoginModal()
@@ -75,10 +75,7 @@ export function RegisterModal() {
     <div className='mt-4 text-center text-neutral-400'>
       <p>
         Already have an account?{' '}
-        <span
-          onClick={onToggle}
-          className='text-white cursor-pointer hover:underline'
-        >
+        <span onClick={onToggle} className='text-white cursor-pointer hover:underline'>
           Sign in
         </span>
       </p>

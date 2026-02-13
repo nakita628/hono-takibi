@@ -447,7 +447,12 @@ function makeCodeSampleHeaders(
   return headers
 }
 
-function extractMediaExample(jsonMedia: { readonly example?: unknown; readonly examples?: { readonly [k: string]: { readonly value?: unknown } | { readonly $ref?: string } } }): unknown | undefined {
+function extractMediaExample(jsonMedia: {
+  readonly example?: unknown
+  readonly examples?: {
+    readonly [k: string]: { readonly value?: unknown } | { readonly $ref?: string }
+  }
+}): unknown | undefined {
   if (jsonMedia.example !== undefined) return jsonMedia.example
   if (jsonMedia.examples) {
     const first = Object.values(jsonMedia.examples)[0]
@@ -463,7 +468,7 @@ function makeCodeSampleBody(
   if (!operation.requestBody) return undefined
   if (!isRequestBody(operation.requestBody)) return undefined
   const jsonMedia = operation.requestBody.content?.['application/json']
-  if (!jsonMedia || !isMedia(jsonMedia) || !jsonMedia.schema) return undefined
+  if (!(jsonMedia && isMedia(jsonMedia) && jsonMedia.schema)) return undefined
   const mediaExample = extractMediaExample(jsonMedia)
   if (mediaExample !== undefined) return JSON.stringify(mediaExample)
   const example = makeExampleFromSchema(jsonMedia.schema, components)
@@ -485,11 +490,7 @@ function makeCodeSample(
   const fullPath = `${basePathPrefix}${pathStr}`
   const body = makeCodeSampleBody(operation, components)
 
-  const cmdParts = [
-    'hono request \\',
-    `  -X ${method.toUpperCase()} \\`,
-    `  -P ${fullPath} \\`,
-  ]
+  const cmdParts = ['hono request \\', `  -X ${method.toUpperCase()} \\`, `  -P ${fullPath} \\`]
 
   cmdParts.push(...headers.map((h) => `${h} \\`))
 
@@ -595,7 +596,13 @@ function flattenBodyParams(
         const nextPrefix = prefix ? `${prefix}»` : '»»'
         return [
           row,
-          ...flattenBodyParams(propSchema, components, nextPrefix.replace(/»/g, '» '), visited, depth + 1),
+          ...flattenBodyParams(
+            propSchema,
+            components,
+            nextPrefix.replace(/»/g, '» '),
+            visited,
+            depth + 1,
+          ),
         ]
       }
       if (propSchema.$ref) {
@@ -785,7 +792,13 @@ function flattenResponseSchemaFields(
       if (propSchema.type === 'object' && propSchema.properties) {
         return [
           row,
-          ...flattenResponseSchemaFields(propSchema, components, `${nestedPrefix}`, visited, depth + 1),
+          ...flattenResponseSchemaFields(
+            propSchema,
+            components,
+            `${nestedPrefix}`,
+            visited,
+            depth + 1,
+          ),
         ]
       }
       if (propSchema.$ref) {
@@ -910,7 +923,10 @@ function makeResponseExamples(
     if (!jsonMedia.schema) continue
 
     const mediaExample = extractMediaExample(jsonMedia)
-    const example = mediaExample !== undefined ? mediaExample : makeExampleFromSchema(jsonMedia.schema, components)
+    const example =
+      mediaExample !== undefined
+        ? mediaExample
+        : makeExampleFromSchema(jsonMedia.schema, components)
     const json = JSON.stringify(example, null, 2)
     lines.push(`> ${statusCode} Response`, '', '```json', json, '```', '')
   }

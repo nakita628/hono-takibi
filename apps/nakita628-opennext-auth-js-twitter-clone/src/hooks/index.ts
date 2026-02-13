@@ -1,5 +1,5 @@
-export { useLoginModal } from './useLoginModal'
-export { useRegisterModal } from './useRegisterModal'
 export { useEditModal } from './useEditModal'
 export { useFollow } from './useFollow'
 export { useLike } from './useLike'
+export { useLoginModal } from './useLoginModal'
+export { useRegisterModal } from './useRegisterModal'

@@ -4,9 +4,9 @@ import { Effect } from 'effect'
 import { DatabaseError, UnauthorizedError } from '@/backend/domain'
 import type { Bindings } from '@/backend/env'
 import type { patchEditRoute } from '@/backend/routes'
-import * as schema from '@/db/schema'
-import { DB } from '@/db'
 import * as EditTransaction from '@/backend/transactions/edit'
+import { DB } from '@/db'
+import * as schema from '@/db/schema'
 
 export const patchEditRouteHandler: RouteHandler<
   typeof patchEditRoute,
