@@ -23,8 +23,28 @@ export async function signIn(
       return { ok: true, error: undefined }
     }
 
-    return { ok: false, error: 'ログインに失敗しました' }
+    return { ok: false, error: 'Login failed' }
   } catch {
-    return { ok: false, error: 'ログインに失敗しました' }
+    return { ok: false, error: 'Login failed' }
+  }
+}
+
+export async function signOut(): Promise<void> {
+  try {
+    const csrfRes = await fetch('/api/auth/csrf')
+    const { csrfToken } = (await csrfRes.json()) as { csrfToken: string }
+
+    await fetch('/api/auth/signout', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({ csrfToken }),
+      redirect: 'follow',
+    })
+
+    window.location.reload()
+  } catch {
+    window.location.reload()
   }
 }

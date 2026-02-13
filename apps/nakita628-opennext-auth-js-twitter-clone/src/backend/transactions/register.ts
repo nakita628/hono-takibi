@@ -1,30 +1,33 @@
 import bcrypt from 'bcryptjs'
-import { err, ok } from 'neverthrow'
+import { Effect } from 'effect'
 import { ValidationError } from '@/backend/domain'
 import { UserSchema } from '@/backend/routes'
 import * as UserService from '@/backend/services/user'
 
-export async function create(args: {
+export const create = (args: {
   email: string
   name: string
   username: string
   password: string
-}) {
-  const hashedPassword = await bcrypt.hash(args.password, 12)
-
-  return UserService.exists({ email: args.email }).andThen(() => {
-    return UserService.create({ ...args, hashedPassword }).andThen((user) => {
-      const data = {
-        ...user,
-        createdAt: user.createdAt.toISOString(),
-        updatedAt: user.updatedAt.toISOString(),
-      }
-      const valid = UserSchema.safeParse(data)
-
-      if (!valid.success) {
-        return err(new ValidationError('Invalid user data'))
-      }
-      return ok(valid.data)
+}) =>
+  Effect.gen(function* () {
+    const hashedPassword = yield* Effect.tryPromise({
+      try: () => bcrypt.hash(args.password, 12),
+      catch: () => new ValidationError({ message: 'Failed to hash password' }),
     })
+
+    yield* UserService.exists({ email: args.email })
+
+    const user = yield* UserService.create({ ...args, hashedPassword })
+
+    const data = {
+      ...user,
+      createdAt: user.createdAt.toISOString(),
+      updatedAt: user.updatedAt.toISOString(),
+    }
+    const valid = UserSchema.safeParse(data)
+    if (!valid.success) {
+      return yield* Effect.fail(new ValidationError({ message: 'Invalid user data' }))
+    }
+    return valid.data
   })
-}

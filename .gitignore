@@ -33,3 +33,4 @@ docs/hono-takibi/docs
 next-env.d.ts
 tsconfig.tsbuildinfo
 docs/hono-takibi/public
+.dev.vars

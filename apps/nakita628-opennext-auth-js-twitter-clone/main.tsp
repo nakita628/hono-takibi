@@ -18,7 +18,7 @@ model User {
   @format("uuid") id: string;
   name: string;
   username: string;
-  bio?: string;
+  bio?: string | null;
   @format("email") email: string;
   emailVerified: string | null;
   image: url | null;
@@ -26,14 +26,14 @@ model User {
   profileImage: url | null;
   createdAt: string;
   updatedAt: string;
-  hasNotification?: boolean;
+  hasNotification?: boolean | null;
 }
 
 model CurrentUser {
   @format("uuid") id: string;
   name: string;
   username: string;
-  bio?: string;
+  bio?: string | null;
   @format("email") email: string;
   image: url | null;
   coverImage: url | null;
@@ -42,14 +42,14 @@ model CurrentUser {
   updatedAt: string;
   followers: Follow[];
   following: Follow[];
-  hasNotification: boolean;
+  hasNotification: boolean | null;
 }
 
 model UserWithFollowCount {
   @format("uuid") id: string;
   name: string;
   username: string;
-  bio?: string;
+  bio?: string | null;
   @format("email") email: string;
   emailVerified: string | null;
   image: url | null;
@@ -57,7 +57,7 @@ model UserWithFollowCount {
   profileImage: url | null;
   createdAt: string;
   updatedAt: string;
-  hasNotification?: boolean;
+  hasNotification?: boolean | null;
   _count: {
     followers: numeric;
     following: numeric;

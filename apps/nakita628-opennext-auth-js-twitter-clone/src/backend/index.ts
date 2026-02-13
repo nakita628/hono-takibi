@@ -1,6 +1,7 @@
 import Credentials from '@auth/core/providers/credentials'
 import { authHandler, initAuthConfig, verifyAuth } from '@hono/auth-js'
 import { OpenAPIHono, z } from '@hono/zod-openapi'
+import { getCloudflareContext } from '@opennextjs/cloudflare'
 import bcrypt from 'bcryptjs'
 import { eq } from 'drizzle-orm'
 import {
@@ -38,9 +39,11 @@ import {
   postPostsRoute,
   postRegisterRoute,
 } from '@/backend/routes'
-import { db, schema } from '@/db'
+import type { AppEnv } from '@/backend/types'
+import { getDb } from '@/db'
+import * as schema from '@/db/schema'
 
-const app = new OpenAPIHono({
+const app = new OpenAPIHono<AppEnv>({
   defaultHook: (result, c) => {
     if (!result.success) {
       return c.json(formatZodErrors(result), 422, {
@@ -50,10 +53,19 @@ const app = new OpenAPIHono({
   },
 }).basePath('/api')
 
+// Cloudflare bindings → c.env に注入 + DB セット
+app.use('*', async (c, next) => {
+  const { env } = getCloudflareContext()
+  c.env = env as typeof c.env
+  c.set('db', getDb())
+  await next()
+})
+
 app.use(
   '*',
   initAuthConfig((c) => ({
     secret: c.env.AUTH_SECRET,
+    basePath: '/api/auth',
     providers: [
       Credentials({
         credentials: {
@@ -72,6 +84,7 @@ app.use(
 
           const { email, password } = valid.data
 
+          const db = getDb()
           const user = await db
             .select()
             .from(schema.users)

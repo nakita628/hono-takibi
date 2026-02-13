@@ -48,7 +48,7 @@ export const CurrentUserSchema = z
     id: z.uuid(),
     name: z.string(),
     username: z.string(),
-    bio: z.string().exactOptional(),
+    bio: z.string().nullable().exactOptional(),
     email: z.email(),
     image: z.url().nullable(),
     coverImage: z.url().nullable(),
@@ -57,7 +57,7 @@ export const CurrentUserSchema = z
     updatedAt: z.string(),
     followers: z.array(FollowSchema),
     following: z.array(FollowSchema),
-    hasNotification: z.boolean(),
+    hasNotification: z.boolean().nullable(),
   })
   .openapi({
     required: [
@@ -82,7 +82,7 @@ export const UserSchema = z
     id: z.uuid(),
     name: z.string(),
     username: z.string(),
-    bio: z.string().exactOptional(),
+    bio: z.string().nullable().exactOptional(),
     email: z.email(),
     emailVerified: z.string().nullable(),
     image: z.url().nullable(),
@@ -90,7 +90,7 @@ export const UserSchema = z
     profileImage: z.url().nullable(),
     createdAt: z.string(),
     updatedAt: z.string(),
-    hasNotification: z.boolean().exactOptional(),
+    hasNotification: z.boolean().nullable().exactOptional(),
   })
   .openapi({
     required: [
@@ -232,7 +232,7 @@ export const UserWithFollowCountSchema = z
     id: z.uuid(),
     name: z.string(),
     username: z.string(),
-    bio: z.string().exactOptional(),
+    bio: z.string().nullable().exactOptional(),
     email: z.email(),
     emailVerified: z.string().nullable(),
     image: z.url().nullable(),
@@ -240,7 +240,7 @@ export const UserWithFollowCountSchema = z
     profileImage: z.url().nullable(),
     createdAt: z.string(),
     updatedAt: z.string(),
-    hasNotification: z.boolean().exactOptional(),
+    hasNotification: z.boolean().nullable().exactOptional(),
     _count: z
       .object({ followers: z.number(), following: z.number() })
       .openapi({ required: ['followers', 'following'] }),
@@ -291,6 +291,18 @@ const ParametersUserIdQueryParamsSchema = z
       name: 'userId',
       in: 'query',
       required: true,
+      schema: { type: 'string', format: 'uuid' },
+    },
+  })
+
+const ParametersUserIdOptionalQueryParamsSchema = z
+  .uuid()
+  .optional()
+  .openapi({
+    param: {
+      name: 'userId',
+      in: 'query',
+      required: false,
       schema: { type: 'string', format: 'uuid' },
     },
   })
@@ -524,7 +536,7 @@ export const getPostsRoute = createRoute({
   path: '/posts',
   tags: ['posts'],
   operationId: 'getPosts',
-  request: { query: z.object({ userId: ParametersUserIdQueryParamsSchema }) },
+  request: { query: z.object({ userId: ParametersUserIdOptionalQueryParamsSchema }) },
   responses: {
     200: {
       description: 'The request has succeeded.',
@@ -533,6 +545,10 @@ export const getPostsRoute = createRoute({
     422: {
       description: 'Client error',
       content: { 'application/json': { schema: ValidationErrorSchema } },
+    },
+    500: {
+      description: 'Server error',
+      content: { 'application/json': { schema: MessageResponseSchema } },
     },
   },
 })
