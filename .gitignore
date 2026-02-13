@@ -13,7 +13,6 @@ pet-store
 local.db
 typedoc
 copilot-instructions.md
-public
 .cursor
 .codex
 tsp-output
@@ -33,3 +32,4 @@ docs/hono-takibi/docs
 .open-next
 next-env.d.ts
 tsconfig.tsbuildinfo
+docs/hono-takibi/public
