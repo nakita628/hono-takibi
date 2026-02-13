@@ -1,7 +1,6 @@
-import { env } from 'cloudflare:workers'
 import { drizzle } from 'drizzle-orm/d1'
 import * as schema from './schema'
 
-export const db = drizzle(env.DB, { schema })
-
+const mod = await import('cloudflare:workers').catch(() => null)
+export const db = mod ? drizzle(mod.env.DB, { schema }) : (undefined as never)
 export * as schema from './schema'

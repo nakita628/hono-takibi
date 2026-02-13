@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs'
 import { err, ok } from 'neverthrow'
-import { ConflictError, ValidationError } from '@/backend/domain'
+import { ValidationError } from '@/backend/domain'
 import { UserSchema } from '@/backend/routes'
 import * as UserService from '@/backend/services/user'
 
@@ -12,10 +12,7 @@ export async function create(args: {
 }) {
   const hashedPassword = await bcrypt.hash(args.password, 12)
 
-  return UserService.get(args).andThen((user) => {
-    if (user) {
-      return err(new ConflictError('User already exists'))
-    }
+  return UserService.getExists(args).andThen(() => {
     return UserService.create({ ...args, hashedPassword }).andThen((user) => {
       const data = {
         id: user.id,

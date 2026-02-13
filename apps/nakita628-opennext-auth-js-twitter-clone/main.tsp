@@ -24,7 +24,6 @@ model User {
   image: url | null;
   coverImage: url | null;
   profileImage: url | null;
-  hashedPassword: string;
   createdAt: string;
   updatedAt: string;
   hasNotification?: boolean;
@@ -56,7 +55,6 @@ model UserWithFollowCount {
   image: url | null;
   coverImage: url | null;
   profileImage: url | null;
-  hashedPassword: string;
   createdAt: string;
   updatedAt: string;
   hasNotification?: boolean;
@@ -322,11 +320,20 @@ op getPostsPostId(...Parameters.PostIdPath): PostDetail | {
 @tag("register")
 @route("/register")
 @post
-op postRegister(@body body: RegisterRequest): User | {
+op postRegister(@body body: RegisterRequest): {
+  @statusCode statusCode: 201;
+  @body body: User;
+} | (NotFoundResponse & MessageResponse) | {
+  @statusCode statusCode: 409;
+  @body body: MessageResponse;
+} | {
   @statusCode statusCode: 422;
   @body body: ValidationError;
 } | {
   @statusCode statusCode: 500;
+  @body body: MessageResponse;
+} | {
+  @statusCode statusCode: 503;
   @body body: MessageResponse;
 };
 

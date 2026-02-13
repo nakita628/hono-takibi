@@ -20,7 +20,7 @@ describe('Register', () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
       })
-      expect(res.status).toBe(200)
+      expect(res.status).toBe(201)
     })
   })
 })

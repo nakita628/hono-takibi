@@ -88,7 +88,6 @@ export const UserSchema = z
     image: z.url().nullable(),
     coverImage: z.url().nullable(),
     profileImage: z.url().nullable(),
-    hashedPassword: z.string(),
     createdAt: z.string(),
     updatedAt: z.string(),
     hasNotification: z.boolean().exactOptional(),
@@ -103,7 +102,6 @@ export const UserSchema = z
       'image',
       'coverImage',
       'profileImage',
-      'hashedPassword',
       'createdAt',
       'updatedAt',
     ],
@@ -240,7 +238,6 @@ export const UserWithFollowCountSchema = z
     image: z.url().nullable(),
     coverImage: z.url().nullable(),
     profileImage: z.url().nullable(),
-    hashedPassword: z.string(),
     createdAt: z.string(),
     updatedAt: z.string(),
     hasNotification: z.boolean().exactOptional(),
@@ -258,7 +255,6 @@ export const UserWithFollowCountSchema = z
       'image',
       'coverImage',
       'profileImage',
-      'hashedPassword',
       'createdAt',
       'updatedAt',
       '_count',
@@ -596,9 +592,17 @@ export const postRegisterRoute = createRoute({
     body: { content: { 'application/json': { schema: RegisterRequestSchema } }, required: true },
   },
   responses: {
-    200: {
-      description: 'The request has succeeded.',
+    201: {
+      description: 'User created successfully.',
       content: { 'application/json': { schema: UserSchema } },
+    },
+    404: {
+      description: 'Not found',
+      content: { 'application/json': { schema: MessageResponseSchema } },
+    },
+    409: {
+      description: 'Conflict',
+      content: { 'application/json': { schema: MessageResponseSchema } },
     },
     422: {
       description: 'Client error',
@@ -606,6 +610,10 @@ export const postRegisterRoute = createRoute({
     },
     500: {
       description: 'Server error',
+      content: { 'application/json': { schema: MessageResponseSchema } },
+    },
+    503: {
+      description: 'Service unavailable',
       content: { 'application/json': { schema: MessageResponseSchema } },
     },
   },

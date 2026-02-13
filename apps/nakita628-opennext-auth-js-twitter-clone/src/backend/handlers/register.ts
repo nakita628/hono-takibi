@@ -1,7 +1,7 @@
 import type { RouteHandler } from '@hono/zod-openapi'
 import { ConflictError, DatabaseError, NotFoundError } from '@/backend/domain'
 import type { postRegisterRoute } from '@/backend/routes'
-import * as UserTransaction from '@/backend/transactions/user'
+import * as UserTransaction from '@/backend/transactions/register'
 
 export const postRegisterRouteHandler: RouteHandler<typeof postRegisterRoute> = async (c) => {
   const { email, name, username, password } = c.req.valid('json')

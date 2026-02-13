@@ -1,17 +1,17 @@
 import { eq } from 'drizzle-orm'
 import { errAsync, okAsync, ResultAsync } from 'neverthrow'
-import { DatabaseError, NotFoundError } from '@/backend/domain'
+import { ConflictError, DatabaseError, NotFoundError } from '@/backend/domain'
 import { db, schema } from '@/db'
 
-export function get(args: { email: string }) {
+export function getExists(args: { email: string }) {
   return ResultAsync.fromPromise(
     db.select().from(schema.users).where(eq(schema.users.email, args.email)).get(),
     () => new DatabaseError('Database error'),
   ).andThen((user) => {
     if (!user) {
-      return errAsync(new NotFoundError('User not found'))
+      return okAsync(null)
     }
-    return okAsync(user)
+    return errAsync(new ConflictError('Email already exists'))
   })
 }
 

@@ -34,6 +34,7 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@cloudflare/vitest-pool-workers": "^0.12.12",
     "@faker-js/faker": "^10.3.0",
     "@hono/cli": "^0.1.10",
     "@tailwindcss/postcss": "^4.1.18",
