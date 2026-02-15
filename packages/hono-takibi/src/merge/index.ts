@@ -43,8 +43,7 @@ export function mergeHandlerFile(existingCode: string, generatedCode: string): s
 
   // Detect handler pattern: RouteHandler (traditional) or Handler (inline sub-app)
   const isHandlerName = (name: string): boolean =>
-    name.endsWith('RouteHandler') ||
-    (name.endsWith('Handler') && !name.endsWith('RouteHandler'))
+    name.endsWith('RouteHandler') || (name.endsWith('Handler') && !name.endsWith('RouteHandler'))
 
   const isInlineHandlerName = (name: string): boolean =>
     name.endsWith('Handler') && !name.endsWith('RouteHandler')
@@ -74,8 +73,7 @@ export function mergeHandlerFile(existingCode: string, generatedCode: string): s
         stmt
           .getDeclarations()
           .some(
-            (decl) =>
-              isHandlerName(decl.getName()) && !generatedHandlerNames.has(decl.getName()),
+            (decl) => isHandlerName(decl.getName()) && !generatedHandlerNames.has(decl.getName()),
           ),
     )
     .map((stmt): BodyOp => [stmt.getFullStart(), stmt.getEnd(), ''])
@@ -90,23 +88,16 @@ export function mergeHandlerFile(existingCode: string, generatedCode: string): s
           .getDeclarations()
           .some(
             (decl) =>
-              isInlineHandlerName(decl.getName()) &&
-              generatedHandlerNames.has(decl.getName()),
+              isInlineHandlerName(decl.getName()) && generatedHandlerNames.has(decl.getName()),
           ),
     )
     .flatMap((stmt): BodyOp[] => {
-      const decl = stmt
-        .getDeclarations()
-        .find((d) => isInlineHandlerName(d.getName()))
+      const decl = stmt.getDeclarations().find((d) => isInlineHandlerName(d.getName()))
       if (!decl) return []
       const name = decl.getName()
       const genStmt = generatedFile
         .getVariableStatements()
-        .find(
-          (s) =>
-            s.isExported() &&
-            s.getDeclarations().some((d) => d.getName() === name),
-        )
+        .find((s) => s.isExported() && s.getDeclarations().some((d) => d.getName() === name))
       if (!genStmt) return []
       const merged = mergeInlineHandler(stmt.getText(), genStmt.getText())
       if (merged === stmt.getText()) return []
@@ -132,9 +123,7 @@ export function mergeHandlerFile(existingCode: string, generatedCode: string): s
     }),
     { slices: [], cursor: bodyStart },
   )
-  const body = [...slices, existingCode.slice(finalCursor)]
-    .join('')
-    .replace(/\n{3,}/g, '\n\n')
+  const body = [...slices, existingCode.slice(finalCursor)].join('').replace(/\n{3,}/g, '\n\n')
 
   // New handlers: in generated but not in existing
   const newHandlerStatements = generatedFile
@@ -145,8 +134,7 @@ export function mergeHandlerFile(existingCode: string, generatedCode: string): s
         stmt
           .getDeclarations()
           .some(
-            (decl) =>
-              isHandlerName(decl.getName()) && !existingHandlerNames.has(decl.getName()),
+            (decl) => isHandlerName(decl.getName()) && !existingHandlerNames.has(decl.getName()),
           ),
     )
     .map((stmt) => stmt.getText())

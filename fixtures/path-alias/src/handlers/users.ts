@@ -1,5 +1,5 @@
-import { getUsersRoute } from '@/routes'
 import app from '@'
+import { getUsersRoute } from '@/routes'
 
 export const usersHandler = app.openapi(getUsersRoute, (c) => {
   return c.json(

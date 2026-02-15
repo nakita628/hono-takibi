@@ -89,24 +89,34 @@ export async function honoTakibi(): Promise<
     const openAPIResult = await parseOpenAPI(input)
     if (!openAPIResult.ok) return { ok: false, error: openAPIResult.error }
     const openAPI = openAPIResult.value
-    const takibiResult = await takibi(openAPI, output, false, false, '/', undefined, undefined, {
-      readonly: false,
-      exportSchemas: false,
-      exportSchemasTypes: false,
-      exportResponses: false,
-      exportParameters: false,
-      exportParametersTypes: false,
-      exportExamples: false,
-      exportRequestBodies: false,
-      exportHeaders: false,
-      exportHeadersTypes: false,
-      exportSecuritySchemes: false,
-      exportLinks: false,
-      exportCallbacks: false,
-      exportPathItems: false,
-      exportMediaTypes: false,
-      exportMediaTypesTypes: false,
-    }, true)
+    const takibiResult = await takibi(
+      openAPI,
+      output,
+      false,
+      false,
+      '/',
+      undefined,
+      undefined,
+      {
+        readonly: false,
+        exportSchemas: false,
+        exportSchemasTypes: false,
+        exportResponses: false,
+        exportParameters: false,
+        exportParametersTypes: false,
+        exportExamples: false,
+        exportRequestBodies: false,
+        exportHeaders: false,
+        exportHeadersTypes: false,
+        exportSecuritySchemes: false,
+        exportLinks: false,
+        exportCallbacks: false,
+        exportPathItems: false,
+        exportMediaTypes: false,
+        exportMediaTypesTypes: false,
+      },
+      true,
+    )
     if (!takibiResult.ok) return { ok: false, error: takibiResult.error }
     return { ok: true, value: takibiResult.value }
   }

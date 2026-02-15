@@ -157,7 +157,11 @@ function makeInlineMockContent(
   routeId: string,
   operation: Operation,
   schemas: { readonly [k: string]: Schema },
-): { readonly content: string; readonly needsFaker: boolean; readonly usedRefs: ReadonlySet<string> } {
+): {
+  readonly content: string
+  readonly needsFaker: boolean
+  readonly usedRefs: ReadonlySet<string>
+} {
   const { schema: responseSchema, statusCode } = makeResponseInfo(operation)
   if (responseSchema) {
     const usedRefs = makeRefs(responseSchema)
@@ -470,7 +474,9 @@ export async function zodOpenAPIHonoHandler(
           (entry): entry is [string, Operation] => isHttpMethod(entry[0]) && isOperation(entry[1]),
         )
         .map(([method]) =>
-          routeHandler ? makeStubHandlerInfo(path, method) : makeInlineStubHandlerInfo(path, method),
+          routeHandler
+            ? makeStubHandlerInfo(path, method)
+            : makeInlineStubHandlerInfo(path, method),
         ),
     ),
   )
