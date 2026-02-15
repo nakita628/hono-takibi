@@ -235,7 +235,7 @@ const runAllGenerationTasks = async (
         outputPath,
         !!config['zod-openapi']?.template,
         config['zod-openapi']?.template?.test ?? false,
-        config['zod-openapi']?.basePath ?? '/',
+        config['zod-openapi']?.template?.basePath ?? '/',
         config['zod-openapi']?.template?.pathAlias,
         config['zod-openapi']?.routes?.import,
         {
@@ -541,7 +541,7 @@ const runAllGenerationTasks = async (
       const result = await mock(
         openAPI,
         outputPath,
-        config['zod-openapi']?.basePath ?? '/',
+        config.mock?.basePath ?? '/',
         config['zod-openapi']?.readonly,
       )
       return result.ok ? `✅ mock -> ${outputPath}` : `❌ mock: ${result.error}`
@@ -556,7 +556,7 @@ const runAllGenerationTasks = async (
         openAPI,
         outputPath,
         config.docs?.entry ?? 'src/index.ts',
-        config['zod-openapi']?.basePath ?? '/',
+        config.docs?.basePath ?? '/',
       )
       return result.ok ? `✅ docs -> ${outputPath}` : `❌ docs: ${result.error}`
     })()

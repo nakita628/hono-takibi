@@ -163,7 +163,7 @@ export async function honoTakibi(): Promise<
           config['zod-openapi'].output,
           !!config['zod-openapi']?.template,
           config['zod-openapi']?.template?.test ?? false,
-          config['zod-openapi'].basePath ?? '/',
+          config['zod-openapi']?.template?.basePath ?? '/',
           config['zod-openapi']?.template?.pathAlias,
           config['zod-openapi'].routes?.import,
           {
@@ -356,12 +356,12 @@ export async function honoTakibi(): Promise<
       ? mock(
           openAPI,
           config.mock.output,
-          config['zod-openapi']?.basePath ?? '/',
+          config.mock.basePath ?? '/',
           config['zod-openapi']?.readonly,
         )
       : Promise.resolve(undefined),
     config.docs
-      ? docs(openAPI, config.docs.output, config.docs.entry, config['zod-openapi']?.basePath ?? '/')
+      ? docs(openAPI, config.docs.output, config.docs.entry, config.docs.basePath ?? '/')
       : Promise.resolve(undefined),
     // routes + template (no output): generate app template from route output path
     config['zod-openapi']?.routes &&
@@ -373,7 +373,7 @@ export async function honoTakibi(): Promise<
             ? config['zod-openapi'].routes.output
             : `${config['zod-openapi'].routes.output}/index.ts`) as `${string}.ts`,
           config['zod-openapi']?.template?.test ?? false,
-          config['zod-openapi'].basePath ?? '/',
+          config['zod-openapi']?.template?.basePath ?? '/',
           config['zod-openapi']?.template?.pathAlias,
           config['zod-openapi'].routes.import,
           config['zod-openapi']?.template?.routeHandler ?? false,
