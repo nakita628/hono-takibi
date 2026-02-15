@@ -20,7 +20,7 @@ export async function makeTemplate(
   basePath: string,
   pathAlias: string | undefined,
   routeImport: string | undefined,
-  routeHandler = true,
+  routeHandler = false,
 ): Promise<
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {
@@ -81,7 +81,7 @@ export async function takibi(
     readonly exportMediaTypes: boolean
     readonly exportMediaTypesTypes: boolean
   },
-  routeHandler = true,
+  routeHandler = false,
 ): Promise<
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {

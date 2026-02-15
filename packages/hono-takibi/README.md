@@ -32,14 +32,14 @@ npx hono-takibi path/to/input.{yaml,json,tsp} -o path/to/output.ts
 Create `hono-takibi.config.ts`:
 
 ```ts
-import { defineConfig } from 'hono-takibi/config'
+import { defineConfig } from "hono-takibi/config";
 
 export default defineConfig({
-  input: 'openapi.yaml',
-  'zod-openapi': {
-    output: './src/routes.ts',
+  input: "openapi.yaml",
+  "zod-openapi": {
+    output: "./src/routes.ts",
   },
-})
+});
 ```
 
 ```bash
@@ -78,26 +78,28 @@ paths:
 output:
 
 ```ts
-import { createRoute, z } from '@hono/zod-openapi'
+import { createRoute, z } from "@hono/zod-openapi";
 
 export const getRoute = createRoute({
-  method: 'get',
-  path: '/',
-  summary: 'Welcome',
-  description: 'Returns a welcome message from Hono Takibi.',
+  method: "get",
+  path: "/",
+  summary: "Welcome",
+  description: "Returns a welcome message from Hono Takibi.",
   responses: {
     200: {
-      description: 'OK',
+      description: "OK",
       content: {
-        'application/json': {
+        "application/json": {
           schema: z
-            .object({ message: z.string().openapi({ example: 'Hono Takibi🔥' }) })
-            .openapi({ required: ['message'] }),
+            .object({
+              message: z.string().openapi({ example: "Hono Takibi🔥" }),
+            })
+            .openapi({ required: ["message"] }),
         },
       },
     },
   },
-})
+});
 ```
 
 ## Vite Plugin
@@ -106,12 +108,12 @@ Auto-regenerate on file changes:
 
 ```ts
 // vite.config.ts
-import { honoTakibiVite } from 'hono-takibi/vite-plugin'
-import { defineConfig } from 'vite'
+import { honoTakibiVite } from "hono-takibi/vite-plugin";
+import { defineConfig } from "vite";
 
 export default defineConfig({
   plugins: [honoTakibiVite()],
-})
+});
 ```
 
 ![](https://raw.githubusercontent.com/nakita628/hono-takibi/refs/heads/main/assets/vite/hono-takibi-vite.gif)
@@ -122,14 +124,15 @@ Generate a complete app structure with handler stubs and test files:
 
 ```ts
 export default defineConfig({
-  input: 'openapi.yaml',
-  'zod-openapi': {
-    output: './src/routes.ts',
-    pathAlias: '@/',
-    template: true,
-    test: true,
+  input: "openapi.yaml",
+  "zod-openapi": {
+    output: "./src/routes.ts",
+    template: {
+      pathAlias: "@/",
+      test: true,
+    },
   },
-})
+});
 ```
 
 This generates:
@@ -138,7 +141,81 @@ This generates:
 - `src/handlers/*.ts` - Handler stubs for each resource
 - `src/handlers/*.test.ts` - Vitest test files with `@faker-js/faker` mock data
 
-When you update your OpenAPI spec and re-run, existing handler implementations and test customizations are preserved. Only new routes are added and removed routes are cleaned up automatically.
+Re-running after updating your OpenAPI spec is safe — your hand-written handler logic and test customizations are preserved. Only new routes are added as stubs.
+
+> **Note:** If you remove a path from your OpenAPI spec and re-run, the corresponding handler and test files will be deleted. Make sure to back up or migrate any custom logic before removing API definitions.
+
+### Route Handler Modes
+
+By default (`routeHandler: false` or omitted), each handler file imports the shared app and registers routes inline via `.openapi()`:
+
+```ts
+// src/index.ts
+import { OpenAPIHono } from "@hono/zod-openapi";
+
+const app = new OpenAPIHono();
+
+export default app;
+```
+
+```ts
+// src/handlers/health.ts
+import { getHealthRoute } from "@/routes";
+import app from "@";
+
+export const healthHandler = app.openapi(getHealthRoute, (c) => {});
+```
+
+The app mounts handlers via `.route()`:
+
+```ts
+// src/index.ts (after implementing route registration)
+import { OpenAPIHono } from "@hono/zod-openapi";
+import { healthHandler } from "./handlers/health";
+
+const app = new OpenAPIHono();
+
+export const api = app.route("/", healthHandler);
+
+export default app;
+```
+
+With `routeHandler: true`, each handler exports a `RouteHandler` typed function and the app registers routes in `index.ts`:
+
+```ts
+export default defineConfig({
+  input: "openapi.yaml",
+  "zod-openapi": {
+    output: "./src/routes.ts",
+    template: {
+      pathAlias: "@/",
+      routeHandler: true,
+    },
+  },
+});
+```
+
+```ts
+// src/index.ts
+import { OpenAPIHono } from "@hono/zod-openapi";
+import { getHealthRoute } from "@/routes";
+import { getHealthRouteHandler } from "@/handlers";
+
+const app = new OpenAPIHono();
+
+export const api = app.openapi(getHealthRoute, getHealthRouteHandler);
+
+export default app;
+```
+
+```ts
+// src/handlers/health.ts
+import type { RouteHandler } from "@hono/zod-openapi";
+import type { getHealthRoute } from "@/routes";
+
+export const getHealthRouteHandler: RouteHandler<typeof getHealthRoute> =
+  async (c) => {};
+```
 
 ## Client Library Integrations
 
@@ -146,10 +223,18 @@ Supported: TanStack Query, SWR, Svelte Query, Vue Query, RPC Client.
 
 ```ts
 export default defineConfig({
-  input: 'openapi.yaml',
-  'zod-openapi': { output: './src/routes.ts', pathAlias: '@/', exportSchemas: true },
-  'tanstack-query': { output: './src/tanstack-query', import: '../client', split: true, client: 'client' },
-})
+  input: "openapi.yaml",
+  "zod-openapi": {
+    output: "./src/routes.ts",
+    exportSchemas: true,
+  },
+  "tanstack-query": {
+    output: "./src/tanstack-query",
+    import: "../client",
+    split: true,
+    client: "client",
+  },
+});
 ```
 
 ## Test & Mock Generation
@@ -158,20 +243,30 @@ export default defineConfig({
 
 ```ts
 export default defineConfig({
-  input: 'openapi.yaml',
-  'zod-openapi': { output: './src/routes.ts', pathAlias: '@/' },
-  test: { output: './src/test.ts', import: '../index' },
-})
+  input: "openapi.yaml",
+  "zod-openapi": {
+    output: "./src/routes.ts",
+  },
+  test: {
+    output: "./src/test.ts",
+    import: "../index",
+  },
+});
 ```
 
 ### Mock Server Generation
 
 ```ts
 export default defineConfig({
-  input: 'openapi.yaml',
-  'zod-openapi': { output: './src/routes.ts', pathAlias: '@/', readonly: true },
-  mock: { output: './src/mock.ts' },
-})
+  input: "openapi.yaml",
+  "zod-openapi": {
+    output: "./src/routes.ts",
+    readonly: true,
+  },
+  mock: {
+    output: "./src/mock.ts",
+  },
+});
 ```
 
 ### API Reference Docs
@@ -180,10 +275,16 @@ Generate API reference Markdown with [hono-cli](https://github.com/honojs/cli) `
 
 ```ts
 export default defineConfig({
-  input: 'openapi.yaml',
-  'zod-openapi': { output: './src/routes.ts', pathAlias: '@/', readonly: true },
-  docs: { output: './docs/api.md', entry: 'src/index.ts' },
-})
+  input: "openapi.yaml",
+  "zod-openapi": {
+    output: "./src/routes.ts",
+    readonly: true,
+  },
+  docs: {
+    output: "./docs/api.md",
+    entry: "src/index.ts",
+  },
+});
 ```
 
 
@@ -195,44 +296,48 @@ export default defineConfig({
 
 ```ts
 // hono-takibi.config.ts
-import { defineConfig } from 'hono-takibi/config'
+import { defineConfig } from "hono-takibi/config";
 
 export default defineConfig({
   // OpenAPI spec file (.yaml, .json, or .tsp)
-  input: 'openapi.yaml',
+  input: "openapi.yaml",
 
   // oxfmt format options for generated code
   format: {
     printWidth: 100,
     tabWidth: 2,
     useTabs: false,
-    endOfLine: 'lf',
+    endOfLine: "lf",
     insertFinalNewline: true,
     semi: true,
     singleQuote: false,
     jsxSingleQuote: false,
-    quoteProps: 'as-needed',
-    trailingComma: 'all',
+    quoteProps: "as-needed",
+    trailingComma: "all",
     bracketSpacing: true,
     bracketSameLine: false,
-    objectWrap: 'preserve',
-    arrowParens: 'always',
+    objectWrap: "preserve",
+    arrowParens: "always",
     singleAttributePerLine: false,
-    proseWrap: 'preserve',
-    htmlWhitespaceSensitivity: 'css',
+    proseWrap: "preserve",
+    htmlWhitespaceSensitivity: "css",
     vueIndentScriptAndStyle: false,
-    embeddedLanguageFormatting: 'auto',
+    embeddedLanguageFormatting: "auto",
   },
 
   // Main code generation (Zod + OpenAPI + Hono)
-  'zod-openapi': {
+  "zod-openapi": {
     // Output: use 'output' for single file, or 'routes' for split mode (mutually exclusive)
-    output: './src/routes.ts',
-    readonly: true,       // Add 'as const' to generated schemas
-    template: true,       // Generate app entry point + handler stubs
-    test: true,           // Generate test files (requires template: true)
-    basePath: '/api',     // Base path prefix for all routes
-    pathAlias: '@/',      // TypeScript path alias for imports
+    output: "./src/routes.ts",
+    readonly: true, // Add 'as const' to generated schemas
+    basePath: "/api", // Base path prefix for all routes
+
+    // Template generation (app entry point + handler stubs + tests)
+    template: {
+      pathAlias: "@/", // TypeScript path alias for imports
+      test: true, // Generate test files
+      routeHandler: false, // false: inline .openapi() (default), true: RouteHandler exports
+    },
 
     // Export options (OpenAPI Components Object)
     exportSchemas: true,
@@ -253,86 +358,138 @@ export default defineConfig({
 
     // Split routes into separate files
     routes: {
-      output: './src/routes',
+      output: "./src/routes",
       split: true,
-      import: '@packages/routes', // Custom import path (monorepo support)
+      import: "@packages/routes", // Custom import path (monorepo support)
     },
 
     // Split components into separate files
     components: {
-      schemas:         { output: './src/schemas',         exportTypes: true, split: true, import: '../schemas' },
-      responses:       { output: './src/responses',       split: true, import: '../responses' },
-      parameters:      { output: './src/parameters',      exportTypes: true, split: true, import: '../parameters' },
-      examples:        { output: './src/examples',        split: true, import: '../examples' },
-      requestBodies:   { output: './src/requestBodies',   split: true, import: '../requestBodies' },
-      headers:         { output: './src/headers',         exportTypes: true, split: true, import: '../headers' },
-      securitySchemes: { output: './src/securitySchemes', split: true, import: '../securitySchemes' },
-      links:           { output: './src/links',           split: true, import: '../links' },
-      callbacks:       { output: './src/callbacks',       split: true, import: '../callbacks' },
-      pathItems:       { output: './src/pathItems',       split: true, import: '../pathItems' },
-      mediaTypes:      { output: './src/mediaTypes',      exportTypes: true, split: true, import: '../mediaTypes' },
-      webhooks:        { output: './src/webhooks',        split: true, import: '../webhooks' },
+      schemas: {
+        output: "./src/schemas",
+        exportTypes: true,
+        split: true,
+        import: "../schemas",
+      },
+      responses: {
+        output: "./src/responses",
+        split: true,
+        import: "../responses",
+      },
+      parameters: {
+        output: "./src/parameters",
+        exportTypes: true,
+        split: true,
+        import: "../parameters",
+      },
+      examples: {
+        output: "./src/examples",
+        split: true,
+        import: "../examples",
+      },
+      requestBodies: {
+        output: "./src/requestBodies",
+        split: true,
+        import: "../requestBodies",
+      },
+      headers: {
+        output: "./src/headers",
+        exportTypes: true,
+        split: true,
+        import: "../headers",
+      },
+      securitySchemes: {
+        output: "./src/securitySchemes",
+        split: true,
+        import: "../securitySchemes",
+      },
+      links: {
+        output: "./src/links",
+        split: true,
+        import: "../links",
+      },
+      callbacks: {
+        output: "./src/callbacks",
+        split: true,
+        import: "../callbacks",
+      },
+      pathItems: {
+        output: "./src/pathItems",
+        split: true,
+        import: "../pathItems",
+      },
+      mediaTypes: {
+        output: "./src/mediaTypes",
+        exportTypes: true,
+        split: true,
+        import: "../mediaTypes",
+      },
+      webhooks: {
+        output: "./src/webhooks",
+        split: true,
+        import: "../webhooks",
+      },
     },
   },
 
   // TypeScript type generation
   type: {
-    output: './src/types.ts',
+    output: "./src/types.ts",
     readonly: true,
   },
 
   // RPC client generation
   rpc: {
-    output: './src/rpc',
-    import: '../client',    // Import path for the Hono RPC client
+    output: "./src/rpc",
+    import: "../client", // Import path for the Hono RPC client
     split: true,
-    client: 'client',       // Export name of the client instance
-    parseResponse: true,    // Use parseResponse for type-safe responses
+    client: "client", // Export name of the client instance
+    parseResponse: true, // Use parseResponse for type-safe responses
   },
 
   // Client library integrations (TanStack Query, SWR, Svelte Query, Vue Query)
-  'tanstack-query': {
-    output: './src/tanstack-query',
-    import: '../client',
+  "tanstack-query": {
+    output: "./src/tanstack-query",
+    import: "../client",
     split: true,
-    client: 'client',
+    client: "client",
   },
-  'svelte-query': {
-    output: './src/svelte-query',
-    import: '../client',
+  "svelte-query": {
+    output: "./src/svelte-query",
+    import: "../client",
     split: true,
-    client: 'client',
+    client: "client",
   },
   swr: {
-    output: './src/swr',
-    import: '../client',
+    output: "./src/swr",
+    import: "../client",
     split: true,
-    client: 'client',
+    client: "client",
   },
-  'vue-query': {
-    output: './src/vue-query',
-    import: '../client',
+  "vue-query": {
+    output: "./src/vue-query",
+    import: "../client",
     split: true,
-    client: 'client',
+    client: "client",
   },
 
   // Test generation
   test: {
-    output: './src/test.ts',
-    import: '../index',     // Import path for the app instance
+    output: "./src/test.ts",
+    import: "../index", // Import path for the app instance
   },
 
   // Mock server generation
   mock: {
-    output: './src/mock.ts',
+    output: "./src/mock.ts",
   },
 
   // API reference docs generation
   docs: {
-    output: './docs/api.md',
-    entry: 'src/index.ts',  // App entry point for hono request commands
+    output: "./docs/api.md",
+    entry: "src/index.ts", // App entry point for hono request commands
   },
-})
+});
 ```
 
 ## Limitations

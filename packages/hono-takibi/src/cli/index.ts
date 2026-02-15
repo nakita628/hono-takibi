@@ -185,7 +185,7 @@ export async function honoTakibi(): Promise<
             exportMediaTypes: config['zod-openapi'].exportMediaTypes ?? false,
             exportMediaTypesTypes: config['zod-openapi'].exportMediaTypesTypes ?? false,
           },
-          config['zod-openapi']?.template?.routeHandler ?? true,
+          config['zod-openapi']?.template?.routeHandler ?? false,
         )
       : Promise.resolve(undefined),
     config['zod-openapi']?.components?.schemas
@@ -376,7 +376,7 @@ export async function honoTakibi(): Promise<
           config['zod-openapi'].basePath ?? '/',
           config['zod-openapi']?.template?.pathAlias,
           config['zod-openapi'].routes.import,
-          config['zod-openapi']?.template?.routeHandler ?? true,
+          config['zod-openapi']?.template?.routeHandler ?? false,
         )
       : Promise.resolve(undefined),
   ])

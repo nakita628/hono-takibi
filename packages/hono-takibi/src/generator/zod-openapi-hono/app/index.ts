@@ -1,5 +1,4 @@
 import { isHttpMethod } from '../../../guard/index.js'
-import { makeHandlerFileName } from '../../../helper/handler.js'
 import type { OpenAPI } from '../../../openapi/index.js'
 import { methodPath } from '../../../utils/index.js'
 
@@ -11,8 +10,8 @@ import { methodPath } from '../../../utils/index.js'
  * @param basePath - Optional base path for the app.
  * @param pathAlias - Optional path alias prefix.
  * @param routeImport - Optional route module specifier override.
- * @param routeHandler - When true (default), generates `app.openapi()` pattern with barrel import.
- *   When false, generates `app.route()` pattern with individual handler sub-app imports.
+ * @param routeHandler - When false (default), handlers import app and register routes inline.
+ *   When true, generates `app.openapi()` pattern with RouteHandler type exports.
  * @returns The generated application code as a string.
  *
  * @example
@@ -27,7 +26,7 @@ export function app(
   basePath: string,
   pathAlias: string | undefined,
   routeImport: string | undefined = undefined,
-  routeHandler = true,
+  routeHandler = false,
 ): string {
   const getRouteMaps = (
     openapi: OpenAPI,
@@ -68,7 +67,7 @@ export function app(
     return [importSection, appInit, 'export default app'].join('\n\n')
   }
 
-  // routeHandler: true (default) — app.openapi() pattern with barrel import
+  // routeHandler: true — app.openapi() pattern with barrel import
   const routeNames = [...new Set(routeMappings.map((m) => m.routeName))]
   const routeModule =
     routeImport ?? (aliasPrefix ? `${aliasPrefix}/${routeBasename}` : `./${routeBasename}`)

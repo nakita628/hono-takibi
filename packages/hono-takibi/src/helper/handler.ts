@@ -461,7 +461,7 @@ export async function zodOpenAPIHonoHandler(
   test = false,
   pathAlias: string | undefined = undefined,
   routeImport: string | undefined = undefined,
-  routeHandler = true,
+  routeHandler = false,
 ): Promise<
   { readonly ok: true; readonly value: undefined } | { readonly ok: false; readonly error: string }
 > {
@@ -581,7 +581,7 @@ export async function mockZodOpenAPIHonoHandler(
   test: boolean,
   pathAlias: string | undefined = undefined,
   routeImport: string | undefined = undefined,
-  routeHandler = true,
+  routeHandler = false,
 ): Promise<
   { readonly ok: true; readonly value: undefined } | { readonly ok: false; readonly error: string }
 > {
