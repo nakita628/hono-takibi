@@ -1223,8 +1223,8 @@ export default app
   })
 })
 
-describe('routeHandler: false (inline sub-app pattern)', () => {
-  it('generates .route() index.ts and inline handler files', async () => {
+describe('routeHandler: false (app import pattern)', () => {
+  it('generates app-only index.ts and handler files importing app', async () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-rh-false-'))
     try {
       const srcDir = path.join(dir, 'src')
@@ -1247,22 +1247,24 @@ describe('routeHandler: false (inline sub-app pattern)', () => {
       expect(fs.existsSync(path.join(srcDir, 'handlers', 'index.ts'))).toBe(true)
 
       const indexContent = fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf-8')
-      expect(indexContent).toContain('testHandler')
-      expect(indexContent).toContain('.route(')
+      expect(indexContent).toContain('new OpenAPIHono()')
+      expect(indexContent).toContain('export default app')
+      expect(indexContent).not.toContain('testHandler')
+      expect(indexContent).not.toContain('.route(')
       expect(indexContent).not.toContain('.openapi(')
-      expect(indexContent).toContain("from './handlers'")
 
       const handlerContent = fs.readFileSync(path.join(srcDir, 'handlers', 'test.ts'), 'utf-8')
-      expect(handlerContent).toContain('OpenAPIHono')
+      expect(handlerContent).not.toContain('OpenAPIHono')
       expect(handlerContent).toContain('testHandler')
       expect(handlerContent).toContain('.openapi(getTestRoute')
       expect(handlerContent).toContain("from '../route'")
+      expect(handlerContent).toContain("from '..'")
     } finally {
       fs.rmSync(dir, { recursive: true, force: true })
     }
   })
 
-  it('generates .route() pattern with basePath', async () => {
+  it('generates app-only index.ts with basePath', async () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-rh-false-bp-'))
     try {
       const srcDir = path.join(dir, 'src')
@@ -1283,15 +1285,15 @@ describe('routeHandler: false (inline sub-app pattern)', () => {
 
       const indexContent = fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf-8')
       expect(indexContent).toContain("new OpenAPIHono().basePath('/api')")
-      expect(indexContent).toContain('testHandler')
-      expect(indexContent).toContain('.route(')
-      expect(indexContent).not.toContain('.openapi(')
+      expect(indexContent).toContain('export default app')
+      expect(indexContent).not.toContain('testHandler')
+      expect(indexContent).not.toContain('.route(')
     } finally {
       fs.rmSync(dir, { recursive: true, force: true })
     }
   })
 
-  it('generates .route() pattern with pathAlias', async () => {
+  it('handler imports routes with pathAlias', async () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-rh-false-pa-'))
     try {
       const srcDir = path.join(dir, 'src')
@@ -1310,12 +1312,9 @@ describe('routeHandler: false (inline sub-app pattern)', () => {
         value: '🔥 Generated code and template files written',
       })
 
-      const indexContent = fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf-8')
-      expect(indexContent).toContain("from '@/handlers'")
-      expect(indexContent).toContain('testHandler')
-
       const handlerContent = fs.readFileSync(path.join(srcDir, 'handlers', 'test.ts'), 'utf-8')
       expect(handlerContent).toContain("from '@/route'")
+      expect(handlerContent).toContain("from '..'")
       expect(handlerContent).toContain('testHandler')
     } finally {
       fs.rmSync(dir, { recursive: true, force: true })

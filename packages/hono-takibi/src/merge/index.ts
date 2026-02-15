@@ -46,6 +46,9 @@ export function mergeHandlerFile(existingCode: string, generatedCode: string): s
     name.endsWith('RouteHandler') ||
     (name.endsWith('Handler') && !name.endsWith('RouteHandler'))
 
+  const isInlineHandlerName = (name: string): boolean =>
+    name.endsWith('Handler') && !name.endsWith('RouteHandler')
+
   const collectHandlerNames = (file: ReturnType<typeof project.createSourceFile>) =>
     new Set(
       file
@@ -59,8 +62,11 @@ export function mergeHandlerFile(existingCode: string, generatedCode: string): s
   const generatedHandlerNames = collectHandlerNames(generatedFile)
   const existingHandlerNames = collectHandlerNames(existingFile)
 
-  // Delete ranges: handlers in existing but not in generated (route removed from OpenAPI)
-  const deleteRanges = existingFile
+  // Body operations: [start, end, replacement]
+  type BodyOp = readonly [number, number, string]
+
+  // Delete operations: handlers in existing but not in generated
+  const deleteOps: BodyOp[] = existingFile
     .getVariableStatements()
     .filter(
       (stmt) =>
@@ -72,25 +78,63 @@ export function mergeHandlerFile(existingCode: string, generatedCode: string): s
               isHandlerName(decl.getName()) && !generatedHandlerNames.has(decl.getName()),
           ),
     )
-    .map((stmt): [number, number] => [stmt.getFullStart(), stmt.getEnd()])
-    .toSorted((a, b) => a[0] - b[0])
+    .map((stmt): BodyOp => [stmt.getFullStart(), stmt.getEnd(), ''])
+
+  // Chain-merge operations: inline handlers in both — merge .openapi() calls
+  const mergeOps: BodyOp[] = existingFile
+    .getVariableStatements()
+    .filter(
+      (stmt) =>
+        stmt.isExported() &&
+        stmt
+          .getDeclarations()
+          .some(
+            (decl) =>
+              isInlineHandlerName(decl.getName()) &&
+              generatedHandlerNames.has(decl.getName()),
+          ),
+    )
+    .flatMap((stmt): BodyOp[] => {
+      const decl = stmt
+        .getDeclarations()
+        .find((d) => isInlineHandlerName(d.getName()))
+      if (!decl) return []
+      const name = decl.getName()
+      const genStmt = generatedFile
+        .getVariableStatements()
+        .find(
+          (s) =>
+            s.isExported() &&
+            s.getDeclarations().some((d) => d.getName() === name),
+        )
+      if (!genStmt) return []
+      const merged = mergeInlineHandler(stmt.getText(), genStmt.getText())
+      if (merged === stmt.getText()) return []
+      return [[stmt.getStart(), stmt.getEnd(), merged]]
+    })
 
   // Find body start (after last import declaration)
   const importDecls = existingFile.getImportDeclarations()
   const bodyStart = importDecls.length > 0 ? importDecls[importDecls.length - 1].getEnd() : 0
 
-  // Build body by removing deleted ranges from original text
-  const filteredRanges = deleteRanges.filter(([start]) => start >= bodyStart)
-  const keepSlices = [
-    ...filteredRanges.map(([start], i) =>
-      existingCode.slice(i === 0 ? bodyStart : filteredRanges[i - 1][1], start),
-    ),
-    existingCode.slice(
-      filteredRanges.length > 0 ? filteredRanges[filteredRanges.length - 1][1] : bodyStart,
-    ),
-  ]
-  // Clean up excessive blank lines from deletions
-  const body = keepSlices.join('').replace(/\n{3,}/g, '\n\n')
+  // Apply operations to build body
+  const allOps = [...deleteOps, ...mergeOps]
+    .filter(([start]) => start >= bodyStart)
+    .toSorted(([a], [b]) => a - b)
+
+  const { slices, cursor: finalCursor } = allOps.reduce<{
+    readonly slices: readonly string[]
+    readonly cursor: number
+  }>(
+    (acc, [start, end, replacement]) => ({
+      slices: [...acc.slices, existingCode.slice(acc.cursor, start), replacement],
+      cursor: end,
+    }),
+    { slices: [], cursor: bodyStart },
+  )
+  const body = [...slices, existingCode.slice(finalCursor)]
+    .join('')
+    .replace(/\n{3,}/g, '\n\n')
 
   // New handlers: in generated but not in existing
   const newHandlerStatements = generatedFile
@@ -352,6 +396,52 @@ function extractChainPrefix(apiStmtText: string): string {
   if (!routeMatch || routeMatch.index === undefined || routeMatch.index === 0) return ''
 
   return afterApp.slice(0, routeMatch.index)
+}
+
+/**
+ * Extracts individual .openapi() call blocks from a handler chain.
+ *
+ * Returns a map of route name (first argument) to the full `.openapi(...)` text.
+ */
+function extractOpenApiCalls(code: string): Map<string, string> {
+  return new Map(
+    [...code.matchAll(/\.openapi\s*\(/g)]
+      .filter((match) => match.index !== undefined)
+      .flatMap((match) => {
+        const dotPos = match.index
+        const parenPos = dotPos + match[0].length - 1
+        const afterParen = code.slice(parenPos + 1).trimStart()
+        const routeNameMatch = afterParen.match(/^(\w+)/)
+        if (!routeNameMatch) return []
+        const routeName = routeNameMatch[1]
+        const end = findBalancedParenEnd(code, parenPos)
+        return [[routeName, code.slice(dotPos, end)] as const]
+      }),
+  )
+}
+
+/**
+ * Merges .openapi() call chains in an inline handler.
+ *
+ * Uses generated handler's route list as source of truth:
+ * - Routes in both: keep existing implementation
+ * - Routes only in generated: add from generated (new route stubs)
+ * - Routes only in existing: remove (route deleted from OpenAPI spec)
+ */
+function mergeInlineHandler(existingText: string, generatedText: string): string {
+  const generatedCalls = extractOpenApiCalls(generatedText)
+  if (generatedCalls.size === 0) return generatedText
+
+  const existingCalls = extractOpenApiCalls(existingText)
+  const firstCallMatch = generatedText.match(/\.openapi\s*\(/)
+  if (!firstCallMatch || firstCallMatch.index === undefined) return generatedText
+  const prefix = generatedText.slice(0, firstCallMatch.index).trimEnd()
+
+  const mergedCalls = [...generatedCalls.entries()].map(
+    ([routeName, genCall]) => existingCalls.get(routeName) ?? genCall,
+  )
+
+  return `${prefix}\n${mergedCalls.join('\n')}`
 }
 
 /**

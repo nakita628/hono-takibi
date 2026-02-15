@@ -204,31 +204,11 @@ export default app`
     expect(result).toBe(expected)
   })
 
-  it.concurrent('app with routeHandler=false generates .route() pattern', () => {
+  it.concurrent('app with routeHandler=false generates app-only index', () => {
     const result = app(openapi, 'app.ts', '/api', undefined, undefined, false)
     const expected = `import{OpenAPIHono}from'@hono/zod-openapi'
-import{honoHandler,honoXHandler,zodOpenapiHonoHandler}from'./handlers'
 
 const app=new OpenAPIHono().basePath('/api')
-
-export const api=app.route('/',honoHandler)
-.route('/',honoXHandler)
-.route('/',zodOpenapiHonoHandler)
-
-export default app`
-    expect(result).toBe(expected)
-  })
-
-  it.concurrent('app with routeHandler=false and pathAlias', () => {
-    const result = app(openapi, 'src/routes/index.ts', '/api', '@/src', undefined, false)
-    const expected = `import{OpenAPIHono}from'@hono/zod-openapi'
-import{honoHandler,honoXHandler,zodOpenapiHonoHandler}from'@/src/handlers'
-
-const app=new OpenAPIHono().basePath('/api')
-
-export const api=app.route('/',honoHandler)
-.route('/',honoXHandler)
-.route('/',zodOpenapiHonoHandler)
 
 export default app`
     expect(result).toBe(expected)
@@ -237,13 +217,8 @@ export default app`
   it.concurrent('app with routeHandler=false and no basePath', () => {
     const result = app(openapi, 'routes.ts', '/', undefined, undefined, false)
     const expected = `import{OpenAPIHono}from'@hono/zod-openapi'
-import{honoHandler,honoXHandler,zodOpenapiHonoHandler}from'./handlers'
 
 const app=new OpenAPIHono()
-
-export const api=app.route('/',honoHandler)
-.route('/',honoXHandler)
-.route('/',zodOpenapiHonoHandler)
 
 export default app`
     expect(result).toBe(expected)

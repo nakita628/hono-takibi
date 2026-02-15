@@ -237,9 +237,9 @@ function makeInlineStubFileContent(
   const exportName = `${handler.fileName.replace(/\.ts$/, '')}Handler`
   const routeImports = Array.from(new Set(handler.routeNames)).join(', ')
   const importRoutes = routeImports ? `import { ${routeImports} } from '${importFrom}';` : ''
-  const importStatements = `import { OpenAPIHono } from '@hono/zod-openapi'\n${importRoutes}`
+  const importStatements = `${importRoutes}\nimport app from '..'`
   const chain = handler.contents.join('\n')
-  return `${importStatements}\n\nexport const ${exportName} = new OpenAPIHono()\n${chain}`
+  return `${importStatements}\n\nexport const ${exportName} = app\n${chain}`
 }
 
 function makeInlineMockFileContent(
@@ -257,7 +257,7 @@ function makeInlineMockFileContent(
   const routeImports = Array.from(new Set(handler.routeNames)).join(', ')
   const importRoutes = routeImports ? `import { ${routeImports} } from '${importFrom}';` : ''
   const fakerImport = handler.needsFaker ? "import { faker } from '@faker-js/faker'\n" : ''
-  const importStatements = `import { OpenAPIHono } from '@hono/zod-openapi'\n${fakerImport}${importRoutes}`
+  const importStatements = `${fakerImport}${importRoutes}\nimport app from '..'`
 
   const mockFunctions = Array.from(handler.usedRefs)
     .filter((refName) => schemas[refName])
@@ -265,7 +265,7 @@ function makeInlineMockFileContent(
     .join('\n\n')
 
   const chain = handler.contents.join('\n')
-  const body = `export const ${exportName} = new OpenAPIHono()\n${chain}`
+  const body = `export const ${exportName} = app\n${chain}`
 
   return mockFunctions
     ? `${importStatements}\n\n${mockFunctions}\n\n${body}`
