@@ -20,6 +20,7 @@ export async function makeTemplate(
   basePath: string,
   pathAlias: string | undefined,
   routeImport: string | undefined,
+  routeHandler = true,
 ): Promise<
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {
@@ -28,8 +29,8 @@ export async function makeTemplate(
   const target = path.join(dir, 'index.ts')
 
   const [appFmtResult, stubHandlersResult] = await Promise.all([
-    fmt(app(openAPI, routeOutput, basePath, pathAlias, routeImport)),
-    zodOpenAPIHonoHandler(openAPI, routeOutput, test, pathAlias, routeImport),
+    fmt(app(openAPI, routeOutput, basePath, pathAlias, routeImport, routeHandler)),
+    zodOpenAPIHonoHandler(openAPI, routeOutput, test, pathAlias, routeImport, routeHandler),
   ])
   if (!appFmtResult.ok) return { ok: false, error: appFmtResult.error }
   if (!stubHandlersResult.ok) return { ok: false, error: stubHandlersResult.error }
@@ -80,6 +81,7 @@ export async function takibi(
     readonly exportMediaTypes: boolean
     readonly exportMediaTypesTypes: boolean
   },
+  routeHandler = true,
 ): Promise<
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {
@@ -98,7 +100,7 @@ export async function takibi(
 
   // --template: Generate app + handlers
   if (template) {
-    return makeTemplate(openAPI, output, test, basePath, pathAlias, routeImport)
+    return makeTemplate(openAPI, output, test, basePath, pathAlias, routeImport, routeHandler)
   }
 
   return {

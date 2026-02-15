@@ -85,6 +85,7 @@ const runTakibi = async (
     readonly basePath?: string
     readonly pathAlias?: string
     readonly routeImport?: string
+    readonly routeHandler?: boolean
   },
 ) =>
   takibi(
@@ -112,6 +113,7 @@ const runTakibi = async (
       exportMediaTypes: false,
       exportMediaTypesTypes: false,
     },
+    options.routeHandler ?? true,
   )
 
 describe('takibi generate (sandbox)', () => {
@@ -1215,6 +1217,106 @@ export const api = app.openapi(getTestRoute, getTestRouteHandler)
 export default app
 `,
       )
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+})
+
+describe('routeHandler: false (inline sub-app pattern)', () => {
+  it('generates .route() index.ts and inline handler files', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-rh-false-'))
+    try {
+      const srcDir = path.join(dir, 'src')
+      fs.mkdirSync(srcDir, { recursive: true })
+
+      const out = path.join(srcDir, 'route.ts') as `${string}.ts`
+      const result = await runTakibi(simpleOpenapi, out, {
+        template: true,
+        test: false,
+        routeHandler: false,
+      })
+
+      expect(result).toStrictEqual({
+        ok: true,
+        value: '🔥 Generated code and template files written',
+      })
+
+      expect(fs.existsSync(path.join(srcDir, 'index.ts'))).toBe(true)
+      expect(fs.existsSync(path.join(srcDir, 'handlers', 'test.ts'))).toBe(true)
+      expect(fs.existsSync(path.join(srcDir, 'handlers', 'index.ts'))).toBe(true)
+
+      const indexContent = fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf-8')
+      expect(indexContent).toContain('testHandler')
+      expect(indexContent).toContain('.route(')
+      expect(indexContent).not.toContain('.openapi(')
+      expect(indexContent).toContain("from './handlers'")
+
+      const handlerContent = fs.readFileSync(path.join(srcDir, 'handlers', 'test.ts'), 'utf-8')
+      expect(handlerContent).toContain('OpenAPIHono')
+      expect(handlerContent).toContain('testHandler')
+      expect(handlerContent).toContain('.openapi(getTestRoute')
+      expect(handlerContent).toContain("from '../route'")
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+
+  it('generates .route() pattern with basePath', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-rh-false-bp-'))
+    try {
+      const srcDir = path.join(dir, 'src')
+      fs.mkdirSync(srcDir, { recursive: true })
+
+      const out = path.join(srcDir, 'route.ts') as `${string}.ts`
+      const result = await runTakibi(simpleOpenapi, out, {
+        template: true,
+        test: false,
+        basePath: '/api',
+        routeHandler: false,
+      })
+
+      expect(result).toStrictEqual({
+        ok: true,
+        value: '🔥 Generated code and template files written',
+      })
+
+      const indexContent = fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf-8')
+      expect(indexContent).toContain("new OpenAPIHono().basePath('/api')")
+      expect(indexContent).toContain('testHandler')
+      expect(indexContent).toContain('.route(')
+      expect(indexContent).not.toContain('.openapi(')
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+
+  it('generates .route() pattern with pathAlias', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-rh-false-pa-'))
+    try {
+      const srcDir = path.join(dir, 'src')
+      fs.mkdirSync(srcDir, { recursive: true })
+
+      const out = path.join(srcDir, 'route.ts') as `${string}.ts`
+      const result = await runTakibi(simpleOpenapi, out, {
+        template: true,
+        test: false,
+        pathAlias: '@/',
+        routeHandler: false,
+      })
+
+      expect(result).toStrictEqual({
+        ok: true,
+        value: '🔥 Generated code and template files written',
+      })
+
+      const indexContent = fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf-8')
+      expect(indexContent).toContain("from '@/handlers'")
+      expect(indexContent).toContain('testHandler')
+
+      const handlerContent = fs.readFileSync(path.join(srcDir, 'handlers', 'test.ts'), 'utf-8')
+      expect(handlerContent).toContain("from '@/route'")
+      expect(handlerContent).toContain('testHandler')
     } finally {
       fs.rmSync(dir, { recursive: true, force: true })
     }

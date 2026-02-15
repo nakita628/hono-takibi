@@ -1,4 +1,5 @@
 import { isHttpMethod } from '../../../guard/index.js'
+import { makeHandlerFileName } from '../../../helper/handler.js'
 import type { OpenAPI } from '../../../openapi/index.js'
 import { methodPath } from '../../../utils/index.js'
 
@@ -8,6 +9,10 @@ import { methodPath } from '../../../utils/index.js'
  * @param openapi - The OpenAPI specification.
  * @param output - The output file name (e.g., 'user.ts').
  * @param basePath - Optional base path for the app.
+ * @param pathAlias - Optional path alias prefix.
+ * @param routeImport - Optional route module specifier override.
+ * @param routeHandler - When true (default), generates `app.openapi()` pattern with barrel import.
+ *   When false, generates `app.route()` pattern with individual handler sub-app imports.
  * @returns The generated application code as a string.
  *
  * @example
@@ -22,6 +27,7 @@ export function app(
   basePath: string,
   pathAlias: string | undefined,
   routeImport: string | undefined = undefined,
+  routeHandler = true,
 ): string {
   const getRouteMaps = (
     openapi: OpenAPI,
@@ -42,13 +48,50 @@ export function app(
 
   const routeMappings = getRouteMaps(openapi)
 
-  const routeNames = [...new Set(routeMappings.map((m) => m.routeName))]
   const isIndexFile = output.endsWith('/index.ts')
   const routeBasename = isIndexFile
     ? output.replace(/\/index\.ts$/, '').replace(/^.*\//, '')
     : output.replace(/^.*\//, '').replace(/\.ts$/, '')
   // Fallback: routeImport (routes.import) → pathAlias → relative path
   const aliasPrefix = pathAlias?.endsWith('/') ? pathAlias.slice(0, -1) : pathAlias
+
+  const appInit =
+    basePath !== '/'
+      ? `const app=new OpenAPIHono().basePath('${basePath}')`
+      : 'const app=new OpenAPIHono()'
+
+  if (!routeHandler) {
+    // routeHandler: false — each handler file is a sub-app, index.ts mounts via .route()
+    const handlerModule = aliasPrefix ? `${aliasPrefix}/handlers` : './handlers'
+
+    // Group routes by handler file name to get unique handler modules
+    const fileMap = new Map<string, string>()
+    for (const m of routeMappings) {
+      const fileName = makeHandlerFileName(m.path)
+      const name = fileName.replace(/\.ts$/, '')
+      if (!fileMap.has(name)) {
+        fileMap.set(name, `${name}Handler`)
+      }
+    }
+    const handlerEntries = [...fileMap.entries()]
+
+    const handlerNames = handlerEntries.map(([, exportName]) => exportName)
+    const handlerImport =
+      handlerNames.length > 0 ? `import{${handlerNames.join(',')}}from'${handlerModule}'` : ''
+
+    const importSection = [`import{OpenAPIHono}from'@hono/zod-openapi'`, handlerImport]
+      .filter(Boolean)
+      .join('\n')
+
+    const apiInit =
+      'export const api=app' +
+      handlerEntries.map(([, exportName]) => `.route('/',${exportName})`).join('\n')
+
+    return [importSection, appInit, apiInit, 'export default app'].join('\n\n')
+  }
+
+  // routeHandler: true (default) — app.openapi() pattern with barrel import
+  const routeNames = [...new Set(routeMappings.map((m) => m.routeName))]
   const routeModule =
     routeImport ?? (aliasPrefix ? `${aliasPrefix}/${routeBasename}` : `./${routeBasename}`)
   const routesImport =
@@ -62,11 +105,6 @@ export function app(
   const importSection = [`import{OpenAPIHono}from'@hono/zod-openapi'`, routesImport, handlerImport]
     .filter(Boolean)
     .join('\n')
-
-  const appInit =
-    basePath !== '/'
-      ? `const app=new OpenAPIHono().basePath('${basePath}')`
-      : 'const app=new OpenAPIHono()'
 
   const apiInit =
     'export const api=app' +

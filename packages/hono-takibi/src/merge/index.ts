@@ -41,13 +41,18 @@ export function mergeHandlerFile(existingCode: string, generatedCode: string): s
   const existingFile = project.createSourceFile('existing.ts', existingCode)
   const generatedFile = project.createSourceFile('generated.ts', generatedCode)
 
+  // Detect handler pattern: RouteHandler (traditional) or Handler (inline sub-app)
+  const isHandlerName = (name: string): boolean =>
+    name.endsWith('RouteHandler') ||
+    (name.endsWith('Handler') && !name.endsWith('RouteHandler'))
+
   const collectHandlerNames = (file: ReturnType<typeof project.createSourceFile>) =>
     new Set(
       file
         .getVariableStatements()
         .filter((stmt) => stmt.isExported())
         .flatMap((stmt) => stmt.getDeclarations())
-        .filter((decl) => decl.getName().endsWith('RouteHandler'))
+        .filter((decl) => isHandlerName(decl.getName()))
         .map((decl) => decl.getName()),
     )
 
@@ -64,7 +69,7 @@ export function mergeHandlerFile(existingCode: string, generatedCode: string): s
           .getDeclarations()
           .some(
             (decl) =>
-              decl.getName().endsWith('RouteHandler') && !generatedHandlerNames.has(decl.getName()),
+              isHandlerName(decl.getName()) && !generatedHandlerNames.has(decl.getName()),
           ),
     )
     .map((stmt): [number, number] => [stmt.getFullStart(), stmt.getEnd()])
@@ -97,7 +102,7 @@ export function mergeHandlerFile(existingCode: string, generatedCode: string): s
           .getDeclarations()
           .some(
             (decl) =>
-              decl.getName().endsWith('RouteHandler') && !existingHandlerNames.has(decl.getName()),
+              isHandlerName(decl.getName()) && !existingHandlerNames.has(decl.getName()),
           ),
     )
     .map((stmt) => stmt.getText())
@@ -151,7 +156,14 @@ export function mergeAppFile(existingCode: string, generatedCode: string): strin
       (stmt) =>
         stmt.isExported() && stmt.getDeclarations().some((decl) => decl.getName() === 'api'),
     )
-  const generatedApiText = generatedApiStmt?.getText() ?? ''
+  const rawGeneratedApiText = generatedApiStmt?.getText() ?? ''
+
+  // Preserve user's chain prefix (e.g., .basePath('/api')) between `app` and first .openapi(/.route(
+  const existingApiText = existingApiStmt?.getText() ?? ''
+  const chainPrefix = extractChainPrefix(existingApiText)
+  const generatedApiText = chainPrefix
+    ? rawGeneratedApiText.replace(/\bapp\.(?=(?:openapi|route)\s*\()/, () => `app${chainPrefix}.`)
+    : rawGeneratedApiText
 
   const mergedImports = mergeImports(existingCode, generatedCode)
 
@@ -215,7 +227,11 @@ function mergeImports(existingCode: string, generatedCode: string): string[] {
   const existingImports = parseDeclarations(existingFile)
   const generatedImports = parseDeclarations(generatedFile)
 
-  // Collect auto-generated names (ending in Route or RouteHandler) as source of truth
+  // Detect if a name is auto-generated (Route, RouteHandler, or inline Handler)
+  const isAutoName = (name: string): boolean =>
+    name.endsWith('Route') || name.endsWith('RouteHandler') || name.endsWith('Handler')
+
+  // Collect auto-generated names as source of truth
   const generatedAutoNames = new Set<string>()
   // Map: auto-name → module specifier in generated code (canonical path)
   const generatedAutoNameModules = new Map<string, string>()
@@ -226,7 +242,7 @@ function mergeImports(existingCode: string, generatedCode: string): string[] {
       generatedDefaultImportModules.set(imp.defaultImport, imp.moduleSpecifier)
     }
     for (const n of imp.namedImports) {
-      if (n.name.endsWith('Route') || n.name.endsWith('RouteHandler')) {
+      if (isAutoName(n.name)) {
         generatedAutoNames.add(n.name)
         generatedAutoNameModules.set(n.name, imp.moduleSpecifier)
       }
@@ -250,8 +266,7 @@ function mergeImports(existingCode: string, generatedCode: string): string[] {
       ...imp,
       defaultImport,
       namedImports: imp.namedImports.filter((n) => {
-        const isAutoName = n.name.endsWith('Route') || n.name.endsWith('RouteHandler')
-        if (!isAutoName) return true
+        if (!isAutoName(n.name)) return true
         if (!generatedAutoNames.has(n.name)) return false
         const canonicalModule = generatedAutoNameModules.get(n.name)
         return canonicalModule === undefined || canonicalModule === imp.moduleSpecifier
@@ -319,6 +334,24 @@ function mergeImports(existingCode: string, generatedCode: string): string[] {
       return `${typePrefix} ${importParts.join(', ')} from '${moduleSpecifier}'`
     })
     .filter((line): line is string => line !== undefined)
+}
+
+/**
+ * Extracts the method chain between `app` and the first `.openapi(`/`.route(` call.
+ *
+ * For example, from `export const api=app.basePath('/api').openapi(...)`,
+ * this returns `.basePath('/api')`.
+ * Returns empty string if there is no prefix chain.
+ */
+function extractChainPrefix(apiStmtText: string): string {
+  const initMatch = apiStmtText.match(/=\s*app\b/)
+  if (!initMatch || initMatch.index === undefined) return ''
+
+  const afterApp = apiStmtText.slice(initMatch.index + initMatch[0].length)
+  const routeMatch = afterApp.match(/\.(?:openapi|route)\s*\(/)
+  if (!routeMatch || routeMatch.index === undefined || routeMatch.index === 0) return ''
+
+  return afterApp.slice(0, routeMatch.index)
 }
 
 /**

@@ -103,7 +103,7 @@ function makeStubHandlerCode(routeId: string): string {
 
 /* ─────────────────────────────── Path Utilities ─────────────────────────────── */
 
-function makeHandlerFileName(path: string): `${string}.ts` {
+export function makeHandlerFileName(path: string): `${string}.ts` {
   const rawSegment = path.replace(/^\/+/, '').split('/')[0] ?? ''
   const sanitized = rawSegment
     .replace(/\{([^}]+)\}/g, '$1')
@@ -145,6 +145,131 @@ function makePaths(
     routeImport ?? (aliasPrefix ? `${aliasPrefix}/${routeModuleName}` : `../${routeModuleName}`)
   const testImportFrom = aliasPrefix ?? '..'
   return { handlerPath, importFrom, testImportFrom }
+}
+
+/* ─────────────────────────────── Inline Stub/Mock (routeHandler: false) ─── */
+
+function makeInlineStubContent(routeId: string): string {
+  return `.openapi(${routeId}Route,(c)=>{})`
+}
+
+function makeInlineMockContent(
+  routeId: string,
+  operation: Operation,
+  schemas: { readonly [k: string]: Schema },
+): { readonly content: string; readonly needsFaker: boolean; readonly usedRefs: ReadonlySet<string> } {
+  const { schema: responseSchema, statusCode } = makeResponseInfo(operation)
+  if (responseSchema) {
+    const usedRefs = makeRefs(responseSchema)
+    const mockData = schemaToFaker(responseSchema, undefined, { schemas })
+    return {
+      content: `.openapi(${routeId}Route,async(c)=>{return c.json(${mockData},${statusCode})})`,
+      needsFaker: true,
+      usedRefs,
+    }
+  }
+  return {
+    content: `.openapi(${routeId}Route,async(c)=>{return new Response(null,{status:204})})`,
+    needsFaker: false,
+    usedRefs: new Set(),
+  }
+}
+
+function makeInlineStubHandlerInfo(
+  path: string,
+  method: string,
+): {
+  readonly fileName: `${string}.ts`
+  readonly testFileName: `${string}.ts`
+  readonly contents: readonly string[]
+  readonly routeNames: readonly string[]
+  readonly needsFaker: false
+  readonly usedRefs: ReadonlySet<string>
+} {
+  const routeId = methodPath(method, path)
+  const fileName = makeHandlerFileName(path)
+  return {
+    fileName,
+    testFileName: makeTestFileName(fileName),
+    contents: [makeInlineStubContent(routeId)],
+    routeNames: [`${routeId}Route`],
+    needsFaker: false,
+    usedRefs: new Set(),
+  }
+}
+
+function makeInlineMockHandlerInfo(
+  path: string,
+  method: string,
+  operation: Operation,
+  schemas: { readonly [k: string]: Schema },
+): {
+  readonly fileName: `${string}.ts`
+  readonly testFileName: `${string}.ts`
+  readonly contents: readonly string[]
+  readonly routeNames: readonly string[]
+  readonly needsFaker: boolean
+  readonly usedRefs: ReadonlySet<string>
+} {
+  const routeId = methodPath(method, path)
+  const fileName = makeHandlerFileName(path)
+  const result = makeInlineMockContent(routeId, operation, schemas)
+  return {
+    fileName,
+    testFileName: makeTestFileName(fileName),
+    contents: [result.content],
+    routeNames: [`${routeId}Route`],
+    needsFaker: result.needsFaker,
+    usedRefs: result.usedRefs,
+  }
+}
+
+/* ─────────────────────────────── Inline File Content ─────────────────────── */
+
+function makeInlineStubFileContent(
+  handler: {
+    readonly fileName: `${string}.ts`
+    readonly contents: readonly string[]
+    readonly routeNames: readonly string[]
+  },
+  importFrom: string,
+): string {
+  const exportName = `${handler.fileName.replace(/\.ts$/, '')}Handler`
+  const routeImports = Array.from(new Set(handler.routeNames)).join(', ')
+  const importRoutes = routeImports ? `import { ${routeImports} } from '${importFrom}';` : ''
+  const importStatements = `import { OpenAPIHono } from '@hono/zod-openapi'\n${importRoutes}`
+  const chain = handler.contents.join('\n')
+  return `${importStatements}\n\nexport const ${exportName} = new OpenAPIHono()\n${chain}`
+}
+
+function makeInlineMockFileContent(
+  handler: {
+    readonly fileName: `${string}.ts`
+    readonly contents: readonly string[]
+    readonly routeNames: readonly string[]
+    readonly needsFaker: boolean
+    readonly usedRefs: ReadonlySet<string>
+  },
+  importFrom: string,
+  schemas: { readonly [k: string]: Schema },
+): string {
+  const exportName = `${handler.fileName.replace(/\.ts$/, '')}Handler`
+  const routeImports = Array.from(new Set(handler.routeNames)).join(', ')
+  const importRoutes = routeImports ? `import { ${routeImports} } from '${importFrom}';` : ''
+  const fakerImport = handler.needsFaker ? "import { faker } from '@faker-js/faker'\n" : ''
+  const importStatements = `import { OpenAPIHono } from '@hono/zod-openapi'\n${fakerImport}${importRoutes}`
+
+  const mockFunctions = Array.from(handler.usedRefs)
+    .filter((refName) => schemas[refName])
+    .map((refName) => makeMockFunction(refName, schemas[refName], schemas))
+    .join('\n\n')
+
+  const chain = handler.contents.join('\n')
+  const body = `export const ${exportName} = new OpenAPIHono()\n${chain}`
+
+  return mockFunctions
+    ? `${importStatements}\n\n${mockFunctions}\n\n${body}`
+    : `${importStatements}\n\n${body}`
 }
 
 /* ─────────────────────────────── Handler Info ─────────────────────────────── */
@@ -330,6 +455,7 @@ export async function zodOpenAPIHonoHandler(
   test = false,
   pathAlias: string | undefined = undefined,
   routeImport: string | undefined = undefined,
+  routeHandler = true,
 ): Promise<
   { readonly ok: true; readonly value: undefined } | { readonly ok: false; readonly error: string }
 > {
@@ -341,7 +467,9 @@ export async function zodOpenAPIHonoHandler(
         .filter(
           (entry): entry is [string, Operation] => isHttpMethod(entry[0]) && isOperation(entry[1]),
         )
-        .map(([method]) => makeStubHandlerInfo(path, method)),
+        .map(([method]) =>
+          routeHandler ? makeStubHandlerInfo(path, method) : makeInlineStubHandlerInfo(path, method),
+        ),
     ),
   )
 
@@ -352,7 +480,10 @@ export async function zodOpenAPIHonoHandler(
 
   const results = await Promise.all([
     ...handlers.map(async (handler) => {
-      const fmtResult = await fmt(makeStubFileContent(handler, importFrom))
+      const fileContent = routeHandler
+        ? makeStubFileContent(handler, importFrom)
+        : makeInlineStubFileContent(handler, importFrom)
+      const fmtResult = await fmt(fileContent)
       if (!fmtResult.ok) return { ok: false, error: fmtResult.error } as const
 
       const filePath = `${handlerPath}/${handler.fileName}`
@@ -442,6 +573,7 @@ export async function mockZodOpenAPIHonoHandler(
   test: boolean,
   pathAlias: string | undefined = undefined,
   routeImport: string | undefined = undefined,
+  routeHandler = true,
 ): Promise<
   { readonly ok: true; readonly value: undefined } | { readonly ok: false; readonly error: string }
 > {
@@ -454,7 +586,11 @@ export async function mockZodOpenAPIHonoHandler(
         .filter(
           (entry): entry is [string, Operation] => isHttpMethod(entry[0]) && isOperation(entry[1]),
         )
-        .map(([method, operation]) => makeMockHandlerInfo(path, method, operation, schemas)),
+        .map(([method, operation]) =>
+          routeHandler
+            ? makeMockHandlerInfo(path, method, operation, schemas)
+            : makeInlineMockHandlerInfo(path, method, operation, schemas),
+        ),
     ),
   )
 
@@ -465,7 +601,10 @@ export async function mockZodOpenAPIHonoHandler(
 
   const results = await Promise.all([
     ...handlers.map(async (handler) => {
-      const fmtResult = await fmt(makeMockFileContent(handler, importFrom, schemas))
+      const fileContent = routeHandler
+        ? makeMockFileContent(handler, importFrom, schemas)
+        : makeInlineMockFileContent(handler, importFrom, schemas)
+      const fmtResult = await fmt(fileContent)
       if (!fmtResult.ok) return { ok: false, error: fmtResult.error } as const
 
       const filePath = `${handlerPath}/${handler.fileName}`

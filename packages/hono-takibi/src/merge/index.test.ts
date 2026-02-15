@@ -291,6 +291,78 @@ export const getHealthRouteHandler: RouteHandler<typeof getHealthRoute> = async 
       expect(result).not.toContain("from '../routes'")
       expect(result).not.toContain("from '@/routes/routes'")
     })
+
+    it('preserves existing inline handler implementation (routeHandler: false pattern)', () => {
+      const existing = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute } from '../routes'
+
+export const healthHandler = new OpenAPIHono()
+.openapi(getHealthRoute, async (c) => {
+  const data = await db.getHealth()
+  return c.json(data, 200)
+})
+`
+
+      const generated = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute } from '../routes'
+
+export const healthHandler = new OpenAPIHono()
+.openapi(getHealthRoute, (c) => {})
+`
+
+      const result = mergeHandlerFile(existing, generated)
+      expect(result).toContain('await db.getHealth()')
+      expect(result).toContain('healthHandler')
+    })
+
+    it('adds new inline handler from generated code', () => {
+      const existing = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute } from '../routes'
+
+export const healthHandler = new OpenAPIHono()
+.openapi(getHealthRoute, async (c) => {
+  return c.json({ status: 'ok' }, 200)
+})
+`
+
+      const generated = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute, postHealthRoute } from '../routes'
+
+export const healthHandler = new OpenAPIHono()
+.openapi(getHealthRoute, (c) => {})
+.openapi(postHealthRoute, (c) => {})
+`
+
+      const result = mergeHandlerFile(existing, generated)
+      expect(result).toContain('healthHandler')
+    })
+
+    it('removes deleted inline handler from existing code', () => {
+      const existing = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute } from '../routes'
+
+export const healthHandler = new OpenAPIHono()
+.openapi(getHealthRoute, async (c) => {
+  return c.json({ status: 'ok' }, 200)
+})
+
+export const usersHandler = new OpenAPIHono()
+.openapi(getUsersRoute, async (c) => {
+  return c.json([], 200)
+})
+`
+
+      const generated = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute } from '../routes'
+
+export const healthHandler = new OpenAPIHono()
+.openapi(getHealthRoute, (c) => {})
+`
+
+      const result = mergeHandlerFile(existing, generated)
+      expect(result).toContain('healthHandler')
+      expect(result).not.toContain('usersHandler')
+    })
   })
 
   describe('mergeAppFile', () => {
@@ -440,6 +512,114 @@ export default app
       const result = mergeAppFile(generated, generated)
       expect(result).toContain('getHealthRoute')
       expect(result).toContain('export default app')
+    })
+
+    it('preserves user chain prefix (.basePath) with .openapi() pattern', () => {
+      const existing = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute } from './routes'
+import { getHealthRouteHandler } from './handlers'
+
+const app = new OpenAPIHono()
+
+export const api = app.basePath('/api').openapi(getHealthRoute, getHealthRouteHandler)
+
+export default app
+`
+
+      const generated = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute, getUserRoute } from './routes'
+import { getHealthRouteHandler, getUserRouteHandler } from './handlers'
+
+const app = new OpenAPIHono()
+
+export const api = app.openapi(getHealthRoute, getHealthRouteHandler).openapi(getUserRoute, getUserRouteHandler)
+
+export default app
+`
+
+      const result = mergeAppFile(existing, generated)
+      const expected = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute, getUserRoute } from './routes'
+import { getHealthRouteHandler, getUserRouteHandler } from './handlers'
+
+const app = new OpenAPIHono()
+
+export const api = app.basePath('/api').openapi(getHealthRoute, getHealthRouteHandler).openapi(getUserRoute, getUserRouteHandler)
+
+export default app
+`
+      expect(result).toBe(expected)
+    })
+
+    it('preserves user chain prefix (.basePath) with .route() pattern', () => {
+      const existing = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { honoHandler } from './handlers'
+
+const app = new OpenAPIHono()
+
+export const api = app.basePath('/api').route('/', honoHandler)
+
+export default app
+`
+
+      const generated = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { honoHandler, honoXHandler } from './handlers'
+
+const app = new OpenAPIHono()
+
+export const api = app.route('/', honoHandler).route('/', honoXHandler)
+
+export default app
+`
+
+      const result = mergeAppFile(existing, generated)
+      const expected = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { honoHandler, honoXHandler } from './handlers'
+
+const app = new OpenAPIHono()
+
+export const api = app.basePath('/api').route('/', honoHandler).route('/', honoXHandler)
+
+export default app
+`
+      expect(result).toBe(expected)
+    })
+
+    it('does not inject prefix when existing has no chain prefix', () => {
+      const existing = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute } from './routes'
+import { getHealthRouteHandler } from './handlers'
+
+const app = new OpenAPIHono()
+
+export const api = app.openapi(getHealthRoute, getHealthRouteHandler)
+
+export default app
+`
+
+      const generated = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute, getUserRoute } from './routes'
+import { getHealthRouteHandler, getUserRouteHandler } from './handlers'
+
+const app = new OpenAPIHono()
+
+export const api = app.openapi(getHealthRoute, getHealthRouteHandler).openapi(getUserRoute, getUserRouteHandler)
+
+export default app
+`
+
+      const result = mergeAppFile(existing, generated)
+      const expected = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute, getUserRoute } from './routes'
+import { getHealthRouteHandler, getUserRouteHandler } from './handlers'
+
+const app = new OpenAPIHono()
+
+export const api = app.openapi(getHealthRoute, getHealthRouteHandler).openapi(getUserRoute, getUserRouteHandler)
+
+export default app
+`
+      expect(result).toBe(expected)
     })
   })
 

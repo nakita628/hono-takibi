@@ -106,7 +106,7 @@ export async function honoTakibi(): Promise<
       exportPathItems: false,
       exportMediaTypes: false,
       exportMediaTypesTypes: false,
-    })
+    }, true)
     if (!takibiResult.ok) return { ok: false, error: takibiResult.error }
     return { ok: true, value: takibiResult.value }
   }
@@ -151,10 +151,10 @@ export async function honoTakibi(): Promise<
       ? takibi(
           openAPI,
           config['zod-openapi'].output,
-          config['zod-openapi'].template ?? false,
-          config['zod-openapi'].test ?? false,
+          !!config['zod-openapi']?.template,
+          config['zod-openapi']?.template?.test ?? false,
           config['zod-openapi'].basePath ?? '/',
-          config['zod-openapi'].pathAlias,
+          config['zod-openapi']?.template?.pathAlias,
           config['zod-openapi'].routes?.import,
           {
             readonly: config['zod-openapi'].readonly,
@@ -175,6 +175,7 @@ export async function honoTakibi(): Promise<
             exportMediaTypes: config['zod-openapi'].exportMediaTypes ?? false,
             exportMediaTypesTypes: config['zod-openapi'].exportMediaTypesTypes ?? false,
           },
+          config['zod-openapi']?.template?.routeHandler ?? true,
         )
       : Promise.resolve(undefined),
     config['zod-openapi']?.components?.schemas
@@ -361,10 +362,11 @@ export async function honoTakibi(): Promise<
           (config['zod-openapi'].routes.output.endsWith('.ts')
             ? config['zod-openapi'].routes.output
             : `${config['zod-openapi'].routes.output}/index.ts`) as `${string}.ts`,
-          config['zod-openapi'].test ?? false,
+          config['zod-openapi']?.template?.test ?? false,
           config['zod-openapi'].basePath ?? '/',
-          config['zod-openapi'].pathAlias,
+          config['zod-openapi']?.template?.pathAlias,
           config['zod-openapi'].routes.import,
+          config['zod-openapi']?.template?.routeHandler ?? true,
         )
       : Promise.resolve(undefined),
   ])

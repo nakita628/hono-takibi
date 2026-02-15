@@ -109,10 +109,15 @@ const ConfigSchema = z
           })
           .exactOptional(),
         readonly: z.boolean().exactOptional(),
-        template: z.boolean().exactOptional(),
-        test: z.boolean().exactOptional(),
+        template: z
+          .object({
+            test: z.boolean().exactOptional(),
+            pathAlias: z.string().exactOptional(),
+            routeHandler: z.boolean().exactOptional(),
+          })
+          .strict()
+          .exactOptional(),
         basePath: z.string().exactOptional(),
-        pathAlias: z.string().exactOptional(),
         // OpenAPI Components Object order
         exportSchemas: z.boolean().exactOptional(),
         exportSchemasTypes: z.boolean().exactOptional(),

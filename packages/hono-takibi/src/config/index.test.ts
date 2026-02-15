@@ -287,11 +287,11 @@ describe('parseConfig()', () => {
       }
     })
 
-    it.concurrent('preserves routes.import with split and pathAlias', () => {
+    it.concurrent('preserves routes.import with split and template.pathAlias', () => {
       const result = parseConfig({
         input: 'openapi.yaml',
         'zod-openapi': {
-          pathAlias: '@/',
+          template: { pathAlias: '@/' },
           routes: { output: 'src/routes', split: true, import: '@packages/routes' },
         },
       })
@@ -299,7 +299,7 @@ describe('parseConfig()', () => {
       if (result.ok) {
         expect(result.value['zod-openapi']?.routes?.import).toBe('@packages/routes')
         expect(result.value['zod-openapi']?.routes?.output).toBe('src/routes')
-        expect(result.value['zod-openapi']?.pathAlias).toBe('@/')
+        expect(result.value['zod-openapi']?.template?.pathAlias).toBe('@/')
       }
     })
 
