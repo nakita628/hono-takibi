@@ -1118,6 +1118,7 @@ describe('makeTemplate() unit tests', () => {
         '/',
         undefined,
         undefined,
+        true,
       )
 
       expect(result).toStrictEqual({
@@ -1168,6 +1169,7 @@ export const getTestRouteHandler: RouteHandler<typeof getTestRoute> = async (c) 
         '/',
         '@/',
         '@packages/routes',
+        true,
       )
 
       expect(result).toStrictEqual({
@@ -1234,6 +1236,7 @@ export const getTestRouteHandler: RouteHandler<typeof getTestRoute> = async (c) 
         '/',
         undefined,
         undefined,
+        true,
       )
 
       expect(result).toStrictEqual({

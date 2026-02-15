@@ -233,10 +233,10 @@ const runAllGenerationTasks = async (
       const result = await takibi(
         openAPI,
         outputPath,
-        config['zod-openapi']?.template ?? false,
-        config['zod-openapi']?.test ?? false,
+        !!config['zod-openapi']?.template,
+        config['zod-openapi']?.template?.test ?? false,
         config['zod-openapi']?.basePath ?? '/',
-        config['zod-openapi']?.pathAlias,
+        config['zod-openapi']?.template?.pathAlias,
         config['zod-openapi']?.routes?.import,
         {
           readonly: config['zod-openapi']?.readonly,
@@ -256,6 +256,7 @@ const runAllGenerationTasks = async (
           exportMediaTypes: config['zod-openapi']?.exportMediaTypes ?? false,
           exportMediaTypesTypes: config['zod-openapi']?.exportMediaTypesTypes ?? false,
         },
+        config['zod-openapi']?.template?.routeHandler ?? false,
       )
       return result.ok ? `✅ zod-openapi -> ${outputPath}` : `❌ zod-openapi: ${result.error}`
     })()
