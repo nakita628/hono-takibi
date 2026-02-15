@@ -233,11 +233,12 @@ function makeInlineStubFileContent(
     readonly routeNames: readonly string[]
   },
   importFrom: string,
+  appImportFrom: string,
 ): string {
   const exportName = `${handler.fileName.replace(/\.ts$/, '')}Handler`
   const routeImports = Array.from(new Set(handler.routeNames)).join(', ')
   const importRoutes = routeImports ? `import { ${routeImports} } from '${importFrom}';` : ''
-  const importStatements = `${importRoutes}\nimport app from '..'`
+  const importStatements = `${importRoutes}\nimport app from '${appImportFrom}'`
   const chain = handler.contents.join('\n')
   return `${importStatements}\n\nexport const ${exportName} = app\n${chain}`
 }
@@ -251,13 +252,14 @@ function makeInlineMockFileContent(
     readonly usedRefs: ReadonlySet<string>
   },
   importFrom: string,
+  appImportFrom: string,
   schemas: { readonly [k: string]: Schema },
 ): string {
   const exportName = `${handler.fileName.replace(/\.ts$/, '')}Handler`
   const routeImports = Array.from(new Set(handler.routeNames)).join(', ')
   const importRoutes = routeImports ? `import { ${routeImports} } from '${importFrom}';` : ''
   const fakerImport = handler.needsFaker ? "import { faker } from '@faker-js/faker'\n" : ''
-  const importStatements = `${fakerImport}${importRoutes}\nimport app from '..'`
+  const importStatements = `${fakerImport}${importRoutes}\nimport app from '${appImportFrom}'`
 
   const mockFunctions = Array.from(handler.usedRefs)
     .filter((refName) => schemas[refName])
@@ -482,7 +484,7 @@ export async function zodOpenAPIHonoHandler(
     ...handlers.map(async (handler) => {
       const fileContent = routeHandler
         ? makeStubFileContent(handler, importFrom)
-        : makeInlineStubFileContent(handler, importFrom)
+        : makeInlineStubFileContent(handler, importFrom, testImportFrom)
       const fmtResult = await fmt(fileContent)
       if (!fmtResult.ok) return { ok: false, error: fmtResult.error } as const
 
@@ -603,7 +605,7 @@ export async function mockZodOpenAPIHonoHandler(
     ...handlers.map(async (handler) => {
       const fileContent = routeHandler
         ? makeMockFileContent(handler, importFrom, schemas)
-        : makeInlineMockFileContent(handler, importFrom, schemas)
+        : makeInlineMockFileContent(handler, importFrom, testImportFrom, schemas)
       const fmtResult = await fmt(fileContent)
       if (!fmtResult.ok) return { ok: false, error: fmtResult.error } as const
 
