@@ -32,8 +32,9 @@ export function examplesCode(
       const asConst = readonly ? ' as const' : ''
 
       // $ref: generate variable reference (siblings ignored per OpenAPI 3.0 spec)
+      // Skip `as const` for $ref — it's a variable reference, not a literal
       if (hasRef(example)) {
-        return `${makeConst(exportExamples, k, 'Example')}${makeRef(example.$ref)}${asConst}`
+        return `${makeConst(exportExamples, k, 'Example')}${makeRef(example.$ref)}`
       }
 
       // Inline: serialize entire object
