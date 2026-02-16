@@ -345,10 +345,11 @@ export async function honoTakibi(): Promise<
             (config['zod-openapi'].routes?.output.endsWith('.ts')
               ? config['zod-openapi'].routes?.output
               : `${config['zod-openapi'].routes?.output}/index.ts`)) as `${string}.ts`,
-          config['zod-openapi'].test ?? false,
+          config['zod-openapi'].template.test,
           config.basePath ?? '/',
-          config['zod-openapi'].pathAlias,
+          config['zod-openapi'].template.pathAlias,
           config['zod-openapi'].routes?.import,
+          config['zod-openapi'].template.routeHandler,
         )
       : Promise.resolve(undefined),
   ])

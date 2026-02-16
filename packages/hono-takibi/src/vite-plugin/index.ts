@@ -567,10 +567,11 @@ const runAllGenerationTasks = async (
       const result = await template(
         openAPI,
         absPath,
-        config['zod-openapi']?.test ?? false,
+        config['zod-openapi']?.template.test,
         config.basePath ?? '/',
-        config['zod-openapi']?.pathAlias,
+        config['zod-openapi']?.template.pathAlias,
         config['zod-openapi']?.routes?.import,
+        config['zod-openapi']?.template.routeHandler,
       )
       return result.ok ? `✅ template -> ${absPath}` : `❌ template: ${result.error}`
     })()
