@@ -9,7 +9,7 @@ importers:
   .:
     devDependencies:
       '@biomejs/biome':
-        specifier: ^2.3.15
+        specifier: ^2.4.0
         version: 2.4.0
       '@vitest/coverage-v8':
         specifier: ^4.0.18
@@ -395,11 +395,7 @@ importers:
         version: 5.90.21(react@19.2.4)
       '@tanstack/svelte-query':
         specifier: ^6.0.18
-<<<<<<< HEAD
-        version: 6.0.18(svelte@5.51.1)
-=======
         version: 6.0.18(svelte@5.51.2)
->>>>>>> main
       '@tanstack/vue-query':
         specifier: ^5.92.9
         version: 5.92.9(vue@3.5.28(typescript@5.9.3))
@@ -3148,16 +3144,20 @@ packages:
     resolution: {integrity: sha512-Y7DLt1bIZF9dvHzJwSJTcC1lpSr1Tbf4VBhHOCRIHu23Rr7/lhQnddRxFmPV1tZXwEQKz7F7yRrubwCfKPCucw==}
     engines: {node: '>=20'}
 
-  '@scalar/json-magic@0.11.0':
-    resolution: {integrity: sha512-1zBseDDEPkKlAVd9lT1HlK9Nefeh0YEE+pcmyDL3J5derIZn9UYXAFecdkeXMdjDtWDgcrkmWCrHhpoT7zVKdQ==}
+  '@scalar/helpers@0.2.12':
+    resolution: {integrity: sha512-Ig/H1Je8nqcDiY+YwFIpATxF2ko7zKrjIZFWK2gGeNTYK4Np9XnqDHg56jM3Xru439Eh4qHq9P/lX7Se5nnxFA==}
+    engines: {node: '>=20'}
+
+  '@scalar/json-magic@0.11.1':
+    resolution: {integrity: sha512-JsugkVpZ9SmKW6fDhamcmkttc9YOPGgb9Azbwc7hXTlZgG6YeYXx8qFvYr5eJE4cfzCqalodS/9w7moZnVG3cw==}
     engines: {node: '>=20'}
 
   '@scalar/json-magic@0.9.6':
     resolution: {integrity: sha512-2TKoqkAophHti1nH+rvQlR4lhD6X9tqQpuNeAE0cytHSX/yndkSOE0yA7cep5T9tFjGN4Km0gMnelvY3LgWs4A==}
     engines: {node: '>=20'}
 
-  '@scalar/openapi-parser@0.24.9':
-    resolution: {integrity: sha512-uqpwt6ZQJQu4c3CvMsJiXMUj32113yrclsDC31hlL33vEUS5JU9dCYfY27oLSCVoKl8R8KihlnEcbfRnH/O/GA==}
+  '@scalar/openapi-parser@0.24.10':
+    resolution: {integrity: sha512-E9K8OYD7XKHsvTyLTSdILKHbm4Q3n/MA3EGdDTEBLJHSJd1vLOwiJzrp3+h+xiqFxlX7vlecInZvFy/3c1fqPg==}
     engines: {node: '>=20'}
 
   '@scalar/openapi-types@0.5.3':
@@ -5542,13 +5542,8 @@ packages:
     resolution: {integrity: sha512-qpCAvRl9stuOHveKsn7HncJRvv501qIacKzQlO/+Lwxc9+0q2wLyv4Dfvt80/DPn2pqOBsJdDiogXGR9+OvwRw==}
     engines: {node: '>=8'}
 
-<<<<<<< HEAD
-  svelte@5.51.1:
-    resolution: {integrity: sha512-r8r6p+NFC2ckAkxW4lqpGs1AZWBi5Y+TbJMmAglqSbokN5UWkDsKKkybfGBKXd8yYMri7KJ2L78fO9SO+NOelA==}
-=======
   svelte@5.51.2:
     resolution: {integrity: sha512-AqApqNOxVS97V4Ko9UHTHeSuDJrwauJhZpLDs1gYD8Jk48ntCSWD7NxKje+fnGn5Ja1O3u2FzQZHPdifQjXe3w==}
->>>>>>> main
     engines: {node: '>=18'}
 
   swr@2.4.0:
@@ -8399,9 +8394,11 @@ snapshots:
 
   '@scalar/helpers@0.2.11': {}
 
-  '@scalar/json-magic@0.11.0':
+  '@scalar/helpers@0.2.12': {}
+
+  '@scalar/json-magic@0.11.1':
     dependencies:
-      '@scalar/helpers': 0.2.11
+      '@scalar/helpers': 0.2.12
       yaml: 2.8.2
 
   '@scalar/json-magic@0.9.6':
@@ -8409,10 +8406,10 @@ snapshots:
       '@scalar/helpers': 0.2.11
       yaml: 2.8.2
 
-  '@scalar/openapi-parser@0.24.9':
+  '@scalar/openapi-parser@0.24.10':
     dependencies:
-      '@scalar/helpers': 0.2.11
-      '@scalar/json-magic': 0.11.0
+      '@scalar/helpers': 0.2.12
+      '@scalar/json-magic': 0.11.1
       '@scalar/openapi-types': 0.5.3
       '@scalar/openapi-upgrader': 0.1.8
       ajv: 8.18.0
@@ -8915,11 +8912,7 @@ snapshots:
   '@tanstack/react-router@1.160.0(react-dom@19.2.4(react@19.2.4))(react@19.2.4)':
     dependencies:
       '@tanstack/history': 1.154.14
-<<<<<<< HEAD
-      '@tanstack/react-store': 0.8.0(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
-=======
       '@tanstack/react-store': 0.8.1(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
->>>>>>> main
       '@tanstack/router-core': 1.160.0
       isbot: 5.1.35
       react: 19.2.4
@@ -9003,17 +8996,10 @@ snapshots:
 
   '@tanstack/store@0.8.1': {}
 
-<<<<<<< HEAD
-  '@tanstack/svelte-query@6.0.18(svelte@5.51.1)':
-    dependencies:
-      '@tanstack/query-core': 5.90.20
-      svelte: 5.51.1
-=======
   '@tanstack/svelte-query@6.0.18(svelte@5.51.2)':
     dependencies:
       '@tanstack/query-core': 5.90.20
       svelte: 5.51.2
->>>>>>> main
 
   '@tanstack/virtual-file-routes@1.154.7': {}
 
@@ -9213,7 +9199,7 @@ snapshots:
   '@typespec/openapi3@1.9.0(@typespec/compiler@1.9.0(@types/node@24.10.13))(@typespec/http@1.9.0(@typespec/compiler@1.9.0(@types/node@24.10.13)))(@typespec/openapi@1.9.0(@typespec/compiler@1.9.0(@types/node@24.10.13))(@typespec/http@1.9.0(@typespec/compiler@1.9.0(@types/node@24.10.13))))(@typespec/versioning@0.73.0(@typespec/compiler@1.9.0(@types/node@24.10.13)))':
     dependencies:
       '@scalar/json-magic': 0.9.6
-      '@scalar/openapi-parser': 0.24.9
+      '@scalar/openapi-parser': 0.24.10
       '@scalar/openapi-types': 0.5.3
       '@typespec/asset-emitter': 0.79.0(@typespec/compiler@1.9.0(@types/node@24.10.13))
       '@typespec/compiler': 1.9.0(@types/node@24.10.13)
@@ -9226,7 +9212,7 @@ snapshots:
   '@typespec/openapi3@1.9.0(@typespec/compiler@1.9.0(@types/node@25.2.3))(@typespec/http@1.9.0(@typespec/compiler@1.9.0(@types/node@25.2.3)))(@typespec/openapi@1.9.0(@typespec/compiler@1.9.0(@types/node@25.2.3))(@typespec/http@1.9.0(@typespec/compiler@1.9.0(@types/node@25.2.3))))(@typespec/versioning@0.78.0(@typespec/compiler@1.9.0(@types/node@25.2.3)))':
     dependencies:
       '@scalar/json-magic': 0.9.6
-      '@scalar/openapi-parser': 0.24.9
+      '@scalar/openapi-parser': 0.24.10
       '@scalar/openapi-types': 0.5.3
       '@typespec/asset-emitter': 0.79.0(@typespec/compiler@1.9.0(@types/node@25.2.3))
       '@typespec/compiler': 1.9.0(@types/node@25.2.3)
@@ -9239,7 +9225,7 @@ snapshots:
   '@typespec/openapi3@1.9.0(@typespec/compiler@1.9.0(@types/node@25.2.3))(@typespec/http@1.9.0(@typespec/compiler@1.9.0(@types/node@25.2.3)))(@typespec/openapi@1.9.0(@typespec/compiler@1.9.0(@types/node@25.2.3))(@typespec/http@1.9.0(@typespec/compiler@1.9.0(@types/node@25.2.3))))(@typespec/versioning@0.79.0(@typespec/compiler@1.9.0(@types/node@25.2.3)))':
     dependencies:
       '@scalar/json-magic': 0.9.6
-      '@scalar/openapi-parser': 0.24.9
+      '@scalar/openapi-parser': 0.24.10
       '@scalar/openapi-types': 0.5.3
       '@typespec/asset-emitter': 0.79.0(@typespec/compiler@1.9.0(@types/node@25.2.3))
       '@typespec/compiler': 1.9.0(@types/node@25.2.3)
@@ -11040,11 +11026,7 @@ snapshots:
     dependencies:
       has-flag: 4.0.0
 
-<<<<<<< HEAD
-  svelte@5.51.1:
-=======
   svelte@5.51.2:
->>>>>>> main
     dependencies:
       '@jridgewell/remapping': 2.3.5
       '@jridgewell/sourcemap-codec': 1.5.5
