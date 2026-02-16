@@ -145,7 +145,9 @@ Re-running after updating your OpenAPI spec is safe — your hand-written handle
 
 > **Note:** If you remove a path from your OpenAPI spec and re-run, the corresponding handler and test files will be deleted. Make sure to back up or migrate any custom logic before removing API definitions.
 
-Each handler file imports the shared app and registers routes inline via `.openapi()`:
+### Route Handler Modes
+
+By default (`routeHandler: false` or omitted), each handler file imports the shared app and registers routes inline via `.openapi()`:
 
 ```ts
 // src/index.ts
@@ -176,6 +178,43 @@ const app = new OpenAPIHono();
 export const api = app.route("/", healthHandler);
 
 export default app;
+```
+
+With `routeHandler: true`, each handler exports a `RouteHandler` typed function and the app registers routes in `index.ts`:
+
+```ts
+export default defineConfig({
+  input: "openapi.yaml",
+  "zod-openapi": {
+    output: "./src/routes.ts",
+    template: {
+      pathAlias: "@/",
+      routeHandler: true,
+    },
+  },
+});
+```
+
+```ts
+// src/index.ts
+import { OpenAPIHono } from "@hono/zod-openapi";
+import { getHealthRoute } from "@/routes";
+import { getHealthRouteHandler } from "@/handlers";
+
+const app = new OpenAPIHono();
+
+export const api = app.openapi(getHealthRoute, getHealthRouteHandler);
+
+export default app;
+```
+
+```ts
+// src/handlers/health.ts
+import type { RouteHandler } from "@hono/zod-openapi";
+import type { getHealthRoute } from "@/routes";
+
+export const getHealthRouteHandler: RouteHandler<typeof getHealthRoute> =
+  async (c) => {};
 ```
 
 ## Client Library Integrations

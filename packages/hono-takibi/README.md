@@ -128,8 +128,8 @@ export default defineConfig({
   "zod-openapi": {
     output: "./src/routes.ts",
     template: {
-      pathAlias: "@/",
       test: true,
+      pathAlias: "@/",
     },
   },
 });
@@ -334,9 +334,9 @@ export default defineConfig({
 
     // Template generation (app entry point + handler stubs + tests)
     template: {
-      pathAlias: "@/", // TypeScript path alias for imports
       test: true, // Generate test files
       routeHandler: false, // false: inline .openapi() (default), true: RouteHandler exports
+      pathAlias: "@/", // TypeScript path alias for imports
     },
 
     // Export options (OpenAPI Components Object)
