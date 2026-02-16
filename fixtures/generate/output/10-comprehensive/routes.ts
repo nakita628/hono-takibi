@@ -1,6 +1,6 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
-export const AddressSchema = z
+const AddressSchema = z
   .object({
     street: z.string(),
     city: z.string(),
@@ -11,7 +11,7 @@ export const AddressSchema = z
   .openapi({ required: ['street', 'city', 'country'] })
   .openapi('Address')
 
-export const UserSchema = z
+const UserSchema = z
   .object({
     id: z.int(),
     name: z.string(),
@@ -23,9 +23,7 @@ export const UserSchema = z
   .openapi({ required: ['id', 'name', 'email', 'role', 'createdAt'] })
   .openapi('User')
 
-export type User = z.infer<typeof UserSchema>
-
-export const CreateUserSchema = z
+const CreateUserSchema = z
   .object({
     name: z.string(),
     email: z.email(),
@@ -36,9 +34,7 @@ export const CreateUserSchema = z
   .openapi({ required: ['name', 'email', 'password'] })
   .openapi('CreateUser')
 
-export type CreateUser = z.infer<typeof CreateUserSchema>
-
-export const UpdateUserSchema = z
+const UpdateUserSchema = z
   .object({
     name: z.string().exactOptional(),
     email: z.email().exactOptional(),
@@ -46,16 +42,12 @@ export const UpdateUserSchema = z
   })
   .openapi('UpdateUser')
 
-export type UpdateUser = z.infer<typeof UpdateUserSchema>
-
-export type Address = z.infer<typeof AddressSchema>
-
-export const CategorySchema = z
+const CategorySchema = z
   .object({ id: z.int(), name: z.string(), parentId: z.int().nullable().exactOptional() })
   .openapi({ required: ['id', 'name'] })
   .openapi('Category')
 
-export const ProductSchema = z
+const ProductSchema = z
   .object({
     id: z.int(),
     name: z.string(),
@@ -69,9 +61,7 @@ export const ProductSchema = z
   .openapi({ required: ['id', 'name', 'price', 'category', 'inStock', 'createdAt'] })
   .openapi('Product')
 
-export type Product = z.infer<typeof ProductSchema>
-
-export const CreateProductSchema = z
+const CreateProductSchema = z
   .object({
     name: z.string(),
     description: z.string().exactOptional(),
@@ -82,9 +72,7 @@ export const CreateProductSchema = z
   .openapi({ required: ['name', 'price', 'categoryId'] })
   .openapi('CreateProduct')
 
-export type CreateProduct = z.infer<typeof CreateProductSchema>
-
-export const UpdateProductSchema = z
+const UpdateProductSchema = z
   .object({
     name: z.string().exactOptional(),
     description: z.string().exactOptional(),
@@ -94,11 +82,7 @@ export const UpdateProductSchema = z
   })
   .openapi('UpdateProduct')
 
-export type UpdateProduct = z.infer<typeof UpdateProductSchema>
-
-export type Category = z.infer<typeof CategorySchema>
-
-export const ReviewSchema = z
+const ReviewSchema = z
   .object({
     id: z.int(),
     rating: z.int().min(1).max(5),
@@ -109,21 +93,17 @@ export const ReviewSchema = z
   .openapi({ required: ['id', 'rating', 'author', 'createdAt'] })
   .openapi('Review')
 
-export type Review = z.infer<typeof ReviewSchema>
-
-export const CreateReviewSchema = z
+const CreateReviewSchema = z
   .object({ rating: z.int().min(1).max(5), comment: z.string().exactOptional() })
   .openapi({ required: ['rating'] })
   .openapi('CreateReview')
 
-export type CreateReview = z.infer<typeof CreateReviewSchema>
-
-export const OrderItemSchema = z
+const OrderItemSchema = z
   .object({ product: ProductSchema, quantity: z.int().min(1), price: z.number() })
   .openapi({ required: ['product', 'quantity', 'price'] })
   .openapi('OrderItem')
 
-export const OrderSchema = z
+const OrderSchema = z
   .object({
     id: z.int(),
     user: UserSchema,
@@ -138,11 +118,7 @@ export const OrderSchema = z
   })
   .openapi('Order')
 
-export type Order = z.infer<typeof OrderSchema>
-
-export type OrderItem = z.infer<typeof OrderItemSchema>
-
-export const CreateOrderSchema = z
+const CreateOrderSchema = z
   .object({
     items: z.array(
       z
@@ -155,37 +131,29 @@ export const CreateOrderSchema = z
   .openapi({ required: ['items', 'shippingAddress'] })
   .openapi('CreateOrder')
 
-export type CreateOrder = z.infer<typeof CreateOrderSchema>
-
-export const ErrorSchema = z
+const ErrorSchema = z
   .object({ code: z.int(), message: z.string() })
   .openapi({ required: ['code', 'message'] })
   .openapi('Error')
 
-export type Error = z.infer<typeof ErrorSchema>
-
-export const NotFoundResponse = {
+const NotFoundResponse = {
   description: 'Resource not found',
   content: { 'application/json': { schema: ErrorSchema } },
 }
 
-export const PageParamParamsSchema = z
+const PageParamParamsSchema = z
   .int()
   .default(1)
   .exactOptional()
   .openapi({ param: { name: 'page', in: 'query', schema: { type: 'integer', default: 1 } } })
 
-export type PageParamParams = z.infer<typeof PageParamParamsSchema>
-
-export const LimitParamParamsSchema = z
+const LimitParamParamsSchema = z
   .int()
   .default(20)
   .exactOptional()
   .openapi({ param: { name: 'limit', in: 'query', schema: { type: 'integer', default: 20 } } })
 
-export type LimitParamParams = z.infer<typeof LimitParamParamsSchema>
-
-export const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' }
+const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' }
 
 export const getUsersRoute = createRoute({
   method: 'get',

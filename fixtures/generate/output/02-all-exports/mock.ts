@@ -132,7 +132,7 @@ const getUsersIdRouteHandler: RouteHandler<typeof getUsersIdRoute> = async (c) =
   return c.json(mockUser(), 200)
 }
 
-const app = new OpenAPIHono()
+const app = new OpenAPIHono().basePath('undefined')
 
 export const api = app
   .openapi(getUsersRoute, getUsersRouteHandler)

@@ -16,6 +16,7 @@ hono request \
   -P /json \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
+  -d '{"name":"string","value":0}' \
   src/index.ts
 ```
 
@@ -195,6 +196,7 @@ hono request \
   -P /multi-content \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
+  -d '{"data":"string"}' \
   src/index.ts
 ```
 

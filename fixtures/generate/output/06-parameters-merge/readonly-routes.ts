@@ -3,15 +3,11 @@ import { createRoute, z } from '@hono/zod-openapi'
 const ItemSchema = z
   .object({ id: z.int(), name: z.string(), createdAt: z.iso.datetime() })
   .openapi({ required: ['id', 'name', 'createdAt'] })
-  .readonly()
   .openapi('Item')
 
-const ItemUpdateSchema = z
-  .object({ name: z.string().exactOptional() })
-  .readonly()
-  .openapi('ItemUpdate')
+const ItemUpdateSchema = z.object({ name: z.string().exactOptional() }).openapi('ItemUpdate')
 
-export const LimitParamParamsSchema = z
+const LimitParamParamsSchema = z
   .int()
   .min(1)
   .max(100)
@@ -24,11 +20,8 @@ export const LimitParamParamsSchema = z
       schema: { type: 'integer', default: 20, minimum: 1, maximum: 100 },
     },
   })
-  .readonly()
 
-export type LimitParamParams = z.infer<typeof LimitParamParamsSchema>
-
-export const OffsetParamParamsSchema = z
+const OffsetParamParamsSchema = z
   .int()
   .min(0)
   .default(0)
@@ -36,9 +29,6 @@ export const OffsetParamParamsSchema = z
   .openapi({
     param: { name: 'offset', in: 'query', schema: { type: 'integer', default: 0, minimum: 0 } },
   })
-  .readonly()
-
-export type OffsetParamParams = z.infer<typeof OffsetParamParamsSchema>
 
 export const getItemsItemIdRoute = createRoute({
   method: 'get',
@@ -71,7 +61,7 @@ export const getItemsItemIdRoute = createRoute({
   responses: {
     200: { description: 'OK', content: { 'application/json': { schema: ItemSchema } } },
   },
-} as const)
+})
 
 export const putItemsItemIdRoute = createRoute({
   method: 'put',
@@ -97,7 +87,7 @@ export const putItemsItemIdRoute = createRoute({
   responses: {
     200: { description: 'OK', content: { 'application/json': { schema: ItemSchema } } },
   },
-} as const)
+})
 
 export const deleteItemsItemIdRoute = createRoute({
   method: 'delete',
@@ -122,7 +112,7 @@ export const deleteItemsItemIdRoute = createRoute({
     }),
   },
   responses: { 204: { description: 'Deleted' } },
-} as const)
+})
 
 export const getItemsRoute = createRoute({
   method: 'get',
@@ -156,4 +146,4 @@ export const getItemsRoute = createRoute({
       },
     },
   },
-} as const)
+})

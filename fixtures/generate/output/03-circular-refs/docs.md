@@ -56,6 +56,7 @@ hono request \
   -P /tree \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
+  -d '{"id":0,"value":"string","children":[{}]}' \
   src/index.ts
 ```
 

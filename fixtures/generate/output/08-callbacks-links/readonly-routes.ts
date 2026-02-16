@@ -3,7 +3,6 @@ import { createRoute, z } from '@hono/zod-openapi'
 const SubscriptionRequestSchema = z
   .object({ callbackUrl: z.url(), events: z.array(z.enum(['created', 'updated', 'deleted'])) })
   .openapi({ required: ['callbackUrl', 'events'] })
-  .readonly()
   .openapi('SubscriptionRequest')
 
 const SubscriptionSchema = z
@@ -14,7 +13,6 @@ const SubscriptionSchema = z
     status: z.enum(['active', 'paused', 'cancelled']),
   })
   .openapi({ required: ['id', 'callbackUrl', 'events', 'status'] })
-  .readonly()
   .openapi('Subscription')
 
 const EventPayloadSchema = z
@@ -24,22 +22,21 @@ const EventPayloadSchema = z
     data: z.looseObject({}).exactOptional(),
   })
   .openapi({ required: ['event', 'timestamp'] })
-  .readonly()
   .openapi('EventPayload')
 
-export const GetSubscriptionLink = {
+const GetSubscriptionLink = {
   operationId: 'getSubscription',
   parameters: { id: '$response.body#/id' },
   description: 'Get the created subscription',
-} as const
+}
 
-export const DeleteSubscriptionLink = {
+const DeleteSubscriptionLink = {
   operationId: 'deleteSubscription',
   parameters: { id: '$request.path.id' },
   description: 'Delete this subscription',
-} as const
+}
 
-export const SubscriptionEventCallback = {
+const SubscriptionEventCallback = {
   '{$request.body#/callbackUrl}': {
     post: {
       operationId: 'subscriptionEventCallback',
@@ -47,7 +44,7 @@ export const SubscriptionEventCallback = {
       responses: { 200: { description: 'Event processed' } },
     },
   },
-} as const
+}
 
 export const postSubscriptionsRoute = createRoute({
   method: 'post',
@@ -67,7 +64,7 @@ export const postSubscriptionsRoute = createRoute({
     },
   },
   callbacks: { onEvent: SubscriptionEventCallback },
-} as const)
+})
 
 export const getSubscriptionsIdRoute = createRoute({
   method: 'get',
@@ -87,7 +84,7 @@ export const getSubscriptionsIdRoute = createRoute({
       links: { DeleteSubscription: DeleteSubscriptionLink },
     },
   },
-} as const)
+})
 
 export const deleteSubscriptionsIdRoute = createRoute({
   method: 'delete',
@@ -101,7 +98,7 @@ export const deleteSubscriptionsIdRoute = createRoute({
     }),
   },
   responses: { 204: { description: 'Deleted' } },
-} as const)
+})
 
 export const postWebhooksTestRoute = createRoute({
   method: 'post',
@@ -125,4 +122,4 @@ export const postWebhooksTestRoute = createRoute({
       },
     },
   },
-} as const)
+})

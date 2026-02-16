@@ -1,16 +1,12 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
-export const BearerAuthSecurityScheme = {
-  type: 'http',
-  scheme: 'bearer',
-  bearerFormat: 'JWT',
-} as const
+const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' }
 
-export const ApiKeyAuthSecurityScheme = { type: 'apiKey', in: 'header', name: 'X-API-Key' } as const
+const ApiKeyAuthSecurityScheme = { type: 'apiKey', in: 'header', name: 'X-API-Key' }
 
-export const BasicAuthSecurityScheme = { type: 'http', scheme: 'basic' } as const
+const BasicAuthSecurityScheme = { type: 'http', scheme: 'basic' }
 
-export const OAuth2SecurityScheme = {
+const OAuth2SecurityScheme = {
   type: 'oauth2',
   flows: {
     authorizationCode: {
@@ -19,7 +15,7 @@ export const OAuth2SecurityScheme = {
       scopes: { read: 'Read access', write: 'Write access' },
     },
   },
-} as const
+}
 
 export const getPublicRoute = createRoute({
   method: 'get',
@@ -35,7 +31,7 @@ export const getPublicRoute = createRoute({
       },
     },
   },
-} as const)
+})
 
 export const getBearerProtectedRoute = createRoute({
   method: 'get',
@@ -52,7 +48,7 @@ export const getBearerProtectedRoute = createRoute({
     },
   },
   security: [{ BearerAuth: [] }],
-} as const)
+})
 
 export const getApiKeyProtectedRoute = createRoute({
   method: 'get',
@@ -69,7 +65,7 @@ export const getApiKeyProtectedRoute = createRoute({
     },
   },
   security: [{ ApiKeyAuth: [] }],
-} as const)
+})
 
 export const getBasicProtectedRoute = createRoute({
   method: 'get',
@@ -86,7 +82,7 @@ export const getBasicProtectedRoute = createRoute({
     },
   },
   security: [{ BasicAuth: [] }],
-} as const)
+})
 
 export const getOauthProtectedRoute = createRoute({
   method: 'get',
@@ -103,7 +99,7 @@ export const getOauthProtectedRoute = createRoute({
     },
   },
   security: [{ OAuth2: ['read'] }],
-} as const)
+})
 
 export const getMultiAuthRoute = createRoute({
   method: 'get',
@@ -120,4 +116,4 @@ export const getMultiAuthRoute = createRoute({
     },
   },
   security: [{ BearerAuth: [], ApiKeyAuth: [] }],
-} as const)
+})

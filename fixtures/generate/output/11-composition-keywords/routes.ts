@@ -1,20 +1,16 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
-export const CreditCardSchema = z
+const CreditCardSchema = z
   .object({ type: z.literal('credit_card'), cardNumber: z.string(), expiry: z.string() })
   .openapi({ required: ['type', 'cardNumber', 'expiry'] })
   .openapi('CreditCard')
 
-export type CreditCard = z.infer<typeof CreditCardSchema>
-
-export const BankTransferSchema = z
+const BankTransferSchema = z
   .object({ type: z.literal('bank_transfer'), bankCode: z.string(), accountNumber: z.string() })
   .openapi({ required: ['type', 'bankCode', 'accountNumber'] })
   .openapi('BankTransfer')
 
-export type BankTransfer = z.infer<typeof BankTransferSchema>
-
-export const PaymentMethodSchema = z
+const PaymentMethodSchema = z
   .xor([CreditCardSchema, BankTransferSchema])
   .openapi({
     discriminator: {
@@ -27,78 +23,56 @@ export const PaymentMethodSchema = z
   })
   .openapi('PaymentMethod')
 
-export type PaymentMethod = z.infer<typeof PaymentMethodSchema>
-
-export const NullablePaymentSchema = z
+const NullablePaymentSchema = z
   .xor([CreditCardSchema, BankTransferSchema])
   .nullable()
   .openapi('NullablePayment')
 
-export type NullablePayment = z.infer<typeof NullablePaymentSchema>
-
-export const SearchFilterSchema = z
+const SearchFilterSchema = z
   .union([
     z.object({ keyword: z.string() }).openapi({ required: ['keyword'] }),
     z.object({ category: z.int() }).openapi({ required: ['category'] }),
   ])
   .openapi('SearchFilter')
 
-export type SearchFilter = z.infer<typeof SearchFilterSchema>
-
-export const FlexibleIdSchema = z
+const FlexibleIdSchema = z
   .union([z.string(), z.int(), z.uuid()])
   .openapi({ description: 'Accepts string, integer, or UUID' })
   .openapi('FlexibleId')
 
-export type FlexibleId = z.infer<typeof FlexibleIdSchema>
-
-export const CatSchema = z
+const CatSchema = z
   .object({ name: z.string(), purring: z.boolean().exactOptional() })
   .openapi({ required: ['name'] })
   .openapi('Cat')
 
-export type Cat = z.infer<typeof CatSchema>
-
-export const DogSchema = z
+const DogSchema = z
   .object({ name: z.string(), barkVolume: z.number().exactOptional() })
   .openapi({ required: ['name'] })
   .openapi('Dog')
 
-export type Dog = z.infer<typeof DogSchema>
+const PetChoiceSchema = z.union([CatSchema, DogSchema]).openapi('PetChoice')
 
-export const PetChoiceSchema = z.union([CatSchema, DogSchema]).openapi('PetChoice')
-
-export type PetChoice = z.infer<typeof PetChoiceSchema>
-
-export const PersonSchema = z
+const PersonSchema = z
   .object({ name: z.string(), email: z.email() })
   .openapi({ required: ['name', 'email'] })
   .openapi('Person')
 
-export type Person = z.infer<typeof PersonSchema>
-
-export const EmployeeInfoSchema = z
+const EmployeeInfoSchema = z
   .object({ employeeId: z.int(), department: z.string().exactOptional() })
   .openapi({ required: ['employeeId'] })
   .openapi('EmployeeInfo')
 
-export type EmployeeInfo = z.infer<typeof EmployeeInfoSchema>
-
-export const EmployeeSchema = PersonSchema.and(EmployeeInfoSchema)
+const EmployeeSchema = PersonSchema.and(EmployeeInfoSchema)
   .and(z.object({ startDate: z.iso.date().exactOptional() }))
   .openapi({ description: 'An employee with personal and work info' })
   .openapi('Employee')
 
-export type Employee = z.infer<typeof EmployeeSchema>
-
-export const BaseEntitySchema = z
+const BaseEntitySchema = z
   .object({ id: z.int(), createdAt: z.iso.datetime() })
   .openapi({ required: ['id', 'createdAt'] })
   .openapi('BaseEntity')
 
-export type BaseEntity = z.infer<typeof BaseEntitySchema>
-
-export const ExtendedWithSiblingSchema = BaseEntitySchema.and(
+const ExtendedWithSiblingSchema = BaseEntitySchema.and(
   z
     .object({ label: z.string(), active: z.boolean().exactOptional() })
     .openapi({ required: ['label'] }),
@@ -106,50 +80,36 @@ export const ExtendedWithSiblingSchema = BaseEntitySchema.and(
   .openapi({ description: 'allOf with sibling properties merged', required: ['label'] })
   .openapi('ExtendedWithSibling')
 
-export type ExtendedWithSibling = z.infer<typeof ExtendedWithSiblingSchema>
-
-export const NotStringValueSchema = z
+const NotStringValueSchema = z
   .any()
   .refine((v) => typeof v !== 'string')
   .openapi('NotStringValue')
 
-export type NotStringValue = z.infer<typeof NotStringValueSchema>
-
-export const AdminRoleSchema = z
+const AdminRoleSchema = z
   .object({ role: z.literal('admin') })
   .openapi({ required: ['role'] })
   .openapi('AdminRole')
 
-export const NotAdminSchema = z
+const NotAdminSchema = z
   .any()
   .refine((v) => !AdminRoleSchema.safeParse(v).success)
   .openapi('NotAdmin')
 
-export type NotAdmin = z.infer<typeof NotAdminSchema>
-
-export type AdminRole = z.infer<typeof AdminRoleSchema>
-
-export const NotDraftOrArchivedSchema = z
+const NotDraftOrArchivedSchema = z
   .any()
   .refine((v) => !['draft', 'archived'].includes(v))
   .openapi('NotDraftOrArchived')
 
-export type NotDraftOrArchived = z.infer<typeof NotDraftOrArchivedSchema>
-
-export const NotSpecificValueSchema = z
+const NotSpecificValueSchema = z
   .any()
   .refine((v) => v !== 'forbidden')
   .openapi('NotSpecificValue')
 
-export type NotSpecificValue = z.infer<typeof NotSpecificValueSchema>
-
-export const NotStringOrNumberSchema = z
+const NotStringOrNumberSchema = z
   .any()
   .refine((v) => !z.union([z.string(), z.number()]).safeParse(v).success)
   .openapi({ description: 'Rejects if value matches string or number union' })
   .openapi('NotStringOrNumber')
-
-export type NotStringOrNumber = z.infer<typeof NotStringOrNumberSchema>
 
 export const postOneOfRoute = createRoute({
   method: 'post',

@@ -3,13 +3,11 @@ import { createRoute, z } from '@hono/zod-openapi'
 const OrderRequestSchema = z
   .object({ item: z.string(), quantity: z.int(), callbackUrl: z.url() })
   .openapi({ required: ['item', 'quantity', 'callbackUrl'] })
-  .readonly()
   .openapi('OrderRequest')
 
 const OrderSchema = z
   .object({ id: z.string(), item: z.string(), quantity: z.int(), status: z.string() })
   .openapi({ required: ['id', 'item', 'quantity', 'status'] })
-  .readonly()
   .openapi('Order')
 
 const OrderEventSchema = z
@@ -19,19 +17,16 @@ const OrderEventSchema = z
     timestamp: z.iso.datetime(),
   })
   .openapi({ required: ['orderId', 'event', 'timestamp'] })
-  .readonly()
   .openapi('OrderEvent')
 
 const PaymentRequestSchema = z
   .object({ amount: z.number(), currency: z.string(), successUrl: z.url(), failureUrl: z.url() })
   .openapi({ required: ['amount', 'currency', 'successUrl', 'failureUrl'] })
-  .readonly()
   .openapi('PaymentRequest')
 
 const PaymentSchema = z
   .object({ id: z.string(), amount: z.number(), currency: z.string(), status: z.string() })
   .openapi({ required: ['id', 'amount', 'currency', 'status'] })
-  .readonly()
   .openapi('Payment')
 
 const PaymentEventSchema = z
@@ -41,7 +36,6 @@ const PaymentEventSchema = z
     timestamp: z.iso.datetime(),
   })
   .openapi({ required: ['paymentId', 'status', 'timestamp'] })
-  .readonly()
   .openapi('PaymentEvent')
 
 export const postOrdersRoute = createRoute({
@@ -67,7 +61,7 @@ export const postOrdersRoute = createRoute({
       },
     },
   },
-} as const)
+})
 
 export const postPaymentsRoute = createRoute({
   method: 'post',
@@ -103,7 +97,7 @@ export const postPaymentsRoute = createRoute({
       },
     },
   },
-} as const)
+})
 
 export const getItemsRoute = createRoute({
   method: 'get',
@@ -122,4 +116,4 @@ export const getItemsRoute = createRoute({
       },
     },
   },
-} as const)
+})

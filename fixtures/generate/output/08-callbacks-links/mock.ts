@@ -159,7 +159,7 @@ const postWebhooksTestRouteHandler: RouteHandler<typeof postWebhooksTestRoute> =
   )
 }
 
-const app = new OpenAPIHono()
+const app = new OpenAPIHono().basePath('undefined')
 
 export const api = app
   .openapi(postSubscriptionsRoute, postSubscriptionsRouteHandler)

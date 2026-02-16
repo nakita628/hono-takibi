@@ -1,0 +1,146 @@
+openapi: 3.1.0
+info:
+  title: Trailing Slash API
+  version: 1.0.0
+  description: >
+    Tests trailing-slash path handling.
+    Trailing-slash routes use .index accessor in Hono RPC.
+    Without .index, type error TS2339 occurs (Property '$get' does not exist).
+paths:
+  # --- Coexistence test: trailing + non-trailing for same prefix ---
+  /api/reverseChiban/:
+    get:
+      operationId: getApiReverseChibanIndex
+      summary: Reverse Chiban (trailing slash)
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: string
+                required:
+                  - result
+  /api/reverseChiban:
+    get:
+      operationId: getApiReverseChiban
+      summary: Reverse Chiban (no trailing slash)
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: string
+                required:
+                  - result
+  # --- Trailing slash only (no non-trailing counterpart) ---
+  # Without .index, client.posts.$get causes TS2339
+  /posts/:
+    get:
+      operationId: getPostsIndex
+      summary: List posts (trailing slash only)
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: string
+                  total:
+                    type: integer
+                required:
+                  - items
+                  - total
+    post:
+      operationId: postPostsIndex
+      summary: Create post (trailing slash only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+              required:
+                - title
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  title:
+                    type: string
+                required:
+                  - id
+                  - title
+  # --- Trailing slash with path param ---
+  # Without .index, client.users[':id'].$get causes TS2339
+  /users/{id}/:
+    get:
+      operationId: getUsersIdIndex
+      summary: Get user (trailing slash with path param)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+                required:
+                  - id
+                  - name
+  # --- Another trailing slash only (simple) ---
+  /items/:
+    get:
+      operationId: getItemsIndex
+      summary: List items (trailing slash only)
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: string
+                required:
+                  - items

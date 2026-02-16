@@ -209,7 +209,7 @@ const postPaymentRouteHandler: RouteHandler<typeof postPaymentRoute> = async (c)
   return c.body(null, 200)
 }
 
-const app = new OpenAPIHono()
+const app = new OpenAPIHono().basePath('undefined')
 
 export const api = app
   .openapi(getTagsRoute, getTagsRouteHandler)

@@ -1429,10 +1429,7 @@ export async function getApiReverseChibanIndex(options?: ClientRequestOptions) {
 `
       expect(trailingFile).toBe(trailingExpected)
 
-      const normalFile = fs.readFileSync(
-        path.join(dir, 'rpc', 'getApiReverseChiban.ts'),
-        'utf-8',
-      )
+      const normalFile = fs.readFileSync(path.join(dir, 'rpc', 'getApiReverseChiban.ts'), 'utf-8')
       const normalExpected = `import type { ClientRequestOptions } from 'hono/client'
 import { client } from '../client'
 
@@ -1447,10 +1444,7 @@ export async function getApiReverseChiban(options?: ClientRequestOptions) {
 `
       expect(normalFile).toBe(normalExpected)
 
-      const postsFile = fs.readFileSync(
-        path.join(dir, 'rpc', 'getPostsIndex.ts'),
-        'utf-8',
-      )
+      const postsFile = fs.readFileSync(path.join(dir, 'rpc', 'getPostsIndex.ts'), 'utf-8')
       const postsExpected = `import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { client } from '../client'
 

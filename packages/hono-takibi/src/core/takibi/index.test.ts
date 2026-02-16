@@ -498,7 +498,15 @@ export default app
 
       const out = path.join(srcDir, 'route.ts') as `${string}.ts`
       await runTakibi(simpleOpenapi, out)
-      const result = await template(simpleOpenapi, out, false, '/api/v1', undefined, undefined, true)
+      const result = await template(
+        simpleOpenapi,
+        out,
+        false,
+        '/api/v1',
+        undefined,
+        undefined,
+        true,
+      )
 
       expect(result).toStrictEqual({
         ok: true,
@@ -530,7 +538,10 @@ describe('--template mode strict content tests', () => {
       fs.mkdirSync(srcDir, { recursive: true })
 
       const out = path.join(srcDir, 'route.ts') as `${string}.ts`
-      const result = await runTakibiWithTemplate(simpleOpenapi, out, { template: true, test: false })
+      const result = await runTakibiWithTemplate(simpleOpenapi, out, {
+        template: true,
+        test: false,
+      })
 
       expect(result).toStrictEqual({
         ok: true,
@@ -662,7 +673,11 @@ describe('Test', () => {
       fs.mkdirSync(srcDir, { recursive: true })
 
       const out = path.join(srcDir, 'route.ts') as `${string}.ts`
-      await runTakibiWithTemplate(simpleOpenapi, out, { template: true, test: false, basePath: '/api/v1' })
+      await runTakibiWithTemplate(simpleOpenapi, out, {
+        template: true,
+        test: false,
+        basePath: '/api/v1',
+      })
 
       const indexContent = fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf-8')
       const expectedIndex = `import { OpenAPIHono } from '@hono/zod-openapi'
@@ -688,7 +703,10 @@ export default app
       process.chdir(dir)
 
       const out = 'route.ts' as `${string}.ts`
-      const result = await runTakibiWithTemplate(simpleOpenapi, out, { template: true, test: false })
+      const result = await runTakibiWithTemplate(simpleOpenapi, out, {
+        template: true,
+        test: false,
+      })
 
       expect(result).toStrictEqual({
         ok: true,

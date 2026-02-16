@@ -69,6 +69,7 @@ hono request \
   -X POST \
   -P /tags \
   -H 'Content-Type: application/json' \
+  -d '{"metadata":{"key":"string","value":"string"},"config":{"name":"string"},"limited":{"a":"string","b":"string"}}' \
   src/index.ts
 ```
 
@@ -167,6 +168,7 @@ hono request \
   -X PUT \
   -P /settings \
   -H 'Content-Type: application/json' \
+  -d '{"avatar":"string"}' \
   src/index.ts
 ```
 
@@ -208,6 +210,7 @@ hono request \
   -X POST \
   -P /config \
   -H 'Content-Type: application/json' \
+  -d '{"data":null,"headers":null,"keys":null}' \
   src/index.ts
 ```
 
@@ -253,6 +256,7 @@ hono request \
   -X POST \
   -P /payment \
   -H 'Content-Type: application/json' \
+  -d '{"creditCard":"string","billingAddress":"string","email":"string"}' \
   src/index.ts
 ```
 

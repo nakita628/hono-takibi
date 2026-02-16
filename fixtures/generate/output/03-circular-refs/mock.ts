@@ -109,7 +109,7 @@ const getGraphRouteHandler: RouteHandler<typeof getGraphRoute> = async (c) => {
   return c.json(mockNodeA(), 200)
 }
 
-const app = new OpenAPIHono()
+const app = new OpenAPIHono().basePath('undefined')
 
 export const api = app
   .openapi(getTreeRoute, getTreeRouteHandler)
