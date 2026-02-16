@@ -9,7 +9,7 @@ import type { OpenAPI } from '../../openapi/index.js'
 /**
  * Generates app template (index.ts) and stub handler files from an OpenAPI spec.
  *
- * Used by the CLI and vite-plugin when `template: true` is configured.
+ * Used by the CLI and vite-plugin when `template` is configured.
  */
 export async function template(
   openAPI: OpenAPI,

@@ -894,7 +894,7 @@ describe('config template mode tests', () => {
     fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI))
     fs.writeFileSync(
       path.join(testDir, 'hono-takibi.config.ts'),
-      `export default { input: 'openapi.json', 'zod-openapi': { output: 'src/routes.ts', template: true } }`,
+      `export default { input: 'openapi.json', 'zod-openapi': { output: 'src/routes.ts', template: {} } }`,
     )
 
     execSync(`node ${path.resolve('packages/hono-takibi/dist/index.js')}`, {
@@ -960,7 +960,7 @@ export const usersHandler = app.openapi(getUsersRoute, (c) => {})
     fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI))
     fs.writeFileSync(
       path.join(testDir, 'hono-takibi.config.ts'),
-      `export default { input: 'openapi.json', 'zod-openapi': { output: 'src/routes.ts', template: true, test: true } }`,
+      `export default { input: 'openapi.json', 'zod-openapi': { output: 'src/routes.ts', template: { test: true } } }`,
     )
 
     execSync(`node ${path.resolve('packages/hono-takibi/dist/index.js')}`, {
@@ -1010,7 +1010,7 @@ describe('Items', () => {
     fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI))
     fs.writeFileSync(
       path.join(testDir, 'hono-takibi.config.ts'),
-      `export default { input: 'openapi.json', 'zod-openapi': { output: 'src/routes.ts', template: true } }`,
+      `export default { input: 'openapi.json', 'zod-openapi': { output: 'src/routes.ts', template: {} } }`,
     )
 
     execSync(`node ${path.resolve('packages/hono-takibi/dist/index.js')}`, {
