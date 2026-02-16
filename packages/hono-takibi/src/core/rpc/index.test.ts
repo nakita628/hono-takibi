@@ -1303,3 +1303,177 @@ describe('rpc (parseResponse: true)', () => {
     }
   })
 })
+
+describe('rpc (trailing slash)', () => {
+  const trailingSlashOpenAPI: OpenAPI = {
+    openapi: '3.1.0',
+    info: { title: 'Trailing Slash Test', version: '1.0.0' },
+    paths: {
+      '/api/reverseChiban/': {
+        get: {
+          summary: 'Reverse Chiban (trailing slash)',
+          responses: { '200': { description: 'OK' } },
+        },
+      },
+      '/api/reverseChiban': {
+        get: {
+          summary: 'Reverse Chiban (no trailing slash)',
+          responses: { '200': { description: 'OK' } },
+        },
+      },
+      '/posts/': {
+        get: {
+          summary: 'List posts (trailing slash)',
+          parameters: [
+            {
+              name: 'limit',
+              in: 'query',
+              required: false,
+              schema: { type: 'integer' },
+            },
+          ],
+          responses: { '200': { description: 'OK' } },
+        },
+      },
+    },
+  }
+
+  it('should generate .index accessor for trailing-slash paths', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-rpc-trailing-'))
+    try {
+      const out = path.join(dir, 'index.ts')
+      const result = await rpc(trailingSlashOpenAPI, out, '../client', false)
+
+      if (!result.ok) {
+        throw new Error(result.error)
+      }
+
+      const code = fs.readFileSync(out, 'utf-8')
+
+      const expected = `import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import { client } from '../client'
+
+/**
+ * GET /api/reverseChiban/
+ *
+ * Reverse Chiban (trailing slash)
+ */
+export async function getApiReverseChibanIndex(options?: ClientRequestOptions) {
+  return await client.api.reverseChiban.index.$get(undefined, options)
+}
+
+/**
+ * GET /api/reverseChiban
+ *
+ * Reverse Chiban (no trailing slash)
+ */
+export async function getApiReverseChiban(options?: ClientRequestOptions) {
+  return await client.api.reverseChiban.$get(undefined, options)
+}
+
+/**
+ * GET /posts/
+ *
+ * List posts (trailing slash)
+ */
+export async function getPostsIndex(
+  args: InferRequestType<typeof client.posts.index.$get>,
+  options?: ClientRequestOptions,
+) {
+  return await client.posts.index.$get(args, options)
+}
+`
+
+      expect(code).toBe(expected)
+      expect(result).toStrictEqual({
+        ok: true,
+        value: `Generated rpc code written to ${out}`,
+      })
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+
+  it('should generate split files with trailing-slash names', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-rpc-trailing-split-'))
+    try {
+      const out = path.join(dir, 'rpc', 'index.ts')
+      const result = await rpc(trailingSlashOpenAPI, out, '../client', true)
+
+      if (!result.ok) {
+        throw new Error(result.error)
+      }
+
+      const index = fs.readFileSync(path.join(dir, 'rpc', 'index.ts'), 'utf-8')
+      const indexExpected = `export * from './getApiReverseChibanIndex'
+export * from './getApiReverseChiban'
+export * from './getPostsIndex'
+`
+      expect(index).toBe(indexExpected)
+
+      const trailingFile = fs.readFileSync(
+        path.join(dir, 'rpc', 'getApiReverseChibanIndex.ts'),
+        'utf-8',
+      )
+      const trailingExpected = `import type { ClientRequestOptions } from 'hono/client'
+import { client } from '../client'
+
+/**
+ * GET /api/reverseChiban/
+ *
+ * Reverse Chiban (trailing slash)
+ */
+export async function getApiReverseChibanIndex(options?: ClientRequestOptions) {
+  return await client.api.reverseChiban.index.$get(undefined, options)
+}
+`
+      expect(trailingFile).toBe(trailingExpected)
+
+      const normalFile = fs.readFileSync(
+        path.join(dir, 'rpc', 'getApiReverseChiban.ts'),
+        'utf-8',
+      )
+      const normalExpected = `import type { ClientRequestOptions } from 'hono/client'
+import { client } from '../client'
+
+/**
+ * GET /api/reverseChiban
+ *
+ * Reverse Chiban (no trailing slash)
+ */
+export async function getApiReverseChiban(options?: ClientRequestOptions) {
+  return await client.api.reverseChiban.$get(undefined, options)
+}
+`
+      expect(normalFile).toBe(normalExpected)
+
+      const postsFile = fs.readFileSync(
+        path.join(dir, 'rpc', 'getPostsIndex.ts'),
+        'utf-8',
+      )
+      const postsExpected = `import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import { client } from '../client'
+
+/**
+ * GET /posts/
+ *
+ * List posts (trailing slash)
+ */
+export async function getPostsIndex(
+  args: InferRequestType<typeof client.posts.index.$get>,
+  options?: ClientRequestOptions,
+) {
+  return await client.posts.index.$get(args, options)
+}
+`
+      expect(postsFile).toBe(postsExpected)
+
+      expect(result).toStrictEqual({
+        ok: true,
+        value: `Generated rpc code written to ${path.join(dir, 'rpc')}/*.ts (index.ts included)`,
+      })
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+})

@@ -33,7 +33,10 @@ export function formatPath(p: string): {
     }
   }
 
+  const hasTrailingSlash = p !== '/' && p.endsWith('/')
+
   const segs = p.replace(/^\/+/, '').split('/').filter(Boolean)
+  if (hasTrailingSlash) segs.push('index')
   const honoSegs = segs.map((seg) => seg.replace(/\{([^}]+)\}/g, ':$1'))
 
   const firstBracketIdx = honoSegs.findIndex((seg) => !isValidIdent(seg))

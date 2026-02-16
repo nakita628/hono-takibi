@@ -119,6 +119,11 @@ describe('utils', () => {
       ['get', '/emails/{email_id}', 'getEmailsEmailId'],
       ['get', '/emails/{email-id}', 'getEmailsEmailId'],
       ['get', '/emails/{email.id}', 'getEmailsEmailId'],
+      // trailing slash paths
+      ['get', '/posts/', 'getPostsIndex'],
+      ['post', '/api/', 'postApiIndex'],
+      ['get', '/api/reverseChiban/', 'getApiReverseChibanIndex'],
+      ['get', '/users/{id}/', 'getUsersIdIndex'],
     ])(`methodPath('%s', '%s') -> '%s'`, (method, path, expected) => {
       expect(methodPath(method, path)).toBe(expected)
     })
