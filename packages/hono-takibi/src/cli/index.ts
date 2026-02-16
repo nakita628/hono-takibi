@@ -7,7 +7,6 @@ import {
   examples,
   headers,
   links,
-  makeTemplate,
   mediaTypes,
   mock,
   parameters,
@@ -22,6 +21,7 @@ import {
   swr,
   takibi,
   tanstackQuery,
+  template,
   test,
   type,
   vueQuery,
@@ -89,7 +89,7 @@ export async function honoTakibi(): Promise<
     const openAPIResult = await parseOpenAPI(input)
     if (!openAPIResult.ok) return { ok: false, error: openAPIResult.error }
     const openAPI = openAPIResult.value
-    const takibiResult = await takibi(openAPI, output, false, false, '/', undefined, undefined, {
+    const takibiResult = await takibi(openAPI, output, {
       readonly: false,
       exportSchemas: false,
       exportSchemasTypes: false,
@@ -145,37 +145,28 @@ export async function honoTakibi(): Promise<
     testResult,
     mockResult,
     docsResult,
-    makeTemplateResult,
+    templateResult,
   ] = await Promise.all([
     config['zod-openapi']?.output
-      ? takibi(
-          openAPI,
-          config['zod-openapi'].output,
-          config['zod-openapi'].template ?? false,
-          config['zod-openapi'].test ?? false,
-          config.basePath ?? '/',
-          config['zod-openapi'].pathAlias,
-          config['zod-openapi'].routes?.import,
-          {
-            readonly: config['zod-openapi'].readonly,
-            // OpenAPI Components Object order
-            exportSchemas: config['zod-openapi'].exportSchemas ?? false,
-            exportSchemasTypes: config['zod-openapi'].exportSchemasTypes ?? false,
-            exportResponses: config['zod-openapi'].exportResponses ?? false,
-            exportParameters: config['zod-openapi'].exportParameters ?? false,
-            exportParametersTypes: config['zod-openapi'].exportParametersTypes ?? false,
-            exportExamples: config['zod-openapi'].exportExamples ?? false,
-            exportRequestBodies: config['zod-openapi'].exportRequestBodies ?? false,
-            exportHeaders: config['zod-openapi'].exportHeaders ?? false,
-            exportHeadersTypes: config['zod-openapi'].exportHeadersTypes ?? false,
-            exportSecuritySchemes: config['zod-openapi'].exportSecuritySchemes ?? false,
-            exportLinks: config['zod-openapi'].exportLinks ?? false,
-            exportCallbacks: config['zod-openapi'].exportCallbacks ?? false,
-            exportPathItems: config['zod-openapi'].exportPathItems ?? false,
-            exportMediaTypes: config['zod-openapi'].exportMediaTypes ?? false,
-            exportMediaTypesTypes: config['zod-openapi'].exportMediaTypesTypes ?? false,
-          },
-        )
+      ? takibi(openAPI, config['zod-openapi'].output, {
+          readonly: config['zod-openapi'].readonly,
+          // OpenAPI Components Object order
+          exportSchemas: config['zod-openapi'].exportSchemas ?? false,
+          exportSchemasTypes: config['zod-openapi'].exportSchemasTypes ?? false,
+          exportResponses: config['zod-openapi'].exportResponses ?? false,
+          exportParameters: config['zod-openapi'].exportParameters ?? false,
+          exportParametersTypes: config['zod-openapi'].exportParametersTypes ?? false,
+          exportExamples: config['zod-openapi'].exportExamples ?? false,
+          exportRequestBodies: config['zod-openapi'].exportRequestBodies ?? false,
+          exportHeaders: config['zod-openapi'].exportHeaders ?? false,
+          exportHeadersTypes: config['zod-openapi'].exportHeadersTypes ?? false,
+          exportSecuritySchemes: config['zod-openapi'].exportSecuritySchemes ?? false,
+          exportLinks: config['zod-openapi'].exportLinks ?? false,
+          exportCallbacks: config['zod-openapi'].exportCallbacks ?? false,
+          exportPathItems: config['zod-openapi'].exportPathItems ?? false,
+          exportMediaTypes: config['zod-openapi'].exportMediaTypes ?? false,
+          exportMediaTypesTypes: config['zod-openapi'].exportMediaTypesTypes ?? false,
+        })
       : Promise.resolve(undefined),
     config['zod-openapi']?.components?.schemas
       ? schemas(
@@ -352,19 +343,17 @@ export async function honoTakibi(): Promise<
     config.docs
       ? docs(openAPI, config.docs.output, config.docs.entry, config.basePath ?? '/')
       : Promise.resolve(undefined),
-    // routes + template (no output): generate app template from route output path
-    config['zod-openapi']?.routes &&
-    !config['zod-openapi']?.output &&
     config['zod-openapi']?.template
-      ? makeTemplate(
+      ? template(
           openAPI,
-          (config['zod-openapi'].routes.output.endsWith('.ts')
-            ? config['zod-openapi'].routes.output
-            : `${config['zod-openapi'].routes.output}/index.ts`) as `${string}.ts`,
+          (config['zod-openapi'].output
+            ?? (config['zod-openapi'].routes?.output.endsWith('.ts')
+              ? config['zod-openapi'].routes?.output
+              : `${config['zod-openapi'].routes?.output}/index.ts`)) as `${string}.ts`,
           config['zod-openapi'].test ?? false,
           config.basePath ?? '/',
           config['zod-openapi'].pathAlias,
-          config['zod-openapi'].routes.import,
+          config['zod-openapi'].routes?.import,
         )
       : Promise.resolve(undefined),
   ])
@@ -396,8 +385,8 @@ export async function honoTakibi(): Promise<
   if (testResult && !testResult.ok) return { ok: false, error: testResult.error }
   if (mockResult && !mockResult.ok) return { ok: false, error: mockResult.error }
   if (docsResult && !docsResult.ok) return { ok: false, error: docsResult.error }
-  if (makeTemplateResult && !makeTemplateResult.ok)
-    return { ok: false, error: makeTemplateResult.error }
+  if (templateResult && !templateResult.ok)
+    return { ok: false, error: templateResult.error }
 
   const results = [
     takibiResult?.value,
@@ -423,7 +412,7 @@ export async function honoTakibi(): Promise<
     testResult?.value,
     mockResult?.value,
     docsResult?.value,
-    makeTemplateResult?.value,
+    templateResult?.value,
   ].filter((v) => v !== undefined)
 
   return { ok: true, value: results.join('\n') }

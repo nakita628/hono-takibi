@@ -21,6 +21,7 @@ import {
   swr,
   takibi,
   tanstackQuery,
+  template,
   test,
   type,
   vueQuery,
@@ -230,33 +231,24 @@ const runAllGenerationTasks = async (
     return (async () => {
       if (!isTypeScriptFile(outputPath))
         return `❌ zod-openapi: Invalid output format: ${outputPath}`
-      const result = await takibi(
-        openAPI,
-        outputPath,
-        config['zod-openapi']?.template ?? false,
-        config['zod-openapi']?.test ?? false,
-        config.basePath ?? '/',
-        config['zod-openapi']?.pathAlias,
-        config['zod-openapi']?.routes?.import,
-        {
-          readonly: config['zod-openapi']?.readonly,
-          exportSchemasTypes: config['zod-openapi']?.exportSchemasTypes ?? false,
-          exportSchemas: config['zod-openapi']?.exportSchemas ?? false,
-          exportParametersTypes: config['zod-openapi']?.exportParametersTypes ?? false,
-          exportParameters: config['zod-openapi']?.exportParameters ?? false,
-          exportSecuritySchemes: config['zod-openapi']?.exportSecuritySchemes ?? false,
-          exportRequestBodies: config['zod-openapi']?.exportRequestBodies ?? false,
-          exportResponses: config['zod-openapi']?.exportResponses ?? false,
-          exportHeadersTypes: config['zod-openapi']?.exportHeadersTypes ?? false,
-          exportHeaders: config['zod-openapi']?.exportHeaders ?? false,
-          exportExamples: config['zod-openapi']?.exportExamples ?? false,
-          exportLinks: config['zod-openapi']?.exportLinks ?? false,
-          exportCallbacks: config['zod-openapi']?.exportCallbacks ?? false,
-          exportPathItems: config['zod-openapi']?.exportPathItems ?? false,
-          exportMediaTypes: config['zod-openapi']?.exportMediaTypes ?? false,
-          exportMediaTypesTypes: config['zod-openapi']?.exportMediaTypesTypes ?? false,
-        },
-      )
+      const result = await takibi(openAPI, outputPath, {
+        readonly: config['zod-openapi']?.readonly,
+        exportSchemasTypes: config['zod-openapi']?.exportSchemasTypes ?? false,
+        exportSchemas: config['zod-openapi']?.exportSchemas ?? false,
+        exportParametersTypes: config['zod-openapi']?.exportParametersTypes ?? false,
+        exportParameters: config['zod-openapi']?.exportParameters ?? false,
+        exportSecuritySchemes: config['zod-openapi']?.exportSecuritySchemes ?? false,
+        exportRequestBodies: config['zod-openapi']?.exportRequestBodies ?? false,
+        exportResponses: config['zod-openapi']?.exportResponses ?? false,
+        exportHeadersTypes: config['zod-openapi']?.exportHeadersTypes ?? false,
+        exportHeaders: config['zod-openapi']?.exportHeaders ?? false,
+        exportExamples: config['zod-openapi']?.exportExamples ?? false,
+        exportLinks: config['zod-openapi']?.exportLinks ?? false,
+        exportCallbacks: config['zod-openapi']?.exportCallbacks ?? false,
+        exportPathItems: config['zod-openapi']?.exportPathItems ?? false,
+        exportMediaTypes: config['zod-openapi']?.exportMediaTypes ?? false,
+        exportMediaTypesTypes: config['zod-openapi']?.exportMediaTypesTypes ?? false,
+      })
       return result.ok ? `✅ zod-openapi -> ${outputPath}` : `❌ zod-openapi: ${result.error}`
     })()
   }
@@ -561,6 +553,29 @@ const runAllGenerationTasks = async (
     })()
   }
 
+  const makeTemplateJob = (): Promise<string> | undefined => {
+    if (!config['zod-openapi']?.template) return undefined
+    const routeOutputPath =
+      config['zod-openapi']?.output
+      ?? (config['zod-openapi']?.routes?.output?.endsWith('.ts')
+        ? config['zod-openapi']?.routes?.output
+        : `${config['zod-openapi']?.routes?.output}/index.ts`)
+    if (!routeOutputPath) return undefined
+    return (async () => {
+      const absPath = toAbsolutePath(routeOutputPath)
+      if (!isTypeScriptFile(absPath)) return `❌ template: Invalid output format: ${absPath}`
+      const result = await template(
+        openAPI,
+        absPath,
+        config['zod-openapi']?.test ?? false,
+        config.basePath ?? '/',
+        config['zod-openapi']?.pathAlias,
+        config['zod-openapi']?.routes?.import,
+      )
+      return result.ok ? `✅ template -> ${absPath}` : `❌ template: ${result.error}`
+    })()
+  }
+
   const generationJobs = [
     makeZodOpenAPIJob(),
     makeSchemaJob(),
@@ -585,6 +600,7 @@ const runAllGenerationTasks = async (
     makeTestJob(),
     makeMockJob(),
     makeDocsJob(),
+    makeTemplateJob(),
   ].filter((job) => job !== undefined)
 
   return Promise.all(generationJobs).then((logs) => ({ logs }))
