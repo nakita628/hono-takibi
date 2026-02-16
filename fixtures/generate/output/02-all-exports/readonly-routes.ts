@@ -1,33 +1,44 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
-const UserSchema = z
+export const UserSchema = z
   .object({ id: z.int(), name: z.string(), email: z.email() })
+  .readonly()
   .openapi({ required: ['id', 'name', 'email'] })
   .openapi('User')
 
-const UserListSchema = z.array(UserSchema).openapi('UserList')
+export type User = z.infer<typeof UserSchema>
 
-const UserListResponse = {
+export const UserListSchema = z.array(UserSchema).readonly().openapi('UserList')
+
+export type UserList = z.infer<typeof UserListSchema>
+
+export const UserListResponse = {
   description: 'A list of users',
   content: { 'application/json': { schema: UserListSchema } },
-}
+} as const
 
-const PageParamParamsSchema = z
+export const PageParamParamsSchema = z
   .int()
   .default(1)
   .exactOptional()
   .openapi({ param: { name: 'page', in: 'query', schema: { type: 'integer', default: 1 } } })
+  .readonly()
 
-const UserIdParamParamsSchema = z
+export type PageParamParams = z.infer<typeof PageParamParamsSchema>
+
+export const UserIdParamParamsSchema = z
   .int()
   .openapi({ param: { name: 'id', in: 'path', required: true, schema: { type: 'integer' } } })
+  .readonly()
 
-const UserExample = {
+export type UserIdParamParams = z.infer<typeof UserIdParamParamsSchema>
+
+export const UserExample = {
   summary: 'Example user',
   value: { id: 1, name: 'Alice', email: 'alice@example.com' },
-}
+} as const
 
-const CreateUserBodyRequestBody = {
+export const CreateUserBodyRequestBody = {
   content: {
     'application/json': {
       schema: z
@@ -36,22 +47,29 @@ const CreateUserBodyRequestBody = {
     },
   },
   required: true,
-}
+} as const
 
-const XRequestIdHeaderSchema = z
+export const XRequestIdHeaderSchema = z
   .uuid()
   .exactOptional()
   .openapi({ description: 'Unique request identifier' })
+  .readonly()
 
-const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' }
+export type XRequestIdHeader = z.infer<typeof XRequestIdHeaderSchema>
 
-const GetUserLink = {
+export const BearerAuthSecurityScheme = {
+  type: 'http',
+  scheme: 'bearer',
+  bearerFormat: 'JWT',
+} as const
+
+export const GetUserLink = {
   operationId: 'getUserById',
   parameters: { id: '$response.body#/id' },
   description: 'Get the created user',
-}
+} as const
 
-const UserCreatedCallback = {
+export const UserCreatedCallback = {
   '{$request.body#/callbackUrl}': {
     post: {
       operationId: 'userCreatedCallback',
@@ -59,16 +77,16 @@ const UserCreatedCallback = {
       responses: { 200: { description: 'Callback processed' } },
     },
   },
-}
+} as const
 
-const UserItemPathItem = {
+export const UserItemPathItem = {
   get: {
     operationId: 'getUserItem',
     responses: {
       200: { description: 'OK', content: { 'application/json': { schema: UserSchema } } },
     },
   },
-}
+} as const
 
 export const getUsersRoute = createRoute({
   method: 'get',
@@ -76,7 +94,7 @@ export const getUsersRoute = createRoute({
   operationId: 'getUsers',
   request: { query: z.object({ page: PageParamParamsSchema }) },
   responses: { 200: UserListResponse },
-})
+} as const)
 
 export const postUsersRoute = createRoute({
   method: 'post',
@@ -90,7 +108,7 @@ export const postUsersRoute = createRoute({
       links: { GetUser: GetUserLink },
     },
   },
-})
+} as const)
 
 export const getUsersIdRoute = createRoute({
   method: 'get',
@@ -105,4 +123,4 @@ export const getUsersIdRoute = createRoute({
     },
   },
   security: [{ BearerAuth: [] }],
-})
+} as const)

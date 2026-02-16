@@ -53,7 +53,7 @@ describe('responsesCode', () => {
       },
     }
     const result = responsesCode(components, true, true)
-    expect(result).toBe(`export const AliasResponse=NotFoundResponse`)
+    expect(result).toBe('export const AliasResponse=NotFoundResponse')
   })
 
   it('should handle mixed $ref and inline with readonly', () => {

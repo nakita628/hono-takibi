@@ -1,16 +1,22 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
-const CreditCardSchema = z
+export const CreditCardSchema = z
   .object({ type: z.literal('credit_card'), cardNumber: z.string(), expiry: z.string() })
+  .readonly()
   .openapi({ required: ['type', 'cardNumber', 'expiry'] })
   .openapi('CreditCard')
 
-const BankTransferSchema = z
+export type CreditCard = z.infer<typeof CreditCardSchema>
+
+export const BankTransferSchema = z
   .object({ type: z.literal('bank_transfer'), bankCode: z.string(), accountNumber: z.string() })
+  .readonly()
   .openapi({ required: ['type', 'bankCode', 'accountNumber'] })
   .openapi('BankTransfer')
 
-const PaymentMethodSchema = z
+export type BankTransfer = z.infer<typeof BankTransferSchema>
+
+export const PaymentMethodSchema = z
   .xor([CreditCardSchema, BankTransferSchema])
   .openapi({
     discriminator: {
@@ -23,93 +29,142 @@ const PaymentMethodSchema = z
   })
   .openapi('PaymentMethod')
 
-const NullablePaymentSchema = z
+export type PaymentMethod = z.infer<typeof PaymentMethodSchema>
+
+export const NullablePaymentSchema = z
   .xor([CreditCardSchema, BankTransferSchema])
   .nullable()
   .openapi('NullablePayment')
 
-const SearchFilterSchema = z
+export type NullablePayment = z.infer<typeof NullablePaymentSchema>
+
+export const SearchFilterSchema = z
   .union([
-    z.object({ keyword: z.string() }).openapi({ required: ['keyword'] }),
-    z.object({ category: z.int() }).openapi({ required: ['category'] }),
+    z
+      .object({ keyword: z.string() })
+      .readonly()
+      .openapi({ required: ['keyword'] }),
+    z
+      .object({ category: z.int() })
+      .readonly()
+      .openapi({ required: ['category'] }),
   ])
   .openapi('SearchFilter')
 
-const FlexibleIdSchema = z
+export type SearchFilter = z.infer<typeof SearchFilterSchema>
+
+export const FlexibleIdSchema = z
   .union([z.string(), z.int(), z.uuid()])
   .openapi({ description: 'Accepts string, integer, or UUID' })
   .openapi('FlexibleId')
 
-const CatSchema = z
+export type FlexibleId = z.infer<typeof FlexibleIdSchema>
+
+export const CatSchema = z
   .object({ name: z.string(), purring: z.boolean().exactOptional() })
+  .readonly()
   .openapi({ required: ['name'] })
   .openapi('Cat')
 
-const DogSchema = z
+export type Cat = z.infer<typeof CatSchema>
+
+export const DogSchema = z
   .object({ name: z.string(), barkVolume: z.number().exactOptional() })
+  .readonly()
   .openapi({ required: ['name'] })
   .openapi('Dog')
 
-const PetChoiceSchema = z.union([CatSchema, DogSchema]).openapi('PetChoice')
+export type Dog = z.infer<typeof DogSchema>
 
-const PersonSchema = z
+export const PetChoiceSchema = z.union([CatSchema, DogSchema]).openapi('PetChoice')
+
+export type PetChoice = z.infer<typeof PetChoiceSchema>
+
+export const PersonSchema = z
   .object({ name: z.string(), email: z.email() })
+  .readonly()
   .openapi({ required: ['name', 'email'] })
   .openapi('Person')
 
-const EmployeeInfoSchema = z
+export type Person = z.infer<typeof PersonSchema>
+
+export const EmployeeInfoSchema = z
   .object({ employeeId: z.int(), department: z.string().exactOptional() })
+  .readonly()
   .openapi({ required: ['employeeId'] })
   .openapi('EmployeeInfo')
 
-const EmployeeSchema = PersonSchema.and(EmployeeInfoSchema)
-  .and(z.object({ startDate: z.iso.date().exactOptional() }))
+export type EmployeeInfo = z.infer<typeof EmployeeInfoSchema>
+
+export const EmployeeSchema = PersonSchema.and(EmployeeInfoSchema)
+  .and(z.object({ startDate: z.iso.date().exactOptional() }).readonly())
   .openapi({ description: 'An employee with personal and work info' })
   .openapi('Employee')
 
-const BaseEntitySchema = z
+export type Employee = z.infer<typeof EmployeeSchema>
+
+export const BaseEntitySchema = z
   .object({ id: z.int(), createdAt: z.iso.datetime() })
+  .readonly()
   .openapi({ required: ['id', 'createdAt'] })
   .openapi('BaseEntity')
 
-const ExtendedWithSiblingSchema = BaseEntitySchema.and(
+export type BaseEntity = z.infer<typeof BaseEntitySchema>
+
+export const ExtendedWithSiblingSchema = BaseEntitySchema.and(
   z
     .object({ label: z.string(), active: z.boolean().exactOptional() })
+    .readonly()
     .openapi({ required: ['label'] }),
 )
   .openapi({ description: 'allOf with sibling properties merged', required: ['label'] })
   .openapi('ExtendedWithSibling')
 
-const NotStringValueSchema = z
+export type ExtendedWithSibling = z.infer<typeof ExtendedWithSiblingSchema>
+
+export const NotStringValueSchema = z
   .any()
   .refine((v) => typeof v !== 'string')
   .openapi('NotStringValue')
 
-const AdminRoleSchema = z
+export type NotStringValue = z.infer<typeof NotStringValueSchema>
+
+export const AdminRoleSchema = z
   .object({ role: z.literal('admin') })
+  .readonly()
   .openapi({ required: ['role'] })
   .openapi('AdminRole')
 
-const NotAdminSchema = z
+export const NotAdminSchema = z
   .any()
   .refine((v) => !AdminRoleSchema.safeParse(v).success)
   .openapi('NotAdmin')
 
-const NotDraftOrArchivedSchema = z
+export type NotAdmin = z.infer<typeof NotAdminSchema>
+
+export type AdminRole = z.infer<typeof AdminRoleSchema>
+
+export const NotDraftOrArchivedSchema = z
   .any()
   .refine((v) => !['draft', 'archived'].includes(v))
   .openapi('NotDraftOrArchived')
 
-const NotSpecificValueSchema = z
+export type NotDraftOrArchived = z.infer<typeof NotDraftOrArchivedSchema>
+
+export const NotSpecificValueSchema = z
   .any()
   .refine((v) => v !== 'forbidden')
   .openapi('NotSpecificValue')
 
-const NotStringOrNumberSchema = z
+export type NotSpecificValue = z.infer<typeof NotSpecificValueSchema>
+
+export const NotStringOrNumberSchema = z
   .any()
   .refine((v) => !z.union([z.string(), z.number()]).safeParse(v).success)
   .openapi({ description: 'Rejects if value matches string or number union' })
   .openapi('NotStringOrNumber')
+
+export type NotStringOrNumber = z.infer<typeof NotStringOrNumberSchema>
 
 export const postOneOfRoute = createRoute({
   method: 'post',
@@ -121,7 +176,7 @@ export const postOneOfRoute = createRoute({
   responses: {
     200: { description: 'OK', content: { 'application/json': { schema: PaymentMethodSchema } } },
   },
-})
+} as const)
 
 export const postAnyOfRoute = createRoute({
   method: 'post',
@@ -133,7 +188,7 @@ export const postAnyOfRoute = createRoute({
   responses: {
     200: { description: 'OK', content: { 'application/json': { schema: SearchFilterSchema } } },
   },
-})
+} as const)
 
 export const postAllOfRoute = createRoute({
   method: 'post',
@@ -145,7 +200,7 @@ export const postAllOfRoute = createRoute({
   responses: {
     200: { description: 'OK', content: { 'application/json': { schema: EmployeeSchema } } },
   },
-})
+} as const)
 
 export const postNotRoute = createRoute({
   method: 'post',
@@ -157,7 +212,7 @@ export const postNotRoute = createRoute({
   responses: {
     200: { description: 'OK', content: { 'application/json': { schema: NotStringValueSchema } } },
   },
-})
+} as const)
 
 export const getNotRefRoute = createRoute({
   method: 'get',
@@ -166,7 +221,7 @@ export const getNotRefRoute = createRoute({
   responses: {
     200: { description: 'OK', content: { 'application/json': { schema: NotAdminSchema } } },
   },
-})
+} as const)
 
 export const getNotEnumRoute = createRoute({
   method: 'get',
@@ -178,7 +233,7 @@ export const getNotEnumRoute = createRoute({
       content: { 'application/json': { schema: NotDraftOrArchivedSchema } },
     },
   },
-})
+} as const)
 
 export const getNotConstRoute = createRoute({
   method: 'get',
@@ -187,7 +242,7 @@ export const getNotConstRoute = createRoute({
   responses: {
     200: { description: 'OK', content: { 'application/json': { schema: NotSpecificValueSchema } } },
   },
-})
+} as const)
 
 export const getNotCompositionRoute = createRoute({
   method: 'get',
@@ -199,7 +254,7 @@ export const getNotCompositionRoute = createRoute({
       content: { 'application/json': { schema: NotStringOrNumberSchema } },
     },
   },
-})
+} as const)
 
 export const getAllOfSiblingRoute = createRoute({
   method: 'get',
@@ -211,7 +266,7 @@ export const getAllOfSiblingRoute = createRoute({
       content: { 'application/json': { schema: ExtendedWithSiblingSchema } },
     },
   },
-})
+} as const)
 
 export const getNullableOneOfRoute = createRoute({
   method: 'get',
@@ -220,7 +275,7 @@ export const getNullableOneOfRoute = createRoute({
   responses: {
     200: { description: 'OK', content: { 'application/json': { schema: NullablePaymentSchema } } },
   },
-})
+} as const)
 
 export const getAnyOfThreeRoute = createRoute({
   method: 'get',
@@ -229,7 +284,7 @@ export const getAnyOfThreeRoute = createRoute({
   responses: {
     200: { description: 'OK', content: { 'application/json': { schema: FlexibleIdSchema } } },
   },
-})
+} as const)
 
 export const getAnyOfRefRoute = createRoute({
   method: 'get',
@@ -238,4 +293,4 @@ export const getAnyOfRefRoute = createRoute({
   responses: {
     200: { description: 'OK', content: { 'application/json': { schema: PetChoiceSchema } } },
   },
-})
+} as const)

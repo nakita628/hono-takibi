@@ -1,6 +1,6 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
-const AddressSchema = z
+export const AddressSchema = z
   .object({
     street: z.string(),
     city: z.string(),
@@ -8,10 +8,11 @@ const AddressSchema = z
     zip: z.string().exactOptional(),
     country: z.string(),
   })
+  .readonly()
   .openapi({ required: ['street', 'city', 'country'] })
   .openapi('Address')
 
-const UserSchema = z
+export const UserSchema = z
   .object({
     id: z.int(),
     name: z.string(),
@@ -20,10 +21,13 @@ const UserSchema = z
     address: AddressSchema.exactOptional(),
     createdAt: z.iso.datetime(),
   })
+  .readonly()
   .openapi({ required: ['id', 'name', 'email', 'role', 'createdAt'] })
   .openapi('User')
 
-const CreateUserSchema = z
+export type User = z.infer<typeof UserSchema>
+
+export const CreateUserSchema = z
   .object({
     name: z.string(),
     email: z.email(),
@@ -31,58 +35,78 @@ const CreateUserSchema = z
     role: z.enum(['admin', 'customer']).exactOptional(),
     address: AddressSchema.exactOptional(),
   })
+  .readonly()
   .openapi({ required: ['name', 'email', 'password'] })
   .openapi('CreateUser')
 
-const UpdateUserSchema = z
+export type CreateUser = z.infer<typeof CreateUserSchema>
+
+export const UpdateUserSchema = z
   .object({
     name: z.string().exactOptional(),
     email: z.email().exactOptional(),
     address: AddressSchema.exactOptional(),
   })
+  .readonly()
   .openapi('UpdateUser')
 
-const CategorySchema = z
+export type UpdateUser = z.infer<typeof UpdateUserSchema>
+
+export type Address = z.infer<typeof AddressSchema>
+
+export const CategorySchema = z
   .object({ id: z.int(), name: z.string(), parentId: z.int().nullable().exactOptional() })
+  .readonly()
   .openapi({ required: ['id', 'name'] })
   .openapi('Category')
 
-const ProductSchema = z
+export const ProductSchema = z
   .object({
     id: z.int(),
     name: z.string(),
     description: z.string().exactOptional(),
     price: z.number().min(0),
     category: CategorySchema,
-    tags: z.array(z.string()).exactOptional(),
+    tags: z.array(z.string()).readonly().exactOptional(),
     inStock: z.boolean(),
     createdAt: z.iso.datetime(),
   })
+  .readonly()
   .openapi({ required: ['id', 'name', 'price', 'category', 'inStock', 'createdAt'] })
   .openapi('Product')
 
-const CreateProductSchema = z
+export type Product = z.infer<typeof ProductSchema>
+
+export const CreateProductSchema = z
   .object({
     name: z.string(),
     description: z.string().exactOptional(),
     price: z.number().min(0),
     categoryId: z.int(),
-    tags: z.array(z.string()).exactOptional(),
+    tags: z.array(z.string()).readonly().exactOptional(),
   })
+  .readonly()
   .openapi({ required: ['name', 'price', 'categoryId'] })
   .openapi('CreateProduct')
 
-const UpdateProductSchema = z
+export type CreateProduct = z.infer<typeof CreateProductSchema>
+
+export const UpdateProductSchema = z
   .object({
     name: z.string().exactOptional(),
     description: z.string().exactOptional(),
     price: z.number().min(0).exactOptional(),
     categoryId: z.int().exactOptional(),
-    tags: z.array(z.string()).exactOptional(),
+    tags: z.array(z.string()).readonly().exactOptional(),
   })
+  .readonly()
   .openapi('UpdateProduct')
 
-const ReviewSchema = z
+export type UpdateProduct = z.infer<typeof UpdateProductSchema>
+
+export type Category = z.infer<typeof CategorySchema>
+
+export const ReviewSchema = z
   .object({
     id: z.int(),
     rating: z.int().min(1).max(5),
@@ -90,70 +114,101 @@ const ReviewSchema = z
     author: UserSchema,
     createdAt: z.iso.datetime(),
   })
+  .readonly()
   .openapi({ required: ['id', 'rating', 'author', 'createdAt'] })
   .openapi('Review')
 
-const CreateReviewSchema = z
+export type Review = z.infer<typeof ReviewSchema>
+
+export const CreateReviewSchema = z
   .object({ rating: z.int().min(1).max(5), comment: z.string().exactOptional() })
+  .readonly()
   .openapi({ required: ['rating'] })
   .openapi('CreateReview')
 
-const OrderItemSchema = z
+export type CreateReview = z.infer<typeof CreateReviewSchema>
+
+export const OrderItemSchema = z
   .object({ product: ProductSchema, quantity: z.int().min(1), price: z.number() })
+  .readonly()
   .openapi({ required: ['product', 'quantity', 'price'] })
   .openapi('OrderItem')
 
-const OrderSchema = z
+export const OrderSchema = z
   .object({
     id: z.int(),
     user: UserSchema,
-    items: z.array(OrderItemSchema),
+    items: z.array(OrderItemSchema).readonly(),
     status: z.enum(['pending', 'confirmed', 'shipped', 'delivered', 'cancelled']),
     totalPrice: z.number(),
     shippingAddress: AddressSchema,
     createdAt: z.iso.datetime(),
   })
+  .readonly()
   .openapi({
     required: ['id', 'user', 'items', 'status', 'totalPrice', 'shippingAddress', 'createdAt'],
   })
   .openapi('Order')
 
-const CreateOrderSchema = z
+export type Order = z.infer<typeof OrderSchema>
+
+export type OrderItem = z.infer<typeof OrderItemSchema>
+
+export const CreateOrderSchema = z
   .object({
-    items: z.array(
-      z
-        .object({ productId: z.int(), quantity: z.int().min(1) })
-        .openapi({ required: ['productId', 'quantity'] }),
-    ),
+    items: z
+      .array(
+        z
+          .object({ productId: z.int(), quantity: z.int().min(1) })
+          .readonly()
+          .openapi({ required: ['productId', 'quantity'] }),
+      )
+      .readonly(),
     shippingAddress: AddressSchema,
     callbackUrl: z.url().exactOptional(),
   })
+  .readonly()
   .openapi({ required: ['items', 'shippingAddress'] })
   .openapi('CreateOrder')
 
-const ErrorSchema = z
+export type CreateOrder = z.infer<typeof CreateOrderSchema>
+
+export const ErrorSchema = z
   .object({ code: z.int(), message: z.string() })
+  .readonly()
   .openapi({ required: ['code', 'message'] })
   .openapi('Error')
 
-const NotFoundResponse = {
+export type Error = z.infer<typeof ErrorSchema>
+
+export const NotFoundResponse = {
   description: 'Resource not found',
   content: { 'application/json': { schema: ErrorSchema } },
-}
+} as const
 
-const PageParamParamsSchema = z
+export const PageParamParamsSchema = z
   .int()
   .default(1)
   .exactOptional()
   .openapi({ param: { name: 'page', in: 'query', schema: { type: 'integer', default: 1 } } })
+  .readonly()
 
-const LimitParamParamsSchema = z
+export type PageParamParams = z.infer<typeof PageParamParamsSchema>
+
+export const LimitParamParamsSchema = z
   .int()
   .default(20)
   .exactOptional()
   .openapi({ param: { name: 'limit', in: 'query', schema: { type: 'integer', default: 20 } } })
+  .readonly()
 
-const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' }
+export type LimitParamParams = z.infer<typeof LimitParamParamsSchema>
+
+export const BearerAuthSecurityScheme = {
+  type: 'http',
+  scheme: 'bearer',
+  bearerFormat: 'JWT',
+} as const
 
 export const getUsersRoute = createRoute({
   method: 'get',
@@ -172,7 +227,7 @@ export const getUsersRoute = createRoute({
       },
     },
   },
-})
+} as const)
 
 export const postUsersRoute = createRoute({
   method: 'post',
@@ -185,7 +240,7 @@ export const postUsersRoute = createRoute({
     201: { description: 'Created', content: { 'application/json': { schema: UserSchema } } },
   },
   security: [{ BearerAuth: [] }],
-})
+} as const)
 
 export const getUsersUserIdRoute = createRoute({
   method: 'get',
@@ -204,7 +259,7 @@ export const getUsersUserIdRoute = createRoute({
     200: { description: 'OK', content: { 'application/json': { schema: UserSchema } } },
     404: NotFoundResponse,
   },
-})
+} as const)
 
 export const putUsersUserIdRoute = createRoute({
   method: 'put',
@@ -224,7 +279,7 @@ export const putUsersUserIdRoute = createRoute({
     200: { description: 'OK', content: { 'application/json': { schema: UserSchema } } },
   },
   security: [{ BearerAuth: [] }],
-})
+} as const)
 
 export const deleteUsersUserIdRoute = createRoute({
   method: 'delete',
@@ -241,7 +296,7 @@ export const deleteUsersUserIdRoute = createRoute({
   },
   responses: { 204: { description: 'Deleted' } },
   security: [{ BearerAuth: [] }],
-})
+} as const)
 
 export const getProductsRoute = createRoute({
   method: 'get',
@@ -277,7 +332,7 @@ export const getProductsRoute = createRoute({
       },
     },
   },
-})
+} as const)
 
 export const postProductsRoute = createRoute({
   method: 'post',
@@ -290,7 +345,7 @@ export const postProductsRoute = createRoute({
     201: { description: 'Created', content: { 'application/json': { schema: ProductSchema } } },
   },
   security: [{ BearerAuth: [] }],
-})
+} as const)
 
 export const getProductsProductIdRoute = createRoute({
   method: 'get',
@@ -309,7 +364,7 @@ export const getProductsProductIdRoute = createRoute({
     200: { description: 'OK', content: { 'application/json': { schema: ProductSchema } } },
     404: NotFoundResponse,
   },
-})
+} as const)
 
 export const putProductsProductIdRoute = createRoute({
   method: 'put',
@@ -329,7 +384,7 @@ export const putProductsProductIdRoute = createRoute({
     200: { description: 'OK', content: { 'application/json': { schema: ProductSchema } } },
   },
   security: [{ BearerAuth: [] }],
-})
+} as const)
 
 export const getProductsProductIdReviewsRoute = createRoute({
   method: 'get',
@@ -347,7 +402,7 @@ export const getProductsProductIdReviewsRoute = createRoute({
   responses: {
     200: { description: 'OK', content: { 'application/json': { schema: z.array(ReviewSchema) } } },
   },
-})
+} as const)
 
 export const postProductsProductIdReviewsRoute = createRoute({
   method: 'post',
@@ -367,7 +422,7 @@ export const postProductsProductIdReviewsRoute = createRoute({
     201: { description: 'Created', content: { 'application/json': { schema: ReviewSchema } } },
   },
   security: [{ BearerAuth: [] }],
-})
+} as const)
 
 export const getOrdersRoute = createRoute({
   method: 'get',
@@ -405,7 +460,7 @@ export const getOrdersRoute = createRoute({
     },
   },
   security: [{ BearerAuth: [] }],
-})
+} as const)
 
 export const postOrdersRoute = createRoute({
   method: 'post',
@@ -418,7 +473,7 @@ export const postOrdersRoute = createRoute({
     201: { description: 'Created', content: { 'application/json': { schema: OrderSchema } } },
   },
   security: [{ BearerAuth: [] }],
-})
+} as const)
 
 export const getOrdersOrderIdRoute = createRoute({
   method: 'get',
@@ -438,7 +493,7 @@ export const getOrdersOrderIdRoute = createRoute({
     404: NotFoundResponse,
   },
   security: [{ BearerAuth: [] }],
-})
+} as const)
 
 export const getCategoriesRoute = createRoute({
   method: 'get',
@@ -450,7 +505,7 @@ export const getCategoriesRoute = createRoute({
       content: { 'application/json': { schema: z.array(CategorySchema) } },
     },
   },
-})
+} as const)
 
 export const postUploadImageRoute = createRoute({
   method: 'post',
@@ -481,4 +536,4 @@ export const postUploadImageRoute = createRoute({
     },
   },
   security: [{ BearerAuth: [] }],
-})
+} as const)

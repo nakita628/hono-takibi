@@ -7,7 +7,7 @@ const ItemSchema = z
 
 const ItemUpdateSchema = z.object({ name: z.string().exactOptional() }).openapi('ItemUpdate')
 
-const LimitParamParamsSchema = z
+export const LimitParamParamsSchema = z
   .int()
   .min(1)
   .max(100)
@@ -21,7 +21,9 @@ const LimitParamParamsSchema = z
     },
   })
 
-const OffsetParamParamsSchema = z
+export type LimitParamParams = z.infer<typeof LimitParamParamsSchema>
+
+export const OffsetParamParamsSchema = z
   .int()
   .min(0)
   .default(0)
@@ -29,6 +31,8 @@ const OffsetParamParamsSchema = z
   .openapi({
     param: { name: 'offset', in: 'query', schema: { type: 'integer', default: 0, minimum: 0 } },
   })
+
+export type OffsetParamParams = z.infer<typeof OffsetParamParamsSchema>
 
 export const getItemsItemIdRoute = createRoute({
   method: 'get',

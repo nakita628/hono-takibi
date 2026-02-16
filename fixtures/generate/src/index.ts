@@ -65,6 +65,7 @@ const SPECS = [
   { name: '12-callbacks-field', yaml: '12-callbacks-field.yaml', flags: { ...NO_EXPORTS, exportCallbacks: true } },
   { name: '13-array-object-constraints', yaml: '13-array-object-constraints.yaml', flags: NO_EXPORTS },
   { name: '14-trailing-slash', yaml: '14-trailing-slash.yaml', flags: NO_EXPORTS },
+  { name: '15-readonly-ref', yaml: '15-readonly-ref.yaml', flags: { ...NO_EXPORTS, exportResponses: true, exportRequestBodies: true, exportExamples: true } },
 ] as const
 
 const CLIENT_STUB = `import { hc } from 'hono/client'
@@ -79,8 +80,8 @@ function makeClientStub(outDir: string) {
 
 function makeTasks(openAPI: Parameters<typeof type>[0], outDir: string, flags: (typeof SPECS)[number]['flags']) {
   return [
-    { mode: 'routes', fn: () => takibi(openAPI, `${outDir}/routes.ts`, false, false, '/', flags) },
-    { mode: 'readonly-routes', fn: () => takibi(openAPI, `${outDir}/readonly-routes.ts`, false, false, '/', { ...flags, readonly: true }) },
+    { mode: 'routes', fn: () => takibi(openAPI, `${outDir}/routes.ts`, flags) },
+    { mode: 'readonly-routes', fn: () => takibi(openAPI, `${outDir}/readonly-routes.ts`, { ...flags, readonly: true }) },
     { mode: 'type', fn: () => type(openAPI, `${outDir}/type.ts`) },
     { mode: 'rpc', fn: () => rpc(openAPI, `${outDir}/rpc.ts`, './client', false, 'client', false) },
     { mode: 'swr', fn: () => swr(openAPI, `${outDir}/swr.ts`, './client', false, 'client') },

@@ -62,7 +62,7 @@ describe('requestBodiesCode', () => {
       },
     }
     const result = requestBodiesCode(components, true, true)
-    expect(result).toBe(`export const AliasRequestBody=UserBodyRequestBody`)
+    expect(result).toBe('export const AliasRequestBody=UserBodyRequestBody')
   })
 
   it('should handle mixed $ref and inline with readonly', () => {
