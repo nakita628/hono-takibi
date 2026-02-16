@@ -291,6 +291,298 @@ export const getHealthRouteHandler: RouteHandler<typeof getHealthRoute> = async 
       expect(result).not.toContain("from '../routes'")
       expect(result).not.toContain("from '@/routes/routes'")
     })
+
+    it('preserves existing inline handler implementation (routeHandler: false pattern)', () => {
+      const existing = `import { getHealthRoute } from '../routes'
+import app from '..'
+
+export const healthHandler = app
+.openapi(getHealthRoute, async (c) => {
+  const data = await db.getHealth()
+  return c.json(data, 200)
+})
+`
+
+      const generated = `import { getHealthRoute } from '../routes'
+import app from '..'
+
+export const healthHandler = app
+.openapi(getHealthRoute, (c) => {})
+`
+
+      const result = mergeHandlerFile(existing, generated)
+      const expected = `import { getHealthRoute } from '../routes'
+import app from '..'
+
+export const healthHandler = app
+.openapi(getHealthRoute, async (c) => {
+  const data = await db.getHealth()
+  return c.json(data, 200)
+})
+`
+      expect(result).toBe(expected)
+    })
+
+    it('adds new inline handler from generated code', () => {
+      const existing = `import { getHealthRoute } from '../routes'
+import app from '..'
+
+export const healthHandler = app
+.openapi(getHealthRoute, async (c) => {
+  return c.json({ status: 'ok' }, 200)
+})
+`
+
+      const generated = `import { getHealthRoute, getUsersRoute } from '../routes'
+import app from '..'
+
+export const healthHandler = app
+.openapi(getHealthRoute, (c) => {})
+
+export const usersHandler = app
+.openapi(getUsersRoute, (c) => {})
+`
+
+      const result = mergeHandlerFile(existing, generated)
+      const expected = `import { getHealthRoute, getUsersRoute } from '../routes'
+import app from '..'
+
+export const healthHandler = app
+.openapi(getHealthRoute, async (c) => {
+  return c.json({ status: 'ok' }, 200)
+})
+
+export const usersHandler = app
+.openapi(getUsersRoute, (c) => {})
+`
+      expect(result).toBe(expected)
+    })
+
+    it('removes deleted inline handler from existing code', () => {
+      const existing = `import { getHealthRoute, getUsersRoute } from '../routes'
+import app from '..'
+
+export const healthHandler = app
+.openapi(getHealthRoute, async (c) => {
+  return c.json({ status: 'ok' }, 200)
+})
+
+export const usersHandler = app
+.openapi(getUsersRoute, async (c) => {
+  return c.json([], 200)
+})
+`
+
+      const generated = `import { getHealthRoute } from '../routes'
+import app from '..'
+
+export const healthHandler = app
+.openapi(getHealthRoute, (c) => {})
+`
+
+      const result = mergeHandlerFile(existing, generated)
+      const expected = `import { getHealthRoute } from '../routes'
+import app from '..'
+
+export const healthHandler = app
+.openapi(getHealthRoute, async (c) => {
+  return c.json({ status: 'ok' }, 200)
+})
+`
+      expect(result).toBe(expected)
+    })
+
+    it('removes deleted .openapi() call from inline handler chain', () => {
+      const existing = `import { getHealthRoute, getHealthTestRoute } from '../routes'
+import app from '..'
+
+export const healthHandler = app
+.openapi(getHealthRoute, (c) => {
+  return c.json({ status: 'ok' }, 200)
+})
+.openapi(getHealthTestRoute, (c) => {
+  return c.json({ status: 'ok' }, 200)
+})
+`
+
+      const generated = `import { getHealthRoute } from '../routes'
+import app from '..'
+
+export const healthHandler = app
+.openapi(getHealthRoute, (c) => {})
+`
+
+      const result = mergeHandlerFile(existing, generated)
+      const expected = `import { getHealthRoute } from '../routes'
+import app from '..'
+
+export const healthHandler = app
+.openapi(getHealthRoute, (c) => {
+  return c.json({ status: 'ok' }, 200)
+})
+`
+      expect(result).toBe(expected)
+    })
+
+    it('adds new .openapi() call to existing inline handler chain', () => {
+      const existing = `import { getHealthRoute } from '../routes'
+import app from '..'
+
+export const healthHandler = app
+.openapi(getHealthRoute, (c) => {
+  return c.json({ status: 'ok' }, 200)
+})
+`
+
+      const generated = `import { getHealthRoute, getHealthTestRoute } from '../routes'
+import app from '..'
+
+export const healthHandler = app
+.openapi(getHealthRoute, (c) => {})
+.openapi(getHealthTestRoute, (c) => {})
+`
+
+      const result = mergeHandlerFile(existing, generated)
+      const expected = `import { getHealthRoute, getHealthTestRoute } from '../routes'
+import app from '..'
+
+export const healthHandler = app
+.openapi(getHealthRoute, (c) => {
+  return c.json({ status: 'ok' }, 200)
+})
+.openapi(getHealthTestRoute, (c) => {})
+`
+      expect(result).toBe(expected)
+    })
+
+    it('removes and adds .openapi() calls simultaneously', () => {
+      const existing = `import { getHealthRoute, getHealthTestRoute } from '../routes'
+import app from '..'
+
+export const healthHandler = app
+.openapi(getHealthRoute, (c) => {
+  return c.json({ status: 'ok' }, 200)
+})
+.openapi(getHealthTestRoute, (c) => {
+  return c.json({ message: 'test' }, 200)
+})
+`
+
+      const generated = `import { getHealthRoute, postHealthRoute } from '../routes'
+import app from '..'
+
+export const healthHandler = app
+.openapi(getHealthRoute, (c) => {})
+.openapi(postHealthRoute, (c) => {})
+`
+
+      const result = mergeHandlerFile(existing, generated)
+      const expected = `import { getHealthRoute, postHealthRoute } from '../routes'
+import app from '..'
+
+export const healthHandler = app
+.openapi(getHealthRoute, (c) => {
+  return c.json({ status: 'ok' }, 200)
+})
+.openapi(postHealthRoute, (c) => {})
+`
+      expect(result).toBe(expected)
+    })
+
+    it('removes deleted .openapi() call with pathAlias', () => {
+      const existing = `import { getHealthRoute, getHealthTestRoute } from '@/src/routes'
+import app from '..'
+
+export const healthHandler = app
+.openapi(getHealthRoute, (c) => {
+  return c.json({ status: 'ok' }, 200)
+})
+.openapi(getHealthTestRoute, (c) => {
+  return c.json({ status: 'ok' }, 200)
+})
+`
+
+      const generated = `import { getHealthRoute } from '@/src/routes'
+import app from '..'
+
+export const healthHandler = app
+.openapi(getHealthRoute, (c) => {})
+`
+
+      const result = mergeHandlerFile(existing, generated)
+      const expected = `import { getHealthRoute } from '@/src/routes'
+import app from '..'
+
+export const healthHandler = app
+.openapi(getHealthRoute, (c) => {
+  return c.json({ status: 'ok' }, 200)
+})
+`
+      expect(result).toBe(expected)
+    })
+
+    it('adds new .openapi() call with monorepo import', () => {
+      const existing = `import { getHealthRoute } from '@packages/api/routes'
+import app from '@packages/api'
+
+export const healthHandler = app
+.openapi(getHealthRoute, (c) => {
+  return c.json({ status: 'ok' }, 200)
+})
+`
+
+      const generated = `import { getHealthRoute, getHealthTestRoute } from '@packages/api/routes'
+import app from '@packages/api'
+
+export const healthHandler = app
+.openapi(getHealthRoute, (c) => {})
+.openapi(getHealthTestRoute, (c) => {})
+`
+
+      const result = mergeHandlerFile(existing, generated)
+      const expected = `import { getHealthRoute, getHealthTestRoute } from '@packages/api/routes'
+import app from '@packages/api'
+
+export const healthHandler = app
+.openapi(getHealthRoute, (c) => {
+  return c.json({ status: 'ok' }, 200)
+})
+.openapi(getHealthTestRoute, (c) => {})
+`
+      expect(result).toBe(expected)
+    })
+
+    it('removes deleted .openapi() call with monorepo import', () => {
+      const existing = `import { getHealthRoute, getHealthTestRoute } from '@packages/api/routes'
+import app from '@packages/api'
+
+export const healthHandler = app
+.openapi(getHealthRoute, (c) => {
+  return c.json({ status: 'ok' }, 200)
+})
+.openapi(getHealthTestRoute, (c) => {
+  return c.json({ status: 'ok' }, 200)
+})
+`
+
+      const generated = `import { getHealthRoute } from '@packages/api/routes'
+import app from '@packages/api'
+
+export const healthHandler = app
+.openapi(getHealthRoute, (c) => {})
+`
+
+      const result = mergeHandlerFile(existing, generated)
+      const expected = `import { getHealthRoute } from '@packages/api/routes'
+import app from '@packages/api'
+
+export const healthHandler = app
+.openapi(getHealthRoute, (c) => {
+  return c.json({ status: 'ok' }, 200)
+})
+`
+      expect(result).toBe(expected)
+    })
   })
 
   describe('mergeAppFile', () => {
@@ -440,6 +732,114 @@ export default app
       const result = mergeAppFile(generated, generated)
       expect(result).toContain('getHealthRoute')
       expect(result).toContain('export default app')
+    })
+
+    it('preserves user chain prefix (.basePath) with .openapi() pattern', () => {
+      const existing = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute } from './routes'
+import { getHealthRouteHandler } from './handlers'
+
+const app = new OpenAPIHono()
+
+export const api = app.basePath('/api').openapi(getHealthRoute, getHealthRouteHandler)
+
+export default app
+`
+
+      const generated = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute, getUserRoute } from './routes'
+import { getHealthRouteHandler, getUserRouteHandler } from './handlers'
+
+const app = new OpenAPIHono()
+
+export const api = app.openapi(getHealthRoute, getHealthRouteHandler).openapi(getUserRoute, getUserRouteHandler)
+
+export default app
+`
+
+      const result = mergeAppFile(existing, generated)
+      const expected = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute, getUserRoute } from './routes'
+import { getHealthRouteHandler, getUserRouteHandler } from './handlers'
+
+const app = new OpenAPIHono()
+
+export const api = app.basePath('/api').openapi(getHealthRoute, getHealthRouteHandler).openapi(getUserRoute, getUserRouteHandler)
+
+export default app
+`
+      expect(result).toBe(expected)
+    })
+
+    it('preserves user chain prefix (.basePath) with .route() pattern', () => {
+      const existing = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { honoHandler } from './handlers'
+
+const app = new OpenAPIHono()
+
+export const api = app.basePath('/api').route('/', honoHandler)
+
+export default app
+`
+
+      const generated = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { honoHandler, honoXHandler } from './handlers'
+
+const app = new OpenAPIHono()
+
+export const api = app.route('/', honoHandler).route('/', honoXHandler)
+
+export default app
+`
+
+      const result = mergeAppFile(existing, generated)
+      const expected = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { honoHandler, honoXHandler } from './handlers'
+
+const app = new OpenAPIHono()
+
+export const api = app.basePath('/api').route('/', honoHandler).route('/', honoXHandler)
+
+export default app
+`
+      expect(result).toBe(expected)
+    })
+
+    it('does not inject prefix when existing has no chain prefix', () => {
+      const existing = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute } from './routes'
+import { getHealthRouteHandler } from './handlers'
+
+const app = new OpenAPIHono()
+
+export const api = app.openapi(getHealthRoute, getHealthRouteHandler)
+
+export default app
+`
+
+      const generated = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute, getUserRoute } from './routes'
+import { getHealthRouteHandler, getUserRouteHandler } from './handlers'
+
+const app = new OpenAPIHono()
+
+export const api = app.openapi(getHealthRoute, getHealthRouteHandler).openapi(getUserRoute, getUserRouteHandler)
+
+export default app
+`
+
+      const result = mergeAppFile(existing, generated)
+      const expected = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute, getUserRoute } from './routes'
+import { getHealthRouteHandler, getUserRouteHandler } from './handlers'
+
+const app = new OpenAPIHono()
+
+export const api = app.openapi(getHealthRoute, getHealthRouteHandler).openapi(getUserRoute, getUserRouteHandler)
+
+export default app
+`
+      expect(result).toBe(expected)
     })
   })
 

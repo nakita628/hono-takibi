@@ -1,12 +1,12 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
-export const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' }
+const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' }
 
-export const ApiKeyAuthSecurityScheme = { type: 'apiKey', in: 'header', name: 'X-API-Key' }
+const ApiKeyAuthSecurityScheme = { type: 'apiKey', in: 'header', name: 'X-API-Key' }
 
-export const BasicAuthSecurityScheme = { type: 'http', scheme: 'basic' }
+const BasicAuthSecurityScheme = { type: 'http', scheme: 'basic' }
 
-export const OAuth2SecurityScheme = {
+const OAuth2SecurityScheme = {
   type: 'oauth2',
   flows: {
     authorizationCode: {

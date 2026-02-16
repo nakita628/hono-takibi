@@ -26,7 +26,7 @@ export const postJsonRoute = createRoute({
       },
     },
   },
-} as const)
+})
 
 export const postFormRoute = createRoute({
   method: 'post',
@@ -54,7 +54,7 @@ export const postFormRoute = createRoute({
       },
     },
   },
-} as const)
+})
 
 export const postUploadRoute = createRoute({
   method: 'post',
@@ -82,7 +82,7 @@ export const postUploadRoute = createRoute({
       },
     },
   },
-} as const)
+})
 
 export const postTextRoute = createRoute({
   method: 'post',
@@ -90,7 +90,7 @@ export const postTextRoute = createRoute({
   operationId: 'postText',
   request: { body: { content: { 'text/plain': { schema: z.string() } }, required: true } },
   responses: { 200: { description: 'OK', content: { 'text/plain': { schema: z.string() } } } },
-} as const)
+})
 
 export const postMultiContentRoute = createRoute({
   method: 'post',
@@ -119,4 +119,4 @@ export const postMultiContentRoute = createRoute({
       },
     },
   },
-} as const)
+})

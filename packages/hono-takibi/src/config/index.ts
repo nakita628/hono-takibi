@@ -110,9 +110,13 @@ const ConfigSchema = z
           })
           .exactOptional(),
         readonly: z.boolean().exactOptional(),
-        template: z.boolean().exactOptional(),
-        test: z.boolean().exactOptional(),
-        pathAlias: z.string().exactOptional(),
+        template: z
+          .object({
+            test: z.boolean().default(false),
+            routeHandler: z.boolean().default(false),
+            pathAlias: z.string().exactOptional(),
+          })
+          .exactOptional(),
         // OpenAPI Components Object order
         exportSchemas: z.boolean().exactOptional(),
         exportSchemasTypes: z.boolean().exactOptional(),
@@ -343,6 +347,7 @@ const ConfigSchema = z
     mock: z
       .object({
         output: z.custom<string | `${string}.ts`>((v) => typeof v === 'string'),
+        basePath: z.string().exactOptional(),
       })
       .exactOptional(),
     docs: z
@@ -351,6 +356,7 @@ const ConfigSchema = z
           message: 'must be .md file',
         }),
         entry: z.string().default('src/index.ts').exactOptional(),
+        basePath: z.string().exactOptional(),
       })
       .exactOptional(),
   })

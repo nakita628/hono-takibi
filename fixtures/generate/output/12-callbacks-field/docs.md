@@ -18,6 +18,7 @@ hono request \
   -P /orders \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
+  -d '{"item":"string","quantity":0,"callbackUrl":"http://example.com"}' \
   src/index.ts
 ```
 
@@ -77,6 +78,7 @@ hono request \
   -P /payments \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
+  -d '{"amount":0,"currency":"string","successUrl":"http://example.com","failureUrl":"http://example.com"}' \
   src/index.ts
 ```
 

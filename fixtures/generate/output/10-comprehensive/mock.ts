@@ -673,7 +673,7 @@ const postUploadImageRouteHandler: RouteHandler<typeof postUploadImageRoute> = a
   )
 }
 
-const app = new OpenAPIHono()
+const app = new OpenAPIHono().basePath('undefined')
 
 export const api = app
   .openapi(getUsersRoute, getUsersRouteHandler)

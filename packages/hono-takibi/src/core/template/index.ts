@@ -9,7 +9,7 @@ import type { OpenAPI } from '../../openapi/index.js'
 /**
  * Generates app template (index.ts) and stub handler files from an OpenAPI spec.
  *
- * Used by the CLI and vite-plugin when `template: true` is configured.
+ * Used by the CLI and vite-plugin when `template` is configured.
  */
 export async function template(
   openAPI: OpenAPI,
@@ -18,6 +18,7 @@ export async function template(
   basePath: string,
   pathAlias: string | undefined,
   routeImport: string | undefined,
+  routeHandler = false,
 ): Promise<
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {
@@ -26,8 +27,8 @@ export async function template(
   const target = path.join(dir, 'index.ts')
 
   const [appFmtResult, stubHandlersResult] = await Promise.all([
-    fmt(app(openAPI, routeOutput, basePath, pathAlias, routeImport)),
-    zodOpenAPIHonoHandler(openAPI, routeOutput, test, pathAlias, routeImport),
+    fmt(app(openAPI, routeOutput, basePath, pathAlias, routeImport, routeHandler)),
+    zodOpenAPIHonoHandler(openAPI, routeOutput, test, pathAlias, routeImport, routeHandler),
   ])
   if (!appFmtResult.ok) return { ok: false, error: appFmtResult.error }
   if (!stubHandlersResult.ok) return { ok: false, error: stubHandlersResult.error }

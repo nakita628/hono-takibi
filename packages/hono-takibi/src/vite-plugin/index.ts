@@ -554,10 +554,11 @@ const runAllGenerationTasks = async (
   }
 
   const makeTemplateJob = (): Promise<string> | undefined => {
-    if (!config['zod-openapi']?.template) return undefined
+    const tmpl = config['zod-openapi']?.template
+    if (!tmpl) return undefined
     const routeOutputPath =
-      config['zod-openapi']?.output
-      ?? (config['zod-openapi']?.routes?.output?.endsWith('.ts')
+      config['zod-openapi']?.output ??
+      (config['zod-openapi']?.routes?.output?.endsWith('.ts')
         ? config['zod-openapi']?.routes?.output
         : `${config['zod-openapi']?.routes?.output}/index.ts`)
     if (!routeOutputPath) return undefined
@@ -567,10 +568,11 @@ const runAllGenerationTasks = async (
       const result = await template(
         openAPI,
         absPath,
-        config['zod-openapi']?.test ?? false,
+        tmpl.test,
         config.basePath ?? '/',
-        config['zod-openapi']?.pathAlias,
+        tmpl.pathAlias,
         config['zod-openapi']?.routes?.import,
+        tmpl.routeHandler,
       )
       return result.ok ? `✅ template -> ${absPath}` : `❌ template: ${result.error}`
     })()

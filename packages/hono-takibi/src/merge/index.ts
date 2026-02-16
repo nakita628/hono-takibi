@@ -41,21 +41,45 @@ export function mergeHandlerFile(existingCode: string, generatedCode: string): s
   const existingFile = project.createSourceFile('existing.ts', existingCode)
   const generatedFile = project.createSourceFile('generated.ts', generatedCode)
 
+  // Detect handler pattern: RouteHandler (traditional) or Handler (inline sub-app)
+  const isHandlerName = (name: string): boolean =>
+    name.endsWith('RouteHandler') || (name.endsWith('Handler') && !name.endsWith('RouteHandler'))
+
+  const isInlineHandlerName = (name: string): boolean =>
+    name.endsWith('Handler') && !name.endsWith('RouteHandler')
+
   const collectHandlerNames = (file: ReturnType<typeof project.createSourceFile>) =>
     new Set(
       file
         .getVariableStatements()
         .filter((stmt) => stmt.isExported())
         .flatMap((stmt) => stmt.getDeclarations())
-        .filter((decl) => decl.getName().endsWith('RouteHandler'))
+        .filter((decl) => isHandlerName(decl.getName()))
         .map((decl) => decl.getName()),
     )
 
   const generatedHandlerNames = collectHandlerNames(generatedFile)
   const existingHandlerNames = collectHandlerNames(existingFile)
 
-  // Delete ranges: handlers in existing but not in generated (route removed from OpenAPI)
-  const deleteRanges = existingFile
+  // Body operations: [start, end, replacement]
+  type BodyOp = readonly [number, number, string]
+
+  // Delete operations: handlers in existing but not in generated
+  const deleteOps: BodyOp[] = existingFile
+    .getVariableStatements()
+    .filter(
+      (stmt) =>
+        stmt.isExported() &&
+        stmt
+          .getDeclarations()
+          .some(
+            (decl) => isHandlerName(decl.getName()) && !generatedHandlerNames.has(decl.getName()),
+          ),
+    )
+    .map((stmt): BodyOp => [stmt.getFullStart(), stmt.getEnd(), ''])
+
+  // Chain-merge operations: inline handlers in both — merge .openapi() calls
+  const mergeOps: BodyOp[] = existingFile
     .getVariableStatements()
     .filter(
       (stmt) =>
@@ -64,28 +88,42 @@ export function mergeHandlerFile(existingCode: string, generatedCode: string): s
           .getDeclarations()
           .some(
             (decl) =>
-              decl.getName().endsWith('RouteHandler') && !generatedHandlerNames.has(decl.getName()),
+              isInlineHandlerName(decl.getName()) && generatedHandlerNames.has(decl.getName()),
           ),
     )
-    .map((stmt): [number, number] => [stmt.getFullStart(), stmt.getEnd()])
-    .toSorted((a, b) => a[0] - b[0])
+    .flatMap((stmt): BodyOp[] => {
+      const decl = stmt.getDeclarations().find((d) => isInlineHandlerName(d.getName()))
+      if (!decl) return []
+      const name = decl.getName()
+      const genStmt = generatedFile
+        .getVariableStatements()
+        .find((s) => s.isExported() && s.getDeclarations().some((d) => d.getName() === name))
+      if (!genStmt) return []
+      const merged = mergeInlineHandler(stmt.getText(), genStmt.getText())
+      if (merged === stmt.getText()) return []
+      return [[stmt.getStart(), stmt.getEnd(), merged]]
+    })
 
   // Find body start (after last import declaration)
   const importDecls = existingFile.getImportDeclarations()
   const bodyStart = importDecls.length > 0 ? importDecls[importDecls.length - 1].getEnd() : 0
 
-  // Build body by removing deleted ranges from original text
-  const filteredRanges = deleteRanges.filter(([start]) => start >= bodyStart)
-  const keepSlices = [
-    ...filteredRanges.map(([start], i) =>
-      existingCode.slice(i === 0 ? bodyStart : filteredRanges[i - 1][1], start),
-    ),
-    existingCode.slice(
-      filteredRanges.length > 0 ? filteredRanges[filteredRanges.length - 1][1] : bodyStart,
-    ),
-  ]
-  // Clean up excessive blank lines from deletions
-  const body = keepSlices.join('').replace(/\n{3,}/g, '\n\n')
+  // Apply operations to build body
+  const allOps = [...deleteOps, ...mergeOps]
+    .filter(([start]) => start >= bodyStart)
+    .toSorted(([a], [b]) => a - b)
+
+  const { slices, cursor: finalCursor } = allOps.reduce<{
+    readonly slices: readonly string[]
+    readonly cursor: number
+  }>(
+    (acc, [start, end, replacement]) => ({
+      slices: [...acc.slices, existingCode.slice(acc.cursor, start), replacement],
+      cursor: end,
+    }),
+    { slices: [], cursor: bodyStart },
+  )
+  const body = [...slices, existingCode.slice(finalCursor)].join('').replace(/\n{3,}/g, '\n\n')
 
   // New handlers: in generated but not in existing
   const newHandlerStatements = generatedFile
@@ -96,8 +134,7 @@ export function mergeHandlerFile(existingCode: string, generatedCode: string): s
         stmt
           .getDeclarations()
           .some(
-            (decl) =>
-              decl.getName().endsWith('RouteHandler') && !existingHandlerNames.has(decl.getName()),
+            (decl) => isHandlerName(decl.getName()) && !existingHandlerNames.has(decl.getName()),
           ),
     )
     .map((stmt) => stmt.getText())
@@ -151,7 +188,14 @@ export function mergeAppFile(existingCode: string, generatedCode: string): strin
       (stmt) =>
         stmt.isExported() && stmt.getDeclarations().some((decl) => decl.getName() === 'api'),
     )
-  const generatedApiText = generatedApiStmt?.getText() ?? ''
+  const rawGeneratedApiText = generatedApiStmt?.getText() ?? ''
+
+  // Preserve user's chain prefix (e.g., .basePath('/api')) between `app` and first .openapi(/.route(
+  const existingApiText = existingApiStmt?.getText() ?? ''
+  const chainPrefix = extractChainPrefix(existingApiText)
+  const generatedApiText = chainPrefix
+    ? rawGeneratedApiText.replace(/\bapp\.(?=(?:openapi|route)\s*\()/, () => `app${chainPrefix}.`)
+    : rawGeneratedApiText
 
   const mergedImports = mergeImports(existingCode, generatedCode)
 
@@ -215,7 +259,11 @@ function mergeImports(existingCode: string, generatedCode: string): string[] {
   const existingImports = parseDeclarations(existingFile)
   const generatedImports = parseDeclarations(generatedFile)
 
-  // Collect auto-generated names (ending in Route or RouteHandler) as source of truth
+  // Detect if a name is auto-generated (Route, RouteHandler, or inline Handler)
+  const isAutoName = (name: string): boolean =>
+    name.endsWith('Route') || name.endsWith('RouteHandler') || name.endsWith('Handler')
+
+  // Collect auto-generated names as source of truth
   const generatedAutoNames = new Set<string>()
   // Map: auto-name → module specifier in generated code (canonical path)
   const generatedAutoNameModules = new Map<string, string>()
@@ -226,7 +274,7 @@ function mergeImports(existingCode: string, generatedCode: string): string[] {
       generatedDefaultImportModules.set(imp.defaultImport, imp.moduleSpecifier)
     }
     for (const n of imp.namedImports) {
-      if (n.name.endsWith('Route') || n.name.endsWith('RouteHandler')) {
+      if (isAutoName(n.name)) {
         generatedAutoNames.add(n.name)
         generatedAutoNameModules.set(n.name, imp.moduleSpecifier)
       }
@@ -250,8 +298,7 @@ function mergeImports(existingCode: string, generatedCode: string): string[] {
       ...imp,
       defaultImport,
       namedImports: imp.namedImports.filter((n) => {
-        const isAutoName = n.name.endsWith('Route') || n.name.endsWith('RouteHandler')
-        if (!isAutoName) return true
+        if (!isAutoName(n.name)) return true
         if (!generatedAutoNames.has(n.name)) return false
         const canonicalModule = generatedAutoNameModules.get(n.name)
         return canonicalModule === undefined || canonicalModule === imp.moduleSpecifier
@@ -319,6 +366,70 @@ function mergeImports(existingCode: string, generatedCode: string): string[] {
       return `${typePrefix} ${importParts.join(', ')} from '${moduleSpecifier}'`
     })
     .filter((line): line is string => line !== undefined)
+}
+
+/**
+ * Extracts the method chain between `app` and the first `.openapi(`/`.route(` call.
+ *
+ * For example, from `export const api=app.basePath('/api').openapi(...)`,
+ * this returns `.basePath('/api')`.
+ * Returns empty string if there is no prefix chain.
+ */
+function extractChainPrefix(apiStmtText: string): string {
+  const initMatch = apiStmtText.match(/=\s*app\b/)
+  if (!initMatch || initMatch.index === undefined) return ''
+
+  const afterApp = apiStmtText.slice(initMatch.index + initMatch[0].length)
+  const routeMatch = afterApp.match(/\.(?:openapi|route)\s*\(/)
+  if (!routeMatch || routeMatch.index === undefined || routeMatch.index === 0) return ''
+
+  return afterApp.slice(0, routeMatch.index)
+}
+
+/**
+ * Extracts individual .openapi() call blocks from a handler chain.
+ *
+ * Returns a map of route name (first argument) to the full `.openapi(...)` text.
+ */
+function extractOpenApiCalls(code: string): Map<string, string> {
+  return new Map(
+    [...code.matchAll(/\.openapi\s*\(/g)]
+      .filter((match) => match.index !== undefined)
+      .flatMap((match) => {
+        const dotPos = match.index
+        const parenPos = dotPos + match[0].length - 1
+        const afterParen = code.slice(parenPos + 1).trimStart()
+        const routeNameMatch = afterParen.match(/^(\w+)/)
+        if (!routeNameMatch) return []
+        const routeName = routeNameMatch[1]
+        const end = findBalancedParenEnd(code, parenPos)
+        return [[routeName, code.slice(dotPos, end)] as const]
+      }),
+  )
+}
+
+/**
+ * Merges .openapi() call chains in an inline handler.
+ *
+ * Uses generated handler's route list as source of truth:
+ * - Routes in both: keep existing implementation
+ * - Routes only in generated: add from generated (new route stubs)
+ * - Routes only in existing: remove (route deleted from OpenAPI spec)
+ */
+function mergeInlineHandler(existingText: string, generatedText: string): string {
+  const generatedCalls = extractOpenApiCalls(generatedText)
+  if (generatedCalls.size === 0) return generatedText
+
+  const existingCalls = extractOpenApiCalls(existingText)
+  const firstCallMatch = generatedText.match(/\.openapi\s*\(/)
+  if (!firstCallMatch || firstCallMatch.index === undefined) return generatedText
+  const prefix = generatedText.slice(0, firstCallMatch.index).trimEnd()
+
+  const mergedCalls = [...generatedCalls.entries()].map(
+    ([routeName, genCall]) => existingCalls.get(routeName) ?? genCall,
+  )
+
+  return `${prefix}\n${mergedCalls.join('\n')}`
 }
 
 /**

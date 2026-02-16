@@ -3,13 +3,11 @@ import { createRoute, z } from '@hono/zod-openapi'
 const AuthorSchema = z
   .object({ id: z.int(), name: z.string(), avatarUrl: z.url().exactOptional() })
   .openapi({ required: ['id', 'name'] })
-  .readonly()
   .openapi('Author')
 
 const TagSchema = z
   .object({ id: z.int(), name: z.string(), slug: z.string() })
   .openapi({ required: ['id', 'name', 'slug'] })
-  .readonly()
   .openapi('Tag')
 
 const PostSchema = z
@@ -23,13 +21,11 @@ const PostSchema = z
     updatedAt: z.iso.datetime(),
   })
   .openapi({ required: ['id', 'title', 'body', 'author', 'createdAt', 'updatedAt'] })
-  .readonly()
   .openapi('Post')
 
 const CreatePostSchema = z
   .object({ title: z.string(), body: z.string(), tagIds: z.array(z.int()).exactOptional() })
   .openapi({ required: ['title', 'body'] })
-  .readonly()
   .openapi('CreatePost')
 
 const UpdatePostSchema = z
@@ -38,31 +34,26 @@ const UpdatePostSchema = z
     body: z.string().exactOptional(),
     tagIds: z.array(z.int()).exactOptional(),
   })
-  .readonly()
   .openapi('UpdatePost')
 
 const CommentSchema = z
   .object({ id: z.int(), body: z.string(), author: AuthorSchema, createdAt: z.iso.datetime() })
   .openapi({ required: ['id', 'body', 'author', 'createdAt'] })
-  .readonly()
   .openapi('Comment')
 
 const CreateCommentSchema = z
   .object({ body: z.string() })
   .openapi({ required: ['body'] })
-  .readonly()
   .openapi('CreateComment')
 
 const PaginationSchema = z
   .object({ page: z.int(), limit: z.int(), total: z.int() })
   .openapi({ required: ['page', 'limit', 'total'] })
-  .readonly()
   .openapi('Pagination')
 
 const ErrorSchema = z
   .object({ code: z.int(), message: z.string() })
   .openapi({ required: ['code', 'message'] })
-  .readonly()
   .openapi('Error')
 
 export const getPostsRoute = createRoute({
@@ -97,7 +88,7 @@ export const getPostsRoute = createRoute({
       },
     },
   },
-} as const)
+})
 
 export const postPostsRoute = createRoute({
   method: 'post',
@@ -109,7 +100,7 @@ export const postPostsRoute = createRoute({
   responses: {
     201: { description: 'Created', content: { 'application/json': { schema: PostSchema } } },
   },
-} as const)
+})
 
 export const getPostsIdRoute = createRoute({
   method: 'get',
@@ -127,7 +118,7 @@ export const getPostsIdRoute = createRoute({
   responses: {
     200: { description: 'OK', content: { 'application/json': { schema: PostSchema } } },
   },
-} as const)
+})
 
 export const putPostsIdRoute = createRoute({
   method: 'put',
@@ -146,7 +137,7 @@ export const putPostsIdRoute = createRoute({
   responses: {
     200: { description: 'OK', content: { 'application/json': { schema: PostSchema } } },
   },
-} as const)
+})
 
 export const deletePostsIdRoute = createRoute({
   method: 'delete',
@@ -162,7 +153,7 @@ export const deletePostsIdRoute = createRoute({
     }),
   },
   responses: { 204: { description: 'Deleted' } },
-} as const)
+})
 
 export const getPostsIdCommentsRoute = createRoute({
   method: 'get',
@@ -180,7 +171,7 @@ export const getPostsIdCommentsRoute = createRoute({
   responses: {
     200: { description: 'OK', content: { 'application/json': { schema: z.array(CommentSchema) } } },
   },
-} as const)
+})
 
 export const postPostsIdCommentsRoute = createRoute({
   method: 'post',
@@ -199,7 +190,7 @@ export const postPostsIdCommentsRoute = createRoute({
   responses: {
     201: { description: 'Created', content: { 'application/json': { schema: CommentSchema } } },
   },
-} as const)
+})
 
 export const getTagsRoute = createRoute({
   method: 'get',
@@ -208,4 +199,4 @@ export const getTagsRoute = createRoute({
   responses: {
     200: { description: 'OK', content: { 'application/json': { schema: z.array(TagSchema) } } },
   },
-} as const)
+})

@@ -3,6 +3,7 @@ import {
   deleteTodoIdRouteHandler,
   getTodoIdRouteHandler,
   getTodoRouteHandler,
+  heartBeatRouteHandler,
   postTodoRouteHandler,
   putTodoIdRouteHandler,
 } from '@/api/handlers/todo'
@@ -11,6 +12,7 @@ import {
   deleteTodoIdRoute,
   getTodoIdRoute,
   getTodoRoute,
+  heartBeatRoute,
   postTodoRoute,
   putTodoIdRoute,
 } from '@/api/routes'
@@ -29,6 +31,7 @@ const app = new OpenAPIHono({
 
 const api = app
   .basePath('/api')
+  .openapi(heartBeatRoute, heartBeatRouteHandler)
   .openapi(getTodoRoute, getTodoRouteHandler)
   .openapi(postTodoRoute, postTodoRouteHandler)
   .openapi(getTodoIdRoute, getTodoIdRouteHandler)

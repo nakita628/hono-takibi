@@ -333,12 +333,7 @@ export async function honoTakibi(): Promise<
       ? test(openAPI, config.test.output, config.test.import)
       : Promise.resolve(undefined),
     config.mock
-      ? mock(
-          openAPI,
-          config.mock.output,
-          config.basePath ?? '/',
-          config['zod-openapi']?.readonly,
-        )
+      ? mock(openAPI, config.mock.output, config.basePath ?? '/', config['zod-openapi']?.readonly)
       : Promise.resolve(undefined),
     config.docs
       ? docs(openAPI, config.docs.output, config.docs.entry, config.basePath ?? '/')
@@ -346,14 +341,15 @@ export async function honoTakibi(): Promise<
     config['zod-openapi']?.template
       ? template(
           openAPI,
-          (config['zod-openapi'].output
-            ?? (config['zod-openapi'].routes?.output.endsWith('.ts')
+          (config['zod-openapi'].output ??
+            (config['zod-openapi'].routes?.output.endsWith('.ts')
               ? config['zod-openapi'].routes?.output
               : `${config['zod-openapi'].routes?.output}/index.ts`)) as `${string}.ts`,
-          config['zod-openapi'].test ?? false,
+          config['zod-openapi'].template.test,
           config.basePath ?? '/',
-          config['zod-openapi'].pathAlias,
+          config['zod-openapi'].template.pathAlias,
           config['zod-openapi'].routes?.import,
+          config['zod-openapi'].template.routeHandler,
         )
       : Promise.resolve(undefined),
   ])
@@ -385,8 +381,7 @@ export async function honoTakibi(): Promise<
   if (testResult && !testResult.ok) return { ok: false, error: testResult.error }
   if (mockResult && !mockResult.ok) return { ok: false, error: mockResult.error }
   if (docsResult && !docsResult.ok) return { ok: false, error: docsResult.error }
-  if (templateResult && !templateResult.ok)
-    return { ok: false, error: templateResult.error }
+  if (templateResult && !templateResult.ok) return { ok: false, error: templateResult.error }
 
   const results = [
     takibiResult?.value,

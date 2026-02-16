@@ -97,13 +97,7 @@ export const putSettingsRoute = createRoute({
     body: {
       content: {
         'application/json': {
-          schema: z
-            .object({
-              avatar: z
-                .string()
-                .openapi({ contentEncoding: 'base64', contentMediaType: 'image/png' }),
-            })
-            .openapi({ required: ['avatar'] }),
+          schema: z.object({ avatar: z.string() }).openapi({ required: ['avatar'] }),
         },
       },
     },
@@ -209,7 +203,7 @@ const postPaymentRouteHandler: RouteHandler<typeof postPaymentRoute> = async (c)
   return c.body(null, 200)
 }
 
-const app = new OpenAPIHono()
+const app = new OpenAPIHono().basePath('undefined')
 
 export const api = app
   .openapi(getTagsRoute, getTagsRouteHandler)

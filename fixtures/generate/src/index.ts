@@ -64,6 +64,7 @@ const SPECS = [
   { name: '11-composition-keywords', yaml: '11-composition-keywords.yaml', flags: { ...NO_EXPORTS, exportSchemas: true, exportSchemasTypes: true } },
   { name: '12-callbacks-field', yaml: '12-callbacks-field.yaml', flags: { ...NO_EXPORTS, exportCallbacks: true } },
   { name: '13-array-object-constraints', yaml: '13-array-object-constraints.yaml', flags: NO_EXPORTS },
+  { name: '14-trailing-slash', yaml: '14-trailing-slash.yaml', flags: NO_EXPORTS },
 ] as const
 
 const CLIENT_STUB = `import { hc } from 'hono/client'

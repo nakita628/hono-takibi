@@ -98,6 +98,34 @@ const componentsOptions = {
 const runTakibi = async (openapi: OpenAPI, output: `${string}.ts`) =>
   takibi(openapi, output, { ...componentsOptions })
 
+const runTakibiWithTemplate = async (
+  openapi: OpenAPI,
+  output: `${string}.ts`,
+  opts: {
+    template?: boolean
+    test?: boolean
+    basePath?: string
+    pathAlias?: string
+    routeImport?: string
+    routeHandler?: boolean
+  } = {},
+) => {
+  const result = await runTakibi(openapi, output)
+  if (!result.ok) return result
+  if (opts.template) {
+    return template(
+      openapi,
+      output,
+      opts.test ?? false,
+      opts.basePath ?? '/',
+      opts.pathAlias,
+      opts.routeImport,
+      opts.routeHandler ?? true,
+    )
+  }
+  return result
+}
+
 describe('takibi generate (sandbox)', () => {
   it('should generate Hono app with OpenAPI routes (no template/test)', async () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-'))
@@ -222,8 +250,7 @@ describe('templateCode (sandbox)', () => {
       fs.writeFileSync(input, JSON.stringify(openapi))
 
       const out = path.join(srcDir, 'route.ts') as `${string}.ts`
-      await runTakibi(openapi, out)
-      const result = await template(openapi, out, true, '/', undefined, undefined)
+      const result = await runTakibiWithTemplate(openapi, out, { template: true, test: true })
 
       expect(fs.existsSync(path.join(srcDir, 'index.ts'))).toBe(true)
       expect(fs.existsSync(path.join(srcDir, 'handlers', 'hono.ts'))).toBe(true)
@@ -253,8 +280,7 @@ describe('templateCode (sandbox)', () => {
       fs.writeFileSync(input, JSON.stringify(openapi))
 
       const out = path.join(srcDir, 'route.ts') as `${string}.ts`
-      await runTakibi(openapi, out)
-      const result = await template(openapi, out, false, '/', undefined, undefined)
+      const result = await runTakibiWithTemplate(openapi, out, { template: true, test: false })
 
       expect(fs.existsSync(path.join(srcDir, 'index.ts'))).toBe(true)
       expect(fs.existsSync(path.join(srcDir, 'handlers', 'hono.ts'))).toBe(true)
@@ -281,8 +307,11 @@ describe('templateCode (sandbox)', () => {
       fs.writeFileSync(input, JSON.stringify(openapi))
 
       const out = path.join(srcDir, 'route.ts') as `${string}.ts`
-      await runTakibi(openapi, out)
-      const result = await template(openapi, out, true, '/api', undefined, undefined)
+      const result = await runTakibiWithTemplate(openapi, out, {
+        template: true,
+        test: true,
+        basePath: '/api',
+      })
 
       expect(fs.existsSync(path.join(srcDir, 'index.ts'))).toBe(true)
       expect(fs.existsSync(path.join(srcDir, 'handlers', 'hono.ts'))).toBe(true)
@@ -332,8 +361,11 @@ export default app
       fs.writeFileSync(input, JSON.stringify(openapi))
 
       const out = path.join(srcDir, 'route.ts') as `${string}.ts`
-      await runTakibi(openapi, out)
-      const result = await template(openapi, out, false, '/api', undefined, undefined)
+      const result = await runTakibiWithTemplate(openapi, out, {
+        template: true,
+        test: false,
+        basePath: '/api',
+      })
 
       expect(fs.existsSync(path.join(srcDir, 'index.ts'))).toBe(true)
       expect(fs.existsSync(path.join(srcDir, 'handlers', 'hono.ts'))).toBe(true)
@@ -404,7 +436,7 @@ describe('basePath behavior', () => {
 
       const out = path.join(srcDir, 'route.ts') as `${string}.ts`
       await runTakibi(simpleOpenapi, out)
-      const result = await template(simpleOpenapi, out, false, '/', undefined, undefined)
+      const result = await template(simpleOpenapi, out, false, '/', undefined, undefined, true)
 
       expect(result).toStrictEqual({
         ok: true,
@@ -435,7 +467,7 @@ export default app
 
       const out = path.join(srcDir, 'route.ts') as `${string}.ts`
       await runTakibi(simpleOpenapi, out)
-      const result = await template(simpleOpenapi, out, false, '/api', undefined, undefined)
+      const result = await template(simpleOpenapi, out, false, '/api', undefined, undefined, true)
 
       expect(result).toStrictEqual({
         ok: true,
@@ -466,7 +498,15 @@ export default app
 
       const out = path.join(srcDir, 'route.ts') as `${string}.ts`
       await runTakibi(simpleOpenapi, out)
-      const result = await template(simpleOpenapi, out, false, '/api/v1', undefined, undefined)
+      const result = await template(
+        simpleOpenapi,
+        out,
+        false,
+        '/api/v1',
+        undefined,
+        undefined,
+        true,
+      )
 
       expect(result).toStrictEqual({
         ok: true,
@@ -498,8 +538,10 @@ describe('--template mode strict content tests', () => {
       fs.mkdirSync(srcDir, { recursive: true })
 
       const out = path.join(srcDir, 'route.ts') as `${string}.ts`
-      await runTakibi(simpleOpenapi, out)
-      const result = await template(simpleOpenapi, out, false, '/', undefined, undefined)
+      const result = await runTakibiWithTemplate(simpleOpenapi, out, {
+        template: true,
+        test: false,
+      })
 
       expect(result).toStrictEqual({
         ok: true,
@@ -530,8 +572,7 @@ export default app
       fs.mkdirSync(srcDir, { recursive: true })
 
       const out = path.join(srcDir, 'route.ts') as `${string}.ts`
-      await runTakibi(simpleOpenapi, out)
-      await template(simpleOpenapi, out, false, '/', undefined, undefined)
+      await runTakibiWithTemplate(simpleOpenapi, out, { template: true, test: false })
 
       const handlersIndexContent = fs.readFileSync(
         path.join(srcDir, 'handlers', 'index.ts'),
@@ -552,8 +593,7 @@ export default app
       fs.mkdirSync(srcDir, { recursive: true })
 
       const out = path.join(srcDir, 'route.ts') as `${string}.ts`
-      await runTakibi(simpleOpenapi, out)
-      await template(simpleOpenapi, out, false, '/', undefined, undefined)
+      await runTakibiWithTemplate(simpleOpenapi, out, { template: true, test: false })
 
       const handlerContent = fs.readFileSync(path.join(srcDir, 'handlers', 'test.ts'), 'utf-8')
       const expectedHandler = `import type { RouteHandler } from '@hono/zod-openapi'
@@ -574,8 +614,7 @@ export const getTestRouteHandler: RouteHandler<typeof getTestRoute> = async (c) 
       fs.mkdirSync(srcDir, { recursive: true })
 
       const out = path.join(srcDir, 'route.ts') as `${string}.ts`
-      await runTakibi(simpleOpenapi, out)
-      await template(simpleOpenapi, out, false, '/', undefined, undefined)
+      await runTakibiWithTemplate(simpleOpenapi, out, { template: true, test: false })
 
       const routeContent = fs.readFileSync(path.join(srcDir, 'route.ts'), 'utf-8')
       const expectedRoute = `import { createRoute, z } from '@hono/zod-openapi'
@@ -606,8 +645,7 @@ export const getTestRoute = createRoute({
       fs.mkdirSync(srcDir, { recursive: true })
 
       const out = path.join(srcDir, 'route.ts') as `${string}.ts`
-      await runTakibi(simpleOpenapi, out)
-      await template(simpleOpenapi, out, true, '/', undefined, undefined)
+      await runTakibiWithTemplate(simpleOpenapi, out, { template: true, test: true })
 
       expect(fs.existsSync(path.join(srcDir, 'handlers', 'test.test.ts'))).toBe(true)
       const testContent = fs.readFileSync(path.join(srcDir, 'handlers', 'test.test.ts'), 'utf-8')
@@ -635,8 +673,11 @@ describe('Test', () => {
       fs.mkdirSync(srcDir, { recursive: true })
 
       const out = path.join(srcDir, 'route.ts') as `${string}.ts`
-      await runTakibi(simpleOpenapi, out)
-      await template(simpleOpenapi, out, false, '/api/v1', undefined, undefined)
+      await runTakibiWithTemplate(simpleOpenapi, out, {
+        template: true,
+        test: false,
+        basePath: '/api/v1',
+      })
 
       const indexContent = fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf-8')
       const expectedIndex = `import { OpenAPIHono } from '@hono/zod-openapi'
@@ -662,8 +703,10 @@ export default app
       process.chdir(dir)
 
       const out = 'route.ts' as `${string}.ts`
-      await runTakibi(simpleOpenapi, out)
-      const result = await template(simpleOpenapi, out, false, '/', undefined, undefined)
+      const result = await runTakibiWithTemplate(simpleOpenapi, out, {
+        template: true,
+        test: false,
+      })
 
       expect(result).toStrictEqual({
         ok: true,
@@ -702,8 +745,11 @@ export const getTestRouteHandler: RouteHandler<typeof getTestRoute> = async (c) 
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-alias-'))
     try {
       const out = path.join(dir, 'src', 'api', 'routes.ts') as `${string}.ts`
-      await runTakibi(simpleOpenapi, out)
-      const result = await template(simpleOpenapi, out, true, '/', '@/api', undefined)
+      const result = await runTakibiWithTemplate(simpleOpenapi, out, {
+        template: true,
+        test: true,
+        pathAlias: '@/api',
+      })
 
       expect(result.ok).toBe(true)
 
@@ -758,8 +804,7 @@ describe('Test', () => {
       fs.mkdirSync(routesDir, { recursive: true })
 
       const out = path.join(srcDir, 'routes', 'index.ts') as `${string}.ts`
-      await runTakibi(simpleOpenapi, out)
-      const result = await template(simpleOpenapi, out, true, '/', undefined, undefined)
+      const result = await runTakibiWithTemplate(simpleOpenapi, out, { template: true, test: true })
 
       expect(result).toStrictEqual({
         ok: true,
@@ -822,8 +867,11 @@ export const getTestRoute = createRoute({
       fs.mkdirSync(path.join(srcDir, 'routes'), { recursive: true })
 
       const out = path.join(srcDir, 'routes', 'index.ts') as `${string}.ts`
-      await runTakibi(simpleOpenapi, out)
-      const result = await template(simpleOpenapi, out, true, '/', '@/src', undefined)
+      const result = await runTakibiWithTemplate(simpleOpenapi, out, {
+        template: true,
+        test: true,
+        pathAlias: '@/src',
+      })
 
       expect(result.ok).toBe(true)
 
@@ -857,8 +905,13 @@ export const getTestRouteHandler: RouteHandler<typeof getTestRoute> = async (c) 
       fs.mkdirSync(srcDir, { recursive: true })
 
       const out = path.join(srcDir, 'routes.ts') as `${string}.ts`
-      await runTakibi(simpleOpenapi, out)
-      const result = await template(simpleOpenapi, out, false, '/api', '@/', '@packages/routes')
+      const result = await runTakibiWithTemplate(simpleOpenapi, out, {
+        template: true,
+        test: false,
+        basePath: '/api',
+        pathAlias: '@/',
+        routeImport: '@packages/routes',
+      })
 
       expect(result.ok).toBe(true)
 
@@ -892,8 +945,12 @@ export const getTestRouteHandler: RouteHandler<typeof getTestRoute> = async (c) 
       fs.mkdirSync(srcDir, { recursive: true })
 
       const out = path.join(srcDir, 'routes.ts') as `${string}.ts`
-      await runTakibi(simpleOpenapi, out)
-      const result = await template(simpleOpenapi, out, false, '/api', undefined, '@packages/routes')
+      const result = await runTakibiWithTemplate(simpleOpenapi, out, {
+        template: true,
+        test: false,
+        basePath: '/api',
+        routeImport: '@packages/routes',
+      })
 
       expect(result.ok).toBe(true)
 
@@ -927,8 +984,12 @@ export const getTestRouteHandler: RouteHandler<typeof getTestRoute> = async (c) 
       fs.mkdirSync(srcDir, { recursive: true })
 
       const out = path.join(srcDir, 'routes.ts') as `${string}.ts`
-      await runTakibi(simpleOpenapi, out)
-      const result = await template(simpleOpenapi, out, false, '/api', '@/', undefined)
+      const result = await runTakibiWithTemplate(simpleOpenapi, out, {
+        template: true,
+        test: false,
+        basePath: '/api',
+        pathAlias: '@/',
+      })
 
       expect(result.ok).toBe(true)
 
@@ -962,8 +1023,13 @@ export const getTestRouteHandler: RouteHandler<typeof getTestRoute> = async (c) 
       fs.mkdirSync(path.join(srcDir, 'routes'), { recursive: true })
 
       const out = path.join(srcDir, 'routes', 'index.ts') as `${string}.ts`
-      await runTakibi(simpleOpenapi, out)
-      const result = await template(simpleOpenapi, out, false, '/api', '@/', '@packages/routes')
+      const result = await runTakibiWithTemplate(simpleOpenapi, out, {
+        template: true,
+        test: false,
+        basePath: '/api',
+        pathAlias: '@/',
+        routeImport: '@packages/routes',
+      })
 
       expect(result.ok).toBe(true)
 
@@ -999,8 +1065,12 @@ describe('3-pattern strict tests (monorepo / pathAlias / plain)', () => {
       fs.mkdirSync(srcDir, { recursive: true })
 
       const out = path.join(srcDir, 'routes.ts') as `${string}.ts`
-      await runTakibi(simpleOpenapi, out)
-      const result = await template(simpleOpenapi, out, false, '/', '@/', '@packages/routes')
+      const result = await runTakibiWithTemplate(simpleOpenapi, out, {
+        template: true,
+        test: false,
+        pathAlias: '@/',
+        routeImport: '@packages/routes',
+      })
 
       expect(result).toStrictEqual({
         ok: true,
@@ -1039,8 +1109,11 @@ export const getTestRouteHandler: RouteHandler<typeof getTestRoute> = async (c) 
       fs.mkdirSync(srcDir, { recursive: true })
 
       const out = path.join(srcDir, 'routes.ts') as `${string}.ts`
-      await runTakibi(simpleOpenapi, out)
-      const result = await template(simpleOpenapi, out, false, '/', '@/', undefined)
+      const result = await runTakibiWithTemplate(simpleOpenapi, out, {
+        template: true,
+        test: false,
+        pathAlias: '@/',
+      })
 
       expect(result).toStrictEqual({
         ok: true,
@@ -1079,8 +1152,10 @@ export const getTestRouteHandler: RouteHandler<typeof getTestRoute> = async (c) 
       fs.mkdirSync(srcDir, { recursive: true })
 
       const out = path.join(srcDir, 'routes.ts') as `${string}.ts`
-      await runTakibi(simpleOpenapi, out)
-      const result = await template(simpleOpenapi, out, false, '/', undefined, undefined)
+      const result = await runTakibiWithTemplate(simpleOpenapi, out, {
+        template: true,
+        test: false,
+      })
 
       expect(result).toStrictEqual({
         ok: true,
@@ -1128,6 +1203,7 @@ describe('template() unit tests', () => {
         '/',
         undefined,
         undefined,
+        true,
       )
 
       expect(result).toStrictEqual({
@@ -1178,6 +1254,7 @@ export const getTestRouteHandler: RouteHandler<typeof getTestRoute> = async (c) 
         '/',
         '@/',
         '@packages/routes',
+        true,
       )
 
       expect(result).toStrictEqual({
@@ -1244,6 +1321,7 @@ export const getTestRouteHandler: RouteHandler<typeof getTestRoute> = async (c) 
         '/',
         undefined,
         undefined,
+        true,
       )
 
       expect(result).toStrictEqual({
@@ -1265,6 +1343,292 @@ const app = new OpenAPIHono()
 export const api = app.openapi(getTestRoute, getTestRouteHandler)
 
 export default app
+`,
+      )
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+})
+
+describe('routeHandler: false (app import pattern)', () => {
+  it('generates app-only index.ts and inline handler', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-rh-false-'))
+    try {
+      const srcDir = path.join(dir, 'src')
+      fs.mkdirSync(srcDir, { recursive: true })
+
+      const out = path.join(srcDir, 'route.ts') as `${string}.ts`
+      const result = await runTakibiWithTemplate(simpleOpenapi, out, {
+        template: true,
+        test: false,
+        routeHandler: false,
+      })
+
+      expect(result).toStrictEqual({
+        ok: true,
+        value: '🔥 Generated code and template files written',
+      })
+
+      expect(fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf-8')).toBe(
+        `import { OpenAPIHono } from '@hono/zod-openapi'
+
+const app = new OpenAPIHono()
+
+export default app
+`,
+      )
+
+      expect(fs.readFileSync(path.join(srcDir, 'handlers', 'test.ts'), 'utf-8')).toBe(
+        `import { getTestRoute } from '../route'
+import app from '..'
+
+export const testHandler = app.openapi(getTestRoute, (c) => {})
+`,
+      )
+
+      expect(fs.readFileSync(path.join(srcDir, 'handlers', 'index.ts'), 'utf-8')).toBe(
+        `export * from './test'
+`,
+      )
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+
+  it('generates app-only index.ts with basePath', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-rh-false-bp-'))
+    try {
+      const srcDir = path.join(dir, 'src')
+      fs.mkdirSync(srcDir, { recursive: true })
+
+      const out = path.join(srcDir, 'route.ts') as `${string}.ts`
+      const result = await runTakibiWithTemplate(simpleOpenapi, out, {
+        template: true,
+        test: false,
+        basePath: '/api',
+        routeHandler: false,
+      })
+
+      expect(result).toStrictEqual({
+        ok: true,
+        value: '🔥 Generated code and template files written',
+      })
+
+      expect(fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf-8')).toBe(
+        `import { OpenAPIHono } from '@hono/zod-openapi'
+
+const app = new OpenAPIHono().basePath('/api')
+
+export default app
+`,
+      )
+
+      expect(fs.readFileSync(path.join(srcDir, 'handlers', 'test.ts'), 'utf-8')).toBe(
+        `import { getTestRoute } from '../route'
+import app from '..'
+
+export const testHandler = app.openapi(getTestRoute, (c) => {})
+`,
+      )
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+
+  it('handler imports routes with pathAlias @/', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-rh-false-pa-'))
+    try {
+      const srcDir = path.join(dir, 'src')
+      fs.mkdirSync(srcDir, { recursive: true })
+
+      const out = path.join(srcDir, 'route.ts') as `${string}.ts`
+      const result = await runTakibiWithTemplate(simpleOpenapi, out, {
+        template: true,
+        test: false,
+        pathAlias: '@/',
+        routeHandler: false,
+      })
+
+      expect(result).toStrictEqual({
+        ok: true,
+        value: '🔥 Generated code and template files written',
+      })
+
+      expect(fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf-8')).toBe(
+        `import { OpenAPIHono } from '@hono/zod-openapi'
+
+const app = new OpenAPIHono()
+
+export default app
+`,
+      )
+
+      expect(fs.readFileSync(path.join(srcDir, 'handlers', 'test.ts'), 'utf-8')).toBe(
+        `import { getTestRoute } from '@/route'
+import app from '@'
+
+export const testHandler = app.openapi(getTestRoute, (c) => {})
+`,
+      )
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+
+  it('handler imports routes with pathAlias @/src and basePath', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-rh-false-pa2-'))
+    try {
+      const srcDir = path.join(dir, 'src')
+      fs.mkdirSync(srcDir, { recursive: true })
+
+      const out = path.join(srcDir, 'route.ts') as `${string}.ts`
+      const result = await runTakibiWithTemplate(simpleOpenapi, out, {
+        template: true,
+        test: false,
+        basePath: '/api',
+        pathAlias: '@/src',
+        routeHandler: false,
+      })
+
+      expect(result).toStrictEqual({
+        ok: true,
+        value: '🔥 Generated code and template files written',
+      })
+
+      expect(fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf-8')).toBe(
+        `import { OpenAPIHono } from '@hono/zod-openapi'
+
+const app = new OpenAPIHono().basePath('/api')
+
+export default app
+`,
+      )
+
+      expect(fs.readFileSync(path.join(srcDir, 'handlers', 'test.ts'), 'utf-8')).toBe(
+        `import { getTestRoute } from '@/src/route'
+import app from '@/src'
+
+export const testHandler = app.openapi(getTestRoute, (c) => {})
+`,
+      )
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+
+  it('handler imports routes with routeImport (monorepo)', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-rh-false-ri-'))
+    try {
+      const srcDir = path.join(dir, 'src')
+      fs.mkdirSync(srcDir, { recursive: true })
+
+      const out = path.join(srcDir, 'routes.ts') as `${string}.ts`
+      const result = await runTakibiWithTemplate(simpleOpenapi, out, {
+        template: true,
+        test: false,
+        basePath: '/api',
+        pathAlias: '@/',
+        routeImport: '@packages/api/routes',
+        routeHandler: false,
+      })
+
+      expect(result).toStrictEqual({
+        ok: true,
+        value: '🔥 Generated code and template files written',
+      })
+
+      expect(fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf-8')).toBe(
+        `import { OpenAPIHono } from '@hono/zod-openapi'
+
+const app = new OpenAPIHono().basePath('/api')
+
+export default app
+`,
+      )
+
+      expect(fs.readFileSync(path.join(srcDir, 'handlers', 'test.ts'), 'utf-8')).toBe(
+        `import { getTestRoute } from '@packages/api/routes'
+import app from '@'
+
+export const testHandler = app.openapi(getTestRoute, (c) => {})
+`,
+      )
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+
+  it('generates correct paths with routes/index.ts output', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-rh-false-idx-'))
+    try {
+      const srcDir = path.join(dir, 'src')
+      fs.mkdirSync(path.join(srcDir, 'routes'), { recursive: true })
+
+      const out = path.join(srcDir, 'routes', 'index.ts') as `${string}.ts`
+      const result = await runTakibiWithTemplate(simpleOpenapi, out, {
+        template: true,
+        test: false,
+        routeHandler: false,
+      })
+
+      expect(result).toStrictEqual({
+        ok: true,
+        value: '🔥 Generated code and template files written',
+      })
+
+      expect(fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf-8')).toBe(
+        `import { OpenAPIHono } from '@hono/zod-openapi'
+
+const app = new OpenAPIHono()
+
+export default app
+`,
+      )
+
+      expect(fs.readFileSync(path.join(srcDir, 'handlers', 'test.ts'), 'utf-8')).toBe(
+        `import { getTestRoute } from '../routes'
+import app from '..'
+
+export const testHandler = app.openapi(getTestRoute, (c) => {})
+`,
+      )
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+
+  it('generates test file with routeHandler: false', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-rh-false-test-'))
+    try {
+      const srcDir = path.join(dir, 'src')
+      fs.mkdirSync(srcDir, { recursive: true })
+
+      const out = path.join(srcDir, 'route.ts') as `${string}.ts`
+      const result = await runTakibiWithTemplate(simpleOpenapi, out, {
+        template: true,
+        test: true,
+        routeHandler: false,
+      })
+
+      expect(result).toStrictEqual({
+        ok: true,
+        value: '🔥 Generated code and template files written',
+      })
+
+      expect(fs.existsSync(path.join(srcDir, 'handlers', 'test.test.ts'))).toBe(true)
+      expect(fs.readFileSync(path.join(srcDir, 'handlers', 'test.test.ts'), 'utf-8')).toBe(
+        `import { describe, it, expect } from 'vitest'
+import app from '..'
+
+describe('Test', () => {
+  describe('GET /test', () => {
+    it('should return 200', async () => {
+      const res = await app.request(\`/test\`, { method: 'GET' })
+      expect(res.status).toBe(200)
+    })
+  })
+})
 `,
       )
     } finally {

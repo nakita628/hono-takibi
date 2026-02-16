@@ -8,6 +8,10 @@ import { methodPath } from '../../../utils/index.js'
  * @param openapi - The OpenAPI specification.
  * @param output - The output file name (e.g., 'user.ts').
  * @param basePath - Optional base path for the app.
+ * @param pathAlias - Optional path alias prefix.
+ * @param routeImport - Optional route module specifier override.
+ * @param routeHandler - When false (default), handlers import app and register routes inline.
+ *   When true, generates `app.openapi()` pattern with RouteHandler type exports.
  * @returns The generated application code as a string.
  *
  * @example
@@ -22,6 +26,7 @@ export function app(
   basePath: string,
   pathAlias: string | undefined,
   routeImport: string | undefined = undefined,
+  routeHandler = false,
 ): string {
   const getRouteMaps = (
     openapi: OpenAPI,
@@ -42,13 +47,28 @@ export function app(
 
   const routeMappings = getRouteMaps(openapi)
 
-  const routeNames = [...new Set(routeMappings.map((m) => m.routeName))]
   const isIndexFile = output.endsWith('/index.ts')
   const routeBasename = isIndexFile
     ? output.replace(/\/index\.ts$/, '').replace(/^.*\//, '')
     : output.replace(/^.*\//, '').replace(/\.ts$/, '')
   // Fallback: routeImport (routes.import) → pathAlias → relative path
   const aliasPrefix = pathAlias?.endsWith('/') ? pathAlias.slice(0, -1) : pathAlias
+
+  const appInit =
+    basePath !== '/'
+      ? `const app=new OpenAPIHono().basePath('${basePath}')`
+      : 'const app=new OpenAPIHono()'
+
+  if (!routeHandler) {
+    // routeHandler: false — handlers import app and register routes directly
+    // index.ts only creates and exports the app instance
+    const importSection = `import{OpenAPIHono}from'@hono/zod-openapi'`
+
+    return [importSection, appInit, 'export default app'].join('\n\n')
+  }
+
+  // routeHandler: true — app.openapi() pattern with barrel import
+  const routeNames = [...new Set(routeMappings.map((m) => m.routeName))]
   const routeModule =
     routeImport ?? (aliasPrefix ? `${aliasPrefix}/${routeBasename}` : `./${routeBasename}`)
   const routesImport =
@@ -62,11 +82,6 @@ export function app(
   const importSection = [`import{OpenAPIHono}from'@hono/zod-openapi'`, routesImport, handlerImport]
     .filter(Boolean)
     .join('\n')
-
-  const appInit =
-    basePath !== '/'
-      ? `const app=new OpenAPIHono().basePath('${basePath}')`
-      : 'const app=new OpenAPIHono()'
 
   const apiInit =
     'export const api=app' +

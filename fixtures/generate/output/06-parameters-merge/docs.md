@@ -62,6 +62,7 @@ hono request \
   -P /items/{itemId} \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
+  -d '{"name":"string"}' \
   src/index.ts
 ```
 

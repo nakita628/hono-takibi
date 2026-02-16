@@ -173,7 +173,7 @@ const getMultiAuthRouteHandler: RouteHandler<typeof getMultiAuthRoute> = async (
   )
 }
 
-const app = new OpenAPIHono()
+const app = new OpenAPIHono().basePath('undefined')
 
 export const api = app
   .openapi(getPublicRoute, getPublicRouteHandler)

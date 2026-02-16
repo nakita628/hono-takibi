@@ -102,6 +102,7 @@ hono request \
   -P /posts \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
+  -d '{"title":"string","body":"string","tagIds":[0]}' \
   src/index.ts
 ```
 
@@ -234,6 +235,7 @@ hono request \
   -P /posts/{id} \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
+  -d '{"title":"string","body":"string","tagIds":[0]}' \
   src/index.ts
 ```
 
@@ -406,6 +408,7 @@ hono request \
   -P /posts/{id}/comments \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
+  -d '{"body":"string"}' \
   src/index.ts
 ```
 

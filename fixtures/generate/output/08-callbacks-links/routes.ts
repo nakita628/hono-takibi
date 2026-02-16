@@ -24,19 +24,19 @@ const EventPayloadSchema = z
   .openapi({ required: ['event', 'timestamp'] })
   .openapi('EventPayload')
 
-export const GetSubscriptionLink = {
+const GetSubscriptionLink = {
   operationId: 'getSubscription',
   parameters: { id: '$response.body#/id' },
   description: 'Get the created subscription',
 }
 
-export const DeleteSubscriptionLink = {
+const DeleteSubscriptionLink = {
   operationId: 'deleteSubscription',
   parameters: { id: '$request.path.id' },
   description: 'Delete this subscription',
 }
 
-export const SubscriptionEventCallback = {
+const SubscriptionEventCallback = {
   '{$request.body#/callbackUrl}': {
     post: {
       operationId: 'subscriptionEventCallback',

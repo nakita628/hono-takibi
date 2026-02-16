@@ -16,6 +16,7 @@ hono request \
   -P /subscriptions \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
+  -d '{"callbackUrl":"http://example.com","events":["created"]}' \
   src/index.ts
 ```
 
@@ -155,6 +156,7 @@ hono request \
   -P /webhooks/test \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
+  -d '{"url":"http://example.com"}' \
   src/index.ts
 ```
 

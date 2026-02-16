@@ -9,7 +9,7 @@ importers:
   .:
     devDependencies:
       '@biomejs/biome':
-        specifier: ^2.3.15
+        specifier: ^2.4.0
         version: 2.4.0
       '@vitest/coverage-v8':
         specifier: ^4.0.18
@@ -430,6 +430,37 @@ importers:
         specifier: ^4.3.6
         version: 4.3.6
 
+  fixtures/path-alias:
+    dependencies:
+      '@hono/zod-openapi':
+        specifier: ^1.2.1
+        version: 1.2.2(hono@4.11.9)(zod@4.3.6)
+      hono:
+        specifier: ^4.11.7
+        version: 4.11.9
+      zod:
+        specifier: ^4.3.6
+        version: 4.3.6
+    devDependencies:
+      '@hono/vite-dev-server':
+        specifier: ^0.24.1
+        version: 0.24.1(hono@4.11.9)(miniflare@4.20260212.0)(wrangler@4.65.0(@cloudflare/workers-types@4.20260214.0))
+      '@types/node':
+        specifier: ^25.0.2
+        version: 25.2.3
+      hono-takibi:
+        specifier: workspace:^
+        version: link:../../packages/hono-takibi
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vite:
+        specifier: ^7.1.4
+        version: 7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.16.9)(tsx@4.21.0)(yaml@2.8.2)
+      vite-tsconfig-paths:
+        specifier: ^5.1.4
+        version: 5.1.4(typescript@5.9.3)(vite@7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.16.9)(tsx@4.21.0)(yaml@2.8.2))
+
   fixtures/petstore:
     dependencies:
       '@faker-js/faker':
@@ -591,6 +622,37 @@ importers:
       '@hono/cli':
         specifier: ^0.1.10
         version: 0.1.10
+      '@types/node':
+        specifier: ^25.0.2
+        version: 25.2.3
+      hono-takibi:
+        specifier: workspace:^
+        version: link:../../packages/hono-takibi
+      tsx:
+        specifier: ^4.21.0
+        version: 4.21.0
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vitest:
+        specifier: ^4.0.18
+        version: 4.0.18(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.16.9)(tsx@4.21.0)(yaml@2.8.2)
+
+  fixtures/template-route-handler:
+    dependencies:
+      '@hono/node-server':
+        specifier: ^1.14.3
+        version: 1.19.9(hono@4.11.9)
+      '@hono/zod-openapi':
+        specifier: ^1.2.1
+        version: 1.2.2(hono@4.11.9)(zod@4.3.6)
+      hono:
+        specifier: ^4.11.7
+        version: 4.11.9
+      zod:
+        specifier: ^4.3.6
+        version: 4.3.6
+    devDependencies:
       '@types/node':
         specifier: ^25.0.2
         version: 25.2.3
@@ -3082,16 +3144,20 @@ packages:
     resolution: {integrity: sha512-Y7DLt1bIZF9dvHzJwSJTcC1lpSr1Tbf4VBhHOCRIHu23Rr7/lhQnddRxFmPV1tZXwEQKz7F7yRrubwCfKPCucw==}
     engines: {node: '>=20'}
 
-  '@scalar/json-magic@0.11.0':
-    resolution: {integrity: sha512-1zBseDDEPkKlAVd9lT1HlK9Nefeh0YEE+pcmyDL3J5derIZn9UYXAFecdkeXMdjDtWDgcrkmWCrHhpoT7zVKdQ==}
+  '@scalar/helpers@0.2.12':
+    resolution: {integrity: sha512-Ig/H1Je8nqcDiY+YwFIpATxF2ko7zKrjIZFWK2gGeNTYK4Np9XnqDHg56jM3Xru439Eh4qHq9P/lX7Se5nnxFA==}
+    engines: {node: '>=20'}
+
+  '@scalar/json-magic@0.11.1':
+    resolution: {integrity: sha512-JsugkVpZ9SmKW6fDhamcmkttc9YOPGgb9Azbwc7hXTlZgG6YeYXx8qFvYr5eJE4cfzCqalodS/9w7moZnVG3cw==}
     engines: {node: '>=20'}
 
   '@scalar/json-magic@0.9.6':
     resolution: {integrity: sha512-2TKoqkAophHti1nH+rvQlR4lhD6X9tqQpuNeAE0cytHSX/yndkSOE0yA7cep5T9tFjGN4Km0gMnelvY3LgWs4A==}
     engines: {node: '>=20'}
 
-  '@scalar/openapi-parser@0.24.9':
-    resolution: {integrity: sha512-uqpwt6ZQJQu4c3CvMsJiXMUj32113yrclsDC31hlL33vEUS5JU9dCYfY27oLSCVoKl8R8KihlnEcbfRnH/O/GA==}
+  '@scalar/openapi-parser@0.24.10':
+    resolution: {integrity: sha512-E9K8OYD7XKHsvTyLTSdILKHbm4Q3n/MA3EGdDTEBLJHSJd1vLOwiJzrp3+h+xiqFxlX7vlecInZvFy/3c1fqPg==}
     engines: {node: '>=20'}
 
   '@scalar/openapi-types@0.5.3':
@@ -5683,6 +5749,14 @@ packages:
   vary@1.1.2:
     resolution: {integrity: sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==}
     engines: {node: '>= 0.8'}
+
+  vite-tsconfig-paths@5.1.4:
+    resolution: {integrity: sha512-cYj0LRuLV2c2sMqhqhGpaO3LretdtMn/BVX4cPLanIZuwwrkVl+lK84E/miEXkCHWXuq65rhNN4rXsBcOB3S4w==}
+    peerDependencies:
+      vite: '*'
+    peerDependenciesMeta:
+      vite:
+        optional: true
 
   vite-tsconfig-paths@6.1.1:
     resolution: {integrity: sha512-2cihq7zliibCCZ8P9cKJrQBkfgdvcFkOOc3Y02o3GWUDLgqjWsZudaoiuOwO/gzTzy17cS5F7ZPo4bsnS4DGkg==}
@@ -8320,9 +8394,11 @@ snapshots:
 
   '@scalar/helpers@0.2.11': {}
 
-  '@scalar/json-magic@0.11.0':
+  '@scalar/helpers@0.2.12': {}
+
+  '@scalar/json-magic@0.11.1':
     dependencies:
-      '@scalar/helpers': 0.2.11
+      '@scalar/helpers': 0.2.12
       yaml: 2.8.2
 
   '@scalar/json-magic@0.9.6':
@@ -8330,10 +8406,10 @@ snapshots:
       '@scalar/helpers': 0.2.11
       yaml: 2.8.2
 
-  '@scalar/openapi-parser@0.24.9':
+  '@scalar/openapi-parser@0.24.10':
     dependencies:
-      '@scalar/helpers': 0.2.11
-      '@scalar/json-magic': 0.11.0
+      '@scalar/helpers': 0.2.12
+      '@scalar/json-magic': 0.11.1
       '@scalar/openapi-types': 0.5.3
       '@scalar/openapi-upgrader': 0.1.8
       ajv: 8.18.0
@@ -9123,7 +9199,7 @@ snapshots:
   '@typespec/openapi3@1.9.0(@typespec/compiler@1.9.0(@types/node@24.10.13))(@typespec/http@1.9.0(@typespec/compiler@1.9.0(@types/node@24.10.13)))(@typespec/openapi@1.9.0(@typespec/compiler@1.9.0(@types/node@24.10.13))(@typespec/http@1.9.0(@typespec/compiler@1.9.0(@types/node@24.10.13))))(@typespec/versioning@0.73.0(@typespec/compiler@1.9.0(@types/node@24.10.13)))':
     dependencies:
       '@scalar/json-magic': 0.9.6
-      '@scalar/openapi-parser': 0.24.9
+      '@scalar/openapi-parser': 0.24.10
       '@scalar/openapi-types': 0.5.3
       '@typespec/asset-emitter': 0.79.0(@typespec/compiler@1.9.0(@types/node@24.10.13))
       '@typespec/compiler': 1.9.0(@types/node@24.10.13)
@@ -9136,7 +9212,7 @@ snapshots:
   '@typespec/openapi3@1.9.0(@typespec/compiler@1.9.0(@types/node@25.2.3))(@typespec/http@1.9.0(@typespec/compiler@1.9.0(@types/node@25.2.3)))(@typespec/openapi@1.9.0(@typespec/compiler@1.9.0(@types/node@25.2.3))(@typespec/http@1.9.0(@typespec/compiler@1.9.0(@types/node@25.2.3))))(@typespec/versioning@0.78.0(@typespec/compiler@1.9.0(@types/node@25.2.3)))':
     dependencies:
       '@scalar/json-magic': 0.9.6
-      '@scalar/openapi-parser': 0.24.9
+      '@scalar/openapi-parser': 0.24.10
       '@scalar/openapi-types': 0.5.3
       '@typespec/asset-emitter': 0.79.0(@typespec/compiler@1.9.0(@types/node@25.2.3))
       '@typespec/compiler': 1.9.0(@types/node@25.2.3)
@@ -9149,7 +9225,7 @@ snapshots:
   '@typespec/openapi3@1.9.0(@typespec/compiler@1.9.0(@types/node@25.2.3))(@typespec/http@1.9.0(@typespec/compiler@1.9.0(@types/node@25.2.3)))(@typespec/openapi@1.9.0(@typespec/compiler@1.9.0(@types/node@25.2.3))(@typespec/http@1.9.0(@typespec/compiler@1.9.0(@types/node@25.2.3))))(@typespec/versioning@0.79.0(@typespec/compiler@1.9.0(@types/node@25.2.3)))':
     dependencies:
       '@scalar/json-magic': 0.9.6
-      '@scalar/openapi-parser': 0.24.9
+      '@scalar/openapi-parser': 0.24.10
       '@scalar/openapi-types': 0.5.3
       '@typespec/asset-emitter': 0.79.0(@typespec/compiler@1.9.0(@types/node@25.2.3))
       '@typespec/compiler': 1.9.0(@types/node@25.2.3)
@@ -11145,6 +11221,17 @@ snapshots:
       react: 19.2.4
 
   vary@1.1.2: {}
+
+  vite-tsconfig-paths@5.1.4(typescript@5.9.3)(vite@7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.16.9)(tsx@4.21.0)(yaml@2.8.2)):
+    dependencies:
+      debug: 4.4.3
+      globrex: 0.1.2
+      tsconfck: 3.1.6(typescript@5.9.3)
+    optionalDependencies:
+      vite: 7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.16.9)(tsx@4.21.0)(yaml@2.8.2)
+    transitivePeerDependencies:
+      - supports-color
+      - typescript
 
   vite-tsconfig-paths@6.1.1(typescript@5.9.3)(vite@7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.16.9)(tsx@4.21.0)(yaml@2.8.2)):
     dependencies:

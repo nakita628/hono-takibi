@@ -18,6 +18,7 @@ hono request \
   -P /one-of \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
+  -d '{"type":"string","cardNumber":"string","expiry":"string"}' \
   src/index.ts
 ```
 
@@ -73,6 +74,7 @@ hono request \
   -P /any-of \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
+  -d '{"keyword":"string"}' \
   src/index.ts
 ```
 
@@ -124,6 +126,7 @@ hono request \
   -P /all-of \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
+  -d '{"name":"string","email":"user@example.com","employeeId":0,"department":"string","startDate":"1970-01-01"}' \
   src/index.ts
 ```
 
@@ -183,6 +186,7 @@ hono request \
   -P /not \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
+  -d 'null' \
   src/index.ts
 ```
 

@@ -1,41 +1,33 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
-export const UserSchema = z
+const UserSchema = z
   .object({ id: z.int(), name: z.string(), email: z.email() })
   .openapi({ required: ['id', 'name', 'email'] })
   .openapi('User')
 
-export type User = z.infer<typeof UserSchema>
+const UserListSchema = z.array(UserSchema).openapi('UserList')
 
-export const UserListSchema = z.array(UserSchema).openapi('UserList')
-
-export type UserList = z.infer<typeof UserListSchema>
-
-export const UserListResponse = {
+const UserListResponse = {
   description: 'A list of users',
   content: { 'application/json': { schema: UserListSchema } },
 }
 
-export const PageParamParamsSchema = z
+const PageParamParamsSchema = z
   .int()
   .default(1)
   .exactOptional()
   .openapi({ param: { name: 'page', in: 'query', schema: { type: 'integer', default: 1 } } })
 
-export type PageParamParams = z.infer<typeof PageParamParamsSchema>
-
-export const UserIdParamParamsSchema = z
+const UserIdParamParamsSchema = z
   .int()
   .openapi({ param: { name: 'id', in: 'path', required: true, schema: { type: 'integer' } } })
 
-export type UserIdParamParams = z.infer<typeof UserIdParamParamsSchema>
-
-export const UserExample = {
+const UserExample = {
   summary: 'Example user',
   value: { id: 1, name: 'Alice', email: 'alice@example.com' },
 }
 
-export const CreateUserBodyRequestBody = {
+const CreateUserBodyRequestBody = {
   content: {
     'application/json': {
       schema: z
@@ -46,22 +38,20 @@ export const CreateUserBodyRequestBody = {
   required: true,
 }
 
-export const XRequestIdHeaderSchema = z
+const XRequestIdHeaderSchema = z
   .uuid()
   .exactOptional()
   .openapi({ description: 'Unique request identifier' })
 
-export type XRequestIdHeader = z.infer<typeof XRequestIdHeaderSchema>
+const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' }
 
-export const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' }
-
-export const GetUserLink = {
+const GetUserLink = {
   operationId: 'getUserById',
   parameters: { id: '$response.body#/id' },
   description: 'Get the created user',
 }
 
-export const UserCreatedCallback = {
+const UserCreatedCallback = {
   '{$request.body#/callbackUrl}': {
     post: {
       operationId: 'userCreatedCallback',
@@ -71,7 +61,7 @@ export const UserCreatedCallback = {
   },
 }
 
-export const UserItemPathItem = {
+const UserItemPathItem = {
   get: {
     operationId: 'getUserItem',
     responses: {

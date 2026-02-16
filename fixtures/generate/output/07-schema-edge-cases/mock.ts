@@ -196,7 +196,7 @@ const getAdditionalPropsRouteHandler: RouteHandler<typeof getAdditionalPropsRout
   return c.json(mockDynamicMap(), 200)
 }
 
-const app = new OpenAPIHono()
+const app = new OpenAPIHono().basePath('undefined')
 
 export const api = app
   .openapi(postNullableRoute, postNullableRouteHandler)
