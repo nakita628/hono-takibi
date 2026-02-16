@@ -11,6 +11,7 @@ const ConfigSchema = z
         typeof v === 'string' && (v.endsWith('.yaml') || v.endsWith('.json') || v.endsWith('.tsp')),
       { message: 'must be .yaml | .json | .tsp' },
     ),
+    basePath: z.string().exactOptional(),
     // oxfmt format options for generated code output
     format: z
       .object({
@@ -109,15 +110,9 @@ const ConfigSchema = z
           })
           .exactOptional(),
         readonly: z.boolean().exactOptional(),
-        template: z
-          .object({
-            basePath: z.string().exactOptional(),
-            test: z.boolean().exactOptional(),
-            pathAlias: z.string().exactOptional(),
-            routeHandler: z.boolean().exactOptional(),
-          })
-          .strict()
-          .exactOptional(),
+        template: z.boolean().exactOptional(),
+        test: z.boolean().exactOptional(),
+        pathAlias: z.string().exactOptional(),
         // OpenAPI Components Object order
         exportSchemas: z.boolean().exactOptional(),
         exportSchemasTypes: z.boolean().exactOptional(),
