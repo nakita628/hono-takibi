@@ -2,8 +2,8 @@ import { defineConfig } from 'hono-takibi/config'
 
 export default defineConfig({
   input: 'openapi.yaml',
+  basePath: '/api',
   'zod-openapi': {
-    basePath: '/api',
     output: 'src/routes.ts',
     template: true,
   },

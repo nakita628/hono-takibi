@@ -509,4 +509,50 @@ describe('parseConfig()', () => {
       expect(result.ok).toBe(true)
     })
   })
+
+  describe('basePath option', () => {
+    it.concurrent('accepts top-level basePath', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        basePath: '/api',
+        'zod-openapi': {
+          output: 'src/routes.ts',
+        },
+      })
+      expect(result.ok).toBe(true)
+      if (result.ok) {
+        expect(result.value.basePath).toBe('/api')
+      }
+    })
+
+    it.concurrent('basePath is optional (undefined by default)', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        'zod-openapi': {
+          output: 'src/routes.ts',
+        },
+      })
+      expect(result.ok).toBe(true)
+      if (result.ok) {
+        expect(result.value.basePath).toBeUndefined()
+      }
+    })
+
+    it.concurrent('strips basePath inside zod-openapi (not preserved)', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        'zod-openapi': {
+          output: 'src/routes.ts',
+          basePath: '/api',
+        },
+      })
+      expect(result.ok).toBe(true)
+      if (result.ok) {
+        // basePath inside zod-openapi is stripped (not a valid key there)
+        expect(
+          (result.value['zod-openapi'] as Record<string, unknown>)?.basePath,
+        ).toBeUndefined()
+      }
+    })
+  })
 })
