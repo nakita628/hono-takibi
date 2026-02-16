@@ -97,13 +97,7 @@ export const putSettingsRoute = createRoute({
     body: {
       content: {
         'application/json': {
-          schema: z
-            .object({
-              avatar: z
-                .string()
-                .openapi({ contentEncoding: 'base64', contentMediaType: 'image/png' }),
-            })
-            .openapi({ required: ['avatar'] }),
+          schema: z.object({ avatar: z.string() }).openapi({ required: ['avatar'] }),
         },
       },
     },

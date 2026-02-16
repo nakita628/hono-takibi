@@ -32,6 +32,8 @@ export function wrap(
     'then',
     'else',
     'contentSchema',
+    'contentEncoding',
+    'contentMediaType',
     '$schema',
     '$id',
   ])
