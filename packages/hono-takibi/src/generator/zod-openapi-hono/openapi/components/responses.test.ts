@@ -32,6 +32,47 @@ describe('responsesCode', () => {
     )
   })
 
+  it('should generate response with as const for inline', () => {
+    const components: Components = {
+      responses: {
+        NotFound: {
+          description: 'Not found',
+        },
+      },
+    }
+    const result = responsesCode(components, true, true)
+    expect(result).toBe(`export const NotFoundResponse={description:"Not found"} as const`)
+  })
+
+  it('should not add as const for $ref response', () => {
+    const components: Components = {
+      responses: {
+        Alias: {
+          $ref: '#/components/responses/NotFound',
+        },
+      },
+    }
+    const result = responsesCode(components, true, true)
+    expect(result).toBe(`export const AliasResponse=NotFoundResponse`)
+  })
+
+  it('should handle mixed $ref and inline with readonly', () => {
+    const components: Components = {
+      responses: {
+        Alias: {
+          $ref: '#/components/responses/BaseNotFound',
+        },
+        Success: {
+          description: 'OK',
+        },
+      },
+    }
+    const result = responsesCode(components, true, true)
+    expect(result).toBe(
+      `export const AliasResponse=BaseNotFoundResponse\n\nexport const SuccessResponse={description:"OK"} as const`,
+    )
+  })
+
   it('should generate response without export', () => {
     const components: Components = {
       responses: {
