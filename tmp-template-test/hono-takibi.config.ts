@@ -1,1 +1,0 @@
-export default { input: 'openapi.json', 'zod-openapi': { output: 'src/routes.ts', template: true } }
