@@ -337,7 +337,14 @@ export async function honoTakibi(): Promise<
       ? mock(openAPI, config.mock.output, config.basePath ?? '/', config['zod-openapi']?.readonly)
       : Promise.resolve(undefined),
     config.docs
-      ? docs(openAPI, config.docs.output, config.docs.entry, config.basePath ?? '/')
+      ? docs(
+          openAPI,
+          config.docs.output,
+          config.docs.entry,
+          config.basePath ?? '/',
+          config.docs.codeSample,
+          config.docs.baseUrl,
+        )
       : Promise.resolve(undefined),
     (() => {
       if (!config['zod-openapi']?.template) return Promise.resolve(undefined)

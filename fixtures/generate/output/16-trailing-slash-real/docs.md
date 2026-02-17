@@ -102,7 +102,10 @@ hono request \
   -P /api/v2/public/booking/account/register/oauth/ \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  -d '{"account":null,"profile":null}' \
+  -d '{
+    "account": null,
+    "profile": null
+  }' \
   src/index.ts
 ```
 
@@ -188,7 +191,9 @@ hono request \
   -P /api/v2/public/booking/account/register/email \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  -d '{"email":"user@example.com"}' \
+  -d '{
+    "email": "user@example.com"
+  }' \
   src/index.ts
 ```
 

@@ -102,7 +102,19 @@ hono request \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
   -H "Authorization: Bearer ${ACCESS_TOKEN}" \
-  -d '{"name":"string","email":"user@example.com","password":"string","role":"admin","address":{"street":"string","city":"string","state":"string","zip":"string","country":"string"}}' \
+  -d '{
+    "name": "string",
+    "email": "user@example.com",
+    "password": "string",
+    "role": "admin",
+    "address": {
+      "street": "string",
+      "city": "string",
+      "state": "string",
+      "zip": "string",
+      "country": "string"
+    }
+  }' \
   src/index.ts
 ```
 
@@ -257,7 +269,17 @@ hono request \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
   -H "Authorization: Bearer ${ACCESS_TOKEN}" \
-  -d '{"name":"string","email":"user@example.com","address":{"street":"string","city":"string","state":"string","zip":"string","country":"string"}}' \
+  -d '{
+    "name": "string",
+    "email": "user@example.com",
+    "address": {
+      "street": "string",
+      "city": "string",
+      "state": "string",
+      "zip": "string",
+      "country": "string"
+    }
+  }' \
   src/index.ts
 ```
 
@@ -456,7 +478,15 @@ hono request \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
   -H "Authorization: Bearer ${ACCESS_TOKEN}" \
-  -d '{"name":"string","description":"string","price":0,"categoryId":0,"tags":["string"]}' \
+  -d '{
+    "name": "string",
+    "description": "string",
+    "price": 0,
+    "categoryId": 0,
+    "tags": [
+      "string"
+    ]
+  }' \
   src/index.ts
 ```
 
@@ -599,7 +629,15 @@ hono request \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
   -H "Authorization: Bearer ${ACCESS_TOKEN}" \
-  -d '{"name":"string","description":"string","price":0,"categoryId":0,"tags":["string"]}' \
+  -d '{
+    "name": "string",
+    "description": "string",
+    "price": 0,
+    "categoryId": 0,
+    "tags": [
+      "string"
+    ]
+  }' \
   src/index.ts
 ```
 
@@ -763,7 +801,10 @@ hono request \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
   -H "Authorization: Bearer ${ACCESS_TOKEN}" \
-  -d '{"rating":1,"comment":"string"}' \
+  -d '{
+    "rating": 1,
+    "comment": "string"
+  }' \
   src/index.ts
 ```
 
@@ -985,7 +1026,22 @@ hono request \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
   -H "Authorization: Bearer ${ACCESS_TOKEN}" \
-  -d '{"items":[{"productId":0,"quantity":1}],"shippingAddress":{"street":"string","city":"string","state":"string","zip":"string","country":"string"},"callbackUrl":"http://example.com"}' \
+  -d '{
+    "items": [
+      {
+        "productId": 0,
+        "quantity": 1
+      }
+    ],
+    "shippingAddress": {
+      "street": "string",
+      "city": "string",
+      "state": "string",
+      "zip": "string",
+      "country": "string"
+    },
+    "callbackUrl": "http://example.com"
+  }' \
   src/index.ts
 ```
 

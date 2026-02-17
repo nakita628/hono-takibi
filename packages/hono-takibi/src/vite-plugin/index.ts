@@ -549,6 +549,8 @@ const runAllGenerationTasks = async (
         outputPath,
         config.docs?.entry ?? 'src/index.ts',
         config.basePath ?? '/',
+        config.docs?.codeSample,
+        config.docs?.baseUrl,
       )
       return result.ok ? `✅ docs -> ${outputPath}` : `❌ docs: ${result.error}`
     })()

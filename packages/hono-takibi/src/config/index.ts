@@ -355,8 +355,16 @@ const ConfigSchema = z
         output: z.custom<`${string}.md`>((v) => typeof v === 'string' && v.endsWith('.md'), {
           message: 'must be .md file',
         }),
-        entry: z.string().default('src/index.ts').exactOptional(),
+        entry: z.string().exactOptional(),
         basePath: z.string().exactOptional(),
+        codeSample: z.enum(['hono', 'curl']).default('hono').exactOptional(),
+        baseUrl: z.string().exactOptional(),
+      })
+      .refine((v) => !(v.codeSample === 'curl' && v.entry !== undefined), {
+        message: 'entry cannot be specified when codeSample is "curl"',
+      })
+      .refine((v) => !(v.codeSample === 'curl' && v.baseUrl === undefined), {
+        message: 'baseUrl is required when codeSample is "curl"',
       })
       .exactOptional(),
   })

@@ -160,7 +160,9 @@ hono request \
   -P /posts/ \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  -d '{"title":"string"}' \
+  -d '{
+    "title": "string"
+  }' \
   src/index.ts
 ```
 
