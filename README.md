@@ -104,7 +104,9 @@ export const getRoute = createRoute({
 
 ## Vite Plugin
 
-Auto-regenerate on file changes:
+Watches your OpenAPI spec and `hono-takibi.config.ts` for changes, then auto-regenerates code on save.
+
+Requires `hono-takibi.config.ts` in your project root.
 
 ```ts
 // vite.config.ts
@@ -145,18 +147,11 @@ Re-running after updating your OpenAPI spec is safe — your hand-written handle
 
 > **Note:** If you remove a path from your OpenAPI spec and re-run, the corresponding handler and test files will be deleted. Make sure to back up or migrate any custom logic before removing API definitions.
 
-### Route Handler Modes
+### Handler Generation Modes
 
-By default (`routeHandler: false` or omitted), each handler file imports the shared app and registers routes inline via `.openapi()`:
+#### `routeHandler: false` (default)
 
-```ts
-// src/index.ts
-import { OpenAPIHono } from "@hono/zod-openapi";
-
-const app = new OpenAPIHono();
-
-export default app;
-```
+Handlers import the app and register routes inline:
 
 ```ts
 // src/handlers/health.ts
@@ -169,7 +164,7 @@ export const healthHandler = app.openapi(getHealthRoute, (c) => {});
 The app mounts handlers via `.route()`:
 
 ```ts
-// src/index.ts (after implementing route registration)
+// src/index.ts
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { healthHandler } from "./handlers/health";
 
@@ -180,41 +175,32 @@ export const api = app.route("/", healthHandler);
 export default app;
 ```
 
-With `routeHandler: true`, each handler exports a `RouteHandler` typed function and the app registers routes in `index.ts`:
+#### `routeHandler: true`
+
+Handlers export typed `RouteHandler` functions, and `index.ts` centralizes route registration:
 
 ```ts
-export default defineConfig({
-  input: "openapi.yaml",
-  "zod-openapi": {
-    output: "./src/routes.ts",
-    template: {
-      pathAlias: "@/",
-      routeHandler: true,
-    },
-  },
-});
+// src/handlers/health.ts
+import type { RouteHandler } from "@hono/zod-openapi"
+import type { getHealthRoute } from "../routes"
+
+export const getHealthRouteHandler: RouteHandler<typeof getHealthRoute> =
+  async (c) => {
+    return c.json({ status: "ok" }, 200)
+  }
 ```
 
 ```ts
 // src/index.ts
-import { OpenAPIHono } from "@hono/zod-openapi";
-import { getHealthRoute } from "@/routes";
-import { getHealthRouteHandler } from "@/handlers";
+import { OpenAPIHono } from "@hono/zod-openapi"
+import { getHealthRoute } from "./routes"
+import { getHealthRouteHandler } from "./handlers"
 
-const app = new OpenAPIHono();
+const app = new OpenAPIHono()
 
-export const api = app.openapi(getHealthRoute, getHealthRouteHandler);
+export const api = app.openapi(getHealthRoute, getHealthRouteHandler)
 
-export default app;
-```
-
-```ts
-// src/handlers/health.ts
-import type { RouteHandler } from "@hono/zod-openapi";
-import type { getHealthRoute } from "@/routes";
-
-export const getHealthRouteHandler: RouteHandler<typeof getHealthRoute> =
-  async (c) => {};
+export default app
 ```
 
 ## Client Library Integrations
@@ -287,6 +273,23 @@ export default defineConfig({
 });
 ```
 
+To generate `curl` commands instead of `hono request`:
+
+```ts
+export default defineConfig({
+  input: "openapi.yaml",
+  "zod-openapi": {
+    output: "./src/routes.ts",
+    readonly: true,
+  },
+  docs: {
+    output: "./docs/api.md",
+    curl: true,
+    baseUrl: "http://localhost:3000",
+  },
+});
+```
+
 
 ## Full Config Reference
 
@@ -301,6 +304,9 @@ import { defineConfig } from "hono-takibi/config";
 export default defineConfig({
   // OpenAPI spec file (.yaml, .json, or .tsp)
   input: "openapi.yaml",
+
+  // Base path prefix for all routes
+  basePath: "/api",
 
   // oxfmt format options for generated code
   format: {
@@ -330,7 +336,6 @@ export default defineConfig({
     // Output: use 'output' for single file, or 'routes' for split mode (mutually exclusive)
     output: "./src/routes.ts",
     readonly: true, // Add 'as const' to generated schemas
-    basePath: "/api", // Base path prefix for all routes
 
     // Template generation (app entry point + handler stubs + tests)
     template: {
@@ -488,6 +493,8 @@ export default defineConfig({
   docs: {
     output: "./docs/api.md",
     entry: "src/index.ts", // App entry point for hono request commands
+    curl: false, // true: generate curl commands (requires baseUrl), false: hono request (default)
+    baseUrl: "http://localhost:3000", // Base URL for curl commands (required when curl: true)
   },
 });
 ```
@@ -497,7 +504,7 @@ export default defineConfig({
 **This package is in active development and may introduce breaking changes without prior notice.**
 
 - Not all OpenAPI features are supported
-- Complex schemas might not convert correctly
+- Circular references through `allOf` may cause stack overflow in type generation
 - Some OpenAPI validations may not be perfectly converted to Zod
 
 We strongly recommend:

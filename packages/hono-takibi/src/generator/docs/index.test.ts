@@ -918,19 +918,19 @@ describe('makeDocs', () => {
 
   describe('curl', () => {
     it('generates curl GET without -d flag', () => {
-      expect(makeDocs(minimalOpenAPI, 'src/index.ts', '/', 'curl', 'http://localhost:5173')).toBe(
+      expect(makeDocs(minimalOpenAPI, 'src/index.ts', '/', true, 'http://localhost:5173')).toBe(
         expectedCurlGetHealth('http://localhost:5173/health'),
       )
     })
 
     it('generates curl POST with -d flag', () => {
-      expect(makeDocs(postOpenAPI, 'src/index.ts', '/', 'curl', 'http://localhost:5173')).toBe(
+      expect(makeDocs(postOpenAPI, 'src/index.ts', '/', true, 'http://localhost:5173')).toBe(
         expectedCurlPostUsers('http://localhost:5173/users'),
       )
     })
 
     it('generates curl POST with basePath in URL', () => {
-      expect(makeDocs(postOpenAPI, 'src/index.ts', '/api', 'curl', 'http://localhost:5173')).toBe(
+      expect(makeDocs(postOpenAPI, 'src/index.ts', '/api', true, 'http://localhost:5173')).toBe(
         expectedCurlPostUsers('http://localhost:5173/api/users'),
       )
     })
@@ -938,12 +938,12 @@ describe('makeDocs', () => {
     describe('GET omits -X GET', () => {
       it('generates curl GET with path parameter (quoted URL, no -X GET)', () => {
         expect(
-          makeDocs(pathParamGetOpenAPI, 'src/index.ts', '/', 'curl', 'http://localhost:5173'),
+          makeDocs(pathParamGetOpenAPI, 'src/index.ts', '/', true, 'http://localhost:5173'),
         ).toBe(expectedCurlGetPathParam)
       })
 
       it('generates curl GET without -X GET (no path params)', () => {
-        expect(makeDocs(minimalOpenAPI, 'src/index.ts', '/', 'curl', 'http://localhost:5173')).toBe(
+        expect(makeDocs(minimalOpenAPI, 'src/index.ts', '/', true, 'http://localhost:5173')).toBe(
           expectedCurlGetHealth('http://localhost:5173/health'),
         )
       })
@@ -951,7 +951,7 @@ describe('makeDocs', () => {
 
     describe('PUT with path parameter and body', () => {
       it('generates curl PUT with quoted URL and indented -d body', () => {
-        expect(makeDocs(putOpenAPI, 'src/index.ts', '/', 'curl', 'http://localhost:5173')).toBe(
+        expect(makeDocs(putOpenAPI, 'src/index.ts', '/', true, 'http://localhost:5173')).toBe(
           expectedCurlPutPathParam,
         )
       })
@@ -960,7 +960,7 @@ describe('makeDocs', () => {
     describe('nested body indentation', () => {
       it('generates curl POST with properly indented nested body', () => {
         expect(
-          makeDocs(nestedBodyOpenAPI, 'src/index.ts', '/', 'curl', 'http://localhost:5173'),
+          makeDocs(nestedBodyOpenAPI, 'src/index.ts', '/', true, 'http://localhost:5173'),
         ).toBe(expectedCurlPostNested)
       })
     })
@@ -968,7 +968,7 @@ describe('makeDocs', () => {
     describe('GET with no JSON response', () => {
       it('generates curl GET with URL only (no flags)', () => {
         expect(
-          makeDocs(noResponseGetOpenAPI, 'src/index.ts', '/', 'curl', 'http://localhost:5173'),
+          makeDocs(noResponseGetOpenAPI, 'src/index.ts', '/', true, 'http://localhost:5173'),
         ).toBe(expectedCurlPing)
       })
     })

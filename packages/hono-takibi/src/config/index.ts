@@ -355,14 +355,14 @@ const ConfigSchema = z
           message: 'must be .md file',
         }),
         entry: z.string().exactOptional(),
-        codeSample: z.enum(['hono', 'curl']).default('hono').exactOptional(),
+        curl: z.boolean().default(false).exactOptional(),
         baseUrl: z.string().exactOptional(),
       })
-      .refine((v) => !(v.codeSample === 'curl' && v.entry !== undefined), {
-        message: 'entry cannot be specified when codeSample is "curl"',
+      .refine((v) => !(v.curl === true && v.entry !== undefined), {
+        message: 'entry cannot be specified when curl is true',
       })
-      .refine((v) => !(v.codeSample === 'curl' && v.baseUrl === undefined), {
-        message: 'baseUrl is required when codeSample is "curl"',
+      .refine((v) => !(v.curl === true && v.baseUrl === undefined), {
+        message: 'baseUrl is required when curl is true',
       })
       .exactOptional(),
   })

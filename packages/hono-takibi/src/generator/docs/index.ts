@@ -1263,7 +1263,7 @@ export function makeDocs(
   openAPI: OpenAPI,
   entry = 'src/index.ts',
   basePath = '/',
-  codeSample: 'hono' | 'curl' = 'hono',
+  curl = false,
   baseUrl?: string,
 ): string {
   const title = openAPI.info?.title ?? 'API'
@@ -1347,7 +1347,7 @@ export function makeDocs(
 
       // Code sample
       const codeSampleLines =
-        codeSample === 'curl' && baseUrl
+        curl && baseUrl
           ? makeCodeSampleCurl(
               method,
               pathStr,

@@ -10,12 +10,12 @@ export async function docs(
   output: string,
   entry = 'src/index.ts',
   basePath = '/',
-  codeSample: 'hono' | 'curl' = 'hono',
+  curl = false,
   baseUrl?: string,
 ): Promise<
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {
-  const markdown = makeDocs(openAPI, entry, basePath, codeSample, baseUrl)
+  const markdown = makeDocs(openAPI, entry, basePath, curl, baseUrl)
   const mkdirResult = await mkdir(path.dirname(output))
   if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error }
   const writeResult = await writeFile(output, markdown)

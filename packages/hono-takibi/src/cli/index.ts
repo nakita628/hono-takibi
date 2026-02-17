@@ -342,7 +342,7 @@ export async function honoTakibi(): Promise<
           config.docs.output,
           config.docs.entry,
           config.basePath ?? '/',
-          config.docs.codeSample,
+          config.docs.curl,
           config.docs.baseUrl,
         )
       : Promise.resolve(undefined),
