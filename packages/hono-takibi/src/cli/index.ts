@@ -331,7 +331,7 @@ export async function honoTakibi(): Promise<
         )
       : Promise.resolve(undefined),
     config.test
-      ? test(openAPI, config.test.output, config.test.import)
+      ? test(openAPI, config.test.output, config.test.import, config.basePath ?? '/')
       : Promise.resolve(undefined),
     config.mock
       ? mock(openAPI, config.mock.output, config.basePath ?? '/', config['zod-openapi']?.readonly)

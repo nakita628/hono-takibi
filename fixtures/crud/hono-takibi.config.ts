@@ -13,6 +13,10 @@ export default defineConfig({
     output: 'src/rpc.ts',
     import: './client',
   },
+  test: {
+    output: 'src/index.test.ts',
+    import: './index',
+  },
   mock: {
     output: 'src/mock.ts',
   },

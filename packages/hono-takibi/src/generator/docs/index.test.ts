@@ -943,17 +943,17 @@ describe('makeDocs', () => {
       })
 
       it('generates curl GET without -X GET (no path params)', () => {
-        expect(
-          makeDocs(minimalOpenAPI, 'src/index.ts', '/', 'curl', 'http://localhost:5173'),
-        ).toBe(expectedCurlGetHealth('http://localhost:5173/health'))
+        expect(makeDocs(minimalOpenAPI, 'src/index.ts', '/', 'curl', 'http://localhost:5173')).toBe(
+          expectedCurlGetHealth('http://localhost:5173/health'),
+        )
       })
     })
 
     describe('PUT with path parameter and body', () => {
       it('generates curl PUT with quoted URL and indented -d body', () => {
-        expect(
-          makeDocs(putOpenAPI, 'src/index.ts', '/', 'curl', 'http://localhost:5173'),
-        ).toBe(expectedCurlPutPathParam)
+        expect(makeDocs(putOpenAPI, 'src/index.ts', '/', 'curl', 'http://localhost:5173')).toBe(
+          expectedCurlPutPathParam,
+        )
       })
     })
 

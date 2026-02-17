@@ -236,7 +236,7 @@ function detectCircularSchemas(schemas: { [key: string]: Schema }): Set<string> 
   return circular
 }
 
-function generateMockFunctions(spec: OpenAPI, usedSchemaNames: Set<string>): string {
+function makeMockFunctions(spec: OpenAPI, usedSchemaNames: Set<string>): string {
   if (!spec.components?.schemas || usedSchemaNames.size === 0) return ''
   const schemas = spec.components.schemas
   const circular = detectCircularSchemas(schemas)
@@ -282,7 +282,7 @@ function getNonExistentValue(schema?: Schema): string {
   return '__non_existent__'
 }
 
-function generateAuthHeader(sec: SecurityRequirement): string {
+function makeAuthHeader(sec: SecurityRequirement): string {
   switch (sec.type) {
     case 'bearer':
     case 'oauth2':
@@ -299,10 +299,12 @@ function generateAuthHeader(sec: SecurityRequirement): string {
   }
 }
 
-function generateTestCase(tc: TestCase): string {
+function makeTestCase(tc: TestCase, basePath = '/'): string {
+  const basePathPrefix = basePath !== '/' ? basePath : ''
+  const fullPath = `${basePathPrefix}${tc.path}`
   const testPath = tc.pathParams.reduce(
     (path, param) => path.replace(`{${param.name}}`, `\${${param.name}}`),
-    tc.path,
+    fullPath,
   )
   const pathSetup = tc.pathParams.map((param) => `const ${param.name}=${param.fakerCode}`)
   // Include all query parameters (both required and optional) for comprehensive testing
@@ -314,7 +316,7 @@ function generateTestCase(tc: TestCase): string {
   const requiredHeaderParams = tc.headerParams.filter((p) => p.required)
   const headerSetup = requiredHeaderParams.map((param) => `const ${param.name}=${param.fakerCode}`)
   const headerEntries = requiredHeaderParams.map((param) => `'${param.name}':String(${param.name})`)
-  const authHeaders = tc.security.map(generateAuthHeader).filter(Boolean)
+  const authHeaders = tc.security.map(makeAuthHeader).filter(Boolean)
   const { bodySetup, bodyOption, contentTypeHeader } = tc.requestBody
     ? {
         bodySetup: `const body=${tc.requestBody.fakerCode}`,
@@ -331,7 +333,7 @@ function generateTestCase(tc: TestCase): string {
   const setupCode = [...pathSetup, ...querySetup, ...headerSetup, bodySetup]
     .filter(Boolean)
     .join('\n')
-  const mainTest = `describe('${tc.method} ${tc.path}',()=>{it('${itDescription}',async()=>{${setupCode}\nconst res=await app.request(\`${testPath}${queryString}\`,{method:'${tc.method}'${headersOption}${bodyOption}})\nexpect(res.status).toBe(${tc.successStatus})})`
+  const mainTest = `describe('${tc.method} ${fullPath}',()=>{it('${itDescription}',async()=>{${setupCode}\nconst res=await app.request(\`${testPath}${queryString}\`,{method:'${tc.method}'${headersOption}${bodyOption}})\nexpect(res.status).toBe(${tc.successStatus})})`
   const unauthorizedTest =
     tc.security.length > 0
       ? `\nit('should return 401 without auth',async()=>{${setupCode}\nconst res=await app.request(\`${testPath}${queryString}\`,{method:'${tc.method}'${headersWithoutAuth}${bodyOption}})\nexpect(res.status).toBe(401)})`
@@ -342,7 +344,7 @@ function generateTestCase(tc: TestCase): string {
       ? (() => {
           const notFoundPath = tc.pathParams.reduce(
             (path, param) => path.replace(`{${param.name}}`, getNonExistentValue(param.schema)),
-            tc.path,
+            fullPath,
           )
           const notFoundQuerySetup = tc.queryParams.map(
             (param) => `const ${param.name}=${param.fakerCode}`,
@@ -360,7 +362,11 @@ function escapeString(s: string): string {
   return s.replace(/'/g, "\\'").replace(/\n/g, ' ')
 }
 
-export function makeTestFile(spec: OpenAPI, appImportPath: string = './app'): string {
+export function makeTestFile(
+  spec: OpenAPI,
+  appImportPath: string = './app',
+  basePath = '/',
+): string {
   const testCases = extractTestCases(spec)
   const apiTitle = spec.info?.title || 'API'
   const usedSchemaNames = new Set(testCases.flatMap((tc) => tc.usedSchemaRefs))
@@ -368,12 +374,12 @@ export function makeTestFile(spec: OpenAPI, appImportPath: string = './app'): st
     const tag = tc.tag || 'default'
     return acc.set(tag, [...(acc.get(tag) || []), tc])
   }, new Map<string, TestCase[]>())
-  const mockFunctions = generateMockFunctions(spec, usedSchemaNames)
+  const mockFunctions = makeMockFunctions(spec, usedSchemaNames)
   const tagDescribes = Array.from(byTag.entries())
     .map(([tag, cases]) => {
       const tagInfo = spec.tags?.find((t) => t.name === tag)
       const tagDescription = tagInfo?.description || tag
-      const testCasesCode = cases.map((tc) => generateTestCase(tc)).join('')
+      const testCasesCode = cases.map((tc) => makeTestCase(tc, basePath)).join('')
       return `describe('${escapeString(tagDescription)}',()=>{${testCasesCode}})\n`
     })
     .join('')
@@ -405,6 +411,7 @@ export function makeHandlerTestCode(
   handlerPath: string,
   _routeNames: string[],
   importFrom: string,
+  basePath = '/',
 ): string {
   // Extract handler name from path (e.g., "handlers/users.ts" → "users")
   const handlerFileName = handlerPath.split('/').pop()?.replace(/\.ts$/, '') ?? ''
@@ -417,8 +424,8 @@ export function makeHandlerTestCode(
   })
   if (relevantCases.length === 0) return ''
   const usedSchemaNames = new Set(relevantCases.flatMap((tc) => tc.usedSchemaRefs))
-  const mockFunctions = generateMockFunctions(spec, usedSchemaNames)
-  const testCasesCode = relevantCases.map((tc) => generateTestCase(tc)).join('')
+  const mockFunctions = makeMockFunctions(spec, usedSchemaNames)
+  const testCasesCode = relevantCases.map((tc) => makeTestCase(tc, basePath)).join('')
   const mockSection = mockFunctions ? `${mockFunctions}\n\n` : ''
   // Capitalize resource name for describe block (e.g., "users" → "Users")
   const resourceName = handlerFileName.charAt(0).toUpperCase() + handlerFileName.slice(1)

@@ -545,6 +545,7 @@ const ConfigSchema = z
   .readonly()
 
 type Config = z.infer<typeof ConfigSchema>
+type ConfigInput = z.input<typeof ConfigSchema>
 
 /**
  * Validates and parses a hono-takibi configuration object.
@@ -586,6 +587,6 @@ export async function readConfig(): Promise<
 /**
  * Helper to define a config with full type completion.
  */
-export function defineConfig(config: Config): Config {
+export function defineConfig(config: ConfigInput) {
   return config
 }

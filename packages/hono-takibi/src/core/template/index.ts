@@ -28,7 +28,7 @@ export async function template(
 
   const [appFmtResult, stubHandlersResult] = await Promise.all([
     fmt(app(openAPI, output, basePath, pathAlias, routeImport, routeHandler)),
-    zodOpenAPIHonoHandler(openAPI, output, test, pathAlias, routeImport, routeHandler),
+    zodOpenAPIHonoHandler(openAPI, output, test, pathAlias, routeImport, routeHandler, basePath),
   ])
   if (!appFmtResult.ok) return { ok: false, error: appFmtResult.error }
   if (!stubHandlersResult.ok) return { ok: false, error: stubHandlersResult.error }

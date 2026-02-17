@@ -530,9 +530,7 @@ function makeCodeSampleCurl(
   const isGet = method === 'get'
 
   // Quote URL if it contains path parameters (curly braces)
-  const url = fullPath.includes('{')
-    ? `'${baseUrl}${fullPath}'`
-    : `${baseUrl}${fullPath}`
+  const url = fullPath.includes('{') ? `'${baseUrl}${fullPath}'` : `${baseUrl}${fullPath}`
 
   const remaining: string[] = []
 

@@ -521,7 +521,12 @@ const runAllGenerationTasks = async (
     if (!config.test) return undefined
     return (async () => {
       const outputPath = toAbsolutePath(config.test?.output ?? '')
-      const result = await test(openAPI, outputPath, config.test?.import ?? '')
+      const result = await test(
+        openAPI,
+        outputPath,
+        config.test?.import ?? '',
+        config.basePath ?? '/',
+      )
       return result.ok ? `✅ test -> ${outputPath}` : `❌ test: ${result.error}`
     })()
   }

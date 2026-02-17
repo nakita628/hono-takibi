@@ -145,7 +145,14 @@ hono request \
   -P /api/tasks \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  -d '{"title":"string","description":"string","status":"pending","tags":["string"]}' \
+  -d '{
+    "title": "string",
+    "description": "string",
+    "status": "pending",
+    "tags": [
+      "string"
+    ]
+  }' \
   src/index.ts
 ```
 
@@ -292,7 +299,14 @@ hono request \
   -P /api/tasks/{taskId} \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  -d '{"title":"string","description":"string","status":"pending","tags":["string"]}' \
+  -d '{
+    "title": "string",
+    "description": "string",
+    "status": "pending",
+    "tags": [
+      "string"
+    ]
+  }' \
   src/index.ts
 ```
 

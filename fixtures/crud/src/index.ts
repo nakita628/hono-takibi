@@ -19,7 +19,7 @@ import {
   putTasksTaskIdRoute,
 } from './routes'
 
-const app = new OpenAPIHono()
+const app = new OpenAPIHono().basePath('/api')
 
 export const api = app
   .openapi(getRoute, getRouteHandler)
