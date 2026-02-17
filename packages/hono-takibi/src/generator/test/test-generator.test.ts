@@ -206,15 +206,28 @@ describe('extractTestCases', () => {
 
   it('POST with request body', () => {
     const result = extractTestCases(postSpec)
-    expect(result.length).toBe(1)
-    const tc = result[0]
-    expect(tc.method).toBe('POST')
-    expect(tc.path).toBe('/tasks')
-    expect(tc.successStatus).toBe(201)
-    expect(tc.errorStatuses).toStrictEqual([400])
-    expect(tc.requestBody).toBeDefined()
-    expect(tc.requestBody!.contentType).toBe('application/json')
-    expect(tc.tag).toBe('tasks')
+    expect(result).toStrictEqual([
+      {
+        operationId: 'createTask',
+        method: 'POST',
+        path: '/tasks',
+        summary: 'Create task',
+        description: '',
+        tag: 'tasks',
+        pathParams: [],
+        queryParams: [],
+        headerParams: [],
+        requestBody: {
+          fakerCode:
+            '{\n    title: faker.lorem.sentence(),\n    done: faker.helpers.arrayElement([faker.datatype.boolean(), undefined])\n  }',
+          contentType: 'application/json',
+        },
+        successStatus: 201,
+        errorStatuses: [400],
+        security: [],
+        usedSchemaRefs: [],
+      },
+    ])
   })
 
   it('GET with path params and 404', () => {
@@ -285,6 +298,7 @@ describe('makeTestFile', () => {
   it('GET with path params — 404 test generated', () => {
     const result = makeTestFile(pathParamSpec)
     expect(result).toBe(
+      // biome-ignore lint/suspicious/noTemplateCurlyInString: expected output contains template literals
       "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\ndescribe('PathParam API',()=>{describe('tasks',()=>{describe('GET /tasks/{taskId}',()=>{it('should return 200 - Get task',async()=>{const taskId=faker.string.alpha({ length: { min: 5, max: 20 } })\nconst res=await app.request(`/tasks/${taskId}`,{method:'GET'})\nexpect(res.status).toBe(200)})\nit('should return 404 for non-existent resource',async()=>{\nconst res=await app.request(`/tasks/__non_existent__`,{method:'GET'})\nexpect(res.status).toBe(404)})})\n})\n})\n",
     )
   })
@@ -292,6 +306,7 @@ describe('makeTestFile', () => {
   it('GET with query params — URL-encoded query string', () => {
     const result = makeTestFile(queryParamSpec)
     expect(result).toBe(
+      // biome-ignore lint/suspicious/noTemplateCurlyInString: expected output contains template literals
       "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\ndescribe('Query API',()=>{describe('tasks',()=>{describe('GET /tasks',()=>{it('should return 200 - List tasks',async()=>{const status=faker.helpers.arrayElement([\"pending\", \"done\"] as const)\nconst limit=faker.number.int({ min: 1, max: 100 })\nconst res=await app.request(`/tasks?status=${encodeURIComponent(String(status))}&limit=${encodeURIComponent(String(limit))}`,{method:'GET'})\nexpect(res.status).toBe(200)})})\n})\n})\n",
     )
   })
@@ -299,6 +314,7 @@ describe('makeTestFile', () => {
   it('Bearer auth — 401 unauthorized test', () => {
     const result = makeTestFile(bearerSpec)
     expect(result).toBe(
+      // biome-ignore lint/suspicious/noTemplateCurlyInString: expected output contains template literals
       "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\ndescribe('Auth API',()=>{describe('default',()=>{describe('GET /me',()=>{it('should return 200 - Get current user',async()=>{\nconst res=await app.request(`/me`,{method:'GET',headers:{'Authorization':`Bearer ${faker.string.alphanumeric(32)}`}})\nexpect(res.status).toBe(200)})\nit('should return 401 without auth',async()=>{\nconst res=await app.request(`/me`,{method:'GET'})\nexpect(res.status).toBe(401)})})\n})\n})\n",
     )
   })
@@ -313,6 +329,7 @@ describe('makeTestFile', () => {
   it('DELETE 204 — integer path param, 404 with -1', () => {
     const result = makeTestFile(deleteSpec)
     expect(result).toBe(
+      // biome-ignore lint/suspicious/noTemplateCurlyInString: expected output contains template literals
       "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\ndescribe('Delete API',()=>{describe('tasks',()=>{describe('DELETE /tasks/{id}',()=>{it('should return 204 - Delete task',async()=>{const id=faker.number.int({ min: 1, max: 99999 })\nconst res=await app.request(`/tasks/${id}`,{method:'DELETE'})\nexpect(res.status).toBe(204)})\nit('should return 404 for non-existent resource',async()=>{\nconst res=await app.request(`/tasks/-1`,{method:'DELETE'})\nexpect(res.status).toBe(404)})})\n})\n})\n",
     )
   })
@@ -345,6 +362,7 @@ describe('makeHandlerTestCode', () => {
   it('matching handler — tasks', () => {
     const result = makeHandlerTestCode(pathParamSpec, 'handlers/tasks.ts', [], '../app')
     expect(result).toBe(
+      // biome-ignore lint/suspicious/noTemplateCurlyInString: expected output contains template literals
       "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'../app'\n\ndescribe('Tasks',()=>{describe('GET /tasks/{taskId}',()=>{it('should return 200 - Get task',async()=>{const taskId=faker.string.alpha({ length: { min: 5, max: 20 } })\nconst res=await app.request(`/tasks/${taskId}`,{method:'GET'})\nexpect(res.status).toBe(200)})\nit('should return 404 for non-existent resource',async()=>{\nconst res=await app.request(`/tasks/__non_existent__`,{method:'GET'})\nexpect(res.status).toBe(404)})})\n})\n",
     )
   })
@@ -357,6 +375,7 @@ describe('makeHandlerTestCode', () => {
   it('with basePath', () => {
     const result = makeHandlerTestCode(pathParamSpec, 'handlers/tasks.ts', [], '../app', '/api')
     expect(result).toBe(
+      // biome-ignore lint/suspicious/noTemplateCurlyInString: expected output contains template literals
       "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'../app'\n\ndescribe('Tasks',()=>{describe('GET /api/tasks/{taskId}',()=>{it('should return 200 - Get task',async()=>{const taskId=faker.string.alpha({ length: { min: 5, max: 20 } })\nconst res=await app.request(`/api/tasks/${taskId}`,{method:'GET'})\nexpect(res.status).toBe(200)})\nit('should return 404 for non-existent resource',async()=>{\nconst res=await app.request(`/api/tasks/__non_existent__`,{method:'GET'})\nexpect(res.status).toBe(404)})})\n})\n",
     )
   })
