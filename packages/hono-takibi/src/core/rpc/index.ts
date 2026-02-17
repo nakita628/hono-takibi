@@ -29,12 +29,13 @@ const makeOperationCode = (
   item: ReturnType<typeof parsePathItem>,
   deps: ReturnType<typeof makeOperationDeps>,
   useParseResponse?: boolean,
+  hasBasePath?: boolean,
 ): GeneratedOperation => {
   const op = item[method]
   if (!isOperationLike(op)) return null
 
   const funcName = methodPath(method, pathStr)
-  const pathResult = formatPath(pathStr)
+  const pathResult = formatPath(pathStr, hasBasePath)
   const hasArgs = operationHasArgs(item, op, deps)
 
   const inferType = makeInferRequestType(deps.client, pathResult, method)
@@ -63,6 +64,7 @@ const makeOperationCodes = (
   paths: OpenAPIPaths,
   deps: ReturnType<typeof makeOperationDeps>,
   useParseResponse?: boolean,
+  hasBasePath?: boolean,
 ): OperationCode[] =>
   Object.entries(paths)
     .filter((entry): entry is [string, { [k: string]: unknown }] => isRecord(entry[1]))
@@ -71,7 +73,7 @@ const makeOperationCodes = (
       const methods = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'] as const
       return methods
         .map((method) => {
-          const result = makeOperationCode(p, method, pathItem, deps, useParseResponse)
+          const result = makeOperationCode(p, method, pathItem, deps, useParseResponse, hasBasePath)
           return result
             ? { funcName: methodPath(method, p), code: result.code, hasArgs: result.hasArgs }
             : null
@@ -104,6 +106,8 @@ const makeHeader = (
  * @param importPath - Import path for the Hono client
  * @param split - Whether to split into multiple files (one per operation)
  * @param clientName - Name of the client export (default: 'client')
+ * @param useParseResponse - Whether to wrap calls with parseResponse
+ * @param basePath - Base path for the app (e.g. '/api')
  * @returns Promise resolving to success message or error
  */
 export async function rpc(
@@ -113,6 +117,7 @@ export async function rpc(
   split?: boolean,
   clientName = 'client',
   useParseResponse?: boolean,
+  basePath?: string,
 ): Promise<
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {
@@ -121,11 +126,12 @@ export async function rpc(
     return { ok: false, error: 'Invalid OpenAPI paths' }
   }
 
+  const hasBasePath = basePath !== undefined && basePath !== '/'
   const componentsParameters = openAPI.components?.parameters ?? {}
   const componentsRequestBodies = openAPI.components?.requestBodies ?? {}
   const deps = makeOperationDeps(clientName, componentsParameters, componentsRequestBodies)
 
-  const operationCodes = makeOperationCodes(pathsMaybe, deps, useParseResponse)
+  const operationCodes = makeOperationCodes(pathsMaybe, deps, useParseResponse, hasBasePath)
 
   // Non-split: write single file
   if (!split) {

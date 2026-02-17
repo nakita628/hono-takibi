@@ -497,6 +497,7 @@ const runAllGenerationTasks = async (
         config.rpc?.split === true,
         config.rpc?.client ?? 'client',
         config.rpc?.parseResponse ?? false,
+        config.basePath,
       ),
     )
   }
