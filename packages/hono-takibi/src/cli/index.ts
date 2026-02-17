@@ -339,20 +339,19 @@ export async function honoTakibi(): Promise<
     config.docs
       ? docs(openAPI, config.docs.output, config.docs.entry, config.basePath ?? '/')
       : Promise.resolve(undefined),
-    config['zod-openapi']?.template
-      ? template(
-          openAPI,
-          (config['zod-openapi'].output ??
-            (config['zod-openapi'].routes?.output.endsWith('.ts')
-              ? config['zod-openapi'].routes?.output
-              : `${config['zod-openapi'].routes?.output}/index.ts`)) as `${string}.ts`,
-          config['zod-openapi'].template.test,
-          config.basePath ?? '/',
-          config['zod-openapi'].template.pathAlias,
-          config['zod-openapi'].routes?.import,
-          config['zod-openapi'].template.routeHandler,
-        )
-      : Promise.resolve(undefined),
+    (() => {
+      if (!config['zod-openapi']?.template) return Promise.resolve(undefined)
+      if (!(config['zod-openapi']?.output ?? config['zod-openapi']?.routes?.output)) return Promise.resolve(undefined)
+      return template(
+        openAPI,
+        config['zod-openapi']?.output ?? config['zod-openapi']?.routes?.output,
+        config['zod-openapi']?.template.test,
+        config.basePath ?? '/',
+        config['zod-openapi']?.template.pathAlias,
+        config['zod-openapi']?.routes?.import,
+        config['zod-openapi']?.template.routeHandler,
+      )
+    })(),
   ])
 
   if (takibiResult && !takibiResult.ok) return { ok: false, error: takibiResult.error }

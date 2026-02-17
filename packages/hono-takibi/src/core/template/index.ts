@@ -13,22 +13,22 @@ import type { OpenAPI } from '../../openapi/index.js'
  */
 export async function template(
   openAPI: OpenAPI,
-  routeOutput: `${string}.ts`,
+  output: `${string}.ts` | string | undefined,
   test: boolean,
   basePath: string,
   pathAlias: string | undefined,
   routeImport: string | undefined,
-  routeHandler = false,
+  routeHandler: boolean,
 ): Promise<
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {
-  const isIndexFile = routeOutput.endsWith('/index.ts')
-  const dir = isIndexFile ? path.dirname(path.dirname(routeOutput)) : path.dirname(routeOutput)
+  const isIndexFile = output.endsWith('/index.ts')
+  const dir = isIndexFile ? path.dirname(path.dirname(output)) : path.dirname(output)
   const target = path.join(dir, 'index.ts')
 
   const [appFmtResult, stubHandlersResult] = await Promise.all([
-    fmt(app(openAPI, routeOutput, basePath, pathAlias, routeImport, routeHandler)),
-    zodOpenAPIHonoHandler(openAPI, routeOutput, test, pathAlias, routeImport, routeHandler),
+    fmt(app(openAPI, output, basePath, pathAlias, routeImport, routeHandler)),
+    zodOpenAPIHonoHandler(openAPI, output, test, pathAlias, routeImport, routeHandler),
   ])
   if (!appFmtResult.ok) return { ok: false, error: appFmtResult.error }
   if (!stubHandlersResult.ok) return { ok: false, error: stubHandlersResult.error }

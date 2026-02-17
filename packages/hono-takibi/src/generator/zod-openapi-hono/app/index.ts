@@ -22,7 +22,7 @@ import { methodPath } from '../../../utils/index.js'
  */
 export function app(
   openapi: OpenAPI,
-  output: `${string}.ts`,
+  output: string,
   basePath: string,
   pathAlias: string | undefined,
   routeImport: string | undefined = undefined,

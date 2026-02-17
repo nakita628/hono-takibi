@@ -112,8 +112,8 @@ const ConfigSchema = z
         readonly: z.boolean().exactOptional(),
         template: z
           .object({
-            test: z.boolean().default(false).exactOptional(),
-            routeHandler: z.boolean().default(false).exactOptional(),
+            test: z.boolean().default(false),
+            routeHandler: z.boolean().default(false),
             pathAlias: z.string().exactOptional(),
           })
           .exactOptional(),
