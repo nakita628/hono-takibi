@@ -233,7 +233,7 @@ const putTasksTaskIdRouteHandler: RouteHandler<typeof putTasksTaskIdRoute> = asy
   return c.json(mockTask(), 200)
 }
 
-const deleteTasksTaskIdRouteHandler: RouteHandler<typeof deleteTasksTaskIdRoute> = async (c) => {
+const deleteTasksTaskIdRouteHandler: RouteHandler<typeof deleteTasksTaskIdRoute> = async (_c) => {
   return new Response(null, { status: 204 })
 }
 

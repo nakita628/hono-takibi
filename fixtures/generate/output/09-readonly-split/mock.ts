@@ -264,7 +264,7 @@ const putPostsIdRouteHandler: RouteHandler<typeof putPostsIdRoute> = async (c) =
   return c.json(mockPost(), 200)
 }
 
-const deletePostsIdRouteHandler: RouteHandler<typeof deletePostsIdRoute> = async (c) => {
+const deletePostsIdRouteHandler: RouteHandler<typeof deletePostsIdRoute> = async (_c) => {
   return new Response(null, { status: 204 })
 }
 

@@ -87,7 +87,7 @@ function makeMockHandlerCode(
 
   // 204 No Content
   return {
-    content: `export const ${routeId}RouteHandler:RouteHandler<typeof ${routeId}Route>=async(c)=>{
+    content: `export const ${routeId}RouteHandler:RouteHandler<typeof ${routeId}Route>=async(_c)=>{
   return new Response(null, { status: 204 })
 }`,
     needsFaker: false,
@@ -173,7 +173,7 @@ function makeInlineMockContent(
     }
   }
   return {
-    content: `.openapi(${routeId}Route,async(c)=>{return new Response(null,{status:204})})`,
+    content: `.openapi(${routeId}Route,async(_c)=>{return new Response(null,{status:204})})`,
     needsFaker: false,
     usedRefs: new Set(),
   }

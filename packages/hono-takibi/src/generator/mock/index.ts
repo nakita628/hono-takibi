@@ -366,7 +366,9 @@ export function makeMock(
         const has401 = op.responses?.[String(401)] !== undefined
         const authCheck = makeAuthCheck(security, has401)
 
-        const handler = `const ${routeId}RouteHandler: RouteHandler<typeof ${routeId}Route> = async (c) => {\n  ${authCheck}${handlerBody}\n}`
+        const usesContext = handlerBody.includes('c.') || authCheck !== ''
+        const param = usesContext ? 'c' : '_c'
+        const handler = `const ${routeId}RouteHandler: RouteHandler<typeof ${routeId}Route> = async (${param}) => {\n  ${authCheck}${handlerBody}\n}`
 
         return [{ entry: { routeId, method, path: p, requiresAuth }, handler }]
       },
