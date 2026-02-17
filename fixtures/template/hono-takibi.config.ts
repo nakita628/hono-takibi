@@ -12,6 +12,5 @@ export default defineConfig({
   docs: {
     output: 'src/docs.md',
     entry: 'src/index.ts',
-    basePath: '/api',
   },
 })

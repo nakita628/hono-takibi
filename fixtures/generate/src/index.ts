@@ -67,6 +67,7 @@ const SPECS = [
   { name: '14-trailing-slash', yaml: '14-trailing-slash.yaml', flags: NO_EXPORTS },
   { name: '15-readonly-ref', yaml: '15-readonly-ref.yaml', flags: { ...NO_EXPORTS, exportResponses: true, exportRequestBodies: true, exportExamples: true } },
   { name: '16-trailing-slash-real', yaml: '16-trailing-slash-real.yaml', flags: NO_EXPORTS },
+  { name: '18-complex-schemas', yaml: '18-complex-schemas.yaml', flags: { ...NO_EXPORTS, exportSchemas: true, exportSchemasTypes: true } },
 ] as const
 
 const CLIENT_STUB = `import { hc } from 'hono/client'

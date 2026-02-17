@@ -347,7 +347,6 @@ const ConfigSchema = z
     mock: z
       .object({
         output: z.custom<string | `${string}.ts`>((v) => typeof v === 'string'),
-        basePath: z.string().exactOptional(),
       })
       .exactOptional(),
     docs: z
@@ -356,7 +355,6 @@ const ConfigSchema = z
           message: 'must be .md file',
         }),
         entry: z.string().exactOptional(),
-        basePath: z.string().exactOptional(),
         codeSample: z.enum(['hono', 'curl']).default('hono').exactOptional(),
         baseUrl: z.string().exactOptional(),
       })

@@ -5,7 +5,6 @@ export default defineConfig({
   'zod-openapi': {
     output: 'src/routes.ts',
     template: {
-      basePath: '/api',
       pathAlias: '@/',
       routeHandler: false,
     },
