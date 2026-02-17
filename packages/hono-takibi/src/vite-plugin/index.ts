@@ -557,8 +557,7 @@ const runAllGenerationTasks = async (
   const makeTemplateJob = (): Promise<string> | undefined => {
     const tmpl = config['zod-openapi']?.template
     if (!tmpl) return undefined
-    const routeOutputPath =
-      config['zod-openapi']?.output ?? config['zod-openapi']?.routes?.output
+    const routeOutputPath = config['zod-openapi']?.output ?? config['zod-openapi']?.routes?.output
     if (!routeOutputPath) return undefined
     return (async () => {
       const absPath = toAbsolutePath(routeOutputPath)

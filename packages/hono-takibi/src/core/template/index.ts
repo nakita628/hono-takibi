@@ -13,7 +13,7 @@ import type { OpenAPI } from '../../openapi/index.js'
  */
 export async function template(
   openAPI: OpenAPI,
-  output: `${string}.ts` | string | undefined,
+  output: `${string}.ts` | string,
   test: boolean,
   basePath: string,
   pathAlias: string | undefined,

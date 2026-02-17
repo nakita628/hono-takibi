@@ -341,10 +341,13 @@ export async function honoTakibi(): Promise<
       : Promise.resolve(undefined),
     (() => {
       if (!config['zod-openapi']?.template) return Promise.resolve(undefined)
-      if (!(config['zod-openapi']?.output ?? config['zod-openapi']?.routes?.output)) return Promise.resolve(undefined)
+      if (!(config['zod-openapi']?.output ?? config['zod-openapi']?.routes?.output))
+        return Promise.resolve(undefined)
       return template(
         openAPI,
-        config['zod-openapi']?.output ?? config['zod-openapi']?.routes?.output,
+        config['zod-openapi']?.output ??
+          config['zod-openapi']?.routes?.output ??
+          'src/routes/index.ts',
         config['zod-openapi']?.template.test,
         config.basePath ?? '/',
         config['zod-openapi']?.template.pathAlias,
