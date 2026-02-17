@@ -17,14 +17,30 @@ function makeEscaped(s: string) {
 
 /**
  * Format path for Hono RPC access (both type and runtime).
+ *
+ * When `hasBasePath` is true, the root path `/` is accessed directly
+ * on the client (e.g. `client.$get`) instead of via `.index`
+ * (e.g. `client.index.$get`), because stripping the basePath from
+ * the Hono client removes the `.index` accessor for the root.
  */
-export function formatPath(p: string): {
+export function formatPath(
+  p: string,
+  hasBasePath?: boolean,
+): {
   runtimePath: string
   typeofPrefix: string
   bracketSuffix: string
   hasBracket: boolean
 } {
   if (p === '/') {
+    if (hasBasePath) {
+      return {
+        runtimePath: '',
+        typeofPrefix: '',
+        bracketSuffix: '',
+        hasBracket: false,
+      }
+    }
     return {
       runtimePath: '.index',
       typeofPrefix: '.index',

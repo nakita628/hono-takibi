@@ -291,6 +291,7 @@ export async function honoTakibi(): Promise<
           config.rpc.split ?? false,
           config.rpc.client ?? 'client',
           config.rpc.parseResponse ?? false,
+          config.basePath,
         )
       : Promise.resolve(undefined),
     config.swr
@@ -330,28 +331,37 @@ export async function honoTakibi(): Promise<
         )
       : Promise.resolve(undefined),
     config.test
-      ? test(openAPI, config.test.output, config.test.import)
+      ? test(openAPI, config.test.output, config.test.import, config.basePath ?? '/')
       : Promise.resolve(undefined),
     config.mock
       ? mock(openAPI, config.mock.output, config.basePath ?? '/', config['zod-openapi']?.readonly)
       : Promise.resolve(undefined),
     config.docs
-      ? docs(openAPI, config.docs.output, config.docs.entry, config.basePath ?? '/')
-      : Promise.resolve(undefined),
-    config['zod-openapi']?.template
-      ? template(
+      ? docs(
           openAPI,
-          (config['zod-openapi'].output ??
-            (config['zod-openapi'].routes?.output.endsWith('.ts')
-              ? config['zod-openapi'].routes?.output
-              : `${config['zod-openapi'].routes?.output}/index.ts`)) as `${string}.ts`,
-          config['zod-openapi'].template.test,
+          config.docs.output,
+          config.docs.entry,
           config.basePath ?? '/',
-          config['zod-openapi'].template.pathAlias,
-          config['zod-openapi'].routes?.import,
-          config['zod-openapi'].template.routeHandler,
+          config.docs.curl,
+          config.docs.baseUrl,
         )
       : Promise.resolve(undefined),
+    (() => {
+      if (!config['zod-openapi']?.template) return Promise.resolve(undefined)
+      if (!(config['zod-openapi']?.output ?? config['zod-openapi']?.routes?.output))
+        return Promise.resolve(undefined)
+      return template(
+        openAPI,
+        config['zod-openapi']?.output ??
+          config['zod-openapi']?.routes?.output ??
+          'src/routes/index.ts',
+        config['zod-openapi']?.template.test,
+        config.basePath ?? '/',
+        config['zod-openapi']?.template.pathAlias,
+        config['zod-openapi']?.routes?.import,
+        config['zod-openapi']?.template.routeHandler,
+      )
+    })(),
   ])
 
   if (takibiResult && !takibiResult.ok) return { ok: false, error: takibiResult.error }

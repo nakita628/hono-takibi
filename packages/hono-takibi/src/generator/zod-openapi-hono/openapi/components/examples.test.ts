@@ -41,6 +41,35 @@ describe('examplesCode', () => {
     )
   })
 
+  it('should generate example with as const for inline', () => {
+    const components: Components = {
+      examples: {
+        UserExample: {
+          value: { id: 1, name: 'John' },
+        },
+      },
+    }
+    const result = examplesCode(components, true, true)
+    expect(result).toBe(`export const UserExample={"value":{"id":1,"name":"John"}} as const`)
+  })
+
+  it('should not add as const for $ref example', () => {
+    const components: Components = {
+      examples: {
+        Base: {
+          value: { id: 1 },
+        },
+        Alias: {
+          $ref: '#/components/examples/Base',
+        },
+      },
+    }
+    const result = examplesCode(components, true, true)
+    expect(result).toBe(
+      `export const BaseExample={"value":{"id":1}} as const\n\nexport const AliasExample=BaseExample`,
+    )
+  })
+
   it('should generate example with $ref to another example', () => {
     // hasRef type guard handles $ref at runtime
     const components: Components = {

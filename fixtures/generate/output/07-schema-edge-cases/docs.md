@@ -16,7 +16,12 @@ hono request \
   -P /nullable \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  -d '{"name":"string","nickname":null,"age":null,"tags":null}' \
+  -d '{
+    "name": "string",
+    "nickname": null,
+    "age": null,
+    "tags": null
+  }' \
   src/index.ts
 ```
 
@@ -78,7 +83,10 @@ hono request \
   -P /discriminated \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  -d '{"kind":"string","radius":0}' \
+  -d '{
+    "kind": "string",
+    "radius": 0
+  }' \
   src/index.ts
 ```
 

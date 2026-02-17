@@ -2,11 +2,13 @@ import { createRoute, z } from '@hono/zod-openapi'
 
 const AuthorSchema = z
   .object({ id: z.int(), name: z.string(), avatarUrl: z.url().exactOptional() })
+  .readonly()
   .openapi({ required: ['id', 'name'] })
   .openapi('Author')
 
 const TagSchema = z
   .object({ id: z.int(), name: z.string(), slug: z.string() })
+  .readonly()
   .openapi({ required: ['id', 'name', 'slug'] })
   .openapi('Tag')
 
@@ -16,15 +18,21 @@ const PostSchema = z
     title: z.string(),
     body: z.string(),
     author: AuthorSchema,
-    tags: z.array(TagSchema).exactOptional(),
+    tags: z.array(TagSchema).readonly().exactOptional(),
     createdAt: z.iso.datetime(),
     updatedAt: z.iso.datetime(),
   })
+  .readonly()
   .openapi({ required: ['id', 'title', 'body', 'author', 'createdAt', 'updatedAt'] })
   .openapi('Post')
 
 const CreatePostSchema = z
-  .object({ title: z.string(), body: z.string(), tagIds: z.array(z.int()).exactOptional() })
+  .object({
+    title: z.string(),
+    body: z.string(),
+    tagIds: z.array(z.int()).readonly().exactOptional(),
+  })
+  .readonly()
   .openapi({ required: ['title', 'body'] })
   .openapi('CreatePost')
 
@@ -32,27 +40,32 @@ const UpdatePostSchema = z
   .object({
     title: z.string().exactOptional(),
     body: z.string().exactOptional(),
-    tagIds: z.array(z.int()).exactOptional(),
+    tagIds: z.array(z.int()).readonly().exactOptional(),
   })
+  .readonly()
   .openapi('UpdatePost')
 
 const CommentSchema = z
   .object({ id: z.int(), body: z.string(), author: AuthorSchema, createdAt: z.iso.datetime() })
+  .readonly()
   .openapi({ required: ['id', 'body', 'author', 'createdAt'] })
   .openapi('Comment')
 
 const CreateCommentSchema = z
   .object({ body: z.string() })
+  .readonly()
   .openapi({ required: ['body'] })
   .openapi('CreateComment')
 
 const PaginationSchema = z
   .object({ page: z.int(), limit: z.int(), total: z.int() })
+  .readonly()
   .openapi({ required: ['page', 'limit', 'total'] })
   .openapi('Pagination')
 
 const ErrorSchema = z
   .object({ code: z.int(), message: z.string() })
+  .readonly()
   .openapi({ required: ['code', 'message'] })
   .openapi('Error')
 
@@ -88,7 +101,7 @@ export const getPostsRoute = createRoute({
       },
     },
   },
-})
+} as const)
 
 export const postPostsRoute = createRoute({
   method: 'post',
@@ -100,7 +113,7 @@ export const postPostsRoute = createRoute({
   responses: {
     201: { description: 'Created', content: { 'application/json': { schema: PostSchema } } },
   },
-})
+} as const)
 
 export const getPostsIdRoute = createRoute({
   method: 'get',
@@ -118,7 +131,7 @@ export const getPostsIdRoute = createRoute({
   responses: {
     200: { description: 'OK', content: { 'application/json': { schema: PostSchema } } },
   },
-})
+} as const)
 
 export const putPostsIdRoute = createRoute({
   method: 'put',
@@ -137,7 +150,7 @@ export const putPostsIdRoute = createRoute({
   responses: {
     200: { description: 'OK', content: { 'application/json': { schema: PostSchema } } },
   },
-})
+} as const)
 
 export const deletePostsIdRoute = createRoute({
   method: 'delete',
@@ -153,7 +166,7 @@ export const deletePostsIdRoute = createRoute({
     }),
   },
   responses: { 204: { description: 'Deleted' } },
-})
+} as const)
 
 export const getPostsIdCommentsRoute = createRoute({
   method: 'get',
@@ -171,7 +184,7 @@ export const getPostsIdCommentsRoute = createRoute({
   responses: {
     200: { description: 'OK', content: { 'application/json': { schema: z.array(CommentSchema) } } },
   },
-})
+} as const)
 
 export const postPostsIdCommentsRoute = createRoute({
   method: 'post',
@@ -190,7 +203,7 @@ export const postPostsIdCommentsRoute = createRoute({
   responses: {
     201: { description: 'Created', content: { 'application/json': { schema: CommentSchema } } },
   },
-})
+} as const)
 
 export const getTagsRoute = createRoute({
   method: 'get',
@@ -199,4 +212,4 @@ export const getTagsRoute = createRoute({
   responses: {
     200: { description: 'OK', content: { 'application/json': { schema: z.array(TagSchema) } } },
   },
-})
+} as const)

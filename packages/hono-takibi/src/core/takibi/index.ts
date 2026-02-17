@@ -37,12 +37,11 @@ export async function takibi(
       output,
     )
     if (!coreResult.ok) return { ok: false, error: coreResult.error }
+    return {
+      ok: true,
+      value: `🔥 Generated code written to ${output}`,
+    }
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : String(e) }
-  }
-
-  return {
-    ok: true,
-    value: `🔥 Generated code written to ${output}`,
   }
 }

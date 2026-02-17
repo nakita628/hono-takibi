@@ -145,7 +145,7 @@ const getSubscriptionsIdRouteHandler: RouteHandler<typeof getSubscriptionsIdRout
 }
 
 const deleteSubscriptionsIdRouteHandler: RouteHandler<typeof deleteSubscriptionsIdRoute> = async (
-  c,
+  _c,
 ) => {
   return new Response(null, { status: 204 })
 }

@@ -1,0 +1,208 @@
+openapi: 3.1.0
+info:
+  title: Readonly Ref API
+  version: 1.0.0
+  description: >
+    Tests `as const` behavior with $ref in components.
+    When readonly=true, $ref entries in responses/requestBodies/examples
+    must NOT get `as const` (TS1355: 'const' assertions can only be applied
+    to references to enum members, or string, number, boolean, array, or object literals).
+paths:
+  /users:
+    get:
+      operationId: listUsers
+      summary: List users
+      responses:
+        "200":
+          $ref: "#/components/responses/UserList"
+    post:
+      operationId: createUser
+      summary: Create user
+      requestBody:
+        $ref: "#/components/requestBodies/CreateUser"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+  /users/{id}:
+    get:
+      operationId: getUser
+      summary: Get user by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    put:
+      operationId: updateUser
+      summary: Update user
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        $ref: "#/components/requestBodies/UpdateUser"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+  /items:
+    get:
+      operationId: listItems
+      summary: List items (uses $ref response alias)
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Item"
+        "500":
+          $ref: "#/components/responses/ServerError"
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+      required:
+        - id
+        - name
+        - email
+    Item:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+      required:
+        - id
+        - title
+    ErrorBody:
+      type: object
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+      required:
+        - code
+        - message
+  responses:
+    # Inline response (should get `as const` when readonly)
+    UserList:
+      description: User list response
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              users:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+              total:
+                type: integer
+            required:
+              - users
+              - total
+    # Inline response
+    NotFound:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorBody"
+    # $ref to another response (must NOT get `as const` when readonly)
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorBody"
+    # $ref to another response
+    ServerError:
+      description: Server error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorBody"
+  requestBodies:
+    # Inline request body (should get `as const` when readonly)
+    CreateUser:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+              email:
+                type: string
+                format: email
+            required:
+              - name
+              - email
+    # Inline request body
+    UpdateUser:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+              email:
+                type: string
+                format: email
+  examples:
+    # Inline example (should get `as const` when readonly)
+    UserExample:
+      summary: A sample user
+      value:
+        id: "u-001"
+        name: Alice
+        email: alice@example.com
+    # $ref to another example (must NOT get `as const` when readonly)
+    UserAlias:
+      $ref: "#/components/examples/UserExample"
+    # Inline example
+    ItemExample:
+      summary: A sample item
+      value:
+        id: 1
+        title: Widget
+    # $ref to another example
+    ItemAlias:
+      $ref: "#/components/examples/ItemExample"

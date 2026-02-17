@@ -14,4 +14,4 @@ export const getHealthRoute = createRoute({
       },
     },
   },
-})
+} as const)

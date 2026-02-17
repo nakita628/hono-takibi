@@ -347,7 +347,6 @@ const ConfigSchema = z
     mock: z
       .object({
         output: z.custom<string | `${string}.ts`>((v) => typeof v === 'string'),
-        basePath: z.string().exactOptional(),
       })
       .exactOptional(),
     docs: z
@@ -355,8 +354,15 @@ const ConfigSchema = z
         output: z.custom<`${string}.md`>((v) => typeof v === 'string' && v.endsWith('.md'), {
           message: 'must be .md file',
         }),
-        entry: z.string().default('src/index.ts').exactOptional(),
-        basePath: z.string().exactOptional(),
+        entry: z.string().exactOptional(),
+        curl: z.boolean().default(false).exactOptional(),
+        baseUrl: z.string().exactOptional(),
+      })
+      .refine((v) => !(v.curl === true && v.entry !== undefined), {
+        message: 'entry cannot be specified when curl is true',
+      })
+      .refine((v) => !(v.curl === true && v.baseUrl === undefined), {
+        message: 'baseUrl is required when curl is true',
       })
       .exactOptional(),
   })
@@ -537,6 +543,7 @@ const ConfigSchema = z
   .readonly()
 
 type Config = z.infer<typeof ConfigSchema>
+type ConfigInput = z.input<typeof ConfigSchema>
 
 /**
  * Validates and parses a hono-takibi configuration object.
@@ -578,6 +585,6 @@ export async function readConfig(): Promise<
 /**
  * Helper to define a config with full type completion.
  */
-export function defineConfig(config: Config): Config {
+export function defineConfig(config: ConfigInput) {
   return config
 }

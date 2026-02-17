@@ -87,7 +87,7 @@ function makeMockHandlerCode(
 
   // 204 No Content
   return {
-    content: `export const ${routeId}RouteHandler:RouteHandler<typeof ${routeId}Route>=async(c)=>{
+    content: `export const ${routeId}RouteHandler:RouteHandler<typeof ${routeId}Route>=async(_c)=>{
   return new Response(null, { status: 204 })
 }`,
     needsFaker: false,
@@ -173,7 +173,7 @@ function makeInlineMockContent(
     }
   }
   return {
-    content: `.openapi(${routeId}Route,async(c)=>{return new Response(null,{status:204})})`,
+    content: `.openapi(${routeId}Route,async(_c)=>{return new Response(null,{status:204})})`,
     needsFaker: false,
     usedRefs: new Set(),
   }
@@ -462,6 +462,7 @@ export async function zodOpenAPIHonoHandler(
   pathAlias: string | undefined = undefined,
   routeImport: string | undefined = undefined,
   routeHandler = false,
+  basePath = '/',
 ): Promise<
   { readonly ok: true; readonly value: undefined } | { readonly ok: false; readonly error: string }
 > {
@@ -515,6 +516,7 @@ export async function zodOpenAPIHonoHandler(
           `${handlerPath}/${handler.fileName}`,
           [...handler.routeNames],
           testImportFrom,
+          basePath,
         )
         if (testContent) {
           const testFmtResult = await fmt(testContent)
@@ -582,6 +584,7 @@ export async function mockZodOpenAPIHonoHandler(
   pathAlias: string | undefined = undefined,
   routeImport: string | undefined = undefined,
   routeHandler = false,
+  basePath = '/',
 ): Promise<
   { readonly ok: true; readonly value: undefined } | { readonly ok: false; readonly error: string }
 > {
@@ -636,6 +639,7 @@ export async function mockZodOpenAPIHonoHandler(
           `${handlerPath}/${handler.fileName}`,
           [...handler.routeNames],
           testImportFrom,
+          basePath,
         )
         if (testContent) {
           const testFmtResult = await fmt(testContent)

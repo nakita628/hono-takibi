@@ -27,7 +27,7 @@ export const getTagsRoute = createRoute({
       },
     },
   },
-})
+} as const)
 
 export const postTagsRoute = createRoute({
   method: 'post',
@@ -58,7 +58,7 @@ export const postTagsRoute = createRoute({
     },
   },
   responses: { 201: { description: 'Created' } },
-})
+} as const)
 
 export const getSettingsRoute = createRoute({
   method: 'get',
@@ -86,7 +86,7 @@ export const getSettingsRoute = createRoute({
       },
     },
   },
-})
+} as const)
 
 export const putSettingsRoute = createRoute({
   method: 'put',
@@ -102,7 +102,7 @@ export const putSettingsRoute = createRoute({
     },
   },
   responses: { 200: { description: 'OK' } },
-})
+} as const)
 
 export const postConfigRoute = createRoute({
   method: 'post',
@@ -141,7 +141,7 @@ export const postConfigRoute = createRoute({
     },
   },
   responses: { 201: { description: 'Created' } },
-})
+} as const)
 
 export const postPaymentRoute = createRoute({
   method: 'post',
@@ -163,4 +163,4 @@ export const postPaymentRoute = createRoute({
     },
   },
   responses: { 201: { description: 'Created' } },
-})
+} as const)

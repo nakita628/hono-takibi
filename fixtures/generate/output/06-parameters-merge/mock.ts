@@ -165,7 +165,7 @@ const putItemsItemIdRouteHandler: RouteHandler<typeof putItemsItemIdRoute> = asy
   return c.json(mockItem(), 200)
 }
 
-const deleteItemsItemIdRouteHandler: RouteHandler<typeof deleteItemsItemIdRoute> = async (c) => {
+const deleteItemsItemIdRouteHandler: RouteHandler<typeof deleteItemsItemIdRoute> = async (_c) => {
   return new Response(null, { status: 204 })
 }
 

@@ -470,9 +470,19 @@ function makeCodeSampleBody(
   const jsonMedia = operation.requestBody.content?.['application/json']
   if (!(jsonMedia && isMedia(jsonMedia) && jsonMedia.schema)) return undefined
   const mediaExample = extractMediaExample(jsonMedia)
-  if (mediaExample !== undefined) return JSON.stringify(mediaExample)
+  if (mediaExample !== undefined) return JSON.stringify(mediaExample, null, 2)
   const example = makeExampleFromSchema(jsonMedia.schema, components)
-  return JSON.stringify(example)
+  return JSON.stringify(example, null, 2)
+}
+
+/**
+ * Re-indents a JSON body so it sits properly inside a curl/hono -d flag.
+ * Adds 2-space base indent to all lines after the first (opening brace).
+ */
+function indentJsonBody(body: string): string {
+  const lines = body.split('\n')
+  if (lines.length <= 1) return body
+  return [lines[0], ...lines.slice(1).map((l) => `  ${l}`)].join('\n')
 }
 
 function makeCodeSample(
@@ -495,10 +505,55 @@ function makeCodeSample(
   cmdParts.push(...headers.map((h) => `${h} \\`))
 
   if (body) {
-    cmdParts.push(`  -d '${body}' \\`)
+    cmdParts.push(`  -d '${indentJsonBody(body)}' \\`)
   }
 
   cmdParts.push(`  ${entry}`)
+
+  return ['> Code samples', '', '```bash', cmdParts.join('\n'), '```']
+}
+
+function makeCodeSampleCurl(
+  method: HttpMethod,
+  pathStr: string,
+  basePath: string,
+  operation: Operation,
+  securitySchemes: Components['securitySchemes'] | undefined,
+  components: Components | undefined,
+  baseUrl: string,
+): string[] {
+  const headers = makeCodeSampleHeaders(operation, securitySchemes)
+  const safePath = basePath ?? '/'
+  const basePathPrefix = safePath !== '/' ? safePath : ''
+  const fullPath = `${basePathPrefix}${pathStr}`
+  const body = makeCodeSampleBody(operation, components)
+  const isGet = method === 'get'
+
+  // Quote URL if it contains path parameters (curly braces)
+  const url = fullPath.includes('{') ? `'${baseUrl}${fullPath}'` : `${baseUrl}${fullPath}`
+
+  const remaining: string[] = []
+
+  // Omit -X for GET (curl default)
+  if (!isGet) {
+    remaining.push(`  -X ${method.toUpperCase()}`)
+  }
+
+  remaining.push(...headers)
+
+  if (body) {
+    remaining.push(`  -d '${indentJsonBody(body)}'`)
+  }
+
+  if (remaining.length === 0) {
+    return ['> Code samples', '', '```bash', `curl ${url}`, '```']
+  }
+
+  const cmdParts: string[] = [`curl ${url} \\`]
+  for (let i = 0; i < remaining.length - 1; i++) {
+    cmdParts.push(`${remaining[i]} \\`)
+  }
+  cmdParts.push(remaining[remaining.length - 1])
 
   return ['> Code samples', '', '```bash', cmdParts.join('\n'), '```']
 }
@@ -1204,7 +1259,13 @@ function groupByTag(endpoints: readonly Endpoint[], openAPI: OpenAPI): readonly 
  * Makes API reference Markdown from an OpenAPI specification.
  * Output format matches Widdershins v4.0.1, with hono request instead of curl.
  */
-export function makeDocs(openAPI: OpenAPI, entry = 'src/index.ts', basePath = '/'): string {
+export function makeDocs(
+  openAPI: OpenAPI,
+  entry = 'src/index.ts',
+  basePath = '/',
+  curl = false,
+  baseUrl?: string,
+): string {
   const title = openAPI.info?.title ?? 'API'
   const version = openAPI.info?.version ?? ''
   const fullTitle = version ? `${title} v${version}` : title
@@ -1285,16 +1346,27 @@ export function makeDocs(openAPI: OpenAPI, entry = 'src/index.ts', basePath = '/
       }
 
       // Code sample
-      const codeSample = makeCodeSample(
-        method,
-        pathStr,
-        basePath,
-        operation,
-        securitySchemes,
-        openAPI.components,
-        entry,
-      )
-      lines.push(...codeSample, '')
+      const codeSampleLines =
+        curl && baseUrl
+          ? makeCodeSampleCurl(
+              method,
+              pathStr,
+              basePath,
+              operation,
+              securitySchemes,
+              openAPI.components,
+              baseUrl,
+            )
+          : makeCodeSample(
+              method,
+              pathStr,
+              basePath,
+              operation,
+              securitySchemes,
+              openAPI.components,
+              entry,
+            )
+      lines.push(...codeSampleLines, '')
 
       // Method + path
       lines.push(`\`${method.toUpperCase()} ${pathStr}\``, '')

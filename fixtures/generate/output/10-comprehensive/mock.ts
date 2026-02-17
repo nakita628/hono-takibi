@@ -592,7 +592,7 @@ const putUsersUserIdRouteHandler: RouteHandler<typeof putUsersUserIdRoute> = asy
   return c.json(mockUser(), 200)
 }
 
-const deleteUsersUserIdRouteHandler: RouteHandler<typeof deleteUsersUserIdRoute> = async (c) => {
+const deleteUsersUserIdRouteHandler: RouteHandler<typeof deleteUsersUserIdRoute> = async (_c) => {
   return new Response(null, { status: 204 })
 }
 

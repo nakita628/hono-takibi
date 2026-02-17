@@ -1,0 +1,32 @@
+{
+  "name": "@fixtures/crud",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "vite --host",
+    "start": "tsx src/index.ts",
+    "takibi": "hono-takibi",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@faker-js/faker": "^9.0.0",
+    "@hono/node-server": "^1.14.3",
+    "@hono/zod-openapi": "^1.2.1",
+    "hono": "^4.11.7",
+    "vite": "^7.1.4",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@hono/swagger-ui": "^0.5.2",
+    "@hono/vite-dev-server": "^0.24.1",
+    "@scalar/hono-api-reference": "^0.9.41",
+    "@scalar/openapi-to-markdown": "^0.3.45",
+    "@types/node": "^25.0.2",
+    "hono-takibi": "workspace:^",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.18"
+  }
+}

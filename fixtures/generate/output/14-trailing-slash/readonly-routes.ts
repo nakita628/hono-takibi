@@ -15,7 +15,7 @@ export const getApiReverseChibanIndexRoute = createRoute({
       },
     },
   },
-})
+} as const)
 
 export const getApiReverseChibanRoute = createRoute({
   method: 'get',
@@ -32,7 +32,7 @@ export const getApiReverseChibanRoute = createRoute({
       },
     },
   },
-})
+} as const)
 
 export const getPostsIndexRoute = createRoute({
   method: 'get',
@@ -61,7 +61,7 @@ export const getPostsIndexRoute = createRoute({
       },
     },
   },
-})
+} as const)
 
 export const postPostsIndexRoute = createRoute({
   method: 'post',
@@ -90,7 +90,7 @@ export const postPostsIndexRoute = createRoute({
       },
     },
   },
-})
+} as const)
 
 export const getUsersIdIndexRoute = createRoute({
   method: 'get',
@@ -116,7 +116,7 @@ export const getUsersIdIndexRoute = createRoute({
       },
     },
   },
-})
+} as const)
 
 export const getItemsIndexRoute = createRoute({
   method: 'get',
@@ -133,4 +133,4 @@ export const getItemsIndexRoute = createRoute({
       },
     },
   },
-})
+} as const)

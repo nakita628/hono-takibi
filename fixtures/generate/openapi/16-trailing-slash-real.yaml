@@ -1,0 +1,210 @@
+openapi: 3.1.0
+info:
+  title: Trailing Slash Real-World Pattern API
+  version: 1.0.0
+  description: >
+    Regression tests for trailing-slash TS2339 errors.
+    Reproduces real-world patterns with dummy data:
+    - Deep nested POST with trailing slash
+    - GET with many query params and trailing slash
+    - Non-trailing-slash neighbor for contrast
+paths:
+  # ========================================================================
+  # Pattern A: trailing slash GET with complex query parameters
+  # Reproduces: Property '$get' does not exist (TS2339)
+  # ========================================================================
+  /api/reverseGeocode/:
+    get:
+      summary: Reverse geocode lookup
+      operationId: getApiReverseGeocodeIndex
+      parameters:
+        - name: callback
+          in: query
+          description: Callback function name for JSONP
+          required: false
+          schema:
+            type: string
+        - name: search_type
+          in: query
+          description: Search type
+          required: false
+          schema:
+            type: string
+            enum: ['0', '1', '2']
+            default: '0'
+        - name: lat
+          in: query
+          description: Latitude
+          required: false
+          schema:
+            type: number
+            format: double
+        - name: lon
+          in: query
+          description: Longitude
+          required: false
+          schema:
+            type: number
+            format: double
+        - name: polygon
+          in: query
+          description: Polygon coordinates
+          required: false
+          schema:
+            type: string
+            pattern: '^(\d+\.\d+,\d+\.\d+,)*\d+\.\d+,\d+\.\d+$'
+        - name: radius
+          in: query
+          description: Search radius in meters
+          required: false
+          schema:
+            type: integer
+            maximum: 200
+        - name: include_shape
+          in: query
+          description: Include shape data
+          required: false
+          schema:
+            type: boolean
+            default: false
+        - name: include_count
+          in: query
+          description: Include total count
+          required: false
+          schema:
+            type: boolean
+            default: false
+        - name: limit
+          in: query
+          description: Number of results
+          required: false
+          schema:
+            type: integer
+            default: 10
+            maximum: 50
+        - name: offset
+          in: query
+          description: Result offset
+          required: false
+          schema:
+            type: integer
+            default: 0
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - status
+                  - results
+                properties:
+                  status:
+                    type: string
+                    enum: ['success', 'zero results', 'error']
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - region
+                        - city
+                        - code
+                        - lat
+                        - lon
+                      properties:
+                        region:
+                          type: string
+                        city:
+                          type: string
+                        code:
+                          type: string
+                        lat:
+                          type: string
+                        lon:
+                          type: string
+  # ========================================================================
+  # Pattern B: deep nested trailing slash POST with request body
+  # Reproduces: Property '$post' does not exist (TS2339)
+  # ========================================================================
+  /api/v2/public/booking/account/register/oauth/:
+    post:
+      tags:
+        - v2/public/booking/account/register/oauth
+      operationId: postApiV2PublicBookingAccountRegisterOauthIndex
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                account:
+                  type: object
+                profile:
+                  type: object
+              required:
+                - account
+                - profile
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  provisionalId:
+                    type: string
+                required:
+                  - message
+        "404":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  provisionalId:
+                    type: string
+                required:
+                  - message
+  # ========================================================================
+  # Pattern C: non-trailing-slash neighbor (contrast)
+  # Should NOT use .index accessor
+  # ========================================================================
+  /api/v2/public/booking/account/register/email:
+    post:
+      tags:
+        - v2/public/booking/account/register/email
+      operationId: postApiV2PublicBookingAccountRegisterEmail
+      summary: Send registration URL via email
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+              required:
+                - email
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                required:
+                  - message

@@ -33,7 +33,8 @@ export function requestBodiesCode(
   const asConst = readonly ? ' as const' : ''
   return Object.entries(requestBodies)
     .map(([k, body]) => {
-      return `${makeConst(exportRequestBodies, k, 'RequestBody')}${makeRequestBody(body)}${asConst}`
+      const isRef = '$ref' in body && body.$ref !== undefined
+      return `${makeConst(exportRequestBodies, k, 'RequestBody')}${makeRequestBody(body)}${isRef ? '' : asConst}`
     })
     .join('\n\n')
 }

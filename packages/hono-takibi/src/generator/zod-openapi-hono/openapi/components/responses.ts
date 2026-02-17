@@ -31,8 +31,9 @@ export function responsesCode(
 
   const asConst = readonly ? ' as const' : ''
   return Object.keys(responses)
-    .map(
-      (k) => `${makeConst(exportResponses, k, 'Response')}${makeResponses(responses[k])}${asConst}`,
-    )
+    .map((k) => {
+      const isRef = responses[k].$ref !== undefined
+      return `${makeConst(exportResponses, k, 'Response')}${makeResponses(responses[k])}${isRef ? '' : asConst}`
+    })
     .join('\n\n')
 }

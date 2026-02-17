@@ -1,0 +1,399 @@
+openapi: 3.1.0
+info:
+  title: Complex Schema Patterns API
+  description: Tests for nested composition, circular+composition, discriminator edge cases
+  version: 1.0.0
+paths:
+  /expressions:
+    post:
+      operationId: evaluateExpression
+      description: Circular reference with oneOf (expression tree)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Expression"
+      responses:
+        "200":
+          description: Evaluation result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Expression"
+  /shapes:
+    post:
+      operationId: createShape
+      description: 5-variant discriminated union
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Shape"
+      responses:
+        "200":
+          description: Created shape
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Shape"
+  /documents:
+    post:
+      operationId: createDocument
+      description: allOf inside oneOf (nested composition)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Document"
+      responses:
+        "200":
+          description: Created document
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Document"
+  /configs:
+    post:
+      operationId: createConfig
+      description: Deeply nested allOf chain
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FullConfig"
+      responses:
+        "200":
+          description: Created config
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FullConfig"
+  /nullable-union:
+    get:
+      operationId: getNullableUnion
+      description: Nullable anyOf with mixed types
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NullableResult"
+  /nested-circular:
+    get:
+      operationId: getNestedCircular
+      description: Circular reference through allOf
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Category"
+components:
+  schemas:
+    # ─── Circular + oneOf: Expression Tree ───
+    # A references itself through oneOf branches
+    LiteralExpr:
+      type: object
+      properties:
+        type:
+          type: string
+          const: literal
+        value:
+          anyOf:
+            - type: string
+            - type: number
+            - type: boolean
+      required:
+        - type
+        - value
+    UnaryExpr:
+      type: object
+      properties:
+        type:
+          type: string
+          const: unary
+        operator:
+          type: string
+          enum:
+            - "-"
+            - "!"
+        operand:
+          $ref: "#/components/schemas/Expression"
+      required:
+        - type
+        - operator
+        - operand
+    BinaryExpr:
+      type: object
+      properties:
+        type:
+          type: string
+          const: binary
+        operator:
+          type: string
+          enum:
+            - "+"
+            - "-"
+            - "*"
+            - "/"
+        left:
+          $ref: "#/components/schemas/Expression"
+        right:
+          $ref: "#/components/schemas/Expression"
+      required:
+        - type
+        - operator
+        - left
+        - right
+    Expression:
+      oneOf:
+        - $ref: "#/components/schemas/LiteralExpr"
+        - $ref: "#/components/schemas/UnaryExpr"
+        - $ref: "#/components/schemas/BinaryExpr"
+      discriminator:
+        propertyName: type
+        mapping:
+          literal: "#/components/schemas/LiteralExpr"
+          unary: "#/components/schemas/UnaryExpr"
+          binary: "#/components/schemas/BinaryExpr"
+
+    # ─── 5-variant discriminated union ───
+    Circle:
+      type: object
+      properties:
+        kind:
+          type: string
+          const: circle
+        radius:
+          type: number
+      required:
+        - kind
+        - radius
+    Rectangle:
+      type: object
+      properties:
+        kind:
+          type: string
+          const: rectangle
+        width:
+          type: number
+        height:
+          type: number
+      required:
+        - kind
+        - width
+        - height
+    Triangle:
+      type: object
+      properties:
+        kind:
+          type: string
+          const: triangle
+        base:
+          type: number
+        height:
+          type: number
+      required:
+        - kind
+        - base
+        - height
+    Polygon:
+      type: object
+      properties:
+        kind:
+          type: string
+          const: polygon
+        sides:
+          type: integer
+          minimum: 3
+        sideLength:
+          type: number
+      required:
+        - kind
+        - sides
+        - sideLength
+    Ellipse:
+      type: object
+      properties:
+        kind:
+          type: string
+          const: ellipse
+        semiMajor:
+          type: number
+        semiMinor:
+          type: number
+      required:
+        - kind
+        - semiMajor
+        - semiMinor
+    Shape:
+      oneOf:
+        - $ref: "#/components/schemas/Circle"
+        - $ref: "#/components/schemas/Rectangle"
+        - $ref: "#/components/schemas/Triangle"
+        - $ref: "#/components/schemas/Polygon"
+        - $ref: "#/components/schemas/Ellipse"
+      discriminator:
+        propertyName: kind
+        mapping:
+          circle: "#/components/schemas/Circle"
+          rectangle: "#/components/schemas/Rectangle"
+          triangle: "#/components/schemas/Triangle"
+          polygon: "#/components/schemas/Polygon"
+          ellipse: "#/components/schemas/Ellipse"
+
+    # ─── Nested composition: allOf inside oneOf ───
+    # Document is oneOf where each branch uses allOf to extend a base
+    DocumentBase:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - title
+        - createdAt
+    ArticleContent:
+      type: object
+      properties:
+        docType:
+          type: string
+          const: article
+        body:
+          type: string
+        wordCount:
+          type: integer
+      required:
+        - docType
+        - body
+    SpreadsheetContent:
+      type: object
+      properties:
+        docType:
+          type: string
+          const: spreadsheet
+        rows:
+          type: integer
+        columns:
+          type: integer
+      required:
+        - docType
+        - rows
+        - columns
+    Article:
+      allOf:
+        - $ref: "#/components/schemas/DocumentBase"
+        - $ref: "#/components/schemas/ArticleContent"
+    Spreadsheet:
+      allOf:
+        - $ref: "#/components/schemas/DocumentBase"
+        - $ref: "#/components/schemas/SpreadsheetContent"
+    Document:
+      description: oneOf where each branch is an allOf composition
+      oneOf:
+        - $ref: "#/components/schemas/Article"
+        - $ref: "#/components/schemas/Spreadsheet"
+      discriminator:
+        propertyName: docType
+        mapping:
+          article: "#/components/schemas/Article"
+          spreadsheet: "#/components/schemas/Spreadsheet"
+
+    # ─── Deep allOf chain (3 levels) ───
+    BaseConfig:
+      type: object
+      properties:
+        version:
+          type: integer
+      required:
+        - version
+    NetworkConfig:
+      type: object
+      properties:
+        host:
+          type: string
+        port:
+          type: integer
+          minimum: 1
+          maximum: 65535
+      required:
+        - host
+        - port
+    SecurityConfig:
+      type: object
+      properties:
+        tlsEnabled:
+          type: boolean
+        certPath:
+          type: string
+      required:
+        - tlsEnabled
+    FullConfig:
+      description: Three-level allOf chain with all refs
+      allOf:
+        - $ref: "#/components/schemas/BaseConfig"
+        - $ref: "#/components/schemas/NetworkConfig"
+        - $ref: "#/components/schemas/SecurityConfig"
+
+    # ─── Nullable anyOf with mixed types ───
+    SuccessResult:
+      type: object
+      properties:
+        status:
+          type: string
+          const: success
+        data:
+          type: object
+          additionalProperties: true
+      required:
+        - status
+        - data
+    ErrorResult:
+      type: object
+      properties:
+        status:
+          type: string
+          const: error
+        message:
+          type: string
+        code:
+          type: integer
+      required:
+        - status
+        - message
+    NullableResult:
+      description: Nullable anyOf combining success and error
+      anyOf:
+        - $ref: "#/components/schemas/SuccessResult"
+        - $ref: "#/components/schemas/ErrorResult"
+      nullable: true
+
+    # ─── Circular self-reference through parent + children ───
+    Category:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        parent:
+          $ref: "#/components/schemas/Category"
+        children:
+          type: array
+          items:
+            $ref: "#/components/schemas/Category"
+      required:
+        - id
+        - name

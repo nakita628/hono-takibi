@@ -497,6 +497,7 @@ const runAllGenerationTasks = async (
         config.rpc?.split === true,
         config.rpc?.client ?? 'client',
         config.rpc?.parseResponse ?? false,
+        config.basePath,
       ),
     )
   }
@@ -520,7 +521,12 @@ const runAllGenerationTasks = async (
     if (!config.test) return undefined
     return (async () => {
       const outputPath = toAbsolutePath(config.test?.output ?? '')
-      const result = await test(openAPI, outputPath, config.test?.import ?? '')
+      const result = await test(
+        openAPI,
+        outputPath,
+        config.test?.import ?? '',
+        config.basePath ?? '/',
+      )
       return result.ok ? `✅ test -> ${outputPath}` : `❌ test: ${result.error}`
     })()
   }
@@ -548,6 +554,8 @@ const runAllGenerationTasks = async (
         outputPath,
         config.docs?.entry ?? 'src/index.ts',
         config.basePath ?? '/',
+        config.docs?.curl,
+        config.docs?.baseUrl,
       )
       return result.ok ? `✅ docs -> ${outputPath}` : `❌ docs: ${result.error}`
     })()
@@ -556,11 +564,7 @@ const runAllGenerationTasks = async (
   const makeTemplateJob = (): Promise<string> | undefined => {
     const tmpl = config['zod-openapi']?.template
     if (!tmpl) return undefined
-    const routeOutputPath =
-      config['zod-openapi']?.output ??
-      (config['zod-openapi']?.routes?.output?.endsWith('.ts')
-        ? config['zod-openapi']?.routes?.output
-        : `${config['zod-openapi']?.routes?.output}/index.ts`)
+    const routeOutputPath = config['zod-openapi']?.output ?? config['zod-openapi']?.routes?.output
     if (!routeOutputPath) return undefined
     return (async () => {
       const absPath = toAbsolutePath(routeOutputPath)
