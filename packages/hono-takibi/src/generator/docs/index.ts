@@ -234,14 +234,13 @@ function makeExampleFromSchema(
 
   // allOf / oneOf / anyOf
   if (schema.allOf?.length) {
-    let merged: { [k: string]: unknown } = {}
-    for (const sub of schema.allOf) {
+    return schema.allOf.reduce<{ [k: string]: unknown }>((merged, sub) => {
       const example = makeExampleFromSchema(sub, components, visited, depth + 1)
       if (typeof example === 'object' && example !== null && !Array.isArray(example)) {
-        merged = { ...merged, ...(example as { [k: string]: unknown }) }
+        return { ...merged, ...(example as { [k: string]: unknown }) }
       }
-    }
-    return merged
+      return merged
+    }, {})
   }
   if (schema.oneOf?.length) {
     return makeExampleFromSchema(schema.oneOf[0], components, visited, depth + 1)
@@ -549,11 +548,11 @@ function makeCodeSampleCurl(
     return ['> Code samples', '', '```bash', `curl ${url}`, '```']
   }
 
-  const cmdParts: string[] = [`curl ${url} \\`]
-  for (let i = 0; i < remaining.length - 1; i++) {
-    cmdParts.push(`${remaining[i]} \\`)
-  }
-  cmdParts.push(remaining[remaining.length - 1])
+  const cmdParts = [
+    `curl ${url} \\`,
+    ...remaining.slice(0, -1).map((r) => `${r} \\`),
+    remaining[remaining.length - 1],
+  ]
 
   return ['> Code samples', '', '```bash', cmdParts.join('\n'), '```']
 }
@@ -661,6 +660,8 @@ function flattenBodyParams(
         ]
       }
       if (propSchema.$ref) {
+        if (visited.has(propSchema.$ref)) return [row]
+        visited.add(propSchema.$ref)
         const innerResolved = resolveRef(propSchema.$ref, components)
         if (isSchemaLike(innerResolved) && innerResolved.type === 'object') {
           const deepPrefix = prefix ? `${prefix}»` : '»»'
@@ -857,6 +858,8 @@ function flattenResponseSchemaFields(
         ]
       }
       if (propSchema.$ref) {
+        if (visited.has(propSchema.$ref)) return [row]
+        visited.add(propSchema.$ref)
         const innerResolved = resolveRef(propSchema.$ref, components)
         if (isSchemaLike(innerResolved) && innerResolved.type === 'object') {
           return [
