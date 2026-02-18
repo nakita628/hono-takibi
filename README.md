@@ -132,6 +132,7 @@ export default defineConfig({
     template: {
       test: true,
       pathAlias: "@/",
+      framework: "bun", // "vitest" (default) | "bun"
     },
   },
 });
@@ -141,7 +142,7 @@ This generates:
 
 - `src/index.ts` - App entry point with route registrations
 - `src/handlers/*.ts` - Handler stubs for each resource
-- `src/handlers/*.test.ts` - Vitest test files with `@faker-js/faker` mock data
+- `src/handlers/*.test.ts` - Test files with `@faker-js/faker` mock data (imports from `vitest` or `bun:test`)
 
 Re-running after updating your OpenAPI spec is safe — your hand-written handler logic and test customizations are preserved. Only new routes are added as stubs.
 
@@ -234,6 +235,7 @@ export default defineConfig({
   test: {
     output: "./src/test.ts",
     import: "../index",
+    framework: "bun", // "vitest" (default) | "bun"
   },
 });
 ```
@@ -340,6 +342,7 @@ export default defineConfig({
       test: true, // Generate test files
       routeHandler: false, // false: inline .openapi() (default), true: RouteHandler exports
       pathAlias: "@/", // TypeScript path alias for imports
+      framework: "vitest", // "vitest" (default) | "bun" — test import source
     },
 
     // Export options (OpenAPI Components Object)
@@ -480,6 +483,7 @@ export default defineConfig({
   test: {
     output: "./src/test.ts",
     import: "../index", // Import path for the app instance
+    framework: "vitest", // "vitest" (default) | "bun" — test import source
   },
 
   // Mock server generation
