@@ -1723,8 +1723,7 @@ describe('Users', () => {
 import app from '..'
 
 describe('Users', () => {
-
-})
+  \n})
 `)
     })
   })
