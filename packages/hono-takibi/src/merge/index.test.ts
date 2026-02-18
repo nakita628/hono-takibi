@@ -2048,9 +2048,9 @@ export const deleteUserRouteHandler: RouteHandler<typeof deleteUserRoute> = asyn
       const importLine = result.split('\n').find((line: string) => line.includes("from '../index'"))
       expect(importLine).toBeDefined()
       // Named imports should be alphabetically sorted
-      const names = importLine!.match(/\{([^}]+)\}/)?.[1]
+      const names = importLine?.match(/\{([^}]+)\}/)?.[1]
       expect(names).toBeDefined()
-      const importNames = names!.split(',').map((n: string) => n.trim().replace(/^type\s+/, ''))
+      const importNames = names?.split(',').map((n: string) => n.trim().replace(/^type\s+/, ''))
       const sorted = [...importNames].sort()
       expect(importNames).toStrictEqual(sorted)
     })
