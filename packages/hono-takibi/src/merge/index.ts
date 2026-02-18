@@ -109,22 +109,19 @@ export function mergeHandlerFile(existingCode: string, generatedCode: string): s
   const importDecls = existingFile.getImportDeclarations()
   const bodyStart = importDecls.length > 0 ? importDecls[importDecls.length - 1].getEnd() : 0
 
-  // Apply operations to build body
+  // Apply operations to build body (push instead of spread to avoid O(n²) on accumulators)
   const allOps = [...deleteOps, ...mergeOps]
     .filter(([start]) => start >= bodyStart)
     .toSorted(([a], [b]) => a - b)
 
-  const { slices, cursor: finalCursor } = allOps.reduce<{
-    readonly slices: readonly string[]
-    readonly cursor: number
-  }>(
-    (acc, [start, end, replacement]) => ({
-      slices: [...acc.slices, existingCode.slice(acc.cursor, start), replacement],
-      cursor: end,
-    }),
-    { slices: [], cursor: bodyStart },
-  )
-  const body = [...slices, existingCode.slice(finalCursor)].join('').replace(/\n{3,}/g, '\n\n')
+  const slices: string[] = []
+  let cursor = bodyStart
+  for (const [start, end, replacement] of allOps) {
+    slices.push(existingCode.slice(cursor, start), replacement)
+    cursor = end
+  }
+  slices.push(existingCode.slice(cursor))
+  const body = slices.join('').replace(/\n{3,}/g, '\n\n')
 
   // New handlers: in generated but not in existing
   const newHandlerStatements = generatedFile

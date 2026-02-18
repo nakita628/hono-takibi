@@ -346,15 +346,11 @@ export async function honoTakibi(): Promise<
     })(),
   ])
 
+  const values: string[] = []
   for (const r of results) {
     if (r && !r.ok) return { ok: false, error: r.error }
+    if (r?.ok) values.push(r.value)
   }
 
-  return {
-    ok: true,
-    value: results
-      .filter((r) => r?.ok === true)
-      .map((r) => r.value)
-      .join('\n'),
-  }
+  return { ok: true, value: values.join('\n') }
 }
