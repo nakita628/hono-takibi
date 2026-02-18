@@ -10,10 +10,11 @@ export async function test(
   output: string,
   importPath: string,
   basePath = '/',
+  framework: 'vitest' | 'bun' = 'vitest',
 ): Promise<
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {
-  const testCode = makeTestFile(openAPI, importPath, basePath)
+  const testCode = makeTestFile(openAPI, importPath, basePath, framework)
 
   const [fmtResult, mkdirResult, existingResult] = await Promise.all([
     fmt(testCode),

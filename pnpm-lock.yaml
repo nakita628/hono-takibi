@@ -356,6 +356,31 @@ importers:
         specifier: ^7.3.1
         version: 7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2)
 
+  fixtures/bun-test:
+    dependencies:
+      '@faker-js/faker':
+        specifier: ^9.0.0
+        version: 9.9.0
+      '@hono/zod-openapi':
+        specifier: ^1.2.1
+        version: 1.2.2(hono@4.11.9)(zod@4.3.6)
+      hono:
+        specifier: ^4.11.7
+        version: 4.11.9
+      zod:
+        specifier: ^4.3.6
+        version: 4.3.6
+    devDependencies:
+      '@types/node':
+        specifier: ^25.0.2
+        version: 25.2.3
+      hono-takibi:
+        specifier: workspace:^
+        version: link:../../packages/hono-takibi
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+
   fixtures/crud:
     dependencies:
       '@faker-js/faker':

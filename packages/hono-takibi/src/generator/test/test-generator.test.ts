@@ -354,6 +354,20 @@ describe('makeTestFile', () => {
       "import{describe,it,expect}from'vitest'\nimport app from'./app'\n\ndescribe('BasePath API',()=>{describe('default',()=>{describe('GET /users',()=>{it('should return 200 - List users',async()=>{\nconst res=await app.request(`/users`,{method:'GET'})\nexpect(res.status).toBe(200)})})\n})\n})\n",
     )
   })
+
+  it('framework bun — import from bun:test', () => {
+    const result = makeTestFile(simpleGetSpec, './app', '/', 'bun')
+    expect(result).toBe(
+      "import{describe,it,expect}from'bun:test'\nimport app from'./app'\n\ndescribe('Simple API',()=>{describe('default',()=>{describe('GET /',()=>{it('should return 200 - Health check',async()=>{\nconst res=await app.request(`/`,{method:'GET'})\nexpect(res.status).toBe(200)})})\n})\n})\n",
+    )
+  })
+
+  it('framework vitest (explicit) — import from vitest', () => {
+    const result = makeTestFile(simpleGetSpec, './app', '/', 'vitest')
+    expect(result).toBe(
+      "import{describe,it,expect}from'vitest'\nimport app from'./app'\n\ndescribe('Simple API',()=>{describe('default',()=>{describe('GET /',()=>{it('should return 200 - Health check',async()=>{\nconst res=await app.request(`/`,{method:'GET'})\nexpect(res.status).toBe(200)})})\n})\n})\n",
+    )
+  })
 })
 
 // ─── makeHandlerTestCode ────────────────────────────────────────
@@ -377,6 +391,14 @@ describe('makeHandlerTestCode', () => {
     expect(result).toBe(
       // biome-ignore lint/suspicious/noTemplateCurlyInString: expected output contains template literals
       "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'../app'\n\ndescribe('Tasks',()=>{describe('GET /api/tasks/{taskId}',()=>{it('should return 200 - Get task',async()=>{const taskId=faker.string.alpha({ length: { min: 5, max: 20 } })\nconst res=await app.request(`/api/tasks/${taskId}`,{method:'GET'})\nexpect(res.status).toBe(200)})\nit('should return 404 for non-existent resource',async()=>{\nconst res=await app.request(`/api/tasks/__non_existent__`,{method:'GET'})\nexpect(res.status).toBe(404)})})\n})\n",
+    )
+  })
+
+  it('framework bun — import from bun:test', () => {
+    const result = makeHandlerTestCode(pathParamSpec, 'handlers/tasks.ts', [], '../app', '/', 'bun')
+    expect(result).toBe(
+      // biome-ignore lint/suspicious/noTemplateCurlyInString: expected output contains template literals
+      "import{describe,it,expect}from'bun:test'\nimport{faker}from'@faker-js/faker'\nimport app from'../app'\n\ndescribe('Tasks',()=>{describe('GET /tasks/{taskId}',()=>{it('should return 200 - Get task',async()=>{const taskId=faker.string.alpha({ length: { min: 5, max: 20 } })\nconst res=await app.request(`/tasks/${taskId}`,{method:'GET'})\nexpect(res.status).toBe(200)})\nit('should return 404 for non-existent resource',async()=>{\nconst res=await app.request(`/tasks/__non_existent__`,{method:'GET'})\nexpect(res.status).toBe(404)})})\n})\n",
     )
   })
 })

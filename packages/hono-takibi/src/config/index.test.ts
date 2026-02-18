@@ -553,4 +553,67 @@ describe('parseConfig()', () => {
       }
     })
   })
+
+  describe('framework option', () => {
+    it.concurrent('accepts test.framework: bun', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        test: { output: 'src/index.test.ts', import: './index', framework: 'bun' },
+      })
+      expect(result.ok).toBe(true)
+      if (result.ok) {
+        expect(result.value.test?.framework).toBe('bun')
+      }
+    })
+
+    it.concurrent('accepts test.framework: vitest', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        test: { output: 'src/index.test.ts', import: './index', framework: 'vitest' },
+      })
+      expect(result.ok).toBe(true)
+      if (result.ok) {
+        expect(result.value.test?.framework).toBe('vitest')
+      }
+    })
+
+    it.concurrent('test.framework defaults to vitest when omitted', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        test: { output: 'src/index.test.ts', import: './index' },
+      })
+      expect(result.ok).toBe(true)
+      if (result.ok) {
+        expect(result.value.test?.framework).toBe('vitest')
+      }
+    })
+
+    it.concurrent('accepts template.framework: bun', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        'zod-openapi': {
+          output: 'src/routes.ts',
+          template: { test: true, framework: 'bun' },
+        },
+      })
+      expect(result.ok).toBe(true)
+      if (result.ok) {
+        expect(result.value['zod-openapi']?.template?.framework).toBe('bun')
+      }
+    })
+
+    it.concurrent('template.framework defaults to vitest when omitted', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        'zod-openapi': {
+          output: 'src/routes.ts',
+          template: { test: true },
+        },
+      })
+      expect(result.ok).toBe(true)
+      if (result.ok) {
+        expect(result.value['zod-openapi']?.template?.framework).toBe('vitest')
+      }
+    })
+  })
 })
