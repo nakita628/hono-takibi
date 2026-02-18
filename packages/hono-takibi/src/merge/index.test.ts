@@ -1187,7 +1187,7 @@ describe('Users', () => {
       expect(res.status).toBe(200)
     })
   })
-
+  \n
   describe('POST /users', () => {
     it('Create user', async () => {
       const res = await app.request('/users', { method: 'POST' })
@@ -1250,8 +1250,7 @@ describe('Users', () => {
       expect(res.status).toBe(200)
     })
   })
-
-})
+  \n})
 `)
     })
 
