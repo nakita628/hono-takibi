@@ -50,9 +50,7 @@ describe('zodType', () => {
 
   describe('nullable types', () => {
     it.concurrent('generates nullable string type', () => {
-      expect(zodType({ type: 'string', nullable: true }, 'Bio')).toBe(
-        'type BioType=(string|null)',
-      )
+      expect(zodType({ type: 'string', nullable: true }, 'Bio')).toBe('type BioType=(string|null)')
     })
 
     it.concurrent('generates nullable array notation', () => {

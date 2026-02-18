@@ -997,9 +997,7 @@ describe('makeDocs', () => {
         '/users/{id}': {
           get: {
             operationId: 'getUser',
-            parameters: [
-              { name: 'id', in: 'path', required: true, schema: { type: 'integer' } },
-            ],
+            parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'integer' } }],
             responses: {
               '200': {
                 description: 'OK',
@@ -1115,7 +1113,9 @@ This operation does not require authentication
             responses: {
               '200': {
                 description: 'OK',
-                content: { 'application/json': { schema: { $ref: '#/components/schemas/Extended' } } },
+                content: {
+                  'application/json': { schema: { $ref: '#/components/schemas/Extended' } },
+                },
               },
             },
           },
@@ -1223,7 +1223,10 @@ This operation does not require authentication
                     schema: {
                       oneOf: [
                         { type: 'object', properties: { radius: { type: 'number' } } },
-                        { type: 'object', properties: { width: { type: 'number' }, height: { type: 'number' } } },
+                        {
+                          type: 'object',
+                          properties: { width: { type: 'number' }, height: { type: 'number' } },
+                        },
                       ],
                     },
                   },
@@ -1749,7 +1752,9 @@ License: <a href="https://opensource.org/licenses/MIT">MIT</a>
             responses: {
               '200': {
                 description: 'OK',
-                content: { 'application/json': { schema: { $ref: '#/components/schemas/TreeNode' } } },
+                content: {
+                  'application/json': { schema: { $ref: '#/components/schemas/TreeNode' } },
+                },
               },
             },
           },
@@ -2242,7 +2247,11 @@ This operation does not require authentication
           get: {
             operationId: 'listTasks',
             parameters: [
-              { name: 'status', in: 'query', schema: { type: 'string', enum: ['open', 'closed', 'pending'] } },
+              {
+                name: 'status',
+                in: 'query',
+                schema: { type: 'string', enum: ['open', 'closed', 'pending'] },
+              },
             ],
             responses: { '200': { description: 'OK' } },
           },
@@ -2731,6 +2740,4 @@ This operation does not require authentication
       expect(makeDocs(mediaExampleOpenAPI)).toBe(expected)
     })
   })
-
 })
-

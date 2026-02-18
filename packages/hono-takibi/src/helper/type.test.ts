@@ -120,7 +120,9 @@ describe('makeTypeString', () => {
         'Event',
         cyclicGroup,
       )
-      expect(result).toBe('{payload?:z.infer<typeof UserEventPayloadSchema>;trace?:z.infer<typeof TraceContextSchema>}')
+      expect(result).toBe(
+        '{payload?:z.infer<typeof UserEventPayloadSchema>;trace?:z.infer<typeof TraceContextSchema>}',
+      )
     })
 
     it('should handle additionalProperties with cyclic ref', () => {

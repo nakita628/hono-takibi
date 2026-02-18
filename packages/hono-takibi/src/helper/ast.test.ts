@@ -87,7 +87,9 @@ type User = z.infer<typeof UserSchema>
 type Pagination = z.infer<typeof PaginationSchema>`
     const result = ast(input)
     // Type aliases have no dependencies on each other, order is preserved
-    expect(result).toBe(`type UserListResponse = z.infer<typeof UserListResponseSchema>\n\ntype User = z.infer<typeof UserSchema>\n\ntype Pagination = z.infer<typeof PaginationSchema>`)
+    expect(result).toBe(
+      'type UserListResponse = z.infer<typeof UserListResponseSchema>\n\ntype User = z.infer<typeof UserSchema>\n\ntype Pagination = z.infer<typeof PaginationSchema>',
+    )
   })
 
   it.concurrent('should preserve both const and type when name ends with Schema', () => {

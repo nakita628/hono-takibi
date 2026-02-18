@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import {
-  FORMAT_TO_FAKER,
-  PROPERTY_NAME_TO_FAKER,
-  TYPE_TO_FAKER,
   extractTestCases,
+  FORMAT_TO_FAKER,
   makeHandlerTestCode,
   makeTestFile,
+  PROPERTY_NAME_TO_FAKER,
   schemaToFaker,
+  TYPE_TO_FAKER,
 } from './index.js'
 
 describe('generator/test barrel exports', () => {

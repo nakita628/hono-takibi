@@ -7,13 +7,7 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       include: ['packages/hono-takibi/src/**/*.ts'],
-      exclude: [
-        '**/*.test.ts',
-        '**/*.d.ts',
-        '**/node_modules/**',
-        '**/dist/**',
-        '**/index.ts',
-      ],
+      exclude: ['**/*.test.ts', '**/*.d.ts', '**/node_modules/**', '**/dist/**', '**/index.ts'],
       reporter: ['text', 'text-summary'],
       reportOnFailure: true,
     },

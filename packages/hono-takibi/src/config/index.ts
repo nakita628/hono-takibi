@@ -387,116 +387,12 @@ const ConfigSchema = z
             },
           }),
           ...(config['zod-openapi'].components && {
-            components: {
-              ...(config['zod-openapi'].components.schemas && {
-                schemas: {
-                  ...config['zod-openapi'].components.schemas,
-                  output: normalize(
-                    config['zod-openapi'].components.schemas.output,
-                    config['zod-openapi'].components.schemas.split,
-                  ),
-                },
-              }),
-              ...(config['zod-openapi'].components.parameters && {
-                parameters: {
-                  ...config['zod-openapi'].components.parameters,
-                  output: normalize(
-                    config['zod-openapi'].components.parameters.output,
-                    config['zod-openapi'].components.parameters.split,
-                  ),
-                },
-              }),
-              ...(config['zod-openapi'].components.headers && {
-                headers: {
-                  ...config['zod-openapi'].components.headers,
-                  output: normalize(
-                    config['zod-openapi'].components.headers.output,
-                    config['zod-openapi'].components.headers.split,
-                  ),
-                },
-              }),
-              ...(config['zod-openapi'].components.securitySchemes && {
-                securitySchemes: {
-                  ...config['zod-openapi'].components.securitySchemes,
-                  output: normalize(
-                    config['zod-openapi'].components.securitySchemes.output,
-                    config['zod-openapi'].components.securitySchemes.split,
-                  ),
-                },
-              }),
-              ...(config['zod-openapi'].components.requestBodies && {
-                requestBodies: {
-                  ...config['zod-openapi'].components.requestBodies,
-                  output: normalize(
-                    config['zod-openapi'].components.requestBodies.output,
-                    config['zod-openapi'].components.requestBodies.split,
-                  ),
-                },
-              }),
-              ...(config['zod-openapi'].components.responses && {
-                responses: {
-                  ...config['zod-openapi'].components.responses,
-                  output: normalize(
-                    config['zod-openapi'].components.responses.output,
-                    config['zod-openapi'].components.responses.split,
-                  ),
-                },
-              }),
-              ...(config['zod-openapi'].components.examples && {
-                examples: {
-                  ...config['zod-openapi'].components.examples,
-                  output: normalize(
-                    config['zod-openapi'].components.examples.output,
-                    config['zod-openapi'].components.examples.split,
-                  ),
-                },
-              }),
-              ...(config['zod-openapi'].components.links && {
-                links: {
-                  ...config['zod-openapi'].components.links,
-                  output: normalize(
-                    config['zod-openapi'].components.links.output,
-                    config['zod-openapi'].components.links.split,
-                  ),
-                },
-              }),
-              ...(config['zod-openapi'].components.callbacks && {
-                callbacks: {
-                  ...config['zod-openapi'].components.callbacks,
-                  output: normalize(
-                    config['zod-openapi'].components.callbacks.output,
-                    config['zod-openapi'].components.callbacks.split,
-                  ),
-                },
-              }),
-              ...(config['zod-openapi'].components.pathItems && {
-                pathItems: {
-                  ...config['zod-openapi'].components.pathItems,
-                  output: normalize(
-                    config['zod-openapi'].components.pathItems.output,
-                    config['zod-openapi'].components.pathItems.split,
-                  ),
-                },
-              }),
-              ...(config['zod-openapi'].components.mediaTypes && {
-                mediaTypes: {
-                  ...config['zod-openapi'].components.mediaTypes,
-                  output: normalize(
-                    config['zod-openapi'].components.mediaTypes.output,
-                    config['zod-openapi'].components.mediaTypes.split,
-                  ),
-                },
-              }),
-              ...(config['zod-openapi'].components.webhooks && {
-                webhooks: {
-                  ...config['zod-openapi'].components.webhooks,
-                  output: normalize(
-                    config['zod-openapi'].components.webhooks.output,
-                    config['zod-openapi'].components.webhooks.split,
-                  ),
-                },
-              }),
-            },
+            components: Object.fromEntries(
+              Object.entries(config['zod-openapi'].components).map(([key, value]) => [
+                key,
+                value ? { ...value, output: normalize(value.output, value.split) } : value,
+              ]),
+            ),
           }),
         },
       }),

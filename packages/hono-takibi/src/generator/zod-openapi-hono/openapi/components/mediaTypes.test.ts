@@ -36,9 +36,7 @@ describe('mediaTypesCode', () => {
       },
     }
     const result = mediaTypesCode(components, false, false)
-    expect(result).toBe(
-      'const JsonMediaMediaTypeSchema=z.object({id:z.int().exactOptional()})',
-    )
+    expect(result).toBe('const JsonMediaMediaTypeSchema=z.object({id:z.int().exactOptional()})')
   })
 
   it('should generate media type schema with type export', () => {
@@ -51,7 +49,7 @@ describe('mediaTypesCode', () => {
     }
     const result = mediaTypesCode(components, true, true)
     expect(result).toBe(
-      `export const JsonMediaMediaTypeSchema=z.object({id:z.int().exactOptional()})\n\nexport type JsonMediaMediaType=z.infer<typeof JsonMediaMediaTypeSchema>`,
+      'export const JsonMediaMediaTypeSchema=z.object({id:z.int().exactOptional()})\n\nexport type JsonMediaMediaType=z.infer<typeof JsonMediaMediaTypeSchema>',
     )
   })
 
@@ -82,7 +80,7 @@ describe('mediaTypesCode', () => {
     }
     const result = mediaTypesCode(components, true, false)
     expect(result).toBe(
-      `export const JsonMediaMediaTypeSchema=z.object({id:z.int().exactOptional()})\n\nexport const XmlMediaMediaTypeSchema=z.string()`,
+      'export const JsonMediaMediaTypeSchema=z.object({id:z.int().exactOptional()})\n\nexport const XmlMediaMediaTypeSchema=z.string()',
     )
   })
 

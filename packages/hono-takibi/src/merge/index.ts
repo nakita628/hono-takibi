@@ -3,18 +3,19 @@ import { Project } from 'ts-morph'
 /**
  * Finds the end position of a balanced parenthesized expression.
  *
- * Recursively scans from `start`, counting opening/closing parens,
+ * Scans from `start`, counting opening/closing parens,
  * and returns the position just after the matching closing paren.
  */
 function findBalancedParenEnd(code: string, start: number): number {
-  const scan = (pos: number, depth: number): number => {
-    if (pos >= code.length) return start
+  let pos = start
+  let depth = 0
+  while (pos < code.length) {
     const ch = code[pos]
-    const nextDepth = depth + (ch === '(' ? 1 : ch === ')' ? -1 : 0)
-    if (ch === ')' && nextDepth === 0) return pos + 1
-    return scan(pos + 1, nextDepth)
+    depth += ch === '(' ? 1 : ch === ')' ? -1 : 0
+    if (ch === ')' && depth === 0) return pos + 1
+    pos++
   }
-  return scan(start, 0)
+  return start
 }
 
 /**
@@ -439,14 +440,15 @@ function mergeInlineHandler(existingText: string, generatedText: string): string
  * and returns the position just after the matching closing brace.
  */
 function findBalancedBraceEnd(code: string, start: number): number {
-  const scan = (pos: number, depth: number): number => {
-    if (pos >= code.length) return start
+  let pos = start
+  let depth = 0
+  while (pos < code.length) {
     const ch = code[pos]
-    const nextDepth = depth + (ch === '{' ? 1 : ch === '}' ? -1 : 0)
-    if (ch === '}' && nextDepth === 0) return pos + 1
-    return scan(pos + 1, nextDepth)
+    depth += ch === '{' ? 1 : ch === '}' ? -1 : 0
+    if (ch === '}' && depth === 0) return pos + 1
+    pos++
   }
-  return scan(start, 0)
+  return start
 }
 
 /**

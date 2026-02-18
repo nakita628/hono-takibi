@@ -559,7 +559,10 @@ export async function patchUsersId(
 
       expect(index).toStrictEqual(expected)
       expect(result.ok).toBe(true)
-      expect(typeof result.value === 'string' && result.value.startsWith('Generated rpc code written to')).toBe(true)
+      expect(
+        typeof result.value === 'string' &&
+          result.value.startsWith('Generated rpc code written to'),
+      ).toBe(true)
     } finally {
       fs.rmSync(dir, { recursive: true, force: true })
     }
@@ -1306,10 +1309,10 @@ import { client } from '../client'
  * Get user by ID
  */
 export async function getUsersId(
-  args: InferRequestType<(typeof client.users)[':id']['\$get']>,
+  args: InferRequestType<(typeof client.users)[':id']['$get']>,
   options?: ClientRequestOptions,
 ) {
-  return await parseResponse(client.users[':id'].\$get(args, options))
+  return await parseResponse(client.users[':id'].$get(args, options))
 }
 `)
     } finally {

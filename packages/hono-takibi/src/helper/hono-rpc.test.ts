@@ -255,12 +255,8 @@ describe('makeOperationDeps', () => {
       { userId: { name: 'userId', in: 'path', required: true } },
       {},
     )
-    const result = deps.toParameterLikes([
-      { $ref: '#/components/parameters/userId' },
-    ])
-    expect(result).toStrictEqual([
-      { name: 'userId', in: 'path', required: true },
-    ])
+    const result = deps.toParameterLikes([{ $ref: '#/components/parameters/userId' }])
+    expect(result).toStrictEqual([{ name: 'userId', in: 'path', required: true }])
   })
 
   it.concurrent('pickAllBodyInfo returns undefined for no requestBody', () => {
