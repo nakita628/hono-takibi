@@ -100,7 +100,7 @@ describe('makeTypeString', () => {
         'Event',
         cyclicGroup,
       )
-      expect(result).toContain('z.infer<typeof TraceContextSchema>')
+      expect(result).toBe('(z.infer<typeof TraceContextSchema>|({[key:string]:unknown}|null))')
     })
 
     it('should use local type for self-reference in cyclic group', () => {
@@ -120,8 +120,7 @@ describe('makeTypeString', () => {
         'Event',
         cyclicGroup,
       )
-      expect(result).toContain('z.infer<typeof UserEventPayloadSchema>')
-      expect(result).toContain('z.infer<typeof TraceContextSchema>')
+      expect(result).toBe('{payload?:z.infer<typeof UserEventPayloadSchema>;trace?:z.infer<typeof TraceContextSchema>}')
     })
 
     it('should handle additionalProperties with cyclic ref', () => {
