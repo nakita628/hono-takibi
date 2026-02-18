@@ -550,8 +550,6 @@ export function mergeTestFile(existingCode: string, generatedCode: string): stri
       filteredRanges.length > 0 ? filteredRanges[filteredRanges.length - 1][1] : bodyStart,
     ),
   ]
-  let bodyWithRemovals = keepSlices.join('').replace(/\n{3,}/g, '\n\n')
-
   // 7. Merge mock functions: add missing mock functions from generated code
   const existingMocks = extractMockFunctions(existingCode)
   const generatedMocks = extractMockFunctions(generatedCode)
@@ -559,22 +557,10 @@ export function mergeTestFile(existingCode: string, generatedCode: string): stri
     .filter(([name]) => !existingMocks.has(name))
     .map(([, block]) => block.text)
 
-  if (missingMocks.length > 0) {
-    // Insert before first describe block (or at the start of body)
-    const describeMatch = bodyWithRemovals.match(/\n(?=describe\s*\()/)
-    if (describeMatch?.index !== undefined) {
-      const insertPos = describeMatch.index
-      bodyWithRemovals =
-        bodyWithRemovals.slice(0, insertPos) +
-        '\n' +
-        missingMocks.join('\n\n') +
-        '\n' +
-        bodyWithRemovals.slice(insertPos)
-    } else {
-      bodyWithRemovals = `\n${missingMocks.join('\n\n')}\n${bodyWithRemovals}`
-    }
-    bodyWithRemovals = bodyWithRemovals.replace(/\n{3,}/g, '\n\n')
-  }
+  const bodyWithRemovals = insertMissingMocks(
+    keepSlices.join('').replace(/\n{3,}/g, '\n\n'),
+    missingMocks,
+  )
 
   if (newBlocks.length === 0) {
     const parts = [
@@ -586,7 +572,7 @@ export function mergeTestFile(existingCode: string, generatedCode: string): stri
 
   // 8. Find insertion point: last line matching /^\s*\}\s*\)\s*;?\s*$/ (outer describe close)
   const lines = bodyWithRemovals.split('\n')
-  const insertLineIndex = lines.findLastIndex((line) => /^\s*\}\s*\)\s*;?\s*$/.test(line))
+  const insertLineIndex = lines.findLastIndex((line: string) => /^\s*\}\s*\)\s*;?\s*$/.test(line))
 
   const modifiedLines =
     insertLineIndex !== -1
@@ -615,4 +601,20 @@ export function mergeTestFile(existingCode: string, generatedCode: string): stri
  */
 export function mergeBarrelFile(_existingCode: string, generatedCode: string): string {
   return generatedCode
+}
+
+/**
+ * Inserts missing mock function definitions into the test body.
+ *
+ * Inserts before the first `describe(` block, or at the start of body if none found.
+ * Collapses triple+ newlines after insertion.
+ */
+function insertMissingMocks(body: string, missingMocks: readonly string[]): string {
+  if (missingMocks.length === 0) return body
+  const describeMatch = body.match(/\n(?=describe\s*\()/)
+  const inserted =
+    describeMatch?.index !== undefined
+      ? `${body.slice(0, describeMatch.index)}\n${missingMocks.join('\n\n')}\n${body.slice(describeMatch.index)}`
+      : `\n${missingMocks.join('\n\n')}\n${body}`
+  return inserted.replace(/\n{3,}/g, '\n\n')
 }

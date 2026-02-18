@@ -85,10 +85,9 @@ describe('examplesCode', () => {
       },
     }
     const result = examplesCode(components, true)
-    // BaseExample should come first (dependency order)
-    expect(result).toContain('export const BaseExample=')
-    expect(result).toContain('export const AliasExample=BaseExample')
-    expect(result.indexOf('BaseExample=')).toBeLessThan(result.indexOf('AliasExample='))
+    expect(result).toBe(
+      `export const BaseExample={"dataValue":{"id":1,"name":"Base"},"serializedValue":"{\\"id\\":1,\\"name\\":\\"Base\\"}","value":{"id":1,"name":"Base"}}\n\nexport const AliasExample=BaseExample`,
+    )
   })
 
   it('should handle multiple $ref examples with correct dependency order', () => {
@@ -110,11 +109,9 @@ describe('examplesCode', () => {
       },
     }
     const result = examplesCode(components, true)
-    const lines = result.split('\n\n')
-    // First → Second → Third order
-    expect(lines[0]).toContain('FirstExample')
-    expect(lines[1]).toContain('SecondExample')
-    expect(lines[2]).toContain('ThirdExample')
+    expect(result).toBe(
+      `export const FirstExample={"dataValue":{"data":"first"},"serializedValue":"{\\"data\\":\\"first\\"}","value":{"data":"first"}}\n\nexport const SecondExample=FirstExample\n\nexport const ThirdExample=SecondExample`,
+    )
   })
 
   it('should handle mixed inline and $ref examples', () => {
@@ -137,10 +134,9 @@ describe('examplesCode', () => {
       },
     }
     const result = examplesCode(components, true)
-    // InlineExample should come before RefExample
-    expect(result).toContain('export const InlineExample=')
-    expect(result).toContain('export const RefExample=InlineExample')
-    expect(result.indexOf('InlineExample=')).toBeLessThan(result.indexOf('RefExample='))
+    expect(result).toBe(
+      `export const InlineExample={"dataValue":"inline","serializedValue":"\\"inline\\"","value":"inline"}\n\nexport const RefExample=InlineExample\n\nexport const AnotherInlineExample={"dataValue":"another","serializedValue":"\\"another\\"","value":"another"}`,
+    )
   })
 
   /**
@@ -180,10 +176,8 @@ describe('examplesCode', () => {
       },
     }
     const result = examplesCode(components, true)
-    // Verify $ref is resolved to variable reference
-    expect(result).toContain('export const UserMinimalForEmployeesExample=UserMinimalExample')
-    // Verify siblings are NOT included in output
-    expect(result).not.toContain('summary')
-    expect(result).not.toContain('description')
+    expect(result).toBe(
+      `export const UserMinimalExample={"value":{"id":"123","name":"Jane Doe"}}\n\nexport const UserMinimalForEmployeesExample=UserMinimalExample`,
+    )
   })
 })

@@ -93,9 +93,9 @@ describe('pathItemsCode', () => {
       },
     }
     const result = pathItemsCode(components, true)
-    // $ref should be replaced with schema variable name
-    expect(result).toContain('UserSchema')
-    expect(result).not.toContain('$ref')
+    expect(result).toBe(
+      `export const UserOperationsPathItem={get:{operationId:"getUser",responses:{200:{description:"OK",content:{'application/json':{schema:UserSchema}}}}}}`,
+    )
   })
 
   it('resolves multiple $refs in nested structure', () => {
@@ -143,9 +143,8 @@ describe('pathItemsCode', () => {
       },
     }
     const result = pathItemsCode(components, true)
-    // All $refs should be replaced
-    expect(result).toContain('UserSchema')
-    expect(result).toContain('UserUpdateSchema')
-    expect(result).not.toContain('$ref')
+    expect(result).toBe(
+      `export const UserCrudPathItem={get:{operationId:"getUser",responses:{200:{description:"OK",content:{'application/json':{schema:UserSchema}}}}},put:{operationId:"updateUser",requestBody:{content:{'application/json':{schema:UserUpdateSchema}}},responses:{200:{description:"OK",content:{'application/json':{schema:UserSchema}}}}}}`,
+    )
   })
 })

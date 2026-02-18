@@ -493,11 +493,15 @@ describe('openapi helper', () => {
     })
     it.concurrent('applies coercion for query number parameters', () => {
       const result = makeParameters([{ name: 'page', in: 'query', schema: { type: 'number' } }])
-      expect(result.query.page).toContain('z.coerce.')
+      expect(result.query.page).toBe(
+        'z.coerce.number().exactOptional().openapi({param:{"name":"page","in":"query","schema":{"type":"number"}}})',
+      )
     })
     it.concurrent('applies stringbool for query boolean parameters', () => {
       const result = makeParameters([{ name: 'active', in: 'query', schema: { type: 'boolean' } }])
-      expect(result.query.active).toContain('stringbool')
+      expect(result.query.active).toBe(
+        'z.stringbool().exactOptional().openapi({param:{"name":"active","in":"query","schema":{"type":"boolean"}}})',
+      )
     })
     it.concurrent('handles parameters with content instead of schema', () => {
       const result = makeParameters([
@@ -519,7 +523,9 @@ describe('openapi helper', () => {
     })
     it.concurrent('applies coercion for query date parameters', () => {
       const result = makeParameters([{ name: 'date', in: 'query', schema: { type: 'date' } }])
-      expect(result.query.date).toContain('z.coerce.')
+      expect(result.query.date).toBe(
+        'z.coerce.date().exactOptional().openapi({param:{"name":"date","in":"query","schema":{"type":"date"}}})',
+      )
     })
     it.concurrent('generates multiple parameters in same location with exact string output', () => {
       const result = makeParameters([

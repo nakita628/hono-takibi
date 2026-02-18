@@ -50,38 +50,121 @@ describe('swr', () => {
 
       const code = fs.readFileSync(out, 'utf-8')
 
-      // Check imports
-      expect(code).toContain("import useSWR from 'swr'")
-      expect(code).toContain("import type { Key, SWRConfiguration } from 'swr'")
-      expect(code).toContain("import useSWRMutation from 'swr/mutation'")
-      expect(code).toContain("import type { SWRMutationConfiguration } from 'swr/mutation'")
-      expect(code).toContain(
-        "import type { InferRequestType, ClientRequestOptions } from 'hono/client'",
-      )
-      expect(code).toContain("import { parseResponse } from 'hono/client'")
-      expect(code).toContain("import { client } from '../client'")
+      expect(code).toBe(`import useSWR from 'swr'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWRMutation from 'swr/mutation'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
+import { client } from '../client'
 
-      // Check key getter functions
-      expect(code).toContain("return ['hono', 'GET', '/hono'] as const")
-      expect(code).toContain("return ['users', 'GET', '/users', args] as const")
-      expect(code).toContain("return ['users', 'POST', '/users'] as const")
+/**
+ * Generates SWR cache key for GET /hono
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGetHonoKey() {
+  return ['hono', 'GET', '/hono'] as const
+}
 
-      // Check hook functions - verify enabled priority fix
-      expect(code).toContain('const isEnabled = enabled !== false')
-      expect(code).toContain('const swrKey = isEnabled ? (customKey ?? getGetHonoKey()) : null')
-      expect(code).toContain(
-        'const swrKey = isEnabled ? (customKey ?? getGetUsersKey(args)) : null',
-      )
+/**
+ * GET /hono
+ *
+ * Hono
+ *
+ * Simple ping for Hono
+ */
+export function useGetHono(options?: {
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
+  client?: ClientRequestOptions
+}) {
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetHonoKey()) : null
+  return {
+    swrKey,
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.hono.$get(undefined, clientOptions)),
+      restSwrOptions,
+    ),
+  }
+}
 
-      // Check that restSwrOptions is used instead of swrOptions
-      expect(code).toContain(
-        'const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}',
-      )
-      expect(code).toContain('restSwrOptions,')
+/**
+ * Generates SWR cache key for GET /users
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetUsersKey(args: InferRequestType<typeof client.users.$get>) {
+  return ['users', 'GET', '/users', args] as const
+}
 
-      // Check mutation hook
-      expect(code).toContain('async (_: Key, { arg }:')
-      expect(code).toContain('parseResponse(client.users.$post(arg, clientOptions))')
+/**
+ * GET /users
+ *
+ * List users
+ *
+ * List users with pagination.
+ */
+export function useGetUsers(
+  args: InferRequestType<typeof client.users.$get>,
+  options?: {
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
+    client?: ClientRequestOptions
+  },
+) {
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetUsersKey(args)) : null
+  return {
+    swrKey,
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.users.$get(args, clientOptions)),
+      restSwrOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /users
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostUsersMutationKey() {
+  return ['users', 'POST', '/users'] as const
+}
+
+/**
+ * POST /users
+ *
+ * Create user
+ *
+ * Create a new user.
+ */
+export function usePostUsers(options?: {
+  mutation?: SWRMutationConfiguration<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>,
+    Error,
+    Key,
+    InferRequestType<typeof client.users.$post>
+  > & { swrKey?: Key }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostUsersMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (_: Key, { arg }: { arg: InferRequestType<typeof client.users.$post> }) =>
+        parseResponse(client.users.$post(arg, clientOptions)),
+      restMutationOptions,
+    ),
+  }
+}
+`)
 
       expect(result).toStrictEqual({
         ok: true,
@@ -106,31 +189,145 @@ describe('swr (split mode)', () => {
 
       // Check index.ts barrel file
       const index = fs.readFileSync(path.join(dir, 'swr', 'index.ts'), 'utf-8')
-      expect(index).toContain("export * from './useGetHono'")
-      expect(index).toContain("export * from './useGetUsers'")
-      expect(index).toContain("export * from './usePostUsers'")
+      expect(index).toBe(`export * from './useGetHono'
+export * from './useGetUsers'
+export * from './usePostUsers'
+`)
 
       // Check GET hook file without args
       const useGetHono = fs.readFileSync(path.join(dir, 'swr', 'useGetHono.ts'), 'utf-8')
-      expect(useGetHono).toContain("import useSWR from 'swr'")
-      expect(useGetHono).toContain("return ['hono', 'GET', '/hono'] as const")
-      expect(useGetHono).toContain('export function useGetHono(')
-      expect(useGetHono).toContain(
-        'const swrKey = isEnabled ? (customKey ?? getGetHonoKey()) : null',
-      )
+      expect(useGetHono).toBe(`import useSWR from 'swr'
+import type { Key, SWRConfiguration } from 'swr'
+import type { ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
+import { client } from '../client'
+
+/**
+ * Generates SWR cache key for GET /hono
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGetHonoKey() {
+  return ['hono', 'GET', '/hono'] as const
+}
+
+/**
+ * GET /hono
+ *
+ * Hono
+ *
+ * Simple ping for Hono
+ */
+export function useGetHono(options?: {
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
+  client?: ClientRequestOptions
+}) {
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetHonoKey()) : null
+  return {
+    swrKey,
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.hono.$get(undefined, clientOptions)),
+      restSwrOptions,
+    ),
+  }
+}
+`)
 
       // Check GET hook file with args
       const useGetUsers = fs.readFileSync(path.join(dir, 'swr', 'useGetUsers.ts'), 'utf-8')
-      expect(useGetUsers).toContain("return ['users', 'GET', '/users', args] as const")
-      expect(useGetUsers).toContain(
-        'const swrKey = isEnabled ? (customKey ?? getGetUsersKey(args)) : null',
-      )
+      expect(useGetUsers).toBe(`import useSWR from 'swr'
+import type { Key, SWRConfiguration } from 'swr'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
+import { client } from '../client'
+
+/**
+ * Generates SWR cache key for GET /users
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetUsersKey(args: InferRequestType<typeof client.users.$get>) {
+  return ['users', 'GET', '/users', args] as const
+}
+
+/**
+ * GET /users
+ *
+ * List users
+ *
+ * List users with pagination.
+ */
+export function useGetUsers(
+  args: InferRequestType<typeof client.users.$get>,
+  options?: {
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
+    client?: ClientRequestOptions
+  },
+) {
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetUsersKey(args)) : null
+  return {
+    swrKey,
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.users.$get(args, clientOptions)),
+      restSwrOptions,
+    ),
+  }
+}
+`)
 
       // Check POST hook file (mutation)
       const usePostUsers = fs.readFileSync(path.join(dir, 'swr', 'usePostUsers.ts'), 'utf-8')
-      expect(usePostUsers).toContain("import useSWRMutation from 'swr/mutation'")
-      expect(usePostUsers).toContain("return ['users', 'POST', '/users'] as const")
-      expect(usePostUsers).toContain('export function usePostUsers(')
+      expect(usePostUsers).toBe(`import type { Key } from 'swr'
+import useSWRMutation from 'swr/mutation'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
+import { client } from '../client'
+
+/**
+ * Generates SWR mutation key for POST /users
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostUsersMutationKey() {
+  return ['users', 'POST', '/users'] as const
+}
+
+/**
+ * POST /users
+ *
+ * Create user
+ *
+ * Create a new user.
+ */
+export function usePostUsers(options?: {
+  mutation?: SWRMutationConfiguration<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>,
+    Error,
+    Key,
+    InferRequestType<typeof client.users.$post>
+  > & { swrKey?: Key }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostUsersMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (_: Key, { arg }: { arg: InferRequestType<typeof client.users.$post> }) =>
+        parseResponse(client.users.$post(arg, clientOptions)),
+      restMutationOptions,
+    ),
+  }
+}
+`)
 
       expect(result).toStrictEqual({
         ok: true,
@@ -168,17 +365,43 @@ describe('swr (custom client name)', () => {
 
       const code = fs.readFileSync(out, 'utf-8')
 
-      // Check custom client import
-      expect(code).toContain("import { authClient } from '../api'")
+      expect(code).toBe(`import useSWR from 'swr'
+import type { Key, SWRConfiguration } from 'swr'
+import type { ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
+import { authClient } from '../api'
 
-      // Check key getter
-      expect(code).toContain("return ['users', 'GET', '/users'] as const")
+/**
+ * Generates SWR cache key for GET /users
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGetUsersKey() {
+  return ['users', 'GET', '/users'] as const
+}
 
-      // Check hook function uses custom client
-      expect(code).toContain('parseResponse(authClient.users.$get(undefined, clientOptions))')
-
-      // Check enabled priority fix
-      expect(code).toContain('const swrKey = isEnabled ? (customKey ?? getGetUsersKey()) : null')
+/**
+ * GET /users
+ *
+ * Get users
+ */
+export function useGetUsers(options?: {
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
+  client?: ClientRequestOptions
+}) {
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetUsersKey()) : null
+  return {
+    swrKey,
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(authClient.users.$get(undefined, clientOptions)),
+      restSwrOptions,
+    ),
+  }
+}
+`)
     } finally {
       fs.rmSync(dir, { recursive: true, force: true })
     }
@@ -216,15 +439,80 @@ describe('swr (no args operations)', () => {
 
       const code = fs.readFileSync(out, 'utf-8')
 
-      // Check GET hook without args
-      expect(code).toContain("return ['ping', 'GET', '/ping'] as const")
-      expect(code).toContain('export function useGetPing(options?:')
-      expect(code).toContain('const swrKey = isEnabled ? (customKey ?? getGetPingKey()) : null')
+      expect(code).toBe(`import useSWR from 'swr'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWRMutation from 'swr/mutation'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
+import { client } from '../client'
 
-      // Check POST mutation hook without args
-      expect(code).toContain("return ['ping', 'POST', '/ping'] as const")
-      expect(code).toContain('export function usePostPing(options?:')
-      expect(code).toContain('parseResponse(client.ping.$post(undefined, clientOptions))')
+/**
+ * Generates SWR cache key for GET /ping
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGetPingKey() {
+  return ['ping', 'GET', '/ping'] as const
+}
+
+/**
+ * GET /ping
+ *
+ * Ping
+ */
+export function useGetPing(options?: {
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
+  client?: ClientRequestOptions
+}) {
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetPingKey()) : null
+  return {
+    swrKey,
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.ping.$get(undefined, clientOptions)),
+      restSwrOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /ping
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPostPingMutationKey() {
+  return ['ping', 'POST', '/ping'] as const
+}
+
+/**
+ * POST /ping
+ *
+ * Post ping
+ */
+export function usePostPing(options?: {
+  mutation?: SWRMutationConfiguration<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.ping.$post>>>>>,
+    Error,
+    Key,
+    undefined
+  > & { swrKey?: Key }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostPingMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async () => parseResponse(client.ping.$post(undefined, clientOptions)),
+      restMutationOptions,
+    ),
+  }
+}
+`)
     } finally {
       fs.rmSync(dir, { recursive: true, force: true })
     }
@@ -257,14 +545,43 @@ describe('swr (path with special characters)', () => {
 
       const code = fs.readFileSync(out, 'utf-8')
 
-      // Check key getter for hyphenated path
-      expect(code).toContain("return ['hono-x', 'GET', '/hono-x'] as const")
+      expect(code).toBe(`import useSWR from 'swr'
+import type { Key, SWRConfiguration } from 'swr'
+import type { ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
+import { client } from '../client'
 
-      // Check hook uses bracket notation for hyphenated path
-      expect(code).toContain("parseResponse(client['hono-x'].$get(undefined, clientOptions))")
+/**
+ * Generates SWR cache key for GET /hono-x
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGetHonoXKey() {
+  return ['hono-x', 'GET', '/hono-x'] as const
+}
 
-      // Check enabled priority fix
-      expect(code).toContain('const swrKey = isEnabled ? (customKey ?? getGetHonoXKey()) : null')
+/**
+ * GET /hono-x
+ *
+ * HonoX
+ */
+export function useGetHonoX(options?: {
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
+  client?: ClientRequestOptions
+}) {
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetHonoXKey()) : null
+  return {
+    swrKey,
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client['hono-x'].$get(undefined, clientOptions)),
+      restSwrOptions,
+    ),
+  }
+}
+`)
     } finally {
       fs.rmSync(dir, { recursive: true, force: true })
     }
@@ -303,20 +620,89 @@ describe('swr (path parameters)', () => {
 
       const code = fs.readFileSync(out, 'utf-8')
 
-      // Check GET key getter with path param
-      expect(code).toContain("return ['users', 'GET', '/users/:id', args] as const")
+      expect(code).toBe(`import useSWR from 'swr'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWRMutation from 'swr/mutation'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
+import { client } from '../client'
 
-      // Check GET hook
-      expect(code).toContain("args: InferRequestType<(typeof client.users)[':id']['$get']>")
-      expect(code).toContain(
-        'const swrKey = isEnabled ? (customKey ?? getGetUsersIdKey(args)) : null',
-      )
+/**
+ * Generates SWR cache key for GET /users/{id}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetUsersIdKey(args: InferRequestType<(typeof client.users)[':id']['$get']>) {
+  return ['users', 'GET', '/users/:id', args] as const
+}
 
-      // Check DELETE mutation key getter
-      expect(code).toContain("return ['users', 'DELETE', '/users/:id'] as const")
+/**
+ * GET /users/{id}
+ *
+ * Get user
+ */
+export function useGetUsersId(
+  args: InferRequestType<(typeof client.users)[':id']['$get']>,
+  options?: {
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
+    client?: ClientRequestOptions
+  },
+) {
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetUsersIdKey(args)) : null
+  return {
+    swrKey,
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.users[':id'].$get(args, clientOptions)),
+      restSwrOptions,
+    ),
+  }
+}
 
-      // Check DELETE mutation hook
-      expect(code).toContain('export function useDeleteUsersId(options?:')
+/**
+ * Generates SWR mutation key for DELETE /users/{id}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getDeleteUsersIdMutationKey() {
+  return ['users', 'DELETE', '/users/:id'] as const
+}
+
+/**
+ * DELETE /users/{id}
+ *
+ * Delete user
+ */
+export function useDeleteUsersId(options?: {
+  mutation?: SWRMutationConfiguration<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$delete']>>>
+        >
+      >
+    | undefined,
+    Error,
+    Key,
+    InferRequestType<(typeof client.users)[':id']['$delete']>
+  > & { swrKey?: Key }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDeleteUsersIdMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (_: Key, { arg }: { arg: InferRequestType<(typeof client.users)[':id']['$delete']> }) =>
+        parseResponse(client.users[':id'].$delete(arg, clientOptions)),
+      restMutationOptions,
+    ),
+  }
+}
+`)
     } finally {
       fs.rmSync(dir, { recursive: true, force: true })
     }
@@ -372,13 +758,43 @@ describe('swr (enabled priority)', () => {
 
       const code = fs.readFileSync(out, 'utf-8')
 
-      // CRITICAL: Verify the fix - enabled should take priority over customKey
-      // Old (buggy): customKey ?? (isEnabled ? getKey() : null)
-      // New (fixed): isEnabled ? (customKey ?? getKey()) : null
-      expect(code).toContain('const swrKey = isEnabled ? (customKey ?? getGetUsersKey()) : null')
+      expect(code).toBe(`import useSWR from 'swr'
+import type { Key, SWRConfiguration } from 'swr'
+import type { ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
+import { client } from '../client'
 
-      // Should NOT contain the old buggy pattern
-      expect(code).not.toContain('customKey ?? (isEnabled ?')
+/**
+ * Generates SWR cache key for GET /users
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGetUsersKey() {
+  return ['users', 'GET', '/users'] as const
+}
+
+/**
+ * GET /users
+ *
+ * Get users
+ */
+export function useGetUsers(options?: {
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
+  client?: ClientRequestOptions
+}) {
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetUsersKey()) : null
+  return {
+    swrKey,
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.users.$get(undefined, clientOptions)),
+      restSwrOptions,
+    ),
+  }
+}
+`)
     } finally {
       fs.rmSync(dir, { recursive: true, force: true })
     }

@@ -19,6 +19,7 @@ export async function template(
   pathAlias: string | undefined,
   routeImport: string | undefined,
   routeHandler: boolean,
+  framework: 'vitest' | 'bun' = 'vitest',
 ): Promise<
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {
@@ -28,7 +29,7 @@ export async function template(
 
   const [appFmtResult, stubHandlersResult] = await Promise.all([
     fmt(app(openAPI, output, basePath, pathAlias, routeImport, routeHandler)),
-    zodOpenAPIHonoHandler(openAPI, output, test, pathAlias, routeImport, routeHandler, basePath),
+    zodOpenAPIHonoHandler(openAPI, output, test, pathAlias, routeImport, routeHandler, basePath, framework),
   ])
   if (!appFmtResult.ok) return { ok: false, error: appFmtResult.error }
   if (!stubHandlersResult.ok) return { ok: false, error: stubHandlersResult.error }

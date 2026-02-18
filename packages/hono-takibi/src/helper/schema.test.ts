@@ -284,12 +284,10 @@ describe('makeSplitSchemaFile', () => {
         true,
       )
 
-      // The nested z.object({city:...}) should also have .readonly()
-      expect(result).toContain(
-        'z.object({city:z.string().exactOptional()}).readonly().exactOptional()',
+      // The full result should contain both readonly nested object and readonly outer
+      expect(result).toBe(
+        "import{z}from'@hono/zod-openapi'\n\n\nexport const OuterSchema=z.object({name:z.string().exactOptional(),inner:z.object({city:z.string().exactOptional()}).readonly().exactOptional()}).readonly().openapi('Outer')\n\nexport type Outer=z.infer<typeof OuterSchema>",
       )
-      // The outer object should also have .readonly()
-      expect(result).toContain('.readonly().openapi(')
     })
 
     it.concurrent('should apply readonly to nested arrays', () => {
@@ -315,8 +313,10 @@ describe('makeSplitSchemaFile', () => {
         true,
       )
 
-      // The nested z.array() should have .readonly()
-      expect(result).toContain('z.array(z.string()).readonly().exactOptional()')
+      // The full result should contain readonly array
+      expect(result).toBe(
+        "import{z}from'@hono/zod-openapi'\n\n\nexport const ContainerSchema=z.object({items:z.array(z.string()).readonly().exactOptional()}).readonly().openapi('Container')\n\nexport type Container=z.infer<typeof ContainerSchema>",
+      )
     })
   })
 })

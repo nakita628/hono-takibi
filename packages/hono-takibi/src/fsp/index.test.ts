@@ -51,9 +51,8 @@ describe('fsp', () => {
       const result = await readdir(TEST_DIR)
       expect(result.ok).toBe(true)
       if (result.ok) {
-        expect(Array.isArray(result.value)).toBe(true)
-        expect(result.value).toContain('a.txt')
-        expect(result.value).toContain('b.txt')
+        const sorted = [...result.value].sort()
+        expect(sorted).toStrictEqual(['a.txt', 'b.txt'])
       }
     })
 

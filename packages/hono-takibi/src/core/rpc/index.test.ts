@@ -559,7 +559,7 @@ export async function patchUsersId(
 
       expect(index).toStrictEqual(expected)
       expect(result.ok).toBe(true)
-      expect(result.value).toMatch(/Generated rpc code written to/)
+      expect(typeof result.value === 'string' && result.value.startsWith('Generated rpc code written to')).toBe(true)
     } finally {
       fs.rmSync(dir, { recursive: true, force: true })
     }
@@ -1162,8 +1162,18 @@ export * from './getAllOptional'
       }
 
       const code = fs.readFileSync(out, 'utf-8')
-      expect(code).toContain("import { authClient } from '../api'")
-      expect(code).toContain('return await authClient.users.$get(undefined, options)')
+      expect(code).toBe(`import type { ClientRequestOptions } from 'hono/client'
+import { authClient } from '../api'
+
+/**
+ * GET /users
+ *
+ * Get users
+ */
+export async function getUsers(options?: ClientRequestOptions) {
+  return await authClient.users.$get(undefined, options)
+}
+`)
     } finally {
       fs.rmSync(dir, { recursive: true, force: true })
     }
@@ -1193,8 +1203,18 @@ export * from './getAllOptional'
       }
 
       const code = fs.readFileSync(path.join(dir, 'rpc', 'getAdminUsers.ts'), 'utf-8')
-      expect(code).toContain("import { adminClient } from '../api'")
-      expect(code).toContain('return await adminClient.admin.users.$get(undefined, options)')
+      expect(code).toBe(`import type { ClientRequestOptions } from 'hono/client'
+import { adminClient } from '../api'
+
+/**
+ * GET /admin/users
+ *
+ * Get admin users
+ */
+export async function getAdminUsers(options?: ClientRequestOptions) {
+  return await adminClient.admin.users.$get(undefined, options)
+}
+`)
     } finally {
       fs.rmSync(dir, { recursive: true, force: true })
     }
@@ -1226,8 +1246,19 @@ describe('rpc (parseResponse: true)', () => {
       }
 
       const code = fs.readFileSync(out, 'utf-8')
-      expect(code).toContain("import { parseResponse } from 'hono/client'")
-      expect(code).toContain('return await parseResponse(client.health.$get(undefined, options))')
+      expect(code).toBe(`import type { ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
+import { client } from '../client'
+
+/**
+ * GET /health
+ *
+ * Health check
+ */
+export async function getHealth(options?: ClientRequestOptions) {
+  return await parseResponse(client.health.$get(undefined, options))
+}
+`)
     } finally {
       fs.rmSync(dir, { recursive: true, force: true })
     }
@@ -1265,8 +1296,22 @@ describe('rpc (parseResponse: true)', () => {
       }
 
       const code = fs.readFileSync(out, 'utf-8')
-      expect(code).toContain("import { parseResponse } from 'hono/client'")
-      expect(code).toContain("return await parseResponse(client.users[':id'].$get(args, options))")
+      expect(code).toBe(`import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
+import { client } from '../client'
+
+/**
+ * GET /users/{id}
+ *
+ * Get user by ID
+ */
+export async function getUsersId(
+  args: InferRequestType<(typeof client.users)[':id']['\$get']>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.users[':id'].\$get(args, options))
+}
+`)
     } finally {
       fs.rmSync(dir, { recursive: true, force: true })
     }
@@ -1296,8 +1341,19 @@ describe('rpc (parseResponse: true)', () => {
       }
 
       const code = fs.readFileSync(path.join(dir, 'rpc', 'getHealth.ts'), 'utf-8')
-      expect(code).toContain("import { parseResponse } from 'hono/client'")
-      expect(code).toContain('return await parseResponse(client.health.$get(undefined, options))')
+      expect(code).toBe(`import type { ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
+import { client } from '../client'
+
+/**
+ * GET /health
+ *
+ * Health check
+ */
+export async function getHealth(options?: ClientRequestOptions) {
+  return await parseResponse(client.health.$get(undefined, options))
+}
+`)
     } finally {
       fs.rmSync(dir, { recursive: true, force: true })
     }

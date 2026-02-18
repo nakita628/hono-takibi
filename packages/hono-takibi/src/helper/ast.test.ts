@@ -87,9 +87,7 @@ type User = z.infer<typeof UserSchema>
 type Pagination = z.infer<typeof PaginationSchema>`
     const result = ast(input)
     // Type aliases have no dependencies on each other, order is preserved
-    expect(result).toContain('UserListResponse')
-    expect(result).toContain('User')
-    expect(result).toContain('Pagination')
+    expect(result).toBe(`type UserListResponse = z.infer<typeof UserListResponseSchema>\n\ntype User = z.infer<typeof UserSchema>\n\ntype Pagination = z.infer<typeof PaginationSchema>`)
   })
 
   it.concurrent('should preserve both const and type when name ends with Schema', () => {
@@ -102,11 +100,13 @@ type Pagination = z.infer<typeof PaginationSchema>`
 
 export type MergedSchema = z.infer<typeof MergedSchema>`
     const result = ast(input)
-    // Both const and type should be present
-    expect(result).toContain('export const MergedSchema')
-    expect(result).toContain('export type MergedSchema')
-    // const should come before type (since type depends on const)
-    expect(result.indexOf('const MergedSchema')).toBeLessThan(result.indexOf('type MergedSchema'))
+    // Both const and type should be present, const before type
+    expect(result).toBe(`export const MergedSchema = z.object({
+  id: z.string(),
+  name: z.string()
+}).openapi('Merged')
+
+export type MergedSchema = z.infer<typeof MergedSchema>`)
   })
 
   it.concurrent('should handle multiple schema names ending with Schema', () => {
@@ -246,7 +246,7 @@ describe('analyzeCircularSchemas', () => {
       },
     } as const
     const result = analyzeCircularSchemas(schemas, ['AuthResponse', 'User'])
-    expect(result.depsMap.get('AuthResponse')).toContain('UserSchema')
+    expect(result.depsMap.get('AuthResponse')).toStrictEqual(['UserSchema'])
     expect(result.depsMap.get('User')).toStrictEqual([])
   })
 
