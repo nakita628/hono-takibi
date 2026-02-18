@@ -176,7 +176,7 @@ describe('makeTypeString', () => {
         },
         'Test',
       )
-      expect(result).toContain('&')
+      expect(result).toBe('({id?:number}&{name?:string})')
     })
 
     it('should handle single item union', () => {
@@ -302,7 +302,7 @@ describe('makeTypeString', () => {
         },
         'Test',
       )
-      expect(result).toContain("'special-key'")
+      expect(result).toBe("{'special-key'?:string}")
     })
   })
 

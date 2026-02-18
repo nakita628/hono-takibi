@@ -12,7 +12,7 @@ describe('fmt', () => {
 
   it.concurrent('returns error result for invalid code', async () => {
     const result = await fmt('const = ;')
-    expect(result).toMatchObject({ ok: false })
+    expect(result).toStrictEqual({ ok: false, error: 'Unexpected token' })
   })
 })
 
@@ -69,10 +69,7 @@ describe('setFormatOptions', () => {
     setFormatOptions({ trailingComma: 'none', singleQuote: true, semi: false })
     const input = 'const obj = {\n  a: 1,\n  b: 2,\n}'
     const result = await fmt(input)
-    expect(result.ok).toBe(true)
-    if (result.ok) {
-      expect(result.value).not.toMatch(/,\n}/)
-    }
+    expect(result).toStrictEqual({ ok: true, value: 'const obj = {\n  a: 1,\n  b: 2\n}\n' })
   })
 
   it('arrowParens: avoid omits parens on single param', async () => {

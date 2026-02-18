@@ -1892,8 +1892,6 @@ export * from './chainedUser.ts'
       baseUserFile,
     ).toBe(`export const BaseUserExample = { summary: 'Base user', value: { id: 1, name: 'Base' } }
 `)
-    expect(baseUserFile).not.toContain('import')
-
     // Check AliasUser imports and references BaseUser
     const aliasUserFile = fs.readFileSync(path.join(testDir, 'src/examples/aliasUser.ts'), 'utf-8')
     expect(aliasUserFile).toBe(`import { BaseUserExample } from './baseUser.ts'
@@ -2419,21 +2417,51 @@ export const postSubscribeRoute = createRoute({
       cwd: path.resolve(testDir),
     })
 
-    // 1. callback file should contain Zod schema references (not plain $ref strings)
     const onEventFile = fs.readFileSync(path.join(testDir, 'src/callbacks/onEvent.ts'), 'utf-8')
-    expect(onEventFile).toContain('EventPayloadSchema')
+    expect(onEventFile).toBe(`import { EventPayloadSchema } from '../schemas'
 
-    // 2. callback file should contain Zod imports
-    expect(onEventFile).toContain('import')
+export const OnEventCallback = {
+  '{$request.body#/callbackUrl}': {
+    post: {
+      requestBody: { content: { 'application/json': { schema: EventPayloadSchema } } },
+      responses: {
+        200: { description: 'OK', content: { 'application/json': { schema: EventPayloadSchema } } },
+      },
+    },
+  },
+}
+`)
 
-    // 3. route file should use Zod schemas for request/responses (normal conversion)
     const postSubscribeRoute = fs.readFileSync(
       path.join(testDir, 'src/routes/postSubscribe.ts'),
       'utf-8',
     )
-    expect(postSubscribeRoute).toContain('z.object')
-    expect(postSubscribeRoute).toContain('OnEventCallback')
-    expect(postSubscribeRoute).toContain("import { OnEventCallback } from '../callbacks'")
+    expect(postSubscribeRoute).toBe(`import { createRoute, z } from '@hono/zod-openapi'
+import { SubscriptionSchema } from '../schemas'
+import { OnEventCallback } from '../callbacks'
+
+export const postSubscribeRoute = createRoute({
+  method: 'post',
+  path: '/subscribe',
+  operationId: 'subscribe',
+  request: {
+    body: {
+      content: {
+        'application/json': {
+          schema: z.object({ callbackUrl: z.string() }).openapi({ required: ['callbackUrl'] }),
+        },
+      },
+    },
+  },
+  responses: {
+    201: {
+      description: 'Subscribed',
+      content: { 'application/json': { schema: SubscriptionSchema } },
+    },
+  },
+  callbacks: { onEvent: OnEventCallback },
+})
+`)
   })
 
   it('verifies no unnecessary imports in generated files', () => {
@@ -2474,8 +2502,6 @@ export const getSimpleRoute = createRoute({
   responses: { 200: { description: 'OK' } },
 })
 `)
-    expect(getSimpleRoute).not.toContain('import { z }')
-    expect(getSimpleRoute).not.toContain("from '@/schemas'")
   })
 
   it('verifies import order in generated files', () => {

@@ -286,7 +286,7 @@ describe('makeSplitSchemaFile', () => {
 
       // The full result should contain both readonly nested object and readonly outer
       expect(result).toBe(
-        "import{z}from'@hono/zod-openapi'\n\n\nexport const OuterSchema=z.object({address:z.object({city:z.string().exactOptional()}).readonly().exactOptional()}).readonly().openapi('Outer')\n\nexport type Outer=z.infer<typeof OuterSchema>",
+        "import{z}from'@hono/zod-openapi'\n\n\nexport const OuterSchema=z.object({name:z.string().exactOptional(),inner:z.object({city:z.string().exactOptional()}).readonly().exactOptional()}).readonly().openapi('Outer')\n\nexport type Outer=z.infer<typeof OuterSchema>",
       )
     })
 

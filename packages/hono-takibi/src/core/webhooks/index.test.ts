@@ -111,7 +111,6 @@ export const userCreatedPostWebhook = {
 }
 `
       expect(content).toBe(expected)
-      expect(content).not.toContain('$ref')
     })
   })
 
@@ -142,7 +141,6 @@ export const newOrderPostWebhook = {
 }
 `
       expect(newOrderContent).toBe(expectedNewOrder)
-      expect(newOrderContent).not.toContain('$ref')
 
       const indexContent = readFileSync('/tmp/test-webhooks-split/index.ts', 'utf-8')
       const expectedIndex = `export * from './newOrderPost'
