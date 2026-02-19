@@ -6,7 +6,7 @@ export default defineConfig({
     output: 'src/routes/index.ts',
     exportSchemas: true,
     template: {
-        test: true,
-    }
+      test: true,
+    },
   },
 })

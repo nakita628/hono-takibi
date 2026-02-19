@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest'
 import { faker } from '@faker-js/faker'
+import { describe, expect, it } from 'vitest'
 import app from '..'
 
 describe('FizzBuzz', () => {

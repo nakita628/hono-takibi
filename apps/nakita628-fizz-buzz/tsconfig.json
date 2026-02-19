@@ -5,6 +5,6 @@
     "moduleResolution": "Bundler",
     "strict": true,
     "skipLibCheck": true,
-    "exactOptionalPropertyTypes": true,
-  },
+    "exactOptionalPropertyTypes": true
+  }
 }
