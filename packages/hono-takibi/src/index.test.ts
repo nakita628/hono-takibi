@@ -923,16 +923,21 @@ export const getUsersRoute = createRoute({
     // Verify app file (index.ts)
     const appFile = fs.readFileSync(path.join(testDir, 'src/index.ts'), 'utf-8')
     expect(appFile).toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
+import { usersHandler } from './handlers'
 
 const app = new OpenAPIHono()
+
+export const api = app.route('/', usersHandler)
 
 export default app
 `)
 
     // Verify handler file
     const handlerFile = fs.readFileSync(path.join(testDir, 'src/handlers/users.ts'), 'utf-8')
-    expect(handlerFile).toBe(`import { getUsersRoute } from '../routes'
-import app from '..'
+    expect(handlerFile).toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
+import { getUsersRoute } from '../routes'
+
+const app = new OpenAPIHono()
 
 export const usersHandler = app.openapi(getUsersRoute, (c) => {})
 `)
@@ -1018,8 +1023,10 @@ describe('Items', () => {
     })
 
     const handlerFile = fs.readFileSync(path.join(testDir, 'src/handlers/products.ts'), 'utf-8')
-    expect(handlerFile).toBe(`import { getProductsRoute, postProductsRoute } from '../routes'
-import app from '..'
+    expect(handlerFile).toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
+import { getProductsRoute, postProductsRoute } from '../routes'
+
+const app = new OpenAPIHono()
 
 export const productsHandler = app
   .openapi(getProductsRoute, (c) => {})
