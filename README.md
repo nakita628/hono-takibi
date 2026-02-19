@@ -152,12 +152,14 @@ Re-running after updating your OpenAPI spec is safe — your hand-written handle
 
 #### `routeHandler: false` (default)
 
-Handlers import the app and register routes inline:
+Each handler creates its own sub-router and registers routes:
 
 ```ts
 // src/handlers/health.ts
+import { OpenAPIHono } from "@hono/zod-openapi";
 import { getHealthRoute } from "@/routes";
-import app from "@";
+
+const app = new OpenAPIHono();
 
 export const healthHandler = app.openapi(getHealthRoute, (c) => {});
 ```
@@ -167,7 +169,7 @@ The app mounts handlers via `.route()`:
 ```ts
 // src/index.ts
 import { OpenAPIHono } from "@hono/zod-openapi";
-import { healthHandler } from "./handlers/health";
+import { healthHandler } from "./handlers";
 
 const app = new OpenAPIHono();
 

@@ -306,8 +306,10 @@ export const getHealthRouteHandler: RouteHandler<typeof getHealthRoute> = async 
     })
 
     it('preserves existing inline handler implementation (routeHandler: false pattern)', () => {
-      const existing = `import { getHealthRoute } from '../routes'
-import app from '..'
+      const existing = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute } from '../routes'
+
+const app = new OpenAPIHono()
 
 export const healthHandler = app
 .openapi(getHealthRoute, async (c) => {
@@ -316,16 +318,20 @@ export const healthHandler = app
 })
 `
 
-      const generated = `import { getHealthRoute } from '../routes'
-import app from '..'
+      const generated = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute } from '../routes'
+
+const app = new OpenAPIHono()
 
 export const healthHandler = app
 .openapi(getHealthRoute, (c) => {})
 `
 
       const result = mergeHandlerFile(existing, generated)
-      const expected = `import { getHealthRoute } from '../routes'
-import app from '..'
+      const expected = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute } from '../routes'
+
+const app = new OpenAPIHono()
 
 export const healthHandler = app
 .openapi(getHealthRoute, async (c) => {
@@ -337,8 +343,10 @@ export const healthHandler = app
     })
 
     it('adds new inline handler from generated code', () => {
-      const existing = `import { getHealthRoute } from '../routes'
-import app from '..'
+      const existing = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute } from '../routes'
+
+const app = new OpenAPIHono()
 
 export const healthHandler = app
 .openapi(getHealthRoute, async (c) => {
@@ -346,8 +354,10 @@ export const healthHandler = app
 })
 `
 
-      const generated = `import { getHealthRoute, getUsersRoute } from '../routes'
-import app from '..'
+      const generated = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute, getUsersRoute } from '../routes'
+
+const app = new OpenAPIHono()
 
 export const healthHandler = app
 .openapi(getHealthRoute, (c) => {})
@@ -357,8 +367,10 @@ export const usersHandler = app
 `
 
       const result = mergeHandlerFile(existing, generated)
-      const expected = `import { getHealthRoute, getUsersRoute } from '../routes'
-import app from '..'
+      const expected = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute, getUsersRoute } from '../routes'
+
+const app = new OpenAPIHono()
 
 export const healthHandler = app
 .openapi(getHealthRoute, async (c) => {
@@ -372,8 +384,10 @@ export const usersHandler = app
     })
 
     it('removes deleted inline handler from existing code', () => {
-      const existing = `import { getHealthRoute, getUsersRoute } from '../routes'
-import app from '..'
+      const existing = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute, getUsersRoute } from '../routes'
+
+const app = new OpenAPIHono()
 
 export const healthHandler = app
 .openapi(getHealthRoute, async (c) => {
@@ -386,16 +400,20 @@ export const usersHandler = app
 })
 `
 
-      const generated = `import { getHealthRoute } from '../routes'
-import app from '..'
+      const generated = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute } from '../routes'
+
+const app = new OpenAPIHono()
 
 export const healthHandler = app
 .openapi(getHealthRoute, (c) => {})
 `
 
       const result = mergeHandlerFile(existing, generated)
-      const expected = `import { getHealthRoute } from '../routes'
-import app from '..'
+      const expected = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute } from '../routes'
+
+const app = new OpenAPIHono()
 
 export const healthHandler = app
 .openapi(getHealthRoute, async (c) => {
@@ -406,8 +424,10 @@ export const healthHandler = app
     })
 
     it('removes deleted .openapi() call from inline handler chain', () => {
-      const existing = `import { getHealthRoute, getHealthTestRoute } from '../routes'
-import app from '..'
+      const existing = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute, getHealthTestRoute } from '../routes'
+
+const app = new OpenAPIHono()
 
 export const healthHandler = app
 .openapi(getHealthRoute, (c) => {
@@ -418,16 +438,20 @@ export const healthHandler = app
 })
 `
 
-      const generated = `import { getHealthRoute } from '../routes'
-import app from '..'
+      const generated = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute } from '../routes'
+
+const app = new OpenAPIHono()
 
 export const healthHandler = app
 .openapi(getHealthRoute, (c) => {})
 `
 
       const result = mergeHandlerFile(existing, generated)
-      const expected = `import { getHealthRoute } from '../routes'
-import app from '..'
+      const expected = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute } from '../routes'
+
+const app = new OpenAPIHono()
 
 export const healthHandler = app
 .openapi(getHealthRoute, (c) => {
@@ -438,8 +462,10 @@ export const healthHandler = app
     })
 
     it('adds new .openapi() call to existing inline handler chain', () => {
-      const existing = `import { getHealthRoute } from '../routes'
-import app from '..'
+      const existing = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute } from '../routes'
+
+const app = new OpenAPIHono()
 
 export const healthHandler = app
 .openapi(getHealthRoute, (c) => {
@@ -447,8 +473,10 @@ export const healthHandler = app
 })
 `
 
-      const generated = `import { getHealthRoute, getHealthTestRoute } from '../routes'
-import app from '..'
+      const generated = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute, getHealthTestRoute } from '../routes'
+
+const app = new OpenAPIHono()
 
 export const healthHandler = app
 .openapi(getHealthRoute, (c) => {})
@@ -456,8 +484,10 @@ export const healthHandler = app
 `
 
       const result = mergeHandlerFile(existing, generated)
-      const expected = `import { getHealthRoute, getHealthTestRoute } from '../routes'
-import app from '..'
+      const expected = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute, getHealthTestRoute } from '../routes'
+
+const app = new OpenAPIHono()
 
 export const healthHandler = app
 .openapi(getHealthRoute, (c) => {
@@ -469,8 +499,10 @@ export const healthHandler = app
     })
 
     it('removes and adds .openapi() calls simultaneously', () => {
-      const existing = `import { getHealthRoute, getHealthTestRoute } from '../routes'
-import app from '..'
+      const existing = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute, getHealthTestRoute } from '../routes'
+
+const app = new OpenAPIHono()
 
 export const healthHandler = app
 .openapi(getHealthRoute, (c) => {
@@ -481,8 +513,10 @@ export const healthHandler = app
 })
 `
 
-      const generated = `import { getHealthRoute, postHealthRoute } from '../routes'
-import app from '..'
+      const generated = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute, postHealthRoute } from '../routes'
+
+const app = new OpenAPIHono()
 
 export const healthHandler = app
 .openapi(getHealthRoute, (c) => {})
@@ -490,8 +524,10 @@ export const healthHandler = app
 `
 
       const result = mergeHandlerFile(existing, generated)
-      const expected = `import { getHealthRoute, postHealthRoute } from '../routes'
-import app from '..'
+      const expected = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute, postHealthRoute } from '../routes'
+
+const app = new OpenAPIHono()
 
 export const healthHandler = app
 .openapi(getHealthRoute, (c) => {
@@ -503,8 +539,10 @@ export const healthHandler = app
     })
 
     it('removes deleted .openapi() call with pathAlias', () => {
-      const existing = `import { getHealthRoute, getHealthTestRoute } from '@/src/routes'
-import app from '..'
+      const existing = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute, getHealthTestRoute } from '@/src/routes'
+
+const app = new OpenAPIHono()
 
 export const healthHandler = app
 .openapi(getHealthRoute, (c) => {
@@ -515,16 +553,20 @@ export const healthHandler = app
 })
 `
 
-      const generated = `import { getHealthRoute } from '@/src/routes'
-import app from '..'
+      const generated = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute } from '@/src/routes'
+
+const app = new OpenAPIHono()
 
 export const healthHandler = app
 .openapi(getHealthRoute, (c) => {})
 `
 
       const result = mergeHandlerFile(existing, generated)
-      const expected = `import { getHealthRoute } from '@/src/routes'
-import app from '..'
+      const expected = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute } from '@/src/routes'
+
+const app = new OpenAPIHono()
 
 export const healthHandler = app
 .openapi(getHealthRoute, (c) => {
@@ -535,8 +577,10 @@ export const healthHandler = app
     })
 
     it('adds new .openapi() call with monorepo import', () => {
-      const existing = `import { getHealthRoute } from '@packages/api/routes'
-import app from '@packages/api'
+      const existing = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute } from '@packages/api/routes'
+
+const app = new OpenAPIHono()
 
 export const healthHandler = app
 .openapi(getHealthRoute, (c) => {
@@ -544,8 +588,10 @@ export const healthHandler = app
 })
 `
 
-      const generated = `import { getHealthRoute, getHealthTestRoute } from '@packages/api/routes'
-import app from '@packages/api'
+      const generated = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute, getHealthTestRoute } from '@packages/api/routes'
+
+const app = new OpenAPIHono()
 
 export const healthHandler = app
 .openapi(getHealthRoute, (c) => {})
@@ -553,8 +599,10 @@ export const healthHandler = app
 `
 
       const result = mergeHandlerFile(existing, generated)
-      const expected = `import { getHealthRoute, getHealthTestRoute } from '@packages/api/routes'
-import app from '@packages/api'
+      const expected = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute, getHealthTestRoute } from '@packages/api/routes'
+
+const app = new OpenAPIHono()
 
 export const healthHandler = app
 .openapi(getHealthRoute, (c) => {
@@ -566,8 +614,10 @@ export const healthHandler = app
     })
 
     it('removes deleted .openapi() call with monorepo import', () => {
-      const existing = `import { getHealthRoute, getHealthTestRoute } from '@packages/api/routes'
-import app from '@packages/api'
+      const existing = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute, getHealthTestRoute } from '@packages/api/routes'
+
+const app = new OpenAPIHono()
 
 export const healthHandler = app
 .openapi(getHealthRoute, (c) => {
@@ -578,16 +628,20 @@ export const healthHandler = app
 })
 `
 
-      const generated = `import { getHealthRoute } from '@packages/api/routes'
-import app from '@packages/api'
+      const generated = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute } from '@packages/api/routes'
+
+const app = new OpenAPIHono()
 
 export const healthHandler = app
 .openapi(getHealthRoute, (c) => {})
 `
 
       const result = mergeHandlerFile(existing, generated)
-      const expected = `import { getHealthRoute } from '@packages/api/routes'
-import app from '@packages/api'
+      const expected = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute } from '@packages/api/routes'
+
+const app = new OpenAPIHono()
 
 export const healthHandler = app
 .openapi(getHealthRoute, (c) => {

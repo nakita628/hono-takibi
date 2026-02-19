@@ -1,4 +1,5 @@
 import { isHttpMethod } from '../../../guard/index.js'
+import { makeHandlerFileName } from '../../../helper/handler.js'
 import type { OpenAPI } from '../../../openapi/index.js'
 import { methodPath } from '../../../utils/index.js'
 
@@ -60,11 +61,27 @@ export function app(
       : 'const app=new OpenAPIHono()'
 
   if (!routeHandler) {
-    // routeHandler: false — handlers import app and register routes directly
-    // index.ts only creates and exports the app instance
-    const importSection = `import{OpenAPIHono}from'@hono/zod-openapi'`
+    // routeHandler: false — handlers create sub-routers, index.ts mounts them via .route()
+    const handlerFileNames = [
+      ...new Set(Object.keys(openapi.paths).map((path) => makeHandlerFileName(path))),
+    ]
+    const handlerExportNames = handlerFileNames.map((fn) => `${fn.replace(/\.ts$/, '')}Handler`)
+    const handlerModule = aliasPrefix ? `${aliasPrefix}/handlers` : './handlers'
+    const handlerImport =
+      handlerExportNames.length > 0
+        ? `import{${handlerExportNames.join(',')}}from'${handlerModule}'`
+        : ''
 
-    return [importSection, appInit, 'export default app'].join('\n\n')
+    const importSection = [`import{OpenAPIHono}from'@hono/zod-openapi'`, handlerImport]
+      .filter(Boolean)
+      .join('\n')
+
+    const apiInit =
+      handlerExportNames.length > 0
+        ? `export const api=app${handlerExportNames.map((name) => `.route('/',${name})`).join('')}`
+        : ''
+
+    return [importSection, appInit, apiInit, 'export default app'].filter(Boolean).join('\n\n')
   }
 
   // routeHandler: true — app.openapi() pattern with barrel import
