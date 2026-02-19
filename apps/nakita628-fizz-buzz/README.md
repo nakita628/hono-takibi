@@ -1,12 +1,21 @@
-# FizzBuzz API
+```txt
+npm install
+npm run dev
+```
 
-FizzBuzz API.
+```txt
+npm run deploy
+```
 
-## Tech Stack
+[For generating/synchronizing types based on your Worker configuration run](https://developers.cloudflare.com/workers/wrangler/commands/#types):
 
-- [Zod OpenAPI Hono](https://github.com/honojs/middleware/tree/main/packages/zod-openapi)
-- [hono-takibi](https://github.com/nakita628/hono-takibi)
+```txt
+npm run cf-typegen
+```
 
-## Created By
+Pass the `CloudflareBindings` as generics when instantiation `Hono`:
 
-- [nakita628](https://github.com/nakita628)
+```ts
+// src/index.ts
+const app = new Hono<{ Bindings: CloudflareBindings }>()
+```

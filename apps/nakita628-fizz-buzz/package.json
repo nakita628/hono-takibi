@@ -1,21 +1,25 @@
 {
-  "name": "@apps/zod-openapi-hono-fizz-buzz",
+  "name": "nakita628-fizz-buzz",
+  "private": true,
   "type": "module",
   "scripts": {
-    "deps": "rm -rf node_modules && pnpm install",
-    "dev": "tsx watch src/index.ts",
-    "takibi": "hono-takibi openapi.json -o src/routes/index.ts"
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy --minify",
+    "cf-typegen": "wrangler types --env-interface CloudflareBindings",
+    "test": "vitest run"
   },
   "dependencies": {
-    "@hono/node-server": "^1.19.7",
-    "@hono/zod-openapi": "1.1.5",
-    "hono": "^4.11.1",
-    "zod": "^4.1.13"
+    "@hono/zod-openapi": "^1.2.2",
+    "hono": "^4.11.10",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@hono/swagger-ui": "^0.5.2",
-    "@types/node": "^25.0.2",
-    "hono-takibi": "workspace:^",
-    "tsx": "^4.21.0"
+    "@faker-js/faker": "^10.3.0",
+    "@typespec/http": "^1.9.0",
+    "@typespec/openapi": "^1.9.0",
+    "@typespec/openapi3": "^1.9.0",
+    "hono-takibi": "^0.9.982",
+    "vitest": "^4.0.18",
+    "wrangler": "^4.4.0"
   }
 }

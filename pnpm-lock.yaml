@@ -20,22 +20,56 @@ importers:
 
   apps/nakita628-fizz-buzz:
     dependencies:
+      '@hono/zod-openapi':
+        specifier: ^1.2.2
+        version: 1.2.2(hono@4.11.10)(zod@4.3.6)
+      hono:
+        specifier: ^4.11.10
+        version: 4.11.10
+      zod:
+        specifier: ^4.3.6
+        version: 4.3.6
+    devDependencies:
+      '@faker-js/faker':
+        specifier: ^10.3.0
+        version: 10.3.0
+      '@typespec/http':
+        specifier: ^1.9.0
+        version: 1.9.0(@typespec/compiler@1.9.0(@types/node@25.2.3))
+      '@typespec/openapi':
+        specifier: ^1.9.0
+        version: 1.9.0(@typespec/compiler@1.9.0(@types/node@25.2.3))(@typespec/http@1.9.0(@typespec/compiler@1.9.0(@types/node@25.2.3)))
+      '@typespec/openapi3':
+        specifier: ^1.9.0
+        version: 1.9.0(@typespec/compiler@1.9.0(@types/node@25.2.3))(@typespec/http@1.9.0(@typespec/compiler@1.9.0(@types/node@25.2.3)))(@typespec/openapi@1.9.0(@typespec/compiler@1.9.0(@types/node@25.2.3))(@typespec/http@1.9.0(@typespec/compiler@1.9.0(@types/node@25.2.3))))(@typespec/versioning@0.79.0(@typespec/compiler@1.9.0(@types/node@25.2.3)))
+      hono-takibi:
+        specifier: ^0.9.982
+        version: 0.9.982(@types/node@25.2.3)(@typespec/http@1.9.0(@typespec/compiler@1.9.0(@types/node@25.2.3)))(@typespec/openapi@1.9.0(@typespec/compiler@1.9.0(@types/node@25.2.3))(@typespec/http@1.9.0(@typespec/compiler@1.9.0(@types/node@25.2.3))))(@typespec/versioning@0.79.0(@typespec/compiler@1.9.0(@types/node@25.2.3)))(openapi-types@12.1.3)
+      vitest:
+        specifier: ^4.0.18
+        version: 4.0.18(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2)
+      wrangler:
+        specifier: ^4.4.0
+        version: 4.66.0(@cloudflare/workers-types@4.20260218.0)
+
+  apps/nakita628-fizz-buzz2:
+    dependencies:
       '@hono/node-server':
         specifier: ^1.19.7
-        version: 1.19.9(hono@4.11.9)
+        version: 1.19.9(hono@4.11.10)
       '@hono/zod-openapi':
         specifier: 1.1.5
-        version: 1.1.5(hono@4.11.9)(zod@4.3.6)
+        version: 1.1.5(hono@4.11.10)(zod@4.3.6)
       hono:
         specifier: ^4.11.1
-        version: 4.11.9
+        version: 4.11.10
       zod:
         specifier: ^4.1.13
         version: 4.3.6
     devDependencies:
       '@hono/swagger-ui':
         specifier: ^0.5.2
-        version: 0.5.3(hono@4.11.9)
+        version: 0.5.3(hono@4.11.10)
       '@types/node':
         specifier: ^25.0.2
         version: 25.2.3
@@ -56,10 +90,10 @@ importers:
         version: 1.11.1
       '@hono/auth-js':
         specifier: ^1.1.0
-        version: 1.1.1(@auth/core@0.34.3)(hono@4.11.9)(react@19.2.4)
+        version: 1.1.1(@auth/core@0.34.3)(hono@4.11.10)(react@19.2.4)
       '@hono/zod-openapi':
         specifier: ^1.2.1
-        version: 1.2.2(hono@4.11.9)(zod@4.3.6)
+        version: 1.2.2(hono@4.11.10)(zod@4.3.6)
       '@opennextjs/cloudflare':
         specifier: ^1.16.4
         version: 1.16.5(next@16.1.6(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(wrangler@4.66.0(@cloudflare/workers-types@4.20260218.0))
@@ -74,7 +108,7 @@ importers:
         version: 3.19.18
       hono:
         specifier: ^4.11.9
-        version: 4.11.9
+        version: 4.11.10
       next:
         specifier: ^16.1.6
         version: 16.1.6(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -156,13 +190,13 @@ importers:
     dependencies:
       '@hono/zod-openapi':
         specifier: ^1.2.0
-        version: 1.2.2(hono@4.11.9)(zod@4.3.6)
+        version: 1.2.2(hono@4.11.10)(zod@4.3.6)
       '@tailwindcss/vite':
         specifier: ^4.1.18
         version: 4.1.18(vite@7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2))
       hono:
         specifier: ^4.11.5
-        version: 4.11.9
+        version: 4.11.10
       kysely:
         specifier: ^0.28.2
         version: 0.28.11
@@ -235,7 +269,7 @@ importers:
     dependencies:
       '@hono/zod-openapi':
         specifier: ^1.2.0
-        version: 1.2.2(hono@4.11.9)(zod@4.3.6)
+        version: 1.2.2(hono@4.11.10)(zod@4.3.6)
       '@libsql/client':
         specifier: ^0.17.0
         version: 0.17.0
@@ -256,7 +290,7 @@ importers:
         version: 0.39.3(@cloudflare/workers-types@4.20260218.0)(@libsql/client@0.17.0)(kysely@0.28.11)
       hono:
         specifier: ^4.11.5
-        version: 4.11.9
+        version: 4.11.10
       neverthrow:
         specifier: ^8.2.0
         version: 8.2.0
@@ -281,10 +315,10 @@ importers:
         version: 4.20260218.0
       '@hono/vite-build':
         specifier: ^1.9.2
-        version: 1.9.3(hono@4.11.9)
+        version: 1.9.3(hono@4.11.10)
       '@hono/vite-dev-server':
         specifier: ^0.24.1
-        version: 0.24.1(hono@4.11.9)(miniflare@4.20260217.0)(wrangler@4.66.0(@cloudflare/workers-types@4.20260218.0))
+        version: 0.24.1(hono@4.11.10)(miniflare@4.20260217.0)(wrangler@4.66.0(@cloudflare/workers-types@4.20260218.0))
       '@tanstack/react-query-devtools':
         specifier: ^5.62.16
         version: 5.91.3(@tanstack/react-query@5.90.21(react@19.2.4))(react@19.2.4)
@@ -335,14 +369,14 @@ importers:
     dependencies:
       hono:
         specifier: ^4.11.7
-        version: 4.11.9
+        version: 4.11.10
     devDependencies:
       '@hono/node-server':
         specifier: ^1.19.9
-        version: 1.19.9(hono@4.11.9)
+        version: 1.19.9(hono@4.11.10)
       '@hono/vite-dev-server':
         specifier: ^0.24.1
-        version: 0.24.1(hono@4.11.9)(miniflare@4.20260217.0)(wrangler@4.66.0(@cloudflare/workers-types@4.20260218.0))
+        version: 0.24.1(hono@4.11.10)(miniflare@4.20260217.0)(wrangler@4.66.0(@cloudflare/workers-types@4.20260218.0))
       tsx:
         specifier: ^4.21.0
         version: 4.21.0
@@ -363,13 +397,13 @@ importers:
         version: 9.9.0
       '@hono/node-server':
         specifier: ^1.14.3
-        version: 1.19.9(hono@4.11.9)
+        version: 1.19.9(hono@4.11.10)
       '@hono/zod-openapi':
         specifier: ^1.2.1
-        version: 1.2.2(hono@4.11.9)(zod@4.3.6)
+        version: 1.2.2(hono@4.11.10)(zod@4.3.6)
       hono:
         specifier: ^4.11.7
-        version: 4.11.9
+        version: 4.11.10
       vite:
         specifier: ^7.1.4
         version: 7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2)
@@ -379,13 +413,13 @@ importers:
     devDependencies:
       '@hono/swagger-ui':
         specifier: ^0.5.2
-        version: 0.5.3(hono@4.11.9)
+        version: 0.5.3(hono@4.11.10)
       '@hono/vite-dev-server':
         specifier: ^0.24.1
-        version: 0.24.1(hono@4.11.9)(miniflare@4.20260217.0)(wrangler@4.66.0(@cloudflare/workers-types@4.20260218.0))
+        version: 0.24.1(hono@4.11.10)(miniflare@4.20260217.0)(wrangler@4.66.0(@cloudflare/workers-types@4.20260218.0))
       '@scalar/hono-api-reference':
         specifier: ^0.9.41
-        version: 0.9.41(hono@4.11.9)
+        version: 0.9.41(hono@4.11.10)
       '@scalar/openapi-to-markdown':
         specifier: ^0.3.45
         version: 0.3.45(typescript@5.9.3)
@@ -409,10 +443,10 @@ importers:
     dependencies:
       '@hono/zod-openapi':
         specifier: ^1.1.5
-        version: 1.2.2(hono@4.11.9)(zod@4.3.6)
+        version: 1.2.2(hono@4.11.10)(zod@4.3.6)
       hono:
         specifier: ^4.10.8
-        version: 4.11.9
+        version: 4.11.10
     devDependencies:
       '@types/node':
         specifier: ^24.2.1
@@ -438,7 +472,7 @@ importers:
         version: 10.3.0
       '@hono/zod-openapi':
         specifier: ^1.2.1
-        version: 1.2.2(hono@4.11.9)(zod@4.3.6)
+        version: 1.2.2(hono@4.11.10)(zod@4.3.6)
       '@tanstack/react-query':
         specifier: ^5.90.20
         version: 5.90.21(react@19.2.4)
@@ -456,7 +490,7 @@ importers:
         version: 19.2.14
       hono:
         specifier: ^4.11.7
-        version: 4.11.9
+        version: 4.11.10
       react:
         specifier: ^19.2.4
         version: 19.2.4
@@ -483,17 +517,17 @@ importers:
     dependencies:
       '@hono/zod-openapi':
         specifier: ^1.2.1
-        version: 1.2.2(hono@4.11.9)(zod@4.3.6)
+        version: 1.2.2(hono@4.11.10)(zod@4.3.6)
       hono:
         specifier: ^4.11.7
-        version: 4.11.9
+        version: 4.11.10
       zod:
         specifier: ^4.3.6
         version: 4.3.6
     devDependencies:
       '@hono/vite-dev-server':
         specifier: ^0.24.1
-        version: 0.24.1(hono@4.11.9)(miniflare@4.20260217.0)(wrangler@4.66.0(@cloudflare/workers-types@4.20260218.0))
+        version: 0.24.1(hono@4.11.10)(miniflare@4.20260217.0)(wrangler@4.66.0(@cloudflare/workers-types@4.20260218.0))
       '@types/node':
         specifier: ^25.0.2
         version: 25.2.3
@@ -517,10 +551,10 @@ importers:
         version: 9.9.0
       '@hono/zod-openapi':
         specifier: ^1.1.0
-        version: 1.2.2(hono@4.11.9)(zod@4.3.6)
+        version: 1.2.2(hono@4.11.10)(zod@4.3.6)
       hono:
         specifier: ^4.0.0
-        version: 4.11.9
+        version: 4.11.10
       zod:
         specifier: ^4.0.0
         version: 4.3.6
@@ -545,10 +579,10 @@ importers:
         version: 9.9.0
       '@hono/zod-openapi':
         specifier: ^1.1.0
-        version: 1.2.2(hono@4.11.9)(zod@4.3.6)
+        version: 1.2.2(hono@4.11.10)(zod@4.3.6)
       hono:
         specifier: ^4.0.0
-        version: 4.11.9
+        version: 4.11.10
       zod:
         specifier: ^4.0.0
         version: 4.3.6
@@ -570,10 +604,10 @@ importers:
     dependencies:
       '@hono/node-server':
         specifier: ^1.14.4
-        version: 1.19.9(hono@4.11.9)
+        version: 1.19.9(hono@4.11.10)
       hono:
         specifier: ^4.11.3
-        version: 4.11.9
+        version: 4.11.10
       vitest:
         specifier: ^4.0.16
         version: 4.0.18(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2)
@@ -592,7 +626,7 @@ importers:
     dependencies:
       '@hono/zod-openapi':
         specifier: ^0.19.6
-        version: 0.19.10(hono@4.11.9)(zod@4.3.6)
+        version: 0.19.10(hono@4.11.10)(zod@4.3.6)
       hono-takibi:
         specifier: workspace:*
         version: link:../../packages/hono-takibi
@@ -601,10 +635,10 @@ importers:
     dependencies:
       '@hono/zod-openapi':
         specifier: ^1.1.0
-        version: 1.2.2(hono@4.11.9)(zod@4.3.6)
+        version: 1.2.2(hono@4.11.10)(zod@4.3.6)
       hono:
         specifier: ^4.9.5
-        version: 4.11.9
+        version: 4.11.10
       hono-takibi:
         specifier: workspace:^
         version: link:../../packages/hono-takibi
@@ -632,10 +666,10 @@ importers:
         version: 9.9.0
       '@hono/zod-openapi':
         specifier: ^1.1.0
-        version: 1.2.2(hono@4.11.9)(zod@4.3.6)
+        version: 1.2.2(hono@4.11.10)(zod@4.3.6)
       hono:
         specifier: ^4.0.0
-        version: 4.11.9
+        version: 4.11.10
       zod:
         specifier: ^4.0.0
         version: 4.3.6
@@ -657,13 +691,13 @@ importers:
     dependencies:
       '@hono/node-server':
         specifier: ^1.14.3
-        version: 1.19.9(hono@4.11.9)
+        version: 1.19.9(hono@4.11.10)
       '@hono/zod-openapi':
         specifier: ^1.2.1
-        version: 1.2.2(hono@4.11.9)(zod@4.3.6)
+        version: 1.2.2(hono@4.11.10)(zod@4.3.6)
       hono:
         specifier: ^4.11.7
-        version: 4.11.9
+        version: 4.11.10
       zod:
         specifier: ^4.3.6
         version: 4.3.6
@@ -691,13 +725,13 @@ importers:
     dependencies:
       '@hono/node-server':
         specifier: ^1.14.3
-        version: 1.19.9(hono@4.11.9)
+        version: 1.19.9(hono@4.11.10)
       '@hono/zod-openapi':
         specifier: ^1.2.1
-        version: 1.2.2(hono@4.11.9)(zod@4.3.6)
+        version: 1.2.2(hono@4.11.10)(zod@4.3.6)
       hono:
         specifier: ^4.11.7
-        version: 4.11.9
+        version: 4.11.10
       zod:
         specifier: ^4.3.6
         version: 4.3.6
@@ -722,10 +756,10 @@ importers:
     dependencies:
       '@hono/zod-openapi':
         specifier: ^1.1.5
-        version: 1.2.2(hono@4.11.9)(zod@4.3.6)
+        version: 1.2.2(hono@4.11.10)(zod@4.3.6)
       hono:
         specifier: ^4.10.8
-        version: 4.11.9
+        version: 4.11.10
       hono-takibi:
         specifier: workspace:^
         version: link:../../packages/hono-takibi
@@ -753,10 +787,10 @@ importers:
     dependencies:
       '@hono/zod-openapi':
         specifier: ^1.2.1
-        version: 1.2.2(hono@4.11.9)(zod@4.3.6)
+        version: 1.2.2(hono@4.11.10)(zod@4.3.6)
       hono:
         specifier: ^4.11.7
-        version: 4.11.9
+        version: 4.11.10
       zod:
         specifier: ^4.3.6
         version: 4.3.6
@@ -772,10 +806,10 @@ importers:
     dependencies:
       '@hono/zod-openapi':
         specifier: ^1.1.0
-        version: 1.2.2(hono@4.11.9)(zod@4.3.6)
+        version: 1.2.2(hono@4.11.10)(zod@4.3.6)
       hono:
         specifier: ^4.9.6
-        version: 4.11.9
+        version: 4.11.10
       hono-takibi:
         specifier: workspace:^
         version: link:../../packages/hono-takibi
@@ -785,10 +819,10 @@ importers:
     devDependencies:
       '@hono/swagger-ui':
         specifier: ^0.5.2
-        version: 0.5.3(hono@4.11.9)
+        version: 0.5.3(hono@4.11.10)
       '@hono/vite-dev-server':
         specifier: ^0.24.1
-        version: 0.24.1(hono@4.11.9)(miniflare@4.20260217.0)(wrangler@4.66.0(@cloudflare/workers-types@4.20260218.0))
+        version: 0.24.1(hono@4.11.10)(miniflare@4.20260217.0)(wrangler@4.66.0(@cloudflare/workers-types@4.20260218.0))
       '@types/node':
         specifier: ^24.2.1
         version: 24.10.13
@@ -5030,8 +5064,12 @@ packages:
   highlightjs-curl@1.3.0:
     resolution: {integrity: sha512-50UEfZq1KR0Lfk2Tr6xb/MUIZH3h10oNC0OTy9g7WELcs5Fgy/mKN1vEhuKTkKbdo8vr5F9GXstu2eLhApfQ3A==}
 
-  hono@4.11.9:
-    resolution: {integrity: sha512-Eaw2YTGM6WOxA6CXbckaEvslr2Ne4NFsKrvc0v97JD5awbmeBLO5w9Ho9L9kmKonrwF9RJlW6BxT1PVv/agBHQ==}
+  hono-takibi@0.9.982:
+    resolution: {integrity: sha512-QPVHda4VGZ0tBWljCsZX9prOhmy/vGTe06M18iiVRO41DbCg7OVQHLQfsKd3iju9LY3zzJiIUi2Lc0eKPT8HoA==}
+    hasBin: true
+
+  hono@4.11.10:
+    resolution: {integrity: sha512-kyWP5PAiMooEvGrA9jcD3IXF7ATu8+o7B3KCbPXid5se52NPqnOpM/r9qeW2heMnOekF4kqR1fXJqCYeCLKrZg==}
     engines: {node: '>=16.9.0'}
 
   hookable@6.0.1:
@@ -8229,67 +8267,67 @@ snapshots:
       '@tanstack/vue-virtual': 3.13.18(vue@3.5.28(typescript@5.9.3))
       vue: 3.5.28(typescript@5.9.3)
 
-  '@hono/auth-js@1.1.1(@auth/core@0.34.3)(hono@4.11.9)(react@19.2.4)':
+  '@hono/auth-js@1.1.1(@auth/core@0.34.3)(hono@4.11.10)(react@19.2.4)':
     dependencies:
       '@auth/core': 0.34.3
-      hono: 4.11.9
+      hono: 4.11.10
       react: 19.2.4
 
   '@hono/cli@0.1.10':
     dependencies:
-      '@hono/node-server': 1.19.9(hono@4.11.9)
+      '@hono/node-server': 1.19.9(hono@4.11.10)
       commander: 14.0.3
       esbuild: 0.25.12
-      hono: 4.11.9
+      hono: 4.11.10
 
-  '@hono/node-server@1.19.9(hono@4.11.9)':
+  '@hono/node-server@1.19.9(hono@4.11.10)':
     dependencies:
-      hono: 4.11.9
+      hono: 4.11.10
 
-  '@hono/swagger-ui@0.5.3(hono@4.11.9)':
+  '@hono/swagger-ui@0.5.3(hono@4.11.10)':
     dependencies:
-      hono: 4.11.9
+      hono: 4.11.10
 
-  '@hono/vite-build@1.9.3(hono@4.11.9)':
+  '@hono/vite-build@1.9.3(hono@4.11.10)':
     dependencies:
-      hono: 4.11.9
+      hono: 4.11.10
 
-  '@hono/vite-dev-server@0.24.1(hono@4.11.9)(miniflare@4.20260217.0)(wrangler@4.66.0(@cloudflare/workers-types@4.20260218.0))':
+  '@hono/vite-dev-server@0.24.1(hono@4.11.10)(miniflare@4.20260217.0)(wrangler@4.66.0(@cloudflare/workers-types@4.20260218.0))':
     dependencies:
-      '@hono/node-server': 1.19.9(hono@4.11.9)
-      hono: 4.11.9
+      '@hono/node-server': 1.19.9(hono@4.11.10)
+      hono: 4.11.10
       minimatch: 9.0.5
     optionalDependencies:
       miniflare: 4.20260217.0
       wrangler: 4.66.0(@cloudflare/workers-types@4.20260218.0)
 
-  '@hono/zod-openapi@0.19.10(hono@4.11.9)(zod@4.3.6)':
+  '@hono/zod-openapi@0.19.10(hono@4.11.10)(zod@4.3.6)':
     dependencies:
       '@asteasolutions/zod-to-openapi': 7.3.4(zod@4.3.6)
-      '@hono/zod-validator': 0.7.6(hono@4.11.9)(zod@4.3.6)
-      hono: 4.11.9
+      '@hono/zod-validator': 0.7.6(hono@4.11.10)(zod@4.3.6)
+      hono: 4.11.10
       openapi3-ts: 4.5.0
       zod: 4.3.6
 
-  '@hono/zod-openapi@1.1.5(hono@4.11.9)(zod@4.3.6)':
+  '@hono/zod-openapi@1.1.5(hono@4.11.10)(zod@4.3.6)':
     dependencies:
       '@asteasolutions/zod-to-openapi': 8.4.1(zod@4.3.6)
-      '@hono/zod-validator': 0.7.6(hono@4.11.9)(zod@4.3.6)
-      hono: 4.11.9
+      '@hono/zod-validator': 0.7.6(hono@4.11.10)(zod@4.3.6)
+      hono: 4.11.10
       openapi3-ts: 4.5.0
       zod: 4.3.6
 
-  '@hono/zod-openapi@1.2.2(hono@4.11.9)(zod@4.3.6)':
+  '@hono/zod-openapi@1.2.2(hono@4.11.10)(zod@4.3.6)':
     dependencies:
       '@asteasolutions/zod-to-openapi': 8.4.1(zod@4.3.6)
-      '@hono/zod-validator': 0.7.6(hono@4.11.9)(zod@4.3.6)
-      hono: 4.11.9
+      '@hono/zod-validator': 0.7.6(hono@4.11.10)(zod@4.3.6)
+      hono: 4.11.10
       openapi3-ts: 4.5.0
       zod: 4.3.6
 
-  '@hono/zod-validator@0.7.6(hono@4.11.9)(zod@4.3.6)':
+  '@hono/zod-validator@0.7.6(hono@4.11.10)(zod@4.3.6)':
     dependencies:
-      hono: 4.11.9
+      hono: 4.11.10
       zod: 4.3.6
 
   '@img/colour@1.0.0': {}
@@ -9166,10 +9204,10 @@ snapshots:
 
   '@scalar/helpers@0.2.12': {}
 
-  '@scalar/hono-api-reference@0.9.41(hono@4.11.9)':
+  '@scalar/hono-api-reference@0.9.41(hono@4.11.10)':
     dependencies:
       '@scalar/core': 0.3.38
-      hono: 4.11.9
+      hono: 4.11.10
 
   '@scalar/icons@0.5.3(typescript@5.9.3)':
     dependencies:
@@ -10214,6 +10252,14 @@ snapshots:
       '@vitest/utils': 4.0.18
       chai: 6.2.2
       tinyrainbow: 3.0.3
+
+  '@vitest/mocker@4.0.18(vite@7.3.1(@types/node@22.19.11)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2))':
+    dependencies:
+      '@vitest/spy': 4.0.18
+      estree-walker: 3.0.3
+      magic-string: 0.30.21
+    optionalDependencies:
+      vite: 7.3.1(@types/node@22.19.11)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2)
 
   '@vitest/mocker@4.0.18(vite@7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2))':
     dependencies:
@@ -11348,7 +11394,29 @@ snapshots:
 
   highlightjs-curl@1.3.0: {}
 
-  hono@4.11.9: {}
+  hono-takibi@0.9.982(@types/node@25.2.3)(@typespec/http@1.9.0(@typespec/compiler@1.9.0(@types/node@25.2.3)))(@typespec/openapi@1.9.0(@typespec/compiler@1.9.0(@types/node@25.2.3))(@typespec/http@1.9.0(@typespec/compiler@1.9.0(@types/node@25.2.3))))(@typespec/versioning@0.79.0(@typespec/compiler@1.9.0(@types/node@25.2.3)))(openapi-types@12.1.3):
+    dependencies:
+      '@apidevtools/swagger-parser': 12.1.0(openapi-types@12.1.3)
+      '@typespec/compiler': 1.9.0(@types/node@25.2.3)
+      '@typespec/openapi3': 1.9.0(@typespec/compiler@1.9.0(@types/node@25.2.3))(@typespec/http@1.9.0(@typespec/compiler@1.9.0(@types/node@25.2.3)))(@typespec/openapi@1.9.0(@typespec/compiler@1.9.0(@types/node@25.2.3))(@typespec/http@1.9.0(@typespec/compiler@1.9.0(@types/node@25.2.3))))(@typespec/versioning@0.79.0(@typespec/compiler@1.9.0(@types/node@25.2.3)))
+      oxfmt: 0.33.0
+      ts-morph: 27.0.2
+      tsx: 4.21.0
+      typescript: 5.9.3
+      zod: 4.3.6
+    transitivePeerDependencies:
+      - '@types/node'
+      - '@typespec/events'
+      - '@typespec/http'
+      - '@typespec/json-schema'
+      - '@typespec/openapi'
+      - '@typespec/sse'
+      - '@typespec/streams'
+      - '@typespec/versioning'
+      - '@typespec/xml'
+      - openapi-types
+
+  hono@4.11.10: {}
 
   hookable@6.0.1: {}
 
@@ -13059,7 +13127,7 @@ snapshots:
   vitest@4.0.18(@types/node@22.19.11)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2):
     dependencies:
       '@vitest/expect': 4.0.18
-      '@vitest/mocker': 4.0.18(vite@7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2))
+      '@vitest/mocker': 4.0.18(vite@7.3.1(@types/node@22.19.11)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2))
       '@vitest/pretty-format': 4.0.18
       '@vitest/runner': 4.0.18
       '@vitest/snapshot': 4.0.18
