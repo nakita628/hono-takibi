@@ -237,14 +237,13 @@ function makeInlineStubFileContent(
     readonly routeNames: readonly string[]
   },
   importFrom: string,
-  appImportFrom: string,
 ): string {
   const exportName = `${handler.fileName.replace(/\.ts$/, '')}Handler`
   const routeImports = Array.from(new Set(handler.routeNames)).join(', ')
   const importRoutes = routeImports ? `import { ${routeImports} } from '${importFrom}';` : ''
-  const importStatements = `${importRoutes}\nimport app from '${appImportFrom}'`
+  const importStatements = `import { OpenAPIHono } from '@hono/zod-openapi'\n${importRoutes}`
   const chain = handler.contents.join('\n')
-  return `${importStatements}\n\nexport const ${exportName} = app\n${chain}`
+  return `${importStatements}\n\nconst app = new OpenAPIHono()\n\nexport const ${exportName} = app\n${chain}`
 }
 
 function makeInlineMockFileContent(
@@ -256,26 +255,26 @@ function makeInlineMockFileContent(
     readonly usedRefs: ReadonlySet<string>
   },
   importFrom: string,
-  appImportFrom: string,
   schemas: { readonly [k: string]: Schema },
 ): string {
   const exportName = `${handler.fileName.replace(/\.ts$/, '')}Handler`
   const routeImports = Array.from(new Set(handler.routeNames)).join(', ')
   const importRoutes = routeImports ? `import { ${routeImports} } from '${importFrom}';` : ''
   const fakerImport = handler.needsFaker ? "import { faker } from '@faker-js/faker'\n" : ''
-  const importStatements = `${fakerImport}${importRoutes}\nimport app from '${appImportFrom}'`
+  const importStatements = `import { OpenAPIHono } from '@hono/zod-openapi'\n${fakerImport}${importRoutes}`
 
   const mockFunctions = Array.from(handler.usedRefs)
     .filter((refName) => schemas[refName])
     .map((refName) => makeMockFunction(refName, schemas[refName], schemas))
     .join('\n\n')
 
+  const appDecl = 'const app = new OpenAPIHono()'
   const chain = handler.contents.join('\n')
   const body = `export const ${exportName} = app\n${chain}`
 
   return mockFunctions
-    ? `${importStatements}\n\n${mockFunctions}\n\n${body}`
-    : `${importStatements}\n\n${body}`
+    ? `${importStatements}\n\n${appDecl}\n\n${mockFunctions}\n\n${body}`
+    : `${importStatements}\n\n${appDecl}\n\n${body}`
 }
 
 /* ─────────────────────────────── Handler Info ─────────────────────────────── */
@@ -492,7 +491,7 @@ export async function zodOpenAPIHonoHandler(
     ...handlers.map(async (handler) => {
       const fileContent = routeHandler
         ? makeStubFileContent(handler, importFrom)
-        : makeInlineStubFileContent(handler, importFrom, testImportFrom)
+        : makeInlineStubFileContent(handler, importFrom)
       const fmtResult = await fmt(fileContent)
       if (!fmtResult.ok) return { ok: false, error: fmtResult.error } as const
 
@@ -617,7 +616,7 @@ export async function mockZodOpenAPIHonoHandler(
     ...handlers.map(async (handler) => {
       const fileContent = routeHandler
         ? makeMockFileContent(handler, importFrom, schemas)
-        : makeInlineMockFileContent(handler, importFrom, testImportFrom, schemas)
+        : makeInlineMockFileContent(handler, importFrom, schemas)
       const fmtResult = await fmt(fileContent)
       if (!fmtResult.ok) return { ok: false, error: fmtResult.error } as const
 
