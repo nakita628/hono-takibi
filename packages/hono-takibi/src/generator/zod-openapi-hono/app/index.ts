@@ -78,7 +78,7 @@ export function app(
 
     const apiInit =
       handlerExportNames.length > 0
-        ? 'export const api=app' + handlerExportNames.map((name) => `.route('/',${name})`).join('')
+        ? `export const api=app${handlerExportNames.map((name) => `.route('/',${name})`).join('')}`
         : ''
 
     return [importSection, appInit, apiInit, 'export default app'].filter(Boolean).join('\n\n')
