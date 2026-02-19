@@ -1,7 +1,5 @@
 import { type FormatOptions, format } from 'oxfmt'
 
-export type { FormatOptions } from 'oxfmt'
-
 const defaultOptions: FormatOptions = {
   printWidth: 100,
   singleQuote: true,

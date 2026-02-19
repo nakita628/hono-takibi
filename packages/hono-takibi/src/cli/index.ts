@@ -121,32 +121,7 @@ export async function honoTakibi(): Promise<
   if (!openAPIResult.ok) return { ok: false, error: openAPIResult.error }
   const openAPI = openAPIResult.value
 
-  const [
-    takibiResult,
-    schemaResult,
-    parameterResult,
-    headersResult,
-    examplesResult,
-    linksResult,
-    callbacksResult,
-    pathItemsResult,
-    mediaTypesResult,
-    webhooksResult,
-    securitySchemesResult,
-    requestBodiesResult,
-    responsesResult,
-    routeResult,
-    typeResult,
-    rpcResult,
-    swrResult,
-    tanstackQueryResult,
-    svelteQueryResult,
-    vueQueryResult,
-    testResult,
-    mockResult,
-    docsResult,
-    templateResult,
-  ] = await Promise.all([
+  const results = await Promise.all([
     config['zod-openapi']?.output
       ? takibi(openAPI, config['zod-openapi'].output, {
           readonly: config['zod-openapi'].readonly,
@@ -331,7 +306,13 @@ export async function honoTakibi(): Promise<
         )
       : Promise.resolve(undefined),
     config.test
-      ? test(openAPI, config.test.output, config.test.import, config.basePath ?? '/', config.test.framework)
+      ? test(
+          openAPI,
+          config.test.output,
+          config.test.import,
+          config.basePath ?? '/',
+          config.test.framework,
+        )
       : Promise.resolve(undefined),
     config.mock
       ? mock(openAPI, config.mock.output, config.basePath ?? '/', config['zod-openapi']?.readonly)
@@ -365,61 +346,11 @@ export async function honoTakibi(): Promise<
     })(),
   ])
 
-  if (takibiResult && !takibiResult.ok) return { ok: false, error: takibiResult.error }
-  if (schemaResult && !schemaResult.ok) return { ok: false, error: schemaResult.error }
-  if (parameterResult && !parameterResult.ok) return { ok: false, error: parameterResult.error }
-  if (headersResult && !headersResult.ok) return { ok: false, error: headersResult.error }
-  if (examplesResult && !examplesResult.ok) return { ok: false, error: examplesResult.error }
-  if (linksResult && !linksResult.ok) return { ok: false, error: linksResult.error }
-  if (callbacksResult && !callbacksResult.ok) return { ok: false, error: callbacksResult.error }
-  if (pathItemsResult && !pathItemsResult.ok) return { ok: false, error: pathItemsResult.error }
-  if (mediaTypesResult && !mediaTypesResult.ok) return { ok: false, error: mediaTypesResult.error }
-  if (webhooksResult && !webhooksResult.ok) return { ok: false, error: webhooksResult.error }
-  if (securitySchemesResult && !securitySchemesResult.ok)
-    return { ok: false, error: securitySchemesResult.error }
-  if (requestBodiesResult && !requestBodiesResult.ok)
-    return { ok: false, error: requestBodiesResult.error }
-  if (responsesResult && !responsesResult.ok) return { ok: false, error: responsesResult.error }
-  if (routeResult && !routeResult.ok) return { ok: false, error: routeResult.error }
-  if (typeResult && !typeResult.ok) return { ok: false, error: typeResult.error }
-  if (rpcResult && !rpcResult.ok) return { ok: false, error: rpcResult.error }
-  if (swrResult && !swrResult.ok) return { ok: false, error: swrResult.error }
-  if (tanstackQueryResult && !tanstackQueryResult.ok)
-    return { ok: false, error: tanstackQueryResult.error }
-  if (svelteQueryResult && !svelteQueryResult.ok)
-    return { ok: false, error: svelteQueryResult.error }
-  if (vueQueryResult && !vueQueryResult.ok) return { ok: false, error: vueQueryResult.error }
-  if (testResult && !testResult.ok) return { ok: false, error: testResult.error }
-  if (mockResult && !mockResult.ok) return { ok: false, error: mockResult.error }
-  if (docsResult && !docsResult.ok) return { ok: false, error: docsResult.error }
-  if (templateResult && !templateResult.ok) return { ok: false, error: templateResult.error }
+  const values: string[] = []
+  for (const r of results) {
+    if (r && !r.ok) return { ok: false, error: r.error }
+    if (r?.ok) values.push(r.value)
+  }
 
-  const results = [
-    takibiResult?.value,
-    schemaResult?.value,
-    parameterResult?.value,
-    headersResult?.value,
-    examplesResult?.value,
-    linksResult?.value,
-    callbacksResult?.value,
-    pathItemsResult?.value,
-    mediaTypesResult?.value,
-    webhooksResult?.value,
-    securitySchemesResult?.value,
-    requestBodiesResult?.value,
-    responsesResult?.value,
-    routeResult?.value,
-    typeResult?.value,
-    rpcResult?.value,
-    swrResult?.value,
-    tanstackQueryResult?.value,
-    svelteQueryResult?.value,
-    vueQueryResult?.value,
-    testResult?.value,
-    mockResult?.value,
-    docsResult?.value,
-    templateResult?.value,
-  ].filter((v) => v !== undefined)
-
-  return { ok: true, value: results.join('\n') }
+  return { ok: true, value: values.join('\n') }
 }

@@ -234,13 +234,14 @@ function makeExampleFromSchema(
 
   // allOf / oneOf / anyOf
   if (schema.allOf?.length) {
-    return schema.allOf.reduce<{ [k: string]: unknown }>((merged, sub) => {
+    const merged: { [k: string]: unknown } = {}
+    for (const sub of schema.allOf) {
       const example = makeExampleFromSchema(sub, components, visited, depth + 1)
       if (typeof example === 'object' && example !== null && !Array.isArray(example)) {
-        return { ...merged, ...(example as { [k: string]: unknown }) }
+        Object.assign(merged, example)
       }
-      return merged
-    }, {})
+    }
+    return merged
   }
   if (schema.oneOf?.length) {
     return makeExampleFromSchema(schema.oneOf[0], components, visited, depth + 1)

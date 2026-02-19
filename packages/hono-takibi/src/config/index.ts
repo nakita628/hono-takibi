@@ -369,8 +369,19 @@ const ConfigSchema = z
       .exactOptional(),
   })
   .transform((config) => {
-    const normalize = (output: string, split?: boolean) =>
-      split !== true && !output.endsWith('.ts') ? `${output}/index.ts` : output
+    const normalize = <T extends { output: string; split?: boolean }>(v: T) => ({
+      ...v,
+      output: v.split !== true && !v.output.endsWith('.ts') ? `${v.output}/index.ts` : v.output,
+    })
+
+    const normalized = Object.fromEntries(
+      (
+        ['rpc', 'swr', 'tanstack-query', 'svelte-query', 'vue-query', 'test', 'mock'] as const
+      ).flatMap((k) => {
+        const v = config[k]
+        return v !== undefined ? [[k, normalize(v)]] : []
+      }),
+    )
 
     return {
       ...config,
@@ -378,168 +389,51 @@ const ConfigSchema = z
         'zod-openapi': {
           ...config['zod-openapi'],
           ...(config['zod-openapi'].routes && {
-            routes: {
-              ...config['zod-openapi'].routes,
-              output: normalize(
-                config['zod-openapi'].routes.output,
-                config['zod-openapi'].routes.split,
-              ),
-            },
+            routes: normalize(config['zod-openapi'].routes),
           }),
           ...(config['zod-openapi'].components && {
             components: {
               ...(config['zod-openapi'].components.schemas && {
-                schemas: {
-                  ...config['zod-openapi'].components.schemas,
-                  output: normalize(
-                    config['zod-openapi'].components.schemas.output,
-                    config['zod-openapi'].components.schemas.split,
-                  ),
-                },
+                schemas: normalize(config['zod-openapi'].components.schemas),
               }),
               ...(config['zod-openapi'].components.parameters && {
-                parameters: {
-                  ...config['zod-openapi'].components.parameters,
-                  output: normalize(
-                    config['zod-openapi'].components.parameters.output,
-                    config['zod-openapi'].components.parameters.split,
-                  ),
-                },
+                parameters: normalize(config['zod-openapi'].components.parameters),
               }),
               ...(config['zod-openapi'].components.headers && {
-                headers: {
-                  ...config['zod-openapi'].components.headers,
-                  output: normalize(
-                    config['zod-openapi'].components.headers.output,
-                    config['zod-openapi'].components.headers.split,
-                  ),
-                },
+                headers: normalize(config['zod-openapi'].components.headers),
               }),
               ...(config['zod-openapi'].components.securitySchemes && {
-                securitySchemes: {
-                  ...config['zod-openapi'].components.securitySchemes,
-                  output: normalize(
-                    config['zod-openapi'].components.securitySchemes.output,
-                    config['zod-openapi'].components.securitySchemes.split,
-                  ),
-                },
+                securitySchemes: normalize(config['zod-openapi'].components.securitySchemes),
               }),
               ...(config['zod-openapi'].components.requestBodies && {
-                requestBodies: {
-                  ...config['zod-openapi'].components.requestBodies,
-                  output: normalize(
-                    config['zod-openapi'].components.requestBodies.output,
-                    config['zod-openapi'].components.requestBodies.split,
-                  ),
-                },
+                requestBodies: normalize(config['zod-openapi'].components.requestBodies),
               }),
               ...(config['zod-openapi'].components.responses && {
-                responses: {
-                  ...config['zod-openapi'].components.responses,
-                  output: normalize(
-                    config['zod-openapi'].components.responses.output,
-                    config['zod-openapi'].components.responses.split,
-                  ),
-                },
+                responses: normalize(config['zod-openapi'].components.responses),
               }),
               ...(config['zod-openapi'].components.examples && {
-                examples: {
-                  ...config['zod-openapi'].components.examples,
-                  output: normalize(
-                    config['zod-openapi'].components.examples.output,
-                    config['zod-openapi'].components.examples.split,
-                  ),
-                },
+                examples: normalize(config['zod-openapi'].components.examples),
               }),
               ...(config['zod-openapi'].components.links && {
-                links: {
-                  ...config['zod-openapi'].components.links,
-                  output: normalize(
-                    config['zod-openapi'].components.links.output,
-                    config['zod-openapi'].components.links.split,
-                  ),
-                },
+                links: normalize(config['zod-openapi'].components.links),
               }),
               ...(config['zod-openapi'].components.callbacks && {
-                callbacks: {
-                  ...config['zod-openapi'].components.callbacks,
-                  output: normalize(
-                    config['zod-openapi'].components.callbacks.output,
-                    config['zod-openapi'].components.callbacks.split,
-                  ),
-                },
+                callbacks: normalize(config['zod-openapi'].components.callbacks),
               }),
               ...(config['zod-openapi'].components.pathItems && {
-                pathItems: {
-                  ...config['zod-openapi'].components.pathItems,
-                  output: normalize(
-                    config['zod-openapi'].components.pathItems.output,
-                    config['zod-openapi'].components.pathItems.split,
-                  ),
-                },
+                pathItems: normalize(config['zod-openapi'].components.pathItems),
               }),
               ...(config['zod-openapi'].components.mediaTypes && {
-                mediaTypes: {
-                  ...config['zod-openapi'].components.mediaTypes,
-                  output: normalize(
-                    config['zod-openapi'].components.mediaTypes.output,
-                    config['zod-openapi'].components.mediaTypes.split,
-                  ),
-                },
+                mediaTypes: normalize(config['zod-openapi'].components.mediaTypes),
               }),
               ...(config['zod-openapi'].components.webhooks && {
-                webhooks: {
-                  ...config['zod-openapi'].components.webhooks,
-                  output: normalize(
-                    config['zod-openapi'].components.webhooks.output,
-                    config['zod-openapi'].components.webhooks.split,
-                  ),
-                },
+                webhooks: normalize(config['zod-openapi'].components.webhooks),
               }),
             },
           }),
         },
       }),
-      ...(config.rpc && {
-        rpc: { ...config.rpc, output: normalize(config.rpc.output, config.rpc.split) },
-      }),
-      ...(config.swr && {
-        swr: { ...config.swr, output: normalize(config.swr.output, config.swr.split) },
-      }),
-      ...(config['tanstack-query'] && {
-        'tanstack-query': {
-          ...config['tanstack-query'],
-          output: normalize(config['tanstack-query'].output, config['tanstack-query'].split),
-        },
-      }),
-      ...(config['svelte-query'] && {
-        'svelte-query': {
-          ...config['svelte-query'],
-          output: normalize(config['svelte-query'].output, config['svelte-query'].split),
-        },
-      }),
-      ...(config['vue-query'] && {
-        'vue-query': {
-          ...config['vue-query'],
-          output: normalize(config['vue-query'].output, config['vue-query'].split),
-        },
-      }),
-      ...(config.test && {
-        test: {
-          ...config.test,
-          output: config.test.output.endsWith('.ts')
-            ? config.test.output
-            : `${config.test.output}/index.ts`,
-        },
-      }),
-      ...(config.mock && {
-        mock: {
-          ...config.mock,
-          output: config.mock.output.endsWith('.ts')
-            ? config.mock.output
-            : `${config.mock.output}/index.ts`,
-        },
-      }),
+      ...normalized,
     }
   })
   .readonly()

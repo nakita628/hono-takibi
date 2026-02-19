@@ -3,18 +3,19 @@ import { Project } from 'ts-morph'
 /**
  * Finds the end position of a balanced parenthesized expression.
  *
- * Recursively scans from `start`, counting opening/closing parens,
+ * Scans from `start`, counting opening/closing parens,
  * and returns the position just after the matching closing paren.
  */
 function findBalancedParenEnd(code: string, start: number): number {
-  const scan = (pos: number, depth: number): number => {
-    if (pos >= code.length) return start
+  let pos = start
+  let depth = 0
+  while (pos < code.length) {
     const ch = code[pos]
-    const nextDepth = depth + (ch === '(' ? 1 : ch === ')' ? -1 : 0)
-    if (ch === ')' && nextDepth === 0) return pos + 1
-    return scan(pos + 1, nextDepth)
+    depth += ch === '(' ? 1 : ch === ')' ? -1 : 0
+    if (ch === ')' && depth === 0) return pos + 1
+    pos++
   }
-  return scan(start, 0)
+  return start
 }
 
 /**
@@ -108,22 +109,19 @@ export function mergeHandlerFile(existingCode: string, generatedCode: string): s
   const importDecls = existingFile.getImportDeclarations()
   const bodyStart = importDecls.length > 0 ? importDecls[importDecls.length - 1].getEnd() : 0
 
-  // Apply operations to build body
+  // Apply operations to build body (push instead of spread to avoid O(n²) on accumulators)
   const allOps = [...deleteOps, ...mergeOps]
     .filter(([start]) => start >= bodyStart)
     .toSorted(([a], [b]) => a - b)
 
-  const { slices, cursor: finalCursor } = allOps.reduce<{
-    readonly slices: readonly string[]
-    readonly cursor: number
-  }>(
-    (acc, [start, end, replacement]) => ({
-      slices: [...acc.slices, existingCode.slice(acc.cursor, start), replacement],
-      cursor: end,
-    }),
-    { slices: [], cursor: bodyStart },
-  )
-  const body = [...slices, existingCode.slice(finalCursor)].join('').replace(/\n{3,}/g, '\n\n')
+  const slices: string[] = []
+  let cursor = bodyStart
+  for (const [start, end, replacement] of allOps) {
+    slices.push(existingCode.slice(cursor, start), replacement)
+    cursor = end
+  }
+  slices.push(existingCode.slice(cursor))
+  const body = slices.join('').replace(/\n{3,}/g, '\n\n')
 
   // New handlers: in generated but not in existing
   const newHandlerStatements = generatedFile
@@ -439,14 +437,15 @@ function mergeInlineHandler(existingText: string, generatedText: string): string
  * and returns the position just after the matching closing brace.
  */
 function findBalancedBraceEnd(code: string, start: number): number {
-  const scan = (pos: number, depth: number): number => {
-    if (pos >= code.length) return start
+  let pos = start
+  let depth = 0
+  while (pos < code.length) {
     const ch = code[pos]
-    const nextDepth = depth + (ch === '{' ? 1 : ch === '}' ? -1 : 0)
-    if (ch === '}' && nextDepth === 0) return pos + 1
-    return scan(pos + 1, nextDepth)
+    depth += ch === '{' ? 1 : ch === '}' ? -1 : 0
+    if (ch === '}' && depth === 0) return pos + 1
+    pos++
   }
-  return scan(start, 0)
+  return start
 }
 
 /**

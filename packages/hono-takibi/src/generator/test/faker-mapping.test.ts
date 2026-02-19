@@ -2,8 +2,8 @@ import { describe, expect, it } from 'vitest'
 import {
   FORMAT_TO_FAKER,
   PROPERTY_NAME_TO_FAKER,
-  TYPE_TO_FAKER,
   schemaToFaker,
+  TYPE_TO_FAKER,
 } from './faker-mapping.js'
 
 /* ═══════════════════════════════════ FORMAT_TO_FAKER ═══════════════════════════════════ */
@@ -38,9 +38,7 @@ describe('FORMAT_TO_FAKER', () => {
   })
 
   it.concurrent('maps int32 format', () => {
-    expect(FORMAT_TO_FAKER.int32).toBe(
-      'faker.number.int({ min: -2147483648, max: 2147483647 })',
-    )
+    expect(FORMAT_TO_FAKER.int32).toBe('faker.number.int({ min: -2147483648, max: 2147483647 })')
   })
 
   it.concurrent('maps int64 format', () => {
@@ -50,9 +48,7 @@ describe('FORMAT_TO_FAKER', () => {
   })
 
   it.concurrent('maps binary format', () => {
-    expect(FORMAT_TO_FAKER.binary).toBe(
-      'new Blob([faker.string.alphanumeric(100)])',
-    )
+    expect(FORMAT_TO_FAKER.binary).toBe('new Blob([faker.string.alphanumeric(100)])')
   })
 
   it.concurrent('maps byte format', () => {
@@ -64,9 +60,7 @@ describe('FORMAT_TO_FAKER', () => {
 
 describe('TYPE_TO_FAKER', () => {
   it.concurrent('maps string type', () => {
-    expect(TYPE_TO_FAKER.string).toBe(
-      'faker.string.alpha({ length: { min: 5, max: 20 } })',
-    )
+    expect(TYPE_TO_FAKER.string).toBe('faker.string.alpha({ length: { min: 5, max: 20 } })')
   })
 
   it.concurrent('maps number type', () => {
@@ -123,9 +117,9 @@ describe('PROPERTY_NAME_TO_FAKER', () => {
 describe('schemaToFaker', () => {
   describe('example values', () => {
     it.concurrent('uses example when useExamples is true', () => {
-      expect(schemaToFaker({ type: 'string', example: 'hello' }, undefined, { useExamples: true })).toBe(
-        '"hello"',
-      )
+      expect(
+        schemaToFaker({ type: 'string', example: 'hello' }, undefined, { useExamples: true }),
+      ).toBe('"hello"')
     })
 
     it.concurrent('ignores example when useExamples is false', () => {
@@ -182,7 +176,7 @@ describe('schemaToFaker', () => {
   describe('array', () => {
     it.concurrent('generates array of strings', () => {
       expect(schemaToFaker({ type: 'array', items: { type: 'string' } })).toBe(
-        "Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () => (faker.string.alpha({ length: { min: 5, max: 20 } })))",
+        'Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () => (faker.string.alpha({ length: { min: 5, max: 20 } })))',
       )
     })
 
@@ -193,9 +187,7 @@ describe('schemaToFaker', () => {
     })
 
     it.concurrent('generates array of $ref', () => {
-      expect(
-        schemaToFaker({ type: 'array', items: { $ref: '#/components/schemas/Tag' } }),
-      ).toBe(
+      expect(schemaToFaker({ type: 'array', items: { $ref: '#/components/schemas/Tag' } })).toBe(
         'Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () => (mockTag()))',
       )
     })
@@ -208,9 +200,7 @@ describe('schemaToFaker', () => {
         properties: { name: { type: 'string' } },
         required: ['name'],
       })
-      expect(result).toBe(
-        `{\n    name: faker.person.fullName()\n  }`,
-      )
+      expect(result).toBe('{\n    name: faker.person.fullName()\n  }')
     })
 
     it.concurrent('generates object with optional property', () => {
@@ -219,7 +209,7 @@ describe('schemaToFaker', () => {
         properties: { age: { type: 'integer' } },
       })
       expect(result).toBe(
-        `{\n    age: faker.helpers.arrayElement([faker.number.int({ min: 1, max: 120 }), undefined])\n  }`,
+        '{\n    age: faker.helpers.arrayElement([faker.number.int({ min: 1, max: 120 }), undefined])\n  }',
       )
     })
 
@@ -229,7 +219,7 @@ describe('schemaToFaker', () => {
         properties: { bio: { type: 'string', nullable: true } },
       })
       expect(result).toBe(
-        `{\n    bio: faker.helpers.arrayElement([faker.string.alpha({ length: { min: 5, max: 20 } }), null])\n  }`,
+        '{\n    bio: faker.helpers.arrayElement([faker.string.alpha({ length: { min: 5, max: 20 } }), null])\n  }',
       )
     })
   })
@@ -238,10 +228,7 @@ describe('schemaToFaker', () => {
     it.concurrent('merges schemas with spread', () => {
       expect(
         schemaToFaker({
-          allOf: [
-            { $ref: '#/components/schemas/Base' },
-            { $ref: '#/components/schemas/Extra' },
-          ],
+          allOf: [{ $ref: '#/components/schemas/Base' }, { $ref: '#/components/schemas/Extra' }],
         }),
       ).toBe('{ ...mockBase(), ...mockExtra() }')
     })
@@ -277,29 +264,21 @@ describe('schemaToFaker', () => {
     })
 
     it.concurrent('uses format for email', () => {
-      expect(schemaToFaker({ type: 'string', format: 'email' })).toBe(
-        'faker.internet.email()',
-      )
+      expect(schemaToFaker({ type: 'string', format: 'email' })).toBe('faker.internet.email()')
     })
 
     it.concurrent('uses format for uuid', () => {
-      expect(schemaToFaker({ type: 'string', format: 'uuid' })).toBe(
-        'faker.string.uuid()',
-      )
+      expect(schemaToFaker({ type: 'string', format: 'uuid' })).toBe('faker.string.uuid()')
     })
   })
 
   describe('property name heuristics', () => {
     it.concurrent('uses property name hint for email', () => {
-      expect(schemaToFaker({ type: 'string' }, 'email')).toBe(
-        'faker.internet.email()',
-      )
+      expect(schemaToFaker({ type: 'string' }, 'email')).toBe('faker.internet.email()')
     })
 
     it.concurrent('uses property name hint for createdAt', () => {
-      expect(schemaToFaker({ type: 'string' }, 'createdAt')).toBe(
-        'faker.date.past().toISOString()',
-      )
+      expect(schemaToFaker({ type: 'string' }, 'createdAt')).toBe('faker.date.past().toISOString()')
     })
 
     it.concurrent('skips number hint when type is string', () => {

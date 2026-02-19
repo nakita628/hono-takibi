@@ -27,6 +27,7 @@ import {
   vueQuery,
   webhooks,
 } from '../core/index.js'
+import { setFormatOptions } from '../format/index.js'
 import { isRecord } from '../guard/index.js'
 import { parseOpenAPI } from '../openapi/index.js'
 
@@ -196,6 +197,8 @@ const debounce = (delayMilliseconds: number, callback: () => void): (() => void)
 const runAllGenerationTasks = async (
   config: Config,
 ): Promise<{ readonly logs: readonly string[] }> => {
+  if (config.format) setFormatOptions(config.format)
+
   const openAPIResult = await parseOpenAPI(config.input)
   if (!openAPIResult.ok) return { logs: [`❌ parseOpenAPI: ${openAPIResult.error}`] }
   const openAPI = openAPIResult.value
@@ -480,7 +483,7 @@ const runAllGenerationTasks = async (
     return (async () => {
       const outputPath = toAbsolutePath(config.type?.output ?? '')
       if (!isTypeScriptFile(outputPath)) return `❌ type: Invalid output format: ${outputPath}`
-      const result = await type(openAPI, outputPath)
+      const result = await type(openAPI, outputPath, config.type?.readonly)
       return result.ok ? `✅ type -> ${outputPath}` : `❌ type: ${result.error}`
     })()
   }
@@ -526,6 +529,7 @@ const runAllGenerationTasks = async (
         outputPath,
         config.test?.import ?? '',
         config.basePath ?? '/',
+        config.test?.framework,
       )
       return result.ok ? `✅ test -> ${outputPath}` : `❌ test: ${result.error}`
     })()
@@ -577,6 +581,7 @@ const runAllGenerationTasks = async (
         tmpl.pathAlias,
         config['zod-openapi']?.routes?.import,
         tmpl.routeHandler,
+        tmpl.framework,
       )
       return result.ok ? `✅ template -> ${absPath}` : `❌ template: ${result.error}`
     })()

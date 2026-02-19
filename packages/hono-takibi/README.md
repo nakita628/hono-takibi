@@ -501,6 +501,10 @@ export default defineConfig({
 });
 ```
 
+## Projects Using Hono Takibi
+
+- **[resend-local](https://github.com/y-hiraoka/resend-local)** — A local emulator for the Resend email API.
+
 ## Limitations
 
 **This package is in active development and may introduce breaking changes without prior notice.**
