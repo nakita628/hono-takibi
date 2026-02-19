@@ -369,7 +369,7 @@ const ConfigSchema = z
       .exactOptional(),
   })
   .transform((config) => {
-    const normalize = (v: { output: string; split?: boolean }) => ({
+    const normalize = <T extends { output: string; split?: boolean }>(v: T) => ({
       ...v,
       output: v.split !== true && !v.output.endsWith('.ts') ? `${v.output}/index.ts` : v.output,
     })
@@ -392,12 +392,44 @@ const ConfigSchema = z
             routes: normalize(config['zod-openapi'].routes),
           }),
           ...(config['zod-openapi'].components && {
-            components: Object.fromEntries(
-              Object.entries(config['zod-openapi'].components).map(([k, v]) => [
-                k,
-                v ? normalize(v) : v,
-              ]),
-            ),
+            components: {
+              ...(config['zod-openapi'].components.schemas && {
+                schemas: normalize(config['zod-openapi'].components.schemas),
+              }),
+              ...(config['zod-openapi'].components.parameters && {
+                parameters: normalize(config['zod-openapi'].components.parameters),
+              }),
+              ...(config['zod-openapi'].components.headers && {
+                headers: normalize(config['zod-openapi'].components.headers),
+              }),
+              ...(config['zod-openapi'].components.securitySchemes && {
+                securitySchemes: normalize(config['zod-openapi'].components.securitySchemes),
+              }),
+              ...(config['zod-openapi'].components.requestBodies && {
+                requestBodies: normalize(config['zod-openapi'].components.requestBodies),
+              }),
+              ...(config['zod-openapi'].components.responses && {
+                responses: normalize(config['zod-openapi'].components.responses),
+              }),
+              ...(config['zod-openapi'].components.examples && {
+                examples: normalize(config['zod-openapi'].components.examples),
+              }),
+              ...(config['zod-openapi'].components.links && {
+                links: normalize(config['zod-openapi'].components.links),
+              }),
+              ...(config['zod-openapi'].components.callbacks && {
+                callbacks: normalize(config['zod-openapi'].components.callbacks),
+              }),
+              ...(config['zod-openapi'].components.pathItems && {
+                pathItems: normalize(config['zod-openapi'].components.pathItems),
+              }),
+              ...(config['zod-openapi'].components.mediaTypes && {
+                mediaTypes: normalize(config['zod-openapi'].components.mediaTypes),
+              }),
+              ...(config['zod-openapi'].components.webhooks && {
+                webhooks: normalize(config['zod-openapi'].components.webhooks),
+              }),
+            },
           }),
         },
       }),
