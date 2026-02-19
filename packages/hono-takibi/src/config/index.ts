@@ -369,8 +369,19 @@ const ConfigSchema = z
       .exactOptional(),
   })
   .transform((config) => {
-    const normalize = (output: string, split?: boolean) =>
-      split !== true && !output.endsWith('.ts') ? `${output}/index.ts` : output
+    const normalize = (v: { output: string; split?: boolean }) => ({
+      ...v,
+      output: v.split !== true && !v.output.endsWith('.ts') ? `${v.output}/index.ts` : v.output,
+    })
+
+    const normalized = Object.fromEntries(
+      (
+        ['rpc', 'swr', 'tanstack-query', 'svelte-query', 'vue-query', 'test', 'mock'] as const
+      ).flatMap((k) => {
+        const v = config[k]
+        return v !== undefined ? [[k, normalize(v)]] : []
+      }),
+    )
 
     return {
       ...config,
@@ -378,64 +389,19 @@ const ConfigSchema = z
         'zod-openapi': {
           ...config['zod-openapi'],
           ...(config['zod-openapi'].routes && {
-            routes: {
-              ...config['zod-openapi'].routes,
-              output: normalize(
-                config['zod-openapi'].routes.output,
-                config['zod-openapi'].routes.split,
-              ),
-            },
+            routes: normalize(config['zod-openapi'].routes),
           }),
           ...(config['zod-openapi'].components && {
             components: Object.fromEntries(
-              Object.entries(config['zod-openapi'].components).map(([key, value]) => [
-                key,
-                value ? { ...value, output: normalize(value.output, value.split) } : value,
+              Object.entries(config['zod-openapi'].components).map(([k, v]) => [
+                k,
+                v ? normalize(v) : v,
               ]),
             ),
           }),
         },
       }),
-      ...(config.rpc && {
-        rpc: { ...config.rpc, output: normalize(config.rpc.output, config.rpc.split) },
-      }),
-      ...(config.swr && {
-        swr: { ...config.swr, output: normalize(config.swr.output, config.swr.split) },
-      }),
-      ...(config['tanstack-query'] && {
-        'tanstack-query': {
-          ...config['tanstack-query'],
-          output: normalize(config['tanstack-query'].output, config['tanstack-query'].split),
-        },
-      }),
-      ...(config['svelte-query'] && {
-        'svelte-query': {
-          ...config['svelte-query'],
-          output: normalize(config['svelte-query'].output, config['svelte-query'].split),
-        },
-      }),
-      ...(config['vue-query'] && {
-        'vue-query': {
-          ...config['vue-query'],
-          output: normalize(config['vue-query'].output, config['vue-query'].split),
-        },
-      }),
-      ...(config.test && {
-        test: {
-          ...config.test,
-          output: config.test.output.endsWith('.ts')
-            ? config.test.output
-            : `${config.test.output}/index.ts`,
-        },
-      }),
-      ...(config.mock && {
-        mock: {
-          ...config.mock,
-          output: config.mock.output.endsWith('.ts')
-            ? config.mock.output
-            : `${config.mock.output}/index.ts`,
-        },
-      }),
+      ...normalized,
     }
   })
   .readonly()
