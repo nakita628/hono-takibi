@@ -18,7 +18,9 @@ hono request \
   -P /api/comments \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  -d '{"body":"string"}' \
+  -d '{
+    "body": "string"
+  }' \
   src/app/api/[[...route]]/route.ts
 ```
 
@@ -55,6 +57,14 @@ hono request \
 }
 ```
 
+> 401 Response
+
+```json
+{
+  "message": "string"
+}
+```
+
 > 422 Response
 
 ```json
@@ -80,13 +90,23 @@ hono request \
 }
 ```
 
+> 503 Response
+
+```json
+{
+  "message": "string"
+}
+```
+
 <h3 id="postcomments-responses">Responses</h3>
 
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
 |200|OK|The request has succeeded.|[Comment](#schemacomment)|
+|401|Unauthorized|Access is unauthorized.|[MessageResponse](#schemamessageresponse)|
 |422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
 |500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
+|503|Service Unavailable|Service unavailable.|[MessageResponse](#schemamessageresponse)|
 
 <aside class="success">
 This operation does not require authentication
@@ -156,6 +176,14 @@ hono request \
 }
 ```
 
+> 503 Response
+
+```json
+{
+  "message": "string"
+}
+```
+
 <h3 id="getcurrentuser-responses">Responses</h3>
 
 |Status|Meaning|Description|Schema|
@@ -163,6 +191,7 @@ hono request \
 |200|OK|The request has succeeded.|[CurrentUser](#schemacurrentuser)|
 |401|Unauthorized|Access is unauthorized.|[MessageResponse](#schemamessageresponse)|
 |500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
+|503|Service Unavailable|Service unavailable.|[MessageResponse](#schemamessageresponse)|
 
 <aside class="success">
 This operation does not require authentication
@@ -182,7 +211,13 @@ hono request \
   -P /api/edit \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  -d '{"name":"string","username":"string","bio":"string","coverImage":"http://example.com","profileImage":"http://example.com"}' \
+  -d '{
+    "name": "string",
+    "username": "string",
+    "bio": "string",
+    "coverImage": "http://example.com",
+    "profileImage": "http://example.com"
+  }' \
   src/app/api/[[...route]]/route.ts
 ```
 
@@ -232,6 +267,14 @@ hono request \
 }
 ```
 
+> 401 Response
+
+```json
+{
+  "message": "string"
+}
+```
+
 > 422 Response
 
 ```json
@@ -257,13 +300,23 @@ hono request \
 }
 ```
 
+> 503 Response
+
+```json
+{
+  "message": "string"
+}
+```
+
 <h3 id="patchedit-responses">Responses</h3>
 
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
 |200|OK|The request has succeeded.|[User](#schemauser)|
+|401|Unauthorized|Access is unauthorized.|[MessageResponse](#schemamessageresponse)|
 |422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
 |500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
+|503|Service Unavailable|Service unavailable.|[MessageResponse](#schemamessageresponse)|
 
 <aside class="success">
 This operation does not require authentication
@@ -283,7 +336,9 @@ hono request \
   -P /api/follow \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  -d '{"userId":"497f6eca-6276-4993-bfeb-53cbbbba6f08"}' \
+  -d '{
+    "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08"
+  }' \
   src/app/api/[[...route]]/route.ts
 ```
 
@@ -314,6 +369,22 @@ hono request \
 }
 ```
 
+> 401 Response
+
+```json
+{
+  "message": "string"
+}
+```
+
+> 404 Response
+
+```json
+{
+  "message": "string"
+}
+```
+
 > 422 Response
 
 ```json
@@ -339,13 +410,24 @@ hono request \
 }
 ```
 
+> 503 Response
+
+```json
+{
+  "message": "string"
+}
+```
+
 <h3 id="postfollowuesrid-responses">Responses</h3>
 
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
 |200|OK|The request has succeeded.|[MessageResponse](#schemamessageresponse)|
+|401|Unauthorized|Access is unauthorized.|[MessageResponse](#schemamessageresponse)|
+|404|Not Found|The server cannot find the requested resource.|[MessageResponse](#schemamessageresponse)|
 |422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
 |500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
+|503|Service Unavailable|Service unavailable.|[MessageResponse](#schemamessageresponse)|
 
 <aside class="success">
 This operation does not require authentication
@@ -363,7 +445,9 @@ hono request \
   -P /api/follow \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  -d '{"userId":"497f6eca-6276-4993-bfeb-53cbbbba6f08"}' \
+  -d '{
+    "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08"
+  }' \
   src/app/api/[[...route]]/route.ts
 ```
 
@@ -394,6 +478,14 @@ hono request \
 }
 ```
 
+> 401 Response
+
+```json
+{
+  "message": "string"
+}
+```
+
 > 422 Response
 
 ```json
@@ -419,13 +511,23 @@ hono request \
 }
 ```
 
+> 503 Response
+
+```json
+{
+  "message": "string"
+}
+```
+
 <h3 id="deletefollowuserid-responses">Responses</h3>
 
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
 |200|OK|The request has succeeded.|[MessageResponse](#schemamessageresponse)|
+|401|Unauthorized|Access is unauthorized.|[MessageResponse](#schemamessageresponse)|
 |422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
 |500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
+|503|Service Unavailable|Service unavailable.|[MessageResponse](#schemamessageresponse)|
 
 <aside class="success">
 This operation does not require authentication
@@ -445,7 +547,9 @@ hono request \
   -P /api/like \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  -d '{"postId":"497f6eca-6276-4993-bfeb-53cbbbba6f08"}' \
+  -d '{
+    "postId": "497f6eca-6276-4993-bfeb-53cbbbba6f08"
+  }' \
   src/app/api/[[...route]]/route.ts
 ```
 
@@ -487,6 +591,22 @@ hono request \
 }
 ```
 
+> 401 Response
+
+```json
+{
+  "message": "string"
+}
+```
+
+> 404 Response
+
+```json
+{
+  "message": "string"
+}
+```
+
 > 422 Response
 
 ```json
@@ -512,13 +632,24 @@ hono request \
 }
 ```
 
+> 503 Response
+
+```json
+{
+  "message": "string"
+}
+```
+
 <h3 id="postlikepostid-responses">Responses</h3>
 
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
 |200|OK|The request has succeeded.|[PostWithLikes](#schemapostwithlikes)|
+|401|Unauthorized|Access is unauthorized.|[MessageResponse](#schemamessageresponse)|
+|404|Not Found|The server cannot find the requested resource.|[MessageResponse](#schemamessageresponse)|
 |422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
 |500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
+|503|Service Unavailable|Service unavailable.|[MessageResponse](#schemamessageresponse)|
 
 <aside class="success">
 This operation does not require authentication
@@ -536,7 +667,9 @@ hono request \
   -P /api/like \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  -d '{"postId":"497f6eca-6276-4993-bfeb-53cbbbba6f08"}' \
+  -d '{
+    "postId": "497f6eca-6276-4993-bfeb-53cbbbba6f08"
+  }' \
   src/app/api/[[...route]]/route.ts
 ```
 
@@ -578,6 +711,22 @@ hono request \
 }
 ```
 
+> 401 Response
+
+```json
+{
+  "message": "string"
+}
+```
+
+> 404 Response
+
+```json
+{
+  "message": "string"
+}
+```
+
 > 422 Response
 
 ```json
@@ -603,13 +752,24 @@ hono request \
 }
 ```
 
+> 503 Response
+
+```json
+{
+  "message": "string"
+}
+```
+
 <h3 id="deletelikepostid-responses">Responses</h3>
 
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
 |200|OK|The request has succeeded.|[PostWithLikes](#schemapostwithlikes)|
+|401|Unauthorized|Access is unauthorized.|[MessageResponse](#schemamessageresponse)|
+|404|Not Found|The server cannot find the requested resource.|[MessageResponse](#schemamessageresponse)|
 |422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
 |500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
+|503|Service Unavailable|Service unavailable.|[MessageResponse](#schemamessageresponse)|
 
 <aside class="success">
 This operation does not require authentication
@@ -679,6 +839,14 @@ hono request \
 }
 ```
 
+> 503 Response
+
+```json
+{
+  "message": "string"
+}
+```
+
 <h3 id="getnotificationsuserid-responses">Responses</h3>
 
 |Status|Meaning|Description|Schema|
@@ -686,6 +854,7 @@ hono request \
 |200|OK|The request has succeeded.|Inline|
 |422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
 |500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
+|503|Service Unavailable|Service unavailable.|[MessageResponse](#schemamessageresponse)|
 
 <h3 id="getnotificationsuserid-responseschema">Response Schema</h3>
 
@@ -754,6 +923,14 @@ hono request \
 }
 ```
 
+> 503 Response
+
+```json
+{
+  "message": "string"
+}
+```
+
 <h3 id="postnotificationsuserid-responses">Responses</h3>
 
 |Status|Meaning|Description|Schema|
@@ -761,6 +938,7 @@ hono request \
 |200|OK|The request has succeeded.|[MessageResponse](#schemamessageresponse)|
 |422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
 |500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
+|503|Service Unavailable|Service unavailable.|[MessageResponse](#schemamessageresponse)|
 
 <aside class="success">
 This operation does not require authentication
@@ -788,53 +966,48 @@ hono request \
 
 |Name|In|Type|Required|Description|
 |---|---|---|---|---|
-|userId|query|string(uuid)|true|none|
+|userId|query|string(uuid)|false|none|
+|page|query|number|false|none|
+|limit|query|number|false|none|
 
 > Example responses
 
 > 200 Response
 
 ```json
-[
-  {
-    "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-    "body": "string",
-    "createdAt": "string",
-    "updatedAt": "string",
-    "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-    "user": {
+{
+  "data": [
+    {
       "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-      "name": "string",
-      "username": "string",
-      "bio": "string",
-      "email": "user@example.com",
-      "emailVerified": "string",
-      "image": "http://example.com",
-      "coverImage": "http://example.com",
-      "profileImage": "http://example.com",
+      "body": "string",
       "createdAt": "string",
       "updatedAt": "string",
-      "hasNotification": true
-    },
-    "comments": [
-      {
+      "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+      "user": {
         "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-        "body": "string",
+        "name": "string",
+        "username": "string",
+        "bio": "string",
+        "email": "user@example.com",
+        "emailVerified": "string",
+        "image": "http://example.com",
+        "coverImage": "http://example.com",
+        "profileImage": "http://example.com",
         "createdAt": "string",
         "updatedAt": "string",
-        "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-        "postId": "497f6eca-6276-4993-bfeb-53cbbbba6f08"
-      }
-    ],
-    "likes": [
-      {
-        "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-        "postId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-        "createdAt": "string"
-      }
-    ]
+        "hasNotification": true
+      },
+      "commentCount": 0,
+      "likeCount": 0
+    }
+  ],
+  "meta": {
+    "page": 0,
+    "limit": 0,
+    "total": 0,
+    "totalPages": 0
   }
-]
+}
 ```
 
 > 422 Response
@@ -854,49 +1027,30 @@ hono request \
 }
 ```
 
+> 500 Response
+
+```json
+{
+  "message": "string"
+}
+```
+
+> 503 Response
+
+```json
+{
+  "message": "string"
+}
+```
+
 <h3 id="getposts-responses">Responses</h3>
 
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
-|200|OK|The request has succeeded.|Inline|
+|200|OK|The request has succeeded.|[PaginatedPosts](#schemapaginatedposts)|
 |422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
-
-<h3 id="getposts-responseschema">Response Schema</h3>
-
-Status Code **200**
-
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|*anonymous*|[[PostWithDetails](#schemapostwithdetails)]|false|none|none|
-|» id|string(uuid)|true|none|none|
-|» body|string|true|none|none|
-|» createdAt|string|true|none|none|
-|» updatedAt|string|true|none|none|
-|» userId|string(uuid)|true|none|none|
-|» user|[User](#schemauser)|true|none|none|
-|» » id|string(uuid)|true|none|none|
-|» » name|string|true|none|none|
-|» » username|string|true|none|none|
-|» » bio|string|false|none|none|
-|» » email|string(email)|true|none|none|
-|» » emailVerified|string|true|none|none|
-|» » image|string(uri)|true|none|none|
-|» » coverImage|string(uri)|true|none|none|
-|» » profileImage|string(uri)|true|none|none|
-|» » createdAt|string|true|none|none|
-|» » updatedAt|string|true|none|none|
-|» » hasNotification|boolean|false|none|none|
-|» comments|[[Comment](#schemacomment)]|true|none|none|
-|» » id|string(uuid)|true|none|none|
-|» » body|string|true|none|none|
-|» » createdAt|string|true|none|none|
-|» » updatedAt|string|true|none|none|
-|» » userId|string(uuid)|true|none|none|
-|» » postId|string(uuid)|true|none|none|
-|» likes|[[Like](#schemalike)]|true|none|none|
-|» » userId|string(uuid)|true|none|none|
-|» » postId|string(uuid)|true|none|none|
-|» » createdAt|string|true|none|none|
+|500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
+|503|Service Unavailable|Service unavailable.|[MessageResponse](#schemamessageresponse)|
 
 <aside class="success">
 This operation does not require authentication
@@ -914,7 +1068,9 @@ hono request \
   -P /api/posts \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  -d '{"body":"string"}' \
+  -d '{
+    "body": "string"
+  }' \
   src/app/api/[[...route]]/route.ts
 ```
 
@@ -949,6 +1105,14 @@ hono request \
 }
 ```
 
+> 401 Response
+
+```json
+{
+  "message": "string"
+}
+```
+
 > 422 Response
 
 ```json
@@ -974,13 +1138,23 @@ hono request \
 }
 ```
 
+> 503 Response
+
+```json
+{
+  "message": "string"
+}
+```
+
 <h3 id="postposts-responses">Responses</h3>
 
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
 |200|OK|The request has succeeded.|[Post](#schemapost)|
+|401|Unauthorized|Access is unauthorized.|[MessageResponse](#schemamessageresponse)|
 |422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
 |500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
+|503|Service Unavailable|Service unavailable.|[MessageResponse](#schemamessageresponse)|
 
 <aside class="success">
 This operation does not require authentication
@@ -1055,6 +1229,14 @@ hono request \
 }
 ```
 
+> 404 Response
+
+```json
+{
+  "message": "string"
+}
+```
+
 > 422 Response
 
 ```json
@@ -1080,13 +1262,23 @@ hono request \
 }
 ```
 
+> 503 Response
+
+```json
+{
+  "message": "string"
+}
+```
+
 <h3 id="getpostspostid-responses">Responses</h3>
 
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
 |200|OK|The request has succeeded.|[PostDetail](#schemapostdetail)|
+|404|Not Found|The server cannot find the requested resource.|[MessageResponse](#schemamessageresponse)|
 |422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
 |500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
+|503|Service Unavailable|Service unavailable.|[MessageResponse](#schemamessageresponse)|
 
 <aside class="success">
 This operation does not require authentication
@@ -1106,7 +1298,12 @@ hono request \
   -P /api/register \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  -d '{"email":"user@example.com","name":"string","username":"string","password":"string"}' \
+  -d '{
+    "email": "user@example.com",
+    "name": "string",
+    "username": "string",
+    "password": "string"
+  }' \
   src/app/api/[[...route]]/route.ts
 ```
 
@@ -1300,6 +1497,14 @@ hono request \
 }
 ```
 
+> 503 Response
+
+```json
+{
+  "message": "string"
+}
+```
+
 <h3 id="getuseruserid-responses">Responses</h3>
 
 |Status|Meaning|Description|Schema|
@@ -1308,6 +1513,7 @@ hono request \
 |404|Not Found|The server cannot find the requested resource.|[MessageResponse](#schemamessageresponse)|
 |422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
 |500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
+|503|Service Unavailable|Service unavailable.|[MessageResponse](#schemamessageresponse)|
 
 <aside class="success">
 This operation does not require authentication
@@ -1329,30 +1535,53 @@ hono request \
 
 `GET /users`
 
+<h3 id="getusers-parameters">Parameters</h3>
+
+|Name|In|Type|Required|Description|
+|---|---|---|---|---|
+|page|query|number|false|none|
+|limit|query|number|false|none|
+
 > Example responses
 
 > 200 Response
 
 ```json
-[
-  {
-    "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-    "name": "string",
-    "username": "string",
-    "bio": "string",
-    "email": "user@example.com",
-    "emailVerified": "string",
-    "image": "http://example.com",
-    "coverImage": "http://example.com",
-    "profileImage": "http://example.com",
-    "createdAt": "string",
-    "updatedAt": "string",
-    "hasNotification": true
+{
+  "data": [
+    {
+      "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+      "name": "string",
+      "username": "string",
+      "bio": "string",
+      "email": "user@example.com",
+      "emailVerified": "string",
+      "image": "http://example.com",
+      "coverImage": "http://example.com",
+      "profileImage": "http://example.com",
+      "createdAt": "string",
+      "updatedAt": "string",
+      "hasNotification": true
+    }
+  ],
+  "meta": {
+    "page": 0,
+    "limit": 0,
+    "total": 0,
+    "totalPages": 0
   }
-]
+}
 ```
 
 > 500 Response
+
+```json
+{
+  "message": "string"
+}
+```
+
+> 503 Response
 
 ```json
 {
@@ -1364,28 +1593,9 @@ hono request \
 
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
-|200|OK|The request has succeeded.|Inline|
+|200|OK|The request has succeeded.|[PaginatedUsers](#schemapaginatedusers)|
 |500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
-
-<h3 id="getusers-responseschema">Response Schema</h3>
-
-Status Code **200**
-
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|*anonymous*|[[User](#schemauser)]|false|none|none|
-|» id|string(uuid)|true|none|none|
-|» name|string|true|none|none|
-|» username|string|true|none|none|
-|» bio|string|false|none|none|
-|» email|string(email)|true|none|none|
-|» emailVerified|string|true|none|none|
-|» image|string(uri)|true|none|none|
-|» coverImage|string(uri)|true|none|none|
-|» profileImage|string(uri)|true|none|none|
-|» createdAt|string|true|none|none|
-|» updatedAt|string|true|none|none|
-|» hasNotification|boolean|false|none|none|
+|503|Service Unavailable|Service unavailable.|[MessageResponse](#schemamessageresponse)|
 
 <aside class="success">
 This operation does not require authentication
@@ -1421,6 +1631,25 @@ This operation does not require authentication
 |updatedAt|string|true|none|none|
 |userId|string(uuid)|true|none|none|
 |postId|string(uuid)|true|none|none|
+
+<h2 id="tocS_MessageResponse">MessageResponse</h2>
+<!-- backwards compatibility -->
+<a id="schemamessageresponse"></a>
+<a id="schema_MessageResponse"></a>
+<a id="tocSmessageresponse"></a>
+<a id="tocsmessageresponse"></a>
+
+```json
+{
+  "message": "string"
+}
+```
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|message|string|true|none|none|
 
 <h2 id="tocS_ValidationErrorDetail">ValidationErrorDetail</h2>
 <!-- backwards compatibility -->
@@ -1483,25 +1712,6 @@ This operation does not require authentication
 |title|Unprocessable Content|
 |status|422|
 |detail|Request validation failed|
-
-<h2 id="tocS_MessageResponse">MessageResponse</h2>
-<!-- backwards compatibility -->
-<a id="schemamessageresponse"></a>
-<a id="schema_MessageResponse"></a>
-<a id="tocSmessageresponse"></a>
-<a id="tocsmessageresponse"></a>
-
-```json
-{
-  "message": "string"
-}
-```
-
-### Properties
-
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|message|string|true|none|none|
 
 <h2 id="tocS_CreateCommentRequest">CreateCommentRequest</h2>
 <!-- backwards compatibility -->
@@ -1785,12 +1995,12 @@ This operation does not require authentication
 |userId|string(uuid)|true|none|none|
 |createdAt|string|true|none|none|
 
-<h2 id="tocS_PostWithDetails">PostWithDetails</h2>
+<h2 id="tocS_PostSummary">PostSummary</h2>
 <!-- backwards compatibility -->
-<a id="schemapostwithdetails"></a>
-<a id="schema_PostWithDetails"></a>
-<a id="tocSpostwithdetails"></a>
-<a id="tocspostwithdetails"></a>
+<a id="schemapostsummary"></a>
+<a id="schema_PostSummary"></a>
+<a id="tocSpostsummary"></a>
+<a id="tocspostsummary"></a>
 
 ```json
 {
@@ -1813,23 +2023,8 @@ This operation does not require authentication
     "updatedAt": "string",
     "hasNotification": true
   },
-  "comments": [
-    {
-      "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-      "body": "string",
-      "createdAt": "string",
-      "updatedAt": "string",
-      "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-      "postId": "497f6eca-6276-4993-bfeb-53cbbbba6f08"
-    }
-  ],
-  "likes": [
-    {
-      "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-      "postId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-      "createdAt": "string"
-    }
-  ]
+  "commentCount": 0,
+  "likeCount": 0
 }
 ```
 
@@ -1843,8 +2038,83 @@ This operation does not require authentication
 |updatedAt|string|true|none|none|
 |userId|string(uuid)|true|none|none|
 |user|[User](#schemauser)|true|none|none|
-|comments|[[Comment](#schemacomment)]|true|none|none|
-|likes|[[Like](#schemalike)]|true|none|none|
+|commentCount|number|true|none|none|
+|likeCount|number|true|none|none|
+
+<h2 id="tocS_PaginationMeta">PaginationMeta</h2>
+<!-- backwards compatibility -->
+<a id="schemapaginationmeta"></a>
+<a id="schema_PaginationMeta"></a>
+<a id="tocSpaginationmeta"></a>
+<a id="tocspaginationmeta"></a>
+
+```json
+{
+  "page": 0,
+  "limit": 0,
+  "total": 0,
+  "totalPages": 0
+}
+```
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|page|number|true|none|none|
+|limit|number|true|none|none|
+|total|number|true|none|none|
+|totalPages|number|true|none|none|
+
+<h2 id="tocS_PaginatedPosts">PaginatedPosts</h2>
+<!-- backwards compatibility -->
+<a id="schemapaginatedposts"></a>
+<a id="schema_PaginatedPosts"></a>
+<a id="tocSpaginatedposts"></a>
+<a id="tocspaginatedposts"></a>
+
+```json
+{
+  "data": [
+    {
+      "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+      "body": "string",
+      "createdAt": "string",
+      "updatedAt": "string",
+      "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+      "user": {
+        "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+        "name": "string",
+        "username": "string",
+        "bio": "string",
+        "email": "user@example.com",
+        "emailVerified": "string",
+        "image": "http://example.com",
+        "coverImage": "http://example.com",
+        "profileImage": "http://example.com",
+        "createdAt": "string",
+        "updatedAt": "string",
+        "hasNotification": true
+      },
+      "commentCount": 0,
+      "likeCount": 0
+    }
+  ],
+  "meta": {
+    "page": 0,
+    "limit": 0,
+    "total": 0,
+    "totalPages": 0
+  }
+}
+```
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|data|[[PostSummary](#schemapostsummary)]|true|none|none|
+|meta|[PaginationMeta](#schemapaginationmeta)|true|none|none|
 
 <h2 id="tocS_Post">Post</h2>
 <!-- backwards compatibility -->
@@ -2070,3 +2340,105 @@ This operation does not require authentication
 |updatedAt|string|true|none|none|
 |hasNotification|boolean|false|none|none|
 |_count|object|true|none|none|
+
+<h2 id="tocS_PaginatedUsers">PaginatedUsers</h2>
+<!-- backwards compatibility -->
+<a id="schemapaginatedusers"></a>
+<a id="schema_PaginatedUsers"></a>
+<a id="tocSpaginatedusers"></a>
+<a id="tocspaginatedusers"></a>
+
+```json
+{
+  "data": [
+    {
+      "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+      "name": "string",
+      "username": "string",
+      "bio": "string",
+      "email": "user@example.com",
+      "emailVerified": "string",
+      "image": "http://example.com",
+      "coverImage": "http://example.com",
+      "profileImage": "http://example.com",
+      "createdAt": "string",
+      "updatedAt": "string",
+      "hasNotification": true
+    }
+  ],
+  "meta": {
+    "page": 0,
+    "limit": 0,
+    "total": 0,
+    "totalPages": 0
+  }
+}
+```
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|data|[[User](#schemauser)]|true|none|none|
+|meta|[PaginationMeta](#schemapaginationmeta)|true|none|none|
+
+<h2 id="tocS_PostWithDetails">PostWithDetails</h2>
+<!-- backwards compatibility -->
+<a id="schemapostwithdetails"></a>
+<a id="schema_PostWithDetails"></a>
+<a id="tocSpostwithdetails"></a>
+<a id="tocspostwithdetails"></a>
+
+```json
+{
+  "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+  "body": "string",
+  "createdAt": "string",
+  "updatedAt": "string",
+  "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+  "user": {
+    "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+    "name": "string",
+    "username": "string",
+    "bio": "string",
+    "email": "user@example.com",
+    "emailVerified": "string",
+    "image": "http://example.com",
+    "coverImage": "http://example.com",
+    "profileImage": "http://example.com",
+    "createdAt": "string",
+    "updatedAt": "string",
+    "hasNotification": true
+  },
+  "comments": [
+    {
+      "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+      "body": "string",
+      "createdAt": "string",
+      "updatedAt": "string",
+      "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+      "postId": "497f6eca-6276-4993-bfeb-53cbbbba6f08"
+    }
+  ],
+  "likes": [
+    {
+      "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+      "postId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+      "createdAt": "string"
+    }
+  ]
+}
+```
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|id|string(uuid)|true|none|none|
+|body|string|true|none|none|
+|createdAt|string|true|none|none|
+|updatedAt|string|true|none|none|
+|userId|string(uuid)|true|none|none|
+|user|[User](#schemauser)|true|none|none|
+|comments|[[Comment](#schemacomment)]|true|none|none|
+|likes|[[Like](#schemalike)]|true|none|none|

@@ -1,11 +1,20 @@
-import Credentials from '@auth/core/providers/credentials'
-import { DrizzleAdapter } from '@auth/drizzle-adapter'
-import { authHandler, initAuthConfig, verifyAuth } from '@hono/auth-js'
-import { OpenAPIHono, z } from '@hono/zod-openapi'
-import bcrypt from 'bcryptjs'
-import { eq } from 'drizzle-orm'
-import { drizzle } from 'drizzle-orm/d1'
-import type { Bindings } from '@/backend/env'
+/**
+ * Backend API entry point.
+ *
+ * Registers all OpenAPI routes with middleware for rate limiting,
+ * authentication, and session resolution.
+ *
+ * @mermaid
+ * ```
+ * flowchart LR
+ *   A[Request] --> B[Rate limit\nauth endpoints]
+ *   B --> C[Auth handler\n/auth/**]
+ *   C --> D[Session resolve]
+ *   D --> E[Auth guard]
+ *   E --> F[Route handler]
+ * ```
+ */
+import { OpenAPIHono } from '@hono/zod-openapi'
 import {
   deleteFollowRouteHandler,
   deleteLikeRouteHandler,
@@ -13,6 +22,7 @@ import {
   getNotificationsUserIdRouteHandler,
   getPostsPostIdRouteHandler,
   getPostsRouteHandler,
+  getSearchRouteHandler,
   getUsersRouteHandler,
   getUsersUserIdRouteHandler,
   patchEditRouteHandler,
@@ -24,6 +34,7 @@ import {
   postRegisterRouteHandler,
 } from '@/backend/handlers'
 import { formatZodErrors } from '@/backend/lib/error'
+import { rateLimit } from '@/backend/middleware/rateLimit'
 import {
   deleteFollowRoute,
   deleteLikeRoute,
@@ -31,6 +42,7 @@ import {
   getNotificationsUserIdRoute,
   getPostsPostIdRoute,
   getPostsRoute,
+  getSearchRoute,
   getUsersRoute,
   getUsersUserIdRoute,
   patchEditRoute,
@@ -41,9 +53,9 @@ import {
   postPostsRoute,
   postRegisterRoute,
 } from '@/backend/routes'
-import * as schema from '@/db/schema'
+import { AuthType, auth } from '@/lib/auth'
 
-const app = new OpenAPIHono<{ Bindings: Bindings }>({
+const app = new OpenAPIHono<{ Variables: AuthType }>({
   defaultHook: (result, c) => {
     if (!result.success) {
       return c.json(formatZodErrors(result), 422, {
@@ -53,63 +65,44 @@ const app = new OpenAPIHono<{ Bindings: Bindings }>({
   },
 }).basePath('/api')
 
-app.use(
-  '*',
-  initAuthConfig((c) => ({
-    secret: c.env.AUTH_SECRET,
-    adapter: DrizzleAdapter(drizzle(c.env.DB)),
-    basePath: '/api/auth',
-    providers: [
-      Credentials({
-        credentials: {
-          email: { type: 'email' },
-          password: { type: 'password' },
-        },
-        async authorize(credentials) {
-          const CredentialsSchema = z.object({
-            email: z.email(),
-            password: z.string().min(8).max(72),
-          })
+// Rate limiting for auth endpoints
+app.use('/auth/sign-in/*', rateLimit({ windowMs: 60_000, max: 10 }))
+app.use('/auth/sign-up/*', rateLimit({ windowMs: 60_000, max: 5 }))
+app.use('/auth/change-password', rateLimit({ windowMs: 60_000, max: 5 }))
+app.use('/register', rateLimit({ windowMs: 60_000, max: 5 }))
 
-          const valid = CredentialsSchema.safeParse(credentials)
+// Better Auth route handler
+app.on(['GET', 'POST'], '/auth/**', async (c) => {
+  return auth().handler(c.req.raw)
+})
 
-          if (!valid.success) return null
-
-          const { email, password } = valid.data
-
-          const db = drizzle(c.env.DB)
-          const user = await db
-            .select()
-            .from(schema.users)
-            .where(eq(schema.users.email, email))
-            .get()
-
-          if (!user?.hashedPassword) return null
-
-          const isCorrectPassword = await bcrypt.compare(password, user.hashedPassword)
-          if (!isCorrectPassword) return null
-
-          return {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            image: user.image,
-          }
-        },
-      }),
-    ],
-    session: { strategy: 'jwt' },
-  })),
-)
-
-app.use('/auth/*', authHandler())
-
+// Session resolution + auth guard middleware
 app.use('*', async (c, next) => {
+  const session = await auth().api.getSession({
+    headers: c.req.raw.headers,
+  })
+
+  if (session) {
+    c.set('user', session.user)
+    c.set('session', session.session)
+  } else {
+    c.set('user', null)
+    c.set('session', null)
+  }
+
   const path = c.req.path.replace(/^\/api/, '')
-  if (path.startsWith('/auth/') || path.startsWith('/register')) {
+
+  // Skip auth for public routes
+  if (path.startsWith('/auth/') || path.startsWith('/register') || path.startsWith('/search')) {
     return next()
   }
-  return verifyAuth()(c, next)
+
+  // Require auth
+  if (!session) {
+    return c.json({ message: 'Unauthorized' }, 401)
+  }
+
+  return next()
 })
 
 export const api = app
@@ -126,6 +119,7 @@ export const api = app
   .openapi(postPostsRoute, postPostsRouteHandler)
   .openapi(getPostsPostIdRoute, getPostsPostIdRouteHandler)
   .openapi(postRegisterRoute, postRegisterRouteHandler)
+  .openapi(getSearchRoute, getSearchRouteHandler)
   .openapi(getUsersUserIdRoute, getUsersUserIdRouteHandler)
   .openapi(getUsersRoute, getUsersRouteHandler)
 

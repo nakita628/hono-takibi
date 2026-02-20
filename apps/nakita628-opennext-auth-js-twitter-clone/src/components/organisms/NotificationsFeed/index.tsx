@@ -1,8 +1,9 @@
 'use client'
 
 import { useEffect } from 'react'
+import { BsTwitter } from 'react-icons/bs'
+import { ClipLoader } from 'react-spinners'
 import { mutate } from 'swr'
-import { Logo } from '@/components/atoms/Logo'
 import { getGetCurrentKey, useGetCurrent, useGetNotificationsUserId } from '@/hooks/swr'
 
 export function NotificationsFeed() {
@@ -19,7 +20,7 @@ export function NotificationsFeed() {
   if (isLoading) {
     return (
       <div className='flex justify-center items-center h-20'>
-        <div className='animate-spin rounded-full h-10 w-10 border-b-2 border-sky-500' />
+        <ClipLoader color='lightblue' size={35} />
       </div>
     )
   }
@@ -33,9 +34,9 @@ export function NotificationsFeed() {
       {fetchedNotifications.map((notification) => (
         <div
           key={notification.id}
-          className='flex flex-row items-center p-6 gap-4 border-b-[1px] border-neutral-800'
+          className='flex flex-row items-center p-6 gap-4 border-b border-neutral-800'
         >
-          <Logo size={32} />
+          <BsTwitter size={32} color='#0EA5E9' />
           <p className='text-white'>{notification.body}</p>
         </div>
       ))}

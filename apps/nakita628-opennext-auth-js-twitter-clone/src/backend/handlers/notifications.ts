@@ -1,27 +1,37 @@
 import type { RouteHandler } from '@hono/zod-openapi'
-import { drizzle } from 'drizzle-orm/d1'
 import { Effect } from 'effect'
-import { DatabaseError } from '@/backend/domain'
-import type { Bindings } from '@/backend/env'
+import { DatabaseError, ValidationError } from '@/backend/domain'
 import type { getNotificationsUserIdRoute, postNotificationsRoute } from '@/backend/routes'
 import * as NotificationsTransaction from '@/backend/transactions/notifications'
-import { DB } from '@/db'
-import * as schema from '@/db/schema'
+import { DBLive } from '@/infra'
+import type { AuthType } from '@/lib/auth'
 
+/**
+ * Handle `GET /notifications/:userId` — fetch notifications for a user.
+ *
+ * @mermaid
+ * ```
+ * flowchart LR
+ *   A[param userId] --> B[NotificationsTransaction.getByUserId]
+ *   B --> C{match}
+ *   C --> D[200 OK]
+ *   C --> E[503 DB error]
+ * ```
+ */
 export const getNotificationsUserIdRouteHandler: RouteHandler<
   typeof getNotificationsUserIdRoute,
-  { Bindings: Bindings }
+  { Variables: AuthType }
 > = async (c) => {
   const { userId } = c.req.valid('param')
-  const db = drizzle(c.env.DB, { schema })
 
   return Effect.runPromise(
     NotificationsTransaction.getByUserId(userId).pipe(
-      Effect.provideService(DB, db),
+      Effect.provide(DBLive),
       Effect.match({
         onSuccess: (notifications) => c.json(notifications, 200),
         onFailure: (e) => {
-          if (e instanceof DatabaseError) return c.json({ message: e.message }, 500)
+          if (e instanceof ValidationError) return c.json({ message: e.message }, 500)
+          if (e instanceof DatabaseError) return c.json({ message: e.message }, 503)
           return c.json({ message: 'Internal server error' }, 500)
         },
       }),
@@ -29,20 +39,32 @@ export const getNotificationsUserIdRouteHandler: RouteHandler<
   )
 }
 
+/**
+ * Handle `POST /notifications` — mark notifications as read.
+ *
+ * @mermaid
+ * ```
+ * flowchart LR
+ *   A[body userId] --> B[NotificationsTransaction.markAsRead]
+ *   B --> C{match}
+ *   C --> D[200 OK]
+ *   C --> E[503 DB error]
+ * ```
+ */
 export const postNotificationsRouteHandler: RouteHandler<
   typeof postNotificationsRoute,
-  { Bindings: Bindings }
+  { Variables: AuthType }
 > = async (c) => {
   const userId = await c.req.text()
-  const db = drizzle(c.env.DB, { schema })
 
   return Effect.runPromise(
     NotificationsTransaction.markAsRead(userId).pipe(
-      Effect.provideService(DB, db),
+      Effect.provide(DBLive),
       Effect.match({
         onSuccess: (result) => c.json(result, 200),
         onFailure: (e) => {
-          if (e instanceof DatabaseError) return c.json({ message: e.message }, 500)
+          if (e instanceof ValidationError) return c.json({ message: e.message }, 500)
+          if (e instanceof DatabaseError) return c.json({ message: e.message }, 503)
           return c.json({ message: 'Internal server error' }, 500)
         },
       }),

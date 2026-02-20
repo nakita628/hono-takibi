@@ -1,45 +1,27 @@
-import { z } from '@hono/zod-openapi'
 import { Effect } from 'effect'
+import * as UserDomain from '@/backend/domain'
 import { NotFoundError, UnauthorizedError, ValidationError } from '@/backend/domain'
-import { PostDetailSchema, PostSchema, PostWithDetailsSchema } from '@/backend/routes'
+import { PaginatedPostsSchema, PostDetailSchema, PostSchema } from '@/backend/routes'
 import * as PostService from '@/backend/services/post'
 import * as UserService from '@/backend/services/user'
 
-function formatUser(u: {
-  id: string
-  name: string
-  username: string
-  bio: string | null
-  email: string
-  emailVerified: Date | null
-  image: string | null
-  coverImage: string | null
-  profileImage: string | null
-  createdAt: Date
-  updatedAt: Date
-  hasNotification: boolean | null
-}) {
-  return {
-    id: u.id,
-    name: u.name,
-    username: u.username,
-    bio: u.bio,
-    email: u.email,
-    emailVerified: u.emailVerified?.toISOString() ?? null,
-    image: u.image,
-    coverImage: u.coverImage,
-    profileImage: u.profileImage,
-    createdAt: u.createdAt.toISOString(),
-    updatedAt: u.updatedAt.toISOString(),
-    hasNotification: u.hasNotification,
-  }
-}
-
-export function create(email: string, args: { body: string }) {
-  return Effect.gen(function* () {
+/**
+ * Create a new post for the authenticated user.
+ *
+ * @mermaid
+ * ```
+ * flowchart TD
+ *   A[findUser] --> B{exists?}
+ *   B -- no --> C[fail Unauthorized]
+ *   B -- yes --> D[createPost]
+ *   D --> E[validate + return]
+ * ```
+ */
+export const create = (email: string, args: { body: string }) =>
+  Effect.gen(function* () {
     const user = yield* UserService.findByEmail(email)
     if (!user) {
-      return yield* Effect.fail(new UnauthorizedError({ message: 'Not signed in' }))
+      return yield* Effect.fail(new UnauthorizedError({ message: 'Unauthorized' }))
     }
 
     const post = yield* PostService.create({ body: args.body, userId: user.id })
@@ -58,44 +40,68 @@ export function create(email: string, args: { body: string }) {
     }
     return valid.data
   })
-}
 
-export function getAll(userId?: string) {
-  return Effect.gen(function* () {
-    const posts = yield* PostService.findAllWithRelations(userId)
+/**
+ * List posts with pagination, comment counts, and like counts.
+ *
+ * @mermaid
+ * ```
+ * flowchart TD
+ *   A[compute offset] --> B[findAllPaginated]
+ *   B --> C[map posts with counts]
+ *   C --> D[buildMeta page/limit/total]
+ *   D --> E[validate + return]
+ * ```
+ */
+export const getAll = (args: { userId?: string; page: number; limit: number }) =>
+  Effect.gen(function* () {
+    const offset = (args.page - 1) * args.limit
+    const result = yield* PostService.findAllPaginated({
+      ...(args.userId !== undefined ? { userId: args.userId } : {}),
+      limit: args.limit,
+      offset,
+    })
 
-    const data = posts.map((p) => ({
-      id: p.id,
-      body: p.body,
-      createdAt: p.createdAt.toISOString(),
-      updatedAt: p.updatedAt.toISOString(),
-      userId: p.userId,
-      user: formatUser(p.user),
-      comments: p.comments.map((c) => ({
-        id: c.id,
-        body: c.body,
-        createdAt: c.createdAt.toISOString(),
-        updatedAt: c.updatedAt.toISOString(),
-        userId: c.userId,
-        postId: c.postId,
+    const data = {
+      data: result.posts.map((post) => ({
+        id: post.id,
+        body: post.body,
+        createdAt: post.createdAt.toISOString(),
+        updatedAt: post.updatedAt.toISOString(),
+        userId: post.userId,
+        user: UserDomain.makeFormatUser(post.user),
+        commentCount: result.commentCounts[post.id] ?? 0,
+        likeCount: result.likeCounts[post.id] ?? 0,
       })),
-      likes: p.likes.map((l) => ({
-        userId: l.userId,
-        postId: l.postId,
-        createdAt: l.createdAt.toISOString(),
-      })),
-    }))
+      meta: {
+        page: args.page,
+        limit: args.limit,
+        total: result.total,
+        totalPages: Math.ceil(result.total / args.limit),
+      },
+    }
 
-    const valid = z.array(PostWithDetailsSchema).safeParse(data)
+    const valid = PaginatedPostsSchema.safeParse(data)
     if (!valid.success) {
       return yield* Effect.fail(new ValidationError({ message: 'Invalid posts data' }))
     }
     return valid.data
   })
-}
 
-export function getById(postId: string) {
-  return Effect.gen(function* () {
+/**
+ * Fetch a single post with user, comments, and likes.
+ *
+ * @mermaid
+ * ```
+ * flowchart TD
+ *   A[findByIdWithRelations] --> B{post?}
+ *   B -- no --> C[fail NotFound]
+ *   B -- yes --> D[format comments/likes/user]
+ *   D --> E[validate + return]
+ * ```
+ */
+export const getById = (postId: string) =>
+  Effect.gen(function* () {
     const post = yield* PostService.findByIdWithRelations(postId)
     if (!post) {
       return yield* Effect.fail(new NotFoundError({ message: 'Post not found' }))
@@ -107,15 +113,15 @@ export function getById(postId: string) {
       createdAt: post.createdAt.toISOString(),
       updatedAt: post.updatedAt.toISOString(),
       userId: post.userId,
-      user: formatUser(post.user),
-      comments: post.comments.map((c) => ({
-        id: c.id,
-        body: c.body,
-        createdAt: c.createdAt.toISOString(),
-        updatedAt: c.updatedAt.toISOString(),
-        userId: c.userId,
-        postId: c.postId,
-        user: formatUser(c.user),
+      user: UserDomain.makeFormatUser(post.user),
+      comments: post.comments.map((comment) => ({
+        id: comment.id,
+        body: comment.body,
+        createdAt: comment.createdAt.toISOString(),
+        updatedAt: comment.updatedAt.toISOString(),
+        userId: comment.userId,
+        postId: comment.postId,
+        user: UserDomain.makeFormatUser(comment.user),
       })),
       likes: post.likes.map((l) => ({ userId: l.userId })),
       _count: { likes: post.likes.length },
@@ -127,4 +133,3 @@ export function getById(postId: string) {
     }
     return valid.data
   })
-}

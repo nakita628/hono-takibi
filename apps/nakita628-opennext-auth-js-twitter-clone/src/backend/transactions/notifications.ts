@@ -4,8 +4,18 @@ import { ValidationError } from '@/backend/domain'
 import { MessageResponseSchema, NotificationSchema } from '@/backend/routes'
 import * as NotificationService from '@/backend/services/notification'
 
-export function getByUserId(userId: string) {
-  return Effect.gen(function* () {
+/**
+ * Fetch all notifications for a user.
+ *
+ * @mermaid
+ * ```
+ * flowchart LR
+ *   A[findByUserId] --> B[format dates]
+ *   B --> C[validate + return]
+ * ```
+ */
+export const getByUserId = (userId: string) =>
+  Effect.gen(function* () {
     const notifications = yield* NotificationService.findByUserId(userId)
 
     const data = notifications.map((n) => ({
@@ -21,10 +31,18 @@ export function getByUserId(userId: string) {
     }
     return valid.data
   })
-}
 
-export function markAsRead(userId: string) {
-  return Effect.gen(function* () {
+/**
+ * Mark all notifications as read for a user.
+ *
+ * @mermaid
+ * ```
+ * flowchart LR
+ *   A[updateHasNotification false] --> B[validate + return]
+ * ```
+ */
+export const markAsRead = (userId: string) =>
+  Effect.gen(function* () {
     yield* NotificationService.updateUserHasNotification(userId, false)
 
     const data = { message: 'Notifications updated' }
@@ -34,4 +52,3 @@ export function markAsRead(userId: string) {
     }
     return valid.data
   })
-}

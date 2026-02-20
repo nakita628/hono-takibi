@@ -1,17 +1,20 @@
 'use client'
 
-import { signIn } from '@hono/auth-js/react'
 import { useCallback, useState } from 'react'
+import toast from 'react-hot-toast'
+import { useSWRConfig } from 'swr'
 import { Input } from '@/components/atoms/Input'
 import { Modal } from '@/components/molecules/Modal'
 import { usePostRegister } from '@/hooks/swr'
 import { useLoginModal } from '@/hooks/useLoginModal'
 import { useRegisterModal } from '@/hooks/useRegisterModal'
+import { authClient } from '@/lib/auth-client'
 
 export function RegisterModal() {
   const loginModal = useLoginModal()
   const registerModal = useRegisterModal()
   const { trigger: register } = usePostRegister()
+  const { mutate } = useSWRConfig()
   const [email, setEmail] = useState('')
   const [name, setName] = useState('')
   const [username, setUsername] = useState('')
@@ -32,15 +35,17 @@ export function RegisterModal() {
         json: { email, username, name, password },
       })
 
-      await signIn('credentials', { email, password, redirect: false })
+      await authClient.signIn.email({ email, password })
+      toast.success('Account created')
+      await mutate(() => true)
 
       registerModal.onClose()
     } catch {
-      // Registration failed
+      toast.error('Failed to create account')
     } finally {
       setIsLoading(false)
     }
-  }, [email, username, name, password, register, registerModal])
+  }, [email, username, name, password, register, registerModal, mutate])
 
   const bodyContent = (
     <div className='flex flex-col gap-4'>
@@ -75,9 +80,13 @@ export function RegisterModal() {
     <div className='mt-4 text-center text-neutral-400'>
       <p>
         Already have an account?{' '}
-        <span onClick={onToggle} className='text-white cursor-pointer hover:underline'>
+        <button
+          type='button'
+          onClick={onToggle}
+          className='text-white cursor-pointer hover:underline'
+        >
           Sign in
-        </span>
+        </button>
       </p>
     </div>
   )

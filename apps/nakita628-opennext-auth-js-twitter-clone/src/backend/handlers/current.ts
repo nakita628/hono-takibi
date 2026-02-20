@@ -1,33 +1,42 @@
 import type { RouteHandler } from '@hono/zod-openapi'
-import { drizzle } from 'drizzle-orm/d1'
 import { Effect } from 'effect'
-import { DatabaseError, UnauthorizedError } from '@/backend/domain'
-import type { Bindings } from '@/backend/env'
+import { DatabaseError, UnauthorizedError, ValidationError } from '@/backend/domain'
 import type { getCurrentRoute } from '@/backend/routes'
 import * as CurrentTransaction from '@/backend/transactions/current'
-import { DB } from '@/db'
-import * as schema from '@/db/schema'
+import { DBLive } from '@/infra'
+import type { AuthType } from '@/lib/auth'
 
+/**
+ * Handle `GET /current` — return the authenticated user's profile.
+ *
+ * @mermaid
+ * ```
+ * flowchart LR
+ *   A[Auth check] --> B[CurrentTransaction.get]
+ *   B --> C{match}
+ *   C --> D[200 OK]
+ *   C --> E[401 Unauthorized]
+ *   C --> F[503 DB error]
+ * ```
+ */
 export const getCurrentRouteHandler: RouteHandler<
   typeof getCurrentRoute,
-  { Bindings: Bindings }
+  { Variables: AuthType }
 > = async (c) => {
-  const authUser = c.get('authUser')
-  const email = authUser?.token?.email
+  const email = c.get('user')?.email
   if (!email) {
-    return c.json({ message: 'Not signed in' }, 401)
+    return c.json({ message: 'Unauthorized' }, 401)
   }
-
-  const db = drizzle(c.env.DB, { schema })
 
   return Effect.runPromise(
     CurrentTransaction.get(email).pipe(
-      Effect.provideService(DB, db),
+      Effect.provide(DBLive),
       Effect.match({
         onSuccess: (user) => c.json(user, 200),
         onFailure: (e) => {
           if (e instanceof UnauthorizedError) return c.json({ message: e.message }, 401)
-          if (e instanceof DatabaseError) return c.json({ message: e.message }, 500)
+          if (e instanceof ValidationError) return c.json({ message: e.message }, 500)
+          if (e instanceof DatabaseError) return c.json({ message: e.message }, 503)
           return c.json({ message: 'Internal server error' }, 500)
         },
       }),

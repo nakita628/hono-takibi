@@ -49,7 +49,7 @@ export function ImageUpload({ value, disabled, onChange, label }: Props) {
       <input {...getInputProps()} />
       {value ? (
         <div className='flex items-center justify-center'>
-          <Image src={value} height={100} width={100} alt='Uploaded image' />
+          <Image src={value} height={100} width={100} alt='Upload preview' />
         </div>
       ) : (
         <p className='text-white'>{label}</p>

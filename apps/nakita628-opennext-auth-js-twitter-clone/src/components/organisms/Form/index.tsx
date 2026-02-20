@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useState } from 'react'
+import toast from 'react-hot-toast'
 import { mutate } from 'swr'
 import { Button } from '@/components/atoms/Button'
 import { AvatarLink } from '@/components/molecules/AvatarLink'
@@ -34,6 +35,7 @@ export function Form({ placeholder, isComment, postId }: Props) {
         await createPost({ json: { body } })
       }
 
+      toast.success(isComment ? 'Comment posted' : 'Tweet created')
       setBody('')
 
       // Revalidate posts
@@ -42,14 +44,14 @@ export function Form({ placeholder, isComment, postId }: Props) {
         return false
       })
     } catch {
-      // Tweet creation failed
+      toast.error(isComment ? 'Failed to post comment' : 'Failed to create post')
     } finally {
       setIsLoading(false)
     }
   }, [body, isComment, postId, createPost, createComment])
 
   return (
-    <div className='border-b-[1px] border-neutral-800 px-5 py-2'>
+    <div className='border-b border-neutral-800 px-5 py-2'>
       {currentUser ? (
         <div className='flex flex-row gap-4'>
           <div>

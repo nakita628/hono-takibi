@@ -1,13 +1,16 @@
 'use client'
 
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
+import { useEffect } from 'react'
+import { ClipLoader } from 'react-spinners'
 import { Header } from '@/components/atoms/Header'
 import { CommentFeed } from '@/components/molecules/CommentFeed'
 import { PostItem } from '@/components/molecules/PostItem'
 import { Form } from '@/components/organisms/Form'
-import { useGetPostsPostId } from '@/hooks/swr'
+import { useGetCurrent, useGetPostsPostId } from '@/hooks/swr'
 
 export default function PostView() {
+  const router = useRouter()
   const params = useParams()
   const { postId } = params
 
@@ -15,14 +18,22 @@ export default function PostView() {
     throw new Error('Invalid post ID')
   }
 
-  const { data: fetchedPost, isLoading } = useGetPostsPostId({
-    param: { postId },
-  })
+  const { data: currentUser, isLoading: isLoadingUser } = useGetCurrent()
+  const { data: fetchedPost, isLoading: isLoadingPost } = useGetPostsPostId(
+    { param: { postId } },
+    { swr: { enabled: !!currentUser } },
+  )
 
-  if (isLoading || !fetchedPost) {
+  useEffect(() => {
+    if (!(isLoadingUser || currentUser)) {
+      router.push('/')
+    }
+  }, [isLoadingUser, currentUser, router])
+
+  if (isLoadingUser || isLoadingPost || !fetchedPost) {
     return (
       <div className='flex justify-center items-center h-full'>
-        <div className='animate-spin rounded-full h-20 w-20 border-b-2 border-sky-500' />
+        <ClipLoader color='lightblue' size={80} />
       </div>
     )
   }

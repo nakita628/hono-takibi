@@ -479,28 +479,31 @@ export function useGetUsersUserId(
 
 /**
  * Generates SWR cache key for GET /users
- * Returns structured key ['prefix', 'method', 'path'] for filtering
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetUsersKey() {
-  return ['users', 'GET', '/users'] as const
+export function getGetUsersKey(args: InferRequestType<typeof client.users.$get>) {
+  return ['users', 'GET', '/users', args] as const
 }
 
 /**
  * GET /users
  */
-export function useGetUsers(options?: {
-  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
-  client?: ClientRequestOptions
-}) {
+export function useGetUsers(
+  args: InferRequestType<typeof client.users.$get>,
+  options?: {
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
+    client?: ClientRequestOptions
+  },
+) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
-  const swrKey = isEnabled ? (customKey ?? getGetUsersKey()) : null
+  const swrKey = isEnabled ? (customKey ?? getGetUsersKey(args)) : null
   return {
     swrKey,
     ...useSWR(
       swrKey,
-      async () => parseResponse(client.users.$get(undefined, clientOptions)),
+      async () => parseResponse(client.users.$get(args, clientOptions)),
       restSwrOptions,
     ),
   }

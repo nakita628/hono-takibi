@@ -15,12 +15,7 @@ export function UserHero({ userId }: Props) {
     <div>
       <div className='bg-neutral-700 h-44 relative'>
         {fetchedUser?.coverImage && (
-          <Image
-            src={fetchedUser.coverImage}
-            fill
-            alt='Cover Image'
-            style={{ objectFit: 'cover' }}
-          />
+          <Image src={fetchedUser.coverImage} alt='Cover' fill className='object-cover' />
         )}
         <div className='absolute -bottom-16 left-4'>
           <Avatar src={fetchedUser?.profileImage || '/images/placeholder.png'} isLarge hasBorder />

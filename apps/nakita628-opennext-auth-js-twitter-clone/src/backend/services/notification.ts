@@ -1,21 +1,22 @@
 import { eq } from 'drizzle-orm'
 import { Effect } from 'effect'
 import { DatabaseError } from '@/backend/domain'
-import { DB } from '@/db'
-import * as schema from '@/db/schema'
+import { schema } from '@/db'
+import { DB } from '@/infra'
 
-export function create(args: { body: string; userId: string }) {
-  return Effect.gen(function* () {
+/** Insert a new notification row for a user. */
+export const create = (args: { body: string; userId: string }) =>
+  Effect.gen(function* () {
     const db = yield* DB
     return yield* Effect.tryPromise({
       try: () => db.insert(schema.notifications).values(args).returning().get(),
       catch: () => new DatabaseError({ message: 'Database error' }),
     })
   })
-}
 
-export function findByUserId(userId: string) {
-  return Effect.gen(function* () {
+/** Fetch all notifications for a user, ordered newest-first. */
+export const findByUserId = (userId: string) =>
+  Effect.gen(function* () {
     const db = yield* DB
     return yield* Effect.tryPromise({
       try: () =>
@@ -26,15 +27,18 @@ export function findByUserId(userId: string) {
       catch: () => new DatabaseError({ message: 'Database error' }),
     })
   })
-}
 
-export function updateUserHasNotification(userId: string, hasNotification: boolean) {
-  return Effect.gen(function* () {
+/** Toggle the `hasNotification` flag on a user's profile. */
+export const updateUserHasNotification = (userId: string, hasNotification: boolean) =>
+  Effect.gen(function* () {
     const db = yield* DB
     return yield* Effect.tryPromise({
       try: () =>
-        db.update(schema.users).set({ hasNotification }).where(eq(schema.users.id, userId)).run(),
+        db
+          .update(schema.userProfile)
+          .set({ hasNotification })
+          .where(eq(schema.userProfile.userId, userId))
+          .run(),
       catch: () => new DatabaseError({ message: 'Database error' }),
     })
   })
-}

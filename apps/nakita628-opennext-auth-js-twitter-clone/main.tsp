@@ -123,6 +123,34 @@ model PostWithDetails {
   likes: Like[];
 }
 
+model PostSummary {
+  @format("uuid") id: string;
+  body: string;
+  createdAt: string;
+  updatedAt: string;
+  @format("uuid") userId: string;
+  user: User;
+  commentCount: numeric;
+  likeCount: numeric;
+}
+
+model PaginationMeta {
+  page: numeric;
+  limit: numeric;
+  total: numeric;
+  totalPages: numeric;
+}
+
+model PaginatedPosts {
+  data: PostSummary[];
+  meta: PaginationMeta;
+}
+
+model PaginatedUsers {
+  data: User[];
+  meta: PaginationMeta;
+}
+
 model PostDetail {
   @format("uuid") id: string;
   body: string;
@@ -194,11 +222,14 @@ model ValidationError {
 @tag("comments")
 @route("/comments")
 @post
-op postComments(...Parameters.PostIdQuery, @body body: CreateCommentRequest): Comment | {
+op postComments(...Parameters.PostIdQuery, @body body: CreateCommentRequest): Comment | (UnauthorizedResponse & MessageResponse) | {
   @statusCode statusCode: 422;
   @body body: ValidationError;
 } | {
   @statusCode statusCode: 500;
+  @body body: MessageResponse;
+} | {
+  @statusCode statusCode: 503;
   @body body: MessageResponse;
 };
 
@@ -208,60 +239,87 @@ op postComments(...Parameters.PostIdQuery, @body body: CreateCommentRequest): Co
 op getCurrentUser(): CurrentUser | (UnauthorizedResponse & MessageResponse) | {
   @statusCode statusCode: 500;
   @body body: MessageResponse;
+} | {
+  @statusCode statusCode: 503;
+  @body body: MessageResponse;
 };
 
 @tag("edit")
 @route("/edit")
 @patch(#{implicitOptionality: true})
-op patchEdit(@body body: EditUserRequest): User | {
+op patchEdit(@body body: EditUserRequest): User | (UnauthorizedResponse & MessageResponse) | {
   @statusCode statusCode: 422;
   @body body: ValidationError;
 } | {
   @statusCode statusCode: 500;
+  @body body: MessageResponse;
+} | {
+  @statusCode statusCode: 503;
   @body body: MessageResponse;
 };
 
 @tag("follow")
 @route("/follow")
 @delete
-op deleteFollowUserId(@body body: FollowUserRequest): MessageResponse | {
+op deleteFollowUserId(@body body: FollowUserRequest): MessageResponse | (UnauthorizedResponse & MessageResponse) | {
   @statusCode statusCode: 422;
   @body body: ValidationError;
 } | {
   @statusCode statusCode: 500;
+  @body body: MessageResponse;
+} | {
+  @statusCode statusCode: 503;
   @body body: MessageResponse;
 };
 
 @tag("follow")
 @route("/follow")
 @post
-op postFollowUesrId(@body body: FollowUserRequest): MessageResponse | {
+op postFollowUesrId(@body body: FollowUserRequest): MessageResponse | (UnauthorizedResponse & MessageResponse) | {
+  @statusCode statusCode: 404;
+  @body body: MessageResponse;
+} | {
   @statusCode statusCode: 422;
   @body body: ValidationError;
 } | {
   @statusCode statusCode: 500;
+  @body body: MessageResponse;
+} | {
+  @statusCode statusCode: 503;
   @body body: MessageResponse;
 };
 
 @tag("like")
 @route("/like")
 @delete
-op deleteLikePostId(@body body: LikePostRequest): PostWithLikes | {
+op deleteLikePostId(@body body: LikePostRequest): PostWithLikes | (UnauthorizedResponse & MessageResponse) | {
+  @statusCode statusCode: 404;
+  @body body: MessageResponse;
+} | {
   @statusCode statusCode: 422;
   @body body: ValidationError;
 } | {
   @statusCode statusCode: 500;
+  @body body: MessageResponse;
+} | {
+  @statusCode statusCode: 503;
   @body body: MessageResponse;
 };
 
 @tag("like")
 @route("/like")
 @post
-op postLikePostId(@body body: LikePostRequest): PostWithLikes | {
+op postLikePostId(@body body: LikePostRequest): PostWithLikes | (UnauthorizedResponse & MessageResponse) | {
+  @statusCode statusCode: 404;
+  @body body: MessageResponse;
+} | {
   @statusCode statusCode: 422;
   @body body: ValidationError;
 } | {
   @statusCode statusCode: 500;
+  @body body: MessageResponse;
+} | {
+  @statusCode statusCode: 503;
   @body body: MessageResponse;
 };
 
@@ -274,6 +332,9 @@ op getNotificationsUserId(...Parameters.UserIdPath): Body<Notification[]> | {
 } | {
   @statusCode statusCode: 500;
   @body body: MessageResponse;
+} | {
+  @statusCode statusCode: 503;
+  @body body: MessageResponse;
 };
 
 @tag("notifications")
@@ -285,24 +346,36 @@ op postNotificationsUserId(@body body: string): MessageResponse | {
 } | {
   @statusCode statusCode: 500;
   @body body: MessageResponse;
+} | {
+  @statusCode statusCode: 503;
+  @body body: MessageResponse;
 };
 
 @tag("posts")
 @route("/posts")
 @get
-op getPosts(...Parameters.UserIdQuery): Body<PostWithDetails[]> | {
+op getPosts(...Parameters.UserIdQuery, ...Parameters.PaginationQuery): PaginatedPosts | {
   @statusCode statusCode: 422;
   @body body: ValidationError;
+} | {
+  @statusCode statusCode: 500;
+  @body body: MessageResponse;
+} | {
+  @statusCode statusCode: 503;
+  @body body: MessageResponse;
 };
 
 @tag("posts")
 @route("/posts")
 @post
-op postPosts(@body body: CreatePostRequest): Post | {
+op postPosts(@body body: CreatePostRequest): Post | (UnauthorizedResponse & MessageResponse) | {
   @statusCode statusCode: 422;
   @body body: ValidationError;
 } | {
   @statusCode statusCode: 500;
+  @body body: MessageResponse;
+} | {
+  @statusCode statusCode: 503;
   @body body: MessageResponse;
 };
 
@@ -310,10 +383,16 @@ op postPosts(@body body: CreatePostRequest): Post | {
 @route("/posts/{postId}")
 @get
 op getPostsPostId(...Parameters.PostIdPath): PostDetail | {
+  @statusCode statusCode: 404;
+  @body body: MessageResponse;
+} | {
   @statusCode statusCode: 422;
   @body body: ValidationError;
 } | {
   @statusCode statusCode: 500;
+  @body body: MessageResponse;
+} | {
+  @statusCode statusCode: 503;
   @body body: MessageResponse;
 };
 
@@ -347,13 +426,19 @@ op getUserUserId(...Parameters.UserIdPath): UserWithFollowCount | (NotFoundRespo
 } | {
   @statusCode statusCode: 500;
   @body body: MessageResponse;
+} | {
+  @statusCode statusCode: 503;
+  @body body: MessageResponse;
 };
 
 @tag("users")
 @route("/users")
 @get
-op getUsers(): Body<User[]> | {
+op getUsers(...Parameters.PaginationQuery): PaginatedUsers | {
   @statusCode statusCode: 500;
+  @body body: MessageResponse;
+} | {
+  @statusCode statusCode: 503;
   @body body: MessageResponse;
 };
 
@@ -368,6 +453,10 @@ namespace Parameters {
     @format("uuid") @path userId: string;
   }
   model UserIdQuery {
-    @format("uuid") @query(#{ explode: true }) userId: string;
+    @format("uuid") @query(#{ explode: true }) userId?: string;
+  }
+  model PaginationQuery {
+    @minValue(1) @query(#{ explode: true }) page?: numeric;
+    @minValue(1) @maxValue(100) @query(#{ explode: true }) limit?: numeric;
   }
 }

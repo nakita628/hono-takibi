@@ -5,7 +5,7 @@
     "moduleResolution": "Bundler",
     "strict": true,
     "skipLibCheck": true,
-    "lib": ["ESNext"],
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "jsx": "react-jsx",
     "exactOptionalPropertyTypes": true,
     "paths": {
@@ -31,5 +31,5 @@
     "**/*.ts",
     "**/*.tsx"
   ],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "playwright.config.ts", "e2e"]
 }

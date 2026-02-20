@@ -1,27 +1,41 @@
 import type { RouteHandler } from '@hono/zod-openapi'
-import { drizzle } from 'drizzle-orm/d1'
 import { Effect } from 'effect'
-import { DatabaseError, NotFoundError, UnauthorizedError } from '@/backend/domain'
-import type { Bindings } from '@/backend/env'
+import { DatabaseError, NotFoundError, UnauthorizedError, ValidationError } from '@/backend/domain'
 import type { getPostsPostIdRoute, getPostsRoute, postPostsRoute } from '@/backend/routes'
 import * as PostsTransaction from '@/backend/transactions/posts'
-import { DB } from '@/db'
-import * as schema from '@/db/schema'
+import { DBLive } from '@/infra'
+import type { AuthType } from '@/lib/auth'
 
+/**
+ * Handle `GET /posts` — list posts with pagination.
+ *
+ * @mermaid
+ * ```
+ * flowchart LR
+ *   A[query params] --> B[PostsTransaction.getAll]
+ *   B --> C{match}
+ *   C --> D[200 OK]
+ *   C --> E[503 DB error]
+ * ```
+ */
 export const getPostsRouteHandler: RouteHandler<
   typeof getPostsRoute,
-  { Bindings: Bindings }
+  { Variables: AuthType }
 > = async (c) => {
-  const { userId } = c.req.valid('query')
-  const db = drizzle(c.env.DB, { schema })
+  const { userId, page, limit } = c.req.valid('query')
 
   return Effect.runPromise(
-    PostsTransaction.getAll(userId).pipe(
-      Effect.provideService(DB, db),
+    PostsTransaction.getAll({
+      ...(userId !== undefined ? { userId } : {}),
+      page: page ?? 1,
+      limit: limit ?? 20,
+    }).pipe(
+      Effect.provide(DBLive),
       Effect.match({
         onSuccess: (posts) => c.json(posts, 200),
         onFailure: (e) => {
-          if (e instanceof DatabaseError) return c.json({ message: e.message }, 500)
+          if (e instanceof ValidationError) return c.json({ message: e.message }, 500)
+          if (e instanceof DatabaseError) return c.json({ message: e.message }, 503)
           return c.json({ message: 'Internal server error' }, 500)
         },
       }),
@@ -29,27 +43,39 @@ export const getPostsRouteHandler: RouteHandler<
   )
 }
 
+/**
+ * Handle `POST /posts` — create a new post.
+ *
+ * @mermaid
+ * ```
+ * flowchart LR
+ *   A[Auth check] --> B[PostsTransaction.create]
+ *   B --> C{match}
+ *   C --> D[200 OK]
+ *   C --> E[401 Unauthorized]
+ *   C --> F[503 DB error]
+ * ```
+ */
 export const postPostsRouteHandler: RouteHandler<
   typeof postPostsRoute,
-  { Bindings: Bindings }
+  { Variables: AuthType }
 > = async (c) => {
-  const authUser = c.get('authUser')
-  const email = authUser?.token?.email
+  const email = c.get('user')?.email
   if (!email) {
-    return c.json({ message: 'Not signed in' }, 500)
+    return c.json({ message: 'Unauthorized' }, 401)
   }
 
   const { body } = c.req.valid('json')
-  const db = drizzle(c.env.DB, { schema })
 
   return Effect.runPromise(
     PostsTransaction.create(email, { body }).pipe(
-      Effect.provideService(DB, db),
+      Effect.provide(DBLive),
       Effect.match({
         onSuccess: (post) => c.json(post, 200),
         onFailure: (e) => {
-          if (e instanceof UnauthorizedError) return c.json({ message: e.message }, 500)
-          if (e instanceof DatabaseError) return c.json({ message: e.message }, 500)
+          if (e instanceof UnauthorizedError) return c.json({ message: e.message }, 401)
+          if (e instanceof ValidationError) return c.json({ message: e.message }, 500)
+          if (e instanceof DatabaseError) return c.json({ message: e.message }, 503)
           return c.json({ message: 'Internal server error' }, 500)
         },
       }),
@@ -57,21 +83,34 @@ export const postPostsRouteHandler: RouteHandler<
   )
 }
 
+/**
+ * Handle `GET /posts/:postId` — fetch a single post with relations.
+ *
+ * @mermaid
+ * ```
+ * flowchart LR
+ *   A[param postId] --> B[PostsTransaction.getById]
+ *   B --> C{match}
+ *   C --> D[200 OK]
+ *   C --> E[404 Not Found]
+ *   C --> F[503 DB error]
+ * ```
+ */
 export const getPostsPostIdRouteHandler: RouteHandler<
   typeof getPostsPostIdRoute,
-  { Bindings: Bindings }
+  { Variables: AuthType }
 > = async (c) => {
   const { postId } = c.req.valid('param')
-  const db = drizzle(c.env.DB, { schema })
 
   return Effect.runPromise(
     PostsTransaction.getById(postId).pipe(
-      Effect.provideService(DB, db),
+      Effect.provide(DBLive),
       Effect.match({
         onSuccess: (post) => c.json(post, 200),
         onFailure: (e) => {
-          if (e instanceof NotFoundError) return c.json({ message: e.message }, 500)
-          if (e instanceof DatabaseError) return c.json({ message: e.message }, 500)
+          if (e instanceof NotFoundError) return c.json({ message: e.message }, 404)
+          if (e instanceof ValidationError) return c.json({ message: e.message }, 500)
+          if (e instanceof DatabaseError) return c.json({ message: e.message }, 503)
           return c.json({ message: 'Internal server error' }, 500)
         },
       }),
