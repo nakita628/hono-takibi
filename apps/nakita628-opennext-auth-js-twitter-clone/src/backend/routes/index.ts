@@ -12,6 +12,11 @@ export const CommentSchema = z
   .openapi({ required: ['id', 'body', 'createdAt', 'updatedAt', 'userId', 'postId'] })
   .openapi('Comment')
 
+export const MessageResponseSchema = z
+  .object({ message: z.string() })
+  .openapi({ required: ['message'] })
+  .openapi('MessageResponse')
+
 export const ValidationErrorDetailSchema = z
   .object({ pointer: z.string(), detail: z.string() })
   .openapi({ required: ['pointer', 'detail'] })
@@ -27,11 +32,6 @@ export const ValidationErrorSchema = z
   })
   .openapi({ required: ['type', 'title', 'status', 'detail', 'errors'] })
   .openapi('ValidationError')
-
-export const MessageResponseSchema = z
-  .object({ message: z.string() })
-  .openapi({ required: ['message'] })
-  .openapi('MessageResponse')
 
 export const CreateCommentRequestSchema = z
   .object({ body: z.string() })
@@ -323,6 +323,10 @@ export const postCommentsRoute = createRoute({
       description: 'The request has succeeded.',
       content: { 'application/json': { schema: CommentSchema } },
     },
+    401: {
+      description: 'Access is unauthorized.',
+      content: { 'application/json': { schema: MessageResponseSchema } },
+    },
     422: {
       description: 'Client error',
       content: { 'application/json': { schema: ValidationErrorSchema } },
@@ -368,6 +372,10 @@ export const patchEditRoute = createRoute({
       description: 'The request has succeeded.',
       content: { 'application/json': { schema: UserSchema } },
     },
+    401: {
+      description: 'Access is unauthorized.',
+      content: { 'application/json': { schema: MessageResponseSchema } },
+    },
     422: {
       description: 'Client error',
       content: { 'application/json': { schema: ValidationErrorSchema } },
@@ -390,6 +398,10 @@ export const postFollowRoute = createRoute({
   responses: {
     200: {
       description: 'The request has succeeded.',
+      content: { 'application/json': { schema: MessageResponseSchema } },
+    },
+    401: {
+      description: 'Access is unauthorized.',
       content: { 'application/json': { schema: MessageResponseSchema } },
     },
     422: {
@@ -416,6 +428,10 @@ export const deleteFollowRoute = createRoute({
       description: 'The request has succeeded.',
       content: { 'application/json': { schema: MessageResponseSchema } },
     },
+    401: {
+      description: 'Access is unauthorized.',
+      content: { 'application/json': { schema: MessageResponseSchema } },
+    },
     422: {
       description: 'Client error',
       content: { 'application/json': { schema: ValidationErrorSchema } },
@@ -440,6 +456,10 @@ export const postLikeRoute = createRoute({
       description: 'The request has succeeded.',
       content: { 'application/json': { schema: PostWithLikesSchema } },
     },
+    401: {
+      description: 'Access is unauthorized.',
+      content: { 'application/json': { schema: MessageResponseSchema } },
+    },
     422: {
       description: 'Client error',
       content: { 'application/json': { schema: ValidationErrorSchema } },
@@ -463,6 +483,10 @@ export const deleteLikeRoute = createRoute({
     200: {
       description: 'The request has succeeded.',
       content: { 'application/json': { schema: PostWithLikesSchema } },
+    },
+    401: {
+      description: 'Access is unauthorized.',
+      content: { 'application/json': { schema: MessageResponseSchema } },
     },
     422: {
       description: 'Client error',
@@ -534,6 +558,10 @@ export const getPostsRoute = createRoute({
       description: 'Client error',
       content: { 'application/json': { schema: ValidationErrorSchema } },
     },
+    500: {
+      description: 'Server error',
+      content: { 'application/json': { schema: MessageResponseSchema } },
+    },
   },
 })
 
@@ -549,6 +577,10 @@ export const postPostsRoute = createRoute({
     200: {
       description: 'The request has succeeded.',
       content: { 'application/json': { schema: PostSchema } },
+    },
+    401: {
+      description: 'Access is unauthorized.',
+      content: { 'application/json': { schema: MessageResponseSchema } },
     },
     422: {
       description: 'Client error',
