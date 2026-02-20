@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useState } from 'react'
-import { toast } from 'sonner'
+import toast from 'react-hot-toast'
 import { useSWRConfig } from 'swr'
 import { Input } from '@/components/atoms/Input'
 import { Modal } from '@/components/molecules/Modal'
@@ -28,6 +28,7 @@ export function LoginModal() {
       setIsLoading(true)
       const result = await authClient.signIn.email({ email, password })
       if (result.data) {
+        toast.success('Signed in')
         await mutate(() => true)
         loginModal.onClose()
       }

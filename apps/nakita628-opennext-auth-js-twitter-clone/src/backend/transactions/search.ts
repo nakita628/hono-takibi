@@ -4,6 +4,27 @@ import { ValidationError } from '@/backend/domain'
 import { SearchResultsSchema } from '@/backend/routes'
 import * as SearchService from '@/backend/services/search'
 
+/**
+ * Transaction that orchestrates post and user search with pagination.
+ *
+ * @param args - Search parameters
+ * @param args.query - Search keyword
+ * @param args.page - Current page number
+ * @param args.limit - Results per page
+ * @returns Effect yielding validated `SearchResults`
+ *
+ * @mermaid
+ * graph TD
+ *   A[search] --> B[Calculate offset]
+ *   B --> C[Effect.all parallel]
+ *   C --> D[searchPosts]
+ *   C --> E[searchUsers]
+ *   D --> F[Build response with meta]
+ *   E --> F
+ *   F --> G[SearchResultsSchema.safeParse]
+ *   G -- valid --> H[return data]
+ *   G -- invalid --> I[ValidationError]
+ */
 export function search(args: { query: string; page: number; limit: number }) {
   return Effect.gen(function* () {
     const offset = (args.page - 1) * args.limit

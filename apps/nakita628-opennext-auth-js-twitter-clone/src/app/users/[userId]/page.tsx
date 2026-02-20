@@ -2,6 +2,7 @@
 
 import { useParams, useRouter } from 'next/navigation'
 import { useEffect } from 'react'
+import { ClipLoader } from 'react-spinners'
 import { Header } from '@/components/atoms/Header'
 import { UserHero } from '@/components/molecules/UserHero'
 import { PostFeed } from '@/components/organisms/PostFeed'
@@ -32,7 +33,7 @@ export default function UserView() {
   if (isLoadingUser || isLoadingProfile || !fetchedUser) {
     return (
       <div className='flex justify-center items-center h-full'>
-        <div className='animate-spin rounded-full h-20 w-20 border-b-2 border-sky-500' />
+        <ClipLoader color='lightblue' size={80} />
       </div>
     )
   }

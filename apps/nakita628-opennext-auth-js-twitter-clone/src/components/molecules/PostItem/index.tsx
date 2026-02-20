@@ -1,13 +1,13 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
+import { formatDistanceToNowStrict } from 'date-fns'
 import { useCallback, useMemo } from 'react'
 import { AiFillHeart, AiOutlineHeart, AiOutlineMessage } from 'react-icons/ai'
 import { AvatarLink } from '@/components/molecules/AvatarLink'
 import { useGetCurrent } from '@/hooks/swr'
 import { useLike } from '@/hooks/useLike'
 import { useLoginModal } from '@/hooks/useLoginModal'
-import { formatRelativeTime } from '@/lib/format'
 
 type PostItemUser = {
   id: string
@@ -81,7 +81,7 @@ export function PostItem({ data }: Props) {
 
   const createdAt = useMemo(() => {
     if (!data?.createdAt) return null
-    return formatRelativeTime(data.createdAt)
+    return formatDistanceToNowStrict(new Date(data.createdAt))
   }, [data.createdAt])
 
   return (

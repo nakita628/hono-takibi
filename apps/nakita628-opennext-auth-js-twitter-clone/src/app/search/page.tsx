@@ -2,6 +2,7 @@
 
 import { useSearchParams } from 'next/navigation'
 import { Suspense } from 'react'
+import { ClipLoader } from 'react-spinners'
 import { AvatarLink } from '@/components/molecules/AvatarLink'
 import { PostItem } from '@/components/molecules/PostItem'
 import { useSearchPosts } from '@/hooks/useSearchPosts'
@@ -22,7 +23,7 @@ function SearchContent() {
   if (isLoading) {
     return (
       <div className='flex justify-center items-center py-8'>
-        <div className='h-8 w-8 animate-spin rounded-full border-4 border-sky-500 border-t-transparent' />
+        <ClipLoader color='lightblue' size={35} />
       </div>
     )
   }

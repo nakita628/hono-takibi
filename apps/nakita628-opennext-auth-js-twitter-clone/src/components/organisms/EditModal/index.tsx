@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
-import { toast } from 'sonner'
+import toast from 'react-hot-toast'
 import { mutate } from 'swr'
 import { ImageUpload } from '@/components/atoms/ImageUpload'
 import { Input } from '@/components/atoms/Input'
@@ -48,6 +48,7 @@ export function EditModal() {
       })
 
       await mutate(getGetCurrentKey())
+      toast.success('Profile updated')
 
       editModal.onClose()
     } catch {

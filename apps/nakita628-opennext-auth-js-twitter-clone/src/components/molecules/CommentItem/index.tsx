@@ -1,9 +1,9 @@
 'use client'
 
+import { formatDistanceToNowStrict } from 'date-fns'
 import { useRouter } from 'next/navigation'
 import { useCallback, useMemo } from 'react'
 import { AvatarLink } from '@/components/molecules/AvatarLink'
-import { formatRelativeTime } from '@/lib/format'
 
 type CommentUser = {
   id: string
@@ -36,7 +36,7 @@ export function CommentItem({ data }: Props) {
 
   const createdAt = useMemo(() => {
     if (!data?.createdAt) return null
-    return formatRelativeTime(data.createdAt)
+    return formatDistanceToNowStrict(new Date(data.createdAt))
   }, [data.createdAt])
 
   return (

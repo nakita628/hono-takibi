@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useState } from 'react'
-import { toast } from 'sonner'
+import toast from 'react-hot-toast'
 import { Input } from '@/components/atoms/Input'
 import { Modal } from '@/components/molecules/Modal'
 import { useChangePasswordModal } from '@/hooks/useChangePasswordModal'

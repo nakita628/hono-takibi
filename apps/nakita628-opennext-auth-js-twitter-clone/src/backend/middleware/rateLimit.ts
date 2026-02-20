@@ -21,6 +21,27 @@ function cleanup() {
   }
 }
 
+/**
+ * In-memory rate limiting middleware using IP + path as key.
+ *
+ * @param opts - Configuration options
+ * @param opts.windowMs - Time window in milliseconds
+ * @param opts.max - Maximum requests per window
+ * @returns Hono middleware handler
+ *
+ * @mermaid
+ * graph TD
+ *   A[Request] --> B[cleanup expired entries]
+ *   B --> C[Extract IP from headers]
+ *   C --> D[Build key = IP:path]
+ *   D --> E{Entry exists and not expired?}
+ *   E -- No --> F[Create new entry, count=1]
+ *   F --> G[next]
+ *   E -- Yes --> H{count < max?}
+ *   H -- Yes --> I[Increment count]
+ *   I --> G
+ *   H -- No --> J[429 Too Many Requests]
+ */
 export function rateLimit(opts: { windowMs: number; max: number }): MiddlewareHandler {
   return async (c, next) => {
     cleanup()

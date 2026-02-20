@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useRef } from 'react'
+import { ClipLoader } from 'react-spinners'
 import { PostItem } from '@/components/molecules/PostItem'
 import { usePostsInfinite } from '@/hooks/usePostsInfinite'
 
@@ -8,6 +9,12 @@ type Props = {
   userId?: string
 }
 
+/**
+ * Infinite-scroll post feed using IntersectionObserver.
+ * Observes a sentinel element at the bottom and triggers `setSize` to load the next page.
+ *
+ * @param userId - Optional user ID to filter posts by author
+ */
 export function PostFeed({ userId }: Props) {
   const { posts, isLoading, isLoadingMore, isReachingEnd, setSize } = usePostsInfinite(userId)
   const observer = useRef<IntersectionObserver | null>(null)
@@ -32,7 +39,7 @@ export function PostFeed({ userId }: Props) {
   if (isLoading) {
     return (
       <div className='flex justify-center items-center py-8'>
-        <div className='h-8 w-8 animate-spin rounded-full border-4 border-sky-500 border-t-transparent' />
+        <ClipLoader color='lightblue' size={35} />
       </div>
     )
   }
@@ -45,7 +52,7 @@ export function PostFeed({ userId }: Props) {
       <div ref={sentinelRef} />
       {isLoadingMore && (
         <div className='flex justify-center items-center py-4'>
-          <div className='h-6 w-6 animate-spin rounded-full border-4 border-sky-500 border-t-transparent' />
+          <ClipLoader color='lightblue' size={25} />
         </div>
       )}
       {isReachingEnd && posts.length > 0 && (

@@ -4,6 +4,24 @@ import { DatabaseError } from '@/backend/domain'
 import { schema } from '@/db'
 import { DB } from '@/infra'
 
+/**
+ * Search posts by body content using LIKE query.
+ *
+ * @param args - Search parameters
+ * @param args.query - Search keyword
+ * @param args.limit - Max results per page
+ * @param args.offset - Pagination offset
+ * @returns Effect yielding `{ posts, total }`
+ *
+ * @mermaid
+ * graph TD
+ *   A[searchPosts] --> B[Build LIKE clause]
+ *   B --> C[Promise.all]
+ *   C --> D[findMany posts with user]
+ *   C --> E[SELECT count]
+ *   D --> F[return posts + total]
+ *   E --> F
+ */
 export const searchPosts = (args: { query: string; limit: number; offset: number }) =>
   Effect.gen(function* () {
     const db = yield* DB
@@ -31,6 +49,15 @@ export const searchPosts = (args: { query: string; limit: number; offset: number
     return { posts, total }
   })
 
+/**
+ * Search users by name using LIKE query.
+ *
+ * @param args - Search parameters
+ * @param args.query - Search keyword
+ * @param args.limit - Max results per page
+ * @param args.offset - Pagination offset
+ * @returns Effect yielding `{ users, total }`
+ */
 export const searchUsers = (args: { query: string; limit: number; offset: number }) =>
   Effect.gen(function* () {
     const db = yield* DB

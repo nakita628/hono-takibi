@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react'
 import { BsTwitter } from 'react-icons/bs'
+import { ClipLoader } from 'react-spinners'
 import { mutate } from 'swr'
 import { getGetCurrentKey, useGetCurrent, useGetNotificationsUserId } from '@/hooks/swr'
 
@@ -19,7 +20,7 @@ export function NotificationsFeed() {
   if (isLoading) {
     return (
       <div className='flex justify-center items-center h-20'>
-        <div className='animate-spin rounded-full h-10 w-10 border-b-2 border-sky-500' />
+        <ClipLoader color='lightblue' size={35} />
       </div>
     )
   }

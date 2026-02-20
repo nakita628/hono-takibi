@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useState } from 'react'
-import { toast } from 'sonner'
+import toast from 'react-hot-toast'
 import { useSWRConfig } from 'swr'
 import { Input } from '@/components/atoms/Input'
 import { Modal } from '@/components/molecules/Modal'
@@ -36,6 +36,7 @@ export function RegisterModal() {
       })
 
       await authClient.signIn.email({ email, password })
+      toast.success('Account created')
       await mutate(() => true)
 
       registerModal.onClose()

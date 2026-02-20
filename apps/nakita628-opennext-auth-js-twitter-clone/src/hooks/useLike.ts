@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useMemo } from 'react'
-import { toast } from 'sonner'
+import toast from 'react-hot-toast'
 import { mutate } from 'swr'
 import {
   getGetPostsPostIdKey,
@@ -12,6 +12,25 @@ import {
 } from '@/hooks/swr'
 import { useLoginModal } from '@/hooks/useLoginModal'
 
+/**
+ * Hook to toggle like/unlike on a post.
+ *
+ * @param postId - The ID of the post to like/unlike
+ * @returns `hasLiked` state and `toggleLike` action
+ *
+ * @mermaid
+ * graph TD
+ *   A[toggleLike called] --> B{currentUser?}
+ *   B -- No --> C[Open login modal]
+ *   B -- Yes --> D{hasLiked?}
+ *   D -- Yes --> E[DELETE /like]
+ *   D -- No --> F[POST /like]
+ *   E --> G[mutate post data]
+ *   F --> G
+ *   G --> H[toast.success]
+ *   E -. error .-> I[toast.error]
+ *   F -. error .-> I
+ */
 export function useLike({ postId }: { postId: string }) {
   const { data: currentUser } = useGetCurrent()
   const { data: fetchedPost } = useGetPostsPostId({ param: { postId } })
@@ -37,6 +56,7 @@ export function useLike({ postId }: { postId: string }) {
       }
 
       await mutate(getGetPostsPostIdKey({ param: { postId } }))
+      toast.success(hasLiked ? 'Unliked' : 'Liked')
     } catch {
       toast.error('Something went wrong')
     }

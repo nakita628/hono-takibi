@@ -1,15 +1,19 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import React, { useCallback, useState } from 'react'
+import { type FormEvent, useCallback, useState } from 'react'
 import { BiSearch } from 'react-icons/bi'
 
+/**
+ * Search bar component that navigates to `/search?q=...` on form submission.
+ * Trims whitespace and URL-encodes the query parameter.
+ */
 export function SearchBar() {
   const router = useRouter()
   const [query, setQuery] = useState('')
 
   const onSubmit = useCallback(
-    (e: React.FormEvent<HTMLFormElement>) => {
+    (e: FormEvent<HTMLFormElement>) => {
       e.preventDefault()
       const trimmed = query.trim()
       if (!trimmed) return

@@ -1,12 +1,12 @@
 'use client'
 
+import { format } from 'date-fns'
 import { useMemo } from 'react'
 import { BiCalendar } from 'react-icons/bi'
 import { Button } from '@/components/atoms/Button'
 import { useGetCurrent, useGetUsersUserId } from '@/hooks/swr'
 import { useEditModal } from '@/hooks/useEditModal'
 import { useFollow } from '@/hooks/useFollow'
-import { formatJoinDate } from '@/lib/format'
 
 type Props = {
   userId: string
@@ -20,7 +20,7 @@ export function UserBio({ userId }: Props) {
 
   const createdAt = useMemo(() => {
     if (!fetchedUser?.createdAt) return null
-    return formatJoinDate(fetchedUser.createdAt)
+    return format(new Date(fetchedUser.createdAt), 'MMMM yyyy')
   }, [fetchedUser?.createdAt])
 
   return (

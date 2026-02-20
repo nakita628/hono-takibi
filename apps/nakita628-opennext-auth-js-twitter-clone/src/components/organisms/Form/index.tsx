@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useState } from 'react'
-import { toast } from 'sonner'
+import toast from 'react-hot-toast'
 import { mutate } from 'swr'
 import { Button } from '@/components/atoms/Button'
 import { AvatarLink } from '@/components/molecules/AvatarLink'
@@ -35,6 +35,7 @@ export function Form({ placeholder, isComment, postId }: Props) {
         await createPost({ json: { body } })
       }
 
+      toast.success(isComment ? 'Comment posted' : 'Tweet created')
       setBody('')
 
       // Revalidate posts

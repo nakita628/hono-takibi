@@ -23,6 +23,7 @@
     "@hono/zod-openapi": "^1.2.1",
     "@opennextjs/cloudflare": "^1.16.4",
     "better-auth": "^1.4.18",
+    "date-fns": "^4.1.0",
     "drizzle-orm": "^0.45.1",
     "effect": "^3.0.0",
     "hono": "^4.11.9",
@@ -31,8 +32,9 @@
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "react-dropzone": "^14.3.8",
+    "react-hot-toast": "^2.6.0",
     "react-icons": "^5.5.0",
-    "sonner": "^2.0.7",
+    "react-spinners": "^0.17.0",
     "swr": "^2.4.0",
     "zod": "^4.3.6",
     "zustand": "^5.0.11"
@@ -54,6 +56,8 @@
     "hono-takibi": "workspace:^",
     "postcss": "^8.5.6",
     "tailwindcss": "^4.1.18",
+    "typedoc": "^0.28.17",
+    "typedoc-plugin-mermaid": "^1.12.0",
     "vitest": "^4.0.18",
     "wrangler": "^4.64.0"
   }

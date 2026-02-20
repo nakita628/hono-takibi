@@ -8,6 +8,23 @@ type PostsResponse = Awaited<
   ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.posts.$get>>>>
 >
 
+/**
+ * Hook for infinite scroll pagination of posts.
+ *
+ * @param userId - Optional user ID to filter posts by author
+ * @returns Paginated posts with loading states and `setSize` to load more
+ *
+ * @mermaid
+ * graph TD
+ *   A[getKey called] --> B{previousPageData?}
+ *   B -- End reached --> C[return null]
+ *   B -- More pages --> D[return key tuple]
+ *   D --> E[fetcher: client.posts.$get]
+ *   E --> F[flatMap pages into posts]
+ *   F --> G[IntersectionObserver sentinel]
+ *   G -- visible --> H[setSize + 1]
+ *   H --> A
+ */
 export function usePostsInfinite(userId?: string) {
   const getKey = (pageIndex: number, previousPageData: PostsResponse | null) => {
     if (previousPageData && pageIndex + 1 > previousPageData.meta.totalPages) return null

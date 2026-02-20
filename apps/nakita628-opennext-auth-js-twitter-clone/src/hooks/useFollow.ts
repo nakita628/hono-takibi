@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useMemo } from 'react'
-import { toast } from 'sonner'
+import toast from 'react-hot-toast'
 import { mutate } from 'swr'
 import {
   getGetCurrentKey,
@@ -11,7 +11,27 @@ import {
   usePostFollow,
 } from '@/hooks/swr'
 import { useLoginModal } from '@/hooks/useLoginModal'
+import { client } from '@/lib'
 
+/**
+ * Hook to toggle follow/unfollow on a user.
+ *
+ * @param userId - The ID of the user to follow/unfollow
+ * @returns `isFollowing` state and `toggleFollow` action
+ *
+ * @mermaid
+ * graph TD
+ *   A[toggleFollow called] --> B{currentUser?}
+ *   B -- No --> C[Open login modal]
+ *   B -- Yes --> D{isFollowing?}
+ *   D -- Yes --> E[DELETE /follow]
+ *   D -- No --> F[POST /follow]
+ *   E --> G[mutate current + user data]
+ *   F --> G
+ *   G --> H[toast.success]
+ *   E -. error .-> I[toast.error]
+ *   F -. error .-> I
+ */
 export function useFollow(userId: string) {
   const { data: currentUser } = useGetCurrent()
   const { trigger: follow } = usePostFollow()
@@ -30,13 +50,13 @@ export function useFollow(userId: string) {
 
     try {
       if (isFollowing) {
-        await unfollow({ json: { userId } })
+        await client.follow.$delete({ json: { userId } })
       } else {
-        await follow({ json: { userId } })
+        await client.follow.$post({ json: { userId } })
       }
-
       await mutate(getGetCurrentKey())
       await mutate(getGetUsersUserIdKey({ param: { userId } }))
+      toast.success(isFollowing ? 'Unfollowed' : 'Followed')
     } catch {
       toast.error('Something went wrong')
     }
