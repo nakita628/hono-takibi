@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useMemo } from 'react'
+import { toast } from 'sonner'
 import { mutate } from 'swr'
 import {
   getGetPostsPostIdKey,
@@ -37,7 +38,7 @@ export function useLike({ postId }: { postId: string }) {
 
       await mutate(getGetPostsPostIdKey({ param: { postId } }))
     } catch {
-      // Like operation failed
+      toast.error('Something went wrong')
     }
   }, [currentUser, hasLiked, postId, like, unlike, loginModal])
 

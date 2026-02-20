@@ -63,9 +63,7 @@ describe('Notifications', () => {
 
     it('should return 200 with empty array when no notifications', async () => {
       mockGetSession.mockResolvedValue(mockSession())
-      vi.mocked(NotificationsTransaction.getByUserId).mockReturnValue(
-        Effect.succeed([]),
-      )
+      vi.mocked(NotificationsTransaction.getByUserId).mockReturnValue(Effect.succeed([]))
 
       const userId = faker.string.uuid()
       const res = await app.request(`/api/notifications/${userId}`, { method: 'GET' })
@@ -124,9 +122,7 @@ describe('Notifications', () => {
 
     it('should pass userId to transaction', async () => {
       mockGetSession.mockResolvedValue(mockSession())
-      vi.mocked(NotificationsTransaction.getByUserId).mockReturnValue(
-        Effect.succeed([]),
-      )
+      vi.mocked(NotificationsTransaction.getByUserId).mockReturnValue(Effect.succeed([]))
 
       const userId = faker.string.uuid()
       await app.request(`/api/notifications/${userId}`, { method: 'GET' })

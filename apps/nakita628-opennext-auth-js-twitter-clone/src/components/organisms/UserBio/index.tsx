@@ -24,7 +24,7 @@ export function UserBio({ userId }: Props) {
   }, [fetchedUser?.createdAt])
 
   return (
-    <div className='border-b-[1px] border-neutral-800 pb-4'>
+    <div className='border-b border-neutral-800 pb-4'>
       <div className='flex justify-end pt-16 pr-2 pb-2 pl-2'>
         {currentUser?.id === userId ? (
           <Button secondary label='Edit' onClick={editModal.onOpen} />

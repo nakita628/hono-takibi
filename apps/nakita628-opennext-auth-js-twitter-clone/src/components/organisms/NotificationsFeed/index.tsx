@@ -33,7 +33,7 @@ export function NotificationsFeed() {
       {fetchedNotifications.map((notification) => (
         <div
           key={notification.id}
-          className='flex flex-row items-center p-6 gap-4 border-b-[1px] border-neutral-800'
+          className='flex flex-row items-center p-6 gap-4 border-b border-neutral-800'
         >
           <BsTwitter size={32} color='#0EA5E9' />
           <p className='text-white'>{notification.body}</p>

@@ -40,7 +40,7 @@ export function CommentItem({ data }: Props) {
   }, [data.createdAt])
 
   return (
-    <div className='border-b-[1px] border-neutral-800 p-5 cursor-pointer hover:bg-neutral-900 transition'>
+    <div className='border-b border-neutral-800 p-5 cursor-pointer hover:bg-neutral-900 transition'>
       <div className='flex flex-row items-start gap-3'>
         <AvatarLink
           userId={data.user.id}
@@ -48,12 +48,13 @@ export function CommentItem({ data }: Props) {
         />
         <div>
           <div className='flex flex-row items-center gap-2'>
-            <p
+            <button
+              type='button'
               onClick={goToUser}
               className='text-white font-semibold cursor-pointer hover:underline'
             >
               {data.user.name}
-            </p>
+            </button>
             <span className='text-neutral-500 cursor-pointer hover:underline hidden md:block'>
               @{data.user.username}
             </span>

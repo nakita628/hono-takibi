@@ -55,9 +55,7 @@ describe('PATCH /api/edit', () => {
   it('should return 200 on success', async () => {
     mockGetSession.mockResolvedValue(mockSession())
     const mockUser = mockUserResponse()
-    vi.mocked(EditTransaction.update).mockReturnValue(
-      Effect.succeed(mockUser),
-    )
+    vi.mocked(EditTransaction.update).mockReturnValue(Effect.succeed(mockUser))
 
     const res = await app.request('/api/edit', {
       method: 'PATCH',
@@ -150,9 +148,7 @@ describe('PATCH /api/edit', () => {
   it('should pass email and body to transaction', async () => {
     mockGetSession.mockResolvedValue(mockSession())
     const mockUser = mockUserResponse()
-    vi.mocked(EditTransaction.update).mockReturnValue(
-      Effect.succeed(mockUser),
-    )
+    vi.mocked(EditTransaction.update).mockReturnValue(Effect.succeed(mockUser))
 
     const body = { name: 'New Name', bio: 'New Bio' }
     await app.request('/api/edit', {

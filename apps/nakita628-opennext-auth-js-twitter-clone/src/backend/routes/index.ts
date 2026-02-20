@@ -840,3 +840,55 @@ export const getUsersRoute = createRoute({
     },
   },
 })
+
+const ParametersSearchQueryParamsSchema = z
+  .string()
+  .min(1)
+  .openapi({
+    param: {
+      name: 'q',
+      in: 'query',
+      required: true,
+      schema: { type: 'string', minLength: 1 },
+    },
+  })
+
+export const SearchResultsSchema = z
+  .object({
+    posts: PaginatedPostsSchema,
+    users: PaginatedUsersSchema,
+  })
+  .openapi({ required: ['posts', 'users'] })
+  .openapi('SearchResults')
+
+export const getSearchRoute = createRoute({
+  method: 'get',
+  path: '/search',
+  tags: ['search'],
+  operationId: 'getSearch',
+  request: {
+    query: z.object({
+      q: ParametersSearchQueryParamsSchema,
+      page: ParametersPaginationQueryPageParamsSchema,
+      limit: ParametersPaginationQueryLimitParamsSchema,
+    }),
+  },
+  responses: {
+    200: {
+      description: 'The request has succeeded.',
+      content: { 'application/json': { schema: SearchResultsSchema } },
+    },
+    422: {
+      description: 'Client error',
+      content: { 'application/json': { schema: ValidationErrorSchema } },
+    },
+    500: {
+      description: 'Server error',
+      content: { 'application/json': { schema: MessageResponseSchema } },
+    },
+    503: {
+      description: 'Service unavailable.',
+      content: { 'application/json': { schema: MessageResponseSchema } },
+    },
+  },
+})

@@ -71,9 +71,7 @@ describe('Users', () => {
     it('should return 200 on success', async () => {
       mockGetSession.mockResolvedValue(mockSession())
       const mockUsers = mockPaginatedUsers()
-      vi.mocked(UsersTransaction.getAll).mockReturnValue(
-        Effect.succeed(mockUsers),
-      )
+      vi.mocked(UsersTransaction.getAll).mockReturnValue(Effect.succeed(mockUsers))
 
       const res = await app.request('/api/users', { method: 'GET' })
 
@@ -94,9 +92,7 @@ describe('Users', () => {
 
     it('should pass pagination params to transaction', async () => {
       mockGetSession.mockResolvedValue(mockSession())
-      vi.mocked(UsersTransaction.getAll).mockReturnValue(
-        Effect.succeed(mockPaginatedUsers()),
-      )
+      vi.mocked(UsersTransaction.getAll).mockReturnValue(Effect.succeed(mockPaginatedUsers()))
 
       await app.request('/api/users?page=3&limit=50', { method: 'GET' })
 
@@ -108,9 +104,7 @@ describe('Users', () => {
 
     it('should use default pagination when no params', async () => {
       mockGetSession.mockResolvedValue(mockSession())
-      vi.mocked(UsersTransaction.getAll).mockReturnValue(
-        Effect.succeed(mockPaginatedUsers()),
-      )
+      vi.mocked(UsersTransaction.getAll).mockReturnValue(Effect.succeed(mockPaginatedUsers()))
 
       await app.request('/api/users', { method: 'GET' })
 
@@ -151,9 +145,7 @@ describe('Users', () => {
     it('should return 200 on success', async () => {
       mockGetSession.mockResolvedValue(mockSession())
       const mockUserData = mockUserWithFollowCount()
-      vi.mocked(UsersTransaction.getById).mockReturnValue(
-        Effect.succeed(mockUserData),
-      )
+      vi.mocked(UsersTransaction.getById).mockReturnValue(Effect.succeed(mockUserData))
 
       const userId = faker.string.uuid()
       const res = await app.request(`/api/users/${userId}`, { method: 'GET' })
@@ -226,9 +218,7 @@ describe('Users', () => {
 
     it('should pass userId to transaction', async () => {
       mockGetSession.mockResolvedValue(mockSession())
-      vi.mocked(UsersTransaction.getById).mockReturnValue(
-        Effect.succeed(mockUserWithFollowCount()),
-      )
+      vi.mocked(UsersTransaction.getById).mockReturnValue(Effect.succeed(mockUserWithFollowCount()))
 
       const userId = faker.string.uuid()
       await app.request(`/api/users/${userId}`, { method: 'GET' })

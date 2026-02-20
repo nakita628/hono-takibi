@@ -22,12 +22,7 @@ vi.mock('@/backend/transactions/posts', () => ({
 }))
 
 import app from '@/backend'
-import {
-  DatabaseError,
-  NotFoundError,
-  UnauthorizedError,
-  ValidationError,
-} from '@/backend/domain'
+import { DatabaseError, NotFoundError, UnauthorizedError, ValidationError } from '@/backend/domain'
 import * as PostsTransaction from '@/backend/transactions/posts'
 
 function mockSession() {
@@ -107,9 +102,7 @@ describe('Posts', () => {
     it('should return 200 on success', async () => {
       mockGetSession.mockResolvedValue(mockSession())
       const mockPosts = mockPaginatedPosts()
-      vi.mocked(PostsTransaction.getAll).mockReturnValue(
-        Effect.succeed(mockPosts),
-      )
+      vi.mocked(PostsTransaction.getAll).mockReturnValue(Effect.succeed(mockPosts))
 
       const res = await app.request('/api/posts', { method: 'GET' })
 
@@ -130,9 +123,7 @@ describe('Posts', () => {
 
     it('should pass pagination params to transaction', async () => {
       mockGetSession.mockResolvedValue(mockSession())
-      vi.mocked(PostsTransaction.getAll).mockReturnValue(
-        Effect.succeed(mockPaginatedPosts()),
-      )
+      vi.mocked(PostsTransaction.getAll).mockReturnValue(Effect.succeed(mockPaginatedPosts()))
 
       await app.request('/api/posts?page=2&limit=10', { method: 'GET' })
 
@@ -144,9 +135,7 @@ describe('Posts', () => {
 
     it('should pass userId filter to transaction', async () => {
       mockGetSession.mockResolvedValue(mockSession())
-      vi.mocked(PostsTransaction.getAll).mockReturnValue(
-        Effect.succeed(mockPaginatedPosts()),
-      )
+      vi.mocked(PostsTransaction.getAll).mockReturnValue(Effect.succeed(mockPaginatedPosts()))
 
       const userId = faker.string.uuid()
       await app.request(`/api/posts?userId=${userId}`, { method: 'GET' })
@@ -189,9 +178,7 @@ describe('Posts', () => {
     it('should return 200 on success', async () => {
       mockGetSession.mockResolvedValue(mockSession())
       const mockPost = mockPostResponse()
-      vi.mocked(PostsTransaction.create).mockReturnValue(
-        Effect.succeed(mockPost),
-      )
+      vi.mocked(PostsTransaction.create).mockReturnValue(Effect.succeed(mockPost))
 
       const res = await app.request('/api/posts', {
         method: 'POST',
@@ -283,9 +270,7 @@ describe('Posts', () => {
 
     it('should pass email and body to transaction', async () => {
       mockGetSession.mockResolvedValue(mockSession())
-      vi.mocked(PostsTransaction.create).mockReturnValue(
-        Effect.succeed(mockPostResponse()),
-      )
+      vi.mocked(PostsTransaction.create).mockReturnValue(Effect.succeed(mockPostResponse()))
 
       await app.request('/api/posts', {
         method: 'POST',
@@ -293,10 +278,9 @@ describe('Posts', () => {
         body: JSON.stringify({ body: 'Test post' }),
       })
 
-      expect(PostsTransaction.create).toHaveBeenCalledWith(
-        'test@example.com',
-        { body: 'Test post' },
-      )
+      expect(PostsTransaction.create).toHaveBeenCalledWith('test@example.com', {
+        body: 'Test post',
+      })
     })
   })
 
@@ -304,9 +288,7 @@ describe('Posts', () => {
     it('should return 200 on success', async () => {
       mockGetSession.mockResolvedValue(mockSession())
       const mockPost = mockPostDetail()
-      vi.mocked(PostsTransaction.getById).mockReturnValue(
-        Effect.succeed(mockPost),
-      )
+      vi.mocked(PostsTransaction.getById).mockReturnValue(Effect.succeed(mockPost))
 
       const postId = faker.string.uuid()
       const res = await app.request(`/api/posts/${postId}`, { method: 'GET' })
@@ -379,9 +361,7 @@ describe('Posts', () => {
 
     it('should pass postId to transaction', async () => {
       mockGetSession.mockResolvedValue(mockSession())
-      vi.mocked(PostsTransaction.getById).mockReturnValue(
-        Effect.succeed(mockPostDetail()),
-      )
+      vi.mocked(PostsTransaction.getById).mockReturnValue(Effect.succeed(mockPostDetail()))
 
       const postId = faker.string.uuid()
       await app.request(`/api/posts/${postId}`, { method: 'GET' })

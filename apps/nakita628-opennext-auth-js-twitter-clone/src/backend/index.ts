@@ -6,6 +6,7 @@ import {
   getNotificationsUserIdRouteHandler,
   getPostsPostIdRouteHandler,
   getPostsRouteHandler,
+  getSearchRouteHandler,
   getUsersRouteHandler,
   getUsersUserIdRouteHandler,
   patchEditRouteHandler,
@@ -17,6 +18,7 @@ import {
   postRegisterRouteHandler,
 } from '@/backend/handlers'
 import { formatZodErrors } from '@/backend/lib/error'
+import { rateLimit } from '@/backend/middleware/rateLimit'
 import {
   deleteFollowRoute,
   deleteLikeRoute,
@@ -24,6 +26,7 @@ import {
   getNotificationsUserIdRoute,
   getPostsPostIdRoute,
   getPostsRoute,
+  getSearchRoute,
   getUsersRoute,
   getUsersUserIdRoute,
   patchEditRoute,
@@ -45,6 +48,12 @@ const app = new OpenAPIHono<{ Variables: AuthType }>({
     }
   },
 }).basePath('/api')
+
+// Rate limiting for auth endpoints
+app.use('/auth/sign-in/*', rateLimit({ windowMs: 60_000, max: 10 }))
+app.use('/auth/sign-up/*', rateLimit({ windowMs: 60_000, max: 5 }))
+app.use('/auth/change-password', rateLimit({ windowMs: 60_000, max: 5 }))
+app.use('/register', rateLimit({ windowMs: 60_000, max: 5 }))
 
 // Better Auth route handler
 app.on(['GET', 'POST'], '/auth/**', async (c) => {
@@ -68,7 +77,7 @@ app.use('*', async (c, next) => {
   const path = c.req.path.replace(/^\/api/, '')
 
   // Skip auth for public routes
-  if (path.startsWith('/auth/') || path.startsWith('/register')) {
+  if (path.startsWith('/auth/') || path.startsWith('/register') || path.startsWith('/search')) {
     return next()
   }
 
@@ -94,6 +103,7 @@ export const api = app
   .openapi(postPostsRoute, postPostsRouteHandler)
   .openapi(getPostsPostIdRoute, getPostsPostIdRouteHandler)
   .openapi(postRegisterRoute, postRegisterRouteHandler)
+  .openapi(getSearchRoute, getSearchRouteHandler)
   .openapi(getUsersUserIdRoute, getUsersUserIdRouteHandler)
   .openapi(getUsersRoute, getUsersRouteHandler)
 

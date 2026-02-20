@@ -1,0 +1,42 @@
+'use client'
+
+import { parseResponse } from 'hono/client'
+import useSWRInfinite from 'swr/infinite'
+import { client } from '@/lib'
+
+type PostsResponse = Awaited<
+  ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.posts.$get>>>>
+>
+
+export function usePostsInfinite(userId?: string) {
+  const getKey = (pageIndex: number, previousPageData: PostsResponse | null) => {
+    if (previousPageData && pageIndex + 1 > previousPageData.meta.totalPages) return null
+    return ['posts-infinite', userId, pageIndex + 1] as const
+  }
+
+  const { data, error, size, setSize, isLoading, isValidating } = useSWRInfinite(
+    getKey,
+    async ([, uid, page]) => {
+      const query = uid !== undefined ? { userId: uid, page } : { page }
+      return parseResponse(client.posts.$get({ query }))
+    },
+    { revalidateFirstPage: false },
+  )
+
+  const posts = data ? data.flatMap((page) => page.data) : []
+  const isLoadingMore = isLoading || (size > 0 && data && typeof data[size - 1] === 'undefined')
+  const isEmpty = data?.[0]?.data.length === 0
+  const isReachingEnd =
+    isEmpty || (data && data[data.length - 1]?.meta.page >= data[data.length - 1]?.meta.totalPages)
+
+  return {
+    posts,
+    error,
+    isLoading,
+    isLoadingMore,
+    isValidating,
+    size,
+    setSize,
+    isReachingEnd,
+  }
+}

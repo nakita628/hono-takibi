@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useState } from 'react'
+import { toast } from 'sonner'
 import { useSWRConfig } from 'swr'
 import { Input } from '@/components/atoms/Input'
 import { Modal } from '@/components/molecules/Modal'
@@ -31,7 +32,7 @@ export function LoginModal() {
         loginModal.onClose()
       }
     } catch {
-      // Login failed
+      toast.error('Failed to sign in')
     } finally {
       setIsLoading(false)
     }
@@ -59,9 +60,9 @@ export function LoginModal() {
     <div className='mt-4 text-center text-neutral-400'>
       <p>
         First time using Twitter?{' '}
-        <span onClick={onToggle} className='text-white cursor-pointer hover:underline'>
+        <button type='button' onClick={onToggle} className='text-white cursor-pointer hover:underline'>
           Create an account
-        </span>
+        </button>
       </p>
     </div>
   )

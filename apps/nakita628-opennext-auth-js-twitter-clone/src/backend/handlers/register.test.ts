@@ -57,9 +57,7 @@ describe('POST /api/register', () => {
 
   it('should return 201 on success', async () => {
     const mockUser = mockUserResponse()
-    vi.mocked(RegisterTransaction.create).mockReturnValue(
-      Effect.succeed(mockUser),
-    )
+    vi.mocked(RegisterTransaction.create).mockReturnValue(Effect.succeed(mockUser))
 
     const body = mockRegisterRequest()
     const res = await app.request('/api/register', {
@@ -151,9 +149,7 @@ describe('POST /api/register', () => {
 
   it('should call transaction with correct arguments', async () => {
     const mockUser = mockUserResponse()
-    vi.mocked(RegisterTransaction.create).mockReturnValue(
-      Effect.succeed(mockUser),
-    )
+    vi.mocked(RegisterTransaction.create).mockReturnValue(Effect.succeed(mockUser))
 
     const body = {
       email: 'user@example.com',

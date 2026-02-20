@@ -1,7 +1,9 @@
 'use client'
 
 import { NuqsAdapter } from 'nuqs/adapters/next/app'
+import { Toaster } from 'sonner'
 import { SWRConfig } from 'swr'
+import { ChangePasswordModal } from '@/components/organisms/ChangePasswordModal'
 import { EditModal } from '@/components/organisms/EditModal'
 import { LoginModal } from '@/components/organisms/LoginModal'
 import { RegisterModal } from '@/components/organisms/RegisterModal'
@@ -14,9 +16,11 @@ export function Providers({ children }: { children: React.ReactNode }) {
           shouldRetryOnError: false,
         }}
       >
+        <Toaster position='bottom-right' theme='dark' />
         <LoginModal />
         <RegisterModal />
         <EditModal />
+        <ChangePasswordModal />
         {children}
       </SWRConfig>
     </NuqsAdapter>

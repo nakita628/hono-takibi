@@ -1,16 +1,19 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
+import { toast } from 'sonner'
 import { mutate } from 'swr'
 import { ImageUpload } from '@/components/atoms/ImageUpload'
 import { Input } from '@/components/atoms/Input'
 import { Modal } from '@/components/molecules/Modal'
 import { getGetCurrentKey, useGetCurrent, usePatchEdit } from '@/hooks/swr'
+import { useChangePasswordModal } from '@/hooks/useChangePasswordModal'
 import { useEditModal } from '@/hooks/useEditModal'
 
 export function EditModal() {
   const { data: currentUser } = useGetCurrent()
   const editModal = useEditModal()
+  const changePasswordModal = useChangePasswordModal()
   const { trigger: patchEdit } = usePatchEdit()
 
   const [profileImage, setProfileImage] = useState('')
@@ -48,11 +51,16 @@ export function EditModal() {
 
       editModal.onClose()
     } catch {
-      // Profile update failed
+      toast.error('Failed to update profile')
     } finally {
       setIsLoading(false)
     }
   }, [editModal, name, username, bio, coverImage, profileImage, patchEdit])
+
+  const onChangePassword = useCallback(() => {
+    editModal.onClose()
+    changePasswordModal.onOpen()
+  }, [editModal, changePasswordModal])
 
   const bodyContent = (
     <div className='flex flex-col gap-4'>
@@ -89,6 +97,18 @@ export function EditModal() {
     </div>
   )
 
+  const footerContent = (
+    <div className='mt-4 text-center'>
+      <button
+        type='button'
+        onClick={onChangePassword}
+        className='text-sky-500 cursor-pointer hover:underline text-sm'
+      >
+        Change Password
+      </button>
+    </div>
+  )
+
   return (
     <Modal
       disabled={isLoading}
@@ -98,6 +118,7 @@ export function EditModal() {
       onClose={editModal.onClose}
       onSubmit={onSubmit}
       body={bodyContent}
+      footer={footerContent}
     />
   )
 }

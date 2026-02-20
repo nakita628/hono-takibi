@@ -21,12 +21,7 @@ vi.mock('@/backend/transactions/follow', () => ({
 }))
 
 import app from '@/backend'
-import {
-  DatabaseError,
-  NotFoundError,
-  UnauthorizedError,
-  ValidationError,
-} from '@/backend/domain'
+import { DatabaseError, NotFoundError, UnauthorizedError, ValidationError } from '@/backend/domain'
 import * as FollowTransaction from '@/backend/transactions/follow'
 
 function mockSession() {
@@ -44,9 +39,7 @@ describe('Follow', () => {
   describe('POST /api/follow', () => {
     it('should return 200 on success', async () => {
       mockGetSession.mockResolvedValue(mockSession())
-      vi.mocked(FollowTransaction.create).mockReturnValue(
-        Effect.succeed({ message: 'Success' }),
-      )
+      vi.mocked(FollowTransaction.create).mockReturnValue(Effect.succeed({ message: 'Success' }))
 
       const userId = faker.string.uuid()
       const res = await app.request('/api/follow', {
@@ -157,7 +150,7 @@ describe('Follow', () => {
     it('should pass correct arguments to transaction', async () => {
       mockGetSession.mockResolvedValue(mockSession())
       vi.mocked(FollowTransaction.create).mockReturnValue(
-        Effect.succeed({ message: 'Success' }) as any,
+        Effect.succeed({ message: 'Success' }),
       )
 
       const userId = faker.string.uuid()
@@ -167,19 +160,14 @@ describe('Follow', () => {
         body: JSON.stringify({ userId }),
       })
 
-      expect(FollowTransaction.create).toHaveBeenCalledWith(
-        'test@example.com',
-        { userId },
-      )
+      expect(FollowTransaction.create).toHaveBeenCalledWith('test@example.com', { userId })
     })
   })
 
   describe('DELETE /api/follow', () => {
     it('should return 200 on success', async () => {
       mockGetSession.mockResolvedValue(mockSession())
-      vi.mocked(FollowTransaction.remove).mockReturnValue(
-        Effect.succeed({ message: 'Success' }),
-      )
+      vi.mocked(FollowTransaction.remove).mockReturnValue(Effect.succeed({ message: 'Success' }))
 
       const userId = faker.string.uuid()
       const res = await app.request('/api/follow', {

@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useState } from 'react'
+import { toast } from 'sonner'
 import { useSWRConfig } from 'swr'
 import { Input } from '@/components/atoms/Input'
 import { Modal } from '@/components/molecules/Modal'
@@ -39,7 +40,7 @@ export function RegisterModal() {
 
       registerModal.onClose()
     } catch {
-      // Registration failed
+      toast.error('Failed to create account')
     } finally {
       setIsLoading(false)
     }
@@ -78,9 +79,9 @@ export function RegisterModal() {
     <div className='mt-4 text-center text-neutral-400'>
       <p>
         Already have an account?{' '}
-        <span onClick={onToggle} className='text-white cursor-pointer hover:underline'>
+        <button type='button' onClick={onToggle} className='text-white cursor-pointer hover:underline'>
           Sign in
-        </span>
+        </button>
       </p>
     </div>
   )

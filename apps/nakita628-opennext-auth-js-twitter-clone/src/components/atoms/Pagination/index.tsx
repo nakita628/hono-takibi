@@ -12,7 +12,7 @@ export function Pagination({ page, totalPages, onPageChange }: Props) {
   }
 
   return (
-    <div className='flex items-center justify-center gap-4 py-4 border-b-[1px] border-neutral-800'>
+    <div className='flex items-center justify-center gap-4 py-4 border-b border-neutral-800'>
       <button
         type='button'
         disabled={page <= 1}

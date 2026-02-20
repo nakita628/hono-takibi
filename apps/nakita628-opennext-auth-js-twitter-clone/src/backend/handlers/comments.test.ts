@@ -51,9 +51,7 @@ describe('POST /api/comments', () => {
   it('should return 200 on success', async () => {
     mockGetSession.mockResolvedValue(mockSession())
     const mockComment = mockCommentResponse()
-    vi.mocked(CommentsTransaction.create).mockReturnValue(
-      Effect.succeed(mockComment),
-    )
+    vi.mocked(CommentsTransaction.create).mockReturnValue(Effect.succeed(mockComment))
 
     const res = await app.request(`/api/comments?postId=${postId}`, {
       method: 'POST',
@@ -159,9 +157,7 @@ describe('POST /api/comments', () => {
     const session = mockSession()
     mockGetSession.mockResolvedValue(session)
     const mockComment = mockCommentResponse()
-    vi.mocked(CommentsTransaction.create).mockReturnValue(
-      Effect.succeed(mockComment),
-    )
+    vi.mocked(CommentsTransaction.create).mockReturnValue(Effect.succeed(mockComment))
 
     await app.request(`/api/comments?postId=${postId}`, {
       method: 'POST',
@@ -169,9 +165,9 @@ describe('POST /api/comments', () => {
       body: JSON.stringify({ body: 'Test comment' }),
     })
 
-    expect(CommentsTransaction.create).toHaveBeenCalledWith(
-      'test@example.com',
-      { body: 'Test comment', postId },
-    )
+    expect(CommentsTransaction.create).toHaveBeenCalledWith('test@example.com', {
+      body: 'Test comment',
+      postId,
+    })
   })
 })

@@ -21,12 +21,7 @@ vi.mock('@/backend/transactions/like', () => ({
 }))
 
 import app from '@/backend'
-import {
-  DatabaseError,
-  NotFoundError,
-  UnauthorizedError,
-  ValidationError,
-} from '@/backend/domain'
+import { DatabaseError, NotFoundError, UnauthorizedError, ValidationError } from '@/backend/domain'
 import * as LikeTransaction from '@/backend/transactions/like'
 
 function mockSession() {
@@ -62,9 +57,7 @@ describe('Like', () => {
     it('should return 200 on success', async () => {
       mockGetSession.mockResolvedValue(mockSession())
       const mockPost = mockPostWithLikes()
-      vi.mocked(LikeTransaction.create).mockReturnValue(
-        Effect.succeed(mockPost),
-      )
+      vi.mocked(LikeTransaction.create).mockReturnValue(Effect.succeed(mockPost))
 
       const res = await app.request('/api/like', {
         method: 'POST',
@@ -176,9 +169,7 @@ describe('Like', () => {
     it('should return 200 on success', async () => {
       mockGetSession.mockResolvedValue(mockSession())
       const mockPost = mockPostWithLikes()
-      vi.mocked(LikeTransaction.remove).mockReturnValue(
-        Effect.succeed(mockPost),
-      )
+      vi.mocked(LikeTransaction.remove).mockReturnValue(Effect.succeed(mockPost))
 
       const res = await app.request('/api/like', {
         method: 'DELETE',

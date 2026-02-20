@@ -57,9 +57,7 @@ describe('GET /api/current', () => {
     mockGetSession.mockResolvedValue(session)
 
     const mockUser = mockCurrentUserResponse()
-    vi.mocked(CurrentTransaction.get).mockReturnValue(
-      Effect.succeed(mockUser),
-    )
+    vi.mocked(CurrentTransaction.get).mockReturnValue(Effect.succeed(mockUser))
 
     const res = await app.request('/api/current', { method: 'GET' })
 
@@ -128,9 +126,7 @@ describe('GET /api/current', () => {
     mockGetSession.mockResolvedValue(session)
 
     const mockUser = mockCurrentUserResponse()
-    vi.mocked(CurrentTransaction.get).mockReturnValue(
-      Effect.succeed(mockUser),
-    )
+    vi.mocked(CurrentTransaction.get).mockReturnValue(Effect.succeed(mockUser))
 
     await app.request('/api/current', { method: 'GET' })
 

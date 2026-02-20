@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useMemo } from 'react'
+import { toast } from 'sonner'
 import { mutate } from 'swr'
 import {
   getGetCurrentKey,
@@ -37,7 +38,7 @@ export function useFollow(userId: string) {
       await mutate(getGetCurrentKey())
       await mutate(getGetUsersUserIdKey({ param: { userId } }))
     } catch {
-      // Follow operation failed
+      toast.error('Something went wrong')
     }
   }, [currentUser, isFollowing, userId, follow, unfollow, loginModal])
 
