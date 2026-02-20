@@ -34,15 +34,15 @@ describe('Users', () => {
     vi.clearAllMocks()
   })
 
-  describe('GET /users/{userId}', () => {
+  describe('GET /api/users/{userId}', () => {
     it('should return 200', async () => {
-      const res = await app.request('/users/{userId}', { method: 'GET' })
+      const res = await app.request(`/api/users/{userId}`, { method: 'GET' })
       expect(res.status).toBe(200)
     })
   })
-  describe('GET /users', () => {
+  describe('GET /api/users', () => {
     it('should return 200', async () => {
-      const res = await app.request('/users', { method: 'GET' })
+      const res = await app.request(`/api/users`, { method: 'GET' })
       expect(res.status).toBe(200)
     })
   })

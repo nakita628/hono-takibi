@@ -33,10 +33,10 @@ describe('Like', () => {
     vi.clearAllMocks()
   })
 
-  describe('DELETE /like', () => {
+  describe('DELETE /api/like', () => {
     it('should return 200', async () => {
       const body = mockLikePostRequest()
-      const res = await app.request('/like', {
+      const res = await app.request(`/api/like`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
@@ -44,10 +44,10 @@ describe('Like', () => {
       expect(res.status).toBe(200)
     })
   })
-  describe('POST /like', () => {
+  describe('POST /api/like', () => {
     it('should return 200', async () => {
       const body = mockLikePostRequest()
-      const res = await app.request('/like', {
+      const res = await app.request(`/api/like`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),

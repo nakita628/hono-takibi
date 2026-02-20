@@ -1,23 +1,20 @@
 import type { RouteHandler } from '@hono/zod-openapi'
-import { drizzle } from 'drizzle-orm/d1'
 import { Effect } from 'effect'
 import { DatabaseError, NotFoundError, UnauthorizedError } from '@/backend/domain'
-import type { Bindings } from '@/backend/env'
+import type { AuthType } from '@/lib/auth'
 import type { getPostsPostIdRoute, getPostsRoute, postPostsRoute } from '@/backend/routes'
 import * as PostsTransaction from '@/backend/transactions/posts'
-import { DB } from '@/db'
-import * as schema from '@/db/schema'
+import { DBLive } from '@/infra'
 
 export const getPostsRouteHandler: RouteHandler<
   typeof getPostsRoute,
-  { Bindings: Bindings }
+  { Variables: AuthType }
 > = async (c) => {
   const { userId } = c.req.valid('query')
-  const db = drizzle(c.env.DB, { schema })
 
   return Effect.runPromise(
     PostsTransaction.getAll(userId).pipe(
-      Effect.provideService(DB, db),
+      Effect.provide(DBLive),
       Effect.match({
         onSuccess: (posts) => c.json(posts, 200),
         onFailure: (e) => {
@@ -31,20 +28,18 @@ export const getPostsRouteHandler: RouteHandler<
 
 export const postPostsRouteHandler: RouteHandler<
   typeof postPostsRoute,
-  { Bindings: Bindings }
+  { Variables: AuthType }
 > = async (c) => {
-  const authUser = c.get('authUser')
-  const email = authUser?.token?.email
+  const email = c.get('user')?.email
   if (!email) {
-    return c.json({ message: 'Not signed in' }, 500)
+    return c.json({ message: 'Not signed in' }, 401)
   }
 
   const { body } = c.req.valid('json')
-  const db = drizzle(c.env.DB, { schema })
 
   return Effect.runPromise(
     PostsTransaction.create(email, { body }).pipe(
-      Effect.provideService(DB, db),
+      Effect.provide(DBLive),
       Effect.match({
         onSuccess: (post) => c.json(post, 200),
         onFailure: (e) => {
@@ -59,14 +54,13 @@ export const postPostsRouteHandler: RouteHandler<
 
 export const getPostsPostIdRouteHandler: RouteHandler<
   typeof getPostsPostIdRoute,
-  { Bindings: Bindings }
+  { Variables: AuthType }
 > = async (c) => {
   const { postId } = c.req.valid('param')
-  const db = drizzle(c.env.DB, { schema })
 
   return Effect.runPromise(
     PostsTransaction.getById(postId).pipe(
-      Effect.provideService(DB, db),
+      Effect.provide(DBLive),
       Effect.match({
         onSuccess: (post) => c.json(post, 200),
         onFailure: (e) => {

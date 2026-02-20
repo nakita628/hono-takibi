@@ -286,11 +286,12 @@ const ParametersUserIdPathParamsSchema = z
 
 const ParametersUserIdQueryParamsSchema = z
   .uuid()
+  .exactOptional()
   .openapi({
     param: {
       name: 'userId',
       in: 'query',
-      required: true,
+      required: false,
       schema: { type: 'string', format: 'uuid' },
     },
   })

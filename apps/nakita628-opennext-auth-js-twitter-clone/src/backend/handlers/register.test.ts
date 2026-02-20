@@ -31,10 +31,10 @@ function mockUserResponse() {
   }
 }
 
-describe('POST /register', () => {
+describe('POST /api/register', () => {
   it('should return 201', async () => {
     const body = mockRegisterRequest()
-    const res = await app.request('/register', {
+    const res = await app.request(`/api/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),

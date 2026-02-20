@@ -1,12 +1,12 @@
 'use client'
 
-import { signIn } from '@hono/auth-js/react'
 import { useCallback, useState } from 'react'
 import { Input } from '@/components/atoms/Input'
 import { Modal } from '@/components/molecules/Modal'
 import { usePostRegister } from '@/hooks/swr'
 import { useLoginModal } from '@/hooks/useLoginModal'
 import { useRegisterModal } from '@/hooks/useRegisterModal'
+import { authClient } from '@/lib/auth-client'
 
 export function RegisterModal() {
   const loginModal = useLoginModal()
@@ -32,7 +32,7 @@ export function RegisterModal() {
         json: { email, username, name, password },
       })
 
-      await signIn('credentials', { email, password, redirect: false })
+      await authClient.signIn.email({ email, password })
 
       registerModal.onClose()
     } catch {

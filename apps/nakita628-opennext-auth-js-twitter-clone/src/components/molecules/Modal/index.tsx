@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback } from 'react'
+import { AiOutlineClose } from 'react-icons/ai'
 import { Button } from '@/components/atoms/Button'
 
 type Props = {
@@ -48,7 +49,7 @@ export function Modal({
               onClick={handleClose}
               className='p-1 ml-auto border-0 text-white hover:opacity-70 transition'
             >
-              ✕
+              <AiOutlineClose size={20} />
             </button>
           </div>
           {/* Body */}

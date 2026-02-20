@@ -371,6 +371,6 @@ namespace Parameters {
     @format("uuid") @path userId: string;
   }
   model UserIdQuery {
-    @format("uuid") @query(#{ explode: true }) userId: string;
+    @format("uuid") @query(#{ explode: true }) userId?: string;
   }
 }

@@ -1,6 +1,7 @@
 'use client'
 
 import { useMemo } from 'react'
+import { BiCalendar } from 'react-icons/bi'
 import { Button } from '@/components/atoms/Button'
 import { useGetCurrent, useGetUsersUserId } from '@/hooks/swr'
 import { useEditModal } from '@/hooks/useEditModal'
@@ -44,9 +45,7 @@ export function UserBio({ userId }: Props) {
         <div className='flex flex-col mt-4'>
           <p className='text-white'>{fetchedUser?.bio}</p>
           <div className='flex flex-row items-center gap-2 mt-4 text-neutral-500'>
-            <svg width={24} height={24} viewBox='0 0 24 24' fill='currentColor'>
-              <path d='M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM9 10H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2z' />
-            </svg>
+            <BiCalendar size={24} />
             <p>Joined {createdAt}</p>
           </div>
         </div>

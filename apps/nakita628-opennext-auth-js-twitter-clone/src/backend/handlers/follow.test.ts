@@ -16,10 +16,10 @@ describe('Follow', () => {
     vi.clearAllMocks()
   })
 
-  describe('DELETE /follow', () => {
+  describe('DELETE /api/follow', () => {
     it('should return 200', async () => {
       const body = mockFollowUserRequest()
-      const res = await app.request('/follow', {
+      const res = await app.request(`/api/follow`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
@@ -27,10 +27,10 @@ describe('Follow', () => {
       expect(res.status).toBe(200)
     })
   })
-  describe('POST /follow', () => {
+  describe('POST /api/follow', () => {
     it('should return 200', async () => {
       const body = mockFollowUserRequest()
-      const res = await app.request('/follow', {
+      const res = await app.request(`/api/follow`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),

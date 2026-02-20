@@ -10,15 +10,15 @@ describe('Notifications', () => {
     vi.clearAllMocks()
   })
 
-  describe('GET /notifications/{userId}', () => {
+  describe('GET /api/notifications/{userId}', () => {
     it('should return 200', async () => {
-      const res = await app.request('/notifications/{userId}', { method: 'GET' })
+      const res = await app.request(`/api/notifications/{userId}`, { method: 'GET' })
       expect(res.status).toBe(200)
     })
   })
-  describe('POST /notifications', () => {
+  describe('POST /api/notifications', () => {
     it('should return 200', async () => {
-      const res = await app.request('/notifications', { method: 'POST' })
+      const res = await app.request(`/api/notifications`, { method: 'POST' })
       expect(res.status).toBe(200)
     })
   })

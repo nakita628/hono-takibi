@@ -1,23 +1,20 @@
 import type { RouteHandler } from '@hono/zod-openapi'
-import { drizzle } from 'drizzle-orm/d1'
 import { Effect } from 'effect'
 import { DatabaseError, NotFoundError } from '@/backend/domain'
-import type { Bindings } from '@/backend/env'
+import type { AuthType } from '@/lib/auth'
 import type { getUsersRoute, getUsersUserIdRoute } from '@/backend/routes'
 import * as UsersTransaction from '@/backend/transactions/users'
-import { DB } from '@/db'
-import * as schema from '@/db/schema'
+import { DBLive } from '@/infra'
 
 export const getUsersUserIdRouteHandler: RouteHandler<
   typeof getUsersUserIdRoute,
-  { Bindings: Bindings }
+  { Variables: AuthType }
 > = async (c) => {
   const { userId } = c.req.valid('param')
-  const db = drizzle(c.env.DB, { schema })
 
   return Effect.runPromise(
     UsersTransaction.getById(userId).pipe(
-      Effect.provideService(DB, db),
+      Effect.provide(DBLive),
       Effect.match({
         onSuccess: (user) => c.json(user, 200),
         onFailure: (e) => {
@@ -32,13 +29,11 @@ export const getUsersUserIdRouteHandler: RouteHandler<
 
 export const getUsersRouteHandler: RouteHandler<
   typeof getUsersRoute,
-  { Bindings: Bindings }
+  { Variables: AuthType }
 > = async (c) => {
-  const db = drizzle(c.env.DB, { schema })
-
   return Effect.runPromise(
     UsersTransaction.getAll().pipe(
-      Effect.provideService(DB, db),
+      Effect.provide(DBLive),
       Effect.match({
         onSuccess: (users) => c.json(users, 200),
         onFailure: (e) => {

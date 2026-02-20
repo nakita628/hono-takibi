@@ -8,7 +8,8 @@ type Props = {
 }
 
 export function PostFeed({ userId }: Props) {
-  const { data: posts = [] } = useGetPosts({ query: { userId } })
+  const query = userId !== undefined ? { userId } : {}
+  const { data: posts = [] } = useGetPosts({ query })
 
   return (
     <>

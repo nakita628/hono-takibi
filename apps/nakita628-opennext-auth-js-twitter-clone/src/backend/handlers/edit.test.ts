@@ -35,10 +35,10 @@ function mockUserResponse() {
   }
 }
 
-describe('PATCH /edit', () => {
+describe('PATCH /api/edit', () => {
   it('should return 200', async () => {
     const body = mockEditUserRequest()
-    const res = await app.request('/edit', {
+    const res = await app.request(`/api/edit`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),

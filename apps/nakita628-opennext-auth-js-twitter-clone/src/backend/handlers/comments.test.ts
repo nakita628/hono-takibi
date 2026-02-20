@@ -27,10 +27,10 @@ describe('Comments', () => {
     vi.clearAllMocks()
   })
 
-  describe('POST /comments', () => {
+  describe('POST /api/comments', () => {
     it('should return 200', async () => {
       const body = mockCreateCommentRequest()
-      const res = await app.request('/comments', {
+      const res = await app.request(`/api/comments`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),

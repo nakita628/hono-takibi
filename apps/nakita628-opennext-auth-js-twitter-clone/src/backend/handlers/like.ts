@@ -1,29 +1,25 @@
 import type { RouteHandler } from '@hono/zod-openapi'
-import { drizzle } from 'drizzle-orm/d1'
 import { Effect } from 'effect'
 import { DatabaseError, NotFoundError, UnauthorizedError } from '@/backend/domain'
-import type { Bindings } from '@/backend/env'
+import type { AuthType } from '@/lib/auth'
 import type { deleteLikeRoute, postLikeRoute } from '@/backend/routes'
 import * as LikeTransaction from '@/backend/transactions/like'
-import { DB } from '@/db'
-import * as schema from '@/db/schema'
+import { DBLive } from '@/infra'
 
 export const postLikeRouteHandler: RouteHandler<
   typeof postLikeRoute,
-  { Bindings: Bindings }
+  { Variables: AuthType }
 > = async (c) => {
-  const authUser = c.get('authUser')
-  const email = authUser?.token?.email
+  const email = c.get('user')?.email
   if (!email) {
-    return c.json({ message: 'Not signed in' }, 500)
+    return c.json({ message: 'Not signed in' }, 401)
   }
 
   const { postId } = c.req.valid('json')
-  const db = drizzle(c.env.DB, { schema })
 
   return Effect.runPromise(
     LikeTransaction.create(email, { postId }).pipe(
-      Effect.provideService(DB, db),
+      Effect.provide(DBLive),
       Effect.match({
         onSuccess: (result) => c.json(result, 200),
         onFailure: (e) => {
@@ -39,20 +35,18 @@ export const postLikeRouteHandler: RouteHandler<
 
 export const deleteLikeRouteHandler: RouteHandler<
   typeof deleteLikeRoute,
-  { Bindings: Bindings }
+  { Variables: AuthType }
 > = async (c) => {
-  const authUser = c.get('authUser')
-  const email = authUser?.token?.email
+  const email = c.get('user')?.email
   if (!email) {
-    return c.json({ message: 'Not signed in' }, 500)
+    return c.json({ message: 'Not signed in' }, 401)
   }
 
   const { postId } = c.req.valid('json')
-  const db = drizzle(c.env.DB, { schema })
 
   return Effect.runPromise(
     LikeTransaction.remove(email, { postId }).pipe(
-      Effect.provideService(DB, db),
+      Effect.provide(DBLive),
       Effect.match({
         onSuccess: (result) => c.json(result, 200),
         onFailure: (e) => {

@@ -22,9 +22,9 @@ function mockCurrentUserResponse() {
   }
 }
 
-describe('GET /current', () => {
+describe('GET /api/current', () => {
   it('should return 200', async () => {
-    const res = await app.request('/current', { method: 'GET' })
+    const res = await app.request(`/api/current`, { method: 'GET' })
     expect(res.status).toBe(200)
   })
 })

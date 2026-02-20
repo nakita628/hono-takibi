@@ -1,28 +1,95 @@
+import { sql } from 'drizzle-orm'
 import { relations } from 'drizzle-orm'
-import { integer, primaryKey, sqliteTable, text } from 'drizzle-orm/sqlite-core'
+import { index, integer, primaryKey, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 
-export const users = sqliteTable('users', {
-  id: text()
-    .primaryKey()
-    .$defaultFn(() => crypto.randomUUID()),
+// Better Auth core tables
+export const user = sqliteTable('user', {
+  id: text().primaryKey(),
   name: text().notNull(),
-  username: text().notNull().unique(),
-  bio: text(),
   email: text().notNull().unique(),
-  emailVerified: integer({ mode: 'timestamp' }),
+  emailVerified: integer({ mode: 'boolean' }).notNull().default(false),
   image: text(),
-  coverImage: text(),
-  profileImage: text(),
-  hashedPassword: text(),
   createdAt: integer({ mode: 'timestamp' })
     .notNull()
-    .$defaultFn(() => new Date()),
+    .default(sql`(unixepoch())`),
   updatedAt: integer({ mode: 'timestamp' })
     .notNull()
-    .$defaultFn(() => new Date())
-    .$onUpdateFn(() => new Date()),
-  hasNotification: integer({ mode: 'boolean' }),
+    .default(sql`(unixepoch())`),
 })
+
+export const session = sqliteTable('session', {
+  id: text().primaryKey(),
+  userId: text()
+    .notNull()
+    .references(() => user.id, { onDelete: 'cascade' }),
+  token: text().notNull(),
+  expiresAt: integer({ mode: 'timestamp' }).notNull(),
+  ipAddress: text(),
+  userAgent: text(),
+  createdAt: integer({ mode: 'timestamp' })
+    .notNull()
+    .default(sql`(unixepoch())`),
+  updatedAt: integer({ mode: 'timestamp' })
+    .notNull()
+    .default(sql`(unixepoch())`),
+})
+
+export const account = sqliteTable('account', {
+  id: text().primaryKey(),
+  userId: text()
+    .notNull()
+    .references(() => user.id, { onDelete: 'cascade' }),
+  accountId: text().notNull(),
+  providerId: text().notNull(),
+  accessToken: text(),
+  refreshToken: text(),
+  idToken: text(),
+  accessTokenExpiresAt: integer({ mode: 'timestamp' }),
+  refreshTokenExpiresAt: integer({ mode: 'timestamp' }),
+  scope: text(),
+  password: text(),
+  createdAt: integer({ mode: 'timestamp' })
+    .notNull()
+    .default(sql`(unixepoch())`),
+  updatedAt: integer({ mode: 'timestamp' })
+    .notNull()
+    .default(sql`(unixepoch())`),
+})
+
+export const verification = sqliteTable('verification', {
+  id: text().primaryKey(),
+  identifier: text().notNull(),
+  value: text().notNull(),
+  expiresAt: integer({ mode: 'timestamp' }).notNull(),
+  createdAt: integer({ mode: 'timestamp' })
+    .default(sql`(unixepoch())`),
+  updatedAt: integer({ mode: 'timestamp' })
+    .default(sql`(unixepoch())`),
+})
+
+// Application tables
+export const userProfile = sqliteTable(
+  'user_profile',
+  {
+    userId: text('user_id')
+      .notNull()
+      .unique()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    username: text('username').unique(),
+    bio: text('bio').default(''),
+    coverImage: text('cover_image'),
+    profileImage: text('profile_image'),
+    hasNotification: integer('has_notification', { mode: 'boolean' }).default(false),
+    createdAt: integer('created_at', { mode: 'timestamp_ms' })
+      .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
+      .notNull(),
+    updatedAt: integer('updated_at', { mode: 'timestamp_ms' })
+      .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [index('user_profile_userId_idx').on(table.userId)],
+)
 
 export const posts = sqliteTable('posts', {
   id: text()
@@ -38,7 +105,7 @@ export const posts = sqliteTable('posts', {
     .$onUpdateFn(() => new Date()),
   userId: text()
     .notNull()
-    .references(() => users.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
+    .references(() => user.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
 })
 
 export const follows = sqliteTable(
@@ -46,10 +113,10 @@ export const follows = sqliteTable(
   {
     followerId: text()
       .notNull()
-      .references(() => users.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
+      .references(() => user.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
     followingId: text()
       .notNull()
-      .references(() => users.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
+      .references(() => user.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
     createdAt: integer({ mode: 'timestamp' })
       .notNull()
       .$defaultFn(() => new Date()),
@@ -62,7 +129,7 @@ export const likes = sqliteTable(
   {
     userId: text()
       .notNull()
-      .references(() => users.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
+      .references(() => user.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
     postId: text()
       .notNull()
       .references(() => posts.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
@@ -87,7 +154,7 @@ export const comments = sqliteTable('comments', {
     .$onUpdateFn(() => new Date()),
   userId: text()
     .notNull()
-    .references(() => users.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
+    .references(() => user.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
   postId: text()
     .notNull()
     .references(() => posts.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
@@ -100,13 +167,18 @@ export const notifications = sqliteTable('notifications', {
   body: text().notNull(),
   userId: text()
     .notNull()
-    .references(() => users.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
+    .references(() => user.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
   createdAt: integer({ mode: 'timestamp' })
     .notNull()
     .$defaultFn(() => new Date()),
 })
 
-export const usersRelations = relations(users, ({ many }) => ({
+// Relations
+export const userRelations = relations(user, ({ one, many }) => ({
+  userProfile: one(userProfile, {
+    fields: [user.id],
+    references: [userProfile.userId],
+  }),
   posts: many(posts, {
     relationName: 'PostToUser',
   }),
@@ -125,13 +197,36 @@ export const usersRelations = relations(users, ({ many }) => ({
   likes: many(likes, {
     relationName: 'LikeToUser',
   }),
+  sessions: many(session),
+  accounts: many(account),
+}))
+
+export const userProfileRelations = relations(userProfile, ({ one }) => ({
+  user: one(user, {
+    fields: [userProfile.userId],
+    references: [user.id],
+  }),
+}))
+
+export const sessionRelations = relations(session, ({ one }) => ({
+  user: one(user, {
+    fields: [session.userId],
+    references: [user.id],
+  }),
+}))
+
+export const accountRelations = relations(account, ({ one }) => ({
+  user: one(user, {
+    fields: [account.userId],
+    references: [user.id],
+  }),
 }))
 
 export const postsRelations = relations(posts, ({ one, many }) => ({
-  user: one(users, {
+  user: one(user, {
     relationName: 'PostToUser',
     fields: [posts.userId],
-    references: [users.id],
+    references: [user.id],
   }),
   comments: many(comments, {
     relationName: 'CommentToPost',
@@ -142,23 +237,23 @@ export const postsRelations = relations(posts, ({ one, many }) => ({
 }))
 
 export const followsRelations = relations(follows, ({ one }) => ({
-  follower: one(users, {
+  follower: one(user, {
     relationName: 'Following',
     fields: [follows.followerId],
-    references: [users.id],
+    references: [user.id],
   }),
-  following: one(users, {
+  following: one(user, {
     relationName: 'Follower',
     fields: [follows.followingId],
-    references: [users.id],
+    references: [user.id],
   }),
 }))
 
 export const likesRelations = relations(likes, ({ one }) => ({
-  user: one(users, {
+  user: one(user, {
     relationName: 'LikeToUser',
     fields: [likes.userId],
-    references: [users.id],
+    references: [user.id],
   }),
   post: one(posts, {
     relationName: 'LikeToPost',
@@ -168,10 +263,10 @@ export const likesRelations = relations(likes, ({ one }) => ({
 }))
 
 export const commentsRelations = relations(comments, ({ one }) => ({
-  user: one(users, {
+  user: one(user, {
     relationName: 'CommentToUser',
     fields: [comments.userId],
-    references: [users.id],
+    references: [user.id],
   }),
   post: one(posts, {
     relationName: 'CommentToPost',
@@ -181,9 +276,9 @@ export const commentsRelations = relations(comments, ({ one }) => ({
 }))
 
 export const notificationsRelations = relations(notifications, ({ one }) => ({
-  user: one(users, {
+  user: one(user, {
     relationName: 'NotificationToUser',
     fields: [notifications.userId],
-    references: [users.id],
+    references: [user.id],
   }),
 }))

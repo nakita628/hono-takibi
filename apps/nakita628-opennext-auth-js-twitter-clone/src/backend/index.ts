@@ -1,11 +1,5 @@
-import Credentials from '@auth/core/providers/credentials'
-import { DrizzleAdapter } from '@auth/drizzle-adapter'
-import { authHandler, initAuthConfig, verifyAuth } from '@hono/auth-js'
-import { OpenAPIHono, z } from '@hono/zod-openapi'
-import bcrypt from 'bcryptjs'
-import { eq } from 'drizzle-orm'
-import { drizzle } from 'drizzle-orm/d1'
-import type { Bindings } from '@/backend/env'
+import { OpenAPIHono } from '@hono/zod-openapi'
+import { auth, AuthType } from '@/lib/auth'
 import {
   deleteFollowRouteHandler,
   deleteLikeRouteHandler,
@@ -41,9 +35,8 @@ import {
   postPostsRoute,
   postRegisterRoute,
 } from '@/backend/routes'
-import * as schema from '@/db/schema'
 
-const app = new OpenAPIHono<{ Bindings: Bindings }>({
+const app = new OpenAPIHono<{ Variables: AuthType }>({
   defaultHook: (result, c) => {
     if (!result.success) {
       return c.json(formatZodErrors(result), 422, {
@@ -53,63 +46,38 @@ const app = new OpenAPIHono<{ Bindings: Bindings }>({
   },
 }).basePath('/api')
 
-app.use(
-  '*',
-  initAuthConfig((c) => ({
-    secret: c.env.AUTH_SECRET,
-    adapter: DrizzleAdapter(drizzle(c.env.DB)),
-    basePath: '/api/auth',
-    providers: [
-      Credentials({
-        credentials: {
-          email: { type: 'email' },
-          password: { type: 'password' },
-        },
-        async authorize(credentials) {
-          const CredentialsSchema = z.object({
-            email: z.email(),
-            password: z.string().min(8).max(72),
-          })
+// Better Auth route handler
+app.on(['GET', 'POST'], '/auth/**', async (c) => {
+  return auth().handler(c.req.raw)
+})
 
-          const valid = CredentialsSchema.safeParse(credentials)
-
-          if (!valid.success) return null
-
-          const { email, password } = valid.data
-
-          const db = drizzle(c.env.DB)
-          const user = await db
-            .select()
-            .from(schema.users)
-            .where(eq(schema.users.email, email))
-            .get()
-
-          if (!user?.hashedPassword) return null
-
-          const isCorrectPassword = await bcrypt.compare(password, user.hashedPassword)
-          if (!isCorrectPassword) return null
-
-          return {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            image: user.image,
-          }
-        },
-      }),
-    ],
-    session: { strategy: 'jwt' },
-  })),
-)
-
-app.use('/auth/*', authHandler())
-
+// Session resolution + auth guard middleware
 app.use('*', async (c, next) => {
+  const session = await auth().api.getSession({
+    headers: c.req.raw.headers,
+  })
+
+  if (session) {
+    c.set('user', session.user)
+    c.set('session', session.session)
+  } else {
+    c.set('user', null)
+    c.set('session', null)
+  }
+
   const path = c.req.path.replace(/^\/api/, '')
+
+  // Skip auth for public routes
   if (path.startsWith('/auth/') || path.startsWith('/register')) {
     return next()
   }
-  return verifyAuth()(c, next)
+
+  // Require auth
+  if (!session) {
+    return c.json({ message: 'Unauthorized' }, 401)
+  }
+
+  return next()
 })
 
 export const api = app

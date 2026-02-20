@@ -10,15 +10,17 @@ export function get(email: string) {
       return yield* Effect.fail(new UnauthorizedError({ message: 'Not signed in' }))
     }
 
+    const profile = user.userProfile
+
     const data = {
       id: user.id,
       name: user.name,
-      username: user.username,
-      bio: user.bio,
+      username: profile?.username ?? '',
+      bio: profile?.bio ?? null,
       email: user.email,
       image: user.image,
-      coverImage: user.coverImage,
-      profileImage: user.profileImage,
+      coverImage: profile?.coverImage ?? null,
+      profileImage: profile?.profileImage ?? null,
       createdAt: user.createdAt.toISOString(),
       updatedAt: user.updatedAt.toISOString(),
       followers: user.followers.map((f) => ({
@@ -31,7 +33,7 @@ export function get(email: string) {
         followingId: f.followingId,
         createdAt: f.createdAt.toISOString(),
       })),
-      hasNotification: user.hasNotification,
+      hasNotification: profile?.hasNotification ?? null,
     }
 
     const valid = CurrentUserSchema.safeParse(data)

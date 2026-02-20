@@ -1,29 +1,25 @@
 import type { RouteHandler } from '@hono/zod-openapi'
-import { drizzle } from 'drizzle-orm/d1'
 import { Effect } from 'effect'
 import { DatabaseError, NotFoundError, UnauthorizedError } from '@/backend/domain'
-import type { Bindings } from '@/backend/env'
+import type { AuthType } from '@/lib/auth'
 import type { deleteFollowRoute, postFollowRoute } from '@/backend/routes'
 import * as FollowTransaction from '@/backend/transactions/follow'
-import { DB } from '@/db'
-import * as schema from '@/db/schema'
+import { DBLive } from '@/infra'
 
 export const postFollowRouteHandler: RouteHandler<
   typeof postFollowRoute,
-  { Bindings: Bindings }
+  { Variables: AuthType }
 > = async (c) => {
-  const authUser = c.get('authUser')
-  const email = authUser?.token?.email
+  const email = c.get('user')?.email
   if (!email) {
-    return c.json({ message: 'Not signed in' }, 500)
+    return c.json({ message: 'Not signed in' }, 401)
   }
 
   const { userId } = c.req.valid('json')
-  const db = drizzle(c.env.DB, { schema })
 
   return Effect.runPromise(
     FollowTransaction.create(email, { userId }).pipe(
-      Effect.provideService(DB, db),
+      Effect.provide(DBLive),
       Effect.match({
         onSuccess: (result) => c.json(result, 200),
         onFailure: (e) => {
@@ -39,20 +35,18 @@ export const postFollowRouteHandler: RouteHandler<
 
 export const deleteFollowRouteHandler: RouteHandler<
   typeof deleteFollowRoute,
-  { Bindings: Bindings }
+  { Variables: AuthType }
 > = async (c) => {
-  const authUser = c.get('authUser')
-  const email = authUser?.token?.email
+  const email = c.get('user')?.email
   if (!email) {
-    return c.json({ message: 'Not signed in' }, 500)
+    return c.json({ message: 'Not signed in' }, 401)
   }
 
   const { userId } = c.req.valid('json')
-  const db = drizzle(c.env.DB, { schema })
 
   return Effect.runPromise(
     FollowTransaction.remove(email, { userId }).pipe(
-      Effect.provideService(DB, db),
+      Effect.provide(DBLive),
       Effect.match({
         onSuccess: (result) => c.json(result, 200),
         onFailure: (e) => {

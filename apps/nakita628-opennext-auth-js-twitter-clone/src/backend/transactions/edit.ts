@@ -19,27 +19,34 @@ export function update(
       return yield* Effect.fail(new UnauthorizedError({ message: 'Not signed in' }))
     }
 
-    const updated = yield* UserService.update(user.id, {
-      name: args.name ?? user.name,
-      username: args.username ?? user.username,
-      bio: args.bio ?? user.bio,
-      coverImage: args.coverImage !== undefined ? args.coverImage : user.coverImage,
-      profileImage: args.profileImage !== undefined ? args.profileImage : user.profileImage,
+    const profile = user.userProfile
+
+    // Update name on user table if provided
+    if (args.name && args.name !== user.name) {
+      yield* UserService.updateName(user.id, args.name)
+    }
+
+    // Update profile fields on userProfile table
+    const updatedProfile = yield* UserService.updateProfile(user.id, {
+      username: args.username ?? profile?.username ?? '',
+      bio: args.bio ?? profile?.bio,
+      coverImage: args.coverImage !== undefined ? args.coverImage : profile?.coverImage,
+      profileImage: args.profileImage !== undefined ? args.profileImage : profile?.profileImage,
     })
 
     const data = {
-      id: updated.id,
-      name: updated.name,
-      username: updated.username,
-      bio: updated.bio,
-      email: updated.email,
-      emailVerified: updated.emailVerified?.toISOString() ?? null,
-      image: updated.image,
-      coverImage: updated.coverImage,
-      profileImage: updated.profileImage,
-      createdAt: updated.createdAt.toISOString(),
-      updatedAt: updated.updatedAt.toISOString(),
-      hasNotification: updated.hasNotification,
+      id: user.id,
+      name: args.name ?? user.name,
+      username: updatedProfile.username,
+      bio: updatedProfile.bio,
+      email: user.email,
+      emailVerified: null,
+      image: user.image ?? null,
+      coverImage: updatedProfile.coverImage,
+      profileImage: updatedProfile.profileImage,
+      createdAt: user.createdAt.toISOString(),
+      updatedAt: user.updatedAt.toISOString(),
+      hasNotification: updatedProfile.hasNotification,
     }
 
     const valid = UserSchema.safeParse(data)

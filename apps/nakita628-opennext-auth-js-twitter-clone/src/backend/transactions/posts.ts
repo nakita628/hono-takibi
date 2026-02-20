@@ -8,30 +8,33 @@ import * as UserService from '@/backend/services/user'
 function formatUser(u: {
   id: string
   name: string
-  username: string
-  bio: string | null
   email: string
-  emailVerified: Date | null
-  image: string | null
-  coverImage: string | null
-  profileImage: string | null
+  emailVerified: boolean
+  image: string | null | undefined
   createdAt: Date
   updatedAt: Date
-  hasNotification: boolean | null
+  userProfile: {
+    username: string | null
+    bio: string | null
+    coverImage: string | null
+    profileImage: string | null
+    hasNotification: boolean | null
+  } | null
 }) {
+  const profile = u.userProfile
   return {
     id: u.id,
     name: u.name,
-    username: u.username,
-    bio: u.bio,
+    username: profile?.username ?? '',
+    bio: profile?.bio ?? null,
     email: u.email,
-    emailVerified: u.emailVerified?.toISOString() ?? null,
-    image: u.image,
-    coverImage: u.coverImage,
-    profileImage: u.profileImage,
+    emailVerified: null,
+    image: u.image ?? null,
+    coverImage: profile?.coverImage ?? null,
+    profileImage: profile?.profileImage ?? null,
     createdAt: u.createdAt.toISOString(),
     updatedAt: u.updatedAt.toISOString(),
-    hasNotification: u.hasNotification,
+    hasNotification: profile?.hasNotification ?? null,
   }
 }
 
@@ -70,7 +73,7 @@ export function getAll(userId?: string) {
       createdAt: p.createdAt.toISOString(),
       updatedAt: p.updatedAt.toISOString(),
       userId: p.userId,
-      user: formatUser(p.user),
+      user: formatUser(p.user as any),
       comments: p.comments.map((c) => ({
         id: c.id,
         body: c.body,
@@ -107,7 +110,7 @@ export function getById(postId: string) {
       createdAt: post.createdAt.toISOString(),
       updatedAt: post.updatedAt.toISOString(),
       userId: post.userId,
-      user: formatUser(post.user),
+      user: formatUser(post.user as any),
       comments: post.comments.map((c) => ({
         id: c.id,
         body: c.body,
@@ -115,7 +118,7 @@ export function getById(postId: string) {
         updatedAt: c.updatedAt.toISOString(),
         userId: c.userId,
         postId: c.postId,
-        user: formatUser(c.user),
+        user: formatUser((c as any).user),
       })),
       likes: post.likes.map((l) => ({ userId: l.userId })),
       _count: { likes: post.likes.length },

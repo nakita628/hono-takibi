@@ -1,8 +1,8 @@
 'use client'
 
 import { useEffect } from 'react'
+import { BsTwitter } from 'react-icons/bs'
 import { mutate } from 'swr'
-import { Logo } from '@/components/atoms/Logo'
 import { getGetCurrentKey, useGetCurrent, useGetNotificationsUserId } from '@/hooks/swr'
 
 export function NotificationsFeed() {
@@ -35,7 +35,7 @@ export function NotificationsFeed() {
           key={notification.id}
           className='flex flex-row items-center p-6 gap-4 border-b-[1px] border-neutral-800'
         >
-          <Logo size={32} />
+          <BsTwitter size={32} color='#0EA5E9' />
           <p className='text-white'>{notification.body}</p>
         </div>
       ))}

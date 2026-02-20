@@ -72,16 +72,16 @@ describe('Posts', () => {
     vi.clearAllMocks()
   })
 
-  describe('GET /posts', () => {
+  describe('GET /api/posts', () => {
     it('should return 200', async () => {
-      const res = await app.request('/posts', { method: 'GET' })
+      const res = await app.request(`/api/posts`, { method: 'GET' })
       expect(res.status).toBe(200)
     })
   })
-  describe('POST /posts', () => {
+  describe('POST /api/posts', () => {
     it('should return 200', async () => {
       const body = mockCreatePostRequest()
-      const res = await app.request('/posts', {
+      const res = await app.request(`/api/posts`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
@@ -89,9 +89,9 @@ describe('Posts', () => {
       expect(res.status).toBe(200)
     })
   })
-  describe('GET /posts/{postId}', () => {
+  describe('GET /api/posts/{postId}', () => {
     it('should return 200', async () => {
-      const res = await app.request('/posts/{postId}', { method: 'GET' })
+      const res = await app.request(`/api/posts/{postId}`, { method: 'GET' })
       expect(res.status).toBe(200)
     })
   })
