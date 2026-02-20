@@ -5,8 +5,24 @@ import * as FollowService from '@/backend/services/follow'
 import * as NotificationService from '@/backend/services/notification'
 import * as UserService from '@/backend/services/user'
 
-export function create(email: string, args: { userId: string }) {
-  return Effect.gen(function* () {
+/**
+ * Follow a user and send a notification to the target.
+ *
+ * @mermaid
+ * ```
+ * flowchart TD
+ *   A[findCurrentUser] --> B{exists?}
+ *   B -- no --> C[fail Unauthorized]
+ *   B -- yes --> D[findTargetUser]
+ *   D --> E{exists?}
+ *   E -- no --> F[fail NotFound]
+ *   E -- yes --> G[createFollow]
+ *   G --> H[createNotification]
+ *   H --> I[validate + return]
+ * ```
+ */
+export const create = (email: string, args: { userId: string }) =>
+  Effect.gen(function* () {
     const currentUser = yield* UserService.findByEmail(email)
     if (!currentUser) {
       return yield* Effect.fail(new UnauthorizedError({ message: 'Not signed in' }))
@@ -35,10 +51,21 @@ export function create(email: string, args: { userId: string }) {
     }
     return valid.data
   })
-}
 
-export function remove(email: string, args: { userId: string }) {
-  return Effect.gen(function* () {
+/**
+ * Unfollow a user.
+ *
+ * @mermaid
+ * ```
+ * flowchart TD
+ *   A[findCurrentUser] --> B{exists?}
+ *   B -- no --> C[fail Unauthorized]
+ *   B -- yes --> D[removeFollow]
+ *   D --> E[validate + return]
+ * ```
+ */
+export const remove = (email: string, args: { userId: string }) =>
+  Effect.gen(function* () {
     const currentUser = yield* UserService.findByEmail(email)
     if (!currentUser) {
       return yield* Effect.fail(new UnauthorizedError({ message: 'Not signed in' }))
@@ -56,4 +83,3 @@ export function remove(email: string, args: { userId: string }) {
     }
     return valid.data
   })
-}

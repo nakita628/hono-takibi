@@ -6,6 +6,20 @@ import * as LikeTransaction from '@/backend/transactions/like'
 import { DBLive } from '@/infra'
 import type { AuthType } from '@/lib/auth'
 
+/**
+ * Handle `POST /like` — like a post.
+ *
+ * @mermaid
+ * ```
+ * flowchart LR
+ *   A[Auth check] --> B[LikeTransaction.create]
+ *   B --> C{match}
+ *   C --> D[200 OK]
+ *   C --> E[401 Unauthorized]
+ *   C --> F[404 Not Found]
+ *   C --> G[503 DB error]
+ * ```
+ */
 export const postLikeRouteHandler: RouteHandler<
   typeof postLikeRoute,
   { Variables: AuthType }
@@ -34,6 +48,20 @@ export const postLikeRouteHandler: RouteHandler<
   )
 }
 
+/**
+ * Handle `DELETE /like` — unlike a post.
+ *
+ * @mermaid
+ * ```
+ * flowchart LR
+ *   A[Auth check] --> B[LikeTransaction.remove]
+ *   B --> C{match}
+ *   C --> D[200 OK]
+ *   C --> E[401 Unauthorized]
+ *   C --> F[404 Not Found]
+ *   C --> G[503 DB error]
+ * ```
+ */
 export const deleteLikeRouteHandler: RouteHandler<
   typeof deleteLikeRoute,
   { Variables: AuthType }

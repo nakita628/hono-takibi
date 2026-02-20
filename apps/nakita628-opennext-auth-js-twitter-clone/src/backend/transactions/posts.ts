@@ -5,8 +5,20 @@ import { PaginatedPostsSchema, PostDetailSchema, PostSchema } from '@/backend/ro
 import * as PostService from '@/backend/services/post'
 import * as UserService from '@/backend/services/user'
 
-export function create(email: string, args: { body: string }) {
-  return Effect.gen(function* () {
+/**
+ * Create a new post for the authenticated user.
+ *
+ * @mermaid
+ * ```
+ * flowchart TD
+ *   A[findUser] --> B{exists?}
+ *   B -- no --> C[fail Unauthorized]
+ *   B -- yes --> D[createPost]
+ *   D --> E[validate + return]
+ * ```
+ */
+export const create = (email: string, args: { body: string }) =>
+  Effect.gen(function* () {
     const user = yield* UserService.findByEmail(email)
     if (!user) {
       return yield* Effect.fail(new UnauthorizedError({ message: 'Unauthorized' }))
@@ -28,10 +40,21 @@ export function create(email: string, args: { body: string }) {
     }
     return valid.data
   })
-}
 
-export function getAll(args: { userId?: string; page: number; limit: number }) {
-  return Effect.gen(function* () {
+/**
+ * List posts with pagination, comment counts, and like counts.
+ *
+ * @mermaid
+ * ```
+ * flowchart TD
+ *   A[compute offset] --> B[findAllPaginated]
+ *   B --> C[map posts with counts]
+ *   C --> D[buildMeta page/limit/total]
+ *   D --> E[validate + return]
+ * ```
+ */
+export const getAll = (args: { userId?: string; page: number; limit: number }) =>
+  Effect.gen(function* () {
     const offset = (args.page - 1) * args.limit
     const result = yield* PostService.findAllPaginated({
       ...(args.userId !== undefined ? { userId: args.userId } : {}),
@@ -64,10 +87,21 @@ export function getAll(args: { userId?: string; page: number; limit: number }) {
     }
     return valid.data
   })
-}
 
-export function getById(postId: string) {
-  return Effect.gen(function* () {
+/**
+ * Fetch a single post with user, comments, and likes.
+ *
+ * @mermaid
+ * ```
+ * flowchart TD
+ *   A[findByIdWithRelations] --> B{post?}
+ *   B -- no --> C[fail NotFound]
+ *   B -- yes --> D[format comments/likes/user]
+ *   D --> E[validate + return]
+ * ```
+ */
+export const getById = (postId: string) =>
+  Effect.gen(function* () {
     const post = yield* PostService.findByIdWithRelations(postId)
     if (!post) {
       return yield* Effect.fail(new NotFoundError({ message: 'Post not found' }))
@@ -99,4 +133,3 @@ export function getById(postId: string) {
     }
     return valid.data
   })
-}

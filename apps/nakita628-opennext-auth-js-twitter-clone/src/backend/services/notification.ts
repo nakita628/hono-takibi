@@ -4,6 +4,7 @@ import { DatabaseError } from '@/backend/domain'
 import { schema } from '@/db'
 import { DB } from '@/infra'
 
+/** Insert a new notification row for a user. */
 export const create = (args: { body: string; userId: string }) =>
   Effect.gen(function* () {
     const db = yield* DB
@@ -13,6 +14,7 @@ export const create = (args: { body: string; userId: string }) =>
     })
   })
 
+/** Fetch all notifications for a user, ordered newest-first. */
 export const findByUserId = (userId: string) =>
   Effect.gen(function* () {
     const db = yield* DB
@@ -26,6 +28,7 @@ export const findByUserId = (userId: string) =>
     })
   })
 
+/** Toggle the `hasNotification` flag on a user's profile. */
 export const updateUserHasNotification = (userId: string, hasNotification: boolean) =>
   Effect.gen(function* () {
     const db = yield* DB

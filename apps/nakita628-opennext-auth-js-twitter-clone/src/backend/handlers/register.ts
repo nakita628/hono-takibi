@@ -6,6 +6,19 @@ import * as UserTransaction from '@/backend/transactions/register'
 import { DBLive } from '@/infra'
 import type { AuthType } from '@/lib/auth'
 
+/**
+ * Handle `POST /register` — register a new user account.
+ *
+ * @mermaid
+ * ```
+ * flowchart LR
+ *   A[validate body] --> B[UserTransaction.create]
+ *   B --> C{match}
+ *   C --> D[201 Created]
+ *   C --> E[409 Conflict]
+ *   C --> F[503 DB error]
+ * ```
+ */
 export const postRegisterRouteHandler: RouteHandler<
   typeof postRegisterRoute,
   { Variables: AuthType }

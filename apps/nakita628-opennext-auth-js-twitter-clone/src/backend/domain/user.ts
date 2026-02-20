@@ -4,9 +4,16 @@ import type { schema } from '@/db'
 type UserRow = InferSelectModel<typeof schema.user>
 type UserProfileRow = InferSelectModel<typeof schema.userProfile>
 
+/** A `user` row joined with its optional `userProfile` row. */
 export type UserWithProfile = UserRow & { userProfile: UserProfileRow | null }
 
-export function makeFormatUser(user: UserWithProfile) {
+/**
+ * Convert a {@link UserWithProfile} into a flat API-safe object.
+ *
+ * Merges profile fields (username, bio, images) into the top-level user shape
+ * and serialises `Date` fields to ISO strings.
+ */
+export const makeFormatUser = (user: UserWithProfile) => {
   const profile = user.userProfile
   return {
     id: user.id,

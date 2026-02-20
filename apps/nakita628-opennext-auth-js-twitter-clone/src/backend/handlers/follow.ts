@@ -6,6 +6,20 @@ import * as FollowTransaction from '@/backend/transactions/follow'
 import { DBLive } from '@/infra'
 import type { AuthType } from '@/lib/auth'
 
+/**
+ * Handle `POST /follow` — follow a user.
+ *
+ * @mermaid
+ * ```
+ * flowchart LR
+ *   A[Auth check] --> B[FollowTransaction.create]
+ *   B --> C{match}
+ *   C --> D[200 OK]
+ *   C --> E[401 Unauthorized]
+ *   C --> F[404 Not Found]
+ *   C --> G[503 DB error]
+ * ```
+ */
 export const postFollowRouteHandler: RouteHandler<
   typeof postFollowRoute,
   { Variables: AuthType }
@@ -34,6 +48,19 @@ export const postFollowRouteHandler: RouteHandler<
   )
 }
 
+/**
+ * Handle `DELETE /follow` — unfollow a user.
+ *
+ * @mermaid
+ * ```
+ * flowchart LR
+ *   A[Auth check] --> B[FollowTransaction.remove]
+ *   B --> C{match}
+ *   C --> D[200 OK]
+ *   C --> E[401 Unauthorized]
+ *   C --> F[503 DB error]
+ * ```
+ */
 export const deleteFollowRouteHandler: RouteHandler<
   typeof deleteFollowRoute,
   { Variables: AuthType }

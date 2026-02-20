@@ -6,6 +6,19 @@ import * as UsersTransaction from '@/backend/transactions/users'
 import { DBLive } from '@/infra'
 import type { AuthType } from '@/lib/auth'
 
+/**
+ * Handle `GET /users/:userId` — fetch a user by ID with follow counts.
+ *
+ * @mermaid
+ * ```
+ * flowchart LR
+ *   A[param userId] --> B[UsersTransaction.getById]
+ *   B --> C{match}
+ *   C --> D[200 OK]
+ *   C --> E[404 Not Found]
+ *   C --> F[503 DB error]
+ * ```
+ */
 export const getUsersUserIdRouteHandler: RouteHandler<
   typeof getUsersUserIdRoute,
   { Variables: AuthType }
@@ -28,6 +41,18 @@ export const getUsersUserIdRouteHandler: RouteHandler<
   )
 }
 
+/**
+ * Handle `GET /users` — list all users with pagination.
+ *
+ * @mermaid
+ * ```
+ * flowchart LR
+ *   A[query params] --> B[UsersTransaction.getAll]
+ *   B --> C{match}
+ *   C --> D[200 OK]
+ *   C --> E[503 DB error]
+ * ```
+ */
 export const getUsersRouteHandler: RouteHandler<
   typeof getUsersRoute,
   { Variables: AuthType }

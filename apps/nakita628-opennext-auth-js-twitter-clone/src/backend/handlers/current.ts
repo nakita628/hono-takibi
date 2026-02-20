@@ -6,6 +6,19 @@ import * as CurrentTransaction from '@/backend/transactions/current'
 import { DBLive } from '@/infra'
 import type { AuthType } from '@/lib/auth'
 
+/**
+ * Handle `GET /current` — return the authenticated user's profile.
+ *
+ * @mermaid
+ * ```
+ * flowchart LR
+ *   A[Auth check] --> B[CurrentTransaction.get]
+ *   B --> C{match}
+ *   C --> D[200 OK]
+ *   C --> E[401 Unauthorized]
+ *   C --> F[503 DB error]
+ * ```
+ */
 export const getCurrentRouteHandler: RouteHandler<
   typeof getCurrentRoute,
   { Variables: AuthType }

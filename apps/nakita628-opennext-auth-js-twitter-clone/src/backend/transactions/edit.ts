@@ -3,7 +3,22 @@ import { UnauthorizedError, ValidationError } from '@/backend/domain'
 import { UserSchema } from '@/backend/routes'
 import * as UserService from '@/backend/services/user'
 
-export function update(
+/**
+ * Update user name and/or profile fields.
+ *
+ * @mermaid
+ * ```
+ * flowchart TD
+ *   A[findByEmail] --> B{user?}
+ *   B -- no --> C[fail Unauthorized]
+ *   B -- yes --> D{name changed?}
+ *   D -- yes --> E[updateName]
+ *   D -- no --> F[updateProfile]
+ *   E --> F
+ *   F --> G[validate + return]
+ * ```
+ */
+export const update = (
   email: string,
   args: {
     name?: string
@@ -12,8 +27,8 @@ export function update(
     coverImage?: string | null
     profileImage?: string | null
   },
-) {
-  return Effect.gen(function* () {
+) =>
+  Effect.gen(function* () {
     const user = yield* UserService.findByEmail(email)
     if (!user) {
       return yield* Effect.fail(new UnauthorizedError({ message: 'Not signed in' }))
@@ -55,4 +70,3 @@ export function update(
     }
     return valid.data
   })
-}

@@ -6,6 +6,18 @@ import * as PostsTransaction from '@/backend/transactions/posts'
 import { DBLive } from '@/infra'
 import type { AuthType } from '@/lib/auth'
 
+/**
+ * Handle `GET /posts` — list posts with pagination.
+ *
+ * @mermaid
+ * ```
+ * flowchart LR
+ *   A[query params] --> B[PostsTransaction.getAll]
+ *   B --> C{match}
+ *   C --> D[200 OK]
+ *   C --> E[503 DB error]
+ * ```
+ */
 export const getPostsRouteHandler: RouteHandler<
   typeof getPostsRoute,
   { Variables: AuthType }
@@ -31,6 +43,19 @@ export const getPostsRouteHandler: RouteHandler<
   )
 }
 
+/**
+ * Handle `POST /posts` — create a new post.
+ *
+ * @mermaid
+ * ```
+ * flowchart LR
+ *   A[Auth check] --> B[PostsTransaction.create]
+ *   B --> C{match}
+ *   C --> D[200 OK]
+ *   C --> E[401 Unauthorized]
+ *   C --> F[503 DB error]
+ * ```
+ */
 export const postPostsRouteHandler: RouteHandler<
   typeof postPostsRoute,
   { Variables: AuthType }
@@ -58,6 +83,19 @@ export const postPostsRouteHandler: RouteHandler<
   )
 }
 
+/**
+ * Handle `GET /posts/:postId` — fetch a single post with relations.
+ *
+ * @mermaid
+ * ```
+ * flowchart LR
+ *   A[param postId] --> B[PostsTransaction.getById]
+ *   B --> C{match}
+ *   C --> D[200 OK]
+ *   C --> E[404 Not Found]
+ *   C --> F[503 DB error]
+ * ```
+ */
 export const getPostsPostIdRouteHandler: RouteHandler<
   typeof getPostsPostIdRoute,
   { Variables: AuthType }

@@ -3,8 +3,20 @@ import { UnauthorizedError, ValidationError } from '@/backend/domain'
 import { CurrentUserSchema } from '@/backend/routes'
 import * as UserService from '@/backend/services/user'
 
-export function get(email: string) {
-  return Effect.gen(function* () {
+/**
+ * Fetch the current authenticated user with follow lists.
+ *
+ * @mermaid
+ * ```
+ * flowchart TD
+ *   A[findByEmailWithFollows] --> B{user?}
+ *   B -- no --> C[fail Unauthorized]
+ *   B -- yes --> D[format followers/following]
+ *   D --> E[validate + return]
+ * ```
+ */
+export const get = (email: string) =>
+  Effect.gen(function* () {
     const user = yield* UserService.findByEmailWithFollows(email)
     if (!user) {
       return yield* Effect.fail(new UnauthorizedError({ message: 'Unauthorized' }))
@@ -42,4 +54,3 @@ export function get(email: string) {
     }
     return valid.data
   })
-}

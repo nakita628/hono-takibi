@@ -6,8 +6,23 @@ import * as NotificationService from '@/backend/services/notification'
 import * as PostService from '@/backend/services/post'
 import * as UserService from '@/backend/services/user'
 
-export function create(email: string, args: { body: string; postId: string }) {
-  return Effect.gen(function* () {
+/**
+ * Create a comment and notify the post owner.
+ *
+ * @mermaid
+ * ```
+ * flowchart TD
+ *   A[findByEmail] --> B{user?}
+ *   B -- no --> C[fail Unauthorized]
+ *   B -- yes --> D[createComment]
+ *   D --> E[findPost]
+ *   E --> F[createNotification]
+ *   F --> G[updateHasNotification]
+ *   G --> H[validate + return]
+ * ```
+ */
+export const create = (email: string, args: { body: string; postId: string }) =>
+  Effect.gen(function* () {
     const user = yield* UserService.findByEmail(email)
     if (!user) {
       return yield* Effect.fail(new UnauthorizedError({ message: 'Not signed in' }))
@@ -43,4 +58,3 @@ export function create(email: string, args: { body: string; postId: string }) {
     }
     return valid.data
   })
-}

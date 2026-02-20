@@ -4,6 +4,17 @@ import { ConflictError, DatabaseError } from '@/backend/domain'
 import { schema } from '@/db'
 import { DB } from '@/infra'
 
+/**
+ * Assert that no user with the given email exists.
+ *
+ * @mermaid
+ * ```
+ * flowchart LR
+ *   A[SELECT by email] --> B{found?}
+ *   B -- yes --> C[fail ConflictError]
+ *   B -- no --> D[return null]
+ * ```
+ */
 export const exists = (args: { email: string }) =>
   Effect.gen(function* () {
     const db = yield* DB
@@ -17,6 +28,7 @@ export const exists = (args: { email: string }) =>
     return null
   })
 
+/** Find a user by email with their profile. */
 export const findByEmail = (email: string) =>
   Effect.gen(function* () {
     const db = yield* DB
@@ -30,6 +42,7 @@ export const findByEmail = (email: string) =>
     })
   })
 
+/** Find a user by email with profile, followers, and following. */
 export const findByEmailWithFollows = (email: string) =>
   Effect.gen(function* () {
     const db = yield* DB
@@ -47,6 +60,7 @@ export const findByEmailWithFollows = (email: string) =>
     })
   })
 
+/** Find a user by ID with their profile. */
 export const findById = (id: string) =>
   Effect.gen(function* () {
     const db = yield* DB
@@ -60,6 +74,7 @@ export const findById = (id: string) =>
     })
   })
 
+/** Find a user by ID with profile, followers, and following lists. */
 export const findByIdWithFollowCount = (id: string) =>
   Effect.gen(function* () {
     const db = yield* DB
@@ -77,6 +92,7 @@ export const findByIdWithFollowCount = (id: string) =>
     })
   })
 
+/** Fetch all users with profiles, ordered newest-first. */
 export const findAll = () =>
   Effect.gen(function* () {
     const db = yield* DB
@@ -90,6 +106,7 @@ export const findAll = () =>
     })
   })
 
+/** Paginated user query returning users with profiles and total count. */
 export const findAllPaginated = (args: { limit: number; offset: number }) =>
   Effect.gen(function* () {
     const db = yield* DB
@@ -109,6 +126,7 @@ export const findAllPaginated = (args: { limit: number; offset: number }) =>
     return { users, total }
   })
 
+/** Create a user profile row with a username. */
 export const createProfile = (args: { userId: string; username: string }) =>
   Effect.gen(function* () {
     const db = yield* DB
@@ -118,6 +136,7 @@ export const createProfile = (args: { userId: string; username: string }) =>
     })
   })
 
+/** Update profile fields (username, bio, images) for a user. */
 export const updateProfile = (
   userId: string,
   data: {
@@ -141,6 +160,7 @@ export const updateProfile = (
     })
   })
 
+/** Update the display name on the user table. */
 export const updateName = (id: string, name: string) =>
   Effect.gen(function* () {
     const db = yield* DB

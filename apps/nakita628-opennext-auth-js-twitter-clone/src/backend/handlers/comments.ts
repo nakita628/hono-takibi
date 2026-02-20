@@ -6,6 +6,19 @@ import * as CommentsTransaction from '@/backend/transactions/comments'
 import { DBLive } from '@/infra'
 import type { AuthType } from '@/lib/auth'
 
+/**
+ * Handle `POST /comments` — create a comment on a post.
+ *
+ * @mermaid
+ * ```
+ * flowchart LR
+ *   A[Auth check] --> B[CommentsTransaction.create]
+ *   B --> C{match}
+ *   C --> D[200 OK]
+ *   C --> E[401 Unauthorized]
+ *   C --> F[503 DB error]
+ * ```
+ */
 export const postCommentsRouteHandler: RouteHandler<
   typeof postCommentsRoute,
   { Variables: AuthType }

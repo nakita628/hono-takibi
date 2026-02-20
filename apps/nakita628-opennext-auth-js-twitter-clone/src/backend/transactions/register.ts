@@ -4,6 +4,19 @@ import { UserSchema } from '@/backend/routes'
 import * as UserService from '@/backend/services/user'
 import { auth } from '@/lib/auth'
 
+/**
+ * Register a new user account with Better Auth and create a profile.
+ *
+ * @mermaid
+ * ```
+ * flowchart TD
+ *   A[exists check] --> B{duplicate?}
+ *   B -- yes --> C[fail Conflict]
+ *   B -- no --> D[auth.signUpEmail]
+ *   D --> E[createProfile]
+ *   E --> F[validate + return]
+ * ```
+ */
 export const create = (args: { email: string; name: string; username: string; password: string }) =>
   Effect.gen(function* () {
     yield* UserService.exists({ email: args.email })

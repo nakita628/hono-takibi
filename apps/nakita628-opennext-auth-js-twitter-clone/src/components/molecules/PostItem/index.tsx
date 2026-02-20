@@ -1,7 +1,7 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
 import { formatDistanceToNowStrict } from 'date-fns'
+import { useRouter } from 'next/navigation'
 import { useCallback, useMemo } from 'react'
 import { AiFillHeart, AiOutlineHeart, AiOutlineMessage } from 'react-icons/ai'
 import { AvatarLink } from '@/components/molecules/AvatarLink'

@@ -60,7 +60,7 @@ export function useFollow(userId: string) {
     } catch {
       toast.error('Something went wrong')
     }
-  }, [currentUser, isFollowing, userId, follow, unfollow, loginModal])
+  }, [currentUser, isFollowing, userId, loginModal])
 
   return { isFollowing, toggleFollow }
 }

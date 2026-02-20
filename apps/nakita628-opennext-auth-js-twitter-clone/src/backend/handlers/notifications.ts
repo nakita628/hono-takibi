@@ -6,6 +6,18 @@ import * as NotificationsTransaction from '@/backend/transactions/notifications'
 import { DBLive } from '@/infra'
 import type { AuthType } from '@/lib/auth'
 
+/**
+ * Handle `GET /notifications/:userId` — fetch notifications for a user.
+ *
+ * @mermaid
+ * ```
+ * flowchart LR
+ *   A[param userId] --> B[NotificationsTransaction.getByUserId]
+ *   B --> C{match}
+ *   C --> D[200 OK]
+ *   C --> E[503 DB error]
+ * ```
+ */
 export const getNotificationsUserIdRouteHandler: RouteHandler<
   typeof getNotificationsUserIdRoute,
   { Variables: AuthType }
@@ -27,6 +39,18 @@ export const getNotificationsUserIdRouteHandler: RouteHandler<
   )
 }
 
+/**
+ * Handle `POST /notifications` — mark notifications as read.
+ *
+ * @mermaid
+ * ```
+ * flowchart LR
+ *   A[body userId] --> B[NotificationsTransaction.markAsRead]
+ *   B --> C{match}
+ *   C --> D[200 OK]
+ *   C --> E[503 DB error]
+ * ```
+ */
 export const postNotificationsRouteHandler: RouteHandler<
   typeof postNotificationsRoute,
   { Variables: AuthType }

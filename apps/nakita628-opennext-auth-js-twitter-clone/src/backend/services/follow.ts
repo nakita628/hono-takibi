@@ -4,6 +4,7 @@ import { DatabaseError } from '@/backend/domain'
 import { schema } from '@/db'
 import { DB } from '@/infra'
 
+/** Insert a follow relationship between two users. */
 export const create = (args: { followerId: string; followingId: string }) =>
   Effect.gen(function* () {
     const db = yield* DB
@@ -13,6 +14,7 @@ export const create = (args: { followerId: string; followingId: string }) =>
     })
   })
 
+/** Delete a follow relationship between two users. */
 export const remove = (args: { followerId: string; followingId: string }) =>
   Effect.gen(function* () {
     const db = yield* DB

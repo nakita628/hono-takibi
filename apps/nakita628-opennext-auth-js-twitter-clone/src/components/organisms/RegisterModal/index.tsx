@@ -80,7 +80,11 @@ export function RegisterModal() {
     <div className='mt-4 text-center text-neutral-400'>
       <p>
         Already have an account?{' '}
-        <button type='button' onClick={onToggle} className='text-white cursor-pointer hover:underline'>
+        <button
+          type='button'
+          onClick={onToggle}
+          className='text-white cursor-pointer hover:underline'
+        >
           Sign in
         </button>
       </p>

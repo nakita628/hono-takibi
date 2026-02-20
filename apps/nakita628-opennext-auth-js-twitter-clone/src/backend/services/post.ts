@@ -4,6 +4,7 @@ import { DatabaseError } from '@/backend/domain'
 import { schema } from '@/db'
 import { DB } from '@/infra'
 
+/** Insert a new post row and return the created record. */
 export const create = (args: { body: string; userId: string }) =>
   Effect.gen(function* () {
     const db = yield* DB
@@ -13,6 +14,7 @@ export const create = (args: { body: string; userId: string }) =>
     })
   })
 
+/** Find a post by its ID (no relations). */
 export const findById = (id: string) =>
   Effect.gen(function* () {
     const db = yield* DB
@@ -25,6 +27,7 @@ export const findById = (id: string) =>
     })
   })
 
+/** Find a post by ID with user, comments (+ their users), and likes. */
 export const findByIdWithRelations = (id: string) =>
   Effect.gen(function* () {
     const db = yield* DB
@@ -51,6 +54,7 @@ export const findByIdWithRelations = (id: string) =>
     })
   })
 
+/** Find a post by ID with its likes relation. */
 export const findByIdWithLikes = (id: string) =>
   Effect.gen(function* () {
     const db = yield* DB
@@ -64,6 +68,7 @@ export const findByIdWithLikes = (id: string) =>
     })
   })
 
+/** Fetch all posts (optionally filtered by userId) with user, comments, and likes. */
 export const findAllWithRelations = (userId?: string) =>
   Effect.gen(function* () {
     const db = yield* DB
@@ -84,6 +89,23 @@ export const findAllWithRelations = (userId?: string) =>
     })
   })
 
+/**
+ * Paginated post query with aggregated comment/like counts.
+ *
+ * Runs two parallel queries: one for the page of posts (with user)
+ * and one for the total count, then batch-fetches comment and like
+ * counts for the returned post IDs.
+ *
+ * @mermaid
+ * ```
+ * flowchart TD
+ *   A[Build where clause] --> B[Parallel: findMany + count]
+ *   B --> C{posts empty?}
+ *   C -- yes --> D[Return empty]
+ *   C -- no --> E[Batch: comment + like counts]
+ *   E --> F[Return posts + counts]
+ * ```
+ */
 export const findAllPaginated = (args: { userId?: string; limit: number; offset: number }) =>
   Effect.gen(function* () {
     const db = yield* DB

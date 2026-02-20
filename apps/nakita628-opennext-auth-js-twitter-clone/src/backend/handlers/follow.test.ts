@@ -149,9 +149,7 @@ describe('Follow', () => {
 
     it('should pass correct arguments to transaction', async () => {
       mockGetSession.mockResolvedValue(mockSession())
-      vi.mocked(FollowTransaction.create).mockReturnValue(
-        Effect.succeed({ message: 'Success' }),
-      )
+      vi.mocked(FollowTransaction.create).mockReturnValue(Effect.succeed({ message: 'Success' }))
 
       const userId = faker.string.uuid()
       await app.request('/api/follow', {

@@ -6,6 +6,19 @@ import * as EditTransaction from '@/backend/transactions/edit'
 import { DBLive } from '@/infra'
 import type { AuthType } from '@/lib/auth'
 
+/**
+ * Handle `PATCH /edit` — update the authenticated user's profile.
+ *
+ * @mermaid
+ * ```
+ * flowchart LR
+ *   A[Auth check] --> B[EditTransaction.update]
+ *   B --> C{match}
+ *   C --> D[200 OK]
+ *   C --> E[401 Unauthorized]
+ *   C --> F[503 DB error]
+ * ```
+ */
 export const patchEditRouteHandler: RouteHandler<
   typeof patchEditRoute,
   { Variables: AuthType }

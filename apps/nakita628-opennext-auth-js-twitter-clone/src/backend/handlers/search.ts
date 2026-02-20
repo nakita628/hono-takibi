@@ -6,6 +6,18 @@ import * as SearchTransaction from '@/backend/transactions/search'
 import { DBLive } from '@/infra'
 import type { AuthType } from '@/lib/auth'
 
+/**
+ * Handle `GET /search` — full-text search across posts.
+ *
+ * @mermaid
+ * ```
+ * flowchart LR
+ *   A[query params] --> B[SearchTransaction.search]
+ *   B --> C{match}
+ *   C --> D[200 OK]
+ *   C --> E[503 DB error]
+ * ```
+ */
 export const getSearchRouteHandler: RouteHandler<
   typeof getSearchRoute,
   { Variables: AuthType }

@@ -6,30 +6,48 @@ import * as NotificationService from '@/backend/services/notification'
 import * as PostService from '@/backend/services/post'
 import * as UserService from '@/backend/services/user'
 
-function formatPostWithLikes(post: {
+/** Format a post with its likes into API-safe ISO-string dates. */
+const formatPostWithLikes = (post: {
   id: string
   body: string
   createdAt: Date
   updatedAt: Date
   userId: string
   likes: { userId: string; postId: string; createdAt: Date }[]
-}) {
-  return {
-    id: post.id,
-    body: post.body,
-    createdAt: post.createdAt.toISOString(),
-    updatedAt: post.updatedAt.toISOString(),
-    userId: post.userId,
-    likes: post.likes.map((l) => ({
-      userId: l.userId,
-      postId: l.postId,
-      createdAt: l.createdAt.toISOString(),
-    })),
-  }
-}
+}) => ({
+  id: post.id,
+  body: post.body,
+  createdAt: post.createdAt.toISOString(),
+  updatedAt: post.updatedAt.toISOString(),
+  userId: post.userId,
+  likes: post.likes.map((l) => ({
+    userId: l.userId,
+    postId: l.postId,
+    createdAt: l.createdAt.toISOString(),
+  })),
+})
 
-export function create(email: string, args: { postId: string }) {
-  return Effect.gen(function* () {
+/**
+ * Like a post (with duplicate check) and notify the post owner.
+ *
+ * @mermaid
+ * ```
+ * flowchart TD
+ *   A[findUser] --> B{exists?}
+ *   B -- no --> C[fail Unauthorized]
+ *   B -- yes --> D[findPostWithLikes]
+ *   D --> E{post?}
+ *   E -- no --> F[fail NotFound]
+ *   E -- yes --> G{already liked?}
+ *   G -- yes --> H[fail Validation]
+ *   G -- no --> I[createLike]
+ *   I --> J[notify owner]
+ *   J --> K[refetch post]
+ *   K --> L[validate + return]
+ * ```
+ */
+export const create = (email: string, args: { postId: string }) =>
+  Effect.gen(function* () {
     const user = yield* UserService.findByEmail(email)
     if (!user) {
       return yield* Effect.fail(new UnauthorizedError({ message: 'Not signed in' }))
@@ -66,10 +84,22 @@ export function create(email: string, args: { postId: string }) {
     }
     return valid.data
   })
-}
 
-export function remove(email: string, args: { postId: string }) {
-  return Effect.gen(function* () {
+/**
+ * Unlike a post and return the updated post with likes.
+ *
+ * @mermaid
+ * ```
+ * flowchart TD
+ *   A[findUser] --> B{exists?}
+ *   B -- no --> C[fail Unauthorized]
+ *   B -- yes --> D[removeLike]
+ *   D --> E[refetch post]
+ *   E --> F[validate + return]
+ * ```
+ */
+export const remove = (email: string, args: { postId: string }) =>
+  Effect.gen(function* () {
     const user = yield* UserService.findByEmail(email)
     if (!user) {
       return yield* Effect.fail(new UnauthorizedError({ message: 'Not signed in' }))
@@ -89,4 +119,3 @@ export function remove(email: string, args: { postId: string }) {
     }
     return valid.data
   })
-}
