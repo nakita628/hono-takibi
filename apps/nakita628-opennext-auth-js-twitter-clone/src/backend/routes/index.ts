@@ -336,6 +336,10 @@ export const postCommentsRoute = createRoute({
       description: 'Server error',
       content: { 'application/json': { schema: MessageResponseSchema } },
     },
+    503: {
+      description: 'Service unavailable.',
+      content: { 'application/json': { schema: MessageResponseSchema } },
+    },
   },
 })
 
@@ -355,6 +359,10 @@ export const getCurrentRoute = createRoute({
     },
     500: {
       description: 'Server error',
+      content: { 'application/json': { schema: MessageResponseSchema } },
+    },
+    503: {
+      description: 'Service unavailable.',
       content: { 'application/json': { schema: MessageResponseSchema } },
     },
   },
@@ -385,6 +393,10 @@ export const patchEditRoute = createRoute({
       description: 'Server error',
       content: { 'application/json': { schema: MessageResponseSchema } },
     },
+    503: {
+      description: 'Service unavailable.',
+      content: { 'application/json': { schema: MessageResponseSchema } },
+    },
   },
 })
 
@@ -405,12 +417,20 @@ export const postFollowRoute = createRoute({
       description: 'Access is unauthorized.',
       content: { 'application/json': { schema: MessageResponseSchema } },
     },
+    404: {
+      description: 'The server cannot find the requested resource.',
+      content: { 'application/json': { schema: MessageResponseSchema } },
+    },
     422: {
       description: 'Client error',
       content: { 'application/json': { schema: ValidationErrorSchema } },
     },
     500: {
       description: 'Server error',
+      content: { 'application/json': { schema: MessageResponseSchema } },
+    },
+    503: {
+      description: 'Service unavailable.',
       content: { 'application/json': { schema: MessageResponseSchema } },
     },
   },
@@ -441,6 +461,10 @@ export const deleteFollowRoute = createRoute({
       description: 'Server error',
       content: { 'application/json': { schema: MessageResponseSchema } },
     },
+    503: {
+      description: 'Service unavailable.',
+      content: { 'application/json': { schema: MessageResponseSchema } },
+    },
   },
 })
 
@@ -461,12 +485,20 @@ export const postLikeRoute = createRoute({
       description: 'Access is unauthorized.',
       content: { 'application/json': { schema: MessageResponseSchema } },
     },
+    404: {
+      description: 'The server cannot find the requested resource.',
+      content: { 'application/json': { schema: MessageResponseSchema } },
+    },
     422: {
       description: 'Client error',
       content: { 'application/json': { schema: ValidationErrorSchema } },
     },
     500: {
       description: 'Server error',
+      content: { 'application/json': { schema: MessageResponseSchema } },
+    },
+    503: {
+      description: 'Service unavailable.',
       content: { 'application/json': { schema: MessageResponseSchema } },
     },
   },
@@ -489,12 +521,20 @@ export const deleteLikeRoute = createRoute({
       description: 'Access is unauthorized.',
       content: { 'application/json': { schema: MessageResponseSchema } },
     },
+    404: {
+      description: 'The server cannot find the requested resource.',
+      content: { 'application/json': { schema: MessageResponseSchema } },
+    },
     422: {
       description: 'Client error',
       content: { 'application/json': { schema: ValidationErrorSchema } },
     },
     500: {
       description: 'Server error',
+      content: { 'application/json': { schema: MessageResponseSchema } },
+    },
+    503: {
+      description: 'Service unavailable.',
       content: { 'application/json': { schema: MessageResponseSchema } },
     },
   },
@@ -519,6 +559,10 @@ export const getNotificationsUserIdRoute = createRoute({
       description: 'Server error',
       content: { 'application/json': { schema: MessageResponseSchema } },
     },
+    503: {
+      description: 'Service unavailable.',
+      content: { 'application/json': { schema: MessageResponseSchema } },
+    },
   },
 })
 
@@ -541,6 +585,10 @@ export const postNotificationsRoute = createRoute({
       description: 'Server error',
       content: { 'application/json': { schema: MessageResponseSchema } },
     },
+    503: {
+      description: 'Service unavailable.',
+      content: { 'application/json': { schema: MessageResponseSchema } },
+    },
   },
 })
 
@@ -561,6 +609,10 @@ export const getPostsRoute = createRoute({
     },
     500: {
       description: 'Server error',
+      content: { 'application/json': { schema: MessageResponseSchema } },
+    },
+    503: {
+      description: 'Service unavailable.',
       content: { 'application/json': { schema: MessageResponseSchema } },
     },
   },
@@ -591,6 +643,10 @@ export const postPostsRoute = createRoute({
       description: 'Server error',
       content: { 'application/json': { schema: MessageResponseSchema } },
     },
+    503: {
+      description: 'Service unavailable.',
+      content: { 'application/json': { schema: MessageResponseSchema } },
+    },
   },
 })
 
@@ -605,12 +661,20 @@ export const getPostsPostIdRoute = createRoute({
       description: 'The request has succeeded.',
       content: { 'application/json': { schema: PostDetailSchema } },
     },
+    404: {
+      description: 'The server cannot find the requested resource.',
+      content: { 'application/json': { schema: MessageResponseSchema } },
+    },
     422: {
       description: 'Client error',
       content: { 'application/json': { schema: ValidationErrorSchema } },
     },
     500: {
       description: 'Server error',
+      content: { 'application/json': { schema: MessageResponseSchema } },
+    },
+    503: {
+      description: 'Service unavailable.',
       content: { 'application/json': { schema: MessageResponseSchema } },
     },
   },
@@ -675,6 +739,10 @@ export const getUsersUserIdRoute = createRoute({
       description: 'Server error',
       content: { 'application/json': { schema: MessageResponseSchema } },
     },
+    503: {
+      description: 'Service unavailable.',
+      content: { 'application/json': { schema: MessageResponseSchema } },
+    },
   },
 })
 
@@ -690,6 +758,10 @@ export const getUsersRoute = createRoute({
     },
     500: {
       description: 'Server error',
+      content: { 'application/json': { schema: MessageResponseSchema } },
+    },
+    503: {
+      description: 'Service unavailable.',
       content: { 'application/json': { schema: MessageResponseSchema } },
     },
   },

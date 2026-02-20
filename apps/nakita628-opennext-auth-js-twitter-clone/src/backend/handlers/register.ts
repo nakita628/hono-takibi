@@ -1,6 +1,6 @@
 import type { RouteHandler } from '@hono/zod-openapi'
 import { Effect } from 'effect'
-import { ConflictError, DatabaseError } from '@/backend/domain'
+import { ConflictError, DatabaseError, ValidationError } from '@/backend/domain'
 import type { AuthType } from '@/lib/auth'
 import type { postRegisterRoute } from '@/backend/routes'
 import * as UserTransaction from '@/backend/transactions/register'
@@ -19,6 +19,7 @@ export const postRegisterRouteHandler: RouteHandler<
         onSuccess: (user) => c.json(user, 201),
         onFailure: (e) => {
           if (e instanceof ConflictError) return c.json({ message: e.message }, 409)
+          if (e instanceof ValidationError) return c.json({ message: e.message }, 500)
           if (e instanceof DatabaseError) return c.json({ message: e.message }, 503)
           return c.json({ message: 'Internal server error' }, 500)
         },

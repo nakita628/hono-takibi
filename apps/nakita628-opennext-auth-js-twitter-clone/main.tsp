@@ -200,6 +200,9 @@ op postComments(...Parameters.PostIdQuery, @body body: CreateCommentRequest): Co
 } | {
   @statusCode statusCode: 500;
   @body body: MessageResponse;
+} | {
+  @statusCode statusCode: 503;
+  @body body: MessageResponse;
 };
 
 @tag("current")
@@ -207,6 +210,9 @@ op postComments(...Parameters.PostIdQuery, @body body: CreateCommentRequest): Co
 @get
 op getCurrentUser(): CurrentUser | (UnauthorizedResponse & MessageResponse) | {
   @statusCode statusCode: 500;
+  @body body: MessageResponse;
+} | {
+  @statusCode statusCode: 503;
   @body body: MessageResponse;
 };
 
@@ -219,6 +225,9 @@ op patchEdit(@body body: EditUserRequest): User | (UnauthorizedResponse & Messag
 } | {
   @statusCode statusCode: 500;
   @body body: MessageResponse;
+} | {
+  @statusCode statusCode: 503;
+  @body body: MessageResponse;
 };
 
 @tag("follow")
@@ -230,16 +239,25 @@ op deleteFollowUserId(@body body: FollowUserRequest): MessageResponse | (Unautho
 } | {
   @statusCode statusCode: 500;
   @body body: MessageResponse;
+} | {
+  @statusCode statusCode: 503;
+  @body body: MessageResponse;
 };
 
 @tag("follow")
 @route("/follow")
 @post
 op postFollowUesrId(@body body: FollowUserRequest): MessageResponse | (UnauthorizedResponse & MessageResponse) | {
+  @statusCode statusCode: 404;
+  @body body: MessageResponse;
+} | {
   @statusCode statusCode: 422;
   @body body: ValidationError;
 } | {
   @statusCode statusCode: 500;
+  @body body: MessageResponse;
+} | {
+  @statusCode statusCode: 503;
   @body body: MessageResponse;
 };
 
@@ -247,10 +265,16 @@ op postFollowUesrId(@body body: FollowUserRequest): MessageResponse | (Unauthori
 @route("/like")
 @delete
 op deleteLikePostId(@body body: LikePostRequest): PostWithLikes | (UnauthorizedResponse & MessageResponse) | {
+  @statusCode statusCode: 404;
+  @body body: MessageResponse;
+} | {
   @statusCode statusCode: 422;
   @body body: ValidationError;
 } | {
   @statusCode statusCode: 500;
+  @body body: MessageResponse;
+} | {
+  @statusCode statusCode: 503;
   @body body: MessageResponse;
 };
 
@@ -258,10 +282,16 @@ op deleteLikePostId(@body body: LikePostRequest): PostWithLikes | (UnauthorizedR
 @route("/like")
 @post
 op postLikePostId(@body body: LikePostRequest): PostWithLikes | (UnauthorizedResponse & MessageResponse) | {
+  @statusCode statusCode: 404;
+  @body body: MessageResponse;
+} | {
   @statusCode statusCode: 422;
   @body body: ValidationError;
 } | {
   @statusCode statusCode: 500;
+  @body body: MessageResponse;
+} | {
+  @statusCode statusCode: 503;
   @body body: MessageResponse;
 };
 
@@ -274,6 +304,9 @@ op getNotificationsUserId(...Parameters.UserIdPath): Body<Notification[]> | {
 } | {
   @statusCode statusCode: 500;
   @body body: MessageResponse;
+} | {
+  @statusCode statusCode: 503;
+  @body body: MessageResponse;
 };
 
 @tag("notifications")
@@ -284,6 +317,9 @@ op postNotificationsUserId(@body body: string): MessageResponse | {
   @body body: ValidationError;
 } | {
   @statusCode statusCode: 500;
+  @body body: MessageResponse;
+} | {
+  @statusCode statusCode: 503;
   @body body: MessageResponse;
 };
 
@@ -296,6 +332,9 @@ op getPosts(...Parameters.UserIdQuery): Body<PostWithDetails[]> | {
 } | {
   @statusCode statusCode: 500;
   @body body: MessageResponse;
+} | {
+  @statusCode statusCode: 503;
+  @body body: MessageResponse;
 };
 
 @tag("posts")
@@ -307,16 +346,25 @@ op postPosts(@body body: CreatePostRequest): Post | (UnauthorizedResponse & Mess
 } | {
   @statusCode statusCode: 500;
   @body body: MessageResponse;
+} | {
+  @statusCode statusCode: 503;
+  @body body: MessageResponse;
 };
 
 @tag("posts")
 @route("/posts/{postId}")
 @get
 op getPostsPostId(...Parameters.PostIdPath): PostDetail | {
+  @statusCode statusCode: 404;
+  @body body: MessageResponse;
+} | {
   @statusCode statusCode: 422;
   @body body: ValidationError;
 } | {
   @statusCode statusCode: 500;
+  @body body: MessageResponse;
+} | {
+  @statusCode statusCode: 503;
   @body body: MessageResponse;
 };
 
@@ -350,6 +398,9 @@ op getUserUserId(...Parameters.UserIdPath): UserWithFollowCount | (NotFoundRespo
 } | {
   @statusCode statusCode: 500;
   @body body: MessageResponse;
+} | {
+  @statusCode statusCode: 503;
+  @body body: MessageResponse;
 };
 
 @tag("users")
@@ -357,6 +408,9 @@ op getUserUserId(...Parameters.UserIdPath): UserWithFollowCount | (NotFoundRespo
 @get
 op getUsers(): Body<User[]> | {
   @statusCode statusCode: 500;
+  @body body: MessageResponse;
+} | {
+  @statusCode statusCode: 503;
   @body body: MessageResponse;
 };
 

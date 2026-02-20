@@ -1,6 +1,5 @@
 'use client'
 
-import Image from 'next/image'
 import { useCallback } from 'react'
 import { useDropzone } from 'react-dropzone'
 
@@ -49,7 +48,7 @@ export function ImageUpload({ value, disabled, onChange, label }: Props) {
       <input {...getInputProps()} />
       {value ? (
         <div className='flex items-center justify-center'>
-          <Image src={value} height={100} width={100} alt='Uploaded image' />
+          <img src={value} height={100} width={100} alt='Uploaded image' />
         </div>
       ) : (
         <p className='text-white'>{label}</p>

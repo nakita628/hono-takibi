@@ -1,6 +1,5 @@
 'use client'
 
-import Image from 'next/image'
 import { Avatar } from '@/components/atoms/Avatar'
 import { useGetUsersUserId } from '@/hooks/swr'
 
@@ -12,14 +11,13 @@ export function UserHero({ userId }: Props) {
   const { data: fetchedUser } = useGetUsersUserId({ param: { userId } })
 
   return (
-    <div className='pb-16'>
+    <div>
       <div className='bg-neutral-700 h-44 relative'>
         {fetchedUser?.coverImage && (
-          <Image
+          <img
             src={fetchedUser.coverImage}
-            fill
             alt='Cover Image'
-            style={{ objectFit: 'cover' }}
+            className='absolute inset-0 w-full h-full object-cover'
           />
         )}
         <div className='absolute -bottom-16 left-4'>

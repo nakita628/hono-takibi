@@ -15,7 +15,7 @@ OpenNext Twitter Clone API
 ```bash
 hono request \
   -X POST \
-  -P /comments \
+  -P /api/comments \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
   -d '{
@@ -90,6 +90,14 @@ hono request \
 }
 ```
 
+> 503 Response
+
+```json
+{
+  "message": "string"
+}
+```
+
 <h3 id="postcomments-responses">Responses</h3>
 
 |Status|Meaning|Description|Schema|
@@ -98,6 +106,7 @@ hono request \
 |401|Unauthorized|Access is unauthorized.|[MessageResponse](#schemamessageresponse)|
 |422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
 |500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
+|503|Service Unavailable|Service unavailable.|[MessageResponse](#schemamessageresponse)|
 
 <aside class="success">
 This operation does not require authentication
@@ -114,7 +123,7 @@ This operation does not require authentication
 ```bash
 hono request \
   -X GET \
-  -P /current \
+  -P /api/current \
   -H 'Accept: application/json' \
   src/app/api/[[...route]]/route.ts
 ```
@@ -167,6 +176,14 @@ hono request \
 }
 ```
 
+> 503 Response
+
+```json
+{
+  "message": "string"
+}
+```
+
 <h3 id="getcurrentuser-responses">Responses</h3>
 
 |Status|Meaning|Description|Schema|
@@ -174,6 +191,7 @@ hono request \
 |200|OK|The request has succeeded.|[CurrentUser](#schemacurrentuser)|
 |401|Unauthorized|Access is unauthorized.|[MessageResponse](#schemamessageresponse)|
 |500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
+|503|Service Unavailable|Service unavailable.|[MessageResponse](#schemamessageresponse)|
 
 <aside class="success">
 This operation does not require authentication
@@ -190,7 +208,7 @@ This operation does not require authentication
 ```bash
 hono request \
   -X PATCH \
-  -P /edit \
+  -P /api/edit \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
   -d '{
@@ -282,6 +300,14 @@ hono request \
 }
 ```
 
+> 503 Response
+
+```json
+{
+  "message": "string"
+}
+```
+
 <h3 id="patchedit-responses">Responses</h3>
 
 |Status|Meaning|Description|Schema|
@@ -290,6 +316,7 @@ hono request \
 |401|Unauthorized|Access is unauthorized.|[MessageResponse](#schemamessageresponse)|
 |422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
 |500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
+|503|Service Unavailable|Service unavailable.|[MessageResponse](#schemamessageresponse)|
 
 <aside class="success">
 This operation does not require authentication
@@ -306,7 +333,7 @@ This operation does not require authentication
 ```bash
 hono request \
   -X POST \
-  -P /follow \
+  -P /api/follow \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
   -d '{
@@ -350,6 +377,14 @@ hono request \
 }
 ```
 
+> 404 Response
+
+```json
+{
+  "message": "string"
+}
+```
+
 > 422 Response
 
 ```json
@@ -375,14 +410,24 @@ hono request \
 }
 ```
 
+> 503 Response
+
+```json
+{
+  "message": "string"
+}
+```
+
 <h3 id="postfollowuesrid-responses">Responses</h3>
 
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
 |200|OK|The request has succeeded.|[MessageResponse](#schemamessageresponse)|
 |401|Unauthorized|Access is unauthorized.|[MessageResponse](#schemamessageresponse)|
+|404|Not Found|The server cannot find the requested resource.|[MessageResponse](#schemamessageresponse)|
 |422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
 |500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
+|503|Service Unavailable|Service unavailable.|[MessageResponse](#schemamessageresponse)|
 
 <aside class="success">
 This operation does not require authentication
@@ -397,7 +442,7 @@ This operation does not require authentication
 ```bash
 hono request \
   -X DELETE \
-  -P /follow \
+  -P /api/follow \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
   -d '{
@@ -466,6 +511,14 @@ hono request \
 }
 ```
 
+> 503 Response
+
+```json
+{
+  "message": "string"
+}
+```
+
 <h3 id="deletefollowuserid-responses">Responses</h3>
 
 |Status|Meaning|Description|Schema|
@@ -474,6 +527,7 @@ hono request \
 |401|Unauthorized|Access is unauthorized.|[MessageResponse](#schemamessageresponse)|
 |422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
 |500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
+|503|Service Unavailable|Service unavailable.|[MessageResponse](#schemamessageresponse)|
 
 <aside class="success">
 This operation does not require authentication
@@ -490,7 +544,7 @@ This operation does not require authentication
 ```bash
 hono request \
   -X POST \
-  -P /like \
+  -P /api/like \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
   -d '{
@@ -545,6 +599,14 @@ hono request \
 }
 ```
 
+> 404 Response
+
+```json
+{
+  "message": "string"
+}
+```
+
 > 422 Response
 
 ```json
@@ -570,14 +632,24 @@ hono request \
 }
 ```
 
+> 503 Response
+
+```json
+{
+  "message": "string"
+}
+```
+
 <h3 id="postlikepostid-responses">Responses</h3>
 
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
 |200|OK|The request has succeeded.|[PostWithLikes](#schemapostwithlikes)|
 |401|Unauthorized|Access is unauthorized.|[MessageResponse](#schemamessageresponse)|
+|404|Not Found|The server cannot find the requested resource.|[MessageResponse](#schemamessageresponse)|
 |422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
 |500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
+|503|Service Unavailable|Service unavailable.|[MessageResponse](#schemamessageresponse)|
 
 <aside class="success">
 This operation does not require authentication
@@ -592,7 +664,7 @@ This operation does not require authentication
 ```bash
 hono request \
   -X DELETE \
-  -P /like \
+  -P /api/like \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
   -d '{
@@ -647,6 +719,14 @@ hono request \
 }
 ```
 
+> 404 Response
+
+```json
+{
+  "message": "string"
+}
+```
+
 > 422 Response
 
 ```json
@@ -672,14 +752,24 @@ hono request \
 }
 ```
 
+> 503 Response
+
+```json
+{
+  "message": "string"
+}
+```
+
 <h3 id="deletelikepostid-responses">Responses</h3>
 
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
 |200|OK|The request has succeeded.|[PostWithLikes](#schemapostwithlikes)|
 |401|Unauthorized|Access is unauthorized.|[MessageResponse](#schemamessageresponse)|
+|404|Not Found|The server cannot find the requested resource.|[MessageResponse](#schemamessageresponse)|
 |422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
 |500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
+|503|Service Unavailable|Service unavailable.|[MessageResponse](#schemamessageresponse)|
 
 <aside class="success">
 This operation does not require authentication
@@ -696,7 +786,7 @@ This operation does not require authentication
 ```bash
 hono request \
   -X GET \
-  -P /notifications/{userId} \
+  -P /api/notifications/{userId} \
   -H 'Accept: application/json' \
   src/app/api/[[...route]]/route.ts
 ```
@@ -749,6 +839,14 @@ hono request \
 }
 ```
 
+> 503 Response
+
+```json
+{
+  "message": "string"
+}
+```
+
 <h3 id="getnotificationsuserid-responses">Responses</h3>
 
 |Status|Meaning|Description|Schema|
@@ -756,6 +854,7 @@ hono request \
 |200|OK|The request has succeeded.|Inline|
 |422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
 |500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
+|503|Service Unavailable|Service unavailable.|[MessageResponse](#schemamessageresponse)|
 
 <h3 id="getnotificationsuserid-responseschema">Response Schema</h3>
 
@@ -782,7 +881,7 @@ This operation does not require authentication
 ```bash
 hono request \
   -X POST \
-  -P /notifications \
+  -P /api/notifications \
   -H 'Accept: application/json' \
   src/app/api/[[...route]]/route.ts
 ```
@@ -824,6 +923,14 @@ hono request \
 }
 ```
 
+> 503 Response
+
+```json
+{
+  "message": "string"
+}
+```
+
 <h3 id="postnotificationsuserid-responses">Responses</h3>
 
 |Status|Meaning|Description|Schema|
@@ -831,6 +938,7 @@ hono request \
 |200|OK|The request has succeeded.|[MessageResponse](#schemamessageresponse)|
 |422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
 |500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
+|503|Service Unavailable|Service unavailable.|[MessageResponse](#schemamessageresponse)|
 
 <aside class="success">
 This operation does not require authentication
@@ -847,7 +955,7 @@ This operation does not require authentication
 ```bash
 hono request \
   -X GET \
-  -P /posts \
+  -P /api/posts \
   -H 'Accept: application/json' \
   src/app/api/[[...route]]/route.ts
 ```
@@ -858,7 +966,7 @@ hono request \
 
 |Name|In|Type|Required|Description|
 |---|---|---|---|---|
-|userId|query|string(uuid)|true|none|
+|userId|query|string(uuid)|false|none|
 
 > Example responses
 
@@ -932,6 +1040,14 @@ hono request \
 }
 ```
 
+> 503 Response
+
+```json
+{
+  "message": "string"
+}
+```
+
 <h3 id="getposts-responses">Responses</h3>
 
 |Status|Meaning|Description|Schema|
@@ -939,6 +1055,7 @@ hono request \
 |200|OK|The request has succeeded.|Inline|
 |422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
 |500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
+|503|Service Unavailable|Service unavailable.|[MessageResponse](#schemamessageresponse)|
 
 <h3 id="getposts-responseschema">Response Schema</h3>
 
@@ -990,7 +1107,7 @@ This operation does not require authentication
 ```bash
 hono request \
   -X POST \
-  -P /posts \
+  -P /api/posts \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
   -d '{
@@ -1063,6 +1180,14 @@ hono request \
 }
 ```
 
+> 503 Response
+
+```json
+{
+  "message": "string"
+}
+```
+
 <h3 id="postposts-responses">Responses</h3>
 
 |Status|Meaning|Description|Schema|
@@ -1071,6 +1196,7 @@ hono request \
 |401|Unauthorized|Access is unauthorized.|[MessageResponse](#schemamessageresponse)|
 |422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
 |500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
+|503|Service Unavailable|Service unavailable.|[MessageResponse](#schemamessageresponse)|
 
 <aside class="success">
 This operation does not require authentication
@@ -1085,7 +1211,7 @@ This operation does not require authentication
 ```bash
 hono request \
   -X GET \
-  -P /posts/{postId} \
+  -P /api/posts/{postId} \
   -H 'Accept: application/json' \
   src/app/api/[[...route]]/route.ts
 ```
@@ -1145,6 +1271,14 @@ hono request \
 }
 ```
 
+> 404 Response
+
+```json
+{
+  "message": "string"
+}
+```
+
 > 422 Response
 
 ```json
@@ -1170,13 +1304,23 @@ hono request \
 }
 ```
 
+> 503 Response
+
+```json
+{
+  "message": "string"
+}
+```
+
 <h3 id="getpostspostid-responses">Responses</h3>
 
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
 |200|OK|The request has succeeded.|[PostDetail](#schemapostdetail)|
+|404|Not Found|The server cannot find the requested resource.|[MessageResponse](#schemamessageresponse)|
 |422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
 |500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
+|503|Service Unavailable|Service unavailable.|[MessageResponse](#schemamessageresponse)|
 
 <aside class="success">
 This operation does not require authentication
@@ -1193,7 +1337,7 @@ This operation does not require authentication
 ```bash
 hono request \
   -X POST \
-  -P /register \
+  -P /api/register \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
   -d '{
@@ -1324,7 +1468,7 @@ This operation does not require authentication
 ```bash
 hono request \
   -X GET \
-  -P /users/{userId} \
+  -P /api/users/{userId} \
   -H 'Accept: application/json' \
   src/app/api/[[...route]]/route.ts
 ```
@@ -1395,6 +1539,14 @@ hono request \
 }
 ```
 
+> 503 Response
+
+```json
+{
+  "message": "string"
+}
+```
+
 <h3 id="getuseruserid-responses">Responses</h3>
 
 |Status|Meaning|Description|Schema|
@@ -1403,6 +1555,7 @@ hono request \
 |404|Not Found|The server cannot find the requested resource.|[MessageResponse](#schemamessageresponse)|
 |422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
 |500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
+|503|Service Unavailable|Service unavailable.|[MessageResponse](#schemamessageresponse)|
 
 <aside class="success">
 This operation does not require authentication
@@ -1417,7 +1570,7 @@ This operation does not require authentication
 ```bash
 hono request \
   -X GET \
-  -P /users \
+  -P /api/users \
   -H 'Accept: application/json' \
   src/app/api/[[...route]]/route.ts
 ```
@@ -1455,12 +1608,21 @@ hono request \
 }
 ```
 
+> 503 Response
+
+```json
+{
+  "message": "string"
+}
+```
+
 <h3 id="getusers-responses">Responses</h3>
 
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
 |200|OK|The request has succeeded.|Inline|
 |500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
+|503|Service Unavailable|Service unavailable.|[MessageResponse](#schemamessageresponse)|
 
 <h3 id="getusers-responseschema">Response Schema</h3>
 

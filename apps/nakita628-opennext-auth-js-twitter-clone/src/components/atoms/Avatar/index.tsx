@@ -1,5 +1,3 @@
-import Image from 'next/image'
-
 type Props = {
   src: string
   alt?: string
@@ -18,7 +16,7 @@ export function Avatar({ src, alt = 'Avatar', isLarge, hasBorder }: Props) {
         overflow-hidden
       `}
     >
-      <Image fill alt={alt} src={src} style={{ objectFit: 'cover' }} />
+      <img src={src} alt={alt} className='absolute inset-0 w-full h-full object-cover' />
     </div>
   )
 }

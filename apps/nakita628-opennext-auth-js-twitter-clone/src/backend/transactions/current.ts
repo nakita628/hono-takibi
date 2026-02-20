@@ -7,7 +7,7 @@ export function get(email: string) {
   return Effect.gen(function* () {
     const user = yield* UserService.findByEmailWithFollows(email)
     if (!user) {
-      return yield* Effect.fail(new UnauthorizedError({ message: 'Not signed in' }))
+      return yield* Effect.fail(new UnauthorizedError({ message: 'Unauthorized' }))
     }
 
     const profile = user.userProfile

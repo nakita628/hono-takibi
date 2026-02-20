@@ -25,7 +25,7 @@ export function UserBio({ userId }: Props) {
 
   return (
     <div className='border-b-[1px] border-neutral-800 pb-4'>
-      <div className='flex justify-end p-2'>
+      <div className='flex justify-end pt-16 pr-2 pb-2 pl-2'>
         {currentUser?.id === userId ? (
           <Button secondary label='Edit' onClick={editModal.onOpen} />
         ) : (
@@ -37,7 +37,7 @@ export function UserBio({ userId }: Props) {
           />
         )}
       </div>
-      <div className='mt-8 px-4'>
+      <div className='mt-4 px-4'>
         <div className='flex flex-col'>
           <p className='text-white text-2xl font-semibold'>{fetchedUser?.name}</p>
           <p className='text-md text-neutral-500'>@{fetchedUser?.username}</p>

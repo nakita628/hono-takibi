@@ -1,6 +1,6 @@
 import type { RouteHandler } from '@hono/zod-openapi'
 import { Effect } from 'effect'
-import { DatabaseError, NotFoundError, UnauthorizedError } from '@/backend/domain'
+import { DatabaseError, NotFoundError, UnauthorizedError, ValidationError } from '@/backend/domain'
 import type { AuthType } from '@/lib/auth'
 import type { deleteFollowRoute, postFollowRoute } from '@/backend/routes'
 import * as FollowTransaction from '@/backend/transactions/follow'
@@ -12,7 +12,7 @@ export const postFollowRouteHandler: RouteHandler<
 > = async (c) => {
   const email = c.get('user')?.email
   if (!email) {
-    return c.json({ message: 'Not signed in' }, 401)
+    return c.json({ message: 'Unauthorized' }, 401)
   }
 
   const { userId } = c.req.valid('json')
@@ -23,9 +23,10 @@ export const postFollowRouteHandler: RouteHandler<
       Effect.match({
         onSuccess: (result) => c.json(result, 200),
         onFailure: (e) => {
-          if (e instanceof UnauthorizedError) return c.json({ message: e.message }, 500)
-          if (e instanceof NotFoundError) return c.json({ message: e.message }, 500)
-          if (e instanceof DatabaseError) return c.json({ message: e.message }, 500)
+          if (e instanceof UnauthorizedError) return c.json({ message: e.message }, 401)
+          if (e instanceof NotFoundError) return c.json({ message: e.message }, 404)
+          if (e instanceof ValidationError) return c.json({ message: e.message }, 500)
+          if (e instanceof DatabaseError) return c.json({ message: e.message }, 503)
           return c.json({ message: 'Internal server error' }, 500)
         },
       }),
@@ -39,7 +40,7 @@ export const deleteFollowRouteHandler: RouteHandler<
 > = async (c) => {
   const email = c.get('user')?.email
   if (!email) {
-    return c.json({ message: 'Not signed in' }, 401)
+    return c.json({ message: 'Unauthorized' }, 401)
   }
 
   const { userId } = c.req.valid('json')
@@ -50,8 +51,9 @@ export const deleteFollowRouteHandler: RouteHandler<
       Effect.match({
         onSuccess: (result) => c.json(result, 200),
         onFailure: (e) => {
-          if (e instanceof UnauthorizedError) return c.json({ message: e.message }, 500)
-          if (e instanceof DatabaseError) return c.json({ message: e.message }, 500)
+          if (e instanceof UnauthorizedError) return c.json({ message: e.message }, 401)
+          if (e instanceof ValidationError) return c.json({ message: e.message }, 500)
+          if (e instanceof DatabaseError) return c.json({ message: e.message }, 503)
           return c.json({ message: 'Internal server error' }, 500)
         },
       }),

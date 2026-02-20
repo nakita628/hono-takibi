@@ -1,6 +1,6 @@
 import type { RouteHandler } from '@hono/zod-openapi'
 import { Effect } from 'effect'
-import { DatabaseError } from '@/backend/domain'
+import { DatabaseError, ValidationError } from '@/backend/domain'
 import type { AuthType } from '@/lib/auth'
 import type { getNotificationsUserIdRoute, postNotificationsRoute } from '@/backend/routes'
 import * as NotificationsTransaction from '@/backend/transactions/notifications'
@@ -18,7 +18,8 @@ export const getNotificationsUserIdRouteHandler: RouteHandler<
       Effect.match({
         onSuccess: (notifications) => c.json(notifications, 200),
         onFailure: (e) => {
-          if (e instanceof DatabaseError) return c.json({ message: e.message }, 500)
+          if (e instanceof ValidationError) return c.json({ message: e.message }, 500)
+          if (e instanceof DatabaseError) return c.json({ message: e.message }, 503)
           return c.json({ message: 'Internal server error' }, 500)
         },
       }),
@@ -38,7 +39,8 @@ export const postNotificationsRouteHandler: RouteHandler<
       Effect.match({
         onSuccess: (result) => c.json(result, 200),
         onFailure: (e) => {
-          if (e instanceof DatabaseError) return c.json({ message: e.message }, 500)
+          if (e instanceof ValidationError) return c.json({ message: e.message }, 500)
+          if (e instanceof DatabaseError) return c.json({ message: e.message }, 503)
           return c.json({ message: 'Internal server error' }, 500)
         },
       }),
