@@ -123,6 +123,34 @@ model PostWithDetails {
   likes: Like[];
 }
 
+model PostSummary {
+  @format("uuid") id: string;
+  body: string;
+  createdAt: string;
+  updatedAt: string;
+  @format("uuid") userId: string;
+  user: User;
+  commentCount: numeric;
+  likeCount: numeric;
+}
+
+model PaginationMeta {
+  page: numeric;
+  limit: numeric;
+  total: numeric;
+  totalPages: numeric;
+}
+
+model PaginatedPosts {
+  data: PostSummary[];
+  meta: PaginationMeta;
+}
+
+model PaginatedUsers {
+  data: User[];
+  meta: PaginationMeta;
+}
+
 model PostDetail {
   @format("uuid") id: string;
   body: string;
@@ -326,7 +354,7 @@ op postNotificationsUserId(@body body: string): MessageResponse | {
 @tag("posts")
 @route("/posts")
 @get
-op getPosts(...Parameters.UserIdQuery): Body<PostWithDetails[]> | {
+op getPosts(...Parameters.UserIdQuery, ...Parameters.PaginationQuery): PaginatedPosts | {
   @statusCode statusCode: 422;
   @body body: ValidationError;
 } | {
@@ -406,7 +434,7 @@ op getUserUserId(...Parameters.UserIdPath): UserWithFollowCount | (NotFoundRespo
 @tag("users")
 @route("/users")
 @get
-op getUsers(): Body<User[]> | {
+op getUsers(...Parameters.PaginationQuery): PaginatedUsers | {
   @statusCode statusCode: 500;
   @body body: MessageResponse;
 } | {
@@ -426,5 +454,9 @@ namespace Parameters {
   }
   model UserIdQuery {
     @format("uuid") @query(#{ explode: true }) userId?: string;
+  }
+  model PaginationQuery {
+    @minValue(1) @query(#{ explode: true }) page?: numeric;
+    @minValue(1) @maxValue(100) @query(#{ explode: true }) limit?: numeric;
   }
 }

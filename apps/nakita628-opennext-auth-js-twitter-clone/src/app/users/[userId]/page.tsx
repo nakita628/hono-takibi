@@ -24,7 +24,7 @@ export default function UserView() {
   )
 
   useEffect(() => {
-    if (!isLoadingUser && !currentUser) {
+    if (!(isLoadingUser || currentUser)) {
       router.push('/')
     }
   }, [isLoadingUser, currentUser, router])

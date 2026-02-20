@@ -4,7 +4,8 @@ import { AvatarLink } from '@/components/molecules/AvatarLink'
 import { useGetUsers } from '@/hooks/swr'
 
 export function FollowBar() {
-  const { data: users = [] } = useGetUsers()
+  const { data: result } = useGetUsers({ query: {} })
+  const users = result?.data ?? []
 
   if (users.length === 0) {
     return null

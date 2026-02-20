@@ -1,10 +1,10 @@
 import type { RouteHandler } from '@hono/zod-openapi'
 import { Effect } from 'effect'
 import { DatabaseError, UnauthorizedError, ValidationError } from '@/backend/domain'
-import type { AuthType } from '@/lib/auth'
 import type { patchEditRoute } from '@/backend/routes'
 import * as EditTransaction from '@/backend/transactions/edit'
 import { DBLive } from '@/infra'
+import type { AuthType } from '@/lib/auth'
 
 export const patchEditRouteHandler: RouteHandler<
   typeof patchEditRoute,

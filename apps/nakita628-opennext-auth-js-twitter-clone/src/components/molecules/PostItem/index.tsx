@@ -9,8 +9,44 @@ import { useLike } from '@/hooks/useLike'
 import { useLoginModal } from '@/hooks/useLoginModal'
 import { formatRelativeTime } from '@/lib/format'
 
+type PostItemUser = {
+  id: string
+  name: string
+  username: string
+  profileImage: string | null
+}
+
+type PostSummaryData = {
+  id: string
+  body: string
+  createdAt: string
+  user: PostItemUser
+  commentCount: number
+  likeCount: number
+}
+
+type PostDetailComment = {
+  id: string
+  body: string
+  createdAt: string
+  user: PostItemUser
+}
+
+type PostDetailLike = {
+  userId: string
+}
+
+type PostDetailData = {
+  id: string
+  body: string
+  createdAt: string
+  user: PostItemUser
+  comments: PostDetailComment[]
+  likes: PostDetailLike[]
+}
+
 type Props = {
-  data: Record<string, any>
+  data: PostSummaryData | PostDetailData
 }
 
 export function PostItem({ data }: Props) {
@@ -78,18 +114,18 @@ export function PostItem({ data }: Props) {
           <div className='flex flex-row items-center mt-3 gap-10'>
             <div className='flex flex-row items-center text-neutral-500 gap-2 cursor-pointer transition hover:text-sky-500'>
               <AiOutlineMessage size={20} />
-              <p>{data.comments?.length || 0}</p>
+              <p>
+                {'commentCount' in data ? data.commentCount : data.comments.length}
+              </p>
             </div>
             <div
               onClick={onLike}
               className='flex flex-row items-center text-neutral-500 gap-2 cursor-pointer transition hover:text-red-500'
             >
-              {hasLiked ? (
-                <AiFillHeart size={20} color='red' />
-              ) : (
-                <AiOutlineHeart size={20} />
-              )}
-              <p>{data.likes?.length || 0}</p>
+              {hasLiked ? <AiFillHeart size={20} color='red' /> : <AiOutlineHeart size={20} />}
+              <p>
+                {'likeCount' in data ? data.likeCount : data.likes.length}
+              </p>
             </div>
           </div>
         </div>

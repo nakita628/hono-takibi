@@ -5,8 +5,22 @@ import { useCallback, useMemo } from 'react'
 import { AvatarLink } from '@/components/molecules/AvatarLink'
 import { formatRelativeTime } from '@/lib/format'
 
+type CommentUser = {
+  id: string
+  name: string
+  username: string
+  profileImage: string | null
+}
+
+type CommentData = {
+  id: string
+  body: string
+  createdAt: string
+  user: CommentUser
+}
+
 type Props = {
-  data: Record<string, any>
+  data: CommentData
 }
 
 export function CommentItem({ data }: Props) {

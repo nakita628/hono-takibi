@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm'
+import { count, eq } from 'drizzle-orm'
 import { Effect } from 'effect'
 import { ConflictError, DatabaseError } from '@/backend/domain'
 import { schema } from '@/db'
@@ -90,6 +90,25 @@ export const findAll = () =>
     })
   })
 
+export const findAllPaginated = (args: { limit: number; offset: number }) =>
+  Effect.gen(function* () {
+    const db = yield* DB
+    const [users, [{ total }]] = yield* Effect.tryPromise({
+      try: () =>
+        Promise.all([
+          db.query.user.findMany({
+            with: { userProfile: true },
+            orderBy: (user, { desc }) => [desc(user.createdAt)],
+            limit: args.limit,
+            offset: args.offset,
+          }),
+          db.select({ total: count() }).from(schema.user),
+        ]),
+      catch: () => new DatabaseError({ message: 'Database error' }),
+    })
+    return { users, total }
+  })
+
 export const createProfile = (args: { userId: string; username: string }) =>
   Effect.gen(function* () {
     const db = yield* DB
@@ -126,7 +145,8 @@ export const updateName = (id: string, name: string) =>
   Effect.gen(function* () {
     const db = yield* DB
     return yield* Effect.tryPromise({
-      try: () => db.update(schema.user).set({ name }).where(eq(schema.user.id, id)).returning().get(),
+      try: () =>
+        db.update(schema.user).set({ name }).where(eq(schema.user.id, id)).returning().get(),
       catch: () => new DatabaseError({ message: 'Database error' }),
     })
   })

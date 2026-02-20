@@ -1,10 +1,10 @@
 import type { RouteHandler } from '@hono/zod-openapi'
 import { Effect } from 'effect'
 import { DatabaseError, NotFoundError, UnauthorizedError, ValidationError } from '@/backend/domain'
-import type { AuthType } from '@/lib/auth'
 import type { deleteLikeRoute, postLikeRoute } from '@/backend/routes'
 import * as LikeTransaction from '@/backend/transactions/like'
 import { DBLive } from '@/infra'
+import type { AuthType } from '@/lib/auth'
 
 export const postLikeRouteHandler: RouteHandler<
   typeof postLikeRoute,

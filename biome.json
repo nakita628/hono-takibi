@@ -24,8 +24,7 @@
       "!**/orval",
       "!**/fixtures/single-file",
       "!**/fixtures/split",
-      "!**/fixtures/generate",
-      "!**/apps/nakita628-opennext-auth-js-twitter-clone"
+      "!**/fixtures/generate"
     ]
   },
   "formatter": {

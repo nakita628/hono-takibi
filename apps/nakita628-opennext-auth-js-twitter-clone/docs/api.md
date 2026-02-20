@@ -967,52 +967,47 @@ hono request \
 |Name|In|Type|Required|Description|
 |---|---|---|---|---|
 |userId|query|string(uuid)|false|none|
+|page|query|number|false|none|
+|limit|query|number|false|none|
 
 > Example responses
 
 > 200 Response
 
 ```json
-[
-  {
-    "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-    "body": "string",
-    "createdAt": "string",
-    "updatedAt": "string",
-    "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-    "user": {
+{
+  "data": [
+    {
       "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-      "name": "string",
-      "username": "string",
-      "bio": "string",
-      "email": "user@example.com",
-      "emailVerified": "string",
-      "image": "http://example.com",
-      "coverImage": "http://example.com",
-      "profileImage": "http://example.com",
+      "body": "string",
       "createdAt": "string",
       "updatedAt": "string",
-      "hasNotification": true
-    },
-    "comments": [
-      {
+      "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+      "user": {
         "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-        "body": "string",
+        "name": "string",
+        "username": "string",
+        "bio": "string",
+        "email": "user@example.com",
+        "emailVerified": "string",
+        "image": "http://example.com",
+        "coverImage": "http://example.com",
+        "profileImage": "http://example.com",
         "createdAt": "string",
         "updatedAt": "string",
-        "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-        "postId": "497f6eca-6276-4993-bfeb-53cbbbba6f08"
-      }
-    ],
-    "likes": [
-      {
-        "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-        "postId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-        "createdAt": "string"
-      }
-    ]
+        "hasNotification": true
+      },
+      "commentCount": 0,
+      "likeCount": 0
+    }
+  ],
+  "meta": {
+    "page": 0,
+    "limit": 0,
+    "total": 0,
+    "totalPages": 0
   }
-]
+}
 ```
 
 > 422 Response
@@ -1052,47 +1047,10 @@ hono request \
 
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
-|200|OK|The request has succeeded.|Inline|
+|200|OK|The request has succeeded.|[PaginatedPosts](#schemapaginatedposts)|
 |422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
 |500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
 |503|Service Unavailable|Service unavailable.|[MessageResponse](#schemamessageresponse)|
-
-<h3 id="getposts-responseschema">Response Schema</h3>
-
-Status Code **200**
-
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|*anonymous*|[[PostWithDetails](#schemapostwithdetails)]|false|none|none|
-|» id|string(uuid)|true|none|none|
-|» body|string|true|none|none|
-|» createdAt|string|true|none|none|
-|» updatedAt|string|true|none|none|
-|» userId|string(uuid)|true|none|none|
-|» user|[User](#schemauser)|true|none|none|
-|» » id|string(uuid)|true|none|none|
-|» » name|string|true|none|none|
-|» » username|string|true|none|none|
-|» » bio|string|false|none|none|
-|» » email|string(email)|true|none|none|
-|» » emailVerified|string|true|none|none|
-|» » image|string(uri)|true|none|none|
-|» » coverImage|string(uri)|true|none|none|
-|» » profileImage|string(uri)|true|none|none|
-|» » createdAt|string|true|none|none|
-|» » updatedAt|string|true|none|none|
-|» » hasNotification|boolean|false|none|none|
-|» comments|[[Comment](#schemacomment)]|true|none|none|
-|» » id|string(uuid)|true|none|none|
-|» » body|string|true|none|none|
-|» » createdAt|string|true|none|none|
-|» » updatedAt|string|true|none|none|
-|» » userId|string(uuid)|true|none|none|
-|» » postId|string(uuid)|true|none|none|
-|» likes|[[Like](#schemalike)]|true|none|none|
-|» » userId|string(uuid)|true|none|none|
-|» » postId|string(uuid)|true|none|none|
-|» » createdAt|string|true|none|none|
 
 <aside class="success">
 This operation does not require authentication
@@ -1577,27 +1535,42 @@ hono request \
 
 `GET /users`
 
+<h3 id="getusers-parameters">Parameters</h3>
+
+|Name|In|Type|Required|Description|
+|---|---|---|---|---|
+|page|query|number|false|none|
+|limit|query|number|false|none|
+
 > Example responses
 
 > 200 Response
 
 ```json
-[
-  {
-    "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-    "name": "string",
-    "username": "string",
-    "bio": "string",
-    "email": "user@example.com",
-    "emailVerified": "string",
-    "image": "http://example.com",
-    "coverImage": "http://example.com",
-    "profileImage": "http://example.com",
-    "createdAt": "string",
-    "updatedAt": "string",
-    "hasNotification": true
+{
+  "data": [
+    {
+      "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+      "name": "string",
+      "username": "string",
+      "bio": "string",
+      "email": "user@example.com",
+      "emailVerified": "string",
+      "image": "http://example.com",
+      "coverImage": "http://example.com",
+      "profileImage": "http://example.com",
+      "createdAt": "string",
+      "updatedAt": "string",
+      "hasNotification": true
+    }
+  ],
+  "meta": {
+    "page": 0,
+    "limit": 0,
+    "total": 0,
+    "totalPages": 0
   }
-]
+}
 ```
 
 > 500 Response
@@ -1620,29 +1593,9 @@ hono request \
 
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
-|200|OK|The request has succeeded.|Inline|
+|200|OK|The request has succeeded.|[PaginatedUsers](#schemapaginatedusers)|
 |500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
 |503|Service Unavailable|Service unavailable.|[MessageResponse](#schemamessageresponse)|
-
-<h3 id="getusers-responseschema">Response Schema</h3>
-
-Status Code **200**
-
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|*anonymous*|[[User](#schemauser)]|false|none|none|
-|» id|string(uuid)|true|none|none|
-|» name|string|true|none|none|
-|» username|string|true|none|none|
-|» bio|string|false|none|none|
-|» email|string(email)|true|none|none|
-|» emailVerified|string|true|none|none|
-|» image|string(uri)|true|none|none|
-|» coverImage|string(uri)|true|none|none|
-|» profileImage|string(uri)|true|none|none|
-|» createdAt|string|true|none|none|
-|» updatedAt|string|true|none|none|
-|» hasNotification|boolean|false|none|none|
 
 <aside class="success">
 This operation does not require authentication
@@ -2042,12 +1995,12 @@ This operation does not require authentication
 |userId|string(uuid)|true|none|none|
 |createdAt|string|true|none|none|
 
-<h2 id="tocS_PostWithDetails">PostWithDetails</h2>
+<h2 id="tocS_PostSummary">PostSummary</h2>
 <!-- backwards compatibility -->
-<a id="schemapostwithdetails"></a>
-<a id="schema_PostWithDetails"></a>
-<a id="tocSpostwithdetails"></a>
-<a id="tocspostwithdetails"></a>
+<a id="schemapostsummary"></a>
+<a id="schema_PostSummary"></a>
+<a id="tocSpostsummary"></a>
+<a id="tocspostsummary"></a>
 
 ```json
 {
@@ -2070,23 +2023,8 @@ This operation does not require authentication
     "updatedAt": "string",
     "hasNotification": true
   },
-  "comments": [
-    {
-      "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-      "body": "string",
-      "createdAt": "string",
-      "updatedAt": "string",
-      "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-      "postId": "497f6eca-6276-4993-bfeb-53cbbbba6f08"
-    }
-  ],
-  "likes": [
-    {
-      "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-      "postId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-      "createdAt": "string"
-    }
-  ]
+  "commentCount": 0,
+  "likeCount": 0
 }
 ```
 
@@ -2100,8 +2038,83 @@ This operation does not require authentication
 |updatedAt|string|true|none|none|
 |userId|string(uuid)|true|none|none|
 |user|[User](#schemauser)|true|none|none|
-|comments|[[Comment](#schemacomment)]|true|none|none|
-|likes|[[Like](#schemalike)]|true|none|none|
+|commentCount|number|true|none|none|
+|likeCount|number|true|none|none|
+
+<h2 id="tocS_PaginationMeta">PaginationMeta</h2>
+<!-- backwards compatibility -->
+<a id="schemapaginationmeta"></a>
+<a id="schema_PaginationMeta"></a>
+<a id="tocSpaginationmeta"></a>
+<a id="tocspaginationmeta"></a>
+
+```json
+{
+  "page": 0,
+  "limit": 0,
+  "total": 0,
+  "totalPages": 0
+}
+```
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|page|number|true|none|none|
+|limit|number|true|none|none|
+|total|number|true|none|none|
+|totalPages|number|true|none|none|
+
+<h2 id="tocS_PaginatedPosts">PaginatedPosts</h2>
+<!-- backwards compatibility -->
+<a id="schemapaginatedposts"></a>
+<a id="schema_PaginatedPosts"></a>
+<a id="tocSpaginatedposts"></a>
+<a id="tocspaginatedposts"></a>
+
+```json
+{
+  "data": [
+    {
+      "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+      "body": "string",
+      "createdAt": "string",
+      "updatedAt": "string",
+      "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+      "user": {
+        "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+        "name": "string",
+        "username": "string",
+        "bio": "string",
+        "email": "user@example.com",
+        "emailVerified": "string",
+        "image": "http://example.com",
+        "coverImage": "http://example.com",
+        "profileImage": "http://example.com",
+        "createdAt": "string",
+        "updatedAt": "string",
+        "hasNotification": true
+      },
+      "commentCount": 0,
+      "likeCount": 0
+    }
+  ],
+  "meta": {
+    "page": 0,
+    "limit": 0,
+    "total": 0,
+    "totalPages": 0
+  }
+}
+```
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|data|[[PostSummary](#schemapostsummary)]|true|none|none|
+|meta|[PaginationMeta](#schemapaginationmeta)|true|none|none|
 
 <h2 id="tocS_Post">Post</h2>
 <!-- backwards compatibility -->
@@ -2327,3 +2340,105 @@ This operation does not require authentication
 |updatedAt|string|true|none|none|
 |hasNotification|boolean|false|none|none|
 |_count|object|true|none|none|
+
+<h2 id="tocS_PaginatedUsers">PaginatedUsers</h2>
+<!-- backwards compatibility -->
+<a id="schemapaginatedusers"></a>
+<a id="schema_PaginatedUsers"></a>
+<a id="tocSpaginatedusers"></a>
+<a id="tocspaginatedusers"></a>
+
+```json
+{
+  "data": [
+    {
+      "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+      "name": "string",
+      "username": "string",
+      "bio": "string",
+      "email": "user@example.com",
+      "emailVerified": "string",
+      "image": "http://example.com",
+      "coverImage": "http://example.com",
+      "profileImage": "http://example.com",
+      "createdAt": "string",
+      "updatedAt": "string",
+      "hasNotification": true
+    }
+  ],
+  "meta": {
+    "page": 0,
+    "limit": 0,
+    "total": 0,
+    "totalPages": 0
+  }
+}
+```
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|data|[[User](#schemauser)]|true|none|none|
+|meta|[PaginationMeta](#schemapaginationmeta)|true|none|none|
+
+<h2 id="tocS_PostWithDetails">PostWithDetails</h2>
+<!-- backwards compatibility -->
+<a id="schemapostwithdetails"></a>
+<a id="schema_PostWithDetails"></a>
+<a id="tocSpostwithdetails"></a>
+<a id="tocspostwithdetails"></a>
+
+```json
+{
+  "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+  "body": "string",
+  "createdAt": "string",
+  "updatedAt": "string",
+  "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+  "user": {
+    "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+    "name": "string",
+    "username": "string",
+    "bio": "string",
+    "email": "user@example.com",
+    "emailVerified": "string",
+    "image": "http://example.com",
+    "coverImage": "http://example.com",
+    "profileImage": "http://example.com",
+    "createdAt": "string",
+    "updatedAt": "string",
+    "hasNotification": true
+  },
+  "comments": [
+    {
+      "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+      "body": "string",
+      "createdAt": "string",
+      "updatedAt": "string",
+      "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+      "postId": "497f6eca-6276-4993-bfeb-53cbbbba6f08"
+    }
+  ],
+  "likes": [
+    {
+      "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+      "postId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+      "createdAt": "string"
+    }
+  ]
+}
+```
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|id|string(uuid)|true|none|none|
+|body|string|true|none|none|
+|createdAt|string|true|none|none|
+|updatedAt|string|true|none|none|
+|userId|string(uuid)|true|none|none|
+|user|[User](#schemauser)|true|none|none|
+|comments|[[Comment](#schemacomment)]|true|none|none|
+|likes|[[Like](#schemalike)]|true|none|none|

@@ -150,7 +150,7 @@ export const NotificationSchema = z
   .openapi({ required: ['id', 'body', 'userId', 'createdAt'] })
   .openapi('Notification')
 
-export const PostWithDetailsSchema = z
+export const PostSummarySchema = z
   .object({
     id: z.uuid(),
     body: z.string(),
@@ -158,13 +158,32 @@ export const PostWithDetailsSchema = z
     updatedAt: z.string(),
     userId: z.uuid(),
     user: UserSchema,
-    comments: z.array(CommentSchema),
-    likes: z.array(LikeSchema),
+    commentCount: z.number(),
+    likeCount: z.number(),
   })
   .openapi({
-    required: ['id', 'body', 'createdAt', 'updatedAt', 'userId', 'user', 'comments', 'likes'],
+    required: [
+      'id',
+      'body',
+      'createdAt',
+      'updatedAt',
+      'userId',
+      'user',
+      'commentCount',
+      'likeCount',
+    ],
   })
-  .openapi('PostWithDetails')
+  .openapi('PostSummary')
+
+export const PaginationMetaSchema = z
+  .object({ page: z.number(), limit: z.number(), total: z.number(), totalPages: z.number() })
+  .openapi({ required: ['page', 'limit', 'total', 'totalPages'] })
+  .openapi('PaginationMeta')
+
+export const PaginatedPostsSchema = z
+  .object({ data: z.array(PostSummarySchema), meta: PaginationMetaSchema })
+  .openapi({ required: ['data', 'meta'] })
+  .openapi('PaginatedPosts')
 
 export const PostSchema = z
   .object({
@@ -262,6 +281,27 @@ export const UserWithFollowCountSchema = z
   })
   .openapi('UserWithFollowCount')
 
+export const PaginatedUsersSchema = z
+  .object({ data: z.array(UserSchema), meta: PaginationMetaSchema })
+  .openapi({ required: ['data', 'meta'] })
+  .openapi('PaginatedUsers')
+
+export const PostWithDetailsSchema = z
+  .object({
+    id: z.uuid(),
+    body: z.string(),
+    createdAt: z.string(),
+    updatedAt: z.string(),
+    userId: z.uuid(),
+    user: UserSchema,
+    comments: z.array(CommentSchema),
+    likes: z.array(LikeSchema),
+  })
+  .openapi({
+    required: ['id', 'body', 'createdAt', 'updatedAt', 'userId', 'user', 'comments', 'likes'],
+  })
+  .openapi('PostWithDetails')
+
 const ParametersPostIdQueryParamsSchema = z
   .uuid()
   .openapi({
@@ -293,6 +333,28 @@ const ParametersUserIdQueryParamsSchema = z
       in: 'query',
       required: false,
       schema: { type: 'string', format: 'uuid' },
+    },
+  })
+
+const ParametersPaginationQueryPageParamsSchema = z.coerce
+  .number()
+  .min(1)
+  .exactOptional()
+  .openapi({
+    param: { name: 'page', in: 'query', required: false, schema: { type: 'number', minimum: 1 } },
+  })
+
+const ParametersPaginationQueryLimitParamsSchema = z.coerce
+  .number()
+  .min(1)
+  .max(100)
+  .exactOptional()
+  .openapi({
+    param: {
+      name: 'limit',
+      in: 'query',
+      required: false,
+      schema: { type: 'number', minimum: 1, maximum: 100 },
     },
   })
 
@@ -597,11 +659,17 @@ export const getPostsRoute = createRoute({
   path: '/posts',
   tags: ['posts'],
   operationId: 'getPosts',
-  request: { query: z.object({ userId: ParametersUserIdQueryParamsSchema }) },
+  request: {
+    query: z.object({
+      userId: ParametersUserIdQueryParamsSchema,
+      page: ParametersPaginationQueryPageParamsSchema,
+      limit: ParametersPaginationQueryLimitParamsSchema,
+    }),
+  },
   responses: {
     200: {
       description: 'The request has succeeded.',
-      content: { 'application/json': { schema: z.array(PostWithDetailsSchema) } },
+      content: { 'application/json': { schema: PaginatedPostsSchema } },
     },
     422: {
       description: 'Client error',
@@ -751,10 +819,16 @@ export const getUsersRoute = createRoute({
   path: '/users',
   tags: ['users'],
   operationId: 'getUsers',
+  request: {
+    query: z.object({
+      page: ParametersPaginationQueryPageParamsSchema,
+      limit: ParametersPaginationQueryLimitParamsSchema,
+    }),
+  },
   responses: {
     200: {
       description: 'The request has succeeded.',
-      content: { 'application/json': { schema: z.array(UserSchema) } },
+      content: { 'application/json': { schema: PaginatedUsersSchema } },
     },
     500: {
       description: 'Server error',

@@ -1,10 +1,10 @@
 import type { RouteHandler } from '@hono/zod-openapi'
 import { Effect } from 'effect'
 import { DatabaseError, NotFoundError, UnauthorizedError, ValidationError } from '@/backend/domain'
-import type { AuthType } from '@/lib/auth'
 import type { deleteFollowRoute, postFollowRoute } from '@/backend/routes'
 import * as FollowTransaction from '@/backend/transactions/follow'
 import { DBLive } from '@/infra'
+import type { AuthType } from '@/lib/auth'
 
 export const postFollowRouteHandler: RouteHandler<
   typeof postFollowRoute,

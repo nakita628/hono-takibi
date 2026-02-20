@@ -1,10 +1,10 @@
 import type { RouteHandler } from '@hono/zod-openapi'
 import { Effect } from 'effect'
 import { DatabaseError, UnauthorizedError, ValidationError } from '@/backend/domain'
-import type { AuthType } from '@/lib/auth'
 import type { postCommentsRoute } from '@/backend/routes'
 import * as CommentsTransaction from '@/backend/transactions/comments'
 import { DBLive } from '@/infra'
+import type { AuthType } from '@/lib/auth'
 
 export const postCommentsRouteHandler: RouteHandler<
   typeof postCommentsRoute,

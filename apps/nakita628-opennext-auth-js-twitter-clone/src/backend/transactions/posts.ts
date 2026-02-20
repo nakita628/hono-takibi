@@ -1,8 +1,7 @@
-import { z } from '@hono/zod-openapi'
 import { Effect } from 'effect'
-import { NotFoundError, UnauthorizedError, ValidationError } from '@/backend/domain'
 import * as UserDomain from '@/backend/domain'
-import { PostDetailSchema, PostSchema, PostWithDetailsSchema } from '@/backend/routes'
+import { NotFoundError, UnauthorizedError, ValidationError } from '@/backend/domain'
+import { PaginatedPostsSchema, PostDetailSchema, PostSchema } from '@/backend/routes'
 import * as PostService from '@/backend/services/post'
 import * as UserService from '@/backend/services/user'
 
@@ -31,33 +30,35 @@ export function create(email: string, args: { body: string }) {
   })
 }
 
-export function getAll(userId?: string) {
+export function getAll(args: { userId?: string; page: number; limit: number }) {
   return Effect.gen(function* () {
-    const posts = yield* PostService.findAllWithRelations(userId)
+    const offset = (args.page - 1) * args.limit
+    const result = yield* PostService.findAllPaginated({
+      ...(args.userId !== undefined ? { userId: args.userId } : {}),
+      limit: args.limit,
+      offset,
+    })
 
-    const data = posts.map((post) => ({
-      id: post.id,
-      body: post.body,
-      createdAt: post.createdAt.toISOString(),
-      updatedAt: post.updatedAt.toISOString(),
-      userId: post.userId,
-      user: UserDomain.makeFormatUser(post.user),
-      comments: post.comments.map((comment) => ({
-        id: comment.id,
-        body: comment.body,
-        createdAt: comment.createdAt.toISOString(),
-        updatedAt: comment.updatedAt.toISOString(),
-        userId: comment.userId,
-        postId: comment.postId,
+    const data = {
+      data: result.posts.map((post) => ({
+        id: post.id,
+        body: post.body,
+        createdAt: post.createdAt.toISOString(),
+        updatedAt: post.updatedAt.toISOString(),
+        userId: post.userId,
+        user: UserDomain.makeFormatUser(post.user),
+        commentCount: result.commentCounts[post.id] ?? 0,
+        likeCount: result.likeCounts[post.id] ?? 0,
       })),
-      likes: post.likes.map((like) => ({
-        userId: like.userId,
-        postId: like.postId,
-        createdAt: like.createdAt.toISOString(),
-      })),
-    }))
+      meta: {
+        page: args.page,
+        limit: args.limit,
+        total: result.total,
+        totalPages: Math.ceil(result.total / args.limit),
+      },
+    }
 
-    const valid = z.array(PostWithDetailsSchema).safeParse(data)
+    const valid = PaginatedPostsSchema.safeParse(data)
     if (!valid.success) {
       return yield* Effect.fail(new ValidationError({ message: 'Invalid posts data' }))
     }

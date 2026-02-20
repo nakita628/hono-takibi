@@ -1,5 +1,4 @@
 import { OpenAPIHono } from '@hono/zod-openapi'
-import { auth, AuthType } from '@/lib/auth'
 import {
   deleteFollowRouteHandler,
   deleteLikeRouteHandler,
@@ -35,6 +34,7 @@ import {
   postPostsRoute,
   postRegisterRoute,
 } from '@/backend/routes'
+import { AuthType, auth } from '@/lib/auth'
 
 const app = new OpenAPIHono<{ Variables: AuthType }>({
   defaultHook: (result, c) => {

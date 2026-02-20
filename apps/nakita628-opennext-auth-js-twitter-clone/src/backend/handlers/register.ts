@@ -1,10 +1,10 @@
 import type { RouteHandler } from '@hono/zod-openapi'
 import { Effect } from 'effect'
 import { ConflictError, DatabaseError, ValidationError } from '@/backend/domain'
-import type { AuthType } from '@/lib/auth'
 import type { postRegisterRoute } from '@/backend/routes'
 import * as UserTransaction from '@/backend/transactions/register'
 import { DBLive } from '@/infra'
+import type { AuthType } from '@/lib/auth'
 
 export const postRegisterRouteHandler: RouteHandler<
   typeof postRegisterRoute,

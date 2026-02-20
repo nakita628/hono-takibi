@@ -1,5 +1,4 @@
-import { sql } from 'drizzle-orm'
-import { relations } from 'drizzle-orm'
+import { relations, sql } from 'drizzle-orm'
 import { index, integer, primaryKey, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 
 // Better Auth core tables
@@ -9,12 +8,8 @@ export const user = sqliteTable('user', {
   email: text().notNull().unique(),
   emailVerified: integer({ mode: 'boolean' }).notNull().default(false),
   image: text(),
-  createdAt: integer({ mode: 'timestamp' })
-    .notNull()
-    .default(sql`(unixepoch())`),
-  updatedAt: integer({ mode: 'timestamp' })
-    .notNull()
-    .default(sql`(unixepoch())`),
+  createdAt: integer({ mode: 'timestamp' }).notNull().default(sql`(unixepoch())`),
+  updatedAt: integer({ mode: 'timestamp' }).notNull().default(sql`(unixepoch())`),
 })
 
 export const session = sqliteTable('session', {
@@ -26,12 +21,8 @@ export const session = sqliteTable('session', {
   expiresAt: integer({ mode: 'timestamp' }).notNull(),
   ipAddress: text(),
   userAgent: text(),
-  createdAt: integer({ mode: 'timestamp' })
-    .notNull()
-    .default(sql`(unixepoch())`),
-  updatedAt: integer({ mode: 'timestamp' })
-    .notNull()
-    .default(sql`(unixepoch())`),
+  createdAt: integer({ mode: 'timestamp' }).notNull().default(sql`(unixepoch())`),
+  updatedAt: integer({ mode: 'timestamp' }).notNull().default(sql`(unixepoch())`),
 })
 
 export const account = sqliteTable('account', {
@@ -48,12 +39,8 @@ export const account = sqliteTable('account', {
   refreshTokenExpiresAt: integer({ mode: 'timestamp' }),
   scope: text(),
   password: text(),
-  createdAt: integer({ mode: 'timestamp' })
-    .notNull()
-    .default(sql`(unixepoch())`),
-  updatedAt: integer({ mode: 'timestamp' })
-    .notNull()
-    .default(sql`(unixepoch())`),
+  createdAt: integer({ mode: 'timestamp' }).notNull().default(sql`(unixepoch())`),
+  updatedAt: integer({ mode: 'timestamp' }).notNull().default(sql`(unixepoch())`),
 })
 
 export const verification = sqliteTable('verification', {
@@ -61,10 +48,8 @@ export const verification = sqliteTable('verification', {
   identifier: text().notNull(),
   value: text().notNull(),
   expiresAt: integer({ mode: 'timestamp' }).notNull(),
-  createdAt: integer({ mode: 'timestamp' })
-    .default(sql`(unixepoch())`),
-  updatedAt: integer({ mode: 'timestamp' })
-    .default(sql`(unixepoch())`),
+  createdAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
+  updatedAt: integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
 })
 
 // Application tables

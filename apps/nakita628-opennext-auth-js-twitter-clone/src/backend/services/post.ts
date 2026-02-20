@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm'
+import { count, eq, inArray } from 'drizzle-orm'
 import { Effect } from 'effect'
 import { DatabaseError } from '@/backend/domain'
 import { schema } from '@/db'
@@ -82,4 +82,64 @@ export const findAllWithRelations = (userId?: string) =>
         }),
       catch: () => new DatabaseError({ message: 'Database error' }),
     })
+  })
+
+export const findAllPaginated = (args: { userId?: string; limit: number; offset: number }) =>
+  Effect.gen(function* () {
+    const db = yield* DB
+    const whereClause = args.userId ? eq(schema.posts.userId, args.userId) : undefined
+
+    const [posts, [{ total }]] = yield* Effect.tryPromise({
+      try: () =>
+        Promise.all([
+          db.query.posts.findMany({
+            where: whereClause,
+            with: {
+              user: {
+                with: { userProfile: true },
+              },
+            },
+            orderBy: (posts, { desc }) => [desc(posts.createdAt)],
+            limit: args.limit,
+            offset: args.offset,
+          }),
+          db.select({ total: count() }).from(schema.posts).where(whereClause),
+        ]),
+      catch: () => new DatabaseError({ message: 'Database error' }),
+    })
+
+    if (posts.length === 0) {
+      return { posts, total, commentCounts: {}, likeCounts: {} }
+    }
+
+    const postIds = posts.map((post) => post.id)
+
+    const [commentRows, likeRows] = yield* Effect.tryPromise({
+      try: () =>
+        Promise.all([
+          db
+            .select({ postId: schema.comments.postId, count: count() })
+            .from(schema.comments)
+            .where(inArray(schema.comments.postId, postIds))
+            .groupBy(schema.comments.postId),
+          db
+            .select({ postId: schema.likes.postId, count: count() })
+            .from(schema.likes)
+            .where(inArray(schema.likes.postId, postIds))
+            .groupBy(schema.likes.postId),
+        ]),
+      catch: () => new DatabaseError({ message: 'Database error' }),
+    })
+
+    const commentCounts: Record<string, number> = {}
+    for (const row of commentRows) {
+      commentCounts[row.postId] = row.count
+    }
+
+    const likeCounts: Record<string, number> = {}
+    for (const row of likeRows) {
+      likeCounts[row.postId] = row.count
+    }
+
+    return { posts, total, commentCounts, likeCounts }
   })

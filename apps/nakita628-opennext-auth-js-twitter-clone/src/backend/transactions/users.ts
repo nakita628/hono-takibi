@@ -1,7 +1,6 @@
-import { z } from '@hono/zod-openapi'
 import { Effect } from 'effect'
 import { NotFoundError, ValidationError } from '@/backend/domain'
-import { UserSchema, UserWithFollowCountSchema } from '@/backend/routes'
+import { PaginatedUsersSchema, UserWithFollowCountSchema } from '@/backend/routes'
 import * as UserService from '@/backend/services/user'
 
 export function getById(userId: string) {
@@ -40,29 +39,38 @@ export function getById(userId: string) {
   })
 }
 
-export function getAll() {
+export function getAll(args: { page: number; limit: number }) {
   return Effect.gen(function* () {
-    const users = yield* UserService.findAll()
+    const offset = (args.page - 1) * args.limit
+    const result = yield* UserService.findAllPaginated({ limit: args.limit, offset })
 
-    const data = users.map((u) => {
-      const profile = u.userProfile
-      return {
-        id: u.id,
-        name: u.name,
-        username: profile?.username ?? '',
-        bio: profile?.bio ?? null,
-        email: u.email,
-        emailVerified: null,
-        image: u.image ?? null,
-        coverImage: profile?.coverImage ?? null,
-        profileImage: profile?.profileImage ?? null,
-        createdAt: u.createdAt.toISOString(),
-        updatedAt: u.updatedAt.toISOString(),
-        hasNotification: profile?.hasNotification ?? null,
-      }
-    })
+    const data = {
+      data: result.users.map((u) => {
+        const profile = u.userProfile
+        return {
+          id: u.id,
+          name: u.name,
+          username: profile?.username ?? '',
+          bio: profile?.bio ?? null,
+          email: u.email,
+          emailVerified: null,
+          image: u.image ?? null,
+          coverImage: profile?.coverImage ?? null,
+          profileImage: profile?.profileImage ?? null,
+          createdAt: u.createdAt.toISOString(),
+          updatedAt: u.updatedAt.toISOString(),
+          hasNotification: profile?.hasNotification ?? null,
+        }
+      }),
+      meta: {
+        page: args.page,
+        limit: args.limit,
+        total: result.total,
+        totalPages: Math.ceil(result.total / args.limit),
+      },
+    }
 
-    const valid = z.array(UserSchema).safeParse(data)
+    const valid = PaginatedUsersSchema.safeParse(data)
     if (!valid.success) {
       return yield* Effect.fail(new ValidationError({ message: 'Invalid users data' }))
     }

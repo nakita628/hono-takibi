@@ -1,19 +1,23 @@
 import type { RouteHandler } from '@hono/zod-openapi'
 import { Effect } from 'effect'
 import { DatabaseError, NotFoundError, UnauthorizedError, ValidationError } from '@/backend/domain'
-import type { AuthType } from '@/lib/auth'
 import type { getPostsPostIdRoute, getPostsRoute, postPostsRoute } from '@/backend/routes'
 import * as PostsTransaction from '@/backend/transactions/posts'
 import { DBLive } from '@/infra'
+import type { AuthType } from '@/lib/auth'
 
 export const getPostsRouteHandler: RouteHandler<
   typeof getPostsRoute,
   { Variables: AuthType }
 > = async (c) => {
-  const { userId } = c.req.valid('query')
+  const { userId, page, limit } = c.req.valid('query')
 
   return Effect.runPromise(
-    PostsTransaction.getAll(userId).pipe(
+    PostsTransaction.getAll({
+      ...(userId !== undefined ? { userId } : {}),
+      page: page ?? 1,
+      limit: limit ?? 20,
+    }).pipe(
       Effect.provide(DBLive),
       Effect.match({
         onSuccess: (posts) => c.json(posts, 200),

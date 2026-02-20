@@ -1,9 +1,9 @@
 'use client'
 
-import { useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { BsBellFill, BsHouseFill } from 'react-icons/bs'
+import { useCallback } from 'react'
 import { BiLogOut } from 'react-icons/bi'
+import { BsBellFill, BsHouseFill } from 'react-icons/bs'
 import { FaUser } from 'react-icons/fa'
 import { useSWRConfig } from 'swr'
 import { SidebarItem } from '@/components/atoms/SidebarItem'

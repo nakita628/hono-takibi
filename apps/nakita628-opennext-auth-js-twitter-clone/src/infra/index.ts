@@ -1,1 +1,1 @@
-export { getDb, DB, DBLive } from './db'
+export { DB, DBLive, getDb } from './db'

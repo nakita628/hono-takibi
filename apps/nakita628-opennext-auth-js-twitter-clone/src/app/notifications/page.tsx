@@ -11,7 +11,7 @@ export default function Notifications() {
   const { data: currentUser, isLoading } = useGetCurrent()
 
   useEffect(() => {
-    if (!isLoading && !currentUser) {
+    if (!(isLoading || currentUser)) {
       router.push('/')
     }
   }, [isLoading, currentUser, router])
