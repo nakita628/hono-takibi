@@ -194,7 +194,7 @@ model ValidationError {
 @tag("comments")
 @route("/comments")
 @post
-op postComments(...Parameters.PostIdQuery, @body body: CreateCommentRequest): Comment | {
+op postComments(...Parameters.PostIdQuery, @body body: CreateCommentRequest): Comment | (UnauthorizedResponse & MessageResponse) | {
   @statusCode statusCode: 422;
   @body body: ValidationError;
 } | {
@@ -213,7 +213,7 @@ op getCurrentUser(): CurrentUser | (UnauthorizedResponse & MessageResponse) | {
 @tag("edit")
 @route("/edit")
 @patch(#{implicitOptionality: true})
-op patchEdit(@body body: EditUserRequest): User | {
+op patchEdit(@body body: EditUserRequest): User | (UnauthorizedResponse & MessageResponse) | {
   @statusCode statusCode: 422;
   @body body: ValidationError;
 } | {
@@ -224,7 +224,7 @@ op patchEdit(@body body: EditUserRequest): User | {
 @tag("follow")
 @route("/follow")
 @delete
-op deleteFollowUserId(@body body: FollowUserRequest): MessageResponse | {
+op deleteFollowUserId(@body body: FollowUserRequest): MessageResponse | (UnauthorizedResponse & MessageResponse) | {
   @statusCode statusCode: 422;
   @body body: ValidationError;
 } | {
@@ -235,7 +235,7 @@ op deleteFollowUserId(@body body: FollowUserRequest): MessageResponse | {
 @tag("follow")
 @route("/follow")
 @post
-op postFollowUesrId(@body body: FollowUserRequest): MessageResponse | {
+op postFollowUesrId(@body body: FollowUserRequest): MessageResponse | (UnauthorizedResponse & MessageResponse) | {
   @statusCode statusCode: 422;
   @body body: ValidationError;
 } | {
@@ -246,7 +246,7 @@ op postFollowUesrId(@body body: FollowUserRequest): MessageResponse | {
 @tag("like")
 @route("/like")
 @delete
-op deleteLikePostId(@body body: LikePostRequest): PostWithLikes | {
+op deleteLikePostId(@body body: LikePostRequest): PostWithLikes | (UnauthorizedResponse & MessageResponse) | {
   @statusCode statusCode: 422;
   @body body: ValidationError;
 } | {
@@ -257,7 +257,7 @@ op deleteLikePostId(@body body: LikePostRequest): PostWithLikes | {
 @tag("like")
 @route("/like")
 @post
-op postLikePostId(@body body: LikePostRequest): PostWithLikes | {
+op postLikePostId(@body body: LikePostRequest): PostWithLikes | (UnauthorizedResponse & MessageResponse) | {
   @statusCode statusCode: 422;
   @body body: ValidationError;
 } | {
@@ -293,12 +293,15 @@ op postNotificationsUserId(@body body: string): MessageResponse | {
 op getPosts(...Parameters.UserIdQuery): Body<PostWithDetails[]> | {
   @statusCode statusCode: 422;
   @body body: ValidationError;
+} | {
+  @statusCode statusCode: 500;
+  @body body: MessageResponse;
 };
 
 @tag("posts")
 @route("/posts")
 @post
-op postPosts(@body body: CreatePostRequest): Post | {
+op postPosts(@body body: CreatePostRequest): Post | (UnauthorizedResponse & MessageResponse) | {
   @statusCode statusCode: 422;
   @body body: ValidationError;
 } | {

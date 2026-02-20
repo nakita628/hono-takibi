@@ -15,10 +15,12 @@ OpenNext Twitter Clone API
 ```bash
 hono request \
   -X POST \
-  -P /api/comments \
+  -P /comments \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  -d '{"body":"string"}' \
+  -d '{
+    "body": "string"
+  }' \
   src/app/api/[[...route]]/route.ts
 ```
 
@@ -55,6 +57,14 @@ hono request \
 }
 ```
 
+> 401 Response
+
+```json
+{
+  "message": "string"
+}
+```
+
 > 422 Response
 
 ```json
@@ -85,6 +95,7 @@ hono request \
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
 |200|OK|The request has succeeded.|[Comment](#schemacomment)|
+|401|Unauthorized|Access is unauthorized.|[MessageResponse](#schemamessageresponse)|
 |422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
 |500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
 
@@ -103,7 +114,7 @@ This operation does not require authentication
 ```bash
 hono request \
   -X GET \
-  -P /api/current \
+  -P /current \
   -H 'Accept: application/json' \
   src/app/api/[[...route]]/route.ts
 ```
@@ -179,10 +190,16 @@ This operation does not require authentication
 ```bash
 hono request \
   -X PATCH \
-  -P /api/edit \
+  -P /edit \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  -d '{"name":"string","username":"string","bio":"string","coverImage":"http://example.com","profileImage":"http://example.com"}' \
+  -d '{
+    "name": "string",
+    "username": "string",
+    "bio": "string",
+    "coverImage": "http://example.com",
+    "profileImage": "http://example.com"
+  }' \
   src/app/api/[[...route]]/route.ts
 ```
 
@@ -232,6 +249,14 @@ hono request \
 }
 ```
 
+> 401 Response
+
+```json
+{
+  "message": "string"
+}
+```
+
 > 422 Response
 
 ```json
@@ -262,6 +287,7 @@ hono request \
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
 |200|OK|The request has succeeded.|[User](#schemauser)|
+|401|Unauthorized|Access is unauthorized.|[MessageResponse](#schemamessageresponse)|
 |422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
 |500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
 
@@ -280,10 +306,12 @@ This operation does not require authentication
 ```bash
 hono request \
   -X POST \
-  -P /api/follow \
+  -P /follow \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  -d '{"userId":"497f6eca-6276-4993-bfeb-53cbbbba6f08"}' \
+  -d '{
+    "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08"
+  }' \
   src/app/api/[[...route]]/route.ts
 ```
 
@@ -307,6 +335,14 @@ hono request \
 > Example responses
 
 > 200 Response
+
+```json
+{
+  "message": "string"
+}
+```
+
+> 401 Response
 
 ```json
 {
@@ -344,6 +380,7 @@ hono request \
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
 |200|OK|The request has succeeded.|[MessageResponse](#schemamessageresponse)|
+|401|Unauthorized|Access is unauthorized.|[MessageResponse](#schemamessageresponse)|
 |422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
 |500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
 
@@ -360,10 +397,12 @@ This operation does not require authentication
 ```bash
 hono request \
   -X DELETE \
-  -P /api/follow \
+  -P /follow \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  -d '{"userId":"497f6eca-6276-4993-bfeb-53cbbbba6f08"}' \
+  -d '{
+    "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08"
+  }' \
   src/app/api/[[...route]]/route.ts
 ```
 
@@ -387,6 +426,14 @@ hono request \
 > Example responses
 
 > 200 Response
+
+```json
+{
+  "message": "string"
+}
+```
+
+> 401 Response
 
 ```json
 {
@@ -424,6 +471,7 @@ hono request \
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
 |200|OK|The request has succeeded.|[MessageResponse](#schemamessageresponse)|
+|401|Unauthorized|Access is unauthorized.|[MessageResponse](#schemamessageresponse)|
 |422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
 |500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
 
@@ -442,10 +490,12 @@ This operation does not require authentication
 ```bash
 hono request \
   -X POST \
-  -P /api/like \
+  -P /like \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  -d '{"postId":"497f6eca-6276-4993-bfeb-53cbbbba6f08"}' \
+  -d '{
+    "postId": "497f6eca-6276-4993-bfeb-53cbbbba6f08"
+  }' \
   src/app/api/[[...route]]/route.ts
 ```
 
@@ -487,6 +537,14 @@ hono request \
 }
 ```
 
+> 401 Response
+
+```json
+{
+  "message": "string"
+}
+```
+
 > 422 Response
 
 ```json
@@ -517,6 +575,7 @@ hono request \
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
 |200|OK|The request has succeeded.|[PostWithLikes](#schemapostwithlikes)|
+|401|Unauthorized|Access is unauthorized.|[MessageResponse](#schemamessageresponse)|
 |422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
 |500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
 
@@ -533,10 +592,12 @@ This operation does not require authentication
 ```bash
 hono request \
   -X DELETE \
-  -P /api/like \
+  -P /like \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  -d '{"postId":"497f6eca-6276-4993-bfeb-53cbbbba6f08"}' \
+  -d '{
+    "postId": "497f6eca-6276-4993-bfeb-53cbbbba6f08"
+  }' \
   src/app/api/[[...route]]/route.ts
 ```
 
@@ -578,6 +639,14 @@ hono request \
 }
 ```
 
+> 401 Response
+
+```json
+{
+  "message": "string"
+}
+```
+
 > 422 Response
 
 ```json
@@ -608,6 +677,7 @@ hono request \
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
 |200|OK|The request has succeeded.|[PostWithLikes](#schemapostwithlikes)|
+|401|Unauthorized|Access is unauthorized.|[MessageResponse](#schemamessageresponse)|
 |422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
 |500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
 
@@ -626,7 +696,7 @@ This operation does not require authentication
 ```bash
 hono request \
   -X GET \
-  -P /api/notifications/{userId} \
+  -P /notifications/{userId} \
   -H 'Accept: application/json' \
   src/app/api/[[...route]]/route.ts
 ```
@@ -712,7 +782,7 @@ This operation does not require authentication
 ```bash
 hono request \
   -X POST \
-  -P /api/notifications \
+  -P /notifications \
   -H 'Accept: application/json' \
   src/app/api/[[...route]]/route.ts
 ```
@@ -777,7 +847,7 @@ This operation does not require authentication
 ```bash
 hono request \
   -X GET \
-  -P /api/posts \
+  -P /posts \
   -H 'Accept: application/json' \
   src/app/api/[[...route]]/route.ts
 ```
@@ -854,12 +924,21 @@ hono request \
 }
 ```
 
+> 500 Response
+
+```json
+{
+  "message": "string"
+}
+```
+
 <h3 id="getposts-responses">Responses</h3>
 
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
 |200|OK|The request has succeeded.|Inline|
 |422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
+|500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
 
 <h3 id="getposts-responseschema">Response Schema</h3>
 
@@ -911,10 +990,12 @@ This operation does not require authentication
 ```bash
 hono request \
   -X POST \
-  -P /api/posts \
+  -P /posts \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  -d '{"body":"string"}' \
+  -d '{
+    "body": "string"
+  }' \
   src/app/api/[[...route]]/route.ts
 ```
 
@@ -949,6 +1030,14 @@ hono request \
 }
 ```
 
+> 401 Response
+
+```json
+{
+  "message": "string"
+}
+```
+
 > 422 Response
 
 ```json
@@ -979,6 +1068,7 @@ hono request \
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
 |200|OK|The request has succeeded.|[Post](#schemapost)|
+|401|Unauthorized|Access is unauthorized.|[MessageResponse](#schemamessageresponse)|
 |422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
 |500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
 
@@ -995,7 +1085,7 @@ This operation does not require authentication
 ```bash
 hono request \
   -X GET \
-  -P /api/posts/{postId} \
+  -P /posts/{postId} \
   -H 'Accept: application/json' \
   src/app/api/[[...route]]/route.ts
 ```
@@ -1103,10 +1193,15 @@ This operation does not require authentication
 ```bash
 hono request \
   -X POST \
-  -P /api/register \
+  -P /register \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  -d '{"email":"user@example.com","name":"string","username":"string","password":"string"}' \
+  -d '{
+    "email": "user@example.com",
+    "name": "string",
+    "username": "string",
+    "password": "string"
+  }' \
   src/app/api/[[...route]]/route.ts
 ```
 
@@ -1229,7 +1324,7 @@ This operation does not require authentication
 ```bash
 hono request \
   -X GET \
-  -P /api/users/{userId} \
+  -P /users/{userId} \
   -H 'Accept: application/json' \
   src/app/api/[[...route]]/route.ts
 ```
@@ -1322,7 +1417,7 @@ This operation does not require authentication
 ```bash
 hono request \
   -X GET \
-  -P /api/users \
+  -P /users \
   -H 'Accept: application/json' \
   src/app/api/[[...route]]/route.ts
 ```
@@ -1422,6 +1517,25 @@ This operation does not require authentication
 |userId|string(uuid)|true|none|none|
 |postId|string(uuid)|true|none|none|
 
+<h2 id="tocS_MessageResponse">MessageResponse</h2>
+<!-- backwards compatibility -->
+<a id="schemamessageresponse"></a>
+<a id="schema_MessageResponse"></a>
+<a id="tocSmessageresponse"></a>
+<a id="tocsmessageresponse"></a>
+
+```json
+{
+  "message": "string"
+}
+```
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|message|string|true|none|none|
+
 <h2 id="tocS_ValidationErrorDetail">ValidationErrorDetail</h2>
 <!-- backwards compatibility -->
 <a id="schemavalidationerrordetail"></a>
@@ -1483,25 +1597,6 @@ This operation does not require authentication
 |title|Unprocessable Content|
 |status|422|
 |detail|Request validation failed|
-
-<h2 id="tocS_MessageResponse">MessageResponse</h2>
-<!-- backwards compatibility -->
-<a id="schemamessageresponse"></a>
-<a id="schema_MessageResponse"></a>
-<a id="tocSmessageresponse"></a>
-<a id="tocsmessageresponse"></a>
-
-```json
-{
-  "message": "string"
-}
-```
-
-### Properties
-
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|message|string|true|none|none|
 
 <h2 id="tocS_CreateCommentRequest">CreateCommentRequest</h2>
 <!-- backwards compatibility -->
