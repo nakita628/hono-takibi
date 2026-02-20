@@ -27,15 +27,17 @@ test.describe('Register modal', () => {
 
   test('should have all required input fields', async ({ page }) => {
     await page.goto('/')
-    await expect(page.getByPlaceholder('Email')).toBeVisible()
-    await expect(page.getByPlaceholder('Name')).toBeVisible()
-    await expect(page.getByPlaceholder('Username')).toBeVisible()
-    await expect(page.getByPlaceholder('Password')).toBeVisible()
+    const modal = page.locator('.fixed').filter({ has: page.getByRole('heading', { name: 'Create an account' }) })
+    await expect(modal.getByPlaceholder('Email')).toBeVisible()
+    await expect(modal.getByPlaceholder('Name', { exact: true })).toBeVisible()
+    await expect(modal.getByPlaceholder('Username')).toBeVisible()
+    await expect(modal.getByPlaceholder('Password')).toBeVisible()
   })
 
   test('should have Register action button', async ({ page }) => {
     await page.goto('/')
-    await expect(page.getByRole('button', { name: 'Register' })).toBeVisible()
+    const modal = page.locator('.fixed').filter({ has: page.getByRole('heading', { name: 'Create an account' }) })
+    await expect(modal.getByRole('button', { name: 'Register' })).toBeVisible()
   })
 
   test('should close when X button is clicked', async ({ page }) => {
@@ -80,8 +82,9 @@ test.describe('Login modal', () => {
     // Toggle to login modal
     await page.getByText('Sign in').click()
 
-    await expect(page.getByPlaceholder('Email')).toBeVisible()
-    await expect(page.getByPlaceholder('Password')).toBeVisible()
+    const modal = page.locator('.fixed').filter({ has: page.getByRole('heading', { name: 'Login' }) })
+    await expect(modal.getByPlaceholder('Email')).toBeVisible()
+    await expect(modal.getByPlaceholder('Password')).toBeVisible()
   })
 
   test('should have Sign in action button', async ({ page }) => {
@@ -107,17 +110,18 @@ test.describe('Login modal', () => {
 test.describe('Sidebar navigation', () => {
   test('should show Home navigation item', async ({ page }) => {
     await page.goto('/')
-    await expect(page.getByRole('link', { name: /Home/ })).toBeVisible()
+    // SidebarItem uses div with onClick, not anchor tags
+    await expect(page.locator('p', { hasText: 'Home' })).toBeVisible()
   })
 
   test('should show Notifications navigation item', async ({ page }) => {
     await page.goto('/')
-    await expect(page.getByRole('link', { name: /Notifications/ })).toBeVisible()
+    await expect(page.locator('p', { hasText: 'Notifications' })).toBeVisible()
   })
 
   test('should show Profile navigation item', async ({ page }) => {
     await page.goto('/')
-    await expect(page.getByRole('link', { name: /Profile/ })).toBeVisible()
+    await expect(page.locator('p', { hasText: 'Profile' })).toBeVisible()
   })
 
   test('should navigate to home when Home is clicked', async ({ page }) => {
@@ -126,7 +130,7 @@ test.describe('Sidebar navigation', () => {
     // Close register modal first
     await page.locator('button:has(svg)').filter({ has: page.locator('svg') }).first().click()
 
-    await page.getByRole('link', { name: /Home/ }).click()
+    await page.locator('p', { hasText: 'Home' }).click()
     await expect(page).toHaveURL('/')
   })
 })

@@ -16,7 +16,8 @@
     "generate": "drizzle-kit generate",
     "migrate": "drizzle-kit migrate",
     "local-migrate": "wrangler d1 migrations apply DB --local",
-    "secret": "openssl rand -base64 32"
+    "secret": "openssl rand -base64 32",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@hono/zod-openapi": "^1.2.1",
