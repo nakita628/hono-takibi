@@ -9,7 +9,7 @@ type Props = {
   label: string
   href?: string | undefined
   icon: React.ReactNode
-  onClick?: (() => void) | undefined
+  onClick?: (() => void | Promise<void>) | undefined
   auth?: boolean | undefined
   alert?: boolean | undefined
 }
@@ -19,9 +19,9 @@ export function SidebarItem({ label, href, icon, onClick, auth, alert }: Props) 
   const loginModal = useLoginModal()
   const { data: currentUser } = useGetCurrent()
 
-  const handleClick = useCallback(() => {
+  const handleClick = useCallback(async () => {
     if (onClick) {
-      return onClick()
+      return await onClick()
     }
 
     if (auth && !currentUser) {

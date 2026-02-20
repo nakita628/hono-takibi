@@ -1,16 +1,28 @@
 'use client'
 
+import { useCallback } from 'react'
+import { useRouter } from 'next/navigation'
 import { BsBellFill, BsHouseFill } from 'react-icons/bs'
 import { BiLogOut } from 'react-icons/bi'
 import { FaUser } from 'react-icons/fa'
+import { useSWRConfig } from 'swr'
 import { SidebarItem } from '@/components/atoms/SidebarItem'
 import { SidebarLogo } from '@/components/atoms/SidebarLogo'
 import { SidebarTweetButton } from '@/components/atoms/SidebarTweetButton'
-import { useGetCurrent } from '@/hooks/swr'
+import { getGetCurrentKey, useGetCurrent } from '@/hooks/swr'
 import { authClient } from '@/lib/auth-client'
 
 export function Sidebar() {
+  const router = useRouter()
   const { data: currentUser } = useGetCurrent()
+  const { mutate } = useSWRConfig()
+
+  const handleSignOut = useCallback(async () => {
+    await authClient.signOut()
+    await mutate(getGetCurrentKey(), undefined, { revalidate: false })
+    router.push('/')
+    router.refresh()
+  }, [mutate, router])
 
   const items = [
     {
@@ -50,7 +62,7 @@ export function Sidebar() {
           ))}
           {currentUser && (
             <SidebarItem
-              onClick={() => authClient.signOut()}
+              onClick={handleSignOut}
               icon={<BiLogOut size={24} color='white' />}
               label='Logout'
             />

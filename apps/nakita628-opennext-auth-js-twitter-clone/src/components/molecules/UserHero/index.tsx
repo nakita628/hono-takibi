@@ -12,7 +12,7 @@ export function UserHero({ userId }: Props) {
   const { data: fetchedUser } = useGetUsersUserId({ param: { userId } })
 
   return (
-    <div>
+    <div className='pb-16'>
       <div className='bg-neutral-700 h-44 relative'>
         {fetchedUser?.coverImage && (
           <Image

@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useState } from 'react'
+import { useSWRConfig } from 'swr'
 import { Input } from '@/components/atoms/Input'
 import { Modal } from '@/components/molecules/Modal'
 import { usePostRegister } from '@/hooks/swr'
@@ -12,6 +13,7 @@ export function RegisterModal() {
   const loginModal = useLoginModal()
   const registerModal = useRegisterModal()
   const { trigger: register } = usePostRegister()
+  const { mutate } = useSWRConfig()
   const [email, setEmail] = useState('')
   const [name, setName] = useState('')
   const [username, setUsername] = useState('')
@@ -33,6 +35,7 @@ export function RegisterModal() {
       })
 
       await authClient.signIn.email({ email, password })
+      await mutate(() => true)
 
       registerModal.onClose()
     } catch {
@@ -40,7 +43,7 @@ export function RegisterModal() {
     } finally {
       setIsLoading(false)
     }
-  }, [email, username, name, password, register, registerModal])
+  }, [email, username, name, password, register, registerModal, mutate])
 
   const bodyContent = (
     <div className='flex flex-col gap-4'>
