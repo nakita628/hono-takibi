@@ -15,8 +15,8 @@ import * as UserService from '@/backend/services/user'
  *   D --> E[validate + return]
  * ```
  */
-export const getById = (userId: string) =>
-  Effect.gen(function* () {
+export function getById(userId: string) {
+  return Effect.gen(function* () {
     const user = yield* UserService.findByIdWithFollowCount(userId)
     if (!user) {
       return yield* Effect.fail(new NotFoundError({ message: 'User not found' }))
@@ -49,6 +49,7 @@ export const getById = (userId: string) =>
     }
     return valid.data
   })
+}
 
 /**
  * List all users with pagination.
@@ -62,26 +63,26 @@ export const getById = (userId: string) =>
  *   D --> E[validate + return]
  * ```
  */
-export const getAll = (args: { page: number; limit: number }) =>
-  Effect.gen(function* () {
+export function getAll(args: { page: number; limit: number }) {
+  return Effect.gen(function* () {
     const offset = (args.page - 1) * args.limit
     const result = yield* UserService.findAllPaginated({ limit: args.limit, offset })
 
     const data = {
-      data: result.users.map((u) => {
-        const profile = u.userProfile
+      data: result.users.map((user) => {
+        const profile = user.userProfile
         return {
-          id: u.id,
-          name: u.name,
+          id: user.id,
+          name: user.name,
           username: profile?.username ?? '',
           bio: profile?.bio ?? null,
-          email: u.email,
+          email: user.email,
           emailVerified: null,
-          image: u.image ?? null,
+          image: user.image ?? null,
           coverImage: profile?.coverImage ?? null,
           profileImage: profile?.profileImage ?? null,
-          createdAt: u.createdAt.toISOString(),
-          updatedAt: u.updatedAt.toISOString(),
+          createdAt: user.createdAt.toISOString(),
+          updatedAt: user.updatedAt.toISOString(),
           hasNotification: profile?.hasNotification ?? null,
         }
       }),
@@ -99,3 +100,4 @@ export const getAll = (args: { page: number; limit: number }) =>
     }
     return valid.data
   })
+}

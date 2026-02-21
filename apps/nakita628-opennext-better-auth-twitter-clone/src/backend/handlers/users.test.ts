@@ -1,25 +1,6 @@
 import { faker } from '@faker-js/faker'
 import { Effect } from 'effect'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-
-const mockGetSession = vi.hoisted(() => vi.fn())
-
-vi.mock('@/lib/auth', () => ({
-  auth: () => ({
-    api: { getSession: mockGetSession },
-    handler: vi.fn().mockResolvedValue(new Response()),
-  }),
-}))
-
-vi.mock('@opennextjs/cloudflare', () => ({
-  getCloudflareContext: () => ({ env: { DB: {} } }),
-}))
-
-vi.mock('@/backend/transactions/users', () => ({
-  getAll: vi.fn(),
-  getById: vi.fn(),
-}))
-
 import app from '@/backend'
 import { DatabaseError, NotFoundError, ValidationError } from '@/backend/domain'
 import * as UsersTransaction from '@/backend/transactions/users'

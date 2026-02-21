@@ -1,10 +1,9 @@
 import { Effect } from 'effect'
-import { UnauthorizedError, ValidationError } from '@/backend/domain'
+import { ValidationError } from '@/backend/domain'
 import { CommentSchema } from '@/backend/routes'
 import * as CommentService from '@/backend/services/comment'
 import * as NotificationService from '@/backend/services/notification'
 import * as PostService from '@/backend/services/post'
-import * as UserService from '@/backend/services/user'
 
 /**
  * Create a comment and notify the post owner.
@@ -12,25 +11,17 @@ import * as UserService from '@/backend/services/user'
  * @mermaid
  * ```
  * flowchart TD
- *   A[findByEmail] --> B{user?}
- *   B -- no --> C[fail Unauthorized]
- *   B -- yes --> D[createComment]
- *   D --> E[findPost]
- *   E --> F[createNotification]
- *   F --> G[updateHasNotification]
- *   G --> H[validate + return]
+ *   A[createComment] --> B[findPost]
+ *   B --> C[createNotification]
+ *   C --> D[updateHasNotification]
+ *   D --> E[validate + return]
  * ```
  */
-export const create = (email: string, args: { body: string; postId: string }) =>
-  Effect.gen(function* () {
-    const user = yield* UserService.findByEmail(email)
-    if (!user) {
-      return yield* Effect.fail(new UnauthorizedError({ message: 'Not signed in' }))
-    }
-
+export function create(userId: string, args: { body: string; postId: string }) {
+  return Effect.gen(function* () {
     const comment = yield* CommentService.create({
       body: args.body,
-      userId: user.id,
+      userId,
       postId: args.postId,
     })
 
@@ -58,3 +49,4 @@ export const create = (email: string, args: { body: string; postId: string }) =>
     }
     return valid.data
   })
+}

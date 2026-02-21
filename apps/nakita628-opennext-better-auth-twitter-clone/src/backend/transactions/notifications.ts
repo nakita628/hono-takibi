@@ -14,15 +14,15 @@ import * as NotificationService from '@/backend/services/notification'
  *   B --> C[validate + return]
  * ```
  */
-export const getByUserId = (userId: string) =>
-  Effect.gen(function* () {
+export function getByUserId(userId: string) {
+  return Effect.gen(function* () {
     const notifications = yield* NotificationService.findByUserId(userId)
 
-    const data = notifications.map((n) => ({
-      id: n.id,
-      body: n.body,
-      userId: n.userId,
-      createdAt: n.createdAt.toISOString(),
+    const data = notifications.map((notification) => ({
+      id: notification.id,
+      body: notification.body,
+      userId: notification.userId,
+      createdAt: notification.createdAt.toISOString(),
     }))
 
     const valid = z.array(NotificationSchema).safeParse(data)
@@ -31,6 +31,7 @@ export const getByUserId = (userId: string) =>
     }
     return valid.data
   })
+}
 
 /**
  * Mark all notifications as read for a user.
@@ -41,8 +42,8 @@ export const getByUserId = (userId: string) =>
  *   A[updateHasNotification false] --> B[validate + return]
  * ```
  */
-export const markAsRead = (userId: string) =>
-  Effect.gen(function* () {
+export function markAsRead(userId: string) {
+  return Effect.gen(function* () {
     yield* NotificationService.updateUserHasNotification(userId, false)
 
     const data = { message: 'Notifications updated' }
@@ -52,3 +53,4 @@ export const markAsRead = (userId: string) =>
     }
     return valid.data
   })
+}

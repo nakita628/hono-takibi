@@ -246,6 +246,16 @@ export const RegisterRequestSchema = z
   .openapi({ required: ['email', 'name', 'username', 'password'] })
   .openapi('RegisterRequest')
 
+export const PaginatedUsersSchema = z
+  .object({ data: z.array(UserSchema), meta: PaginationMetaSchema })
+  .openapi({ required: ['data', 'meta'] })
+  .openapi('PaginatedUsers')
+
+export const SearchResultsSchema = z
+  .object({ posts: PaginatedPostsSchema, users: PaginatedUsersSchema })
+  .openapi({ required: ['posts', 'users'] })
+  .openapi('SearchResults')
+
 export const UserWithFollowCountSchema = z
   .object({
     id: z.uuid(),
@@ -280,11 +290,6 @@ export const UserWithFollowCountSchema = z
     ],
   })
   .openapi('UserWithFollowCount')
-
-export const PaginatedUsersSchema = z
-  .object({ data: z.array(UserSchema), meta: PaginationMetaSchema })
-  .openapi({ required: ['data', 'meta'] })
-  .openapi('PaginatedUsers')
 
 export const PostWithDetailsSchema = z
   .object({
@@ -367,6 +372,13 @@ const ParametersPostIdPathParamsSchema = z
       required: true,
       schema: { type: 'string', format: 'uuid' },
     },
+  })
+
+const ParametersSearchQueryParamsSchema = z
+  .string()
+  .min(1)
+  .openapi({
+    param: { name: 'q', in: 'query', required: true, schema: { type: 'string', minLength: 1 } },
   })
 
 export const postCommentsRoute = createRoute({
@@ -466,7 +478,7 @@ export const postFollowRoute = createRoute({
   method: 'post',
   path: '/follow',
   tags: ['follow'],
-  operationId: 'postFollowUesrId',
+  operationId: 'postFollowUserId',
   request: {
     body: { content: { 'application/json': { schema: FollowUserRequestSchema } }, required: true },
   },
@@ -613,6 +625,10 @@ export const getNotificationsUserIdRoute = createRoute({
       description: 'The request has succeeded.',
       content: { 'application/json': { schema: z.array(NotificationSchema) } },
     },
+    401: {
+      description: 'Access is unauthorized.',
+      content: { 'application/json': { schema: MessageResponseSchema } },
+    },
     422: {
       description: 'Client error',
       content: { 'application/json': { schema: ValidationErrorSchema } },
@@ -637,6 +653,10 @@ export const postNotificationsRoute = createRoute({
   responses: {
     200: {
       description: 'The request has succeeded.',
+      content: { 'application/json': { schema: MessageResponseSchema } },
+    },
+    401: {
+      description: 'Access is unauthorized.',
       content: { 'application/json': { schema: MessageResponseSchema } },
     },
     422: {
@@ -784,6 +804,38 @@ export const postRegisterRoute = createRoute({
   },
 })
 
+export const getSearchRoute = createRoute({
+  method: 'get',
+  path: '/search',
+  tags: ['search'],
+  operationId: 'getSearch',
+  request: {
+    query: z.object({
+      q: ParametersSearchQueryParamsSchema,
+      page: ParametersPaginationQueryPageParamsSchema,
+      limit: ParametersPaginationQueryLimitParamsSchema,
+    }),
+  },
+  responses: {
+    200: {
+      description: 'The request has succeeded.',
+      content: { 'application/json': { schema: SearchResultsSchema } },
+    },
+    422: {
+      description: 'Client error',
+      content: { 'application/json': { schema: ValidationErrorSchema } },
+    },
+    500: {
+      description: 'Server error',
+      content: { 'application/json': { schema: MessageResponseSchema } },
+    },
+    503: {
+      description: 'Service unavailable.',
+      content: { 'application/json': { schema: MessageResponseSchema } },
+    },
+  },
+})
+
 export const getUsersUserIdRoute = createRoute({
   method: 'get',
   path: '/users/{userId}',
@@ -829,58 +881,6 @@ export const getUsersRoute = createRoute({
     200: {
       description: 'The request has succeeded.',
       content: { 'application/json': { schema: PaginatedUsersSchema } },
-    },
-    500: {
-      description: 'Server error',
-      content: { 'application/json': { schema: MessageResponseSchema } },
-    },
-    503: {
-      description: 'Service unavailable.',
-      content: { 'application/json': { schema: MessageResponseSchema } },
-    },
-  },
-})
-
-const ParametersSearchQueryParamsSchema = z
-  .string()
-  .min(1)
-  .openapi({
-    param: {
-      name: 'q',
-      in: 'query',
-      required: true,
-      schema: { type: 'string', minLength: 1 },
-    },
-  })
-
-export const SearchResultsSchema = z
-  .object({
-    posts: PaginatedPostsSchema,
-    users: PaginatedUsersSchema,
-  })
-  .openapi({ required: ['posts', 'users'] })
-  .openapi('SearchResults')
-
-export const getSearchRoute = createRoute({
-  method: 'get',
-  path: '/search',
-  tags: ['search'],
-  operationId: 'getSearch',
-  request: {
-    query: z.object({
-      q: ParametersSearchQueryParamsSchema,
-      page: ParametersPaginationQueryPageParamsSchema,
-      limit: ParametersPaginationQueryLimitParamsSchema,
-    }),
-  },
-  responses: {
-    200: {
-      description: 'The request has succeeded.',
-      content: { 'application/json': { schema: SearchResultsSchema } },
-    },
-    422: {
-      description: 'Client error',
-      content: { 'application/json': { schema: ValidationErrorSchema } },
     },
     500: {
       description: 'Server error',

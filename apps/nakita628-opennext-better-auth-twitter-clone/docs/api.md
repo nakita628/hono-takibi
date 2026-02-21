@@ -324,9 +324,9 @@ This operation does not require authentication
 
 <h1 id="opennext-twitter-clone-api-follow">follow</h1>
 
-## postFollowUesrId
+## postFollowUserId
 
-<a id="opIdpostFollowUesrId"></a>
+<a id="opIdpostFollowUserId"></a>
 
 > Code samples
 
@@ -352,7 +352,7 @@ hono request \
 }
 ```
 
-<h3 id="postfollowuesrid-parameters">Parameters</h3>
+<h3 id="postfollowuserid-parameters">Parameters</h3>
 
 |Name|In|Type|Required|Description|
 |---|---|---|---|---|
@@ -418,7 +418,7 @@ hono request \
 }
 ```
 
-<h3 id="postfollowuesrid-responses">Responses</h3>
+<h3 id="postfollowuserid-responses">Responses</h3>
 
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
@@ -814,6 +814,14 @@ hono request \
 ]
 ```
 
+> 401 Response
+
+```json
+{
+  "message": "string"
+}
+```
+
 > 422 Response
 
 ```json
@@ -852,6 +860,7 @@ hono request \
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
 |200|OK|The request has succeeded.|Inline|
+|401|Unauthorized|Access is unauthorized.|[MessageResponse](#schemamessageresponse)|
 |422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
 |500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
 |503|Service Unavailable|Service unavailable.|[MessageResponse](#schemamessageresponse)|
@@ -898,6 +907,14 @@ hono request \
 }
 ```
 
+> 401 Response
+
+```json
+{
+  "message": "string"
+}
+```
+
 > 422 Response
 
 ```json
@@ -936,6 +953,7 @@ hono request \
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
 |200|OK|The request has succeeded.|[MessageResponse](#schemamessageresponse)|
+|401|Unauthorized|Access is unauthorized.|[MessageResponse](#schemamessageresponse)|
 |422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
 |500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
 |503|Service Unavailable|Service unavailable.|[MessageResponse](#schemamessageresponse)|
@@ -1407,6 +1425,126 @@ hono request \
 |201|Created|The request has succeeded and a new resource has been created as a result.|[User](#schemauser)|
 |404|Not Found|The server cannot find the requested resource.|[MessageResponse](#schemamessageresponse)|
 |409|Conflict|The request conflicts with the current state of the server.|[MessageResponse](#schemamessageresponse)|
+|422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
+|500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
+|503|Service Unavailable|Service unavailable.|[MessageResponse](#schemamessageresponse)|
+
+<aside class="success">
+This operation does not require authentication
+</aside>
+
+<h1 id="opennext-twitter-clone-api-search">search</h1>
+
+## getSearch
+
+<a id="opIdgetSearch"></a>
+
+> Code samples
+
+```bash
+hono request \
+  -X GET \
+  -P /api/search \
+  -H 'Accept: application/json' \
+  src/app/api/[[...route]]/route.ts
+```
+
+`GET /search`
+
+<h3 id="getsearch-parameters">Parameters</h3>
+
+|Name|In|Type|Required|Description|
+|---|---|---|---|---|
+|q|query|string|true|none|
+|page|query|number|false|none|
+|limit|query|number|false|none|
+
+> Example responses
+
+> 200 Response
+
+```json
+{
+  "posts": {
+    "data": [
+      {
+        "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+        "body": "string",
+        "createdAt": "string",
+        "updatedAt": "string",
+        "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+        "user": {
+          "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+          "name": "string",
+          "username": "string",
+          "bio": "string",
+          "email": "user@example.com",
+          "emailVerified": "string",
+          "image": "http://example.com",
+          "coverImage": "http://example.com",
+          "profileImage": "http://example.com",
+          "createdAt": "string",
+          "updatedAt": "string",
+          "hasNotification": true
+        },
+        "commentCount": 0,
+        "likeCount": 0
+      }
+    ],
+    "meta": {
+      "page": 0,
+      "limit": 0,
+      "total": 0,
+      "totalPages": 0
+    }
+  },
+  "users": {
+    "data": [
+      {}
+    ],
+    "meta": {}
+  }
+}
+```
+
+> 422 Response
+
+```json
+{
+  "type": "about:blank",
+  "title": "Unprocessable Content",
+  "status": 422,
+  "detail": "Request validation failed",
+  "errors": [
+    {
+      "pointer": "string",
+      "detail": "string"
+    }
+  ]
+}
+```
+
+> 500 Response
+
+```json
+{
+  "message": "string"
+}
+```
+
+> 503 Response
+
+```json
+{
+  "message": "string"
+}
+```
+
+<h3 id="getsearch-responses">Responses</h3>
+
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|OK|The request has succeeded.|[SearchResults](#schemasearchresults)|
 |422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
 |500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
 |503|Service Unavailable|Service unavailable.|[MessageResponse](#schemamessageresponse)|
@@ -2295,6 +2433,105 @@ This operation does not require authentication
 |username|string|true|none|none|
 |password|string|true|none|none|
 
+<h2 id="tocS_PaginatedUsers">PaginatedUsers</h2>
+<!-- backwards compatibility -->
+<a id="schemapaginatedusers"></a>
+<a id="schema_PaginatedUsers"></a>
+<a id="tocSpaginatedusers"></a>
+<a id="tocspaginatedusers"></a>
+
+```json
+{
+  "data": [
+    {
+      "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+      "name": "string",
+      "username": "string",
+      "bio": "string",
+      "email": "user@example.com",
+      "emailVerified": "string",
+      "image": "http://example.com",
+      "coverImage": "http://example.com",
+      "profileImage": "http://example.com",
+      "createdAt": "string",
+      "updatedAt": "string",
+      "hasNotification": true
+    }
+  ],
+  "meta": {
+    "page": 0,
+    "limit": 0,
+    "total": 0,
+    "totalPages": 0
+  }
+}
+```
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|data|[[User](#schemauser)]|true|none|none|
+|meta|[PaginationMeta](#schemapaginationmeta)|true|none|none|
+
+<h2 id="tocS_SearchResults">SearchResults</h2>
+<!-- backwards compatibility -->
+<a id="schemasearchresults"></a>
+<a id="schema_SearchResults"></a>
+<a id="tocSsearchresults"></a>
+<a id="tocssearchresults"></a>
+
+```json
+{
+  "posts": {
+    "data": [
+      {
+        "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+        "body": "string",
+        "createdAt": "string",
+        "updatedAt": "string",
+        "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+        "user": {
+          "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+          "name": "string",
+          "username": "string",
+          "bio": "string",
+          "email": "user@example.com",
+          "emailVerified": "string",
+          "image": "http://example.com",
+          "coverImage": "http://example.com",
+          "profileImage": "http://example.com",
+          "createdAt": "string",
+          "updatedAt": "string",
+          "hasNotification": true
+        },
+        "commentCount": 0,
+        "likeCount": 0
+      }
+    ],
+    "meta": {
+      "page": 0,
+      "limit": 0,
+      "total": 0,
+      "totalPages": 0
+    }
+  },
+  "users": {
+    "data": [
+      {}
+    ],
+    "meta": {}
+  }
+}
+```
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|posts|[PaginatedPosts](#schemapaginatedposts)|true|none|none|
+|users|[PaginatedUsers](#schemapaginatedusers)|true|none|none|
+
 <h2 id="tocS_UserWithFollowCount">UserWithFollowCount</h2>
 <!-- backwards compatibility -->
 <a id="schemauserwithfollowcount"></a>
@@ -2340,47 +2577,6 @@ This operation does not require authentication
 |updatedAt|string|true|none|none|
 |hasNotification|boolean|false|none|none|
 |_count|object|true|none|none|
-
-<h2 id="tocS_PaginatedUsers">PaginatedUsers</h2>
-<!-- backwards compatibility -->
-<a id="schemapaginatedusers"></a>
-<a id="schema_PaginatedUsers"></a>
-<a id="tocSpaginatedusers"></a>
-<a id="tocspaginatedusers"></a>
-
-```json
-{
-  "data": [
-    {
-      "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-      "name": "string",
-      "username": "string",
-      "bio": "string",
-      "email": "user@example.com",
-      "emailVerified": "string",
-      "image": "http://example.com",
-      "coverImage": "http://example.com",
-      "profileImage": "http://example.com",
-      "createdAt": "string",
-      "updatedAt": "string",
-      "hasNotification": true
-    }
-  ],
-  "meta": {
-    "page": 0,
-    "limit": 0,
-    "total": 0,
-    "totalPages": 0
-  }
-}
-```
-
-### Properties
-
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|data|[[User](#schemauser)]|true|none|none|
-|meta|[PaginationMeta](#schemapaginationmeta)|true|none|none|
 
 <h2 id="tocS_PostWithDetails">PostWithDetails</h2>
 <!-- backwards compatibility -->

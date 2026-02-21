@@ -17,8 +17,8 @@ import { auth } from '@/lib/auth'
  *   E --> F[validate + return]
  * ```
  */
-export const create = (args: { email: string; name: string; username: string; password: string }) =>
-  Effect.gen(function* () {
+export function create(args: { email: string; name: string; username: string; password: string }) {
+  return Effect.gen(function* () {
     yield* UserService.exists({ email: args.email })
 
     const signUpResult = yield* Effect.tryPromise({
@@ -60,3 +60,4 @@ export const create = (args: { email: string; name: string; username: string; pa
     }
     return valid.data
   })
+}

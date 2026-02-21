@@ -1,25 +1,6 @@
 import { faker } from '@faker-js/faker'
 import { Effect } from 'effect'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-
-const mockGetSession = vi.hoisted(() => vi.fn())
-
-vi.mock('@/lib/auth', () => ({
-  auth: () => ({
-    api: { getSession: mockGetSession },
-    handler: vi.fn().mockResolvedValue(new Response()),
-  }),
-}))
-
-vi.mock('@opennextjs/cloudflare', () => ({
-  getCloudflareContext: () => ({ env: { DB: {} } }),
-}))
-
-vi.mock('@/backend/transactions/follow', () => ({
-  create: vi.fn(),
-  remove: vi.fn(),
-}))
-
 import app from '@/backend'
 import { DatabaseError, NotFoundError, UnauthorizedError, ValidationError } from '@/backend/domain'
 import * as FollowTransaction from '@/backend/transactions/follow'
@@ -28,6 +9,12 @@ function mockSession() {
   return {
     user: { id: faker.string.uuid(), email: 'test@example.com', name: 'Test User' },
     session: { id: faker.string.uuid() },
+  }
+}
+
+function mockFollowUserRequest() {
+  return {
+    userId: faker.string.uuid(),
   }
 }
 

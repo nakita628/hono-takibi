@@ -1,24 +1,6 @@
 import { faker } from '@faker-js/faker'
 import { Effect } from 'effect'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-
-const mockGetSession = vi.hoisted(() => vi.fn())
-
-vi.mock('@/lib/auth', () => ({
-  auth: () => ({
-    api: { getSession: mockGetSession },
-    handler: vi.fn().mockResolvedValue(new Response()),
-  }),
-}))
-
-vi.mock('@opennextjs/cloudflare', () => ({
-  getCloudflareContext: () => ({ env: { DB: {} } }),
-}))
-
-vi.mock('@/backend/transactions/comments', () => ({
-  create: vi.fn(),
-}))
-
 import app from '@/backend'
 import { DatabaseError, UnauthorizedError, ValidationError } from '@/backend/domain'
 import * as CommentsTransaction from '@/backend/transactions/comments'
@@ -38,6 +20,12 @@ function mockCommentResponse() {
     updatedAt: new Date().toISOString(),
     userId: faker.string.uuid(),
     postId: faker.string.uuid(),
+  }
+}
+
+function mockCreateCommentRequest() {
+  return {
+    body: faker.string.alpha({ length: { min: 5, max: 20 } }),
   }
 }
 

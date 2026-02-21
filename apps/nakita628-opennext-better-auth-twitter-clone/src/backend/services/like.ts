@@ -5,18 +5,19 @@ import { schema } from '@/db'
 import { DB } from '@/infra'
 
 /** Insert a like for a post by a user. */
-export const create = (args: { userId: string; postId: string }) =>
-  Effect.gen(function* () {
+export function create(args: { userId: string; postId: string }) {
+  return Effect.gen(function* () {
     const db = yield* DB
     return yield* Effect.tryPromise({
       try: () => db.insert(schema.likes).values(args).returning().get(),
       catch: () => new DatabaseError({ message: 'Database error' }),
     })
   })
+}
 
 /** Delete a like for a post by a user. */
-export const remove = (args: { userId: string; postId: string }) =>
-  Effect.gen(function* () {
+export function remove(args: { userId: string; postId: string }) {
+  return Effect.gen(function* () {
     const db = yield* DB
     return yield* Effect.tryPromise({
       try: () =>
@@ -28,3 +29,4 @@ export const remove = (args: { userId: string; postId: string }) =>
       catch: () => new DatabaseError({ message: 'Database error' }),
     })
   })
+}

@@ -1,19 +1,3 @@
-/**
- * Backend API entry point.
- *
- * Registers all OpenAPI routes with middleware for rate limiting,
- * authentication, and session resolution.
- *
- * @mermaid
- * ```
- * flowchart LR
- *   A[Request] --> B[Rate limit\nauth endpoints]
- *   B --> C[Auth handler\n/auth/**]
- *   C --> D[Session resolve]
- *   D --> E[Auth guard]
- *   E --> F[Route handler]
- * ```
- */
 import { OpenAPIHono } from '@hono/zod-openapi'
 import {
   deleteFollowRouteHandler,
@@ -53,7 +37,7 @@ import {
   postPostsRoute,
   postRegisterRoute,
 } from '@/backend/routes'
-import { AuthType, auth } from '@/lib/auth'
+import { auth, AuthType } from '@/lib/auth'
 
 const app = new OpenAPIHono<{ Variables: AuthType }>({
   defaultHook: (result, c) => {

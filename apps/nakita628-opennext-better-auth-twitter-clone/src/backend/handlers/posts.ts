@@ -1,10 +1,10 @@
 import type { RouteHandler } from '@hono/zod-openapi'
 import { Effect } from 'effect'
-import { DatabaseError, NotFoundError, UnauthorizedError, ValidationError } from '@/backend/domain'
+import { DatabaseError, NotFoundError, ValidationError } from '@/backend/domain'
 import type { getPostsPostIdRoute, getPostsRoute, postPostsRoute } from '@/backend/routes'
 import * as PostsTransaction from '@/backend/transactions/posts'
 import { DBLive } from '@/infra'
-import type { AuthType } from '@/lib/auth'
+import { auth, type AuthType } from '@/lib/auth'
 
 /**
  * Handle `GET /posts` — list posts with pagination.
@@ -49,31 +49,33 @@ export const getPostsRouteHandler: RouteHandler<
  * @mermaid
  * ```
  * flowchart LR
- *   A[Auth check] --> B[PostsTransaction.create]
- *   B --> C{match}
- *   C --> D[200 OK]
- *   C --> E[401 Unauthorized]
- *   C --> F[503 DB error]
+ *   A[PostsTransaction.create] --> B{match}
+ *   B --> C[200 OK]
+ *   B --> D[503 DB error]
  * ```
  */
 export const postPostsRouteHandler: RouteHandler<
   typeof postPostsRoute,
   { Variables: AuthType }
 > = async (c) => {
-  const email = c.get('user')?.email
-  if (!email) {
+  const session = await auth().api.getSession({
+    headers: c.req.raw.headers,
+  })
+
+  if (!session) {
     return c.json({ message: 'Unauthorized' }, 401)
   }
+
+  const userId = session?.user?.id
 
   const { body } = c.req.valid('json')
 
   return Effect.runPromise(
-    PostsTransaction.create(email, { body }).pipe(
+    PostsTransaction.create(userId, { body }).pipe(
       Effect.provide(DBLive),
       Effect.match({
         onSuccess: (post) => c.json(post, 200),
         onFailure: (e) => {
-          if (e instanceof UnauthorizedError) return c.json({ message: e.message }, 401)
           if (e instanceof ValidationError) return c.json({ message: e.message }, 500)
           if (e instanceof DatabaseError) return c.json({ message: e.message }, 503)
           return c.json({ message: 'Internal server error' }, 500)

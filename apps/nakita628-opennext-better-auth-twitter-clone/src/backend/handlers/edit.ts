@@ -4,7 +4,7 @@ import { DatabaseError, UnauthorizedError, ValidationError } from '@/backend/dom
 import type { patchEditRoute } from '@/backend/routes'
 import * as EditTransaction from '@/backend/transactions/edit'
 import { DBLive } from '@/infra'
-import type { AuthType } from '@/lib/auth'
+import { auth, type AuthType } from '@/lib/auth'
 
 /**
  * Handle `PATCH /edit` — update the authenticated user's profile.
@@ -12,26 +12,30 @@ import type { AuthType } from '@/lib/auth'
  * @mermaid
  * ```
  * flowchart LR
- *   A[Auth check] --> B[EditTransaction.update]
- *   B --> C{match}
- *   C --> D[200 OK]
- *   C --> E[401 Unauthorized]
- *   C --> F[503 DB error]
+ *   A[EditTransaction.update] --> B{match}
+ *   B --> C[200 OK]
+ *   B --> D[401 Unauthorized]
+ *   B --> E[503 DB error]
  * ```
  */
 export const patchEditRouteHandler: RouteHandler<
   typeof patchEditRoute,
   { Variables: AuthType }
 > = async (c) => {
-  const email = c.get('user')?.email
-  if (!email) {
+  const session = await auth().api.getSession({
+    headers: c.req.raw.headers,
+  })
+
+  if (!session) {
     return c.json({ message: 'Unauthorized' }, 401)
   }
+
+  const userId = session?.user?.id
 
   const body = c.req.valid('json')
 
   return Effect.runPromise(
-    EditTransaction.update(email, body).pipe(
+    EditTransaction.update(userId, body).pipe(
       Effect.provide(DBLive),
       Effect.match({
         onSuccess: (user) => c.json(user, 200),

@@ -9,15 +9,15 @@ import * as UserService from '@/backend/services/user'
  * @mermaid
  * ```
  * flowchart TD
- *   A[findByEmailWithFollows] --> B{user?}
+ *   A[findByIdWithFollowCount] --> B{user?}
  *   B -- no --> C[fail Unauthorized]
  *   B -- yes --> D[format followers/following]
  *   D --> E[validate + return]
  * ```
  */
-export const get = (email: string) =>
-  Effect.gen(function* () {
-    const user = yield* UserService.findByEmailWithFollows(email)
+export function get(userId: string) {
+  return Effect.gen(function* () {
+    const user = yield* UserService.findByIdWithFollowCount(userId)
     if (!user) {
       return yield* Effect.fail(new UnauthorizedError({ message: 'Unauthorized' }))
     }
@@ -54,3 +54,4 @@ export const get = (email: string) =>
     }
     return valid.data
   })
+}

@@ -4,7 +4,7 @@ import { DatabaseError, ValidationError } from '@/backend/domain'
 import type { getNotificationsUserIdRoute, postNotificationsRoute } from '@/backend/routes'
 import * as NotificationsTransaction from '@/backend/transactions/notifications'
 import { DBLive } from '@/infra'
-import type { AuthType } from '@/lib/auth'
+import { auth, type AuthType } from '@/lib/auth'
 
 /**
  * Handle `GET /notifications/:userId` — fetch notifications for a user.
@@ -22,6 +22,14 @@ export const getNotificationsUserIdRouteHandler: RouteHandler<
   typeof getNotificationsUserIdRoute,
   { Variables: AuthType }
 > = async (c) => {
+  const session = await auth().api.getSession({
+    headers: c.req.raw.headers,
+  })
+
+  if (!session) {
+    return c.json({ message: 'Unauthorized' }, 401)
+  }
+
   const { userId } = c.req.valid('param')
 
   return Effect.runPromise(
@@ -55,6 +63,14 @@ export const postNotificationsRouteHandler: RouteHandler<
   typeof postNotificationsRoute,
   { Variables: AuthType }
 > = async (c) => {
+  const session = await auth().api.getSession({
+    headers: c.req.raw.headers,
+  })
+
+  if (!session) {
+    return c.json({ message: 'Unauthorized' }, 401)
+  }
+
   const userId = await c.req.text()
 
   return Effect.runPromise(

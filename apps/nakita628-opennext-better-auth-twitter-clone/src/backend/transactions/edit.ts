@@ -9,7 +9,7 @@ import * as UserService from '@/backend/services/user'
  * @mermaid
  * ```
  * flowchart TD
- *   A[findByEmail] --> B{user?}
+ *   A[findById] --> B{user?}
  *   B -- no --> C[fail Unauthorized]
  *   B -- yes --> D{name changed?}
  *   D -- yes --> E[updateName]
@@ -18,8 +18,8 @@ import * as UserService from '@/backend/services/user'
  *   F --> G[validate + return]
  * ```
  */
-export const update = (
-  email: string,
+export function update(
+  userId: string,
   args: {
     name?: string
     username?: string
@@ -27,9 +27,9 @@ export const update = (
     coverImage?: string | null
     profileImage?: string | null
   },
-) =>
-  Effect.gen(function* () {
-    const user = yield* UserService.findByEmail(email)
+) {
+  return Effect.gen(function* () {
+    const user = yield* UserService.findById(userId)
     if (!user) {
       return yield* Effect.fail(new UnauthorizedError({ message: 'Not signed in' }))
     }
@@ -70,3 +70,4 @@ export const update = (
     }
     return valid.data
   })
+}

@@ -5,18 +5,19 @@ import { schema } from '@/db'
 import { DB } from '@/infra'
 
 /** Insert a new notification row for a user. */
-export const create = (args: { body: string; userId: string }) =>
-  Effect.gen(function* () {
+export function create(args: { body: string; userId: string }) {
+  return Effect.gen(function* () {
     const db = yield* DB
     return yield* Effect.tryPromise({
       try: () => db.insert(schema.notifications).values(args).returning().get(),
       catch: () => new DatabaseError({ message: 'Database error' }),
     })
   })
+}
 
 /** Fetch all notifications for a user, ordered newest-first. */
-export const findByUserId = (userId: string) =>
-  Effect.gen(function* () {
+export function findByUserId(userId: string) {
+  return Effect.gen(function* () {
     const db = yield* DB
     return yield* Effect.tryPromise({
       try: () =>
@@ -27,10 +28,11 @@ export const findByUserId = (userId: string) =>
       catch: () => new DatabaseError({ message: 'Database error' }),
     })
   })
+}
 
 /** Toggle the `hasNotification` flag on a user's profile. */
-export const updateUserHasNotification = (userId: string, hasNotification: boolean) =>
-  Effect.gen(function* () {
+export function updateUserHasNotification(userId: string, hasNotification: boolean) {
+  return Effect.gen(function* () {
     const db = yield* DB
     return yield* Effect.tryPromise({
       try: () =>
@@ -42,3 +44,4 @@ export const updateUserHasNotification = (userId: string, hasNotification: boole
       catch: () => new DatabaseError({ message: 'Database error' }),
     })
   })
+}

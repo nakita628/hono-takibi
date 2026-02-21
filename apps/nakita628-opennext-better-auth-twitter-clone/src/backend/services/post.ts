@@ -5,18 +5,19 @@ import { schema } from '@/db'
 import { DB } from '@/infra'
 
 /** Insert a new post row and return the created record. */
-export const create = (args: { body: string; userId: string }) =>
-  Effect.gen(function* () {
+export function create(args: { body: string; userId: string }) {
+  return Effect.gen(function* () {
     const db = yield* DB
     return yield* Effect.tryPromise({
       try: () => db.insert(schema.posts).values(args).returning().get(),
       catch: () => new DatabaseError({ message: 'Database error' }),
     })
   })
+}
 
 /** Find a post by its ID (no relations). */
-export const findById = (id: string) =>
-  Effect.gen(function* () {
+export function findById(id: string) {
+  return Effect.gen(function* () {
     const db = yield* DB
     return yield* Effect.tryPromise({
       try: () =>
@@ -26,10 +27,11 @@ export const findById = (id: string) =>
       catch: () => new DatabaseError({ message: 'Database error' }),
     })
   })
+}
 
 /** Find a post by ID with user, comments (+ their users), and likes. */
-export const findByIdWithRelations = (id: string) =>
-  Effect.gen(function* () {
+export function findByIdWithRelations(id: string) {
+  return Effect.gen(function* () {
     const db = yield* DB
     return yield* Effect.tryPromise({
       try: () =>
@@ -53,10 +55,11 @@ export const findByIdWithRelations = (id: string) =>
       catch: () => new DatabaseError({ message: 'Database error' }),
     })
   })
+}
 
 /** Find a post by ID with its likes relation. */
-export const findByIdWithLikes = (id: string) =>
-  Effect.gen(function* () {
+export function findByIdWithLikes(id: string) {
+  return Effect.gen(function* () {
     const db = yield* DB
     return yield* Effect.tryPromise({
       try: () =>
@@ -67,10 +70,11 @@ export const findByIdWithLikes = (id: string) =>
       catch: () => new DatabaseError({ message: 'Database error' }),
     })
   })
+}
 
 /** Fetch all posts (optionally filtered by userId) with user, comments, and likes. */
-export const findAllWithRelations = (userId?: string) =>
-  Effect.gen(function* () {
+export function findAllWithRelations(userId?: string) {
+  return Effect.gen(function* () {
     const db = yield* DB
     return yield* Effect.tryPromise({
       try: () =>
@@ -88,6 +92,7 @@ export const findAllWithRelations = (userId?: string) =>
       catch: () => new DatabaseError({ message: 'Database error' }),
     })
   })
+}
 
 /**
  * Paginated post query with aggregated comment/like counts.
@@ -106,8 +111,8 @@ export const findAllWithRelations = (userId?: string) =>
  *   E --> F[Return posts + counts]
  * ```
  */
-export const findAllPaginated = (args: { userId?: string; limit: number; offset: number }) =>
-  Effect.gen(function* () {
+export function findAllPaginated(args: { userId?: string; limit: number; offset: number }) {
+  return Effect.gen(function* () {
     const db = yield* DB
     const whereClause = args.userId ? eq(schema.posts.userId, args.userId) : undefined
 
@@ -165,3 +170,4 @@ export const findAllPaginated = (args: { userId?: string; limit: number; offset:
 
     return { posts, total, commentCounts, likeCounts }
   })
+}

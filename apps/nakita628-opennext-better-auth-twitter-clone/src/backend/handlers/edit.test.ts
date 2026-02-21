@@ -1,24 +1,6 @@
 import { faker } from '@faker-js/faker'
 import { Effect } from 'effect'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-
-const mockGetSession = vi.hoisted(() => vi.fn())
-
-vi.mock('@/lib/auth', () => ({
-  auth: () => ({
-    api: { getSession: mockGetSession },
-    handler: vi.fn().mockResolvedValue(new Response()),
-  }),
-}))
-
-vi.mock('@opennextjs/cloudflare', () => ({
-  getCloudflareContext: () => ({ env: { DB: {} } }),
-}))
-
-vi.mock('@/backend/transactions/edit', () => ({
-  update: vi.fn(),
-}))
-
 import app from '@/backend'
 import { DatabaseError, UnauthorizedError, ValidationError } from '@/backend/domain'
 import * as EditTransaction from '@/backend/transactions/edit'
@@ -44,6 +26,19 @@ function mockUserResponse() {
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     hasNotification: null,
+  }
+}
+
+function mockEditUserRequest() {
+  return {
+    name: faker.helpers.arrayElement([faker.person.fullName(), undefined]),
+    username: faker.helpers.arrayElement([faker.internet.username(), undefined]),
+    bio: faker.helpers.arrayElement([
+      faker.string.alpha({ length: { min: 5, max: 20 } }),
+      undefined,
+    ]),
+    coverImage: faker.helpers.arrayElement([faker.internet.url(), null]),
+    profileImage: faker.helpers.arrayElement([faker.internet.url(), null]),
   }
 }
 

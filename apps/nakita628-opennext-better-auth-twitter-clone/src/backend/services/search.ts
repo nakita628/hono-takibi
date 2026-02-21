@@ -22,8 +22,8 @@ import { DB } from '@/infra'
  *   D --> F[return posts + total]
  *   E --> F
  */
-export const searchPosts = (args: { query: string; limit: number; offset: number }) =>
-  Effect.gen(function* () {
+export function searchPosts(args: { query: string; limit: number; offset: number }) {
+  return Effect.gen(function* () {
     const db = yield* DB
     const whereClause = like(schema.posts.body, `%${args.query}%`)
 
@@ -48,6 +48,7 @@ export const searchPosts = (args: { query: string; limit: number; offset: number
 
     return { posts, total }
   })
+}
 
 /**
  * Search users by name using LIKE query.
@@ -58,8 +59,8 @@ export const searchPosts = (args: { query: string; limit: number; offset: number
  * @param args.offset - Pagination offset
  * @returns Effect yielding `{ users, total }`
  */
-export const searchUsers = (args: { query: string; limit: number; offset: number }) =>
-  Effect.gen(function* () {
+export function searchUsers(args: { query: string; limit: number; offset: number }) {
+  return Effect.gen(function* () {
     const db = yield* DB
     const whereClause = like(schema.user.name, `%${args.query}%`)
 
@@ -80,3 +81,4 @@ export const searchUsers = (args: { query: string; limit: number; offset: number
 
     return { users, total }
   })
+}

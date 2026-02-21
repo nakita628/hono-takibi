@@ -1,9 +1,8 @@
 import { Effect } from 'effect'
 import * as UserDomain from '@/backend/domain'
-import { NotFoundError, UnauthorizedError, ValidationError } from '@/backend/domain'
+import { NotFoundError, ValidationError } from '@/backend/domain'
 import { PaginatedPostsSchema, PostDetailSchema, PostSchema } from '@/backend/routes'
 import * as PostService from '@/backend/services/post'
-import * as UserService from '@/backend/services/user'
 
 /**
  * Create a new post for the authenticated user.
@@ -11,20 +10,12 @@ import * as UserService from '@/backend/services/user'
  * @mermaid
  * ```
  * flowchart TD
- *   A[findUser] --> B{exists?}
- *   B -- no --> C[fail Unauthorized]
- *   B -- yes --> D[createPost]
- *   D --> E[validate + return]
+ *   A[createPost] --> B[validate + return]
  * ```
  */
-export const create = (email: string, args: { body: string }) =>
-  Effect.gen(function* () {
-    const user = yield* UserService.findByEmail(email)
-    if (!user) {
-      return yield* Effect.fail(new UnauthorizedError({ message: 'Unauthorized' }))
-    }
-
-    const post = yield* PostService.create({ body: args.body, userId: user.id })
+export function create(userId: string, args: { body: string }) {
+  return Effect.gen(function* () {
+    const post = yield* PostService.create({ body: args.body, userId })
 
     const data = {
       id: post.id,
@@ -40,6 +31,7 @@ export const create = (email: string, args: { body: string }) =>
     }
     return valid.data
   })
+}
 
 /**
  * List posts with pagination, comment counts, and like counts.
@@ -53,8 +45,8 @@ export const create = (email: string, args: { body: string }) =>
  *   D --> E[validate + return]
  * ```
  */
-export const getAll = (args: { userId?: string; page: number; limit: number }) =>
-  Effect.gen(function* () {
+export function getAll(args: { userId?: string; page: number; limit: number }) {
+  return Effect.gen(function* () {
     const offset = (args.page - 1) * args.limit
     const result = yield* PostService.findAllPaginated({
       ...(args.userId !== undefined ? { userId: args.userId } : {}),
@@ -87,6 +79,7 @@ export const getAll = (args: { userId?: string; page: number; limit: number }) =
     }
     return valid.data
   })
+}
 
 /**
  * Fetch a single post with user, comments, and likes.
@@ -100,8 +93,8 @@ export const getAll = (args: { userId?: string; page: number; limit: number }) =
  *   D --> E[validate + return]
  * ```
  */
-export const getById = (postId: string) =>
-  Effect.gen(function* () {
+export function getById(postId: string) {
+  return Effect.gen(function* () {
     const post = yield* PostService.findByIdWithRelations(postId)
     if (!post) {
       return yield* Effect.fail(new NotFoundError({ message: 'Post not found' }))
@@ -133,3 +126,4 @@ export const getById = (postId: string) =>
     }
     return valid.data
   })
+}

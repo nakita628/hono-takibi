@@ -1,5 +1,5 @@
 import { Effect } from 'effect'
-import { NotFoundError, UnauthorizedError, ValidationError } from '@/backend/domain'
+import { NotFoundError, ValidationError } from '@/backend/domain'
 import { MessageResponseSchema } from '@/backend/routes'
 import * as FollowService from '@/backend/services/follow'
 import * as NotificationService from '@/backend/services/notification'
@@ -11,30 +11,22 @@ import * as UserService from '@/backend/services/user'
  * @mermaid
  * ```
  * flowchart TD
- *   A[findCurrentUser] --> B{exists?}
- *   B -- no --> C[fail Unauthorized]
- *   B -- yes --> D[findTargetUser]
- *   D --> E{exists?}
- *   E -- no --> F[fail NotFound]
- *   E -- yes --> G[createFollow]
- *   G --> H[createNotification]
- *   H --> I[validate + return]
+ *   A[findTargetUser] --> B{exists?}
+ *   B -- no --> C[fail NotFound]
+ *   B -- yes --> D[createFollow]
+ *   D --> E[createNotification]
+ *   E --> F[validate + return]
  * ```
  */
-export const create = (email: string, args: { userId: string }) =>
-  Effect.gen(function* () {
-    const currentUser = yield* UserService.findByEmail(email)
-    if (!currentUser) {
-      return yield* Effect.fail(new UnauthorizedError({ message: 'Not signed in' }))
-    }
-
+export function create(userId: string, args: { userId: string }) {
+  return Effect.gen(function* () {
     const targetUser = yield* UserService.findById(args.userId)
     if (!targetUser) {
       return yield* Effect.fail(new NotFoundError({ message: 'User not found' }))
     }
 
     yield* FollowService.create({
-      followerId: currentUser.id,
+      followerId: userId,
       followingId: args.userId,
     })
 
@@ -51,6 +43,7 @@ export const create = (email: string, args: { userId: string }) =>
     }
     return valid.data
   })
+}
 
 /**
  * Unfollow a user.
@@ -58,21 +51,13 @@ export const create = (email: string, args: { userId: string }) =>
  * @mermaid
  * ```
  * flowchart TD
- *   A[findCurrentUser] --> B{exists?}
- *   B -- no --> C[fail Unauthorized]
- *   B -- yes --> D[removeFollow]
- *   D --> E[validate + return]
+ *   A[removeFollow] --> B[validate + return]
  * ```
  */
-export const remove = (email: string, args: { userId: string }) =>
-  Effect.gen(function* () {
-    const currentUser = yield* UserService.findByEmail(email)
-    if (!currentUser) {
-      return yield* Effect.fail(new UnauthorizedError({ message: 'Not signed in' }))
-    }
-
+export function remove(userId: string, args: { userId: string }) {
+  return Effect.gen(function* () {
     yield* FollowService.remove({
-      followerId: currentUser.id,
+      followerId: userId,
       followingId: args.userId,
     })
 
@@ -83,3 +68,4 @@ export const remove = (email: string, args: { userId: string }) =>
     }
     return valid.data
   })
+}

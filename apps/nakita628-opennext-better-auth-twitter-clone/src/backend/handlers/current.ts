@@ -4,7 +4,7 @@ import { DatabaseError, UnauthorizedError, ValidationError } from '@/backend/dom
 import type { getCurrentRoute } from '@/backend/routes'
 import * as CurrentTransaction from '@/backend/transactions/current'
 import { DBLive } from '@/infra'
-import type { AuthType } from '@/lib/auth'
+import { auth, type AuthType } from '@/lib/auth'
 
 /**
  * Handle `GET /current` — return the authenticated user's profile.
@@ -12,24 +12,28 @@ import type { AuthType } from '@/lib/auth'
  * @mermaid
  * ```
  * flowchart LR
- *   A[Auth check] --> B[CurrentTransaction.get]
- *   B --> C{match}
- *   C --> D[200 OK]
- *   C --> E[401 Unauthorized]
- *   C --> F[503 DB error]
+ *   A[CurrentTransaction.get] --> B{match}
+ *   B --> C[200 OK]
+ *   B --> D[401 Unauthorized]
+ *   B --> E[503 DB error]
  * ```
  */
 export const getCurrentRouteHandler: RouteHandler<
   typeof getCurrentRoute,
   { Variables: AuthType }
 > = async (c) => {
-  const email = c.get('user')?.email
-  if (!email) {
+  const session = await auth().api.getSession({
+    headers: c.req.raw.headers,
+  })
+
+  if (!session) {
     return c.json({ message: 'Unauthorized' }, 401)
   }
 
+  const userId = session?.user?.id
+
   return Effect.runPromise(
-    CurrentTransaction.get(email).pipe(
+    CurrentTransaction.get(userId).pipe(
       Effect.provide(DBLive),
       Effect.match({
         onSuccess: (user) => c.json(user, 200),

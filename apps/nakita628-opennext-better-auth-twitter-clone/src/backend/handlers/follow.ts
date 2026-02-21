@@ -1,10 +1,10 @@
 import type { RouteHandler } from '@hono/zod-openapi'
 import { Effect } from 'effect'
-import { DatabaseError, NotFoundError, UnauthorizedError, ValidationError } from '@/backend/domain'
+import { DatabaseError, NotFoundError, ValidationError } from '@/backend/domain'
 import type { deleteFollowRoute, postFollowRoute } from '@/backend/routes'
 import * as FollowTransaction from '@/backend/transactions/follow'
 import { DBLive } from '@/infra'
-import type { AuthType } from '@/lib/auth'
+import { auth, type AuthType } from '@/lib/auth'
 
 /**
  * Handle `POST /follow` — follow a user.
@@ -12,32 +12,33 @@ import type { AuthType } from '@/lib/auth'
  * @mermaid
  * ```
  * flowchart LR
- *   A[Auth check] --> B[FollowTransaction.create]
- *   B --> C{match}
- *   C --> D[200 OK]
- *   C --> E[401 Unauthorized]
- *   C --> F[404 Not Found]
- *   C --> G[503 DB error]
+ *   A[FollowTransaction.create] --> B{match}
+ *   B --> C[200 OK]
+ *   B --> D[404 Not Found]
+ *   B --> E[503 DB error]
  * ```
  */
 export const postFollowRouteHandler: RouteHandler<
   typeof postFollowRoute,
   { Variables: AuthType }
 > = async (c) => {
-  const email = c.get('user')?.email
-  if (!email) {
+  const session = await auth().api.getSession({
+    headers: c.req.raw.headers,
+  })
+
+  if (!session) {
     return c.json({ message: 'Unauthorized' }, 401)
   }
 
-  const { userId } = c.req.valid('json')
+  const userId = session?.user?.id
+  const body = c.req.valid('json')
 
   return Effect.runPromise(
-    FollowTransaction.create(email, { userId }).pipe(
+    FollowTransaction.create(userId, body).pipe(
       Effect.provide(DBLive),
       Effect.match({
         onSuccess: (result) => c.json(result, 200),
         onFailure: (e) => {
-          if (e instanceof UnauthorizedError) return c.json({ message: e.message }, 401)
           if (e instanceof NotFoundError) return c.json({ message: e.message }, 404)
           if (e instanceof ValidationError) return c.json({ message: e.message }, 500)
           if (e instanceof DatabaseError) return c.json({ message: e.message }, 503)
@@ -54,31 +55,32 @@ export const postFollowRouteHandler: RouteHandler<
  * @mermaid
  * ```
  * flowchart LR
- *   A[Auth check] --> B[FollowTransaction.remove]
- *   B --> C{match}
- *   C --> D[200 OK]
- *   C --> E[401 Unauthorized]
- *   C --> F[503 DB error]
+ *   A[FollowTransaction.remove] --> B{match}
+ *   B --> C[200 OK]
+ *   B --> D[503 DB error]
  * ```
  */
 export const deleteFollowRouteHandler: RouteHandler<
   typeof deleteFollowRoute,
   { Variables: AuthType }
 > = async (c) => {
-  const email = c.get('user')?.email
-  if (!email) {
+  const session = await auth().api.getSession({
+    headers: c.req.raw.headers,
+  })
+
+  if (!session) {
     return c.json({ message: 'Unauthorized' }, 401)
   }
 
-  const { userId } = c.req.valid('json')
+  const userId = session?.user?.id
+  const body = c.req.valid('json')
 
   return Effect.runPromise(
-    FollowTransaction.remove(email, { userId }).pipe(
+    FollowTransaction.remove(userId, body).pipe(
       Effect.provide(DBLive),
       Effect.match({
         onSuccess: (result) => c.json(result, 200),
         onFailure: (e) => {
-          if (e instanceof UnauthorizedError) return c.json({ message: e.message }, 401)
           if (e instanceof ValidationError) return c.json({ message: e.message }, 500)
           if (e instanceof DatabaseError) return c.json({ message: e.message }, 503)
           return c.json({ message: 'Internal server error' }, 500)

@@ -1,9 +1,9 @@
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
-import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
 import { client } from '@/lib'
 
 /**
@@ -439,6 +439,38 @@ export function usePostRegister(options?: {
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.register.$post> }) =>
         parseResponse(client.register.$post(arg, clientOptions)),
       restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /search
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetSearchKey(args: InferRequestType<typeof client.search.$get>) {
+  return ['search', 'GET', '/search', args] as const
+}
+
+/**
+ * GET /search
+ */
+export function useGetSearch(
+  args: InferRequestType<typeof client.search.$get>,
+  options?: {
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
+    client?: ClientRequestOptions
+  },
+) {
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetSearchKey(args)) : null
+  return {
+    swrKey,
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.search.$get(args, clientOptions)),
+      restSwrOptions,
     ),
   }
 }

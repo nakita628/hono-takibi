@@ -206,6 +206,11 @@ model RegisterRequest {
   password: string;
 }
 
+model SearchResults {
+  posts: PaginatedPosts;
+  users: PaginatedUsers;
+}
+
 model ValidationErrorDetail {
   pointer: string;
   detail: string;
@@ -275,7 +280,7 @@ op deleteFollowUserId(@body body: FollowUserRequest): MessageResponse | (Unautho
 @tag("follow")
 @route("/follow")
 @post
-op postFollowUesrId(@body body: FollowUserRequest): MessageResponse | (UnauthorizedResponse & MessageResponse) | {
+op postFollowUserId(@body body: FollowUserRequest): MessageResponse | (UnauthorizedResponse & MessageResponse) | {
   @statusCode statusCode: 404;
   @body body: MessageResponse;
 } | {
@@ -326,7 +331,7 @@ op postLikePostId(@body body: LikePostRequest): PostWithLikes | (UnauthorizedRes
 @tag("notifications")
 @route("/notifications/{userId}")
 @get
-op getNotificationsUserId(...Parameters.UserIdPath): Body<Notification[]> | {
+op getNotificationsUserId(...Parameters.UserIdPath): Body<Notification[]> | (UnauthorizedResponse & MessageResponse) | {
   @statusCode statusCode: 422;
   @body body: ValidationError;
 } | {
@@ -340,7 +345,7 @@ op getNotificationsUserId(...Parameters.UserIdPath): Body<Notification[]> | {
 @tag("notifications")
 @route("/notifications")
 @post
-op postNotificationsUserId(@body body: string): MessageResponse | {
+op postNotificationsUserId(@body body: string): MessageResponse | (UnauthorizedResponse & MessageResponse) | {
   @statusCode statusCode: 422;
   @body body: ValidationError;
 } | {
@@ -416,6 +421,20 @@ op postRegister(@body body: RegisterRequest): {
   @body body: MessageResponse;
 };
 
+@tag("search")
+@route("/search")
+@get
+op getSearch(...Parameters.SearchQuery, ...Parameters.PaginationQuery): SearchResults | {
+  @statusCode statusCode: 422;
+  @body body: ValidationError;
+} | {
+  @statusCode statusCode: 500;
+  @body body: MessageResponse;
+} | {
+  @statusCode statusCode: 503;
+  @body body: MessageResponse;
+};
+
 @tag("users")
 @route("/users/{userId}")
 @get
@@ -454,6 +473,9 @@ namespace Parameters {
   }
   model UserIdQuery {
     @format("uuid") @query(#{ explode: true }) userId?: string;
+  }
+  model SearchQuery {
+    @minLength(1) @query(#{ explode: true }) q: string;
   }
   model PaginationQuery {
     @minValue(1) @query(#{ explode: true }) page?: numeric;

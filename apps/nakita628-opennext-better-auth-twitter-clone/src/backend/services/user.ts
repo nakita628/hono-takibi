@@ -15,8 +15,8 @@ import { DB } from '@/infra'
  *   B -- no --> D[return null]
  * ```
  */
-export const exists = (args: { email: string }) =>
-  Effect.gen(function* () {
+export function exists(args: { email: string }) {
+  return Effect.gen(function* () {
     const db = yield* DB
     const u = yield* Effect.tryPromise({
       try: () => db.select().from(schema.user).where(eq(schema.user.email, args.email)).get(),
@@ -27,10 +27,11 @@ export const exists = (args: { email: string }) =>
     }
     return null
   })
+}
 
 /** Find a user by email with their profile. */
-export const findByEmail = (email: string) =>
-  Effect.gen(function* () {
+export function findByEmail(email: string) {
+  return Effect.gen(function* () {
     const db = yield* DB
     return yield* Effect.tryPromise({
       try: () =>
@@ -41,10 +42,11 @@ export const findByEmail = (email: string) =>
       catch: () => new DatabaseError({ message: 'Database error' }),
     })
   })
+}
 
 /** Find a user by email with profile, followers, and following. */
-export const findByEmailWithFollows = (email: string) =>
-  Effect.gen(function* () {
+export function findByEmailWithFollows(email: string) {
+  return Effect.gen(function* () {
     const db = yield* DB
     return yield* Effect.tryPromise({
       try: () =>
@@ -59,10 +61,11 @@ export const findByEmailWithFollows = (email: string) =>
       catch: () => new DatabaseError({ message: 'Database error' }),
     })
   })
+}
 
 /** Find a user by ID with their profile. */
-export const findById = (id: string) =>
-  Effect.gen(function* () {
+export function findById(id: string) {
+  return Effect.gen(function* () {
     const db = yield* DB
     return yield* Effect.tryPromise({
       try: () =>
@@ -73,10 +76,11 @@ export const findById = (id: string) =>
       catch: () => new DatabaseError({ message: 'Database error' }),
     })
   })
+}
 
 /** Find a user by ID with profile, followers, and following lists. */
-export const findByIdWithFollowCount = (id: string) =>
-  Effect.gen(function* () {
+export function findByIdWithFollowCount(id: string) {
+  return Effect.gen(function* () {
     const db = yield* DB
     return yield* Effect.tryPromise({
       try: () =>
@@ -91,10 +95,11 @@ export const findByIdWithFollowCount = (id: string) =>
       catch: () => new DatabaseError({ message: 'Database error' }),
     })
   })
+}
 
 /** Fetch all users with profiles, ordered newest-first. */
-export const findAll = () =>
-  Effect.gen(function* () {
+export function findAll() {
+  return Effect.gen(function* () {
     const db = yield* DB
     return yield* Effect.tryPromise({
       try: () =>
@@ -105,10 +110,11 @@ export const findAll = () =>
       catch: () => new DatabaseError({ message: 'Database error' }),
     })
   })
+}
 
 /** Paginated user query returning users with profiles and total count. */
-export const findAllPaginated = (args: { limit: number; offset: number }) =>
-  Effect.gen(function* () {
+export function findAllPaginated(args: { limit: number; offset: number }) {
+  return Effect.gen(function* () {
     const db = yield* DB
     const [users, [{ total }]] = yield* Effect.tryPromise({
       try: () =>
@@ -125,19 +131,21 @@ export const findAllPaginated = (args: { limit: number; offset: number }) =>
     })
     return { users, total }
   })
+}
 
 /** Create a user profile row with a username. */
-export const createProfile = (args: { userId: string; username: string }) =>
-  Effect.gen(function* () {
+export function createProfile(args: { userId: string; username: string }) {
+  return Effect.gen(function* () {
     const db = yield* DB
     return yield* Effect.tryPromise({
       try: () => db.insert(schema.userProfile).values(args).returning().get(),
       catch: () => new DatabaseError({ message: 'Database error' }),
     })
   })
+}
 
 /** Update profile fields (username, bio, images) for a user. */
-export const updateProfile = (
+export function updateProfile(
   userId: string,
   data: {
     username?: string
@@ -145,8 +153,8 @@ export const updateProfile = (
     coverImage?: string | null
     profileImage?: string | null
   },
-) =>
-  Effect.gen(function* () {
+) {
+  return Effect.gen(function* () {
     const db = yield* DB
     return yield* Effect.tryPromise({
       try: () =>
@@ -159,10 +167,11 @@ export const updateProfile = (
       catch: () => new DatabaseError({ message: 'Database error' }),
     })
   })
+}
 
 /** Update the display name on the user table. */
-export const updateName = (id: string, name: string) =>
-  Effect.gen(function* () {
+export function updateName(id: string, name: string) {
+  return Effect.gen(function* () {
     const db = yield* DB
     return yield* Effect.tryPromise({
       try: () =>
@@ -170,3 +179,4 @@ export const updateName = (id: string, name: string) =>
       catch: () => new DatabaseError({ message: 'Database error' }),
     })
   })
+}
