@@ -49,7 +49,7 @@ export function PostFeed({ userId }: Props) {
       {posts.map((post) => (
         <PostItem key={post.id} data={post} />
       ))}
-      <div ref={sentinelRef} />
+      <div ref={sentinelRef} className='h-1' />
       {isLoadingMore && (
         <div className='flex justify-center items-center py-4'>
           <ClipLoader color='lightblue' size={25} />
