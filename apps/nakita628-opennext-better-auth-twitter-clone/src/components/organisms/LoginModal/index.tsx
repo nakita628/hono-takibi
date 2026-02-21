@@ -31,9 +31,11 @@ export function LoginModal() {
         toast.success('Signed in')
         await mutate(() => true)
         loginModal.onClose()
+      } else {
+        toast.error('Invalid email or password')
       }
     } catch {
-      toast.error('Failed to sign in')
+      toast.error('Something went wrong. Please try again.')
     } finally {
       setIsLoading(false)
     }
