@@ -4,7 +4,7 @@ import { DatabaseError, NotFoundError, ValidationError } from '@/backend/domain'
 import type { getPostsPostIdRoute, getPostsRoute, postPostsRoute } from '@/backend/routes'
 import * as PostsTransaction from '@/backend/transactions/posts'
 import { DBLive } from '@/infra'
-import { auth, type AuthType } from '@/lib/auth'
+import type { AuthType } from '@/lib/auth'
 
 /**
  * Handle `GET /posts` — list posts with pagination.
@@ -58,15 +58,13 @@ export const postPostsRouteHandler: RouteHandler<
   typeof postPostsRoute,
   { Variables: AuthType }
 > = async (c) => {
-  const session = await auth().api.getSession({
-    headers: c.req.raw.headers,
-  })
+  const user = c.get('user')
 
-  if (!session) {
+  if (!user) {
     return c.json({ message: 'Unauthorized' }, 401)
   }
 
-  const userId = session?.user?.id
+  const userId = user.id
 
   const { body } = c.req.valid('json')
 

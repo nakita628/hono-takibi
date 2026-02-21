@@ -4,7 +4,7 @@ import { DatabaseError, ValidationError } from '@/backend/domain'
 import type { postCommentsRoute } from '@/backend/routes'
 import * as CommentsTransaction from '@/backend/transactions/comments'
 import { DBLive } from '@/infra'
-import { auth, type AuthType } from '@/lib/auth'
+import type { AuthType } from '@/lib/auth'
 
 /**
  * Handle `POST /comments` — create a comment on a post.
@@ -21,15 +21,13 @@ export const postCommentsRouteHandler: RouteHandler<
   typeof postCommentsRoute,
   { Variables: AuthType }
 > = async (c) => {
-  const session = await auth().api.getSession({
-    headers: c.req.raw.headers,
-  })
+  const user = c.get('user')
 
-  if (!session) {
+  if (!user) {
     return c.json({ message: 'Unauthorized' }, 401)
   }
 
-  const userId = session?.user?.id
+  const userId = user.id
 
   const { postId } = c.req.valid('query')
   const { body } = c.req.valid('json')

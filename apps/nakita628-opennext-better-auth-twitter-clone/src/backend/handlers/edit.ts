@@ -4,7 +4,7 @@ import { DatabaseError, UnauthorizedError, ValidationError } from '@/backend/dom
 import type { patchEditRoute } from '@/backend/routes'
 import * as EditTransaction from '@/backend/transactions/edit'
 import { DBLive } from '@/infra'
-import { auth, type AuthType } from '@/lib/auth'
+import type { AuthType } from '@/lib/auth'
 
 /**
  * Handle `PATCH /edit` — update the authenticated user's profile.
@@ -22,15 +22,13 @@ export const patchEditRouteHandler: RouteHandler<
   typeof patchEditRoute,
   { Variables: AuthType }
 > = async (c) => {
-  const session = await auth().api.getSession({
-    headers: c.req.raw.headers,
-  })
+  const user = c.get('user')
 
-  if (!session) {
+  if (!user) {
     return c.json({ message: 'Unauthorized' }, 401)
   }
 
-  const userId = session?.user?.id
+  const userId = user.id
 
   const body = c.req.valid('json')
 

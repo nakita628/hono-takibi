@@ -4,7 +4,7 @@ import { DatabaseError, UnauthorizedError, ValidationError } from '@/backend/dom
 import type { getCurrentRoute } from '@/backend/routes'
 import * as CurrentTransaction from '@/backend/transactions/current'
 import { DBLive } from '@/infra'
-import { auth, type AuthType } from '@/lib/auth'
+import type { AuthType } from '@/lib/auth'
 
 /**
  * Handle `GET /current` — return the authenticated user's profile.
@@ -22,15 +22,13 @@ export const getCurrentRouteHandler: RouteHandler<
   typeof getCurrentRoute,
   { Variables: AuthType }
 > = async (c) => {
-  const session = await auth().api.getSession({
-    headers: c.req.raw.headers,
-  })
+  const user = c.get('user')
 
-  if (!session) {
+  if (!user) {
     return c.json({ message: 'Unauthorized' }, 401)
   }
 
-  const userId = session?.user?.id
+  const userId = user.id
 
   return Effect.runPromise(
     CurrentTransaction.get(userId).pipe(

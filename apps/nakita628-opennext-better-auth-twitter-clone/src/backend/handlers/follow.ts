@@ -4,7 +4,7 @@ import { DatabaseError, NotFoundError, ValidationError } from '@/backend/domain'
 import type { deleteFollowRoute, postFollowRoute } from '@/backend/routes'
 import * as FollowTransaction from '@/backend/transactions/follow'
 import { DBLive } from '@/infra'
-import { auth, type AuthType } from '@/lib/auth'
+import type { AuthType } from '@/lib/auth'
 
 /**
  * Handle `POST /follow` — follow a user.
@@ -22,15 +22,13 @@ export const postFollowRouteHandler: RouteHandler<
   typeof postFollowRoute,
   { Variables: AuthType }
 > = async (c) => {
-  const session = await auth().api.getSession({
-    headers: c.req.raw.headers,
-  })
+  const user = c.get('user')
 
-  if (!session) {
+  if (!user) {
     return c.json({ message: 'Unauthorized' }, 401)
   }
 
-  const userId = session?.user?.id
+  const userId = user.id
   const body = c.req.valid('json')
 
   return Effect.runPromise(
@@ -64,15 +62,13 @@ export const deleteFollowRouteHandler: RouteHandler<
   typeof deleteFollowRoute,
   { Variables: AuthType }
 > = async (c) => {
-  const session = await auth().api.getSession({
-    headers: c.req.raw.headers,
-  })
+  const user = c.get('user')
 
-  if (!session) {
+  if (!user) {
     return c.json({ message: 'Unauthorized' }, 401)
   }
 
-  const userId = session?.user?.id
+  const userId = user.id
   const body = c.req.valid('json')
 
   return Effect.runPromise(

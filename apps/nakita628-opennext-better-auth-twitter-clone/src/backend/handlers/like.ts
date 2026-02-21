@@ -4,7 +4,7 @@ import { DatabaseError, NotFoundError, ValidationError } from '@/backend/domain'
 import type { deleteLikeRoute, postLikeRoute } from '@/backend/routes'
 import * as LikeTransaction from '@/backend/transactions/like'
 import { DBLive } from '@/infra'
-import { auth, type AuthType } from '@/lib/auth'
+import type { AuthType } from '@/lib/auth'
 
 /**
  * Handle `POST /like` — like a post.
@@ -22,15 +22,13 @@ export const postLikeRouteHandler: RouteHandler<
   typeof postLikeRoute,
   { Variables: AuthType }
 > = async (c) => {
-  const session = await auth().api.getSession({
-    headers: c.req.raw.headers,
-  })
+  const user = c.get('user')
 
-  if (!session) {
+  if (!user) {
     return c.json({ message: 'Unauthorized' }, 401)
   }
 
-  const userId = session?.user?.id
+  const userId = user.id
   const { postId } = c.req.valid('json')
 
   return Effect.runPromise(
@@ -65,15 +63,13 @@ export const deleteLikeRouteHandler: RouteHandler<
   typeof deleteLikeRoute,
   { Variables: AuthType }
 > = async (c) => {
-  const session = await auth().api.getSession({
-    headers: c.req.raw.headers,
-  })
+  const user = c.get('user')
 
-  if (!session) {
+  if (!user) {
     return c.json({ message: 'Unauthorized' }, 401)
   }
 
-  const userId = session?.user?.id
+  const userId = user.id
   const { postId } = c.req.valid('json')
 
   return Effect.runPromise(

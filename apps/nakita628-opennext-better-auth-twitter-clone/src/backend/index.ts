@@ -37,7 +37,7 @@ import {
   postPostsRoute,
   postRegisterRoute,
 } from '@/backend/routes'
-import { auth, AuthType } from '@/lib/auth'
+import { AuthType, auth } from '@/lib/auth'
 
 const app = new OpenAPIHono<{ Variables: AuthType }>({
   defaultHook: (result, c) => {
@@ -57,12 +57,12 @@ app.use('/register', rateLimit({ windowMs: 60_000, max: 5 }))
 
 // Better Auth route handler
 app.on(['GET', 'POST'], '/auth/**', async (c) => {
-  return auth().handler(c.req.raw)
+  return auth.handler(c.req.raw)
 })
 
 // Session resolution + auth guard middleware
 app.use('*', async (c, next) => {
-  const session = await auth().api.getSession({
+  const session = await auth.api.getSession({
     headers: c.req.raw.headers,
   })
 

@@ -2,19 +2,16 @@ import { betterAuth } from 'better-auth'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
 import { getDb } from '@/infra'
 
-export const auth = () =>
-  betterAuth({
-    baseURL: process.env.BETTER_AUTH_URL ?? 'http://localhost:8787',
-    database: drizzleAdapter(getDb(), { provider: 'sqlite' }),
-    emailAndPassword: { enabled: true },
-    advanced: {
-      database: {
-        generateId: 'uuid',
-      },
+export const auth = betterAuth({
+  baseURL: process.env.BETTER_AUTH_URL ?? 'http://localhost:8787',
+  database: drizzleAdapter(getDb(), { provider: 'sqlite' }),
+  emailAndPassword: { enabled: true },
+  advanced: {
+    database: {
+      generateId: 'uuid',
     },
-  })
-
-type AuthInstance = ReturnType<typeof auth>
+  },
+})
 
 export type AuthType = {
   user: typeof auth.$Infer.Session.user | null
