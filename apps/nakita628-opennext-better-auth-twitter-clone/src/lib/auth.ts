@@ -14,7 +14,7 @@ export const auth = () =>
     },
   })
 
-export type Auth = ReturnType<typeof auth>
+type Auth = ReturnType<typeof auth>
 
 export type AuthType = {
   user: Auth['$Infer']['Session']['user'] | null
