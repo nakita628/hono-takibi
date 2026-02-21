@@ -56,13 +56,13 @@ app.use('/auth/change-password', rateLimit({ windowMs: 60_000, max: 5 }))
 app.use('/register', rateLimit({ windowMs: 60_000, max: 5 }))
 
 // Better Auth route handler
-app.on(['GET', 'POST'], '/auth/**', async (c) => {
-  return auth.handler(c.req.raw)
+app.on(['GET', 'POST'], '/auth/*', async (c) => {
+  return auth().handler(c.req.raw)
 })
 
 // Session resolution + auth guard middleware
 app.use('*', async (c, next) => {
-  const session = await auth.api.getSession({
+  const session = await auth().api.getSession({
     headers: c.req.raw.headers,
   })
 
