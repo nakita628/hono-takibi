@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm'
+import { desc, eq } from 'drizzle-orm'
 import { Effect } from 'effect'
 import { DatabaseError } from '@/backend/domain'
 import { schema } from '@/db'
@@ -21,10 +21,12 @@ export function findByUserId(userId: string) {
     const db = yield* DB
     return yield* Effect.tryPromise({
       try: () =>
-        db.query.notifications.findMany({
-          where: eq(schema.notifications.userId, userId),
-          orderBy: (notifications, { desc }) => [desc(notifications.createdAt)],
-        }),
+        db
+          .select()
+          .from(schema.notifications)
+          .where(eq(schema.notifications.userId, userId))
+          .orderBy(desc(schema.notifications.createdAt))
+          .all(),
       catch: () => new DatabaseError({ message: 'Database error' }),
     })
   })

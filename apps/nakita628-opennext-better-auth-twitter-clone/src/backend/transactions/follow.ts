@@ -20,6 +20,10 @@ import * as UserService from '@/backend/services/user'
  */
 export function create(userId: string, args: { userId: string }) {
   return Effect.gen(function* () {
+    if (userId === args.userId) {
+      return yield* Effect.fail(new ValidationError({ message: 'Cannot follow yourself' }))
+    }
+
     const targetUser = yield* UserService.findById(args.userId)
     if (!targetUser) {
       return yield* Effect.fail(new NotFoundError({ message: 'User not found' }))

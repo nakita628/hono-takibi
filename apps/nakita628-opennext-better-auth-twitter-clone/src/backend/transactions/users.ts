@@ -38,8 +38,8 @@ export function getById(userId: string) {
       updatedAt: user.updatedAt.toISOString(),
       hasNotification: profile?.hasNotification ?? null,
       _count: {
-        followers: user.followers.length,
-        following: user.following.length,
+        followers: user.followersCount,
+        following: user.followingCount,
       },
     }
 

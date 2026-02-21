@@ -17,7 +17,7 @@ import * as UserService from '@/backend/services/user'
  */
 export function get(userId: string) {
   return Effect.gen(function* () {
-    const user = yield* UserService.findByIdWithFollowCount(userId)
+    const user = yield* UserService.findByIdWithFollows(userId)
     if (!user) {
       return yield* Effect.fail(new UnauthorizedError({ message: 'Unauthorized' }))
     }

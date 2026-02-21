@@ -1,4 +1,4 @@
-import { count, eq } from 'drizzle-orm'
+import { count, desc, eq } from 'drizzle-orm'
 import { Effect } from 'effect'
 import { ConflictError, DatabaseError } from '@/backend/domain'
 import { schema } from '@/db'
@@ -33,14 +33,18 @@ export function exists(args: { email: string }) {
 export function findByEmail(email: string) {
   return Effect.gen(function* () {
     const db = yield* DB
-    return yield* Effect.tryPromise({
+    const row = yield* Effect.tryPromise({
       try: () =>
-        db.query.user.findFirst({
-          where: eq(schema.user.email, email),
-          with: { userProfile: true },
-        }),
+        db
+          .select()
+          .from(schema.user)
+          .leftJoin(schema.userProfile, eq(schema.user.id, schema.userProfile.userId))
+          .where(eq(schema.user.email, email))
+          .get(),
       catch: () => new DatabaseError({ message: 'Database error' }),
     })
+    if (!row) return undefined
+    return { ...row.user, userProfile: row.user_profile }
   })
 }
 
@@ -48,18 +52,28 @@ export function findByEmail(email: string) {
 export function findByEmailWithFollows(email: string) {
   return Effect.gen(function* () {
     const db = yield* DB
-    return yield* Effect.tryPromise({
+    const row = yield* Effect.tryPromise({
       try: () =>
-        db.query.user.findFirst({
-          where: eq(schema.user.email, email),
-          with: {
-            userProfile: true,
-            followers: true,
-            following: true,
-          },
-        }),
+        db
+          .select()
+          .from(schema.user)
+          .leftJoin(schema.userProfile, eq(schema.user.id, schema.userProfile.userId))
+          .where(eq(schema.user.email, email))
+          .get(),
       catch: () => new DatabaseError({ message: 'Database error' }),
     })
+    if (!row) return undefined
+
+    const [followers, following] = yield* Effect.tryPromise({
+      try: () =>
+        Promise.all([
+          db.select().from(schema.follows).where(eq(schema.follows.followingId, row.user.id)).all(),
+          db.select().from(schema.follows).where(eq(schema.follows.followerId, row.user.id)).all(),
+        ]),
+      catch: () => new DatabaseError({ message: 'Database error' }),
+    })
+
+    return { ...row.user, userProfile: row.user_profile, followers, following }
   })
 }
 
@@ -67,33 +81,89 @@ export function findByEmailWithFollows(email: string) {
 export function findById(id: string) {
   return Effect.gen(function* () {
     const db = yield* DB
-    return yield* Effect.tryPromise({
+    const row = yield* Effect.tryPromise({
       try: () =>
-        db.query.user.findFirst({
-          where: eq(schema.user.id, id),
-          with: { userProfile: true },
-        }),
+        db
+          .select()
+          .from(schema.user)
+          .leftJoin(schema.userProfile, eq(schema.user.id, schema.userProfile.userId))
+          .where(eq(schema.user.id, id))
+          .get(),
       catch: () => new DatabaseError({ message: 'Database error' }),
     })
+    if (!row) return undefined
+    return { ...row.user, userProfile: row.user_profile }
   })
 }
 
-/** Find a user by ID with profile, followers, and following lists. */
+/** Find a user by ID with profile and follower/following counts using SQL COUNT. */
 export function findByIdWithFollowCount(id: string) {
   return Effect.gen(function* () {
     const db = yield* DB
-    return yield* Effect.tryPromise({
+    const row = yield* Effect.tryPromise({
       try: () =>
-        db.query.user.findFirst({
-          where: eq(schema.user.id, id),
-          with: {
-            userProfile: true,
-            followers: true,
-            following: true,
-          },
-        }),
+        db
+          .select()
+          .from(schema.user)
+          .leftJoin(schema.userProfile, eq(schema.user.id, schema.userProfile.userId))
+          .where(eq(schema.user.id, id))
+          .get(),
       catch: () => new DatabaseError({ message: 'Database error' }),
     })
+    if (!row) return undefined
+
+    const [followersResult, followingResult] = yield* Effect.tryPromise({
+      try: () =>
+        Promise.all([
+          db
+            .select({ count: count() })
+            .from(schema.follows)
+            .where(eq(schema.follows.followingId, id))
+            .get(),
+          db
+            .select({ count: count() })
+            .from(schema.follows)
+            .where(eq(schema.follows.followerId, id))
+            .get(),
+        ]),
+      catch: () => new DatabaseError({ message: 'Database error' }),
+    })
+
+    return {
+      ...row.user,
+      userProfile: row.user_profile,
+      followersCount: followersResult?.count ?? 0,
+      followingCount: followingResult?.count ?? 0,
+    }
+  })
+}
+
+/** Find a user by ID with profile, followers, and following arrays. */
+export function findByIdWithFollows(id: string) {
+  return Effect.gen(function* () {
+    const db = yield* DB
+    const row = yield* Effect.tryPromise({
+      try: () =>
+        db
+          .select()
+          .from(schema.user)
+          .leftJoin(schema.userProfile, eq(schema.user.id, schema.userProfile.userId))
+          .where(eq(schema.user.id, id))
+          .get(),
+      catch: () => new DatabaseError({ message: 'Database error' }),
+    })
+    if (!row) return undefined
+
+    const [followers, following] = yield* Effect.tryPromise({
+      try: () =>
+        Promise.all([
+          db.select().from(schema.follows).where(eq(schema.follows.followingId, id)).all(),
+          db.select().from(schema.follows).where(eq(schema.follows.followerId, id)).all(),
+        ]),
+      catch: () => new DatabaseError({ message: 'Database error' }),
+    })
+
+    return { ...row.user, userProfile: row.user_profile, followers, following }
   })
 }
 
@@ -101,14 +171,17 @@ export function findByIdWithFollowCount(id: string) {
 export function findAll() {
   return Effect.gen(function* () {
     const db = yield* DB
-    return yield* Effect.tryPromise({
+    const rows = yield* Effect.tryPromise({
       try: () =>
-        db.query.user.findMany({
-          with: { userProfile: true },
-          orderBy: (user, { desc }) => [desc(user.createdAt)],
-        }),
+        db
+          .select()
+          .from(schema.user)
+          .leftJoin(schema.userProfile, eq(schema.user.id, schema.userProfile.userId))
+          .orderBy(desc(schema.user.createdAt))
+          .all(),
       catch: () => new DatabaseError({ message: 'Database error' }),
     })
+    return rows.map((row) => ({ ...row.user, userProfile: row.user_profile }))
   })
 }
 
@@ -116,19 +189,22 @@ export function findAll() {
 export function findAllPaginated(args: { limit: number; offset: number }) {
   return Effect.gen(function* () {
     const db = yield* DB
-    const [users, [{ total }]] = yield* Effect.tryPromise({
+    const [rows, [{ total }]] = yield* Effect.tryPromise({
       try: () =>
         Promise.all([
-          db.query.user.findMany({
-            with: { userProfile: true },
-            orderBy: (user, { desc }) => [desc(user.createdAt)],
-            limit: args.limit,
-            offset: args.offset,
-          }),
+          db
+            .select()
+            .from(schema.user)
+            .leftJoin(schema.userProfile, eq(schema.user.id, schema.userProfile.userId))
+            .orderBy(desc(schema.user.createdAt))
+            .limit(args.limit)
+            .offset(args.offset)
+            .all(),
           db.select({ total: count() }).from(schema.user),
         ]),
       catch: () => new DatabaseError({ message: 'Database error' }),
     })
+    const users = rows.map((row) => ({ ...row.user, userProfile: row.user_profile }))
     return { users, total }
   })
 }

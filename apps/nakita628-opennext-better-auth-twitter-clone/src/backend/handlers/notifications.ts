@@ -30,6 +30,10 @@ export const getNotificationsUserIdRouteHandler: RouteHandler<
 
   const { userId } = c.req.valid('param')
 
+  if (user.id !== userId) {
+    return c.json({ message: 'Unauthorized' }, 401)
+  }
+
   return Effect.runPromise(
     NotificationsTransaction.getByUserId(userId).pipe(
       Effect.provide(DBLive),
@@ -67,7 +71,7 @@ export const postNotificationsRouteHandler: RouteHandler<
     return c.json({ message: 'Unauthorized' }, 401)
   }
 
-  const userId = await c.req.text()
+  const userId = user.id
 
   return Effect.runPromise(
     NotificationsTransaction.markAsRead(userId).pipe(
