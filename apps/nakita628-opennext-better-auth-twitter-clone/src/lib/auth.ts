@@ -17,6 +17,6 @@ export const auth = () =>
 type AuthInstance = ReturnType<typeof auth>
 
 export type AuthType = {
-  user: AuthInstance['$Infer']['Session']['user'] | null
-  session: AuthInstance['$Infer']['Session']['session'] | null
+  user: typeof auth.$Infer.Session.user | null
+  session: typeof auth.$Infer.Session.session | null
 }
