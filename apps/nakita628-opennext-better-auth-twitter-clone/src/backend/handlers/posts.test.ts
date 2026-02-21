@@ -2,7 +2,7 @@ import { faker } from '@faker-js/faker'
 import { Effect } from 'effect'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import app from '@/backend'
-import { DatabaseError, NotFoundError, UnauthorizedError, ValidationError } from '@/backend/domain'
+import { DatabaseError, NotFoundError, ValidationError } from '@/backend/domain'
 import * as PostsTransaction from '@/backend/transactions/posts'
 
 function mockSession() {
@@ -191,23 +191,6 @@ describe('Posts', () => {
       expect(json).toStrictEqual({ message: 'Unauthorized' })
     })
 
-    it('should return 401 on UnauthorizedError from transaction', async () => {
-      mockGetSession.mockResolvedValue(mockSession())
-      vi.mocked(PostsTransaction.create).mockReturnValue(
-        Effect.fail(new UnauthorizedError({ message: 'Unauthorized' })),
-      )
-
-      const res = await app.request('/api/posts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ body: 'Hello world' }),
-      })
-
-      expect(res.status).toBe(401)
-      const json = await res.json()
-      expect(json).toStrictEqual({ message: 'Unauthorized' })
-    })
-
     it('should return 422 on invalid request body', async () => {
       mockGetSession.mockResolvedValue(mockSession())
 
@@ -254,8 +237,9 @@ describe('Posts', () => {
       expect(json).toStrictEqual({ message: 'Database unavailable' })
     })
 
-    it('should pass email and body to transaction', async () => {
-      mockGetSession.mockResolvedValue(mockSession())
+    it('should pass user id and body to transaction', async () => {
+      const session = mockSession()
+      mockGetSession.mockResolvedValue(session)
       vi.mocked(PostsTransaction.create).mockReturnValue(Effect.succeed(mockPostResponse()))
 
       await app.request('/api/posts', {
@@ -264,7 +248,7 @@ describe('Posts', () => {
         body: JSON.stringify({ body: 'Test post' }),
       })
 
-      expect(PostsTransaction.create).toHaveBeenCalledWith('test@example.com', {
+      expect(PostsTransaction.create).toHaveBeenCalledWith(session.user.id, {
         body: 'Test post',
       })
     })

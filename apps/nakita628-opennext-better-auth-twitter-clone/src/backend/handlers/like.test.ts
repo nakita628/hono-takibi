@@ -2,7 +2,7 @@ import { faker } from '@faker-js/faker'
 import { Effect } from 'effect'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import app from '@/backend'
-import { DatabaseError, NotFoundError, UnauthorizedError, ValidationError } from '@/backend/domain'
+import { DatabaseError, NotFoundError, ValidationError } from '@/backend/domain'
 import * as LikeTransaction from '@/backend/transactions/like'
 
 function mockSession() {
@@ -69,23 +69,6 @@ describe('Like', () => {
       expect(res.status).toBe(401)
       const json = await res.json()
       expect(json).toStrictEqual({ message: 'Unauthorized' })
-    })
-
-    it('should return 401 on UnauthorizedError from transaction', async () => {
-      mockGetSession.mockResolvedValue(mockSession())
-      vi.mocked(LikeTransaction.create).mockReturnValue(
-        Effect.fail(new UnauthorizedError({ message: 'Not signed in' })),
-      )
-
-      const res = await app.request('/api/like', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ postId: faker.string.uuid() }),
-      })
-
-      expect(res.status).toBe(401)
-      const json = await res.json()
-      expect(json).toStrictEqual({ message: 'Not signed in' })
     })
 
     it('should return 404 on NotFoundError', async () => {

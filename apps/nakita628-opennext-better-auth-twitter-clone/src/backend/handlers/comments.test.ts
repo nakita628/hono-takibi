@@ -2,7 +2,7 @@ import { faker } from '@faker-js/faker'
 import { Effect } from 'effect'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import app from '@/backend'
-import { DatabaseError, UnauthorizedError, ValidationError } from '@/backend/domain'
+import { DatabaseError, ValidationError } from '@/backend/domain'
 import * as CommentsTransaction from '@/backend/transactions/comments'
 
 function mockSession() {
@@ -64,23 +64,6 @@ describe('POST /api/comments', () => {
     expect(res.status).toBe(401)
     const json = await res.json()
     expect(json).toStrictEqual({ message: 'Unauthorized' })
-  })
-
-  it('should return 401 on UnauthorizedError from transaction', async () => {
-    mockGetSession.mockResolvedValue(mockSession())
-    vi.mocked(CommentsTransaction.create).mockReturnValue(
-      Effect.fail(new UnauthorizedError({ message: 'Not signed in' })),
-    )
-
-    const res = await app.request(`/api/comments?postId=${postId}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ body: 'Nice post!' }),
-    })
-
-    expect(res.status).toBe(401)
-    const json = await res.json()
-    expect(json).toStrictEqual({ message: 'Not signed in' })
   })
 
   it('should return 422 on missing postId query param', async () => {
@@ -153,7 +136,7 @@ describe('POST /api/comments', () => {
       body: JSON.stringify({ body: 'Test comment' }),
     })
 
-    expect(CommentsTransaction.create).toHaveBeenCalledWith('test@example.com', {
+    expect(CommentsTransaction.create).toHaveBeenCalledWith(session.user.id, {
       body: 'Test comment',
       postId,
     })

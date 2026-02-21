@@ -116,7 +116,7 @@ export function getById(postId: string) {
         postId: comment.postId,
         user: UserDomain.makeFormatUser(comment.user),
       })),
-      likes: post.likes.map((l) => ({ userId: l.userId })),
+      likes: post.likes.map((like) => ({ userId: like.userId })),
       _count: { likes: post.likes.length },
     }
 

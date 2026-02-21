@@ -103,7 +103,7 @@ describe('GET /api/current', () => {
     expect(json).toStrictEqual({ message: 'Database unavailable' })
   })
 
-  it('should pass email from session to transaction', async () => {
+  it('should pass user id from session to transaction', async () => {
     const session = mockSession()
     mockGetSession.mockResolvedValue(session)
 
@@ -112,6 +112,6 @@ describe('GET /api/current', () => {
 
     await app.request('/api/current', { method: 'GET' })
 
-    expect(CurrentTransaction.get).toHaveBeenCalledWith('test@example.com')
+    expect(CurrentTransaction.get).toHaveBeenCalledWith(session.user.id)
   })
 })

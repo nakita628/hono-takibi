@@ -28,14 +28,14 @@ describe('Notifications', () => {
 
   describe('GET /api/notifications/{userId}', () => {
     it('should return 200 on success', async () => {
-      mockGetSession.mockResolvedValue(mockSession())
+      const session = mockSession()
+      mockGetSession.mockResolvedValue(session)
       const mockNotifications = [mockNotificationResponse(), mockNotificationResponse()]
       vi.mocked(NotificationsTransaction.getByUserId).mockReturnValue(
         Effect.succeed(mockNotifications),
       )
 
-      const userId = faker.string.uuid()
-      const res = await app.request(`/api/notifications/${userId}`, { method: 'GET' })
+      const res = await app.request(`/api/notifications/${session.user.id}`, { method: 'GET' })
 
       expect(res.status).toBe(200)
       const json = await res.json()
@@ -43,11 +43,11 @@ describe('Notifications', () => {
     })
 
     it('should return 200 with empty array when no notifications', async () => {
-      mockGetSession.mockResolvedValue(mockSession())
+      const session = mockSession()
+      mockGetSession.mockResolvedValue(session)
       vi.mocked(NotificationsTransaction.getByUserId).mockReturnValue(Effect.succeed([]))
 
-      const userId = faker.string.uuid()
-      const res = await app.request(`/api/notifications/${userId}`, { method: 'GET' })
+      const res = await app.request(`/api/notifications/${session.user.id}`, { method: 'GET' })
 
       expect(res.status).toBe(200)
       const json = await res.json()
@@ -65,6 +65,18 @@ describe('Notifications', () => {
       expect(json).toStrictEqual({ message: 'Unauthorized' })
     })
 
+    it('should return 401 when accessing other user notifications', async () => {
+      const session = mockSession()
+      mockGetSession.mockResolvedValue(session)
+
+      const otherUserId = faker.string.uuid()
+      const res = await app.request(`/api/notifications/${otherUserId}`, { method: 'GET' })
+
+      expect(res.status).toBe(401)
+      const json = await res.json()
+      expect(json).toStrictEqual({ message: 'Unauthorized' })
+    })
+
     it('should return 422 on invalid userId format', async () => {
       mockGetSession.mockResolvedValue(mockSession())
 
@@ -74,13 +86,13 @@ describe('Notifications', () => {
     })
 
     it('should return 500 on ValidationError', async () => {
-      mockGetSession.mockResolvedValue(mockSession())
+      const session = mockSession()
+      mockGetSession.mockResolvedValue(session)
       vi.mocked(NotificationsTransaction.getByUserId).mockReturnValue(
         Effect.fail(new ValidationError({ message: 'Invalid notifications data' })),
       )
 
-      const userId = faker.string.uuid()
-      const res = await app.request(`/api/notifications/${userId}`, { method: 'GET' })
+      const res = await app.request(`/api/notifications/${session.user.id}`, { method: 'GET' })
 
       expect(res.status).toBe(500)
       const json = await res.json()
@@ -88,13 +100,13 @@ describe('Notifications', () => {
     })
 
     it('should return 503 on DatabaseError', async () => {
-      mockGetSession.mockResolvedValue(mockSession())
+      const session = mockSession()
+      mockGetSession.mockResolvedValue(session)
       vi.mocked(NotificationsTransaction.getByUserId).mockReturnValue(
         Effect.fail(new DatabaseError({ message: 'Database unavailable' })),
       )
 
-      const userId = faker.string.uuid()
-      const res = await app.request(`/api/notifications/${userId}`, { method: 'GET' })
+      const res = await app.request(`/api/notifications/${session.user.id}`, { method: 'GET' })
 
       expect(res.status).toBe(503)
       const json = await res.json()
@@ -102,29 +114,25 @@ describe('Notifications', () => {
     })
 
     it('should pass userId to transaction', async () => {
-      mockGetSession.mockResolvedValue(mockSession())
+      const session = mockSession()
+      mockGetSession.mockResolvedValue(session)
       vi.mocked(NotificationsTransaction.getByUserId).mockReturnValue(Effect.succeed([]))
 
-      const userId = faker.string.uuid()
-      await app.request(`/api/notifications/${userId}`, { method: 'GET' })
+      await app.request(`/api/notifications/${session.user.id}`, { method: 'GET' })
 
-      expect(NotificationsTransaction.getByUserId).toHaveBeenCalledWith(userId)
+      expect(NotificationsTransaction.getByUserId).toHaveBeenCalledWith(session.user.id)
     })
   })
 
   describe('POST /api/notifications', () => {
     it('should return 200 on success', async () => {
-      mockGetSession.mockResolvedValue(mockSession())
+      const session = mockSession()
+      mockGetSession.mockResolvedValue(session)
       vi.mocked(NotificationsTransaction.markAsRead).mockReturnValue(
         Effect.succeed({ message: 'Notifications updated' }),
       )
 
-      const userId = faker.string.uuid()
-      const res = await app.request('/api/notifications', {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain' },
-        body: userId,
-      })
+      const res = await app.request('/api/notifications', { method: 'POST' })
 
       expect(res.status).toBe(200)
       const json = await res.json()
@@ -134,15 +142,23 @@ describe('Notifications', () => {
     it('should return 401 when not authenticated', async () => {
       mockGetSession.mockResolvedValue(null)
 
-      const res = await app.request('/api/notifications', {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain' },
-        body: faker.string.uuid(),
-      })
+      const res = await app.request('/api/notifications', { method: 'POST' })
 
       expect(res.status).toBe(401)
       const json = await res.json()
       expect(json).toStrictEqual({ message: 'Unauthorized' })
+    })
+
+    it('should pass authenticated user id to transaction', async () => {
+      const session = mockSession()
+      mockGetSession.mockResolvedValue(session)
+      vi.mocked(NotificationsTransaction.markAsRead).mockReturnValue(
+        Effect.succeed({ message: 'Notifications updated' }),
+      )
+
+      await app.request('/api/notifications', { method: 'POST' })
+
+      expect(NotificationsTransaction.markAsRead).toHaveBeenCalledWith(session.user.id)
     })
 
     it('should return 500 on ValidationError', async () => {
@@ -151,11 +167,7 @@ describe('Notifications', () => {
         Effect.fail(new ValidationError({ message: 'Invalid response data' })),
       )
 
-      const res = await app.request('/api/notifications', {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain' },
-        body: faker.string.uuid(),
-      })
+      const res = await app.request('/api/notifications', { method: 'POST' })
 
       expect(res.status).toBe(500)
       const json = await res.json()
@@ -168,11 +180,7 @@ describe('Notifications', () => {
         Effect.fail(new DatabaseError({ message: 'Database unavailable' })),
       )
 
-      const res = await app.request('/api/notifications', {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain' },
-        body: faker.string.uuid(),
-      })
+      const res = await app.request('/api/notifications', { method: 'POST' })
 
       expect(res.status).toBe(503)
       const json = await res.json()

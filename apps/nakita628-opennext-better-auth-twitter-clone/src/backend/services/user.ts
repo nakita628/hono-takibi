@@ -224,10 +224,10 @@ export function createProfile(args: { userId: string; username: string }) {
 export function updateProfile(
   userId: string,
   data: {
-    username?: string
-    bio?: string | null
-    coverImage?: string | null
-    profileImage?: string | null
+    username?: string | undefined
+    bio?: string | null | undefined
+    coverImage?: string | null | undefined
+    profileImage?: string | null | undefined
   },
 ) {
   return Effect.gen(function* () {

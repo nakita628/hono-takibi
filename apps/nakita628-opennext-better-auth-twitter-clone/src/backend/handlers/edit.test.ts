@@ -140,8 +140,9 @@ describe('PATCH /api/edit', () => {
     expect(json).toStrictEqual({ message: 'Database unavailable' })
   })
 
-  it('should pass email and body to transaction', async () => {
-    mockGetSession.mockResolvedValue(mockSession())
+  it('should pass user id and body to transaction', async () => {
+    const session = mockSession()
+    mockGetSession.mockResolvedValue(session)
     const mockUser = mockUserResponse()
     vi.mocked(EditTransaction.update).mockReturnValue(Effect.succeed(mockUser))
 
@@ -152,6 +153,6 @@ describe('PATCH /api/edit', () => {
       body: JSON.stringify(body),
     })
 
-    expect(EditTransaction.update).toHaveBeenCalledWith('test@example.com', body)
+    expect(EditTransaction.update).toHaveBeenCalledWith(session.user.id, body)
   })
 })
