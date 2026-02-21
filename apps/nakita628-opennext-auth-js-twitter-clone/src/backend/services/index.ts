@@ -1,6 +1,0 @@
-export * as CommentService from './comment'
-export * as FollowService from './follow'
-export * as LikeService from './like'
-export * as NotificationService from './notification'
-export * as PostService from './post'
-export * as UserService from './user'
