@@ -88,9 +88,7 @@ describe('Search', () => {
     })
 
     it('should pass query and default pagination to transaction', async () => {
-      vi.mocked(SearchTransaction.search).mockReturnValue(
-        Effect.succeed(mockEmptySearchResults()),
-      )
+      vi.mocked(SearchTransaction.search).mockReturnValue(Effect.succeed(mockEmptySearchResults()))
 
       await app.request('/api/search?q=test', { method: 'GET' })
 
@@ -102,9 +100,7 @@ describe('Search', () => {
     })
 
     it('should pass custom pagination to transaction', async () => {
-      vi.mocked(SearchTransaction.search).mockReturnValue(
-        Effect.succeed(mockEmptySearchResults()),
-      )
+      vi.mocked(SearchTransaction.search).mockReturnValue(Effect.succeed(mockEmptySearchResults()))
 
       await app.request('/api/search?q=test&page=2&limit=10', { method: 'GET' })
 

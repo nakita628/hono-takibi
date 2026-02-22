@@ -3,8 +3,7 @@ import { Effect } from 'effect'
 import { ContractViolationError, DatabaseError } from '@/backend/domain'
 import type { postCommentsRoute } from '@/backend/routes'
 import * as CommentsTransaction from '@/backend/transactions/comments'
-import { DBLive } from '@/infra'
-import type { AuthType } from '@/infra'
+import { AuthType, DBLive } from '@/infra'
 
 /**
  * Handle `POST /comments` — create a comment on a post.

@@ -2,13 +2,24 @@ import { faker } from '@faker-js/faker'
 import { Effect } from 'effect'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import app from '@/backend'
-import { ConflictError, ContractViolationError, DatabaseError, NotFoundError } from '@/backend/domain'
+import {
+  ConflictError,
+  ContractViolationError,
+  DatabaseError,
+  NotFoundError,
+} from '@/backend/domain'
 import * as FollowTransaction from '@/backend/transactions/follow'
 
 function mockSession() {
   return {
     user: { id: faker.string.uuid(), email: 'test@example.com', name: 'Test User' },
     session: { id: faker.string.uuid() },
+  }
+}
+
+function mockFollowUserRequest() {
+  return {
+    userId: faker.string.uuid(),
   }
 }
 

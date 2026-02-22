@@ -3,8 +3,7 @@ import { Effect } from 'effect'
 import { ContractViolationError, DatabaseError, UnauthorizedError } from '@/backend/domain'
 import type { patchEditRoute } from '@/backend/routes'
 import * as EditTransaction from '@/backend/transactions/edit'
-import { DBLive } from '@/infra'
-import type { AuthType } from '@/infra'
+import { AuthType, DBLive } from '@/infra'
 
 /**
  * Handle `PATCH /edit` — update the authenticated user's profile.

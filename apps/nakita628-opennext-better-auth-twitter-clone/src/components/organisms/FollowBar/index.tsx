@@ -1,7 +1,7 @@
 'use client'
 
-import { SearchBarContainer } from '@/components/molecules/SearchBarContainer'
 import { AvatarLink } from '@/components/molecules/AvatarLink'
+import { SearchBarContainer } from '@/components/molecules/SearchBarContainer'
 import { useGetUsers } from '@/hooks/swr'
 
 export function FollowBar() {

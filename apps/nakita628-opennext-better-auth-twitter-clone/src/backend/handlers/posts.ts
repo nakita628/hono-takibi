@@ -3,8 +3,7 @@ import { Effect } from 'effect'
 import { ContractViolationError, DatabaseError, NotFoundError } from '@/backend/domain'
 import type { getPostsPostIdRoute, getPostsRoute, postPostsRoute } from '@/backend/routes'
 import * as PostsTransaction from '@/backend/transactions/posts'
-import { DBLive } from '@/infra'
-import type { AuthType } from '@/infra'
+import { AuthType, DBLive } from '@/infra'
 
 /**
  * Handle `GET /posts` — list posts with pagination.

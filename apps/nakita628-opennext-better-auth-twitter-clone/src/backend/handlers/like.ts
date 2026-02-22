@@ -1,10 +1,14 @@
 import type { RouteHandler } from '@hono/zod-openapi'
 import { Effect } from 'effect'
-import { ConflictError, ContractViolationError, DatabaseError, NotFoundError } from '@/backend/domain'
+import {
+  ConflictError,
+  ContractViolationError,
+  DatabaseError,
+  NotFoundError,
+} from '@/backend/domain'
 import type { deleteLikeRoute, postLikeRoute } from '@/backend/routes'
 import * as LikeTransaction from '@/backend/transactions/like'
-import { DBLive } from '@/infra'
-import type { AuthType } from '@/infra'
+import { AuthType, DBLive } from '@/infra'
 
 /**
  * Handle `POST /like` — like a post.

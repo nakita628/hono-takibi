@@ -5,8 +5,8 @@ import { useEffect } from 'react'
 import { ClipLoader } from 'react-spinners'
 import { Header } from '@/components/atoms/Header'
 import { CommentFeed } from '@/components/organisms/CommentFeed'
-import { PostItem } from '@/components/organisms/PostItem'
 import { Form } from '@/components/organisms/Form'
+import { PostItem } from '@/components/organisms/PostItem'
 import { useGetCurrent, useGetPostsPostId } from '@/hooks/swr'
 
 export default function PostView() {

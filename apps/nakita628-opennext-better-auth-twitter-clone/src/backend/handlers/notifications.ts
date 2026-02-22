@@ -3,8 +3,7 @@ import { Effect } from 'effect'
 import { ContractViolationError, DatabaseError } from '@/backend/domain'
 import type { getNotificationsUserIdRoute, postNotificationsRoute } from '@/backend/routes'
 import * as NotificationsTransaction from '@/backend/transactions/notifications'
-import { DBLive } from '@/infra'
-import type { AuthType } from '@/infra'
+import { AuthType, DBLive } from '@/infra'
 
 /**
  * Handle `GET /notifications/:userId` — fetch notifications for a user.

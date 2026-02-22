@@ -3,8 +3,7 @@ import { Effect } from 'effect'
 import { ContractViolationError, DatabaseError, UnauthorizedError } from '@/backend/domain'
 import type { getCurrentRoute } from '@/backend/routes'
 import * as CurrentTransaction from '@/backend/transactions/current'
-import { DBLive } from '@/infra'
-import type { AuthType } from '@/infra'
+import { AuthType, DBLive } from '@/infra'
 
 /**
  * Handle `GET /current` — return the authenticated user's profile.

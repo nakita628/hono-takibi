@@ -3,8 +3,7 @@ import { Effect } from 'effect'
 import { ContractViolationError, DatabaseError, NotFoundError } from '@/backend/domain'
 import type { getUsersRoute, getUsersUserIdRoute } from '@/backend/routes'
 import * as UsersTransaction from '@/backend/transactions/users'
-import { DBLive } from '@/infra'
-import type { AuthType } from '@/infra'
+import { AuthType, DBLive } from '@/infra'
 
 /**
  * Handle `GET /users/:userId` — fetch a user by ID with follow counts.

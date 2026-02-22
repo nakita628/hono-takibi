@@ -3,8 +3,7 @@ import { Effect } from 'effect'
 import { ContractViolationError, DatabaseError } from '@/backend/domain'
 import type { getSearchRoute } from '@/backend/routes'
 import * as SearchTransaction from '@/backend/transactions/search'
-import { DBLive } from '@/infra'
-import type { AuthType } from '@/infra'
+import { AuthType, DBLive } from '@/infra'
 
 /**
  * Handle `GET /search` — full-text search across posts.

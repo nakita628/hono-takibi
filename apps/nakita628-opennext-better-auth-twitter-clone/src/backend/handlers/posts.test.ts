@@ -17,6 +17,8 @@ function mockUser() {
     id: faker.string.uuid(),
     name: faker.person.fullName(),
     username: faker.internet.username(),
+    email: faker.internet.email(),
+    emailVerified: null,
     bio: null,
     image: null,
     coverImage: null,

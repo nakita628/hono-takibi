@@ -3,8 +3,7 @@ import { Effect } from 'effect'
 import { ConflictError, ContractViolationError, DatabaseError } from '@/backend/domain'
 import type { postRegisterRoute } from '@/backend/routes'
 import * as UserTransaction from '@/backend/transactions/register'
-import { DBLive } from '@/infra'
-import type { AuthType } from '@/infra'
+import { AuthType, DBLive } from '@/infra'
 
 /**
  * Handle `POST /register` — register a new user account.

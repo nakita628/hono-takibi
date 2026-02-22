@@ -50,7 +50,9 @@ export function get(userId: string) {
 
     const valid = CurrentUserSchema.safeParse(data)
     if (!valid.success) {
-      return yield* Effect.fail(new ContractViolationError({ message: 'Invalid current user data' }))
+      return yield* Effect.fail(
+        new ContractViolationError({ message: 'Invalid current user data' }),
+      )
     }
     return valid.data
   })

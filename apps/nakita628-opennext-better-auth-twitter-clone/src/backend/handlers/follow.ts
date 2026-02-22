@@ -1,10 +1,14 @@
 import type { RouteHandler } from '@hono/zod-openapi'
 import { Effect } from 'effect'
-import { ConflictError, ContractViolationError, DatabaseError, NotFoundError } from '@/backend/domain'
+import {
+  ConflictError,
+  ContractViolationError,
+  DatabaseError,
+  NotFoundError,
+} from '@/backend/domain'
 import type { deleteFollowRoute, postFollowRoute } from '@/backend/routes'
 import * as FollowTransaction from '@/backend/transactions/follow'
-import { DBLive } from '@/infra'
-import type { AuthType } from '@/infra'
+import { AuthType, DBLive } from '@/infra'
 
 /**
  * Handle `POST /follow` — follow a user.

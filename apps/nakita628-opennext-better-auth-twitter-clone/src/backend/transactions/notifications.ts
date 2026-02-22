@@ -27,7 +27,9 @@ export function getByUserId(userId: string) {
 
     const valid = z.array(NotificationSchema).safeParse(data)
     if (!valid.success) {
-      return yield* Effect.fail(new ContractViolationError({ message: 'Invalid notifications data' }))
+      return yield* Effect.fail(
+        new ContractViolationError({ message: 'Invalid notifications data' }),
+      )
     }
     return valid.data
   })
