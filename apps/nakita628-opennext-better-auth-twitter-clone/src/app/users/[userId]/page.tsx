@@ -40,8 +40,8 @@ export default function UserView() {
 
   return (
     <>
-      <Header showBackArrow label={fetchedUser.name} />
-      <UserHero userId={userId} />
+      <Header showBackArrow label={fetchedUser.name} onBack={() => router.back()} />
+      <UserHero coverImage={fetchedUser.coverImage} profileImage={fetchedUser.profileImage} />
       <UserBio userId={userId} />
       <PostFeed userId={userId} />
     </>

@@ -2,6 +2,7 @@
 
 import { parseResponse } from 'hono/client'
 import useSWRInfinite from 'swr/infinite'
+import { getGetPostsKey } from '@/hooks/swr'
 import { client } from '@/lib'
 
 type PostsResponse = Awaited<
@@ -28,15 +29,13 @@ type PostsResponse = Awaited<
 export function usePostsInfinite(userId?: string) {
   const getKey = (pageIndex: number, previousPageData: PostsResponse | null) => {
     if (previousPageData && pageIndex + 1 > previousPageData.meta.totalPages) return null
-    return ['posts-infinite', userId, pageIndex + 1] as const
+    const query = userId !== undefined ? { userId, page: pageIndex + 1 } : { page: pageIndex + 1 }
+    return getGetPostsKey({ query })
   }
 
   const { data, error, size, setSize, isLoading, isValidating } = useSWRInfinite(
     getKey,
-    async ([, uid, page]) => {
-      const query = uid !== undefined ? { userId: uid, page } : { page }
-      return parseResponse(client.posts.$get({ query }))
-    },
+    async ([, , , args]) => parseResponse(client.posts.$get(args)),
     { revalidateFirstPage: false },
   )
 

@@ -2,7 +2,7 @@
 
 import { useCallback, useRef } from 'react'
 import { ClipLoader } from 'react-spinners'
-import { PostItem } from '@/components/molecules/PostItem'
+import { PostItem } from '@/components/organisms/PostItem'
 import { usePostsInfinite } from '@/hooks/usePostsInfinite'
 
 type Props = {

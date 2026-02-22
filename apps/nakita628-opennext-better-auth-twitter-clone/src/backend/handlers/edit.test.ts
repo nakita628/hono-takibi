@@ -2,7 +2,7 @@ import { faker } from '@faker-js/faker'
 import { Effect } from 'effect'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import app from '@/backend'
-import { DatabaseError, UnauthorizedError, ValidationError } from '@/backend/domain'
+import { ContractViolationError, DatabaseError, UnauthorizedError } from '@/backend/domain'
 import * as EditTransaction from '@/backend/transactions/edit'
 
 function mockSession() {
@@ -18,14 +18,11 @@ function mockUserResponse() {
     name: 'Updated User',
     username: 'updated',
     bio: 'Hello',
-    email: 'test@example.com',
-    emailVerified: null,
     image: null,
     coverImage: null,
     profileImage: null,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
-    hasNotification: null,
   }
 }
 
@@ -106,10 +103,10 @@ describe('PATCH /api/edit', () => {
     expect(res.status).toBe(422)
   })
 
-  it('should return 500 on ValidationError', async () => {
+  it('should return 500 on ContractViolationError', async () => {
     mockGetSession.mockResolvedValue(mockSession())
     vi.mocked(EditTransaction.update).mockReturnValue(
-      Effect.fail(new ValidationError({ message: 'Invalid user data' })),
+      Effect.fail(new ContractViolationError({ message: 'Invalid user data' })),
     )
 
     const res = await app.request('/api/edit', {

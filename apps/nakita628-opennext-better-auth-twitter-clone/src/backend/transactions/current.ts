@@ -1,5 +1,5 @@
 import { Effect } from 'effect'
-import { UnauthorizedError, ValidationError } from '@/backend/domain'
+import { ContractViolationError, UnauthorizedError } from '@/backend/domain'
 import { CurrentUserSchema } from '@/backend/routes'
 import * as UserService from '@/backend/services/user'
 
@@ -50,7 +50,9 @@ export function get(userId: string) {
 
     const valid = CurrentUserSchema.safeParse(data)
     if (!valid.success) {
-      return yield* Effect.fail(new ValidationError({ message: 'Invalid current user data' }))
+      return yield* Effect.fail(
+        new ContractViolationError({ message: 'Invalid current user data' }),
+      )
     }
     return valid.data
   })

@@ -1,5 +1,5 @@
 import { Effect } from 'effect'
-import { NotFoundError, ValidationError } from '@/backend/domain'
+import { ConflictError, ContractViolationError, NotFoundError } from '@/backend/domain'
 import * as PostDomain from '@/backend/domain/post'
 import { PostWithLikesSchema } from '@/backend/routes'
 import * as LikeService from '@/backend/services/like'
@@ -30,7 +30,7 @@ export function create(userId: string, args: { postId: string }) {
     }
 
     if (post.likes.some((like) => like.userId === userId)) {
-      return yield* Effect.fail(new ValidationError({ message: 'Already liked' }))
+      return yield* Effect.fail(new ConflictError({ message: 'Already liked' }))
     }
 
     yield* LikeService.create({ userId, postId: args.postId })
@@ -51,7 +51,7 @@ export function create(userId: string, args: { postId: string }) {
     const data = PostDomain.makeFormatPostWithLikes(updated)
     const valid = PostWithLikesSchema.safeParse(data)
     if (!valid.success) {
-      return yield* Effect.fail(new ValidationError({ message: 'Invalid post data' }))
+      return yield* Effect.fail(new ContractViolationError({ message: 'Invalid post data' }))
     }
     return valid.data
   })
@@ -79,7 +79,7 @@ export function remove(userId: string, args: { postId: string }) {
     const data = PostDomain.makeFormatPostWithLikes(updated)
     const valid = PostWithLikesSchema.safeParse(data)
     if (!valid.success) {
-      return yield* Effect.fail(new ValidationError({ message: 'Invalid post data' }))
+      return yield* Effect.fail(new ContractViolationError({ message: 'Invalid post data' }))
     }
     return valid.data
   })

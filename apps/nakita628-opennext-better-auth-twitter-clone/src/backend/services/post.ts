@@ -122,11 +122,7 @@ export function findAllWithRelations(userId?: string) {
     const [commentRows, likeRows] = yield* Effect.tryPromise({
       try: () =>
         Promise.all([
-          db
-            .select()
-            .from(schema.comments)
-            .where(inArray(schema.comments.postId, postIds))
-            .all(),
+          db.select().from(schema.comments).where(inArray(schema.comments.postId, postIds)).all(),
           db.select().from(schema.likes).where(inArray(schema.likes.postId, postIds)).all(),
         ]),
       catch: () => new DatabaseError({ message: 'Database error' }),

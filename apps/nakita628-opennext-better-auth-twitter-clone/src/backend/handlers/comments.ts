@@ -1,10 +1,9 @@
 import type { RouteHandler } from '@hono/zod-openapi'
 import { Effect } from 'effect'
-import { DatabaseError, ValidationError } from '@/backend/domain'
+import { ContractViolationError, DatabaseError } from '@/backend/domain'
 import type { postCommentsRoute } from '@/backend/routes'
 import * as CommentsTransaction from '@/backend/transactions/comments'
-import { DBLive } from '@/infra'
-import type { AuthType } from '@/lib/auth'
+import { AuthType, DBLive } from '@/infra'
 
 /**
  * Handle `POST /comments` — create a comment on a post.
@@ -38,7 +37,7 @@ export const postCommentsRouteHandler: RouteHandler<
       Effect.match({
         onSuccess: (comment) => c.json(comment, 200),
         onFailure: (e) => {
-          if (e instanceof ValidationError) return c.json({ message: e.message }, 500)
+          if (e instanceof ContractViolationError) return c.json({ message: e.message }, 500)
           if (e instanceof DatabaseError) return c.json({ message: e.message }, 503)
           return c.json({ message: 'Internal server error' }, 500)
         },

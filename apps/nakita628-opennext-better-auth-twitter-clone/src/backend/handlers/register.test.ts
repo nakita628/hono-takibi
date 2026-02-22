@@ -2,7 +2,7 @@ import { faker } from '@faker-js/faker'
 import { Effect } from 'effect'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import app from '@/backend'
-import { ConflictError, DatabaseError, ValidationError } from '@/backend/domain'
+import { ConflictError, ContractViolationError, DatabaseError } from '@/backend/domain'
 import * as RegisterTransaction from '@/backend/transactions/register'
 
 function mockUserResponse() {
@@ -11,14 +11,11 @@ function mockUserResponse() {
     name: 'Test User',
     username: 'testuser',
     bio: '',
-    email: 'test@example.com',
-    emailVerified: null,
     image: null,
     coverImage: null,
     profileImage: null,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
-    hasNotification: false,
   }
 }
 
@@ -95,9 +92,9 @@ describe('POST /api/register', () => {
     expect(res.status).toBe(422)
   })
 
-  it('should return 500 on ValidationError', async () => {
+  it('should return 500 on ContractViolationError', async () => {
     vi.mocked(RegisterTransaction.create).mockReturnValue(
-      Effect.fail(new ValidationError({ message: 'Invalid user data' })),
+      Effect.fail(new ContractViolationError({ message: 'Invalid user data' })),
     )
 
     const body = mockRegisterRequest()

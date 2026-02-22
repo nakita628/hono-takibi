@@ -1,5 +1,5 @@
 import { Effect } from 'effect'
-import { ValidationError } from '@/backend/domain'
+import { ContractViolationError } from '@/backend/domain'
 import { CommentSchema } from '@/backend/routes'
 import * as CommentService from '@/backend/services/comment'
 import * as NotificationService from '@/backend/services/notification'
@@ -45,7 +45,7 @@ export function create(userId: string, args: { body: string; postId: string }) {
 
     const valid = CommentSchema.safeParse(data)
     if (!valid.success) {
-      return yield* Effect.fail(new ValidationError({ message: 'Invalid comment data' }))
+      return yield* Effect.fail(new ContractViolationError({ message: 'Invalid comment data' }))
     }
     return valid.data
   })

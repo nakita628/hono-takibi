@@ -11,7 +11,6 @@ import {
   MessageResponseSchema,
   NotificationSchema,
   PostSchema,
-  PostWithDetailsSchema,
   PostWithLikesSchema,
   PostDetailSchema,
   RegisterRequestSchema,
@@ -25,14 +24,11 @@ function mockUser() {
     id: faker.string.uuid(),
     name: faker.person.fullName(),
     username: faker.internet.username(),
-    email: faker.internet.email(),
-    emailVerified: null,
     image: null,
     coverImage: null,
     profileImage: null,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
-    hasNotification: false,
   }
 }
 
@@ -42,12 +38,6 @@ describe('Schema Validation', () => {
       const data = mockUser()
       const result = UserSchema.safeParse(data)
       expect(result.success).toBe(true)
-    })
-
-    it('should reject invalid email', () => {
-      const data = { ...mockUser(), email: 'not-an-email' }
-      const result = UserSchema.safeParse(data)
-      expect(result.success).toBe(false)
     })
 
     it('should reject invalid uuid for id', () => {
@@ -345,39 +335,6 @@ describe('Schema Validation', () => {
         likes: [],
       }
       const result = PostWithLikesSchema.safeParse(data)
-      expect(result.success).toBe(true)
-    })
-  })
-
-  describe('PostWithDetailsSchema', () => {
-    it('should accept post with user, comments, and likes', () => {
-      const user = mockUser()
-      const data = {
-        id: faker.string.uuid(),
-        body: 'Hello',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        userId: user.id,
-        user,
-        comments: [
-          {
-            id: faker.string.uuid(),
-            body: 'Nice!',
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-            userId: faker.string.uuid(),
-            postId: faker.string.uuid(),
-          },
-        ],
-        likes: [
-          {
-            userId: faker.string.uuid(),
-            postId: faker.string.uuid(),
-            createdAt: new Date().toISOString(),
-          },
-        ],
-      }
-      const result = PostWithDetailsSchema.safeParse(data)
       expect(result.success).toBe(true)
     })
   })

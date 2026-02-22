@@ -1,4 +1,4 @@
-import { CommentItem } from '@/components/molecules/CommentItem'
+import { CommentItem } from '@/components/organisms/CommentItem'
 
 type CommentUser = {
   id: string

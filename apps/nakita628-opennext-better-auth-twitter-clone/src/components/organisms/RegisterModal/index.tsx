@@ -8,7 +8,7 @@ import { Modal } from '@/components/molecules/Modal'
 import { usePostRegister } from '@/hooks/swr'
 import { useLoginModal } from '@/hooks/useLoginModal'
 import { useRegisterModal } from '@/hooks/useRegisterModal'
-import { authClient } from '@/lib/auth-client'
+import { authClient } from '@/infra/auth-client'
 
 export function RegisterModal() {
   const loginModal = useLoginModal()

@@ -2,13 +2,24 @@ import { faker } from '@faker-js/faker'
 import { Effect } from 'effect'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import app from '@/backend'
-import { DatabaseError, NotFoundError, ValidationError } from '@/backend/domain'
+import {
+  ConflictError,
+  ContractViolationError,
+  DatabaseError,
+  NotFoundError,
+} from '@/backend/domain'
 import * as FollowTransaction from '@/backend/transactions/follow'
 
 function mockSession() {
   return {
     user: { id: faker.string.uuid(), email: 'test@example.com', name: 'Test User' },
     session: { id: faker.string.uuid() },
+  }
+}
+
+function mockFollowUserRequest() {
+  return {
+    userId: faker.string.uuid(),
   }
 }
 
@@ -77,10 +88,10 @@ describe('Follow', () => {
       expect(res.status).toBe(422)
     })
 
-    it('should return 500 on ValidationError (self-follow)', async () => {
+    it('should return 409 on ConflictError (self-follow)', async () => {
       mockGetSession.mockResolvedValue(mockSession())
       vi.mocked(FollowTransaction.create).mockReturnValue(
-        Effect.fail(new ValidationError({ message: 'Cannot follow yourself' })),
+        Effect.fail(new ConflictError({ message: 'Cannot follow yourself' })),
       )
 
       const res = await app.request('/api/follow', {
@@ -89,7 +100,7 @@ describe('Follow', () => {
         body: JSON.stringify({ userId: faker.string.uuid() }),
       })
 
-      expect(res.status).toBe(500)
+      expect(res.status).toBe(409)
       const json = await res.json()
       expect(json).toStrictEqual({ message: 'Cannot follow yourself' })
     })
@@ -170,10 +181,10 @@ describe('Follow', () => {
       expect(res.status).toBe(422)
     })
 
-    it('should return 500 on ValidationError', async () => {
+    it('should return 500 on ContractViolationError', async () => {
       mockGetSession.mockResolvedValue(mockSession())
       vi.mocked(FollowTransaction.remove).mockReturnValue(
-        Effect.fail(new ValidationError({ message: 'Invalid response data' })),
+        Effect.fail(new ContractViolationError({ message: 'Invalid response data' })),
       )
 
       const res = await app.request('/api/follow', {

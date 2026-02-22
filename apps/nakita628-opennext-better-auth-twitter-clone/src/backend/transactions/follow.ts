@@ -1,5 +1,5 @@
 import { Effect } from 'effect'
-import { NotFoundError, ValidationError } from '@/backend/domain'
+import { ConflictError, ContractViolationError, NotFoundError } from '@/backend/domain'
 import { MessageResponseSchema } from '@/backend/routes'
 import * as FollowService from '@/backend/services/follow'
 import * as NotificationService from '@/backend/services/notification'
@@ -21,7 +21,7 @@ import * as UserService from '@/backend/services/user'
 export function create(userId: string, args: { userId: string }) {
   return Effect.gen(function* () {
     if (userId === args.userId) {
-      return yield* Effect.fail(new ValidationError({ message: 'Cannot follow yourself' }))
+      return yield* Effect.fail(new ConflictError({ message: 'Cannot follow yourself' }))
     }
 
     const targetUser = yield* UserService.findById(args.userId)
@@ -43,7 +43,7 @@ export function create(userId: string, args: { userId: string }) {
     const data = { message: 'Success' }
     const valid = MessageResponseSchema.safeParse(data)
     if (!valid.success) {
-      return yield* Effect.fail(new ValidationError({ message: 'Invalid response data' }))
+      return yield* Effect.fail(new ContractViolationError({ message: 'Invalid response data' }))
     }
     return valid.data
   })
@@ -68,7 +68,7 @@ export function remove(userId: string, args: { userId: string }) {
     const data = { message: 'Success' }
     const valid = MessageResponseSchema.safeParse(data)
     if (!valid.success) {
-      return yield* Effect.fail(new ValidationError({ message: 'Invalid response data' }))
+      return yield* Effect.fail(new ContractViolationError({ message: 'Invalid response data' }))
     }
     return valid.data
   })

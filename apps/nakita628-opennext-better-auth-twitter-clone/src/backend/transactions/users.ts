@@ -1,5 +1,5 @@
 import { Effect } from 'effect'
-import { NotFoundError, ValidationError } from '@/backend/domain'
+import { ContractViolationError, NotFoundError } from '@/backend/domain'
 import { PaginatedUsersSchema, UserWithFollowCountSchema } from '@/backend/routes'
 import * as UserService from '@/backend/services/user'
 
@@ -29,14 +29,11 @@ export function getById(userId: string) {
       name: user.name,
       username: profile?.username ?? '',
       bio: profile?.bio ?? null,
-      email: user.email,
-      emailVerified: null,
       image: user.image ?? null,
       coverImage: profile?.coverImage ?? null,
       profileImage: profile?.profileImage ?? null,
       createdAt: user.createdAt.toISOString(),
       updatedAt: user.updatedAt.toISOString(),
-      hasNotification: profile?.hasNotification ?? null,
       _count: {
         followers: user.followersCount,
         following: user.followingCount,
@@ -45,7 +42,7 @@ export function getById(userId: string) {
 
     const valid = UserWithFollowCountSchema.safeParse(data)
     if (!valid.success) {
-      return yield* Effect.fail(new ValidationError({ message: 'Invalid user data' }))
+      return yield* Effect.fail(new ContractViolationError({ message: 'Invalid user data' }))
     }
     return valid.data
   })
@@ -76,14 +73,11 @@ export function getAll(args: { page: number; limit: number }) {
           name: user.name,
           username: profile?.username ?? '',
           bio: profile?.bio ?? null,
-          email: user.email,
-          emailVerified: null,
           image: user.image ?? null,
           coverImage: profile?.coverImage ?? null,
           profileImage: profile?.profileImage ?? null,
           createdAt: user.createdAt.toISOString(),
           updatedAt: user.updatedAt.toISOString(),
-          hasNotification: profile?.hasNotification ?? null,
         }
       }),
       meta: {
@@ -96,7 +90,7 @@ export function getAll(args: { page: number; limit: number }) {
 
     const valid = PaginatedUsersSchema.safeParse(data)
     if (!valid.success) {
-      return yield* Effect.fail(new ValidationError({ message: 'Invalid users data' }))
+      return yield* Effect.fail(new ContractViolationError({ message: 'Invalid users data' }))
     }
     return valid.data
   })

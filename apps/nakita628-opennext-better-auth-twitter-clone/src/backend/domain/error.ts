@@ -10,8 +10,8 @@ export class NotFoundError extends Data.TaggedError('NotFoundError')<{
   readonly message: string
 }> {}
 
-/** Raised when output data fails schema validation. */
-export class ValidationError extends Data.TaggedError('ValidationError')<{
+/** Raised when a response payload violates the API contract (safeParse failure). */
+export class ContractViolationError extends Data.TaggedError('ContractViolationError')<{
   readonly message: string
 }> {}
 
