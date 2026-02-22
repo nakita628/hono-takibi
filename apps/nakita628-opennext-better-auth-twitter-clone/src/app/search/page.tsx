@@ -4,7 +4,7 @@ import { useSearchParams } from 'next/navigation'
 import { Suspense } from 'react'
 import { ClipLoader } from 'react-spinners'
 import { AvatarLink } from '@/components/molecules/AvatarLink'
-import { PostItem } from '@/components/molecules/PostItem'
+import { PostItem } from '@/components/organisms/PostItem'
 import { useSearchPosts } from '@/hooks/useSearchPosts'
 
 function SearchContent() {

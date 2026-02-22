@@ -27,7 +27,7 @@ export default function Notifications() {
 
   return (
     <>
-      <Header label='Notifications' showBackArrow />
+      <Header label='Notifications' showBackArrow onBack={() => router.back()} />
       <NotificationsFeed />
     </>
   )
