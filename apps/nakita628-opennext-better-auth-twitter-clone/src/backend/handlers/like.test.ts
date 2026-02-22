@@ -2,7 +2,7 @@ import { faker } from '@faker-js/faker'
 import { Effect } from 'effect'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import app from '@/backend'
-import { DatabaseError, NotFoundError, ValidationError } from '@/backend/domain'
+import { ConflictError, ContractViolationError, DatabaseError, NotFoundError } from '@/backend/domain'
 import * as LikeTransaction from '@/backend/transactions/like'
 
 function mockSession() {
@@ -100,10 +100,10 @@ describe('Like', () => {
       expect(res.status).toBe(422)
     })
 
-    it('should return 500 on ValidationError', async () => {
+    it('should return 409 on ConflictError (already liked)', async () => {
       mockGetSession.mockResolvedValue(mockSession())
       vi.mocked(LikeTransaction.create).mockReturnValue(
-        Effect.fail(new ValidationError({ message: 'Already liked' })),
+        Effect.fail(new ConflictError({ message: 'Already liked' })),
       )
 
       const res = await app.request('/api/like', {
@@ -112,7 +112,7 @@ describe('Like', () => {
         body: JSON.stringify({ postId: faker.string.uuid() }),
       })
 
-      expect(res.status).toBe(500)
+      expect(res.status).toBe(409)
       const json = await res.json()
       expect(json).toStrictEqual({ message: 'Already liked' })
     })
@@ -195,10 +195,10 @@ describe('Like', () => {
       expect(res.status).toBe(422)
     })
 
-    it('should return 500 on ValidationError', async () => {
+    it('should return 500 on ContractViolationError', async () => {
       mockGetSession.mockResolvedValue(mockSession())
       vi.mocked(LikeTransaction.remove).mockReturnValue(
-        Effect.fail(new ValidationError({ message: 'Invalid post data' })),
+        Effect.fail(new ContractViolationError({ message: 'Invalid post data' })),
       )
 
       const res = await app.request('/api/like', {

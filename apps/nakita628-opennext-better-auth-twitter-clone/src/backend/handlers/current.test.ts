@@ -2,7 +2,7 @@ import { faker } from '@faker-js/faker'
 import { Effect } from 'effect'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import app from '@/backend'
-import { DatabaseError, UnauthorizedError, ValidationError } from '@/backend/domain'
+import { ContractViolationError, DatabaseError, UnauthorizedError } from '@/backend/domain'
 import * as CurrentTransaction from '@/backend/transactions/current'
 
 function mockSession() {
@@ -73,12 +73,12 @@ describe('GET /api/current', () => {
     expect(json).toStrictEqual({ message: 'Unauthorized' })
   })
 
-  it('should return 500 on ValidationError', async () => {
+  it('should return 500 on ContractViolationError', async () => {
     const session = mockSession()
     mockGetSession.mockResolvedValue(session)
 
     vi.mocked(CurrentTransaction.get).mockReturnValue(
-      Effect.fail(new ValidationError({ message: 'Invalid current user data' })),
+      Effect.fail(new ContractViolationError({ message: 'Invalid current user data' })),
     )
 
     const res = await app.request('/api/current', { method: 'GET' })

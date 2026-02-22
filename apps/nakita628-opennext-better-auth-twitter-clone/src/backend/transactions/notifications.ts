@@ -1,6 +1,6 @@
 import { z } from '@hono/zod-openapi'
 import { Effect } from 'effect'
-import { ValidationError } from '@/backend/domain'
+import { ContractViolationError } from '@/backend/domain'
 import { MessageResponseSchema, NotificationSchema } from '@/backend/routes'
 import * as NotificationService from '@/backend/services/notification'
 
@@ -27,7 +27,7 @@ export function getByUserId(userId: string) {
 
     const valid = z.array(NotificationSchema).safeParse(data)
     if (!valid.success) {
-      return yield* Effect.fail(new ValidationError({ message: 'Invalid notifications data' }))
+      return yield* Effect.fail(new ContractViolationError({ message: 'Invalid notifications data' }))
     }
     return valid.data
   })
@@ -49,7 +49,7 @@ export function markAsRead(userId: string) {
     const data = { message: 'Notifications updated' }
     const valid = MessageResponseSchema.safeParse(data)
     if (!valid.success) {
-      return yield* Effect.fail(new ValidationError({ message: 'Invalid response data' }))
+      return yield* Effect.fail(new ContractViolationError({ message: 'Invalid response data' }))
     }
     return valid.data
   })

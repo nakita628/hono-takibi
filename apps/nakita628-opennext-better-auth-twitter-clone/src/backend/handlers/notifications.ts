@@ -1,10 +1,10 @@
 import type { RouteHandler } from '@hono/zod-openapi'
 import { Effect } from 'effect'
-import { DatabaseError, ValidationError } from '@/backend/domain'
+import { ContractViolationError, DatabaseError } from '@/backend/domain'
 import type { getNotificationsUserIdRoute, postNotificationsRoute } from '@/backend/routes'
 import * as NotificationsTransaction from '@/backend/transactions/notifications'
 import { DBLive } from '@/infra'
-import type { AuthType } from '@/lib/auth'
+import type { AuthType } from '@/infra'
 
 /**
  * Handle `GET /notifications/:userId` — fetch notifications for a user.
@@ -40,7 +40,7 @@ export const getNotificationsUserIdRouteHandler: RouteHandler<
       Effect.match({
         onSuccess: (notifications) => c.json(notifications, 200),
         onFailure: (e) => {
-          if (e instanceof ValidationError) return c.json({ message: e.message }, 500)
+          if (e instanceof ContractViolationError) return c.json({ message: e.message }, 500)
           if (e instanceof DatabaseError) return c.json({ message: e.message }, 503)
           return c.json({ message: 'Internal server error' }, 500)
         },
@@ -79,7 +79,7 @@ export const postNotificationsRouteHandler: RouteHandler<
       Effect.match({
         onSuccess: (result) => c.json(result, 200),
         onFailure: (e) => {
-          if (e instanceof ValidationError) return c.json({ message: e.message }, 500)
+          if (e instanceof ContractViolationError) return c.json({ message: e.message }, 500)
           if (e instanceof DatabaseError) return c.json({ message: e.message }, 503)
           return c.json({ message: 'Internal server error' }, 500)
         },

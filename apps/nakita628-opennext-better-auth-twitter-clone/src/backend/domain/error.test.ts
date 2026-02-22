@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import {
   ConflictError,
+  ContractViolationError,
   DatabaseError,
   NotFoundError,
   UnauthorizedError,
-  ValidationError,
 } from './error'
 
 describe('Domain Errors', () => {
@@ -24,11 +24,11 @@ describe('Domain Errors', () => {
     })
   })
 
-  describe('ValidationError', () => {
+  describe('ContractViolationError', () => {
     it('should create with message', () => {
-      const error = new ValidationError({ message: 'Invalid data' })
+      const error = new ContractViolationError({ message: 'Invalid data' })
       expect(error.message).toBe('Invalid data')
-      expect(error._tag).toBe('ValidationError')
+      expect(error._tag).toBe('ContractViolationError')
     })
   })
 

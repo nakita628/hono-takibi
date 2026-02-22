@@ -1,6 +1,6 @@
 import { Effect } from 'effect'
 import * as UserDomain from '@/backend/domain'
-import { NotFoundError, ValidationError } from '@/backend/domain'
+import { ContractViolationError, NotFoundError } from '@/backend/domain'
 import { PaginatedPostsSchema, PostDetailSchema, PostSchema } from '@/backend/routes'
 import * as PostService from '@/backend/services/post'
 
@@ -27,7 +27,7 @@ export function create(userId: string, args: { body: string }) {
 
     const valid = PostSchema.safeParse(data)
     if (!valid.success) {
-      return yield* Effect.fail(new ValidationError({ message: 'Invalid post data' }))
+      return yield* Effect.fail(new ContractViolationError({ message: 'Invalid post data' }))
     }
     return valid.data
   })
@@ -75,7 +75,7 @@ export function getAll(args: { userId?: string; page: number; limit: number }) {
 
     const valid = PaginatedPostsSchema.safeParse(data)
     if (!valid.success) {
-      return yield* Effect.fail(new ValidationError({ message: 'Invalid posts data' }))
+      return yield* Effect.fail(new ContractViolationError({ message: 'Invalid posts data' }))
     }
     return valid.data
   })
@@ -122,7 +122,7 @@ export function getById(postId: string) {
 
     const valid = PostDetailSchema.safeParse(data)
     if (!valid.success) {
-      return yield* Effect.fail(new ValidationError({ message: 'Invalid post data' }))
+      return yield* Effect.fail(new ContractViolationError({ message: 'Invalid post data' }))
     }
     return valid.data
   })

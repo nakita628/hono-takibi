@@ -10,7 +10,7 @@ import { SidebarItem } from '@/components/atoms/SidebarItem'
 import { SidebarLogo } from '@/components/atoms/SidebarLogo'
 import { SidebarTweetButton } from '@/components/atoms/SidebarTweetButton'
 import { getGetCurrentKey, useGetCurrent } from '@/hooks/swr'
-import { authClient } from '@/lib/auth-client'
+import { authClient } from '@/infra/auth-client'
 
 export function Sidebar() {
   const router = useRouter()

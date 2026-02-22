@@ -2,7 +2,7 @@ import { faker } from '@faker-js/faker'
 import { Effect } from 'effect'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import app from '@/backend'
-import { DatabaseError, ValidationError } from '@/backend/domain'
+import { ContractViolationError, DatabaseError } from '@/backend/domain'
 import * as NotificationsTransaction from '@/backend/transactions/notifications'
 
 function mockSession() {
@@ -85,11 +85,11 @@ describe('Notifications', () => {
       expect(res.status).toBe(422)
     })
 
-    it('should return 500 on ValidationError', async () => {
+    it('should return 500 on ContractViolationError', async () => {
       const session = mockSession()
       mockGetSession.mockResolvedValue(session)
       vi.mocked(NotificationsTransaction.getByUserId).mockReturnValue(
-        Effect.fail(new ValidationError({ message: 'Invalid notifications data' })),
+        Effect.fail(new ContractViolationError({ message: 'Invalid notifications data' })),
       )
 
       const res = await app.request(`/api/notifications/${session.user.id}`, { method: 'GET' })
@@ -161,10 +161,10 @@ describe('Notifications', () => {
       expect(NotificationsTransaction.markAsRead).toHaveBeenCalledWith(session.user.id)
     })
 
-    it('should return 500 on ValidationError', async () => {
+    it('should return 500 on ContractViolationError', async () => {
       mockGetSession.mockResolvedValue(mockSession())
       vi.mocked(NotificationsTransaction.markAsRead).mockReturnValue(
-        Effect.fail(new ValidationError({ message: 'Invalid response data' })),
+        Effect.fail(new ContractViolationError({ message: 'Invalid response data' })),
       )
 
       const res = await app.request('/api/notifications', { method: 'POST' })

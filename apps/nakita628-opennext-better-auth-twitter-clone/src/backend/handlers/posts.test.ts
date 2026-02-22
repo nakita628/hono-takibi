@@ -2,7 +2,7 @@ import { faker } from '@faker-js/faker'
 import { Effect } from 'effect'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import app from '@/backend'
-import { DatabaseError, NotFoundError, ValidationError } from '@/backend/domain'
+import { ContractViolationError, DatabaseError, NotFoundError } from '@/backend/domain'
 import * as PostsTransaction from '@/backend/transactions/posts'
 
 function mockSession() {
@@ -18,14 +18,11 @@ function mockUser() {
     name: faker.person.fullName(),
     username: faker.internet.username(),
     bio: null,
-    email: faker.internet.email(),
-    emailVerified: null,
     image: null,
     coverImage: null,
     profileImage: null,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
-    hasNotification: false,
   }
 }
 
@@ -133,10 +130,10 @@ describe('Posts', () => {
       })
     })
 
-    it('should return 500 on ValidationError', async () => {
+    it('should return 500 on ContractViolationError', async () => {
       mockGetSession.mockResolvedValue(mockSession())
       vi.mocked(PostsTransaction.getAll).mockReturnValue(
-        Effect.fail(new ValidationError({ message: 'Invalid posts data' })),
+        Effect.fail(new ContractViolationError({ message: 'Invalid posts data' })),
       )
 
       const res = await app.request('/api/posts', { method: 'GET' })
@@ -203,10 +200,10 @@ describe('Posts', () => {
       expect(res.status).toBe(422)
     })
 
-    it('should return 500 on ValidationError', async () => {
+    it('should return 500 on ContractViolationError', async () => {
       mockGetSession.mockResolvedValue(mockSession())
       vi.mocked(PostsTransaction.create).mockReturnValue(
-        Effect.fail(new ValidationError({ message: 'Invalid post data' })),
+        Effect.fail(new ContractViolationError({ message: 'Invalid post data' })),
       )
 
       const res = await app.request('/api/posts', {
@@ -301,10 +298,10 @@ describe('Posts', () => {
       expect(res.status).toBe(422)
     })
 
-    it('should return 500 on ValidationError', async () => {
+    it('should return 500 on ContractViolationError', async () => {
       mockGetSession.mockResolvedValue(mockSession())
       vi.mocked(PostsTransaction.getById).mockReturnValue(
-        Effect.fail(new ValidationError({ message: 'Invalid post data' })),
+        Effect.fail(new ContractViolationError({ message: 'Invalid post data' })),
       )
 
       const postId = faker.string.uuid()

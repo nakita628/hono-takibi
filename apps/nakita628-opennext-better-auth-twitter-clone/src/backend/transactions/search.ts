@@ -1,6 +1,6 @@
 import { Effect } from 'effect'
 import * as UserDomain from '@/backend/domain'
-import { ValidationError } from '@/backend/domain'
+import { ContractViolationError } from '@/backend/domain'
 import { SearchResultsSchema } from '@/backend/routes'
 import * as SearchService from '@/backend/services/search'
 
@@ -23,7 +23,7 @@ import * as SearchService from '@/backend/services/search'
  *   E --> F
  *   F --> G[SearchResultsSchema.safeParse]
  *   G -- valid --> H[return data]
- *   G -- invalid --> I[ValidationError]
+ *   G -- invalid --> I[ContractViolationError]
  */
 export function search(args: { query: string; page: number; limit: number }) {
   return Effect.gen(function* () {
@@ -65,7 +65,7 @@ export function search(args: { query: string; page: number; limit: number }) {
 
     const valid = SearchResultsSchema.safeParse({ posts, users })
     if (!valid.success) {
-      return yield* Effect.fail(new ValidationError({ message: 'Invalid search results' }))
+      return yield* Effect.fail(new ContractViolationError({ message: 'Invalid search results' }))
     }
     return valid.data
   })

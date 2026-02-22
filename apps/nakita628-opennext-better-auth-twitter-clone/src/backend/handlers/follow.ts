@@ -1,10 +1,10 @@
 import type { RouteHandler } from '@hono/zod-openapi'
 import { Effect } from 'effect'
-import { DatabaseError, NotFoundError, ValidationError } from '@/backend/domain'
+import { ConflictError, ContractViolationError, DatabaseError, NotFoundError } from '@/backend/domain'
 import type { deleteFollowRoute, postFollowRoute } from '@/backend/routes'
 import * as FollowTransaction from '@/backend/transactions/follow'
 import { DBLive } from '@/infra'
-import type { AuthType } from '@/lib/auth'
+import type { AuthType } from '@/infra'
 
 /**
  * Handle `POST /follow` — follow a user.
@@ -37,8 +37,9 @@ export const postFollowRouteHandler: RouteHandler<
       Effect.match({
         onSuccess: (result) => c.json(result, 200),
         onFailure: (e) => {
+          if (e instanceof ConflictError) return c.json({ message: e.message }, 409)
           if (e instanceof NotFoundError) return c.json({ message: e.message }, 404)
-          if (e instanceof ValidationError) return c.json({ message: e.message }, 500)
+          if (e instanceof ContractViolationError) return c.json({ message: e.message }, 500)
           if (e instanceof DatabaseError) return c.json({ message: e.message }, 503)
           return c.json({ message: 'Internal server error' }, 500)
         },
@@ -77,7 +78,7 @@ export const deleteFollowRouteHandler: RouteHandler<
       Effect.match({
         onSuccess: (result) => c.json(result, 200),
         onFailure: (e) => {
-          if (e instanceof ValidationError) return c.json({ message: e.message }, 500)
+          if (e instanceof ContractViolationError) return c.json({ message: e.message }, 500)
           if (e instanceof DatabaseError) return c.json({ message: e.message }, 503)
           return c.json({ message: 'Internal server error' }, 500)
         },

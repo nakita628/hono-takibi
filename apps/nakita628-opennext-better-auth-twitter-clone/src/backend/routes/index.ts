@@ -83,22 +83,17 @@ export const UserSchema = z
     name: z.string(),
     username: z.string(),
     bio: z.string().nullable().exactOptional(),
-    email: z.email(),
-    emailVerified: z.string().nullable(),
     image: z.url().nullable(),
     coverImage: z.url().nullable(),
     profileImage: z.url().nullable(),
     createdAt: z.string(),
     updatedAt: z.string(),
-    hasNotification: z.boolean().nullable().exactOptional(),
   })
   .openapi({
     required: [
       'id',
       'name',
       'username',
-      'email',
-      'emailVerified',
       'image',
       'coverImage',
       'profileImage',
@@ -262,14 +257,11 @@ export const UserWithFollowCountSchema = z
     name: z.string(),
     username: z.string(),
     bio: z.string().nullable().exactOptional(),
-    email: z.email(),
-    emailVerified: z.string().nullable(),
     image: z.url().nullable(),
     coverImage: z.url().nullable(),
     profileImage: z.url().nullable(),
     createdAt: z.string(),
     updatedAt: z.string(),
-    hasNotification: z.boolean().nullable().exactOptional(),
     _count: z
       .object({ followers: z.number(), following: z.number() })
       .openapi({ required: ['followers', 'following'] }),
@@ -279,8 +271,6 @@ export const UserWithFollowCountSchema = z
       'id',
       'name',
       'username',
-      'email',
-      'emailVerified',
       'image',
       'coverImage',
       'profileImage',
@@ -291,21 +281,6 @@ export const UserWithFollowCountSchema = z
   })
   .openapi('UserWithFollowCount')
 
-export const PostWithDetailsSchema = z
-  .object({
-    id: z.uuid(),
-    body: z.string(),
-    createdAt: z.string(),
-    updatedAt: z.string(),
-    userId: z.uuid(),
-    user: UserSchema,
-    comments: z.array(CommentSchema),
-    likes: z.array(LikeSchema),
-  })
-  .openapi({
-    required: ['id', 'body', 'createdAt', 'updatedAt', 'userId', 'user', 'comments', 'likes'],
-  })
-  .openapi('PostWithDetails')
 
 const ParametersPostIdQueryParamsSchema = z
   .uuid()
@@ -495,6 +470,10 @@ export const postFollowRoute = createRoute({
       description: 'The server cannot find the requested resource.',
       content: { 'application/json': { schema: MessageResponseSchema } },
     },
+    409: {
+      description: 'The request conflicts with the current state of the server.',
+      content: { 'application/json': { schema: MessageResponseSchema } },
+    },
     422: {
       description: 'Client error',
       content: { 'application/json': { schema: ValidationErrorSchema } },
@@ -561,6 +540,10 @@ export const postLikeRoute = createRoute({
     },
     404: {
       description: 'The server cannot find the requested resource.',
+      content: { 'application/json': { schema: MessageResponseSchema } },
+    },
+    409: {
+      description: 'The request conflicts with the current state of the server.',
       content: { 'application/json': { schema: MessageResponseSchema } },
     },
     422: {

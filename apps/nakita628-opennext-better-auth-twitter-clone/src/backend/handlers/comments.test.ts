@@ -2,7 +2,7 @@ import { faker } from '@faker-js/faker'
 import { Effect } from 'effect'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import app from '@/backend'
-import { DatabaseError, ValidationError } from '@/backend/domain'
+import { ContractViolationError, DatabaseError } from '@/backend/domain'
 import * as CommentsTransaction from '@/backend/transactions/comments'
 
 function mockSession() {
@@ -90,10 +90,10 @@ describe('POST /api/comments', () => {
     expect(res.status).toBe(422)
   })
 
-  it('should return 500 on ValidationError', async () => {
+  it('should return 500 on ContractViolationError', async () => {
     mockGetSession.mockResolvedValue(mockSession())
     vi.mocked(CommentsTransaction.create).mockReturnValue(
-      Effect.fail(new ValidationError({ message: 'Invalid comment data' })),
+      Effect.fail(new ContractViolationError({ message: 'Invalid comment data' })),
     )
 
     const res = await app.request(`/api/comments?postId=${postId}`, {

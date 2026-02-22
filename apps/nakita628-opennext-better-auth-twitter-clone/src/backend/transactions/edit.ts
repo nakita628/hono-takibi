@@ -1,5 +1,5 @@
 import { Effect } from 'effect'
-import { UnauthorizedError, ValidationError } from '@/backend/domain'
+import { ContractViolationError, UnauthorizedError } from '@/backend/domain'
 import { UserSchema } from '@/backend/routes'
 import * as UserService from '@/backend/services/user'
 
@@ -54,19 +54,16 @@ export function update(
       name: args.name ?? user.name,
       username: updatedProfile.username,
       bio: updatedProfile.bio,
-      email: user.email,
-      emailVerified: null,
       image: user.image ?? null,
       coverImage: updatedProfile.coverImage,
       profileImage: updatedProfile.profileImage,
       createdAt: user.createdAt.toISOString(),
       updatedAt: user.updatedAt.toISOString(),
-      hasNotification: updatedProfile.hasNotification,
     }
 
     const valid = UserSchema.safeParse(data)
     if (!valid.success) {
-      return yield* Effect.fail(new ValidationError({ message: 'Invalid user data' }))
+      return yield* Effect.fail(new ContractViolationError({ message: 'Invalid user data' }))
     }
     return valid.data
   })

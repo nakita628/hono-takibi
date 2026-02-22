@@ -20,13 +20,10 @@ export const makeFormatUser = (user: UserWithProfile) => {
     name: user.name,
     username: profile?.username ?? '',
     bio: profile?.bio ?? null,
-    email: user.email,
-    emailVerified: null,
     image: user.image ?? null,
     coverImage: profile?.coverImage ?? null,
     profileImage: profile?.profileImage ?? null,
     createdAt: user.createdAt.toISOString(),
     updatedAt: user.updatedAt.toISOString(),
-    hasNotification: profile?.hasNotification ?? null,
   }
 }
