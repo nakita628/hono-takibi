@@ -1,5 +1,5 @@
 import { Effect } from 'effect'
-import { ContractViolationError, UnauthorizedError } from '@/backend/domain'
+import { ConflictError, ContractViolationError, UnauthorizedError } from '@/backend/domain'
 import { UserSchema } from '@/backend/routes'
 import * as UserService from '@/backend/services/user'
 
@@ -36,14 +36,23 @@ export function update(
 
     const profile = user.userProfile
 
+    // Check username uniqueness if changing
+    const newUsername = args.username ?? profile?.username ?? ''
+    if (newUsername && newUsername !== (profile?.username ?? '')) {
+      const taken = yield* UserService.isUsernameTaken(newUsername, user.id)
+      if (taken) {
+        return yield* Effect.fail(new ConflictError({ message: 'Username already taken' }))
+      }
+    }
+
     // Update name on user table if provided
     if (args.name && args.name !== user.name) {
       yield* UserService.updateName(user.id, args.name)
     }
 
-    // Update profile fields on userProfile table
+    // Upsert profile fields on userProfile table
     const updatedProfile = yield* UserService.updateProfile(user.id, {
-      username: args.username ?? profile?.username ?? '',
+      username: newUsername,
       bio: args.bio ?? profile?.bio,
       coverImage: args.coverImage !== undefined ? args.coverImage : profile?.coverImage,
       profileImage: args.profileImage !== undefined ? args.profileImage : profile?.profileImage,
@@ -54,6 +63,8 @@ export function update(
       name: args.name ?? user.name,
       username: updatedProfile.username,
       bio: updatedProfile.bio,
+      email: user.email,
+      emailVerified: user.emailVerified ? user.createdAt.toISOString() : null,
       image: user.image ?? null,
       coverImage: updatedProfile.coverImage,
       profileImage: updatedProfile.profileImage,

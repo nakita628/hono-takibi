@@ -4,8 +4,8 @@ export const CommentSchema = z
   .object({
     id: z.uuid(),
     body: z.string(),
-    createdAt: z.string(),
-    updatedAt: z.string(),
+    createdAt: z.iso.datetime(),
+    updatedAt: z.iso.datetime(),
     userId: z.uuid(),
     postId: z.uuid(),
   })
@@ -53,8 +53,8 @@ export const CurrentUserSchema = z
     image: z.url().nullable(),
     coverImage: z.url().nullable(),
     profileImage: z.url().nullable(),
-    createdAt: z.string(),
-    updatedAt: z.string(),
+    createdAt: z.iso.datetime(),
+    updatedAt: z.iso.datetime(),
     followers: z.array(FollowSchema),
     following: z.array(FollowSchema),
     hasNotification: z.boolean().nullable(),
@@ -77,6 +77,32 @@ export const CurrentUserSchema = z
   })
   .openapi('CurrentUser')
 
+export const PublicUserSchema = z
+  .object({
+    id: z.uuid(),
+    name: z.string(),
+    username: z.string(),
+    bio: z.string().nullable().exactOptional(),
+    image: z.url().nullable(),
+    coverImage: z.url().nullable(),
+    profileImage: z.url().nullable(),
+    createdAt: z.iso.datetime(),
+    updatedAt: z.iso.datetime(),
+  })
+  .openapi({
+    required: [
+      'id',
+      'name',
+      'username',
+      'image',
+      'coverImage',
+      'profileImage',
+      'createdAt',
+      'updatedAt',
+    ],
+  })
+  .openapi('PublicUser')
+
 export const UserSchema = z
   .object({
     id: z.uuid(),
@@ -84,12 +110,12 @@ export const UserSchema = z
     username: z.string(),
     bio: z.string().nullable().exactOptional(),
     email: z.email(),
-    emailVerified: z.string().nullable(),
+    emailVerified: z.iso.datetime().nullable(),
     image: z.url().nullable(),
     coverImage: z.url().nullable(),
     profileImage: z.url().nullable(),
-    createdAt: z.string(),
-    updatedAt: z.string(),
+    createdAt: z.iso.datetime(),
+    updatedAt: z.iso.datetime(),
     hasNotification: z.boolean().nullable().exactOptional(),
   })
   .openapi({
@@ -124,7 +150,7 @@ export const FollowUserRequestSchema = z
   .openapi('FollowUserRequest')
 
 export const LikeSchema = z
-  .object({ userId: z.uuid(), postId: z.uuid(), createdAt: z.string() })
+  .object({ userId: z.uuid(), postId: z.uuid(), createdAt: z.iso.datetime() })
   .openapi({ required: ['userId', 'postId', 'createdAt'] })
   .openapi('Like')
 
@@ -132,8 +158,8 @@ export const PostWithLikesSchema = z
   .object({
     id: z.uuid(),
     body: z.string(),
-    createdAt: z.string(),
-    updatedAt: z.string(),
+    createdAt: z.iso.datetime(),
+    updatedAt: z.iso.datetime(),
     userId: z.uuid(),
     likes: z.array(LikeSchema),
   })
@@ -146,7 +172,7 @@ export const LikePostRequestSchema = z
   .openapi('LikePostRequest')
 
 export const NotificationSchema = z
-  .object({ id: z.uuid(), body: z.string(), userId: z.uuid(), createdAt: z.string() })
+  .object({ id: z.uuid(), body: z.string(), userId: z.uuid(), createdAt: z.iso.datetime() })
   .openapi({ required: ['id', 'body', 'userId', 'createdAt'] })
   .openapi('Notification')
 
@@ -154,10 +180,10 @@ export const PostSummarySchema = z
   .object({
     id: z.uuid(),
     body: z.string(),
-    createdAt: z.string(),
-    updatedAt: z.string(),
+    createdAt: z.iso.datetime(),
+    updatedAt: z.iso.datetime(),
     userId: z.uuid(),
-    user: UserSchema,
+    user: PublicUserSchema,
     commentCount: z.number(),
     likeCount: z.number(),
   })
@@ -189,8 +215,8 @@ export const PostSchema = z
   .object({
     id: z.uuid(),
     body: z.string(),
-    createdAt: z.string(),
-    updatedAt: z.string(),
+    createdAt: z.iso.datetime(),
+    updatedAt: z.iso.datetime(),
     userId: z.uuid(),
   })
   .openapi({ required: ['id', 'body', 'createdAt', 'updatedAt', 'userId'] })
@@ -205,11 +231,11 @@ export const CommentWithUserSchema = z
   .object({
     id: z.uuid(),
     body: z.string(),
-    createdAt: z.string(),
-    updatedAt: z.string(),
+    createdAt: z.iso.datetime(),
+    updatedAt: z.iso.datetime(),
     userId: z.uuid(),
     postId: z.uuid(),
-    user: UserSchema,
+    user: PublicUserSchema,
   })
   .openapi({ required: ['id', 'body', 'createdAt', 'updatedAt', 'userId', 'postId', 'user'] })
   .openapi('CommentWithUser')
@@ -218,10 +244,10 @@ export const PostDetailSchema = z
   .object({
     id: z.uuid(),
     body: z.string(),
-    createdAt: z.string(),
-    updatedAt: z.string(),
+    createdAt: z.iso.datetime(),
+    updatedAt: z.iso.datetime(),
     userId: z.uuid(),
-    user: UserSchema,
+    user: PublicUserSchema,
     comments: z.array(CommentWithUserSchema),
     likes: z.array(z.object({ userId: z.uuid() }).openapi({ required: ['userId'] })),
     _count: z.object({ likes: z.number() }).openapi({ required: ['likes'] }),
@@ -247,7 +273,7 @@ export const RegisterRequestSchema = z
   .openapi('RegisterRequest')
 
 export const PaginatedUsersSchema = z
-  .object({ data: z.array(UserSchema), meta: PaginationMetaSchema })
+  .object({ data: z.array(PublicUserSchema), meta: PaginationMetaSchema })
   .openapi({ required: ['data', 'meta'] })
   .openapi('PaginatedUsers')
 
@@ -262,14 +288,11 @@ export const UserWithFollowCountSchema = z
     name: z.string(),
     username: z.string(),
     bio: z.string().nullable().exactOptional(),
-    email: z.email(),
-    emailVerified: z.string().nullable(),
     image: z.url().nullable(),
     coverImage: z.url().nullable(),
     profileImage: z.url().nullable(),
-    createdAt: z.string(),
-    updatedAt: z.string(),
-    hasNotification: z.boolean().nullable().exactOptional(),
+    createdAt: z.iso.datetime(),
+    updatedAt: z.iso.datetime(),
     _count: z
       .object({ followers: z.number(), following: z.number() })
       .openapi({ required: ['followers', 'following'] }),
@@ -279,8 +302,6 @@ export const UserWithFollowCountSchema = z
       'id',
       'name',
       'username',
-      'email',
-      'emailVerified',
       'image',
       'coverImage',
       'profileImage',
@@ -295,10 +316,10 @@ export const PostWithDetailsSchema = z
   .object({
     id: z.uuid(),
     body: z.string(),
-    createdAt: z.string(),
-    updatedAt: z.string(),
+    createdAt: z.iso.datetime(),
+    updatedAt: z.iso.datetime(),
     userId: z.uuid(),
-    user: UserSchema,
+    user: PublicUserSchema,
     comments: z.array(CommentSchema),
     likes: z.array(LikeSchema),
   })
@@ -459,6 +480,10 @@ export const patchEditRoute = createRoute({
       description: 'Access is unauthorized.',
       content: { 'application/json': { schema: MessageResponseSchema } },
     },
+    409: {
+      description: 'The request conflicts with the current state of the server.',
+      content: { 'application/json': { schema: MessageResponseSchema } },
+    },
     422: {
       description: 'Client error',
       content: { 'application/json': { schema: ValidationErrorSchema } },
@@ -493,6 +518,10 @@ export const postFollowRoute = createRoute({
     },
     404: {
       description: 'The server cannot find the requested resource.',
+      content: { 'application/json': { schema: MessageResponseSchema } },
+    },
+    409: {
+      description: 'The request conflicts with the current state of the server.',
       content: { 'application/json': { schema: MessageResponseSchema } },
     },
     422: {
@@ -561,6 +590,10 @@ export const postLikeRoute = createRoute({
     },
     404: {
       description: 'The server cannot find the requested resource.',
+      content: { 'application/json': { schema: MessageResponseSchema } },
+    },
+    409: {
+      description: 'The request conflicts with the current state of the server.',
       content: { 'application/json': { schema: MessageResponseSchema } },
     },
     422: {

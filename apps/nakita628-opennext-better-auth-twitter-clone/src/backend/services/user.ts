@@ -220,7 +220,7 @@ export function createProfile(args: { userId: string; username: string }) {
   })
 }
 
-/** Update profile fields (username, bio, images) for a user. */
+/** Upsert profile fields (username, bio, images) for a user. */
 export function updateProfile(
   userId: string,
   data: {
@@ -235,11 +235,32 @@ export function updateProfile(
     return yield* Effect.tryPromise({
       try: () =>
         db
-          .update(schema.userProfile)
-          .set(data)
-          .where(eq(schema.userProfile.userId, userId))
+          .insert(schema.userProfile)
+          .values({ userId, ...data })
+          .onConflictDoUpdate({
+            target: schema.userProfile.userId,
+            set: data,
+          })
           .returning()
           .get(),
+      catch: () => new DatabaseError({ message: 'Database error' }),
+    })
+  })
+}
+
+/** Check if a username is already taken by another user. */
+export function isUsernameTaken(username: string, excludeUserId: string) {
+  return Effect.gen(function* () {
+    const db = yield* DB
+    return yield* Effect.tryPromise({
+      try: async () => {
+        const row = await db
+          .select()
+          .from(schema.userProfile)
+          .where(eq(schema.userProfile.username, username))
+          .get()
+        return row !== undefined && row.userId !== excludeUserId
+      },
       catch: () => new DatabaseError({ message: 'Database error' }),
     })
   })

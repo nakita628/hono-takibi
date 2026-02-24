@@ -39,6 +39,8 @@ export function create(args: { email: string; name: string; username: string; pa
       name: user.name,
       username: args.username,
       bio: '',
+      email: user.email,
+      emailVerified: user.emailVerified ? user.createdAt.toISOString() : null,
       image: user.image,
       coverImage: null,
       profileImage: null,

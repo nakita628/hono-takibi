@@ -38,9 +38,10 @@ export function Form({ placeholder, isComment, postId }: Props) {
       toast.success(isComment ? 'Comment posted' : 'Tweet created')
       setBody('')
 
-      // Revalidate posts
+      // Revalidate posts (match both regular SWR keys and useSWRInfinite keys)
       await mutate((key: unknown) => {
         if (Array.isArray(key) && key[0] === 'posts') return true
+        if (typeof key === 'string' && key.startsWith('$inf$') && key.includes('"posts"')) return true
         return false
       })
     } catch {

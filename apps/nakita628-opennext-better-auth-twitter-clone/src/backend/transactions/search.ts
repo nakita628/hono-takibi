@@ -41,7 +41,7 @@ export function search(args: { query: string; page: number; limit: number }) {
         createdAt: post.createdAt.toISOString(),
         updatedAt: post.updatedAt.toISOString(),
         userId: post.userId,
-        user: UserDomain.makeFormatUser(post.user),
+        user: UserDomain.makeFormatPublicUser(post.user),
         commentCount: 0,
         likeCount: 0,
       })),
@@ -54,7 +54,7 @@ export function search(args: { query: string; page: number; limit: number }) {
     }
 
     const users = {
-      data: usersResult.users.map((user) => UserDomain.makeFormatUser(user)),
+      data: usersResult.users.map((user) => UserDomain.makeFormatPublicUser(user)),
       meta: {
         page: args.page,
         limit: args.limit,

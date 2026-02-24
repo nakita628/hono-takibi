@@ -36,7 +36,7 @@ export function usePostsInfinite(userId?: string) {
   const { data, error, size, setSize, isLoading, isValidating } = useSWRInfinite(
     getKey,
     async ([, , , args]) => parseResponse(client.posts.$get(args)),
-    { revalidateFirstPage: false },
+    { revalidateFirstPage: true },
   )
 
   const posts = data ? data.flatMap((page) => page.data) : []
