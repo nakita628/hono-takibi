@@ -2,6 +2,7 @@ import { Effect } from 'effect'
 import * as UserDomain from '@/backend/domain'
 import { ContractViolationError } from '@/backend/domain'
 import { SearchResultsSchema } from '@/backend/routes'
+import * as PostService from '@/backend/services/post'
 import * as SearchService from '@/backend/services/search'
 
 /**
@@ -34,6 +35,9 @@ export function search(args: { query: string; page: number; limit: number }) {
       SearchService.searchUsers({ query: args.query, limit: args.limit, offset }),
     ])
 
+    const postIds = postsResult.posts.map((p) => p.id)
+    const { commentCounts, likeCounts } = yield* PostService.getCountsForPostIds(postIds)
+
     const posts = {
       data: postsResult.posts.map((post) => ({
         id: post.id,
@@ -42,8 +46,8 @@ export function search(args: { query: string; page: number; limit: number }) {
         updatedAt: post.updatedAt.toISOString(),
         userId: post.userId,
         user: UserDomain.makeFormatPublicUser(post.user),
-        commentCount: 0,
-        likeCount: 0,
+        commentCount: commentCounts[post.id] ?? 0,
+        likeCount: likeCounts[post.id] ?? 0,
       })),
       meta: {
         page: args.page,

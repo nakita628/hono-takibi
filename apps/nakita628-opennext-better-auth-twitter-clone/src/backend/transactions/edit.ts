@@ -1,5 +1,5 @@
 import { Effect } from 'effect'
-import { ConflictError, ContractViolationError, UnauthorizedError } from '@/backend/domain'
+import { ContractViolationError, UnauthorizedError } from '@/backend/domain'
 import { UserSchema } from '@/backend/routes'
 import * as UserService from '@/backend/services/user'
 
@@ -35,15 +35,7 @@ export function update(
     }
 
     const profile = user.userProfile
-
-    // Check username uniqueness if changing
     const newUsername = args.username ?? profile?.username ?? ''
-    if (newUsername && newUsername !== (profile?.username ?? '')) {
-      const taken = yield* UserService.isUsernameTaken(newUsername, user.id)
-      if (taken) {
-        return yield* Effect.fail(new ConflictError({ message: 'Username already taken' }))
-      }
-    }
 
     // Update name on user table if provided
     if (args.name && args.name !== user.name) {

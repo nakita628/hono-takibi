@@ -243,25 +243,12 @@ export function updateProfile(
           })
           .returning()
           .get(),
-      catch: () => new DatabaseError({ message: 'Database error' }),
-    })
-  })
-}
-
-/** Check if a username is already taken by another user. */
-export function isUsernameTaken(username: string, excludeUserId: string) {
-  return Effect.gen(function* () {
-    const db = yield* DB
-    return yield* Effect.tryPromise({
-      try: async () => {
-        const row = await db
-          .select()
-          .from(schema.userProfile)
-          .where(eq(schema.userProfile.username, username))
-          .get()
-        return row !== undefined && row.userId !== excludeUserId
+      catch: (error) => {
+        if (error instanceof Error && error.message.includes('UNIQUE constraint failed')) {
+          return new ConflictError({ message: 'Username already taken' })
+        }
+        return new DatabaseError({ message: 'Database error' })
       },
-      catch: () => new DatabaseError({ message: 'Database error' }),
     })
   })
 }

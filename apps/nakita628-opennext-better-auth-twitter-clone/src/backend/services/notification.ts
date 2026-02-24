@@ -32,6 +32,26 @@ export function findByUserId(userId: string) {
   })
 }
 
+/** Insert a notification and set the user's `hasNotification` flag in parallel. */
+export function createAndNotify(args: { body: string; userId: string }) {
+  return Effect.gen(function* () {
+    const db = yield* DB
+    const [notification] = yield* Effect.tryPromise({
+      try: () =>
+        Promise.all([
+          db.insert(schema.notifications).values(args).returning().get(),
+          db
+            .update(schema.userProfile)
+            .set({ hasNotification: true })
+            .where(eq(schema.userProfile.userId, args.userId))
+            .run(),
+        ]),
+      catch: () => new DatabaseError({ message: 'Database error' }),
+    })
+    return notification
+  })
+}
+
 /** Toggle the `hasNotification` flag on a user's profile. */
 export function updateUserHasNotification(userId: string, hasNotification: boolean) {
   return Effect.gen(function* () {

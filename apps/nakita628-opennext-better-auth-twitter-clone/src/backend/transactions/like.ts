@@ -36,19 +36,14 @@ export function create(userId: string, args: { postId: string }) {
     yield* LikeService.create({ userId, postId: args.postId })
 
     if (post.userId) {
-      yield* NotificationService.create({
+      yield* NotificationService.createAndNotify({
         body: 'Someone liked your tweet',
         userId: post.userId,
       })
-      yield* NotificationService.updateUserHasNotification(post.userId, true)
     }
 
-    const updated = yield* PostService.findByIdWithLikes(args.postId)
-    if (!updated) {
-      return yield* Effect.fail(new NotFoundError({ message: 'Post not found' }))
-    }
-
-    const data = PostDomain.makeFormatPostWithLikes(updated)
+    const updatedLikes = [...post.likes, { userId, postId: args.postId, createdAt: new Date() }]
+    const data = PostDomain.makeFormatPostWithLikes({ ...post, likes: updatedLikes })
     const valid = PostWithLikesSchema.safeParse(data)
     if (!valid.success) {
       return yield* Effect.fail(new ContractViolationError({ message: 'Invalid post data' }))

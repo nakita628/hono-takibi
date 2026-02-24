@@ -27,11 +27,10 @@ export function create(userId: string, args: { body: string; postId: string }) {
 
     const post = yield* PostService.findById(args.postId)
     if (post?.userId) {
-      yield* NotificationService.create({
+      yield* NotificationService.createAndNotify({
         body: 'Someone replied to your tweet',
         userId: post.userId,
       })
-      yield* NotificationService.updateUserHasNotification(post.userId, true)
     }
 
     const data = {

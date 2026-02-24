@@ -34,11 +34,10 @@ export function create(userId: string, args: { userId: string }) {
       followingId: args.userId,
     })
 
-    yield* NotificationService.create({
+    yield* NotificationService.createAndNotify({
       body: 'Someone followed you!',
       userId: args.userId,
     })
-    yield* NotificationService.updateUserHasNotification(args.userId, true)
 
     const data = { message: 'Success' }
     const valid = MessageResponseSchema.safeParse(data)
