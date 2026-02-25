@@ -2,7 +2,7 @@ import { faker } from '@faker-js/faker'
 import { Effect } from 'effect'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import app from '@/backend'
-import { DatabaseError, ValidationError } from '@/backend/domain'
+import { ContractViolationError, DatabaseError } from '@/backend/domain'
 import * as SearchTransaction from '@/backend/transactions/search'
 
 function mockSearchResults() {
@@ -20,14 +20,11 @@ function mockSearchResults() {
             name: 'Test User',
             username: 'testuser',
             bio: null,
-            email: 'test@example.com',
-            emailVerified: null,
             image: null,
             coverImage: null,
             profileImage: null,
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
-            hasNotification: false,
           },
           commentCount: 0,
           likeCount: 0,
@@ -42,14 +39,11 @@ function mockSearchResults() {
           name: 'Test User',
           username: 'testuser',
           bio: null,
-          email: 'test@example.com',
-          emailVerified: null,
           image: null,
           coverImage: null,
           profileImage: null,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
-          hasNotification: false,
         },
       ],
       meta: { page: 1, limit: 20, total: 1, totalPages: 1 },
@@ -94,9 +88,7 @@ describe('Search', () => {
     })
 
     it('should pass query and default pagination to transaction', async () => {
-      vi.mocked(SearchTransaction.search).mockReturnValue(
-        Effect.succeed(mockEmptySearchResults()),
-      )
+      vi.mocked(SearchTransaction.search).mockReturnValue(Effect.succeed(mockEmptySearchResults()))
 
       await app.request('/api/search?q=test', { method: 'GET' })
 
@@ -108,9 +100,7 @@ describe('Search', () => {
     })
 
     it('should pass custom pagination to transaction', async () => {
-      vi.mocked(SearchTransaction.search).mockReturnValue(
-        Effect.succeed(mockEmptySearchResults()),
-      )
+      vi.mocked(SearchTransaction.search).mockReturnValue(Effect.succeed(mockEmptySearchResults()))
 
       await app.request('/api/search?q=test&page=2&limit=10', { method: 'GET' })
 
@@ -121,9 +111,9 @@ describe('Search', () => {
       })
     })
 
-    it('should return 500 on ValidationError', async () => {
+    it('should return 500 on ContractViolationError', async () => {
       vi.mocked(SearchTransaction.search).mockReturnValue(
-        Effect.fail(new ValidationError({ message: 'Invalid search results' })),
+        Effect.fail(new ContractViolationError({ message: 'Invalid search results' })),
       )
 
       const res = await app.request('/api/search?q=test', { method: 'GET' })

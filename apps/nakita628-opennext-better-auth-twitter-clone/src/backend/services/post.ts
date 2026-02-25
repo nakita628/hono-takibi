@@ -122,11 +122,7 @@ export function findAllWithRelations(userId?: string) {
     const [commentRows, likeRows] = yield* Effect.tryPromise({
       try: () =>
         Promise.all([
-          db
-            .select()
-            .from(schema.comments)
-            .where(inArray(schema.comments.postId, postIds))
-            .all(),
+          db.select().from(schema.comments).where(inArray(schema.comments.postId, postIds)).all(),
           db.select().from(schema.likes).where(inArray(schema.likes.postId, postIds)).all(),
         ]),
       catch: () => new DatabaseError({ message: 'Database error' }),
@@ -138,6 +134,49 @@ export function findAllWithRelations(userId?: string) {
       comments: commentRows.filter((c) => c.postId === row.posts.id),
       likes: likeRows.filter((l) => l.postId === row.posts.id),
     }))
+  })
+}
+
+/** Batch-fetch comment and like counts for a set of post IDs. */
+export function getCountsForPostIds(postIds: string[]) {
+  return Effect.gen(function* () {
+    if (postIds.length === 0) {
+      return {
+        commentCounts: {} as Record<string, number>,
+        likeCounts: {} as Record<string, number>,
+      }
+    }
+
+    const db = yield* DB
+
+    const [commentRows, likeRows] = yield* Effect.tryPromise({
+      try: () =>
+        Promise.all([
+          db
+            .select({ postId: schema.comments.postId, count: count() })
+            .from(schema.comments)
+            .where(inArray(schema.comments.postId, postIds))
+            .groupBy(schema.comments.postId),
+          db
+            .select({ postId: schema.likes.postId, count: count() })
+            .from(schema.likes)
+            .where(inArray(schema.likes.postId, postIds))
+            .groupBy(schema.likes.postId),
+        ]),
+      catch: () => new DatabaseError({ message: 'Database error' }),
+    })
+
+    const commentCounts: Record<string, number> = {}
+    for (const row of commentRows) {
+      commentCounts[row.postId] = row.count
+    }
+
+    const likeCounts: Record<string, number> = {}
+    for (const row of likeRows) {
+      likeCounts[row.postId] = row.count
+    }
+
+    return { commentCounts, likeCounts }
   })
 }
 
@@ -185,38 +224,8 @@ export function findAllPaginated(args: { userId?: string; limit: number; offset:
       user: { ...row.user, userProfile: row.user_profile },
     }))
 
-    if (posts.length === 0) {
-      return { posts, total, commentCounts: {}, likeCounts: {} }
-    }
-
     const postIds = posts.map((post) => post.id)
-
-    const [commentRows, likeRows] = yield* Effect.tryPromise({
-      try: () =>
-        Promise.all([
-          db
-            .select({ postId: schema.comments.postId, count: count() })
-            .from(schema.comments)
-            .where(inArray(schema.comments.postId, postIds))
-            .groupBy(schema.comments.postId),
-          db
-            .select({ postId: schema.likes.postId, count: count() })
-            .from(schema.likes)
-            .where(inArray(schema.likes.postId, postIds))
-            .groupBy(schema.likes.postId),
-        ]),
-      catch: () => new DatabaseError({ message: 'Database error' }),
-    })
-
-    const commentCounts: Record<string, number> = {}
-    for (const row of commentRows) {
-      commentCounts[row.postId] = row.count
-    }
-
-    const likeCounts: Record<string, number> = {}
-    for (const row of likeRows) {
-      likeCounts[row.postId] = row.count
-    }
+    const { commentCounts, likeCounts } = yield* getCountsForPostIds(postIds)
 
     return { posts, total, commentCounts, likeCounts }
   })

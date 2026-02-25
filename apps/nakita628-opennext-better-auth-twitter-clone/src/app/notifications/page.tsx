@@ -5,7 +5,7 @@ import { useEffect } from 'react'
 import { ClipLoader } from 'react-spinners'
 import { Header } from '@/components/atoms/Header'
 import { NotificationsFeed } from '@/components/organisms/NotificationsFeed'
-import { useGetCurrent } from '@/hooks/swr'
+import { useGetCurrent } from '@/hooks'
 
 export default function Notifications() {
   const router = useRouter()
@@ -27,7 +27,7 @@ export default function Notifications() {
 
   return (
     <>
-      <Header label='Notifications' showBackArrow />
+      <Header label='Notifications' showBackArrow onBack={() => router.back()} />
       <NotificationsFeed />
     </>
   )

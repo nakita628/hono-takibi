@@ -1,8 +1,8 @@
 'use client'
 
-import { SearchBar } from '@/components/atoms/SearchBar'
 import { AvatarLink } from '@/components/molecules/AvatarLink'
-import { useGetUsers } from '@/hooks/swr'
+import { SearchBarContainer } from '@/components/molecules/SearchBarContainer'
+import { useGetUsers } from '@/hooks'
 
 export function FollowBar() {
   const { data: result } = useGetUsers({ query: {} })
@@ -10,7 +10,7 @@ export function FollowBar() {
 
   return (
     <div className='px-6 py-4 hidden lg:block'>
-      <SearchBar />
+      <SearchBarContainer />
       {users.length > 0 && (
         <div className='bg-neutral-800 rounded-xl p-4 mt-4'>
           <h2 className='text-white text-xl font-semibold'>Who to follow</h2>

@@ -37,7 +37,7 @@ export function CommentItem({ data }: Props) {
   const createdAt = useMemo(() => {
     if (!data?.createdAt) return null
     return formatDistanceToNowStrict(new Date(data.createdAt))
-  }, [data.createdAt])
+  }, [data?.createdAt])
 
   return (
     <div className='border-b border-neutral-800 p-5 cursor-pointer hover:bg-neutral-900 transition'>

@@ -2,7 +2,7 @@ import { faker } from '@faker-js/faker'
 import { Effect } from 'effect'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import app from '@/backend'
-import { DatabaseError, NotFoundError, ValidationError } from '@/backend/domain'
+import { ContractViolationError, DatabaseError, NotFoundError } from '@/backend/domain'
 import * as UsersTransaction from '@/backend/transactions/users'
 
 function mockSession() {
@@ -18,14 +18,11 @@ function mockUser() {
     name: faker.person.fullName(),
     username: faker.internet.username(),
     bio: null,
-    email: faker.internet.email(),
-    emailVerified: null,
     image: null,
     coverImage: null,
     profileImage: null,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
-    hasNotification: false,
   }
 }
 
@@ -95,10 +92,10 @@ describe('Users', () => {
       })
     })
 
-    it('should return 500 on ValidationError', async () => {
+    it('should return 500 on ContractViolationError', async () => {
       mockGetSession.mockResolvedValue(mockSession())
       vi.mocked(UsersTransaction.getAll).mockReturnValue(
-        Effect.fail(new ValidationError({ message: 'Invalid users data' })),
+        Effect.fail(new ContractViolationError({ message: 'Invalid users data' })),
       )
 
       const res = await app.request('/api/users', { method: 'GET' })
@@ -169,10 +166,10 @@ describe('Users', () => {
       expect(res.status).toBe(422)
     })
 
-    it('should return 500 on ValidationError', async () => {
+    it('should return 500 on ContractViolationError', async () => {
       mockGetSession.mockResolvedValue(mockSession())
       vi.mocked(UsersTransaction.getById).mockReturnValue(
-        Effect.fail(new ValidationError({ message: 'Invalid user data' })),
+        Effect.fail(new ContractViolationError({ message: 'Invalid user data' })),
       )
 
       const userId = faker.string.uuid()

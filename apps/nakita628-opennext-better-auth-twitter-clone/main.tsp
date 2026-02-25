@@ -14,18 +14,22 @@ model MessageResponse {
   message: string;
 }
 
-model User {
+model PublicUser {
   @format("uuid") id: string;
   name: string;
   username: string;
   bio?: string | null;
-  @format("email") email: string;
-  emailVerified: string | null;
   image: url | null;
   coverImage: url | null;
   profileImage: url | null;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: utcDateTime;
+  updatedAt: utcDateTime;
+}
+
+model User {
+  ...PublicUser;
+  @format("email") email: string;
+  emailVerified: utcDateTime | null;
   hasNotification?: boolean | null;
 }
 
@@ -38,26 +42,15 @@ model CurrentUser {
   image: url | null;
   coverImage: url | null;
   profileImage: url | null;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: utcDateTime;
+  updatedAt: utcDateTime;
   followers: Follow[];
   following: Follow[];
   hasNotification: boolean | null;
 }
 
 model UserWithFollowCount {
-  @format("uuid") id: string;
-  name: string;
-  username: string;
-  bio?: string | null;
-  @format("email") email: string;
-  emailVerified: string | null;
-  image: url | null;
-  coverImage: url | null;
-  profileImage: url | null;
-  createdAt: string;
-  updatedAt: string;
-  hasNotification?: boolean | null;
+  ...PublicUser;
   _count: {
     followers: numeric;
     following: numeric;
@@ -73,8 +66,8 @@ model Follow {
 model Comment {
   @format("uuid") id: string;
   body: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: utcDateTime;
+  updatedAt: utcDateTime;
   @format("uuid") userId: string;
   @format("uuid") postId: string;
 }
@@ -82,32 +75,32 @@ model Comment {
 model CommentWithUser {
   @format("uuid") id: string;
   body: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: utcDateTime;
+  updatedAt: utcDateTime;
   @format("uuid") userId: string;
   @format("uuid") postId: string;
-  user: User;
+  user: PublicUser;
 }
 
 model Like {
   @format("uuid") userId: string;
   @format("uuid") postId: string;
-  createdAt: string;
+  createdAt: utcDateTime;
 }
 
 model Post {
   @format("uuid") id: string;
   body: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: utcDateTime;
+  updatedAt: utcDateTime;
   @format("uuid") userId: string;
 }
 
 model PostWithLikes {
   @format("uuid") id: string;
   body: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: utcDateTime;
+  updatedAt: utcDateTime;
   @format("uuid") userId: string;
   likes: Like[];
 }
@@ -115,10 +108,10 @@ model PostWithLikes {
 model PostWithDetails {
   @format("uuid") id: string;
   body: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: utcDateTime;
+  updatedAt: utcDateTime;
   @format("uuid") userId: string;
-  user: User;
+  user: PublicUser;
   comments: Comment[];
   likes: Like[];
 }
@@ -126,10 +119,10 @@ model PostWithDetails {
 model PostSummary {
   @format("uuid") id: string;
   body: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: utcDateTime;
+  updatedAt: utcDateTime;
   @format("uuid") userId: string;
-  user: User;
+  user: PublicUser;
   commentCount: numeric;
   likeCount: numeric;
 }
@@ -147,17 +140,17 @@ model PaginatedPosts {
 }
 
 model PaginatedUsers {
-  data: User[];
+  data: PublicUser[];
   meta: PaginationMeta;
 }
 
 model PostDetail {
   @format("uuid") id: string;
   body: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: utcDateTime;
+  updatedAt: utcDateTime;
   @format("uuid") userId: string;
-  user: User;
+  user: PublicUser;
   comments: CommentWithUser[];
   likes: {
     @format("uuid")
@@ -172,7 +165,7 @@ model Notification {
   @format("uuid") id: string;
   body: string;
   @format("uuid") userId: string;
-  createdAt: string;
+  createdAt: utcDateTime;
 }
 
 model CreateCommentRequest {
@@ -253,6 +246,9 @@ op getCurrentUser(): CurrentUser | (UnauthorizedResponse & MessageResponse) | {
 @route("/edit")
 @patch(#{implicitOptionality: true})
 op patchEdit(@body body: EditUserRequest): User | (UnauthorizedResponse & MessageResponse) | {
+  @statusCode statusCode: 409;
+  @body body: MessageResponse;
+} | {
   @statusCode statusCode: 422;
   @body body: ValidationError;
 } | {
@@ -282,6 +278,9 @@ op deleteFollowUserId(@body body: FollowUserRequest): MessageResponse | (Unautho
 @post
 op postFollowUserId(@body body: FollowUserRequest): MessageResponse | (UnauthorizedResponse & MessageResponse) | {
   @statusCode statusCode: 404;
+  @body body: MessageResponse;
+} | {
+  @statusCode statusCode: 409;
   @body body: MessageResponse;
 } | {
   @statusCode statusCode: 422;
@@ -316,6 +315,9 @@ op deleteLikePostId(@body body: LikePostRequest): PostWithLikes | (UnauthorizedR
 @post
 op postLikePostId(@body body: LikePostRequest): PostWithLikes | (UnauthorizedResponse & MessageResponse) | {
   @statusCode statusCode: 404;
+  @body body: MessageResponse;
+} | {
+  @statusCode statusCode: 409;
   @body body: MessageResponse;
 } | {
   @statusCode statusCode: 422;

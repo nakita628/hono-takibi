@@ -6,11 +6,11 @@ import { BiLogOut } from 'react-icons/bi'
 import { BsBellFill, BsHouseFill } from 'react-icons/bs'
 import { FaUser } from 'react-icons/fa'
 import { useSWRConfig } from 'swr'
-import { SidebarItem } from '@/components/atoms/SidebarItem'
 import { SidebarLogo } from '@/components/atoms/SidebarLogo'
 import { SidebarTweetButton } from '@/components/atoms/SidebarTweetButton'
-import { getGetCurrentKey, useGetCurrent } from '@/hooks/swr'
-import { authClient } from '@/lib/auth-client'
+import { SidebarItemContainer } from '@/components/molecules/SidebarItemContainer'
+import { getGetCurrentKey, useGetCurrent } from '@/hooks'
+import { authClient } from '@/infra/auth-client'
 
 export function Sidebar() {
   const router = useRouter()
@@ -49,9 +49,9 @@ export function Sidebar() {
     <div className='col-span-1 h-full pr-4 md:pr-6'>
       <div className='flex flex-col items-end'>
         <div className='space-y-2 lg:w-[230px]'>
-          <SidebarLogo />
+          <SidebarLogo onClick={() => router.push('/')} />
           {items.map((item) => (
-            <SidebarItem
+            <SidebarItemContainer
               key={item.href}
               label={item.label}
               href={item.href}
@@ -61,13 +61,13 @@ export function Sidebar() {
             />
           ))}
           {currentUser && (
-            <SidebarItem
+            <SidebarItemContainer
               onClick={handleSignOut}
               icon={<BiLogOut size={24} color='white' />}
               label='Logout'
             />
           )}
-          <SidebarTweetButton />
+          <SidebarTweetButton onClick={() => router.push('/')} />
         </div>
       </div>
     </div>

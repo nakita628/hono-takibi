@@ -1,12 +1,20 @@
 'use client'
 
 import { format } from 'date-fns'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
+import toast from 'react-hot-toast'
 import { BiCalendar } from 'react-icons/bi'
+import { mutate } from 'swr'
 import { Button } from '@/components/atoms/Button'
-import { useGetCurrent, useGetUsersUserId } from '@/hooks/swr'
-import { useEditModal } from '@/hooks/useEditModal'
-import { useFollow } from '@/hooks/useFollow'
+import {
+  getGetCurrentKey,
+  getGetUsersUserIdKey,
+  useDeleteFollow,
+  useGetCurrent,
+  useGetUsersUserId,
+  usePostFollow,
+} from '@/hooks'
+import { useEditModal, useLoginModal } from '@/stores'
 
 type Props = {
   userId: string
@@ -16,7 +24,33 @@ export function UserBio({ userId }: Props) {
   const { data: currentUser } = useGetCurrent()
   const { data: fetchedUser } = useGetUsersUserId({ param: { userId } })
   const editModal = useEditModal()
-  const { isFollowing, toggleFollow } = useFollow(userId)
+  const loginModal = useLoginModal()
+  const { trigger: follow } = usePostFollow()
+  const { trigger: unfollow } = useDeleteFollow()
+
+  const isFollowing = useMemo(() => {
+    if (!currentUser?.following) return false
+    return currentUser.following.some((f) => f.followingId === userId)
+  }, [currentUser?.following, userId])
+
+  const toggleFollow = useCallback(async () => {
+    if (!currentUser) {
+      return loginModal.onOpen()
+    }
+
+    try {
+      if (isFollowing) {
+        await unfollow({ json: { userId } })
+      } else {
+        await follow({ json: { userId } })
+      }
+      await mutate(getGetCurrentKey())
+      await mutate(getGetUsersUserIdKey({ param: { userId } }))
+      toast.success(isFollowing ? 'Unfollowed' : 'Followed')
+    } catch {
+      toast.error('Something went wrong')
+    }
+  }, [currentUser, isFollowing, userId, loginModal, follow, unfollow])
 
   const createdAt = useMemo(() => {
     if (!fetchedUser?.createdAt) return null

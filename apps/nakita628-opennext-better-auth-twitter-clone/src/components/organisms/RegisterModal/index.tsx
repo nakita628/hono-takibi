@@ -5,10 +5,9 @@ import toast from 'react-hot-toast'
 import { useSWRConfig } from 'swr'
 import { Input } from '@/components/atoms/Input'
 import { Modal } from '@/components/molecules/Modal'
-import { usePostRegister } from '@/hooks/swr'
-import { useLoginModal } from '@/hooks/useLoginModal'
-import { useRegisterModal } from '@/hooks/useRegisterModal'
-import { authClient } from '@/lib/auth-client'
+import { usePostRegister } from '@/hooks'
+import { authClient } from '@/infra/auth-client'
+import { useLoginModal, useRegisterModal } from '@/stores'
 
 export function RegisterModal() {
   const loginModal = useLoginModal()

@@ -1,8 +1,10 @@
 import { Effect } from 'effect'
 import * as UserDomain from '@/backend/domain'
-import { NotFoundError, ValidationError } from '@/backend/domain'
+import { ContractViolationError, NotFoundError } from '@/backend/domain'
 import { PaginatedPostsSchema, PostDetailSchema, PostSchema } from '@/backend/routes'
 import * as PostService from '@/backend/services/post'
+
+const { makeFormatPublicUser } = UserDomain
 
 /**
  * Create a new post for the authenticated user.
@@ -27,7 +29,7 @@ export function create(userId: string, args: { body: string }) {
 
     const valid = PostSchema.safeParse(data)
     if (!valid.success) {
-      return yield* Effect.fail(new ValidationError({ message: 'Invalid post data' }))
+      return yield* Effect.fail(new ContractViolationError({ message: 'Invalid post data' }))
     }
     return valid.data
   })
@@ -61,7 +63,7 @@ export function getAll(args: { userId?: string; page: number; limit: number }) {
         createdAt: post.createdAt.toISOString(),
         updatedAt: post.updatedAt.toISOString(),
         userId: post.userId,
-        user: UserDomain.makeFormatUser(post.user),
+        user: makeFormatPublicUser(post.user),
         commentCount: result.commentCounts[post.id] ?? 0,
         likeCount: result.likeCounts[post.id] ?? 0,
       })),
@@ -75,7 +77,7 @@ export function getAll(args: { userId?: string; page: number; limit: number }) {
 
     const valid = PaginatedPostsSchema.safeParse(data)
     if (!valid.success) {
-      return yield* Effect.fail(new ValidationError({ message: 'Invalid posts data' }))
+      return yield* Effect.fail(new ContractViolationError({ message: 'Invalid posts data' }))
     }
     return valid.data
   })
@@ -106,7 +108,7 @@ export function getById(postId: string) {
       createdAt: post.createdAt.toISOString(),
       updatedAt: post.updatedAt.toISOString(),
       userId: post.userId,
-      user: UserDomain.makeFormatUser(post.user),
+      user: makeFormatPublicUser(post.user),
       comments: post.comments.map((comment) => ({
         id: comment.id,
         body: comment.body,
@@ -114,7 +116,7 @@ export function getById(postId: string) {
         updatedAt: comment.updatedAt.toISOString(),
         userId: comment.userId,
         postId: comment.postId,
-        user: UserDomain.makeFormatUser(comment.user),
+        user: makeFormatPublicUser(comment.user),
       })),
       likes: post.likes.map((like) => ({ userId: like.userId })),
       _count: { likes: post.likes.length },
@@ -122,7 +124,7 @@ export function getById(postId: string) {
 
     const valid = PostDetailSchema.safeParse(data)
     if (!valid.success) {
-      return yield* Effect.fail(new ValidationError({ message: 'Invalid post data' }))
+      return yield* Effect.fail(new ContractViolationError({ message: 'Invalid post data' }))
     }
     return valid.data
   })

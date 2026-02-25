@@ -385,6 +385,14 @@ hono request \
 }
 ```
 
+> 409 Response
+
+```json
+{
+  "message": "string"
+}
+```
+
 > 422 Response
 
 ```json
@@ -425,6 +433,7 @@ hono request \
 |200|OK|The request has succeeded.|[MessageResponse](#schemamessageresponse)|
 |401|Unauthorized|Access is unauthorized.|[MessageResponse](#schemamessageresponse)|
 |404|Not Found|The server cannot find the requested resource.|[MessageResponse](#schemamessageresponse)|
+|409|Conflict|The request conflicts with the current state of the server.|[MessageResponse](#schemamessageresponse)|
 |422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
 |500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
 |503|Service Unavailable|Service unavailable.|[MessageResponse](#schemamessageresponse)|
@@ -607,6 +616,14 @@ hono request \
 }
 ```
 
+> 409 Response
+
+```json
+{
+  "message": "string"
+}
+```
+
 > 422 Response
 
 ```json
@@ -647,6 +664,7 @@ hono request \
 |200|OK|The request has succeeded.|[PostWithLikes](#schemapostwithlikes)|
 |401|Unauthorized|Access is unauthorized.|[MessageResponse](#schemamessageresponse)|
 |404|Not Found|The server cannot find the requested resource.|[MessageResponse](#schemamessageresponse)|
+|409|Conflict|The request conflicts with the current state of the server.|[MessageResponse](#schemamessageresponse)|
 |422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
 |500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
 |503|Service Unavailable|Service unavailable.|[MessageResponse](#schemamessageresponse)|

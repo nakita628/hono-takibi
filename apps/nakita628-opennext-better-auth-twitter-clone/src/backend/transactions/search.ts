@@ -1,7 +1,8 @@
 import { Effect } from 'effect'
 import * as UserDomain from '@/backend/domain'
-import { ValidationError } from '@/backend/domain'
+import { ContractViolationError } from '@/backend/domain'
 import { SearchResultsSchema } from '@/backend/routes'
+import * as PostService from '@/backend/services/post'
 import * as SearchService from '@/backend/services/search'
 
 /**
@@ -23,7 +24,7 @@ import * as SearchService from '@/backend/services/search'
  *   E --> F
  *   F --> G[SearchResultsSchema.safeParse]
  *   G -- valid --> H[return data]
- *   G -- invalid --> I[ValidationError]
+ *   G -- invalid --> I[ContractViolationError]
  */
 export function search(args: { query: string; page: number; limit: number }) {
   return Effect.gen(function* () {
@@ -34,6 +35,9 @@ export function search(args: { query: string; page: number; limit: number }) {
       SearchService.searchUsers({ query: args.query, limit: args.limit, offset }),
     ])
 
+    const postIds = postsResult.posts.map((p) => p.id)
+    const { commentCounts, likeCounts } = yield* PostService.getCountsForPostIds(postIds)
+
     const posts = {
       data: postsResult.posts.map((post) => ({
         id: post.id,
@@ -41,9 +45,9 @@ export function search(args: { query: string; page: number; limit: number }) {
         createdAt: post.createdAt.toISOString(),
         updatedAt: post.updatedAt.toISOString(),
         userId: post.userId,
-        user: UserDomain.makeFormatUser(post.user),
-        commentCount: 0,
-        likeCount: 0,
+        user: UserDomain.makeFormatPublicUser(post.user),
+        commentCount: commentCounts[post.id] ?? 0,
+        likeCount: likeCounts[post.id] ?? 0,
       })),
       meta: {
         page: args.page,
@@ -54,7 +58,7 @@ export function search(args: { query: string; page: number; limit: number }) {
     }
 
     const users = {
-      data: usersResult.users.map((user) => UserDomain.makeFormatUser(user)),
+      data: usersResult.users.map((user) => UserDomain.makeFormatPublicUser(user)),
       meta: {
         page: args.page,
         limit: args.limit,
@@ -65,7 +69,7 @@ export function search(args: { query: string; page: number; limit: number }) {
 
     const valid = SearchResultsSchema.safeParse({ posts, users })
     if (!valid.success) {
-      return yield* Effect.fail(new ValidationError({ message: 'Invalid search results' }))
+      return yield* Effect.fail(new ContractViolationError({ message: 'Invalid search results' }))
     }
     return valid.data
   })

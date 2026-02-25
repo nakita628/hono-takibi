@@ -1,22 +1,40 @@
 'use client'
 
+import { parseResponse } from 'hono/client'
 import { useCallback, useRef } from 'react'
 import { ClipLoader } from 'react-spinners'
-import { PostItem } from '@/components/molecules/PostItem'
-import { usePostsInfinite } from '@/hooks/usePostsInfinite'
+import useSWRInfinite from 'swr/infinite'
+import { PostItem } from '@/components/organisms/PostItem'
+import { getGetPostsKey } from '@/hooks'
+import { client } from '@/lib'
+
+type PostsResponse = Awaited<
+  ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.posts.$get>>>>
+>
 
 type Props = {
   userId?: string
 }
 
-/**
- * Infinite-scroll post feed using IntersectionObserver.
- * Observes a sentinel element at the bottom and triggers `setSize` to load the next page.
- *
- * @param userId - Optional user ID to filter posts by author
- */
 export function PostFeed({ userId }: Props) {
-  const { posts, isLoading, isLoadingMore, isReachingEnd, setSize } = usePostsInfinite(userId)
+  const getKey = (pageIndex: number, previousPageData: PostsResponse | null) => {
+    if (previousPageData && pageIndex + 1 > previousPageData.meta.totalPages) return null
+    const query = userId !== undefined ? { userId, page: pageIndex + 1 } : { page: pageIndex + 1 }
+    return getGetPostsKey({ query })
+  }
+
+  const { data, isLoading, size, setSize } = useSWRInfinite(
+    getKey,
+    async ([, , , args]) => parseResponse(client.posts.$get(args)),
+    { revalidateFirstPage: true },
+  )
+
+  const posts = data ? data.flatMap((page) => page.data) : []
+  const isLoadingMore = isLoading || (size > 0 && data && typeof data[size - 1] === 'undefined')
+  const isEmpty = data?.[0]?.data.length === 0
+  const isReachingEnd =
+    isEmpty || (data && data[data.length - 1]?.meta.page >= data[data.length - 1]?.meta.totalPages)
+
   const observer = useRef<IntersectionObserver | null>(null)
 
   const sentinelRef = useCallback(

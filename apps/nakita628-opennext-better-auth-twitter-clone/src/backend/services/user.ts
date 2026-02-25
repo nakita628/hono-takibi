@@ -220,7 +220,7 @@ export function createProfile(args: { userId: string; username: string }) {
   })
 }
 
-/** Update profile fields (username, bio, images) for a user. */
+/** Upsert profile fields (username, bio, images) for a user. */
 export function updateProfile(
   userId: string,
   data: {
@@ -235,12 +235,20 @@ export function updateProfile(
     return yield* Effect.tryPromise({
       try: () =>
         db
-          .update(schema.userProfile)
-          .set(data)
-          .where(eq(schema.userProfile.userId, userId))
+          .insert(schema.userProfile)
+          .values({ userId, ...data })
+          .onConflictDoUpdate({
+            target: schema.userProfile.userId,
+            set: data,
+          })
           .returning()
           .get(),
-      catch: () => new DatabaseError({ message: 'Database error' }),
+      catch: (error) => {
+        if (error instanceof Error && error.message.includes('UNIQUE constraint failed')) {
+          return new ConflictError({ message: 'Username already taken' })
+        }
+        return new DatabaseError({ message: 'Database error' })
+      },
     })
   })
 }

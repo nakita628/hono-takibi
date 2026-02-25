@@ -4,10 +4,10 @@ import { useParams, useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import { ClipLoader } from 'react-spinners'
 import { Header } from '@/components/atoms/Header'
-import { CommentFeed } from '@/components/molecules/CommentFeed'
-import { PostItem } from '@/components/molecules/PostItem'
+import { CommentFeed } from '@/components/organisms/CommentFeed'
 import { Form } from '@/components/organisms/Form'
-import { useGetCurrent, useGetPostsPostId } from '@/hooks/swr'
+import { PostItem } from '@/components/organisms/PostItem'
+import { useGetCurrent, useGetPostsPostId } from '@/hooks'
 
 export default function PostView() {
   const router = useRouter()
@@ -40,7 +40,7 @@ export default function PostView() {
 
   return (
     <>
-      <Header showBackArrow label='Post' />
+      <Header showBackArrow label='Post' onBack={() => router.back()} />
       <PostItem data={fetchedPost} />
       <Form postId={postId} isComment placeholder='Tweet your reply' />
       <CommentFeed comments={fetchedPost.comments} />
