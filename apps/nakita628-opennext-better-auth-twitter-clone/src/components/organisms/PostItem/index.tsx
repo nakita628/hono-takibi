@@ -1,13 +1,20 @@
 'use client'
 
+import { formatDistanceToNowStrict } from 'date-fns'
 import { useRouter } from 'next/navigation'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
+import toast from 'react-hot-toast'
 import { AiFillHeart, AiOutlineHeart, AiOutlineMessage } from 'react-icons/ai'
+import { mutate } from 'swr'
 import { AvatarLink } from '@/components/molecules/AvatarLink'
-import { useGetCurrent } from '@/hooks/swr'
-import { useLike } from '@/hooks/useLike'
-import { useLoginModal } from '@/hooks/useLoginModal'
-import { useRelativeTime } from '@/hooks/useRelativeTime'
+import {
+  getGetPostsPostIdKey,
+  useDeleteLike,
+  useGetCurrent,
+  useGetPostsPostId,
+  usePostLike,
+} from '@/hooks'
+import { useLoginModal } from '@/stores'
 
 type PostItemUser = {
   id: string
@@ -53,7 +60,33 @@ export function PostItem({ data }: Props) {
   const router = useRouter()
   const loginModal = useLoginModal()
   const { data: currentUser } = useGetCurrent()
-  const { hasLiked, toggleLike } = useLike({ postId: data.id })
+  const { data: fetchedPost } = useGetPostsPostId({ param: { postId: data.id } })
+  const { trigger: like } = usePostLike()
+  const { trigger: unlike } = useDeleteLike()
+
+  const hasLiked = useMemo(() => {
+    const likes = fetchedPost?.likes || []
+    return likes.some((l) => l.userId === currentUser?.id)
+  }, [fetchedPost?.likes, currentUser?.id])
+
+  const toggleLike = useCallback(async () => {
+    if (!currentUser) {
+      return loginModal.onOpen()
+    }
+
+    try {
+      if (hasLiked) {
+        await unlike({ json: { postId: data.id } })
+      } else {
+        await like({ json: { postId: data.id } })
+      }
+
+      await mutate(getGetPostsPostIdKey({ param: { postId: data.id } }))
+      toast.success(hasLiked ? 'Unliked' : 'Liked')
+    } catch {
+      toast.error('Something went wrong')
+    }
+  }, [currentUser, hasLiked, data.id, like, unlike, loginModal])
 
   const goToUser = useCallback(
     (event: React.MouseEvent) => {
@@ -79,7 +112,10 @@ export function PostItem({ data }: Props) {
     [loginModal, currentUser, toggleLike],
   )
 
-  const createdAt = useRelativeTime(data?.createdAt)
+  const createdAt = useMemo(() => {
+    if (!data?.createdAt) return null
+    return formatDistanceToNowStrict(new Date(data.createdAt))
+  }, [data?.createdAt])
 
   return (
     <button

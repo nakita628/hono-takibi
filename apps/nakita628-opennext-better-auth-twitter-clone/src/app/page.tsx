@@ -3,7 +3,7 @@
 import { Header } from '@/components/atoms/Header'
 import { Form } from '@/components/organisms/Form'
 import { PostFeed } from '@/components/organisms/PostFeed'
-import { useGetCurrent } from '@/hooks/swr'
+import { useGetCurrent } from '@/hooks'
 
 export default function Home() {
   const { data: currentUser, isLoading } = useGetCurrent()

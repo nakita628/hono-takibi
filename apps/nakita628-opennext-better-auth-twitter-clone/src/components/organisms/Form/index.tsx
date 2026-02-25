@@ -3,11 +3,17 @@
 import { useCallback, useState } from 'react'
 import toast from 'react-hot-toast'
 import { mutate } from 'swr'
+import { unstable_serialize } from 'swr/infinite'
 import { Button } from '@/components/atoms/Button'
 import { AvatarLink } from '@/components/molecules/AvatarLink'
-import { useGetCurrent, usePostComments, usePostPosts } from '@/hooks/swr'
-import { useLoginModal } from '@/hooks/useLoginModal'
-import { useRegisterModal } from '@/hooks/useRegisterModal'
+import { getGetPostsKey, useGetCurrent, usePostComments, usePostPosts } from '@/hooks'
+import { useLoginModal, useRegisterModal } from '@/stores'
+
+function postsInfiniteKey() {
+  return unstable_serialize((index) => {
+    return getGetPostsKey({ query: { page: index + 1 } })
+  })
+}
 
 type Props = {
   placeholder: string
@@ -38,12 +44,7 @@ export function Form({ placeholder, isComment, postId }: Props) {
       toast.success(isComment ? 'Comment posted' : 'Tweet created')
       setBody('')
 
-      // Revalidate posts (match both regular SWR keys and useSWRInfinite keys)
-      await mutate((key: unknown) => {
-        if (Array.isArray(key) && key[0] === 'posts') return true
-        if (typeof key === 'string' && key.startsWith('$inf$') && key.includes('"posts"')) return true
-        return false
-      })
+      await mutate(postsInfiniteKey())
     } catch {
       toast.error(isComment ? 'Failed to post comment' : 'Failed to create post')
     } finally {

@@ -5,12 +5,15 @@ import { Suspense } from 'react'
 import { ClipLoader } from 'react-spinners'
 import { AvatarLink } from '@/components/molecules/AvatarLink'
 import { PostItem } from '@/components/organisms/PostItem'
-import { useSearchPosts } from '@/hooks/useSearchPosts'
+import { useGetSearch } from '@/hooks'
 
 function SearchContent() {
   const searchParams = useSearchParams()
   const query = searchParams.get('q') ?? ''
-  const { data, isLoading } = useSearchPosts(query)
+  const { data, isLoading } = useGetSearch(
+    { query: { q: query, page: 1 } },
+    { swr: { enabled: !!query } },
+  )
 
   if (!query) {
     return (

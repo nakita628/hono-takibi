@@ -9,7 +9,7 @@ import { useSWRConfig } from 'swr'
 import { SidebarLogo } from '@/components/atoms/SidebarLogo'
 import { SidebarTweetButton } from '@/components/atoms/SidebarTweetButton'
 import { SidebarItemContainer } from '@/components/molecules/SidebarItemContainer'
-import { getGetCurrentKey, useGetCurrent } from '@/hooks/swr'
+import { getGetCurrentKey, useGetCurrent } from '@/hooks'
 import { authClient } from '@/infra/auth-client'
 
 export function Sidebar() {

@@ -2,7 +2,7 @@
 
 import { AvatarLink } from '@/components/molecules/AvatarLink'
 import { SearchBarContainer } from '@/components/molecules/SearchBarContainer'
-import { useGetUsers } from '@/hooks/swr'
+import { useGetUsers } from '@/hooks'
 
 export function FollowBar() {
   const { data: result } = useGetUsers({ query: {} })

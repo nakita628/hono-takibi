@@ -3,8 +3,8 @@
 import { useRouter } from 'next/navigation'
 import { useCallback } from 'react'
 import { SidebarItem } from '@/components/atoms/SidebarItem'
-import { useGetCurrent } from '@/hooks/swr'
-import { useLoginModal } from '@/hooks/useLoginModal'
+import { useGetCurrent } from '@/hooks'
+import { useLoginModal } from '@/stores'
 
 type Props = {
   label: string

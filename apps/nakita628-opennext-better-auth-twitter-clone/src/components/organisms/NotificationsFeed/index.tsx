@@ -4,7 +4,7 @@ import { useEffect } from 'react'
 import { BsTwitter } from 'react-icons/bs'
 import { ClipLoader } from 'react-spinners'
 import { mutate } from 'swr'
-import { getGetCurrentKey, useGetCurrent, useGetNotificationsUserId } from '@/hooks/swr'
+import { getGetCurrentKey, useGetCurrent, useGetNotificationsUserId } from '@/hooks'
 
 export function NotificationsFeed() {
   const { data: currentUser } = useGetCurrent()

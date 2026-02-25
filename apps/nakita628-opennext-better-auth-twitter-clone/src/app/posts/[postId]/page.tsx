@@ -1,13 +1,13 @@
 'use client'
 
 import { useParams, useRouter } from 'next/navigation'
+import { useEffect } from 'react'
 import { ClipLoader } from 'react-spinners'
 import { Header } from '@/components/atoms/Header'
 import { CommentFeed } from '@/components/organisms/CommentFeed'
 import { Form } from '@/components/organisms/Form'
 import { PostItem } from '@/components/organisms/PostItem'
-import { useGetPostsPostId } from '@/hooks/swr'
-import { useAuthGuard } from '@/hooks/useAuthGuard'
+import { useGetCurrent, useGetPostsPostId } from '@/hooks'
 
 export default function PostView() {
   const router = useRouter()
@@ -18,11 +18,17 @@ export default function PostView() {
     throw new Error('Invalid post ID')
   }
 
-  const { currentUser, isLoading: isLoadingUser } = useAuthGuard()
+  const { data: currentUser, isLoading: isLoadingUser } = useGetCurrent()
   const { data: fetchedPost, isLoading: isLoadingPost } = useGetPostsPostId(
     { param: { postId } },
     { swr: { enabled: !!currentUser } },
   )
+
+  useEffect(() => {
+    if (!(isLoadingUser || currentUser)) {
+      router.push('/')
+    }
+  }, [isLoadingUser, currentUser, router])
 
   if (isLoadingUser || isLoadingPost || !fetchedPost) {
     return (

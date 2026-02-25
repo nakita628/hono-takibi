@@ -141,7 +141,10 @@ export function findAllWithRelations(userId?: string) {
 export function getCountsForPostIds(postIds: string[]) {
   return Effect.gen(function* () {
     if (postIds.length === 0) {
-      return { commentCounts: {} as Record<string, number>, likeCounts: {} as Record<string, number> }
+      return {
+        commentCounts: {} as Record<string, number>,
+        likeCounts: {} as Record<string, number>,
+      }
     }
 
     const db = yield* DB

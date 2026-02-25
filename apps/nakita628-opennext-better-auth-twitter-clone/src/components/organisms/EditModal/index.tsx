@@ -6,9 +6,8 @@ import { mutate } from 'swr'
 import { ImageUpload } from '@/components/atoms/ImageUpload'
 import { Input } from '@/components/atoms/Input'
 import { Modal } from '@/components/molecules/Modal'
-import { getGetCurrentKey, useGetCurrent, usePatchEdit } from '@/hooks/swr'
-import { useChangePasswordModal } from '@/hooks/useChangePasswordModal'
-import { useEditModal } from '@/hooks/useEditModal'
+import { getGetCurrentKey, useGetCurrent, usePatchEdit } from '@/hooks'
+import { useChangePasswordModal, useEditModal } from '@/stores'
 
 export function EditModal() {
   const { data: currentUser } = useGetCurrent()

@@ -1,14 +1,21 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
+import { useEffect } from 'react'
 import { ClipLoader } from 'react-spinners'
 import { Header } from '@/components/atoms/Header'
 import { NotificationsFeed } from '@/components/organisms/NotificationsFeed'
-import { useAuthGuard } from '@/hooks/useAuthGuard'
+import { useGetCurrent } from '@/hooks'
 
 export default function Notifications() {
   const router = useRouter()
-  const { currentUser, isLoading } = useAuthGuard()
+  const { data: currentUser, isLoading } = useGetCurrent()
+
+  useEffect(() => {
+    if (!(isLoading || currentUser)) {
+      router.push('/')
+    }
+  }, [isLoading, currentUser, router])
 
   if (isLoading || !currentUser) {
     return (

@@ -121,10 +121,7 @@ export const likes = sqliteTable(
       .references(() => posts.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
     createdAt: integer({ mode: 'timestamp' }).notNull().default(sql`(unixepoch())`),
   },
-  (t) => [
-    primaryKey({ columns: [t.userId, t.postId] }),
-    index('likes_postId_idx').on(t.postId),
-  ],
+  (t) => [primaryKey({ columns: [t.userId, t.postId] }), index('likes_postId_idx').on(t.postId)],
 )
 
 export const comments = sqliteTable(

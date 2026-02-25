@@ -4,8 +4,8 @@ import { useCallback, useState } from 'react'
 import toast from 'react-hot-toast'
 import { Input } from '@/components/atoms/Input'
 import { Modal } from '@/components/molecules/Modal'
-import { useChangePasswordModal } from '@/hooks/useChangePasswordModal'
 import { authClient } from '@/infra/auth-client'
+import { useChangePasswordModal } from '@/stores'
 
 export function ChangePasswordModal() {
   const changePasswordModal = useChangePasswordModal()

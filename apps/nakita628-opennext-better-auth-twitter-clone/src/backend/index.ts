@@ -37,7 +37,7 @@ import {
   postPostsRoute,
   postRegisterRoute,
 } from '@/backend/routes'
-import { auth, type AuthType } from '@/infra'
+import { type AuthType, auth } from '@/infra'
 
 const app = new OpenAPIHono<{ Variables: AuthType }>({
   defaultHook: (result, c) => {
