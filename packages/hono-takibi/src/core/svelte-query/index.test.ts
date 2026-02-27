@@ -392,10 +392,7 @@ export function createGetUsers(
       expect(createGetUsers).toBe(createGetUsersExpected)
 
       // Check POST hook file (mutation)
-      const createPostUsers = fs.readFileSync(
-        path.join(dir, 'hooks', 'postUsers.ts'),
-        'utf-8',
-      )
+      const createPostUsers = fs.readFileSync(path.join(dir, 'hooks', 'postUsers.ts'), 'utf-8')
       const createPostUsersExpected = `import { createMutation } from '@tanstack/svelte-query'
 import type { CreateMutationOptions } from '@tanstack/svelte-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'

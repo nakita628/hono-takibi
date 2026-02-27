@@ -1,12 +1,7 @@
 import path from 'node:path'
 import { isOpenAPIPaths, isOperationLike, isRecord } from '../guard/index.js'
 import type { OpenAPI, OpenAPIPaths } from '../openapi/index.js'
-import {
-  capitalize,
-  escapeCommentEnd,
-  makeOperationDocs,
-  methodPath,
-} from '../utils/index.js'
+import { capitalize, escapeCommentEnd, makeOperationDocs, methodPath } from '../utils/index.js'
 import {
   core,
   formatPath,
@@ -488,9 +483,7 @@ function makeSWRMutationHookCode(
   hasNoContent: boolean,
 ): string {
   const variablesType = hasArgs ? argsType : 'undefined'
-  const responseTypeWithUndefined = hasNoContent
-    ? `${responseType}|undefined`
-    : responseType
+  const responseTypeWithUndefined = hasNoContent ? `${responseType}|undefined` : responseType
   const mutationConfigType = `SWRMutationConfiguration<${responseTypeWithUndefined},Error,Key,${variablesType}>`
 
   if (hasArgs) {
@@ -646,13 +639,7 @@ function makeHookCode(
   if (isQuery) {
     const keyGetterName = makeQueryKeyGetterName(method, pathStr)
     const optionsGetterName = makeQueryOptionsGetterName(method, pathStr)
-    const keyGetterCode = makeQueryKeyGetterCode(
-      keyGetterName,
-      hasArgs,
-      argsType,
-      honoPath,
-      config,
-    )
+    const keyGetterCode = makeQueryKeyGetterCode(keyGetterName, hasArgs, argsType, honoPath, config)
     const optionsGetterCode = makeQueryOptionsGetterCode(
       optionsGetterName,
       keyGetterName,
@@ -925,9 +912,7 @@ export async function makeQueryHooks(
 
   const exportLines = Array.from(
     new Set(
-      hookCodes.map(
-        ({ parseResponseFuncName }) => `export * from './${parseResponseFuncName}'`,
-      ),
+      hookCodes.map(({ parseResponseFuncName }) => `export * from './${parseResponseFuncName}'`),
     ),
   )
   const index = `${exportLines.join('\n')}\n`
