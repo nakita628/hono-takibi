@@ -1,10 +1,10 @@
-import { createQuery, createMutation } from '@tanstack/svelte-query'
+import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
 import type {
   CreateQueryOptions,
   QueryFunctionContext,
   CreateMutationOptions,
 } from '@tanstack/svelte-query'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
@@ -17,6 +17,18 @@ export function getPostOrdersMutationKey() {
 }
 
 /**
+ * POST /orders
+ *
+ * Create an order with callback
+ */
+export async function postOrders(
+  args: InferRequestType<typeof client.orders.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.orders.$post(args, options))
+}
+
+/**
  * Returns Svelte Query mutation options for POST /orders
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
@@ -24,8 +36,8 @@ export function getPostOrdersMutationKey() {
 export function getPostOrdersMutationOptions(clientOptions?: ClientRequestOptions) {
   return {
     mutationKey: getPostOrdersMutationKey(),
-    async mutationFn(args: InferRequestType<typeof client.orders.$post>) {
-      return parseResponse(client.orders.$post(args, clientOptions))
+    async mutationFn(args: Parameters<typeof postOrders>[0]) {
+      return postOrders(args, clientOptions)
     },
   }
 }
@@ -38,17 +50,16 @@ export function getPostOrdersMutationOptions(clientOptions?: ClientRequestOption
 export function createPostOrders(
   options?: () => {
     mutation?: CreateMutationOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.orders.$post>>>>>,
+      Awaited<ReturnType<typeof postOrders>>,
       Error,
-      InferRequestType<typeof client.orders.$post>
+      Parameters<typeof postOrders>[0]
     >
     client?: ClientRequestOptions
   },
 ) {
   return createMutation(() => {
     const opts = options?.()
-    const { mutationKey, mutationFn, ...baseOptions } = getPostOrdersMutationOptions(opts?.client)
-    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+    return { ...getPostOrdersMutationOptions(opts?.client), ...opts?.mutation }
   })
 }
 
@@ -61,6 +72,18 @@ export function getPostPaymentsMutationKey() {
 }
 
 /**
+ * POST /payments
+ *
+ * Create a payment with multiple callbacks
+ */
+export async function postPayments(
+  args: InferRequestType<typeof client.payments.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.payments.$post(args, options))
+}
+
+/**
  * Returns Svelte Query mutation options for POST /payments
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
@@ -68,8 +91,8 @@ export function getPostPaymentsMutationKey() {
 export function getPostPaymentsMutationOptions(clientOptions?: ClientRequestOptions) {
   return {
     mutationKey: getPostPaymentsMutationKey(),
-    async mutationFn(args: InferRequestType<typeof client.payments.$post>) {
-      return parseResponse(client.payments.$post(args, clientOptions))
+    async mutationFn(args: Parameters<typeof postPayments>[0]) {
+      return postPayments(args, clientOptions)
     },
   }
 }
@@ -82,17 +105,16 @@ export function getPostPaymentsMutationOptions(clientOptions?: ClientRequestOpti
 export function createPostPayments(
   options?: () => {
     mutation?: CreateMutationOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.payments.$post>>>>>,
+      Awaited<ReturnType<typeof postPayments>>,
       Error,
-      InferRequestType<typeof client.payments.$post>
+      Parameters<typeof postPayments>[0]
     >
     client?: ClientRequestOptions
   },
 ) {
   return createMutation(() => {
     const opts = options?.()
-    const { mutationKey, mutationFn, ...baseOptions } = getPostPaymentsMutationOptions(opts?.client)
-    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+    return { ...getPostPaymentsMutationOptions(opts?.client), ...opts?.mutation }
   })
 }
 
@@ -105,22 +127,26 @@ export function getGetItemsQueryKey() {
 }
 
 /**
+ * GET /items
+ *
+ * List items (no callbacks)
+ */
+export async function getItems(options?: ClientRequestOptions) {
+  return await parseResponse(client.items.$get(undefined, options))
+}
+
+/**
  * Returns Svelte Query query options for GET /items
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetItemsQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return queryOptions({
     queryKey: getGetItemsQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.items.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+      return getItems({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
@@ -130,16 +156,12 @@ export function getGetItemsQueryOptions(clientOptions?: ClientRequestOptions) {
  */
 export function createGetItems(
   options?: () => {
-    query?: CreateQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.items.$get>>>>>,
-      Error
-    >
+    query?: CreateQueryOptions<Awaited<ReturnType<typeof getItems>>, Error>
     client?: ClientRequestOptions
   },
 ) {
   return createQuery(() => {
     const opts = options?.()
-    const { queryKey, queryFn, ...baseOptions } = getGetItemsQueryOptions(opts?.client)
-    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+    return { ...getGetItemsQueryOptions(opts?.client), ...opts?.query }
   })
 }

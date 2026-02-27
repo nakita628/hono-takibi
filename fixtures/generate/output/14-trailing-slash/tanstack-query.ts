@@ -1,10 +1,10 @@
-import { useQuery, useMutation } from '@tanstack/react-query'
+import { useQuery, useMutation, queryOptions, mutationOptions } from '@tanstack/react-query'
 import type {
   UseQueryOptions,
   QueryFunctionContext,
   UseMutationOptions,
 } from '@tanstack/react-query'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
@@ -17,22 +17,29 @@ export function getGetApiReverseChibanIndexQueryKey() {
 }
 
 /**
+ * GET /api/reverseChiban/
+ *
+ * Reverse Chiban (trailing slash)
+ */
+export async function getApiReverseChibanIndex(options?: ClientRequestOptions) {
+  return await parseResponse(client.api.reverseChiban.index.$get(undefined, options))
+}
+
+/**
  * Returns TanStack Query query options for GET /api/reverseChiban/
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetApiReverseChibanIndexQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return queryOptions({
     queryKey: getGetApiReverseChibanIndexQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.api.reverseChiban.index.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+      return getApiReverseChibanIndex({
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      })
     },
-  }
+  })
 }
 
 /**
@@ -41,20 +48,11 @@ export function getGetApiReverseChibanIndexQueryOptions(clientOptions?: ClientRe
  * Reverse Chiban (trailing slash)
  */
 export function useGetApiReverseChibanIndex(options?: {
-  query?: UseQueryOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<Awaited<ReturnType<typeof client.api.reverseChiban.index.$get>>>
-      >
-    >,
-    Error
-  >
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getApiReverseChibanIndex>>, Error>
   client?: ClientRequestOptions
 }) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const { queryKey, queryFn, ...baseOptions } =
-    getGetApiReverseChibanIndexQueryOptions(clientOptions)
-  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
+  const { query: queryOpts, client: clientOptions } = options ?? {}
+  return useQuery({ ...getGetApiReverseChibanIndexQueryOptions(clientOptions), ...queryOpts })
 }
 
 /**
@@ -66,22 +64,26 @@ export function getGetApiReverseChibanQueryKey() {
 }
 
 /**
+ * GET /api/reverseChiban
+ *
+ * Reverse Chiban (no trailing slash)
+ */
+export async function getApiReverseChiban(options?: ClientRequestOptions) {
+  return await parseResponse(client.api.reverseChiban.$get(undefined, options))
+}
+
+/**
  * Returns TanStack Query query options for GET /api/reverseChiban
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetApiReverseChibanQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return queryOptions({
     queryKey: getGetApiReverseChibanQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.api.reverseChiban.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+      return getApiReverseChiban({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
@@ -90,25 +92,31 @@ export function getGetApiReverseChibanQueryOptions(clientOptions?: ClientRequest
  * Reverse Chiban (no trailing slash)
  */
 export function useGetApiReverseChiban(options?: {
-  query?: UseQueryOptions<
-    Awaited<
-      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.api.reverseChiban.$get>>>>
-    >,
-    Error
-  >
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getApiReverseChiban>>, Error>
   client?: ClientRequestOptions
 }) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const { queryKey, queryFn, ...baseOptions } = getGetApiReverseChibanQueryOptions(clientOptions)
-  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
+  const { query: queryOpts, client: clientOptions } = options ?? {}
+  return useQuery({ ...getGetApiReverseChibanQueryOptions(clientOptions), ...queryOpts })
 }
 
 /**
  * Generates TanStack Query cache key for GET /posts/
  * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetPostsIndexQueryKey(args: InferRequestType<typeof client.posts.index.$get>) {
+export function getGetPostsIndexQueryKey(args: Parameters<typeof getPostsIndex>[0]) {
   return ['posts', 'GET', '/posts/', args] as const
+}
+
+/**
+ * GET /posts/
+ *
+ * List posts (trailing slash only)
+ */
+export async function getPostsIndex(
+  args: InferRequestType<typeof client.posts.index.$get>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.posts.index.$get(args, options))
 }
 
 /**
@@ -117,20 +125,15 @@ export function getGetPostsIndexQueryKey(args: InferRequestType<typeof client.po
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetPostsIndexQueryOptions(
-  args: InferRequestType<typeof client.posts.index.$get>,
+  args: Parameters<typeof getPostsIndex>[0],
   clientOptions?: ClientRequestOptions,
 ) {
-  return {
+  return queryOptions({
     queryKey: getGetPostsIndexQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.posts.index.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+      return getPostsIndex(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
@@ -139,20 +142,14 @@ export function getGetPostsIndexQueryOptions(
  * List posts (trailing slash only)
  */
 export function useGetPostsIndex(
-  args: InferRequestType<typeof client.posts.index.$get>,
+  args: Parameters<typeof getPostsIndex>[0],
   options?: {
-    query?: UseQueryOptions<
-      Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.posts.index.$get>>>>
-      >,
-      Error
-    >
+    query?: UseQueryOptions<Awaited<ReturnType<typeof getPostsIndex>>, Error>
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const { queryKey, queryFn, ...baseOptions } = getGetPostsIndexQueryOptions(args, clientOptions)
-  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
+  const { query: queryOpts, client: clientOptions } = options ?? {}
+  return useQuery({ ...getGetPostsIndexQueryOptions(args, clientOptions), ...queryOpts })
 }
 
 /**
@@ -164,17 +161,29 @@ export function getPostPostsIndexMutationKey() {
 }
 
 /**
+ * POST /posts/
+ *
+ * Create post (trailing slash only)
+ */
+export async function postPostsIndex(
+  args: InferRequestType<typeof client.posts.index.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.posts.index.$post(args, options))
+}
+
+/**
  * Returns TanStack Query mutation options for POST /posts/
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
 export function getPostPostsIndexMutationOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return mutationOptions({
     mutationKey: getPostPostsIndexMutationKey(),
-    async mutationFn(args: InferRequestType<typeof client.posts.index.$post>) {
-      return parseResponse(client.posts.index.$post(args, clientOptions))
+    async mutationFn(args: Parameters<typeof postPostsIndex>[0]) {
+      return postPostsIndex(args, clientOptions)
     },
-  }
+  })
 }
 
 /**
@@ -184,26 +193,34 @@ export function getPostPostsIndexMutationOptions(clientOptions?: ClientRequestOp
  */
 export function usePostPostsIndex(options?: {
   mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.posts.index.$post>>>>>,
+    Awaited<ReturnType<typeof postPostsIndex>>,
     Error,
-    InferRequestType<typeof client.posts.index.$post>
+    Parameters<typeof postPostsIndex>[0]
   >
   client?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const { mutationKey, mutationFn, ...baseOptions } =
-    getPostPostsIndexMutationOptions(clientOptions)
-  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
+  const { mutation: mutationOpts, client: clientOptions } = options ?? {}
+  return useMutation({ ...getPostPostsIndexMutationOptions(clientOptions), ...mutationOpts })
 }
 
 /**
  * Generates TanStack Query cache key for GET /users/{id}/
  * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetUsersIdIndexQueryKey(
-  args: InferRequestType<(typeof client.users)[':id']['index']['$get']>,
-) {
+export function getGetUsersIdIndexQueryKey(args: Parameters<typeof getUsersIdIndex>[0]) {
   return ['users', 'GET', '/users/:id/', args] as const
+}
+
+/**
+ * GET /users/{id}/
+ *
+ * Get user (trailing slash with path param)
+ */
+export async function getUsersIdIndex(
+  args: InferRequestType<(typeof client.users)[':id']['index']['$get']>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.users[':id'].index.$get(args, options))
 }
 
 /**
@@ -212,20 +229,15 @@ export function getGetUsersIdIndexQueryKey(
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetUsersIdIndexQueryOptions(
-  args: InferRequestType<(typeof client.users)[':id']['index']['$get']>,
+  args: Parameters<typeof getUsersIdIndex>[0],
   clientOptions?: ClientRequestOptions,
 ) {
-  return {
+  return queryOptions({
     queryKey: getGetUsersIdIndexQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.users[':id'].index.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+      return getUsersIdIndex(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
@@ -234,22 +246,14 @@ export function getGetUsersIdIndexQueryOptions(
  * Get user (trailing slash with path param)
  */
 export function useGetUsersIdIndex(
-  args: InferRequestType<(typeof client.users)[':id']['index']['$get']>,
+  args: Parameters<typeof getUsersIdIndex>[0],
   options?: {
-    query?: UseQueryOptions<
-      Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['index']['$get']>>>
-        >
-      >,
-      Error
-    >
+    query?: UseQueryOptions<Awaited<ReturnType<typeof getUsersIdIndex>>, Error>
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const { queryKey, queryFn, ...baseOptions } = getGetUsersIdIndexQueryOptions(args, clientOptions)
-  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
+  const { query: queryOpts, client: clientOptions } = options ?? {}
+  return useQuery({ ...getGetUsersIdIndexQueryOptions(args, clientOptions), ...queryOpts })
 }
 
 /**
@@ -261,22 +265,26 @@ export function getGetItemsIndexQueryKey() {
 }
 
 /**
+ * GET /items/
+ *
+ * List items (trailing slash only)
+ */
+export async function getItemsIndex(options?: ClientRequestOptions) {
+  return await parseResponse(client.items.index.$get(undefined, options))
+}
+
+/**
  * Returns TanStack Query query options for GET /items/
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetItemsIndexQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return queryOptions({
     queryKey: getGetItemsIndexQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.items.index.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+      return getItemsIndex({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
@@ -285,13 +293,9 @@ export function getGetItemsIndexQueryOptions(clientOptions?: ClientRequestOption
  * List items (trailing slash only)
  */
 export function useGetItemsIndex(options?: {
-  query?: UseQueryOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.items.index.$get>>>>>,
-    Error
-  >
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getItemsIndex>>, Error>
   client?: ClientRequestOptions
 }) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const { queryKey, queryFn, ...baseOptions } = getGetItemsIndexQueryOptions(clientOptions)
-  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
+  const { query: queryOpts, client: clientOptions } = options ?? {}
+  return useQuery({ ...getGetItemsIndexQueryOptions(clientOptions), ...queryOpts })
 }

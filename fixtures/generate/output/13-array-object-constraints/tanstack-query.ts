@@ -1,10 +1,10 @@
-import { useQuery, useMutation } from '@tanstack/react-query'
+import { useQuery, useMutation, queryOptions, mutationOptions } from '@tanstack/react-query'
 import type {
   UseQueryOptions,
   QueryFunctionContext,
   UseMutationOptions,
 } from '@tanstack/react-query'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
@@ -17,34 +17,35 @@ export function getGetTagsQueryKey() {
 }
 
 /**
+ * GET /tags
+ */
+export async function getTags(options?: ClientRequestOptions) {
+  return await parseResponse(client.tags.$get(undefined, options))
+}
+
+/**
  * Returns TanStack Query query options for GET /tags
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetTagsQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return queryOptions({
     queryKey: getGetTagsQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.tags.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      )
+      return getTags({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
  * GET /tags
  */
 export function useGetTags(options?: {
-  query?: UseQueryOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.tags.$get>>>>>,
-    Error
-  >
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getTags>>, Error>
   client?: ClientRequestOptions
 }) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const { queryKey, queryFn, ...baseOptions } = getGetTagsQueryOptions(clientOptions)
-  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
+  const { query: queryOpts, client: clientOptions } = options ?? {}
+  return useQuery({ ...getGetTagsQueryOptions(clientOptions), ...queryOpts })
 }
 
 /**
@@ -56,17 +57,27 @@ export function getPostTagsMutationKey() {
 }
 
 /**
+ * POST /tags
+ */
+export async function postTags(
+  args: InferRequestType<typeof client.tags.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.tags.$post(args, options))
+}
+
+/**
  * Returns TanStack Query mutation options for POST /tags
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
 export function getPostTagsMutationOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return mutationOptions({
     mutationKey: getPostTagsMutationKey(),
-    async mutationFn(args: InferRequestType<typeof client.tags.$post>) {
-      return parseResponse(client.tags.$post(args, clientOptions))
+    async mutationFn(args: Parameters<typeof postTags>[0]) {
+      return postTags(args, clientOptions)
     },
-  }
+  })
 }
 
 /**
@@ -74,23 +85,32 @@ export function getPostTagsMutationOptions(clientOptions?: ClientRequestOptions)
  */
 export function usePostTags(options?: {
   mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.tags.$post>>>>>,
+    Awaited<ReturnType<typeof postTags>>,
     Error,
-    InferRequestType<typeof client.tags.$post>
+    Parameters<typeof postTags>[0]
   >
   client?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const { mutationKey, mutationFn, ...baseOptions } = getPostTagsMutationOptions(clientOptions)
-  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
+  const { mutation: mutationOpts, client: clientOptions } = options ?? {}
+  return useMutation({ ...getPostTagsMutationOptions(clientOptions), ...mutationOpts })
 }
 
 /**
  * Generates TanStack Query cache key for GET /settings
  * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetSettingsQueryKey(args: InferRequestType<typeof client.settings.$get>) {
+export function getGetSettingsQueryKey(args: Parameters<typeof getSettings>[0]) {
   return ['settings', 'GET', '/settings', args] as const
+}
+
+/**
+ * GET /settings
+ */
+export async function getSettings(
+  args: InferRequestType<typeof client.settings.$get>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.settings.$get(args, options))
 }
 
 /**
@@ -99,35 +119,29 @@ export function getGetSettingsQueryKey(args: InferRequestType<typeof client.sett
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetSettingsQueryOptions(
-  args: InferRequestType<typeof client.settings.$get>,
+  args: Parameters<typeof getSettings>[0],
   clientOptions?: ClientRequestOptions,
 ) {
-  return {
+  return queryOptions({
     queryKey: getGetSettingsQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.settings.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      )
+      return getSettings(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
  * GET /settings
  */
 export function useGetSettings(
-  args: InferRequestType<typeof client.settings.$get>,
+  args: Parameters<typeof getSettings>[0],
   options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.settings.$get>>>>>,
-      Error
-    >
+    query?: UseQueryOptions<Awaited<ReturnType<typeof getSettings>>, Error>
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const { queryKey, queryFn, ...baseOptions } = getGetSettingsQueryOptions(args, clientOptions)
-  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
+  const { query: queryOpts, client: clientOptions } = options ?? {}
+  return useQuery({ ...getGetSettingsQueryOptions(args, clientOptions), ...queryOpts })
 }
 
 /**
@@ -139,17 +153,27 @@ export function getPutSettingsMutationKey() {
 }
 
 /**
+ * PUT /settings
+ */
+export async function putSettings(
+  args: InferRequestType<typeof client.settings.$put>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.settings.$put(args, options))
+}
+
+/**
  * Returns TanStack Query mutation options for PUT /settings
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
 export function getPutSettingsMutationOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return mutationOptions({
     mutationKey: getPutSettingsMutationKey(),
-    async mutationFn(args: InferRequestType<typeof client.settings.$put>) {
-      return parseResponse(client.settings.$put(args, clientOptions))
+    async mutationFn(args: Parameters<typeof putSettings>[0]) {
+      return putSettings(args, clientOptions)
     },
-  }
+  })
 }
 
 /**
@@ -157,15 +181,14 @@ export function getPutSettingsMutationOptions(clientOptions?: ClientRequestOptio
  */
 export function usePutSettings(options?: {
   mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.settings.$put>>>>>,
+    Awaited<ReturnType<typeof putSettings>>,
     Error,
-    InferRequestType<typeof client.settings.$put>
+    Parameters<typeof putSettings>[0]
   >
   client?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const { mutationKey, mutationFn, ...baseOptions } = getPutSettingsMutationOptions(clientOptions)
-  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
+  const { mutation: mutationOpts, client: clientOptions } = options ?? {}
+  return useMutation({ ...getPutSettingsMutationOptions(clientOptions), ...mutationOpts })
 }
 
 /**
@@ -177,17 +200,27 @@ export function getPostConfigMutationKey() {
 }
 
 /**
+ * POST /config
+ */
+export async function postConfig(
+  args: InferRequestType<typeof client.config.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.config.$post(args, options))
+}
+
+/**
  * Returns TanStack Query mutation options for POST /config
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
 export function getPostConfigMutationOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return mutationOptions({
     mutationKey: getPostConfigMutationKey(),
-    async mutationFn(args: InferRequestType<typeof client.config.$post>) {
-      return parseResponse(client.config.$post(args, clientOptions))
+    async mutationFn(args: Parameters<typeof postConfig>[0]) {
+      return postConfig(args, clientOptions)
     },
-  }
+  })
 }
 
 /**
@@ -195,15 +228,14 @@ export function getPostConfigMutationOptions(clientOptions?: ClientRequestOption
  */
 export function usePostConfig(options?: {
   mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.config.$post>>>>>,
+    Awaited<ReturnType<typeof postConfig>>,
     Error,
-    InferRequestType<typeof client.config.$post>
+    Parameters<typeof postConfig>[0]
   >
   client?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const { mutationKey, mutationFn, ...baseOptions } = getPostConfigMutationOptions(clientOptions)
-  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
+  const { mutation: mutationOpts, client: clientOptions } = options ?? {}
+  return useMutation({ ...getPostConfigMutationOptions(clientOptions), ...mutationOpts })
 }
 
 /**
@@ -215,17 +247,27 @@ export function getPostPaymentMutationKey() {
 }
 
 /**
+ * POST /payment
+ */
+export async function postPayment(
+  args: InferRequestType<typeof client.payment.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.payment.$post(args, options))
+}
+
+/**
  * Returns TanStack Query mutation options for POST /payment
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
 export function getPostPaymentMutationOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return mutationOptions({
     mutationKey: getPostPaymentMutationKey(),
-    async mutationFn(args: InferRequestType<typeof client.payment.$post>) {
-      return parseResponse(client.payment.$post(args, clientOptions))
+    async mutationFn(args: Parameters<typeof postPayment>[0]) {
+      return postPayment(args, clientOptions)
     },
-  }
+  })
 }
 
 /**
@@ -233,13 +275,12 @@ export function getPostPaymentMutationOptions(clientOptions?: ClientRequestOptio
  */
 export function usePostPayment(options?: {
   mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.payment.$post>>>>>,
+    Awaited<ReturnType<typeof postPayment>>,
     Error,
-    InferRequestType<typeof client.payment.$post>
+    Parameters<typeof postPayment>[0]
   >
   client?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const { mutationKey, mutationFn, ...baseOptions } = getPostPaymentMutationOptions(clientOptions)
-  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
+  const { mutation: mutationOpts, client: clientOptions } = options ?? {}
+  return useMutation({ ...getPostPaymentMutationOptions(clientOptions), ...mutationOpts })
 }

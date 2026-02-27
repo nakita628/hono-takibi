@@ -1,4 +1,4 @@
-import { createQuery } from '@tanstack/svelte-query'
+import { createQuery, queryOptions } from '@tanstack/svelte-query'
 import type { CreateQueryOptions, QueryFunctionContext } from '@tanstack/svelte-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -13,22 +13,24 @@ export function getGetHealthQueryKey() {
 }
 
 /**
+ * GET /health
+ */
+export async function getHealth(options?: ClientRequestOptions) {
+  return await parseResponse(client.health.$get(undefined, options))
+}
+
+/**
  * Returns Svelte Query query options for GET /health
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetHealthQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return queryOptions({
     queryKey: getGetHealthQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.health.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+      return getHealth({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
@@ -36,16 +38,12 @@ export function getGetHealthQueryOptions(clientOptions?: ClientRequestOptions) {
  */
 export function createGetHealth(
   options?: () => {
-    query?: CreateQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.health.$get>>>>>,
-      Error
-    >
+    query?: CreateQueryOptions<Awaited<ReturnType<typeof getHealth>>, Error>
     client?: ClientRequestOptions
   },
 ) {
   return createQuery(() => {
     const opts = options?.()
-    const { queryKey, queryFn, ...baseOptions } = getGetHealthQueryOptions(opts?.client)
-    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+    return { ...getGetHealthQueryOptions(opts?.client), ...opts?.query }
   })
 }

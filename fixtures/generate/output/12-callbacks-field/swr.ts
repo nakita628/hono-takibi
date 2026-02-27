@@ -2,7 +2,7 @@ import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
 import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
@@ -19,12 +19,24 @@ export function getPostOrdersMutationKey() {
  *
  * Create an order with callback
  */
+export async function postOrders(
+  args: InferRequestType<typeof client.orders.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.orders.$post(args, options))
+}
+
+/**
+ * POST /orders
+ *
+ * Create an order with callback
+ */
 export function usePostOrders(options?: {
   mutation?: SWRMutationConfiguration<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.orders.$post>>>>>,
+    Awaited<ReturnType<typeof postOrders>>,
     Error,
     Key,
-    InferRequestType<typeof client.orders.$post>
+    Parameters<typeof postOrders>[0]
   > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
@@ -35,8 +47,8 @@ export function usePostOrders(options?: {
     swrKey,
     ...useSWRMutation(
       swrKey,
-      async (_: Key, { arg }: { arg: InferRequestType<typeof client.orders.$post> }) =>
-        parseResponse(client.orders.$post(arg, clientOptions)),
+      async (_: Key, { arg }: { arg: Parameters<typeof postOrders>[0] }) =>
+        postOrders(arg, clientOptions),
       restMutationOptions,
     ),
   }
@@ -55,12 +67,24 @@ export function getPostPaymentsMutationKey() {
  *
  * Create a payment with multiple callbacks
  */
+export async function postPayments(
+  args: InferRequestType<typeof client.payments.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.payments.$post(args, options))
+}
+
+/**
+ * POST /payments
+ *
+ * Create a payment with multiple callbacks
+ */
 export function usePostPayments(options?: {
   mutation?: SWRMutationConfiguration<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.payments.$post>>>>>,
+    Awaited<ReturnType<typeof postPayments>>,
     Error,
     Key,
-    InferRequestType<typeof client.payments.$post>
+    Parameters<typeof postPayments>[0]
   > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
@@ -71,8 +95,8 @@ export function usePostPayments(options?: {
     swrKey,
     ...useSWRMutation(
       swrKey,
-      async (_: Key, { arg }: { arg: InferRequestType<typeof client.payments.$post> }) =>
-        parseResponse(client.payments.$post(arg, clientOptions)),
+      async (_: Key, { arg }: { arg: Parameters<typeof postPayments>[0] }) =>
+        postPayments(arg, clientOptions),
       restMutationOptions,
     ),
   }
@@ -91,6 +115,15 @@ export function getGetItemsKey() {
  *
  * List items (no callbacks)
  */
+export async function getItems(options?: ClientRequestOptions) {
+  return await parseResponse(client.items.$get(undefined, options))
+}
+
+/**
+ * GET /items
+ *
+ * List items (no callbacks)
+ */
 export function useGetItems(options?: {
   swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
@@ -99,12 +132,5 @@ export function useGetItems(options?: {
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
   const swrKey = isEnabled ? (customKey ?? getGetItemsKey()) : null
-  return {
-    swrKey,
-    ...useSWR(
-      swrKey,
-      async () => parseResponse(client.items.$get(undefined, clientOptions)),
-      restSwrOptions,
-    ),
-  }
+  return { swrKey, ...useSWR(swrKey, async () => getItems(clientOptions), restSwrOptions) }
 }

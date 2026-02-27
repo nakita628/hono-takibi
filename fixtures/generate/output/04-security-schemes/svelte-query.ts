@@ -1,4 +1,4 @@
-import { createQuery } from '@tanstack/svelte-query'
+import { createQuery, queryOptions } from '@tanstack/svelte-query'
 import type { CreateQueryOptions, QueryFunctionContext } from '@tanstack/svelte-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -13,22 +13,24 @@ export function getGetPublicQueryKey() {
 }
 
 /**
+ * GET /public
+ */
+export async function getPublic(options?: ClientRequestOptions) {
+  return await parseResponse(client.public.$get(undefined, options))
+}
+
+/**
  * Returns Svelte Query query options for GET /public
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetPublicQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return queryOptions({
     queryKey: getGetPublicQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.public.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+      return getPublic({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
@@ -36,17 +38,13 @@ export function getGetPublicQueryOptions(clientOptions?: ClientRequestOptions) {
  */
 export function createGetPublic(
   options?: () => {
-    query?: CreateQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.public.$get>>>>>,
-      Error
-    >
+    query?: CreateQueryOptions<Awaited<ReturnType<typeof getPublic>>, Error>
     client?: ClientRequestOptions
   },
 ) {
   return createQuery(() => {
     const opts = options?.()
-    const { queryKey, queryFn, ...baseOptions } = getGetPublicQueryOptions(opts?.client)
-    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+    return { ...getGetPublicQueryOptions(opts?.client), ...opts?.query }
   })
 }
 
@@ -59,22 +57,24 @@ export function getGetBearerProtectedQueryKey() {
 }
 
 /**
+ * GET /bearer-protected
+ */
+export async function getBearerProtected(options?: ClientRequestOptions) {
+  return await parseResponse(client['bearer-protected'].$get(undefined, options))
+}
+
+/**
  * Returns Svelte Query query options for GET /bearer-protected
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetBearerProtectedQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return queryOptions({
     queryKey: getGetBearerProtectedQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client['bearer-protected'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+      return getBearerProtected({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
@@ -82,21 +82,13 @@ export function getGetBearerProtectedQueryOptions(clientOptions?: ClientRequestO
  */
 export function createGetBearerProtected(
   options?: () => {
-    query?: CreateQueryOptions<
-      Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<(typeof client)['bearer-protected']['$get']>>>
-        >
-      >,
-      Error
-    >
+    query?: CreateQueryOptions<Awaited<ReturnType<typeof getBearerProtected>>, Error>
     client?: ClientRequestOptions
   },
 ) {
   return createQuery(() => {
     const opts = options?.()
-    const { queryKey, queryFn, ...baseOptions } = getGetBearerProtectedQueryOptions(opts?.client)
-    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+    return { ...getGetBearerProtectedQueryOptions(opts?.client), ...opts?.query }
   })
 }
 
@@ -109,22 +101,24 @@ export function getGetApiKeyProtectedQueryKey() {
 }
 
 /**
+ * GET /api-key-protected
+ */
+export async function getApiKeyProtected(options?: ClientRequestOptions) {
+  return await parseResponse(client['api-key-protected'].$get(undefined, options))
+}
+
+/**
  * Returns Svelte Query query options for GET /api-key-protected
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetApiKeyProtectedQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return queryOptions({
     queryKey: getGetApiKeyProtectedQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client['api-key-protected'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+      return getApiKeyProtected({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
@@ -132,21 +126,13 @@ export function getGetApiKeyProtectedQueryOptions(clientOptions?: ClientRequestO
  */
 export function createGetApiKeyProtected(
   options?: () => {
-    query?: CreateQueryOptions<
-      Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<(typeof client)['api-key-protected']['$get']>>>
-        >
-      >,
-      Error
-    >
+    query?: CreateQueryOptions<Awaited<ReturnType<typeof getApiKeyProtected>>, Error>
     client?: ClientRequestOptions
   },
 ) {
   return createQuery(() => {
     const opts = options?.()
-    const { queryKey, queryFn, ...baseOptions } = getGetApiKeyProtectedQueryOptions(opts?.client)
-    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+    return { ...getGetApiKeyProtectedQueryOptions(opts?.client), ...opts?.query }
   })
 }
 
@@ -159,22 +145,24 @@ export function getGetBasicProtectedQueryKey() {
 }
 
 /**
+ * GET /basic-protected
+ */
+export async function getBasicProtected(options?: ClientRequestOptions) {
+  return await parseResponse(client['basic-protected'].$get(undefined, options))
+}
+
+/**
  * Returns Svelte Query query options for GET /basic-protected
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetBasicProtectedQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return queryOptions({
     queryKey: getGetBasicProtectedQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client['basic-protected'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+      return getBasicProtected({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
@@ -182,21 +170,13 @@ export function getGetBasicProtectedQueryOptions(clientOptions?: ClientRequestOp
  */
 export function createGetBasicProtected(
   options?: () => {
-    query?: CreateQueryOptions<
-      Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<(typeof client)['basic-protected']['$get']>>>
-        >
-      >,
-      Error
-    >
+    query?: CreateQueryOptions<Awaited<ReturnType<typeof getBasicProtected>>, Error>
     client?: ClientRequestOptions
   },
 ) {
   return createQuery(() => {
     const opts = options?.()
-    const { queryKey, queryFn, ...baseOptions } = getGetBasicProtectedQueryOptions(opts?.client)
-    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+    return { ...getGetBasicProtectedQueryOptions(opts?.client), ...opts?.query }
   })
 }
 
@@ -209,22 +189,24 @@ export function getGetOauthProtectedQueryKey() {
 }
 
 /**
+ * GET /oauth-protected
+ */
+export async function getOauthProtected(options?: ClientRequestOptions) {
+  return await parseResponse(client['oauth-protected'].$get(undefined, options))
+}
+
+/**
  * Returns Svelte Query query options for GET /oauth-protected
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetOauthProtectedQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return queryOptions({
     queryKey: getGetOauthProtectedQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client['oauth-protected'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+      return getOauthProtected({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
@@ -232,21 +214,13 @@ export function getGetOauthProtectedQueryOptions(clientOptions?: ClientRequestOp
  */
 export function createGetOauthProtected(
   options?: () => {
-    query?: CreateQueryOptions<
-      Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<(typeof client)['oauth-protected']['$get']>>>
-        >
-      >,
-      Error
-    >
+    query?: CreateQueryOptions<Awaited<ReturnType<typeof getOauthProtected>>, Error>
     client?: ClientRequestOptions
   },
 ) {
   return createQuery(() => {
     const opts = options?.()
-    const { queryKey, queryFn, ...baseOptions } = getGetOauthProtectedQueryOptions(opts?.client)
-    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+    return { ...getGetOauthProtectedQueryOptions(opts?.client), ...opts?.query }
   })
 }
 
@@ -259,22 +233,24 @@ export function getGetMultiAuthQueryKey() {
 }
 
 /**
+ * GET /multi-auth
+ */
+export async function getMultiAuth(options?: ClientRequestOptions) {
+  return await parseResponse(client['multi-auth'].$get(undefined, options))
+}
+
+/**
  * Returns Svelte Query query options for GET /multi-auth
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetMultiAuthQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return queryOptions({
     queryKey: getGetMultiAuthQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client['multi-auth'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+      return getMultiAuth({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
@@ -282,18 +258,12 @@ export function getGetMultiAuthQueryOptions(clientOptions?: ClientRequestOptions
  */
 export function createGetMultiAuth(
   options?: () => {
-    query?: CreateQueryOptions<
-      Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['multi-auth']['$get']>>>>
-      >,
-      Error
-    >
+    query?: CreateQueryOptions<Awaited<ReturnType<typeof getMultiAuth>>, Error>
     client?: ClientRequestOptions
   },
 ) {
   return createQuery(() => {
     const opts = options?.()
-    const { queryKey, queryFn, ...baseOptions } = getGetMultiAuthQueryOptions(opts?.client)
-    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+    return { ...getGetMultiAuthQueryOptions(opts?.client), ...opts?.query }
   })
 }

@@ -15,6 +15,13 @@ export function getGetPublicKey() {
 /**
  * GET /public
  */
+export async function getPublic(options?: ClientRequestOptions) {
+  return await parseResponse(client.public.$get(undefined, options))
+}
+
+/**
+ * GET /public
+ */
 export function useGetPublic(options?: {
   swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
@@ -23,14 +30,7 @@ export function useGetPublic(options?: {
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
   const swrKey = isEnabled ? (customKey ?? getGetPublicKey()) : null
-  return {
-    swrKey,
-    ...useSWR(
-      swrKey,
-      async () => parseResponse(client.public.$get(undefined, clientOptions)),
-      restSwrOptions,
-    ),
-  }
+  return { swrKey, ...useSWR(swrKey, async () => getPublic(clientOptions), restSwrOptions) }
 }
 
 /**
@@ -39,6 +39,13 @@ export function useGetPublic(options?: {
  */
 export function getGetBearerProtectedKey() {
   return ['bearer-protected', 'GET', '/bearer-protected'] as const
+}
+
+/**
+ * GET /bearer-protected
+ */
+export async function getBearerProtected(options?: ClientRequestOptions) {
+  return await parseResponse(client['bearer-protected'].$get(undefined, options))
 }
 
 /**
@@ -54,11 +61,7 @@ export function useGetBearerProtected(options?: {
   const swrKey = isEnabled ? (customKey ?? getGetBearerProtectedKey()) : null
   return {
     swrKey,
-    ...useSWR(
-      swrKey,
-      async () => parseResponse(client['bearer-protected'].$get(undefined, clientOptions)),
-      restSwrOptions,
-    ),
+    ...useSWR(swrKey, async () => getBearerProtected(clientOptions), restSwrOptions),
   }
 }
 
@@ -68,6 +71,13 @@ export function useGetBearerProtected(options?: {
  */
 export function getGetApiKeyProtectedKey() {
   return ['api-key-protected', 'GET', '/api-key-protected'] as const
+}
+
+/**
+ * GET /api-key-protected
+ */
+export async function getApiKeyProtected(options?: ClientRequestOptions) {
+  return await parseResponse(client['api-key-protected'].$get(undefined, options))
 }
 
 /**
@@ -83,11 +93,7 @@ export function useGetApiKeyProtected(options?: {
   const swrKey = isEnabled ? (customKey ?? getGetApiKeyProtectedKey()) : null
   return {
     swrKey,
-    ...useSWR(
-      swrKey,
-      async () => parseResponse(client['api-key-protected'].$get(undefined, clientOptions)),
-      restSwrOptions,
-    ),
+    ...useSWR(swrKey, async () => getApiKeyProtected(clientOptions), restSwrOptions),
   }
 }
 
@@ -102,6 +108,13 @@ export function getGetBasicProtectedKey() {
 /**
  * GET /basic-protected
  */
+export async function getBasicProtected(options?: ClientRequestOptions) {
+  return await parseResponse(client['basic-protected'].$get(undefined, options))
+}
+
+/**
+ * GET /basic-protected
+ */
 export function useGetBasicProtected(options?: {
   swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
@@ -110,14 +123,7 @@ export function useGetBasicProtected(options?: {
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
   const swrKey = isEnabled ? (customKey ?? getGetBasicProtectedKey()) : null
-  return {
-    swrKey,
-    ...useSWR(
-      swrKey,
-      async () => parseResponse(client['basic-protected'].$get(undefined, clientOptions)),
-      restSwrOptions,
-    ),
-  }
+  return { swrKey, ...useSWR(swrKey, async () => getBasicProtected(clientOptions), restSwrOptions) }
 }
 
 /**
@@ -131,6 +137,13 @@ export function getGetOauthProtectedKey() {
 /**
  * GET /oauth-protected
  */
+export async function getOauthProtected(options?: ClientRequestOptions) {
+  return await parseResponse(client['oauth-protected'].$get(undefined, options))
+}
+
+/**
+ * GET /oauth-protected
+ */
 export function useGetOauthProtected(options?: {
   swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
@@ -139,14 +152,7 @@ export function useGetOauthProtected(options?: {
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
   const swrKey = isEnabled ? (customKey ?? getGetOauthProtectedKey()) : null
-  return {
-    swrKey,
-    ...useSWR(
-      swrKey,
-      async () => parseResponse(client['oauth-protected'].$get(undefined, clientOptions)),
-      restSwrOptions,
-    ),
-  }
+  return { swrKey, ...useSWR(swrKey, async () => getOauthProtected(clientOptions), restSwrOptions) }
 }
 
 /**
@@ -160,6 +166,13 @@ export function getGetMultiAuthKey() {
 /**
  * GET /multi-auth
  */
+export async function getMultiAuth(options?: ClientRequestOptions) {
+  return await parseResponse(client['multi-auth'].$get(undefined, options))
+}
+
+/**
+ * GET /multi-auth
+ */
 export function useGetMultiAuth(options?: {
   swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
@@ -168,12 +181,5 @@ export function useGetMultiAuth(options?: {
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
   const swrKey = isEnabled ? (customKey ?? getGetMultiAuthKey()) : null
-  return {
-    swrKey,
-    ...useSWR(
-      swrKey,
-      async () => parseResponse(client['multi-auth'].$get(undefined, clientOptions)),
-      restSwrOptions,
-    ),
-  }
+  return { swrKey, ...useSWR(swrKey, async () => getMultiAuth(clientOptions), restSwrOptions) }
 }

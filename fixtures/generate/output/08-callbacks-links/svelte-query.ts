@@ -1,10 +1,10 @@
-import { createQuery, createMutation } from '@tanstack/svelte-query'
+import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
 import type {
   CreateQueryOptions,
   QueryFunctionContext,
   CreateMutationOptions,
 } from '@tanstack/svelte-query'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
@@ -17,6 +17,16 @@ export function getPostSubscriptionsMutationKey() {
 }
 
 /**
+ * POST /subscriptions
+ */
+export async function postSubscriptions(
+  args: InferRequestType<typeof client.subscriptions.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.subscriptions.$post(args, options))
+}
+
+/**
  * Returns Svelte Query mutation options for POST /subscriptions
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
@@ -24,8 +34,8 @@ export function getPostSubscriptionsMutationKey() {
 export function getPostSubscriptionsMutationOptions(clientOptions?: ClientRequestOptions) {
   return {
     mutationKey: getPostSubscriptionsMutationKey(),
-    async mutationFn(args: InferRequestType<typeof client.subscriptions.$post>) {
-      return parseResponse(client.subscriptions.$post(args, clientOptions))
+    async mutationFn(args: Parameters<typeof postSubscriptions>[0]) {
+      return postSubscriptions(args, clientOptions)
     },
   }
 }
@@ -36,21 +46,16 @@ export function getPostSubscriptionsMutationOptions(clientOptions?: ClientReques
 export function createPostSubscriptions(
   options?: () => {
     mutation?: CreateMutationOptions<
-      Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.subscriptions.$post>>>>
-      >,
+      Awaited<ReturnType<typeof postSubscriptions>>,
       Error,
-      InferRequestType<typeof client.subscriptions.$post>
+      Parameters<typeof postSubscriptions>[0]
     >
     client?: ClientRequestOptions
   },
 ) {
   return createMutation(() => {
     const opts = options?.()
-    const { mutationKey, mutationFn, ...baseOptions } = getPostSubscriptionsMutationOptions(
-      opts?.client,
-    )
-    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+    return { ...getPostSubscriptionsMutationOptions(opts?.client), ...opts?.mutation }
   })
 }
 
@@ -58,10 +63,18 @@ export function createPostSubscriptions(
  * Generates Svelte Query cache key for GET /subscriptions/{id}
  * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetSubscriptionsIdQueryKey(
-  args: InferRequestType<(typeof client.subscriptions)[':id']['$get']>,
-) {
+export function getGetSubscriptionsIdQueryKey(args: Parameters<typeof getSubscriptionsId>[0]) {
   return ['subscriptions', 'GET', '/subscriptions/:id', args] as const
+}
+
+/**
+ * GET /subscriptions/{id}
+ */
+export async function getSubscriptionsId(
+  args: InferRequestType<(typeof client.subscriptions)[':id']['$get']>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.subscriptions[':id'].$get(args, options))
 }
 
 /**
@@ -70,46 +83,33 @@ export function getGetSubscriptionsIdQueryKey(
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetSubscriptionsIdQueryOptions(
-  args: InferRequestType<(typeof client.subscriptions)[':id']['$get']>,
+  args: Parameters<typeof getSubscriptionsId>[0],
   clientOptions?: ClientRequestOptions,
 ) {
-  return {
+  return queryOptions({
     queryKey: getGetSubscriptionsIdQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.subscriptions[':id'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+      return getSubscriptionsId(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      })
     },
-  }
+  })
 }
 
 /**
  * GET /subscriptions/{id}
  */
 export function createGetSubscriptionsId(
-  args: InferRequestType<(typeof client.subscriptions)[':id']['$get']>,
+  args: Parameters<typeof getSubscriptionsId>[0],
   options?: () => {
-    query?: CreateQueryOptions<
-      Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<(typeof client.subscriptions)[':id']['$get']>>>
-        >
-      >,
-      Error
-    >
+    query?: CreateQueryOptions<Awaited<ReturnType<typeof getSubscriptionsId>>, Error>
     client?: ClientRequestOptions
   },
 ) {
   return createQuery(() => {
     const opts = options?.()
-    const { queryKey, queryFn, ...baseOptions } = getGetSubscriptionsIdQueryOptions(
-      args,
-      opts?.client,
-    )
-    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+    return { ...getGetSubscriptionsIdQueryOptions(args, opts?.client), ...opts?.query }
   })
 }
 
@@ -122,6 +122,16 @@ export function getDeleteSubscriptionsIdMutationKey() {
 }
 
 /**
+ * DELETE /subscriptions/{id}
+ */
+export async function deleteSubscriptionsId(
+  args: InferRequestType<(typeof client.subscriptions)[':id']['$delete']>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.subscriptions[':id'].$delete(args, options))
+}
+
+/**
  * Returns Svelte Query mutation options for DELETE /subscriptions/{id}
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
@@ -129,8 +139,8 @@ export function getDeleteSubscriptionsIdMutationKey() {
 export function getDeleteSubscriptionsIdMutationOptions(clientOptions?: ClientRequestOptions) {
   return {
     mutationKey: getDeleteSubscriptionsIdMutationKey(),
-    async mutationFn(args: InferRequestType<(typeof client.subscriptions)[':id']['$delete']>) {
-      return parseResponse(client.subscriptions[':id'].$delete(args, clientOptions))
+    async mutationFn(args: Parameters<typeof deleteSubscriptionsId>[0]) {
+      return deleteSubscriptionsId(args, clientOptions)
     },
   }
 }
@@ -141,26 +151,16 @@ export function getDeleteSubscriptionsIdMutationOptions(clientOptions?: ClientRe
 export function createDeleteSubscriptionsId(
   options?: () => {
     mutation?: CreateMutationOptions<
-      | Awaited<
-          ReturnType<
-            typeof parseResponse<
-              Awaited<ReturnType<(typeof client.subscriptions)[':id']['$delete']>>
-            >
-          >
-        >
-      | undefined,
+      Awaited<ReturnType<typeof deleteSubscriptionsId>> | undefined,
       Error,
-      InferRequestType<(typeof client.subscriptions)[':id']['$delete']>
+      Parameters<typeof deleteSubscriptionsId>[0]
     >
     client?: ClientRequestOptions
   },
 ) {
   return createMutation(() => {
     const opts = options?.()
-    const { mutationKey, mutationFn, ...baseOptions } = getDeleteSubscriptionsIdMutationOptions(
-      opts?.client,
-    )
-    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+    return { ...getDeleteSubscriptionsIdMutationOptions(opts?.client), ...opts?.mutation }
   })
 }
 
@@ -173,6 +173,16 @@ export function getPostWebhooksTestMutationKey() {
 }
 
 /**
+ * POST /webhooks/test
+ */
+export async function postWebhooksTest(
+  args: InferRequestType<typeof client.webhooks.test.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.webhooks.test.$post(args, options))
+}
+
+/**
  * Returns Svelte Query mutation options for POST /webhooks/test
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
@@ -180,8 +190,8 @@ export function getPostWebhooksTestMutationKey() {
 export function getPostWebhooksTestMutationOptions(clientOptions?: ClientRequestOptions) {
   return {
     mutationKey: getPostWebhooksTestMutationKey(),
-    async mutationFn(args: InferRequestType<typeof client.webhooks.test.$post>) {
-      return parseResponse(client.webhooks.test.$post(args, clientOptions))
+    async mutationFn(args: Parameters<typeof postWebhooksTest>[0]) {
+      return postWebhooksTest(args, clientOptions)
     },
   }
 }
@@ -192,20 +202,15 @@ export function getPostWebhooksTestMutationOptions(clientOptions?: ClientRequest
 export function createPostWebhooksTest(
   options?: () => {
     mutation?: CreateMutationOptions<
-      Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.webhooks.test.$post>>>>
-      >,
+      Awaited<ReturnType<typeof postWebhooksTest>>,
       Error,
-      InferRequestType<typeof client.webhooks.test.$post>
+      Parameters<typeof postWebhooksTest>[0]
     >
     client?: ClientRequestOptions
   },
 ) {
   return createMutation(() => {
     const opts = options?.()
-    const { mutationKey, mutationFn, ...baseOptions } = getPostWebhooksTestMutationOptions(
-      opts?.client,
-    )
-    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+    return { ...getPostWebhooksTestMutationOptions(opts?.client), ...opts?.mutation }
   })
 }

@@ -2,7 +2,7 @@ import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
 import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
@@ -11,7 +11,7 @@ import { client } from './client'
  * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetApiReverseGeocodeIndexKey(
-  args: InferRequestType<typeof client.api.reverseGeocode.index.$get>,
+  args: Parameters<typeof getApiReverseGeocodeIndex>[0],
 ) {
   return ['api', 'GET', '/api/reverseGeocode/', args] as const
 }
@@ -21,8 +21,20 @@ export function getGetApiReverseGeocodeIndexKey(
  *
  * Reverse geocode lookup
  */
-export function useGetApiReverseGeocodeIndex(
+export async function getApiReverseGeocodeIndex(
   args: InferRequestType<typeof client.api.reverseGeocode.index.$get>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.api.reverseGeocode.index.$get(args, options))
+}
+
+/**
+ * GET /api/reverseGeocode/
+ *
+ * Reverse geocode lookup
+ */
+export function useGetApiReverseGeocodeIndex(
+  args: Parameters<typeof getApiReverseGeocodeIndex>[0],
   options?: {
     swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
@@ -34,11 +46,7 @@ export function useGetApiReverseGeocodeIndex(
   const swrKey = isEnabled ? (customKey ?? getGetApiReverseGeocodeIndexKey(args)) : null
   return {
     swrKey,
-    ...useSWR(
-      swrKey,
-      async () => parseResponse(client.api.reverseGeocode.index.$get(args, clientOptions)),
-      restSwrOptions,
-    ),
+    ...useSWR(swrKey, async () => getApiReverseGeocodeIndex(args, clientOptions), restSwrOptions),
   }
 }
 
@@ -53,20 +61,24 @@ export function getPostApiV2PublicBookingAccountRegisterOauthIndexMutationKey() 
 /**
  * POST /api/v2/public/booking/account/register/oauth/
  */
+export async function postApiV2PublicBookingAccountRegisterOauthIndex(
+  args: InferRequestType<typeof client.api.v2.public.booking.account.register.oauth.index.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(
+    client.api.v2.public.booking.account.register.oauth.index.$post(args, options),
+  )
+}
+
+/**
+ * POST /api/v2/public/booking/account/register/oauth/
+ */
 export function usePostApiV2PublicBookingAccountRegisterOauthIndex(options?: {
   mutation?: SWRMutationConfiguration<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<typeof client.api.v2.public.booking.account.register.oauth.index.$post>
-          >
-        >
-      >
-    >,
+    Awaited<ReturnType<typeof postApiV2PublicBookingAccountRegisterOauthIndex>>,
     Error,
     Key,
-    InferRequestType<typeof client.api.v2.public.booking.account.register.oauth.index.$post>
+    Parameters<typeof postApiV2PublicBookingAccountRegisterOauthIndex>[0]
   > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
@@ -79,17 +91,8 @@ export function usePostApiV2PublicBookingAccountRegisterOauthIndex(options?: {
       swrKey,
       async (
         _: Key,
-        {
-          arg,
-        }: {
-          arg: InferRequestType<
-            typeof client.api.v2.public.booking.account.register.oauth.index.$post
-          >
-        },
-      ) =>
-        parseResponse(
-          client.api.v2.public.booking.account.register.oauth.index.$post(arg, clientOptions),
-        ),
+        { arg }: { arg: Parameters<typeof postApiV2PublicBookingAccountRegisterOauthIndex>[0] },
+      ) => postApiV2PublicBookingAccountRegisterOauthIndex(arg, clientOptions),
       restMutationOptions,
     ),
   }
@@ -108,18 +111,26 @@ export function getPostApiV2PublicBookingAccountRegisterEmailMutationKey() {
  *
  * Send registration URL via email
  */
+export async function postApiV2PublicBookingAccountRegisterEmail(
+  args: InferRequestType<typeof client.api.v2.public.booking.account.register.email.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(
+    client.api.v2.public.booking.account.register.email.$post(args, options),
+  )
+}
+
+/**
+ * POST /api/v2/public/booking/account/register/email
+ *
+ * Send registration URL via email
+ */
 export function usePostApiV2PublicBookingAccountRegisterEmail(options?: {
   mutation?: SWRMutationConfiguration<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<ReturnType<typeof client.api.v2.public.booking.account.register.email.$post>>
-        >
-      >
-    >,
+    Awaited<ReturnType<typeof postApiV2PublicBookingAccountRegisterEmail>>,
     Error,
     Key,
-    InferRequestType<typeof client.api.v2.public.booking.account.register.email.$post>
+    Parameters<typeof postApiV2PublicBookingAccountRegisterEmail>[0]
   > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
@@ -132,15 +143,8 @@ export function usePostApiV2PublicBookingAccountRegisterEmail(options?: {
       swrKey,
       async (
         _: Key,
-        {
-          arg,
-        }: {
-          arg: InferRequestType<typeof client.api.v2.public.booking.account.register.email.$post>
-        },
-      ) =>
-        parseResponse(
-          client.api.v2.public.booking.account.register.email.$post(arg, clientOptions),
-        ),
+        { arg }: { arg: Parameters<typeof postApiV2PublicBookingAccountRegisterEmail>[0] },
+      ) => postApiV2PublicBookingAccountRegisterEmail(arg, clientOptions),
       restMutationOptions,
     ),
   }

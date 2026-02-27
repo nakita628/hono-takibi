@@ -1,8 +1,8 @@
-import { useQuery, useMutation } from '@tanstack/vue-query'
+import { useQuery, useMutation, queryOptions } from '@tanstack/vue-query'
 import type { UseQueryOptions, QueryFunctionContext, UseMutationOptions } from '@tanstack/vue-query'
 import { unref } from 'vue'
 import type { MaybeRef } from 'vue'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
@@ -10,10 +10,18 @@ import { client } from './client'
  * Generates Vue Query cache key for GET /items/{itemId}
  * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetItemsItemIdQueryKey(
-  args: MaybeRef<InferRequestType<(typeof client.items)[':itemId']['$get']>>,
-) {
+export function getGetItemsItemIdQueryKey(args: MaybeRef<Parameters<typeof getItemsItemId>[0]>) {
   return ['items', 'GET', '/items/:itemId', unref(args)] as const
+}
+
+/**
+ * GET /items/{itemId}
+ */
+export async function getItemsItemId(
+  args: InferRequestType<(typeof client.items)[':itemId']['$get']>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.items[':itemId'].$get(args, options))
 }
 
 /**
@@ -22,47 +30,29 @@ export function getGetItemsItemIdQueryKey(
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetItemsItemIdQueryOptions(
-  args: InferRequestType<(typeof client.items)[':itemId']['$get']>,
+  args: Parameters<typeof getItemsItemId>[0],
   clientOptions?: ClientRequestOptions,
 ) {
-  return {
+  return queryOptions({
     queryKey: getGetItemsItemIdQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.items[':itemId'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+      return getItemsItemId(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
  * GET /items/{itemId}
  */
 export function useGetItemsItemId(
-  args: InferRequestType<(typeof client.items)[':itemId']['$get']>,
+  args: Parameters<typeof getItemsItemId>[0],
   options?: {
-    query?: Partial<
-      Omit<
-        UseQueryOptions<
-          Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<(typeof client.items)[':itemId']['$get']>>>
-            >
-          >,
-          Error
-        >,
-        'queryKey' | 'queryFn'
-      >
-    >
+    query?: UseQueryOptions<Awaited<ReturnType<typeof getItemsItemId>>, Error>
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const { queryKey, queryFn, ...baseOptions } = getGetItemsItemIdQueryOptions(args, clientOptions)
-  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
+  const { query: queryOpts, client: clientOptions } = options ?? {}
+  return useQuery({ ...getGetItemsItemIdQueryOptions(args, clientOptions), ...queryOpts })
 }
 
 /**
@@ -74,6 +64,16 @@ export function getPutItemsItemIdMutationKey() {
 }
 
 /**
+ * PUT /items/{itemId}
+ */
+export async function putItemsItemId(
+  args: InferRequestType<(typeof client.items)[':itemId']['$put']>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.items[':itemId'].$put(args, options))
+}
+
+/**
  * Returns Vue Query mutation options for PUT /items/{itemId}
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
@@ -81,8 +81,8 @@ export function getPutItemsItemIdMutationKey() {
 export function getPutItemsItemIdMutationOptions(clientOptions?: ClientRequestOptions) {
   return {
     mutationKey: getPutItemsItemIdMutationKey(),
-    async mutationFn(args: InferRequestType<(typeof client.items)[':itemId']['$put']>) {
-      return parseResponse(client.items[':itemId'].$put(args, clientOptions))
+    async mutationFn(args: Parameters<typeof putItemsItemId>[0]) {
+      return putItemsItemId(args, clientOptions)
     },
   }
 }
@@ -91,26 +91,15 @@ export function getPutItemsItemIdMutationOptions(clientOptions?: ClientRequestOp
  * PUT /items/{itemId}
  */
 export function usePutItemsItemId(options?: {
-  mutation?: Partial<
-    Omit<
-      UseMutationOptions<
-        Awaited<
-          ReturnType<
-            typeof parseResponse<Awaited<ReturnType<(typeof client.items)[':itemId']['$put']>>>
-          >
-        >,
-        Error,
-        InferRequestType<(typeof client.items)[':itemId']['$put']>
-      >,
-      'mutationFn' | 'mutationKey'
-    >
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof putItemsItemId>>,
+    Error,
+    Parameters<typeof putItemsItemId>[0]
   >
   client?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const { mutationKey, mutationFn, ...baseOptions } =
-    getPutItemsItemIdMutationOptions(clientOptions)
-  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
+  const { mutation: mutationOpts, client: clientOptions } = options ?? {}
+  return useMutation({ ...getPutItemsItemIdMutationOptions(clientOptions), ...mutationOpts })
 }
 
 /**
@@ -122,6 +111,16 @@ export function getDeleteItemsItemIdMutationKey() {
 }
 
 /**
+ * DELETE /items/{itemId}
+ */
+export async function deleteItemsItemId(
+  args: InferRequestType<(typeof client.items)[':itemId']['$delete']>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.items[':itemId'].$delete(args, options))
+}
+
+/**
  * Returns Vue Query mutation options for DELETE /items/{itemId}
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
@@ -129,8 +128,8 @@ export function getDeleteItemsItemIdMutationKey() {
 export function getDeleteItemsItemIdMutationOptions(clientOptions?: ClientRequestOptions) {
   return {
     mutationKey: getDeleteItemsItemIdMutationKey(),
-    async mutationFn(args: InferRequestType<(typeof client.items)[':itemId']['$delete']>) {
-      return parseResponse(client.items[':itemId'].$delete(args, clientOptions))
+    async mutationFn(args: Parameters<typeof deleteItemsItemId>[0]) {
+      return deleteItemsItemId(args, clientOptions)
     },
   }
 }
@@ -139,35 +138,33 @@ export function getDeleteItemsItemIdMutationOptions(clientOptions?: ClientReques
  * DELETE /items/{itemId}
  */
 export function useDeleteItemsItemId(options?: {
-  mutation?: Partial<
-    Omit<
-      UseMutationOptions<
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<(typeof client.items)[':itemId']['$delete']>>>
-            >
-          >
-        | undefined,
-        Error,
-        InferRequestType<(typeof client.items)[':itemId']['$delete']>
-      >,
-      'mutationFn' | 'mutationKey'
-    >
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteItemsItemId>> | undefined,
+    Error,
+    Parameters<typeof deleteItemsItemId>[0]
   >
   client?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const { mutationKey, mutationFn, ...baseOptions } =
-    getDeleteItemsItemIdMutationOptions(clientOptions)
-  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
+  const { mutation: mutationOpts, client: clientOptions } = options ?? {}
+  return useMutation({ ...getDeleteItemsItemIdMutationOptions(clientOptions), ...mutationOpts })
 }
 
 /**
  * Generates Vue Query cache key for GET /items
  * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetItemsQueryKey(args: MaybeRef<InferRequestType<typeof client.items.$get>>) {
+export function getGetItemsQueryKey(args: MaybeRef<Parameters<typeof getItems>[0]>) {
   return ['items', 'GET', '/items', unref(args)] as const
+}
+
+/**
+ * GET /items
+ */
+export async function getItems(
+  args: InferRequestType<typeof client.items.$get>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.items.$get(args, options))
 }
 
 /**
@@ -176,38 +173,27 @@ export function getGetItemsQueryKey(args: MaybeRef<InferRequestType<typeof clien
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetItemsQueryOptions(
-  args: InferRequestType<typeof client.items.$get>,
+  args: Parameters<typeof getItems>[0],
   clientOptions?: ClientRequestOptions,
 ) {
-  return {
+  return queryOptions({
     queryKey: getGetItemsQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.items.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      )
+      return getItems(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
  * GET /items
  */
 export function useGetItems(
-  args: InferRequestType<typeof client.items.$get>,
+  args: Parameters<typeof getItems>[0],
   options?: {
-    query?: Partial<
-      Omit<
-        UseQueryOptions<
-          Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.items.$get>>>>>,
-          Error
-        >,
-        'queryKey' | 'queryFn'
-      >
-    >
+    query?: UseQueryOptions<Awaited<ReturnType<typeof getItems>>, Error>
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const { queryKey, queryFn, ...baseOptions } = getGetItemsQueryOptions(args, clientOptions)
-  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
+  const { query: queryOpts, client: clientOptions } = options ?? {}
+  return useQuery({ ...getGetItemsQueryOptions(args, clientOptions), ...queryOpts })
 }

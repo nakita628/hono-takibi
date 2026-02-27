@@ -1,10 +1,10 @@
-import { useQuery, useMutation } from '@tanstack/react-query'
+import { useQuery, useMutation, queryOptions, mutationOptions } from '@tanstack/react-query'
 import type {
   UseQueryOptions,
   QueryFunctionContext,
   UseMutationOptions,
 } from '@tanstack/react-query'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
@@ -17,17 +17,27 @@ export function getPostNullableMutationKey() {
 }
 
 /**
+ * POST /nullable
+ */
+export async function postNullable(
+  args: InferRequestType<typeof client.nullable.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.nullable.$post(args, options))
+}
+
+/**
  * Returns TanStack Query mutation options for POST /nullable
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
 export function getPostNullableMutationOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return mutationOptions({
     mutationKey: getPostNullableMutationKey(),
-    async mutationFn(args: InferRequestType<typeof client.nullable.$post>) {
-      return parseResponse(client.nullable.$post(args, clientOptions))
+    async mutationFn(args: Parameters<typeof postNullable>[0]) {
+      return postNullable(args, clientOptions)
     },
-  }
+  })
 }
 
 /**
@@ -35,15 +45,14 @@ export function getPostNullableMutationOptions(clientOptions?: ClientRequestOpti
  */
 export function usePostNullable(options?: {
   mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.nullable.$post>>>>>,
+    Awaited<ReturnType<typeof postNullable>>,
     Error,
-    InferRequestType<typeof client.nullable.$post>
+    Parameters<typeof postNullable>[0]
   >
   client?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const { mutationKey, mutationFn, ...baseOptions } = getPostNullableMutationOptions(clientOptions)
-  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
+  const { mutation: mutationOpts, client: clientOptions } = options ?? {}
+  return useMutation({ ...getPostNullableMutationOptions(clientOptions), ...mutationOpts })
 }
 
 /**
@@ -55,17 +64,27 @@ export function getPostDiscriminatedMutationKey() {
 }
 
 /**
+ * POST /discriminated
+ */
+export async function postDiscriminated(
+  args: InferRequestType<typeof client.discriminated.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.discriminated.$post(args, options))
+}
+
+/**
  * Returns TanStack Query mutation options for POST /discriminated
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
 export function getPostDiscriminatedMutationOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return mutationOptions({
     mutationKey: getPostDiscriminatedMutationKey(),
-    async mutationFn(args: InferRequestType<typeof client.discriminated.$post>) {
-      return parseResponse(client.discriminated.$post(args, clientOptions))
+    async mutationFn(args: Parameters<typeof postDiscriminated>[0]) {
+      return postDiscriminated(args, clientOptions)
     },
-  }
+  })
 }
 
 /**
@@ -73,18 +92,14 @@ export function getPostDiscriminatedMutationOptions(clientOptions?: ClientReques
  */
 export function usePostDiscriminated(options?: {
   mutation?: UseMutationOptions<
-    Awaited<
-      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.discriminated.$post>>>>
-    >,
+    Awaited<ReturnType<typeof postDiscriminated>>,
     Error,
-    InferRequestType<typeof client.discriminated.$post>
+    Parameters<typeof postDiscriminated>[0]
   >
   client?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const { mutationKey, mutationFn, ...baseOptions } =
-    getPostDiscriminatedMutationOptions(clientOptions)
-  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
+  const { mutation: mutationOpts, client: clientOptions } = options ?? {}
+  return useMutation({ ...getPostDiscriminatedMutationOptions(clientOptions), ...mutationOpts })
 }
 
 /**
@@ -96,37 +111,35 @@ export function getGetComposedQueryKey() {
 }
 
 /**
+ * GET /composed
+ */
+export async function getComposed(options?: ClientRequestOptions) {
+  return await parseResponse(client.composed.$get(undefined, options))
+}
+
+/**
  * Returns TanStack Query query options for GET /composed
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetComposedQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return queryOptions({
     queryKey: getGetComposedQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.composed.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+      return getComposed({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
  * GET /composed
  */
 export function useGetComposed(options?: {
-  query?: UseQueryOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.composed.$get>>>>>,
-    Error
-  >
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getComposed>>, Error>
   client?: ClientRequestOptions
 }) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const { queryKey, queryFn, ...baseOptions } = getGetComposedQueryOptions(clientOptions)
-  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
+  const { query: queryOpts, client: clientOptions } = options ?? {}
+  return useQuery({ ...getGetComposedQueryOptions(clientOptions), ...queryOpts })
 }
 
 /**
@@ -138,39 +151,35 @@ export function getGetDeepNestedQueryKey() {
 }
 
 /**
+ * GET /deep-nested
+ */
+export async function getDeepNested(options?: ClientRequestOptions) {
+  return await parseResponse(client['deep-nested'].$get(undefined, options))
+}
+
+/**
  * Returns TanStack Query query options for GET /deep-nested
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetDeepNestedQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return queryOptions({
     queryKey: getGetDeepNestedQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client['deep-nested'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+      return getDeepNested({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
  * GET /deep-nested
  */
 export function useGetDeepNested(options?: {
-  query?: UseQueryOptions<
-    Awaited<
-      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['deep-nested']['$get']>>>>
-    >,
-    Error
-  >
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getDeepNested>>, Error>
   client?: ClientRequestOptions
 }) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const { queryKey, queryFn, ...baseOptions } = getGetDeepNestedQueryOptions(clientOptions)
-  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
+  const { query: queryOpts, client: clientOptions } = options ?? {}
+  return useQuery({ ...getGetDeepNestedQueryOptions(clientOptions), ...queryOpts })
 }
 
 /**
@@ -182,39 +191,33 @@ export function getGetAdditionalPropsQueryKey() {
 }
 
 /**
+ * GET /additional-props
+ */
+export async function getAdditionalProps(options?: ClientRequestOptions) {
+  return await parseResponse(client['additional-props'].$get(undefined, options))
+}
+
+/**
  * Returns TanStack Query query options for GET /additional-props
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetAdditionalPropsQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return queryOptions({
     queryKey: getGetAdditionalPropsQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client['additional-props'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+      return getAdditionalProps({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
  * GET /additional-props
  */
 export function useGetAdditionalProps(options?: {
-  query?: UseQueryOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<Awaited<ReturnType<(typeof client)['additional-props']['$get']>>>
-      >
-    >,
-    Error
-  >
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getAdditionalProps>>, Error>
   client?: ClientRequestOptions
 }) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const { queryKey, queryFn, ...baseOptions } = getGetAdditionalPropsQueryOptions(clientOptions)
-  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
+  const { query: queryOpts, client: clientOptions } = options ?? {}
+  return useQuery({ ...getGetAdditionalPropsQueryOptions(clientOptions), ...queryOpts })
 }
