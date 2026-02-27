@@ -606,6 +606,34 @@ importers:
         specifier: ^4.21.0
         version: 4.21.0
 
+  fixtures/rpc-demo:
+    dependencies:
+      '@hono/node-server':
+        specifier: ^1.14.3
+        version: 1.19.9(hono@4.12.0)
+      '@hono/zod-openapi':
+        specifier: ^1.2.1
+        version: 1.2.2(hono@4.12.0)(zod@4.3.6)
+      hono:
+        specifier: ^4.11.7
+        version: 4.12.0
+      zod:
+        specifier: ^4.3.6
+        version: 4.3.6
+    devDependencies:
+      '@types/node':
+        specifier: ^25.0.2
+        version: 25.3.0
+      hono-takibi:
+        specifier: workspace:^
+        version: link:../../packages/hono-takibi
+      tsx:
+        specifier: ^4.21.0
+        version: 4.21.0
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+
   fixtures/single-file:
     dependencies:
       '@hono/zod-openapi':
