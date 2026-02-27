@@ -244,14 +244,14 @@ describe('tanstackQuery (split mode)', () => {
 
       // Check index.ts barrel file
       const index = fs.readFileSync(path.join(dir, 'hooks', 'index.ts'), 'utf-8')
-      const indexExpected = `export * from './useGetHono'
-export * from './useGetUsers'
-export * from './usePostUsers'
+      const indexExpected = `export * from './getHono'
+export * from './getUsers'
+export * from './postUsers'
 `
       expect(index).toBe(indexExpected)
 
       // Check GET hook file without args
-      const useGetHono = fs.readFileSync(path.join(dir, 'hooks', 'useGetHono.ts'), 'utf-8')
+      const useGetHono = fs.readFileSync(path.join(dir, 'hooks', 'getHono.ts'), 'utf-8')
       const useGetHonoExpected = `import { useQuery, queryOptions } from '@tanstack/react-query'
 import type { UseQueryOptions, QueryFunctionContext } from '@tanstack/react-query'
 import type { ClientRequestOptions } from 'hono/client'
@@ -309,7 +309,7 @@ export function useGetHono(options?: {
       expect(useGetHono).toBe(useGetHonoExpected)
 
       // Check GET hook file with args
-      const useGetUsers = fs.readFileSync(path.join(dir, 'hooks', 'useGetUsers.ts'), 'utf-8')
+      const useGetUsers = fs.readFileSync(path.join(dir, 'hooks', 'getUsers.ts'), 'utf-8')
       const useGetUsersExpected = `import { useQuery, queryOptions } from '@tanstack/react-query'
 import type { UseQueryOptions, QueryFunctionContext } from '@tanstack/react-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
@@ -376,7 +376,7 @@ export function useGetUsers(
       expect(useGetUsers).toBe(useGetUsersExpected)
 
       // Check POST hook file (mutation)
-      const usePostUsers = fs.readFileSync(path.join(dir, 'hooks', 'usePostUsers.ts'), 'utf-8')
+      const usePostUsers = fs.readFileSync(path.join(dir, 'hooks', 'postUsers.ts'), 'utf-8')
       const usePostUsersExpected = `import { useMutation, mutationOptions } from '@tanstack/react-query'
 import type { UseMutationOptions } from '@tanstack/react-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'

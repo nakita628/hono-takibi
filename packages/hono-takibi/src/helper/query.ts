@@ -924,12 +924,16 @@ export async function makeQueryHooks(
   const { outDir, indexPath } = resolveSplitOutDir(output)
 
   const exportLines = Array.from(
-    new Set(hookCodes.map(({ hookName }) => `export * from './${hookName}'`)),
+    new Set(
+      hookCodes.map(
+        ({ parseResponseFuncName }) => `export * from './${parseResponseFuncName}'`,
+      ),
+    ),
   )
   const index = `${exportLines.join('\n')}\n`
 
   const allResults = await Promise.all([
-    ...hookCodes.map(({ hookName, code, isQuery, hasArgs }) => {
+    ...hookCodes.map(({ parseResponseFuncName, code, isQuery, hasArgs }) => {
       const hasQueryWithArgs = isQuery && hasArgs
       const header = makeHeader(
         importPath,
@@ -941,7 +945,7 @@ export async function makeQueryHooks(
         hasQueryWithArgs,
       )
       const fileSrc = `${header}${code}\n`
-      const filePath = path.join(outDir, `${hookName}.ts`)
+      const filePath = path.join(outDir, `${parseResponseFuncName}.ts`)
       return core(fileSrc, path.dirname(filePath), filePath)
     }),
     core(index, path.dirname(indexPath), indexPath),

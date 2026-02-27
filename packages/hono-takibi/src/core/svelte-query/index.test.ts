@@ -254,14 +254,14 @@ describe('svelteQuery (split mode)', () => {
 
       // Check index.ts barrel file
       const index = fs.readFileSync(path.join(dir, 'hooks', 'index.ts'), 'utf-8')
-      const indexExpected = `export * from './createGetHono'
-export * from './createGetUsers'
-export * from './createPostUsers'
+      const indexExpected = `export * from './getHono'
+export * from './getUsers'
+export * from './postUsers'
 `
       expect(index).toBe(indexExpected)
 
       // Check GET hook file without args
-      const createGetHono = fs.readFileSync(path.join(dir, 'hooks', 'createGetHono.ts'), 'utf-8')
+      const createGetHono = fs.readFileSync(path.join(dir, 'hooks', 'getHono.ts'), 'utf-8')
       const createGetHonoExpected = `import { createQuery, queryOptions } from '@tanstack/svelte-query'
 import type { CreateQueryOptions, QueryFunctionContext } from '@tanstack/svelte-query'
 import type { ClientRequestOptions } from 'hono/client'
@@ -323,7 +323,7 @@ export function createGetHono(
       expect(createGetHono).toBe(createGetHonoExpected)
 
       // Check GET hook file with args
-      const createGetUsers = fs.readFileSync(path.join(dir, 'hooks', 'createGetUsers.ts'), 'utf-8')
+      const createGetUsers = fs.readFileSync(path.join(dir, 'hooks', 'getUsers.ts'), 'utf-8')
       const createGetUsersExpected = `import { createQuery, queryOptions } from '@tanstack/svelte-query'
 import type { CreateQueryOptions, QueryFunctionContext } from '@tanstack/svelte-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
@@ -393,7 +393,7 @@ export function createGetUsers(
 
       // Check POST hook file (mutation)
       const createPostUsers = fs.readFileSync(
-        path.join(dir, 'hooks', 'createPostUsers.ts'),
+        path.join(dir, 'hooks', 'postUsers.ts'),
         'utf-8',
       )
       const createPostUsersExpected = `import { createMutation } from '@tanstack/svelte-query'

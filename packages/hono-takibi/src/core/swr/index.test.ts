@@ -214,13 +214,13 @@ describe('swr (split mode)', () => {
 
       // Check index.ts barrel file
       const index = fs.readFileSync(path.join(dir, 'swr', 'index.ts'), 'utf-8')
-      expect(index).toBe(`export * from './useGetHono'
-export * from './useGetUsers'
-export * from './usePostUsers'
+      expect(index).toBe(`export * from './getHono'
+export * from './getUsers'
+export * from './postUsers'
 `)
 
       // Check GET hook file without args
-      const useGetHono = fs.readFileSync(path.join(dir, 'swr', 'useGetHono.ts'), 'utf-8')
+      const useGetHono = fs.readFileSync(path.join(dir, 'swr', 'getHono.ts'), 'utf-8')
       expect(useGetHono).toBe(`import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
 import type { ClientRequestOptions } from 'hono/client'
@@ -266,7 +266,7 @@ export function useGetHono(options?: {
 `)
 
       // Check GET hook file with args
-      const useGetUsers = fs.readFileSync(path.join(dir, 'swr', 'useGetUsers.ts'), 'utf-8')
+      const useGetUsers = fs.readFileSync(path.join(dir, 'swr', 'getUsers.ts'), 'utf-8')
       expect(useGetUsers).toBe(`import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
@@ -318,7 +318,7 @@ export function useGetUsers(
 `)
 
       // Check POST hook file (mutation)
-      const usePostUsers = fs.readFileSync(path.join(dir, 'swr', 'usePostUsers.ts'), 'utf-8')
+      const usePostUsers = fs.readFileSync(path.join(dir, 'swr', 'postUsers.ts'), 'utf-8')
       expect(usePostUsers).toBe(`import type { Key } from 'swr'
 import useSWRMutation from 'swr/mutation'
 import type { SWRMutationConfiguration } from 'swr/mutation'
