@@ -71,6 +71,7 @@ function makeParseResponseWrapperCode(
   pathStr: string,
   hasArgs: boolean,
   clientName: string,
+  docs: string,
 ): string {
   const pathResult = formatPath(pathStr)
   const runtimeAccess = `${clientName}${pathResult.runtimePath}.$${method}`
@@ -79,10 +80,10 @@ function makeParseResponseWrapperCode(
     const typeAccess = pathResult.hasBracket
       ? `typeof ${clientName}${pathResult.typeofPrefix}${pathResult.bracketSuffix}['$${method}']`
       : `typeof ${runtimeAccess}`
-    return `export async function ${parseResponseFuncName}(args:InferRequestType<${typeAccess}>,options?:ClientRequestOptions){return await parseResponse(${runtimeAccess}(args,options))}`
+    return `${docs}\nexport async function ${parseResponseFuncName}(args:InferRequestType<${typeAccess}>,options?:ClientRequestOptions){return await parseResponse(${runtimeAccess}(args,options))}`
   }
 
-  return `export async function ${parseResponseFuncName}(options?:ClientRequestOptions){return await parseResponse(${runtimeAccess}(undefined,options))}`
+  return `${docs}\nexport async function ${parseResponseFuncName}(options?:ClientRequestOptions){return await parseResponse(${runtimeAccess}(undefined,options))}`
 }
 
 /* ─────────────────────────────── Query Key Getter ─────────────────────────────── */
@@ -591,6 +592,7 @@ function makeHookCode(
     pathStr,
     hasArgs,
     clientName,
+    docs,
   )
 
   // SWR: simpler pattern without options getter

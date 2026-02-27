@@ -66,6 +66,13 @@ export function getGetHonoKey() {
   return ['hono', 'GET', '/hono'] as const
 }
 
+/**
+ * GET /hono
+ *
+ * Hono
+ *
+ * Simple ping for Hono
+ */
 export async function getHono(options?: ClientRequestOptions) {
   return await parseResponse(client.hono.$get(undefined, options))
 }
@@ -96,6 +103,13 @@ export function getGetUsersKey(args: Parameters<typeof getUsers>[0]) {
   return ['users', 'GET', '/users', args] as const
 }
 
+/**
+ * GET /users
+ *
+ * List users
+ *
+ * List users with pagination.
+ */
 export async function getUsers(
   args: InferRequestType<typeof client.users.$get>,
   options?: ClientRequestOptions,
@@ -132,6 +146,13 @@ export function getPostUsersMutationKey() {
   return ['users', 'POST', '/users'] as const
 }
 
+/**
+ * POST /users
+ *
+ * Create user
+ *
+ * Create a new user.
+ */
 export async function postUsers(
   args: InferRequestType<typeof client.users.$post>,
   options?: ClientRequestOptions,
@@ -214,6 +235,13 @@ export function getGetHonoKey() {
   return ['hono', 'GET', '/hono'] as const
 }
 
+/**
+ * GET /hono
+ *
+ * Hono
+ *
+ * Simple ping for Hono
+ */
 export async function getHono(options?: ClientRequestOptions) {
   return await parseResponse(client.hono.$get(undefined, options))
 }
@@ -253,6 +281,13 @@ export function getGetUsersKey(args: Parameters<typeof getUsers>[0]) {
   return ['users', 'GET', '/users', args] as const
 }
 
+/**
+ * GET /users
+ *
+ * List users
+ *
+ * List users with pagination.
+ */
 export async function getUsers(
   args: InferRequestType<typeof client.users.$get>,
   options?: ClientRequestOptions,
@@ -299,6 +334,13 @@ export function getPostUsersMutationKey() {
   return ['users', 'POST', '/users'] as const
 }
 
+/**
+ * POST /users
+ *
+ * Create user
+ *
+ * Create a new user.
+ */
 export async function postUsers(
   args: InferRequestType<typeof client.users.$post>,
   options?: ClientRequestOptions,
@@ -387,6 +429,11 @@ export function getGetUsersKey() {
   return ['users', 'GET', '/users'] as const
 }
 
+/**
+ * GET /users
+ *
+ * Get users
+ */
 export async function getUsers(options?: ClientRequestOptions) {
   return await parseResponse(authClient.users.$get(undefined, options))
 }
@@ -460,6 +507,11 @@ export function getGetPingKey() {
   return ['ping', 'GET', '/ping'] as const
 }
 
+/**
+ * GET /ping
+ *
+ * Ping
+ */
 export async function getPing(options?: ClientRequestOptions) {
   return await parseResponse(client.ping.$get(undefined, options))
 }
@@ -488,6 +540,11 @@ export function getPostPingMutationKey() {
   return ['ping', 'POST', '/ping'] as const
 }
 
+/**
+ * POST /ping
+ *
+ * Post ping
+ */
 export async function postPing(options?: ClientRequestOptions) {
   return await parseResponse(client.ping.$post(undefined, options))
 }
@@ -561,6 +618,11 @@ export function getGetHonoXKey() {
   return ['hono-x', 'GET', '/hono-x'] as const
 }
 
+/**
+ * GET /hono-x
+ *
+ * HonoX
+ */
 export async function getHonoX(options?: ClientRequestOptions) {
   return await parseResponse(client['hono-x'].$get(undefined, options))
 }
@@ -635,6 +697,11 @@ export function getGetUsersIdKey(args: Parameters<typeof getUsersId>[0]) {
   return ['users', 'GET', '/users/:id', args] as const
 }
 
+/**
+ * GET /users/{id}
+ *
+ * Get user
+ */
 export async function getUsersId(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   options?: ClientRequestOptions,
@@ -669,6 +736,11 @@ export function getDeleteUsersIdMutationKey() {
   return ['users', 'DELETE', '/users/:id'] as const
 }
 
+/**
+ * DELETE /users/{id}
+ *
+ * Delete user
+ */
 export async function deleteUsersId(
   args: InferRequestType<(typeof client.users)[':id']['$delete']>,
   options?: ClientRequestOptions,
@@ -773,6 +845,11 @@ export function getGetUsersKey() {
   return ['users', 'GET', '/users'] as const
 }
 
+/**
+ * GET /users
+ *
+ * Get users
+ */
 export async function getUsers(options?: ClientRequestOptions) {
   return await parseResponse(client.users.$get(undefined, options))
 }
