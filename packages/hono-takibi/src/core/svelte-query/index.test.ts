@@ -49,13 +49,13 @@ describe('svelteQuery', () => {
       }
 
       const code = fs.readFileSync(out, 'utf-8')
-      const expected = `import { createQuery, createMutation } from '@tanstack/svelte-query'
+      const expected = `import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
 import type {
   CreateQueryOptions,
   QueryFunctionContext,
   CreateMutationOptions,
 } from '@tanstack/svelte-query'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
@@ -67,20 +67,22 @@ export function getGetHonoQueryKey() {
   return ['hono', 'GET', '/hono'] as const
 }
 
+export async function getHono(options?: ClientRequestOptions) {
+  return await parseResponse(client.hono.$get(undefined, options))
+}
+
 /**
  * Returns Svelte Query query options for GET /hono
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetHonoQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return queryOptions({
     queryKey: getGetHonoQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.hono.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      )
+      return getHono({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
@@ -92,17 +94,13 @@ export function getGetHonoQueryOptions(clientOptions?: ClientRequestOptions) {
  */
 export function createGetHono(
   options?: () => {
-    query?: CreateQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
-      Error
-    >
+    query?: CreateQueryOptions<Awaited<ReturnType<typeof getHono>>, Error>
     client?: ClientRequestOptions
   },
 ) {
   return createQuery(() => {
     const opts = options?.()
-    const { queryKey, queryFn, ...baseOptions } = getGetHonoQueryOptions(opts?.client)
-    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+    return { ...getGetHonoQueryOptions(opts?.client), ...opts?.query }
   })
 }
 
@@ -110,8 +108,15 @@ export function createGetHono(
  * Generates Svelte Query cache key for GET /users
  * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetUsersQueryKey(args: InferRequestType<typeof client.users.$get>) {
+export function getGetUsersQueryKey(args: Parameters<typeof getUsers>[0]) {
   return ['users', 'GET', '/users', args] as const
+}
+
+export async function getUsers(
+  args: InferRequestType<typeof client.users.$get>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.users.$get(args, options))
 }
 
 /**
@@ -120,17 +125,15 @@ export function getGetUsersQueryKey(args: InferRequestType<typeof client.users.$
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetUsersQueryOptions(
-  args: InferRequestType<typeof client.users.$get>,
+  args: Parameters<typeof getUsers>[0],
   clientOptions?: ClientRequestOptions,
 ) {
-  return {
+  return queryOptions({
     queryKey: getGetUsersQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.users.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      )
+      return getUsers(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
@@ -141,19 +144,15 @@ export function getGetUsersQueryOptions(
  * List users with pagination.
  */
 export function createGetUsers(
-  args: InferRequestType<typeof client.users.$get>,
+  args: Parameters<typeof getUsers>[0],
   options?: () => {
-    query?: CreateQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-      Error
-    >
+    query?: CreateQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
     client?: ClientRequestOptions
   },
 ) {
   return createQuery(() => {
     const opts = options?.()
-    const { queryKey, queryFn, ...baseOptions } = getGetUsersQueryOptions(args, opts?.client)
-    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+    return { ...getGetUsersQueryOptions(args, opts?.client), ...opts?.query }
   })
 }
 
@@ -165,6 +164,13 @@ export function getPostUsersMutationKey() {
   return ['users', 'POST', '/users'] as const
 }
 
+export async function postUsers(
+  args: InferRequestType<typeof client.users.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.users.$post(args, options))
+}
+
 /**
  * Returns Svelte Query mutation options for POST /users
  *
@@ -173,8 +179,8 @@ export function getPostUsersMutationKey() {
 export function getPostUsersMutationOptions(clientOptions?: ClientRequestOptions) {
   return {
     mutationKey: getPostUsersMutationKey(),
-    async mutationFn(args: InferRequestType<typeof client.users.$post>) {
-      return parseResponse(client.users.$post(args, clientOptions))
+    async mutationFn(args: Parameters<typeof postUsers>[0]) {
+      return postUsers(args, clientOptions)
     },
   }
 }
@@ -189,17 +195,16 @@ export function getPostUsersMutationOptions(clientOptions?: ClientRequestOptions
 export function createPostUsers(
   options?: () => {
     mutation?: CreateMutationOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>,
+      Awaited<ReturnType<typeof postUsers>>,
       Error,
-      InferRequestType<typeof client.users.$post>
+      Parameters<typeof postUsers>[0]
     >
     client?: ClientRequestOptions
   },
 ) {
   return createMutation(() => {
     const opts = options?.()
-    const { mutationKey, mutationFn, ...baseOptions } = getPostUsersMutationOptions(opts?.client)
-    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+    return { ...getPostUsersMutationOptions(opts?.client), ...opts?.mutation }
   })
 }
 `
@@ -236,7 +241,7 @@ export * from './createPostUsers'
 
       // Check GET hook file without args
       const createGetHono = fs.readFileSync(path.join(dir, 'hooks', 'createGetHono.ts'), 'utf-8')
-      const createGetHonoExpected = `import { createQuery } from '@tanstack/svelte-query'
+      const createGetHonoExpected = `import { createQuery, queryOptions } from '@tanstack/svelte-query'
 import type { CreateQueryOptions, QueryFunctionContext } from '@tanstack/svelte-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -250,20 +255,22 @@ export function getGetHonoQueryKey() {
   return ['hono', 'GET', '/hono'] as const
 }
 
+export async function getHono(options?: ClientRequestOptions) {
+  return await parseResponse(client.hono.$get(undefined, options))
+}
+
 /**
  * Returns Svelte Query query options for GET /hono
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetHonoQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return queryOptions({
     queryKey: getGetHonoQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.hono.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      )
+      return getHono({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
@@ -275,17 +282,13 @@ export function getGetHonoQueryOptions(clientOptions?: ClientRequestOptions) {
  */
 export function createGetHono(
   options?: () => {
-    query?: CreateQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
-      Error
-    >
+    query?: CreateQueryOptions<Awaited<ReturnType<typeof getHono>>, Error>
     client?: ClientRequestOptions
   },
 ) {
   return createQuery(() => {
     const opts = options?.()
-    const { queryKey, queryFn, ...baseOptions } = getGetHonoQueryOptions(opts?.client)
-    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+    return { ...getGetHonoQueryOptions(opts?.client), ...opts?.query }
   })
 }
 `
@@ -293,9 +296,9 @@ export function createGetHono(
 
       // Check GET hook file with args
       const createGetUsers = fs.readFileSync(path.join(dir, 'hooks', 'createGetUsers.ts'), 'utf-8')
-      const createGetUsersExpected = `import { createQuery } from '@tanstack/svelte-query'
+      const createGetUsersExpected = `import { createQuery, queryOptions } from '@tanstack/svelte-query'
 import type { CreateQueryOptions, QueryFunctionContext } from '@tanstack/svelte-query'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
@@ -303,8 +306,15 @@ import { client } from '../client'
  * Generates Svelte Query cache key for GET /users
  * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetUsersQueryKey(args: InferRequestType<typeof client.users.$get>) {
+export function getGetUsersQueryKey(args: Parameters<typeof getUsers>[0]) {
   return ['users', 'GET', '/users', args] as const
+}
+
+export async function getUsers(
+  args: InferRequestType<typeof client.users.$get>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.users.$get(args, options))
 }
 
 /**
@@ -313,17 +323,15 @@ export function getGetUsersQueryKey(args: InferRequestType<typeof client.users.$
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetUsersQueryOptions(
-  args: InferRequestType<typeof client.users.$get>,
+  args: Parameters<typeof getUsers>[0],
   clientOptions?: ClientRequestOptions,
 ) {
-  return {
+  return queryOptions({
     queryKey: getGetUsersQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.users.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      )
+      return getUsers(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
@@ -334,19 +342,15 @@ export function getGetUsersQueryOptions(
  * List users with pagination.
  */
 export function createGetUsers(
-  args: InferRequestType<typeof client.users.$get>,
+  args: Parameters<typeof getUsers>[0],
   options?: () => {
-    query?: CreateQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-      Error
-    >
+    query?: CreateQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
     client?: ClientRequestOptions
   },
 ) {
   return createQuery(() => {
     const opts = options?.()
-    const { queryKey, queryFn, ...baseOptions } = getGetUsersQueryOptions(args, opts?.client)
-    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+    return { ...getGetUsersQueryOptions(args, opts?.client), ...opts?.query }
   })
 }
 `
@@ -359,7 +363,7 @@ export function createGetUsers(
       )
       const createPostUsersExpected = `import { createMutation } from '@tanstack/svelte-query'
 import type { CreateMutationOptions } from '@tanstack/svelte-query'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
@@ -371,6 +375,13 @@ export function getPostUsersMutationKey() {
   return ['users', 'POST', '/users'] as const
 }
 
+export async function postUsers(
+  args: InferRequestType<typeof client.users.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.users.$post(args, options))
+}
+
 /**
  * Returns Svelte Query mutation options for POST /users
  *
@@ -379,8 +390,8 @@ export function getPostUsersMutationKey() {
 export function getPostUsersMutationOptions(clientOptions?: ClientRequestOptions) {
   return {
     mutationKey: getPostUsersMutationKey(),
-    async mutationFn(args: InferRequestType<typeof client.users.$post>) {
-      return parseResponse(client.users.$post(args, clientOptions))
+    async mutationFn(args: Parameters<typeof postUsers>[0]) {
+      return postUsers(args, clientOptions)
     },
   }
 }
@@ -395,17 +406,16 @@ export function getPostUsersMutationOptions(clientOptions?: ClientRequestOptions
 export function createPostUsers(
   options?: () => {
     mutation?: CreateMutationOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>,
+      Awaited<ReturnType<typeof postUsers>>,
       Error,
-      InferRequestType<typeof client.users.$post>
+      Parameters<typeof postUsers>[0]
     >
     client?: ClientRequestOptions
   },
 ) {
   return createMutation(() => {
     const opts = options?.()
-    const { mutationKey, mutationFn, ...baseOptions } = getPostUsersMutationOptions(opts?.client)
-    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+    return { ...getPostUsersMutationOptions(opts?.client), ...opts?.mutation }
   })
 }
 `
@@ -446,7 +456,7 @@ describe('svelteQuery (custom client name)', () => {
       }
 
       const code = fs.readFileSync(out, 'utf-8')
-      const expected = `import { createQuery } from '@tanstack/svelte-query'
+      const expected = `import { createQuery, queryOptions } from '@tanstack/svelte-query'
 import type { CreateQueryOptions, QueryFunctionContext } from '@tanstack/svelte-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -460,23 +470,22 @@ export function getGetUsersQueryKey() {
   return ['users', 'GET', '/users'] as const
 }
 
+export async function getUsers(options?: ClientRequestOptions) {
+  return await parseResponse(authClient.users.$get(undefined, options))
+}
+
 /**
  * Returns Svelte Query query options for GET /users
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetUsersQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return queryOptions({
     queryKey: getGetUsersQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        authClient.users.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+      return getUsers({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
@@ -486,17 +495,13 @@ export function getGetUsersQueryOptions(clientOptions?: ClientRequestOptions) {
  */
 export function createGetUsers(
   options?: () => {
-    query?: CreateQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof authClient.users.$get>>>>>,
-      Error
-    >
+    query?: CreateQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
     client?: ClientRequestOptions
   },
 ) {
   return createQuery(() => {
     const opts = options?.()
-    const { queryKey, queryFn, ...baseOptions } = getGetUsersQueryOptions(opts?.client)
-    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+    return { ...getGetUsersQueryOptions(opts?.client), ...opts?.query }
   })
 }
 `
@@ -537,7 +542,7 @@ describe('svelteQuery (no args operations)', () => {
       }
 
       const code = fs.readFileSync(out, 'utf-8')
-      const expected = `import { createQuery, createMutation } from '@tanstack/svelte-query'
+      const expected = `import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
 import type {
   CreateQueryOptions,
   QueryFunctionContext,
@@ -555,20 +560,22 @@ export function getGetPingQueryKey() {
   return ['ping', 'GET', '/ping'] as const
 }
 
+export async function getPing(options?: ClientRequestOptions) {
+  return await parseResponse(client.ping.$get(undefined, options))
+}
+
 /**
  * Returns Svelte Query query options for GET /ping
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetPingQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return queryOptions({
     queryKey: getGetPingQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.ping.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      )
+      return getPing({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
@@ -578,17 +585,13 @@ export function getGetPingQueryOptions(clientOptions?: ClientRequestOptions) {
  */
 export function createGetPing(
   options?: () => {
-    query?: CreateQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.ping.$get>>>>>,
-      Error
-    >
+    query?: CreateQueryOptions<Awaited<ReturnType<typeof getPing>>, Error>
     client?: ClientRequestOptions
   },
 ) {
   return createQuery(() => {
     const opts = options?.()
-    const { queryKey, queryFn, ...baseOptions } = getGetPingQueryOptions(opts?.client)
-    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+    return { ...getGetPingQueryOptions(opts?.client), ...opts?.query }
   })
 }
 
@@ -600,6 +603,10 @@ export function getPostPingMutationKey() {
   return ['ping', 'POST', '/ping'] as const
 }
 
+export async function postPing(options?: ClientRequestOptions) {
+  return await parseResponse(client.ping.$post(undefined, options))
+}
+
 /**
  * Returns Svelte Query mutation options for POST /ping
  *
@@ -609,7 +616,7 @@ export function getPostPingMutationOptions(clientOptions?: ClientRequestOptions)
   return {
     mutationKey: getPostPingMutationKey(),
     async mutationFn() {
-      return parseResponse(client.ping.$post(undefined, clientOptions))
+      return postPing(clientOptions)
     },
   }
 }
@@ -621,18 +628,13 @@ export function getPostPingMutationOptions(clientOptions?: ClientRequestOptions)
  */
 export function createPostPing(
   options?: () => {
-    mutation?: CreateMutationOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.ping.$post>>>>>,
-      Error,
-      void
-    >
+    mutation?: CreateMutationOptions<Awaited<ReturnType<typeof postPing>>, Error, void>
     client?: ClientRequestOptions
   },
 ) {
   return createMutation(() => {
     const opts = options?.()
-    const { mutationKey, mutationFn, ...baseOptions } = getPostPingMutationOptions(opts?.client)
-    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+    return { ...getPostPingMutationOptions(opts?.client), ...opts?.mutation }
   })
 }
 `
@@ -668,7 +670,7 @@ describe('svelteQuery (path with special characters)', () => {
       }
 
       const code = fs.readFileSync(out, 'utf-8')
-      const expected = `import { createQuery } from '@tanstack/svelte-query'
+      const expected = `import { createQuery, queryOptions } from '@tanstack/svelte-query'
 import type { CreateQueryOptions, QueryFunctionContext } from '@tanstack/svelte-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -682,23 +684,22 @@ export function getGetHonoXQueryKey() {
   return ['hono-x', 'GET', '/hono-x'] as const
 }
 
+export async function getHonoX(options?: ClientRequestOptions) {
+  return await parseResponse(client['hono-x'].$get(undefined, options))
+}
+
 /**
  * Returns Svelte Query query options for GET /hono-x
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetHonoXQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return queryOptions({
     queryKey: getGetHonoXQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client['hono-x'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+      return getHonoX({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
@@ -708,19 +709,13 @@ export function getGetHonoXQueryOptions(clientOptions?: ClientRequestOptions) {
  */
 export function createGetHonoX(
   options?: () => {
-    query?: CreateQueryOptions<
-      Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['hono-x']['$get']>>>>
-      >,
-      Error
-    >
+    query?: CreateQueryOptions<Awaited<ReturnType<typeof getHonoX>>, Error>
     client?: ClientRequestOptions
   },
 ) {
   return createQuery(() => {
     const opts = options?.()
-    const { queryKey, queryFn, ...baseOptions } = getGetHonoXQueryOptions(opts?.client)
-    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+    return { ...getGetHonoXQueryOptions(opts?.client), ...opts?.query }
   })
 }
 `
@@ -762,13 +757,13 @@ describe('svelteQuery (path parameters)', () => {
       }
 
       const code = fs.readFileSync(out, 'utf-8')
-      const expected = `import { createQuery, createMutation } from '@tanstack/svelte-query'
+      const expected = `import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
 import type {
   CreateQueryOptions,
   QueryFunctionContext,
   CreateMutationOptions,
 } from '@tanstack/svelte-query'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
@@ -776,10 +771,15 @@ import { client } from '../client'
  * Generates Svelte Query cache key for GET /users/{id}
  * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetUsersIdQueryKey(
-  args: InferRequestType<(typeof client.users)[':id']['$get']>,
-) {
+export function getGetUsersIdQueryKey(args: Parameters<typeof getUsersId>[0]) {
   return ['users', 'GET', '/users/:id', args] as const
+}
+
+export async function getUsersId(
+  args: InferRequestType<(typeof client.users)[':id']['$get']>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.users[':id'].$get(args, options))
 }
 
 /**
@@ -788,20 +788,15 @@ export function getGetUsersIdQueryKey(
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetUsersIdQueryOptions(
-  args: InferRequestType<(typeof client.users)[':id']['$get']>,
+  args: Parameters<typeof getUsersId>[0],
   clientOptions?: ClientRequestOptions,
 ) {
-  return {
+  return queryOptions({
     queryKey: getGetUsersIdQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.users[':id'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+      return getUsersId(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
@@ -810,21 +805,15 @@ export function getGetUsersIdQueryOptions(
  * Get user
  */
 export function createGetUsersId(
-  args: InferRequestType<(typeof client.users)[':id']['$get']>,
+  args: Parameters<typeof getUsersId>[0],
   options?: () => {
-    query?: CreateQueryOptions<
-      Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$get']>>>>
-      >,
-      Error
-    >
+    query?: CreateQueryOptions<Awaited<ReturnType<typeof getUsersId>>, Error>
     client?: ClientRequestOptions
   },
 ) {
   return createQuery(() => {
     const opts = options?.()
-    const { queryKey, queryFn, ...baseOptions } = getGetUsersIdQueryOptions(args, opts?.client)
-    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+    return { ...getGetUsersIdQueryOptions(args, opts?.client), ...opts?.query }
   })
 }
 
@@ -836,6 +825,13 @@ export function getDeleteUsersIdMutationKey() {
   return ['users', 'DELETE', '/users/:id'] as const
 }
 
+export async function deleteUsersId(
+  args: InferRequestType<(typeof client.users)[':id']['$delete']>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.users[':id'].$delete(args, options))
+}
+
 /**
  * Returns Svelte Query mutation options for DELETE /users/{id}
  *
@@ -844,8 +840,8 @@ export function getDeleteUsersIdMutationKey() {
 export function getDeleteUsersIdMutationOptions(clientOptions?: ClientRequestOptions) {
   return {
     mutationKey: getDeleteUsersIdMutationKey(),
-    async mutationFn(args: InferRequestType<(typeof client.users)[':id']['$delete']>) {
-      return parseResponse(client.users[':id'].$delete(args, clientOptions))
+    async mutationFn(args: Parameters<typeof deleteUsersId>[0]) {
+      return deleteUsersId(args, clientOptions)
     },
   }
 }
@@ -858,24 +854,16 @@ export function getDeleteUsersIdMutationOptions(clientOptions?: ClientRequestOpt
 export function createDeleteUsersId(
   options?: () => {
     mutation?: CreateMutationOptions<
-      | Awaited<
-          ReturnType<
-            typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$delete']>>>
-          >
-        >
-      | undefined,
+      Awaited<ReturnType<typeof deleteUsersId>> | undefined,
       Error,
-      InferRequestType<(typeof client.users)[':id']['$delete']>
+      Parameters<typeof deleteUsersId>[0]
     >
     client?: ClientRequestOptions
   },
 ) {
   return createMutation(() => {
     const opts = options?.()
-    const { mutationKey, mutationFn, ...baseOptions } = getDeleteUsersIdMutationOptions(
-      opts?.client,
-    )
-    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+    return { ...getDeleteUsersIdMutationOptions(opts?.client), ...opts?.mutation }
   })
 }
 `
@@ -950,7 +938,7 @@ describe('svelteQuery (PUT/PATCH methods)', () => {
       const code = fs.readFileSync(out, 'utf-8')
       const expected = `import { createMutation } from '@tanstack/svelte-query'
 import type { CreateMutationOptions } from '@tanstack/svelte-query'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
@@ -962,6 +950,13 @@ export function getPutUsersIdMutationKey() {
   return ['users', 'PUT', '/users/:id'] as const
 }
 
+export async function putUsersId(
+  args: InferRequestType<(typeof client.users)[':id']['$put']>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.users[':id'].$put(args, options))
+}
+
 /**
  * Returns Svelte Query mutation options for PUT /users/{id}
  *
@@ -970,8 +965,8 @@ export function getPutUsersIdMutationKey() {
 export function getPutUsersIdMutationOptions(clientOptions?: ClientRequestOptions) {
   return {
     mutationKey: getPutUsersIdMutationKey(),
-    async mutationFn(args: InferRequestType<(typeof client.users)[':id']['$put']>) {
-      return parseResponse(client.users[':id'].$put(args, clientOptions))
+    async mutationFn(args: Parameters<typeof putUsersId>[0]) {
+      return putUsersId(args, clientOptions)
     },
   }
 }
@@ -984,19 +979,16 @@ export function getPutUsersIdMutationOptions(clientOptions?: ClientRequestOption
 export function createPutUsersId(
   options?: () => {
     mutation?: CreateMutationOptions<
-      Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$put']>>>>
-      >,
+      Awaited<ReturnType<typeof putUsersId>>,
       Error,
-      InferRequestType<(typeof client.users)[':id']['$put']>
+      Parameters<typeof putUsersId>[0]
     >
     client?: ClientRequestOptions
   },
 ) {
   return createMutation(() => {
     const opts = options?.()
-    const { mutationKey, mutationFn, ...baseOptions } = getPutUsersIdMutationOptions(opts?.client)
-    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+    return { ...getPutUsersIdMutationOptions(opts?.client), ...opts?.mutation }
   })
 }
 
@@ -1008,6 +1000,13 @@ export function getPatchUsersIdMutationKey() {
   return ['users', 'PATCH', '/users/:id'] as const
 }
 
+export async function patchUsersId(
+  args: InferRequestType<(typeof client.users)[':id']['$patch']>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.users[':id'].$patch(args, options))
+}
+
 /**
  * Returns Svelte Query mutation options for PATCH /users/{id}
  *
@@ -1016,8 +1015,8 @@ export function getPatchUsersIdMutationKey() {
 export function getPatchUsersIdMutationOptions(clientOptions?: ClientRequestOptions) {
   return {
     mutationKey: getPatchUsersIdMutationKey(),
-    async mutationFn(args: InferRequestType<(typeof client.users)[':id']['$patch']>) {
-      return parseResponse(client.users[':id'].$patch(args, clientOptions))
+    async mutationFn(args: Parameters<typeof patchUsersId>[0]) {
+      return patchUsersId(args, clientOptions)
     },
   }
 }
@@ -1030,21 +1029,16 @@ export function getPatchUsersIdMutationOptions(clientOptions?: ClientRequestOpti
 export function createPatchUsersId(
   options?: () => {
     mutation?: CreateMutationOptions<
-      Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$patch']>>>
-        >
-      >,
+      Awaited<ReturnType<typeof patchUsersId>>,
       Error,
-      InferRequestType<(typeof client.users)[':id']['$patch']>
+      Parameters<typeof patchUsersId>[0]
     >
     client?: ClientRequestOptions
   },
 ) {
   return createMutation(() => {
     const opts = options?.()
-    const { mutationKey, mutationFn, ...baseOptions } = getPatchUsersIdMutationOptions(opts?.client)
-    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+    return { ...getPatchUsersIdMutationOptions(opts?.client), ...opts?.mutation }
   })
 }
 `

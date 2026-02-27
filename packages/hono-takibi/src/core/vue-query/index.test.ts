@@ -49,11 +49,11 @@ describe('vueQuery', () => {
       }
 
       const code = fs.readFileSync(out, 'utf-8')
-      const expected = `import { useQuery, useMutation } from '@tanstack/vue-query'
+      const expected = `import { useQuery, useMutation, queryOptions } from '@tanstack/vue-query'
 import type { UseQueryOptions, QueryFunctionContext, UseMutationOptions } from '@tanstack/vue-query'
 import { unref } from 'vue'
 import type { MaybeRef } from 'vue'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
@@ -65,20 +65,22 @@ export function getGetHonoQueryKey() {
   return ['hono', 'GET', '/hono'] as const
 }
 
+export async function getHono(options?: ClientRequestOptions) {
+  return await parseResponse(client.hono.$get(undefined, options))
+}
+
 /**
  * Returns Vue Query query options for GET /hono
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetHonoQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return queryOptions({
     queryKey: getGetHonoQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.hono.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      )
+      return getHono({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
@@ -89,28 +91,26 @@ export function getGetHonoQueryOptions(clientOptions?: ClientRequestOptions) {
  * Simple ping for Hono
  */
 export function useGetHono(options?: {
-  query?: Partial<
-    Omit<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
-        Error
-      >,
-      'queryKey' | 'queryFn'
-    >
-  >
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getHono>>, Error>
   client?: ClientRequestOptions
 }) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const { queryKey, queryFn, ...baseOptions } = getGetHonoQueryOptions(clientOptions)
-  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
+  const { query: queryOpts, client: clientOptions } = options ?? {}
+  return useQuery({ ...getGetHonoQueryOptions(clientOptions), ...queryOpts })
 }
 
 /**
  * Generates Vue Query cache key for GET /users
  * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetUsersQueryKey(args: MaybeRef<InferRequestType<typeof client.users.$get>>) {
+export function getGetUsersQueryKey(args: MaybeRef<Parameters<typeof getUsers>[0]>) {
   return ['users', 'GET', '/users', unref(args)] as const
+}
+
+export async function getUsers(
+  args: InferRequestType<typeof client.users.$get>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.users.$get(args, options))
 }
 
 /**
@@ -119,17 +119,15 @@ export function getGetUsersQueryKey(args: MaybeRef<InferRequestType<typeof clien
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetUsersQueryOptions(
-  args: InferRequestType<typeof client.users.$get>,
+  args: Parameters<typeof getUsers>[0],
   clientOptions?: ClientRequestOptions,
 ) {
-  return {
+  return queryOptions({
     queryKey: getGetUsersQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.users.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      )
+      return getUsers(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
@@ -140,23 +138,14 @@ export function getGetUsersQueryOptions(
  * List users with pagination.
  */
 export function useGetUsers(
-  args: InferRequestType<typeof client.users.$get>,
+  args: Parameters<typeof getUsers>[0],
   options?: {
-    query?: Partial<
-      Omit<
-        UseQueryOptions<
-          Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-          Error
-        >,
-        'queryKey' | 'queryFn'
-      >
-    >
+    query?: UseQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const { queryKey, queryFn, ...baseOptions } = getGetUsersQueryOptions(args, clientOptions)
-  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
+  const { query: queryOpts, client: clientOptions } = options ?? {}
+  return useQuery({ ...getGetUsersQueryOptions(args, clientOptions), ...queryOpts })
 }
 
 /**
@@ -167,6 +156,13 @@ export function getPostUsersMutationKey() {
   return ['users', 'POST', '/users'] as const
 }
 
+export async function postUsers(
+  args: InferRequestType<typeof client.users.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.users.$post(args, options))
+}
+
 /**
  * Returns Vue Query mutation options for POST /users
  *
@@ -175,8 +171,8 @@ export function getPostUsersMutationKey() {
 export function getPostUsersMutationOptions(clientOptions?: ClientRequestOptions) {
   return {
     mutationKey: getPostUsersMutationKey(),
-    async mutationFn(args: InferRequestType<typeof client.users.$post>) {
-      return parseResponse(client.users.$post(args, clientOptions))
+    async mutationFn(args: Parameters<typeof postUsers>[0]) {
+      return postUsers(args, clientOptions)
     },
   }
 }
@@ -189,21 +185,15 @@ export function getPostUsersMutationOptions(clientOptions?: ClientRequestOptions
  * Create a new user.
  */
 export function usePostUsers(options?: {
-  mutation?: Partial<
-    Omit<
-      UseMutationOptions<
-        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>,
-        Error,
-        InferRequestType<typeof client.users.$post>
-      >,
-      'mutationFn' | 'mutationKey'
-    >
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postUsers>>,
+    Error,
+    Parameters<typeof postUsers>[0]
   >
   client?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const { mutationKey, mutationFn, ...baseOptions } = getPostUsersMutationOptions(clientOptions)
-  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
+  const { mutation: mutationOpts, client: clientOptions } = options ?? {}
+  return useMutation({ ...getPostUsersMutationOptions(clientOptions), ...mutationOpts })
 }
 `
 
@@ -239,7 +229,7 @@ export * from './usePostUsers'
 
       // Check GET hook file without args
       const useGetHono = fs.readFileSync(path.join(dir, 'hooks', 'useGetHono.ts'), 'utf-8')
-      const useGetHonoExpected = `import { useQuery } from '@tanstack/vue-query'
+      const useGetHonoExpected = `import { useQuery, queryOptions } from '@tanstack/vue-query'
 import type { UseQueryOptions, QueryFunctionContext } from '@tanstack/vue-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -253,20 +243,22 @@ export function getGetHonoQueryKey() {
   return ['hono', 'GET', '/hono'] as const
 }
 
+export async function getHono(options?: ClientRequestOptions) {
+  return await parseResponse(client.hono.$get(undefined, options))
+}
+
 /**
  * Returns Vue Query query options for GET /hono
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetHonoQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return queryOptions({
     queryKey: getGetHonoQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.hono.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      )
+      return getHono({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
@@ -277,31 +269,22 @@ export function getGetHonoQueryOptions(clientOptions?: ClientRequestOptions) {
  * Simple ping for Hono
  */
 export function useGetHono(options?: {
-  query?: Partial<
-    Omit<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
-        Error
-      >,
-      'queryKey' | 'queryFn'
-    >
-  >
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getHono>>, Error>
   client?: ClientRequestOptions
 }) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const { queryKey, queryFn, ...baseOptions } = getGetHonoQueryOptions(clientOptions)
-  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
+  const { query: queryOpts, client: clientOptions } = options ?? {}
+  return useQuery({ ...getGetHonoQueryOptions(clientOptions), ...queryOpts })
 }
 `
       expect(useGetHono).toBe(useGetHonoExpected)
 
       // Check GET hook file with args
       const useGetUsers = fs.readFileSync(path.join(dir, 'hooks', 'useGetUsers.ts'), 'utf-8')
-      const useGetUsersExpected = `import { useQuery } from '@tanstack/vue-query'
+      const useGetUsersExpected = `import { useQuery, queryOptions } from '@tanstack/vue-query'
 import type { UseQueryOptions, QueryFunctionContext } from '@tanstack/vue-query'
 import { unref } from 'vue'
 import type { MaybeRef } from 'vue'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
@@ -309,8 +292,15 @@ import { client } from '../client'
  * Generates Vue Query cache key for GET /users
  * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetUsersQueryKey(args: MaybeRef<InferRequestType<typeof client.users.$get>>) {
+export function getGetUsersQueryKey(args: MaybeRef<Parameters<typeof getUsers>[0]>) {
   return ['users', 'GET', '/users', unref(args)] as const
+}
+
+export async function getUsers(
+  args: InferRequestType<typeof client.users.$get>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.users.$get(args, options))
 }
 
 /**
@@ -319,17 +309,15 @@ export function getGetUsersQueryKey(args: MaybeRef<InferRequestType<typeof clien
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetUsersQueryOptions(
-  args: InferRequestType<typeof client.users.$get>,
+  args: Parameters<typeof getUsers>[0],
   clientOptions?: ClientRequestOptions,
 ) {
-  return {
+  return queryOptions({
     queryKey: getGetUsersQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.users.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      )
+      return getUsers(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
@@ -340,23 +328,14 @@ export function getGetUsersQueryOptions(
  * List users with pagination.
  */
 export function useGetUsers(
-  args: InferRequestType<typeof client.users.$get>,
+  args: Parameters<typeof getUsers>[0],
   options?: {
-    query?: Partial<
-      Omit<
-        UseQueryOptions<
-          Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-          Error
-        >,
-        'queryKey' | 'queryFn'
-      >
-    >
+    query?: UseQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const { queryKey, queryFn, ...baseOptions } = getGetUsersQueryOptions(args, clientOptions)
-  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
+  const { query: queryOpts, client: clientOptions } = options ?? {}
+  return useQuery({ ...getGetUsersQueryOptions(args, clientOptions), ...queryOpts })
 }
 `
       expect(useGetUsers).toBe(useGetUsersExpected)
@@ -365,7 +344,7 @@ export function useGetUsers(
       const usePostUsers = fs.readFileSync(path.join(dir, 'hooks', 'usePostUsers.ts'), 'utf-8')
       const usePostUsersExpected = `import { useMutation } from '@tanstack/vue-query'
 import type { UseMutationOptions } from '@tanstack/vue-query'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
@@ -377,6 +356,13 @@ export function getPostUsersMutationKey() {
   return ['users', 'POST', '/users'] as const
 }
 
+export async function postUsers(
+  args: InferRequestType<typeof client.users.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.users.$post(args, options))
+}
+
 /**
  * Returns Vue Query mutation options for POST /users
  *
@@ -385,8 +371,8 @@ export function getPostUsersMutationKey() {
 export function getPostUsersMutationOptions(clientOptions?: ClientRequestOptions) {
   return {
     mutationKey: getPostUsersMutationKey(),
-    async mutationFn(args: InferRequestType<typeof client.users.$post>) {
-      return parseResponse(client.users.$post(args, clientOptions))
+    async mutationFn(args: Parameters<typeof postUsers>[0]) {
+      return postUsers(args, clientOptions)
     },
   }
 }
@@ -399,21 +385,15 @@ export function getPostUsersMutationOptions(clientOptions?: ClientRequestOptions
  * Create a new user.
  */
 export function usePostUsers(options?: {
-  mutation?: Partial<
-    Omit<
-      UseMutationOptions<
-        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>,
-        Error,
-        InferRequestType<typeof client.users.$post>
-      >,
-      'mutationFn' | 'mutationKey'
-    >
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postUsers>>,
+    Error,
+    Parameters<typeof postUsers>[0]
   >
   client?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const { mutationKey, mutationFn, ...baseOptions } = getPostUsersMutationOptions(clientOptions)
-  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
+  const { mutation: mutationOpts, client: clientOptions } = options ?? {}
+  return useMutation({ ...getPostUsersMutationOptions(clientOptions), ...mutationOpts })
 }
 `
       expect(usePostUsers).toBe(usePostUsersExpected)
@@ -453,7 +433,7 @@ describe('vueQuery (custom client name)', () => {
       }
 
       const code = fs.readFileSync(out, 'utf-8')
-      const expected = `import { useQuery } from '@tanstack/vue-query'
+      const expected = `import { useQuery, queryOptions } from '@tanstack/vue-query'
 import type { UseQueryOptions, QueryFunctionContext } from '@tanstack/vue-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -467,23 +447,22 @@ export function getGetUsersQueryKey() {
   return ['users', 'GET', '/users'] as const
 }
 
+export async function getUsers(options?: ClientRequestOptions) {
+  return await parseResponse(authClient.users.$get(undefined, options))
+}
+
 /**
  * Returns Vue Query query options for GET /users
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetUsersQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return queryOptions({
     queryKey: getGetUsersQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        authClient.users.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+      return getUsers({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
@@ -492,22 +471,11 @@ export function getGetUsersQueryOptions(clientOptions?: ClientRequestOptions) {
  * Get users
  */
 export function useGetUsers(options?: {
-  query?: Partial<
-    Omit<
-      UseQueryOptions<
-        Awaited<
-          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof authClient.users.$get>>>>
-        >,
-        Error
-      >,
-      'queryKey' | 'queryFn'
-    >
-  >
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
   client?: ClientRequestOptions
 }) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const { queryKey, queryFn, ...baseOptions } = getGetUsersQueryOptions(clientOptions)
-  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
+  const { query: queryOpts, client: clientOptions } = options ?? {}
+  return useQuery({ ...getGetUsersQueryOptions(clientOptions), ...queryOpts })
 }
 `
       expect(code).toBe(expected)
@@ -547,7 +515,7 @@ describe('vueQuery (no args operations)', () => {
       }
 
       const code = fs.readFileSync(out, 'utf-8')
-      const expected = `import { useQuery, useMutation } from '@tanstack/vue-query'
+      const expected = `import { useQuery, useMutation, queryOptions } from '@tanstack/vue-query'
 import type { UseQueryOptions, QueryFunctionContext, UseMutationOptions } from '@tanstack/vue-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -561,20 +529,22 @@ export function getGetPingQueryKey() {
   return ['ping', 'GET', '/ping'] as const
 }
 
+export async function getPing(options?: ClientRequestOptions) {
+  return await parseResponse(client.ping.$get(undefined, options))
+}
+
 /**
  * Returns Vue Query query options for GET /ping
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetPingQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return queryOptions({
     queryKey: getGetPingQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.ping.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      )
+      return getPing({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
@@ -583,20 +553,11 @@ export function getGetPingQueryOptions(clientOptions?: ClientRequestOptions) {
  * Ping
  */
 export function useGetPing(options?: {
-  query?: Partial<
-    Omit<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.ping.$get>>>>>,
-        Error
-      >,
-      'queryKey' | 'queryFn'
-    >
-  >
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getPing>>, Error>
   client?: ClientRequestOptions
 }) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const { queryKey, queryFn, ...baseOptions } = getGetPingQueryOptions(clientOptions)
-  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
+  const { query: queryOpts, client: clientOptions } = options ?? {}
+  return useQuery({ ...getGetPingQueryOptions(clientOptions), ...queryOpts })
 }
 
 /**
@@ -605,6 +566,10 @@ export function useGetPing(options?: {
  */
 export function getPostPingMutationKey() {
   return ['ping', 'POST', '/ping'] as const
+}
+
+export async function postPing(options?: ClientRequestOptions) {
+  return await parseResponse(client.ping.$post(undefined, options))
 }
 
 /**
@@ -616,7 +581,7 @@ export function getPostPingMutationOptions(clientOptions?: ClientRequestOptions)
   return {
     mutationKey: getPostPingMutationKey(),
     async mutationFn() {
-      return parseResponse(client.ping.$post(undefined, clientOptions))
+      return postPing(clientOptions)
     },
   }
 }
@@ -627,21 +592,11 @@ export function getPostPingMutationOptions(clientOptions?: ClientRequestOptions)
  * Post ping
  */
 export function usePostPing(options?: {
-  mutation?: Partial<
-    Omit<
-      UseMutationOptions<
-        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.ping.$post>>>>>,
-        Error,
-        void
-      >,
-      'mutationFn' | 'mutationKey'
-    >
-  >
+  mutation?: UseMutationOptions<Awaited<ReturnType<typeof postPing>>, Error, void>
   client?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const { mutationKey, mutationFn, ...baseOptions } = getPostPingMutationOptions(clientOptions)
-  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
+  const { mutation: mutationOpts, client: clientOptions } = options ?? {}
+  return useMutation({ ...getPostPingMutationOptions(clientOptions), ...mutationOpts })
 }
 `
       expect(code).toBe(expected)
@@ -676,7 +631,7 @@ describe('vueQuery (path with special characters)', () => {
       }
 
       const code = fs.readFileSync(out, 'utf-8')
-      const expected = `import { useQuery } from '@tanstack/vue-query'
+      const expected = `import { useQuery, queryOptions } from '@tanstack/vue-query'
 import type { UseQueryOptions, QueryFunctionContext } from '@tanstack/vue-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -690,23 +645,22 @@ export function getGetHonoXQueryKey() {
   return ['hono-x', 'GET', '/hono-x'] as const
 }
 
+export async function getHonoX(options?: ClientRequestOptions) {
+  return await parseResponse(client['hono-x'].$get(undefined, options))
+}
+
 /**
  * Returns Vue Query query options for GET /hono-x
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetHonoXQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return queryOptions({
     queryKey: getGetHonoXQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client['hono-x'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+      return getHonoX({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
@@ -715,22 +669,11 @@ export function getGetHonoXQueryOptions(clientOptions?: ClientRequestOptions) {
  * HonoX
  */
 export function useGetHonoX(options?: {
-  query?: Partial<
-    Omit<
-      UseQueryOptions<
-        Awaited<
-          ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['hono-x']['$get']>>>>
-        >,
-        Error
-      >,
-      'queryKey' | 'queryFn'
-    >
-  >
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getHonoX>>, Error>
   client?: ClientRequestOptions
 }) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const { queryKey, queryFn, ...baseOptions } = getGetHonoXQueryOptions(clientOptions)
-  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
+  const { query: queryOpts, client: clientOptions } = options ?? {}
+  return useQuery({ ...getGetHonoXQueryOptions(clientOptions), ...queryOpts })
 }
 `
       expect(code).toBe(expected)
@@ -771,11 +714,11 @@ describe('vueQuery (path parameters)', () => {
       }
 
       const code = fs.readFileSync(out, 'utf-8')
-      const expected = `import { useQuery, useMutation } from '@tanstack/vue-query'
+      const expected = `import { useQuery, useMutation, queryOptions } from '@tanstack/vue-query'
 import type { UseQueryOptions, QueryFunctionContext, UseMutationOptions } from '@tanstack/vue-query'
 import { unref } from 'vue'
 import type { MaybeRef } from 'vue'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
@@ -783,10 +726,15 @@ import { client } from '../client'
  * Generates Vue Query cache key for GET /users/{id}
  * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetUsersIdQueryKey(
-  args: MaybeRef<InferRequestType<(typeof client.users)[':id']['$get']>>,
-) {
+export function getGetUsersIdQueryKey(args: MaybeRef<Parameters<typeof getUsersId>[0]>) {
   return ['users', 'GET', '/users/:id', unref(args)] as const
+}
+
+export async function getUsersId(
+  args: InferRequestType<(typeof client.users)[':id']['$get']>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.users[':id'].$get(args, options))
 }
 
 /**
@@ -795,20 +743,15 @@ export function getGetUsersIdQueryKey(
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetUsersIdQueryOptions(
-  args: InferRequestType<(typeof client.users)[':id']['$get']>,
+  args: Parameters<typeof getUsersId>[0],
   clientOptions?: ClientRequestOptions,
 ) {
-  return {
+  return queryOptions({
     queryKey: getGetUsersIdQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.users[':id'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+      return getUsersId(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
@@ -817,27 +760,14 @@ export function getGetUsersIdQueryOptions(
  * Get user
  */
 export function useGetUsersId(
-  args: InferRequestType<(typeof client.users)[':id']['$get']>,
+  args: Parameters<typeof getUsersId>[0],
   options?: {
-    query?: Partial<
-      Omit<
-        UseQueryOptions<
-          Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$get']>>>
-            >
-          >,
-          Error
-        >,
-        'queryKey' | 'queryFn'
-      >
-    >
+    query?: UseQueryOptions<Awaited<ReturnType<typeof getUsersId>>, Error>
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const { queryKey, queryFn, ...baseOptions } = getGetUsersIdQueryOptions(args, clientOptions)
-  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
+  const { query: queryOpts, client: clientOptions } = options ?? {}
+  return useQuery({ ...getGetUsersIdQueryOptions(args, clientOptions), ...queryOpts })
 }
 
 /**
@@ -848,6 +778,13 @@ export function getDeleteUsersIdMutationKey() {
   return ['users', 'DELETE', '/users/:id'] as const
 }
 
+export async function deleteUsersId(
+  args: InferRequestType<(typeof client.users)[':id']['$delete']>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.users[':id'].$delete(args, options))
+}
+
 /**
  * Returns Vue Query mutation options for DELETE /users/{id}
  *
@@ -856,8 +793,8 @@ export function getDeleteUsersIdMutationKey() {
 export function getDeleteUsersIdMutationOptions(clientOptions?: ClientRequestOptions) {
   return {
     mutationKey: getDeleteUsersIdMutationKey(),
-    async mutationFn(args: InferRequestType<(typeof client.users)[':id']['$delete']>) {
-      return parseResponse(client.users[':id'].$delete(args, clientOptions))
+    async mutationFn(args: Parameters<typeof deleteUsersId>[0]) {
+      return deleteUsersId(args, clientOptions)
     },
   }
 }
@@ -868,26 +805,15 @@ export function getDeleteUsersIdMutationOptions(clientOptions?: ClientRequestOpt
  * Delete user
  */
 export function useDeleteUsersId(options?: {
-  mutation?: Partial<
-    Omit<
-      UseMutationOptions<
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$delete']>>>
-            >
-          >
-        | undefined,
-        Error,
-        InferRequestType<(typeof client.users)[':id']['$delete']>
-      >,
-      'mutationFn' | 'mutationKey'
-    >
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteUsersId>> | undefined,
+    Error,
+    Parameters<typeof deleteUsersId>[0]
   >
   client?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const { mutationKey, mutationFn, ...baseOptions } = getDeleteUsersIdMutationOptions(clientOptions)
-  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
+  const { mutation: mutationOpts, client: clientOptions } = options ?? {}
+  return useMutation({ ...getDeleteUsersIdMutationOptions(clientOptions), ...mutationOpts })
 }
 `
       expect(code).toBe(expected)
@@ -961,7 +887,7 @@ describe('vueQuery (PUT/PATCH methods)', () => {
       const code = fs.readFileSync(out, 'utf-8')
       const expected = `import { useMutation } from '@tanstack/vue-query'
 import type { UseMutationOptions } from '@tanstack/vue-query'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
@@ -973,6 +899,13 @@ export function getPutUsersIdMutationKey() {
   return ['users', 'PUT', '/users/:id'] as const
 }
 
+export async function putUsersId(
+  args: InferRequestType<(typeof client.users)[':id']['$put']>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.users[':id'].$put(args, options))
+}
+
 /**
  * Returns Vue Query mutation options for PUT /users/{id}
  *
@@ -981,8 +914,8 @@ export function getPutUsersIdMutationKey() {
 export function getPutUsersIdMutationOptions(clientOptions?: ClientRequestOptions) {
   return {
     mutationKey: getPutUsersIdMutationKey(),
-    async mutationFn(args: InferRequestType<(typeof client.users)[':id']['$put']>) {
-      return parseResponse(client.users[':id'].$put(args, clientOptions))
+    async mutationFn(args: Parameters<typeof putUsersId>[0]) {
+      return putUsersId(args, clientOptions)
     },
   }
 }
@@ -993,25 +926,15 @@ export function getPutUsersIdMutationOptions(clientOptions?: ClientRequestOption
  * Replace user
  */
 export function usePutUsersId(options?: {
-  mutation?: Partial<
-    Omit<
-      UseMutationOptions<
-        Awaited<
-          ReturnType<
-            typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$put']>>>
-          >
-        >,
-        Error,
-        InferRequestType<(typeof client.users)[':id']['$put']>
-      >,
-      'mutationFn' | 'mutationKey'
-    >
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof putUsersId>>,
+    Error,
+    Parameters<typeof putUsersId>[0]
   >
   client?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const { mutationKey, mutationFn, ...baseOptions } = getPutUsersIdMutationOptions(clientOptions)
-  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
+  const { mutation: mutationOpts, client: clientOptions } = options ?? {}
+  return useMutation({ ...getPutUsersIdMutationOptions(clientOptions), ...mutationOpts })
 }
 
 /**
@@ -1022,6 +945,13 @@ export function getPatchUsersIdMutationKey() {
   return ['users', 'PATCH', '/users/:id'] as const
 }
 
+export async function patchUsersId(
+  args: InferRequestType<(typeof client.users)[':id']['$patch']>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.users[':id'].$patch(args, options))
+}
+
 /**
  * Returns Vue Query mutation options for PATCH /users/{id}
  *
@@ -1030,8 +960,8 @@ export function getPatchUsersIdMutationKey() {
 export function getPatchUsersIdMutationOptions(clientOptions?: ClientRequestOptions) {
   return {
     mutationKey: getPatchUsersIdMutationKey(),
-    async mutationFn(args: InferRequestType<(typeof client.users)[':id']['$patch']>) {
-      return parseResponse(client.users[':id'].$patch(args, clientOptions))
+    async mutationFn(args: Parameters<typeof patchUsersId>[0]) {
+      return patchUsersId(args, clientOptions)
     },
   }
 }
@@ -1042,25 +972,15 @@ export function getPatchUsersIdMutationOptions(clientOptions?: ClientRequestOpti
  * Update user
  */
 export function usePatchUsersId(options?: {
-  mutation?: Partial<
-    Omit<
-      UseMutationOptions<
-        Awaited<
-          ReturnType<
-            typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$patch']>>>
-          >
-        >,
-        Error,
-        InferRequestType<(typeof client.users)[':id']['$patch']>
-      >,
-      'mutationFn' | 'mutationKey'
-    >
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof patchUsersId>>,
+    Error,
+    Parameters<typeof patchUsersId>[0]
   >
   client?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const { mutationKey, mutationFn, ...baseOptions } = getPatchUsersIdMutationOptions(clientOptions)
-  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
+  const { mutation: mutationOpts, client: clientOptions } = options ?? {}
+  return useMutation({ ...getPatchUsersIdMutationOptions(clientOptions), ...mutationOpts })
 }
 `
       expect(code).toBe(expected)

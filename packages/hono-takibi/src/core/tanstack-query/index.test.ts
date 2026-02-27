@@ -49,13 +49,13 @@ describe('tanstackQuery', () => {
       }
 
       const code = fs.readFileSync(out, 'utf-8')
-      const expected = `import { useQuery, useMutation } from '@tanstack/react-query'
+      const expected = `import { useQuery, useMutation, queryOptions, mutationOptions } from '@tanstack/react-query'
 import type {
   UseQueryOptions,
   QueryFunctionContext,
   UseMutationOptions,
 } from '@tanstack/react-query'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
@@ -67,20 +67,22 @@ export function getGetHonoQueryKey() {
   return ['hono', 'GET', '/hono'] as const
 }
 
+export async function getHono(options?: ClientRequestOptions) {
+  return await parseResponse(client.hono.$get(undefined, options))
+}
+
 /**
  * Returns TanStack Query query options for GET /hono
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetHonoQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return queryOptions({
     queryKey: getGetHonoQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.hono.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      )
+      return getHono({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
@@ -91,23 +93,26 @@ export function getGetHonoQueryOptions(clientOptions?: ClientRequestOptions) {
  * Simple ping for Hono
  */
 export function useGetHono(options?: {
-  query?: UseQueryOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
-    Error
-  >
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getHono>>, Error>
   client?: ClientRequestOptions
 }) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const { queryKey, queryFn, ...baseOptions } = getGetHonoQueryOptions(clientOptions)
-  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
+  const { query: queryOpts, client: clientOptions } = options ?? {}
+  return useQuery({ ...getGetHonoQueryOptions(clientOptions), ...queryOpts })
 }
 
 /**
  * Generates TanStack Query cache key for GET /users
  * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetUsersQueryKey(args: InferRequestType<typeof client.users.$get>) {
+export function getGetUsersQueryKey(args: Parameters<typeof getUsers>[0]) {
   return ['users', 'GET', '/users', args] as const
+}
+
+export async function getUsers(
+  args: InferRequestType<typeof client.users.$get>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.users.$get(args, options))
 }
 
 /**
@@ -116,17 +121,15 @@ export function getGetUsersQueryKey(args: InferRequestType<typeof client.users.$
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetUsersQueryOptions(
-  args: InferRequestType<typeof client.users.$get>,
+  args: Parameters<typeof getUsers>[0],
   clientOptions?: ClientRequestOptions,
 ) {
-  return {
+  return queryOptions({
     queryKey: getGetUsersQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.users.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      )
+      return getUsers(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
@@ -137,18 +140,14 @@ export function getGetUsersQueryOptions(
  * List users with pagination.
  */
 export function useGetUsers(
-  args: InferRequestType<typeof client.users.$get>,
+  args: Parameters<typeof getUsers>[0],
   options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-      Error
-    >
+    query?: UseQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const { queryKey, queryFn, ...baseOptions } = getGetUsersQueryOptions(args, clientOptions)
-  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
+  const { query: queryOpts, client: clientOptions } = options ?? {}
+  return useQuery({ ...getGetUsersQueryOptions(args, clientOptions), ...queryOpts })
 }
 
 /**
@@ -159,18 +158,25 @@ export function getPostUsersMutationKey() {
   return ['users', 'POST', '/users'] as const
 }
 
+export async function postUsers(
+  args: InferRequestType<typeof client.users.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.users.$post(args, options))
+}
+
 /**
  * Returns TanStack Query mutation options for POST /users
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
 export function getPostUsersMutationOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return mutationOptions({
     mutationKey: getPostUsersMutationKey(),
-    async mutationFn(args: InferRequestType<typeof client.users.$post>) {
-      return parseResponse(client.users.$post(args, clientOptions))
+    async mutationFn(args: Parameters<typeof postUsers>[0]) {
+      return postUsers(args, clientOptions)
     },
-  }
+  })
 }
 
 /**
@@ -182,15 +188,14 @@ export function getPostUsersMutationOptions(clientOptions?: ClientRequestOptions
  */
 export function usePostUsers(options?: {
   mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>,
+    Awaited<ReturnType<typeof postUsers>>,
     Error,
-    InferRequestType<typeof client.users.$post>
+    Parameters<typeof postUsers>[0]
   >
   client?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const { mutationKey, mutationFn, ...baseOptions } = getPostUsersMutationOptions(clientOptions)
-  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
+  const { mutation: mutationOpts, client: clientOptions } = options ?? {}
+  return useMutation({ ...getPostUsersMutationOptions(clientOptions), ...mutationOpts })
 }
 `
 
@@ -226,7 +231,7 @@ export * from './usePostUsers'
 
       // Check GET hook file without args
       const useGetHono = fs.readFileSync(path.join(dir, 'hooks', 'useGetHono.ts'), 'utf-8')
-      const useGetHonoExpected = `import { useQuery } from '@tanstack/react-query'
+      const useGetHonoExpected = `import { useQuery, queryOptions } from '@tanstack/react-query'
 import type { UseQueryOptions, QueryFunctionContext } from '@tanstack/react-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -240,20 +245,22 @@ export function getGetHonoQueryKey() {
   return ['hono', 'GET', '/hono'] as const
 }
 
+export async function getHono(options?: ClientRequestOptions) {
+  return await parseResponse(client.hono.$get(undefined, options))
+}
+
 /**
  * Returns TanStack Query query options for GET /hono
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetHonoQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return queryOptions({
     queryKey: getGetHonoQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.hono.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      )
+      return getHono({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
@@ -264,24 +271,20 @@ export function getGetHonoQueryOptions(clientOptions?: ClientRequestOptions) {
  * Simple ping for Hono
  */
 export function useGetHono(options?: {
-  query?: UseQueryOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
-    Error
-  >
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getHono>>, Error>
   client?: ClientRequestOptions
 }) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const { queryKey, queryFn, ...baseOptions } = getGetHonoQueryOptions(clientOptions)
-  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
+  const { query: queryOpts, client: clientOptions } = options ?? {}
+  return useQuery({ ...getGetHonoQueryOptions(clientOptions), ...queryOpts })
 }
 `
       expect(useGetHono).toBe(useGetHonoExpected)
 
       // Check GET hook file with args
       const useGetUsers = fs.readFileSync(path.join(dir, 'hooks', 'useGetUsers.ts'), 'utf-8')
-      const useGetUsersExpected = `import { useQuery } from '@tanstack/react-query'
+      const useGetUsersExpected = `import { useQuery, queryOptions } from '@tanstack/react-query'
 import type { UseQueryOptions, QueryFunctionContext } from '@tanstack/react-query'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
@@ -289,8 +292,15 @@ import { client } from '../client'
  * Generates TanStack Query cache key for GET /users
  * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetUsersQueryKey(args: InferRequestType<typeof client.users.$get>) {
+export function getGetUsersQueryKey(args: Parameters<typeof getUsers>[0]) {
   return ['users', 'GET', '/users', args] as const
+}
+
+export async function getUsers(
+  args: InferRequestType<typeof client.users.$get>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.users.$get(args, options))
 }
 
 /**
@@ -299,17 +309,15 @@ export function getGetUsersQueryKey(args: InferRequestType<typeof client.users.$
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetUsersQueryOptions(
-  args: InferRequestType<typeof client.users.$get>,
+  args: Parameters<typeof getUsers>[0],
   clientOptions?: ClientRequestOptions,
 ) {
-  return {
+  return queryOptions({
     queryKey: getGetUsersQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.users.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      )
+      return getUsers(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
@@ -320,27 +328,23 @@ export function getGetUsersQueryOptions(
  * List users with pagination.
  */
 export function useGetUsers(
-  args: InferRequestType<typeof client.users.$get>,
+  args: Parameters<typeof getUsers>[0],
   options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-      Error
-    >
+    query?: UseQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const { queryKey, queryFn, ...baseOptions } = getGetUsersQueryOptions(args, clientOptions)
-  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
+  const { query: queryOpts, client: clientOptions } = options ?? {}
+  return useQuery({ ...getGetUsersQueryOptions(args, clientOptions), ...queryOpts })
 }
 `
       expect(useGetUsers).toBe(useGetUsersExpected)
 
       // Check POST hook file (mutation)
       const usePostUsers = fs.readFileSync(path.join(dir, 'hooks', 'usePostUsers.ts'), 'utf-8')
-      const usePostUsersExpected = `import { useMutation } from '@tanstack/react-query'
+      const usePostUsersExpected = `import { useMutation, mutationOptions } from '@tanstack/react-query'
 import type { UseMutationOptions } from '@tanstack/react-query'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
@@ -352,18 +356,25 @@ export function getPostUsersMutationKey() {
   return ['users', 'POST', '/users'] as const
 }
 
+export async function postUsers(
+  args: InferRequestType<typeof client.users.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.users.$post(args, options))
+}
+
 /**
  * Returns TanStack Query mutation options for POST /users
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
 export function getPostUsersMutationOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return mutationOptions({
     mutationKey: getPostUsersMutationKey(),
-    async mutationFn(args: InferRequestType<typeof client.users.$post>) {
-      return parseResponse(client.users.$post(args, clientOptions))
+    async mutationFn(args: Parameters<typeof postUsers>[0]) {
+      return postUsers(args, clientOptions)
     },
-  }
+  })
 }
 
 /**
@@ -375,15 +386,14 @@ export function getPostUsersMutationOptions(clientOptions?: ClientRequestOptions
  */
 export function usePostUsers(options?: {
   mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>,
+    Awaited<ReturnType<typeof postUsers>>,
     Error,
-    InferRequestType<typeof client.users.$post>
+    Parameters<typeof postUsers>[0]
   >
   client?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const { mutationKey, mutationFn, ...baseOptions } = getPostUsersMutationOptions(clientOptions)
-  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
+  const { mutation: mutationOpts, client: clientOptions } = options ?? {}
+  return useMutation({ ...getPostUsersMutationOptions(clientOptions), ...mutationOpts })
 }
 `
       expect(usePostUsers).toBe(usePostUsersExpected)
@@ -423,7 +433,7 @@ describe('tanstackQuery (custom client name)', () => {
       }
 
       const code = fs.readFileSync(out, 'utf-8')
-      const expected = `import { useQuery } from '@tanstack/react-query'
+      const expected = `import { useQuery, queryOptions } from '@tanstack/react-query'
 import type { UseQueryOptions, QueryFunctionContext } from '@tanstack/react-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -437,23 +447,22 @@ export function getGetUsersQueryKey() {
   return ['users', 'GET', '/users'] as const
 }
 
+export async function getUsers(options?: ClientRequestOptions) {
+  return await parseResponse(authClient.users.$get(undefined, options))
+}
+
 /**
  * Returns TanStack Query query options for GET /users
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetUsersQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return queryOptions({
     queryKey: getGetUsersQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        authClient.users.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+      return getUsers({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
@@ -462,15 +471,11 @@ export function getGetUsersQueryOptions(clientOptions?: ClientRequestOptions) {
  * Get users
  */
 export function useGetUsers(options?: {
-  query?: UseQueryOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof authClient.users.$get>>>>>,
-    Error
-  >
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
   client?: ClientRequestOptions
 }) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const { queryKey, queryFn, ...baseOptions } = getGetUsersQueryOptions(clientOptions)
-  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
+  const { query: queryOpts, client: clientOptions } = options ?? {}
+  return useQuery({ ...getGetUsersQueryOptions(clientOptions), ...queryOpts })
 }
 `
       expect(code).toBe(expected)
@@ -510,7 +515,7 @@ describe('tanstackQuery (no args operations)', () => {
       }
 
       const code = fs.readFileSync(out, 'utf-8')
-      const expected = `import { useQuery, useMutation } from '@tanstack/react-query'
+      const expected = `import { useQuery, useMutation, queryOptions, mutationOptions } from '@tanstack/react-query'
 import type {
   UseQueryOptions,
   QueryFunctionContext,
@@ -528,20 +533,22 @@ export function getGetPingQueryKey() {
   return ['ping', 'GET', '/ping'] as const
 }
 
+export async function getPing(options?: ClientRequestOptions) {
+  return await parseResponse(client.ping.$get(undefined, options))
+}
+
 /**
  * Returns TanStack Query query options for GET /ping
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetPingQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return queryOptions({
     queryKey: getGetPingQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.ping.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      )
+      return getPing({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
@@ -550,15 +557,11 @@ export function getGetPingQueryOptions(clientOptions?: ClientRequestOptions) {
  * Ping
  */
 export function useGetPing(options?: {
-  query?: UseQueryOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.ping.$get>>>>>,
-    Error
-  >
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getPing>>, Error>
   client?: ClientRequestOptions
 }) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const { queryKey, queryFn, ...baseOptions } = getGetPingQueryOptions(clientOptions)
-  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
+  const { query: queryOpts, client: clientOptions } = options ?? {}
+  return useQuery({ ...getGetPingQueryOptions(clientOptions), ...queryOpts })
 }
 
 /**
@@ -569,18 +572,22 @@ export function getPostPingMutationKey() {
   return ['ping', 'POST', '/ping'] as const
 }
 
+export async function postPing(options?: ClientRequestOptions) {
+  return await parseResponse(client.ping.$post(undefined, options))
+}
+
 /**
  * Returns TanStack Query mutation options for POST /ping
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
 export function getPostPingMutationOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return mutationOptions({
     mutationKey: getPostPingMutationKey(),
     async mutationFn() {
-      return parseResponse(client.ping.$post(undefined, clientOptions))
+      return postPing(clientOptions)
     },
-  }
+  })
 }
 
 /**
@@ -589,16 +596,11 @@ export function getPostPingMutationOptions(clientOptions?: ClientRequestOptions)
  * Post ping
  */
 export function usePostPing(options?: {
-  mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.ping.$post>>>>>,
-    Error,
-    void
-  >
+  mutation?: UseMutationOptions<Awaited<ReturnType<typeof postPing>>, Error, void>
   client?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const { mutationKey, mutationFn, ...baseOptions } = getPostPingMutationOptions(clientOptions)
-  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
+  const { mutation: mutationOpts, client: clientOptions } = options ?? {}
+  return useMutation({ ...getPostPingMutationOptions(clientOptions), ...mutationOpts })
 }
 `
       expect(code).toBe(expected)
@@ -633,7 +635,7 @@ describe('tanstackQuery (path with special characters)', () => {
       }
 
       const code = fs.readFileSync(out, 'utf-8')
-      const expected = `import { useQuery } from '@tanstack/react-query'
+      const expected = `import { useQuery, queryOptions } from '@tanstack/react-query'
 import type { UseQueryOptions, QueryFunctionContext } from '@tanstack/react-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -647,23 +649,22 @@ export function getGetHonoXQueryKey() {
   return ['hono-x', 'GET', '/hono-x'] as const
 }
 
+export async function getHonoX(options?: ClientRequestOptions) {
+  return await parseResponse(client['hono-x'].$get(undefined, options))
+}
+
 /**
  * Returns TanStack Query query options for GET /hono-x
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetHonoXQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return queryOptions({
     queryKey: getGetHonoXQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client['hono-x'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+      return getHonoX({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
@@ -672,17 +673,11 @@ export function getGetHonoXQueryOptions(clientOptions?: ClientRequestOptions) {
  * HonoX
  */
 export function useGetHonoX(options?: {
-  query?: UseQueryOptions<
-    Awaited<
-      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['hono-x']['$get']>>>>
-    >,
-    Error
-  >
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getHonoX>>, Error>
   client?: ClientRequestOptions
 }) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const { queryKey, queryFn, ...baseOptions } = getGetHonoXQueryOptions(clientOptions)
-  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
+  const { query: queryOpts, client: clientOptions } = options ?? {}
+  return useQuery({ ...getGetHonoXQueryOptions(clientOptions), ...queryOpts })
 }
 `
       expect(code).toBe(expected)
@@ -723,13 +718,13 @@ describe('tanstackQuery (path parameters)', () => {
       }
 
       const code = fs.readFileSync(out, 'utf-8')
-      const expected = `import { useQuery, useMutation } from '@tanstack/react-query'
+      const expected = `import { useQuery, useMutation, queryOptions, mutationOptions } from '@tanstack/react-query'
 import type {
   UseQueryOptions,
   QueryFunctionContext,
   UseMutationOptions,
 } from '@tanstack/react-query'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
@@ -737,10 +732,15 @@ import { client } from '../client'
  * Generates TanStack Query cache key for GET /users/{id}
  * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetUsersIdQueryKey(
-  args: InferRequestType<(typeof client.users)[':id']['$get']>,
-) {
+export function getGetUsersIdQueryKey(args: Parameters<typeof getUsersId>[0]) {
   return ['users', 'GET', '/users/:id', args] as const
+}
+
+export async function getUsersId(
+  args: InferRequestType<(typeof client.users)[':id']['$get']>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.users[':id'].$get(args, options))
 }
 
 /**
@@ -749,20 +749,15 @@ export function getGetUsersIdQueryKey(
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetUsersIdQueryOptions(
-  args: InferRequestType<(typeof client.users)[':id']['$get']>,
+  args: Parameters<typeof getUsersId>[0],
   clientOptions?: ClientRequestOptions,
 ) {
-  return {
+  return queryOptions({
     queryKey: getGetUsersIdQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.users[':id'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+      return getUsersId(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
@@ -771,20 +766,14 @@ export function getGetUsersIdQueryOptions(
  * Get user
  */
 export function useGetUsersId(
-  args: InferRequestType<(typeof client.users)[':id']['$get']>,
+  args: Parameters<typeof getUsersId>[0],
   options?: {
-    query?: UseQueryOptions<
-      Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$get']>>>>
-      >,
-      Error
-    >
+    query?: UseQueryOptions<Awaited<ReturnType<typeof getUsersId>>, Error>
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const { queryKey, queryFn, ...baseOptions } = getGetUsersIdQueryOptions(args, clientOptions)
-  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
+  const { query: queryOpts, client: clientOptions } = options ?? {}
+  return useQuery({ ...getGetUsersIdQueryOptions(args, clientOptions), ...queryOpts })
 }
 
 /**
@@ -795,18 +784,25 @@ export function getDeleteUsersIdMutationKey() {
   return ['users', 'DELETE', '/users/:id'] as const
 }
 
+export async function deleteUsersId(
+  args: InferRequestType<(typeof client.users)[':id']['$delete']>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.users[':id'].$delete(args, options))
+}
+
 /**
  * Returns TanStack Query mutation options for DELETE /users/{id}
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
 export function getDeleteUsersIdMutationOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return mutationOptions({
     mutationKey: getDeleteUsersIdMutationKey(),
-    async mutationFn(args: InferRequestType<(typeof client.users)[':id']['$delete']>) {
-      return parseResponse(client.users[':id'].$delete(args, clientOptions))
+    async mutationFn(args: Parameters<typeof deleteUsersId>[0]) {
+      return deleteUsersId(args, clientOptions)
     },
-  }
+  })
 }
 
 /**
@@ -816,20 +812,14 @@ export function getDeleteUsersIdMutationOptions(clientOptions?: ClientRequestOpt
  */
 export function useDeleteUsersId(options?: {
   mutation?: UseMutationOptions<
-    | Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$delete']>>>
-        >
-      >
-    | undefined,
+    Awaited<ReturnType<typeof deleteUsersId>> | undefined,
     Error,
-    InferRequestType<(typeof client.users)[':id']['$delete']>
+    Parameters<typeof deleteUsersId>[0]
   >
   client?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const { mutationKey, mutationFn, ...baseOptions } = getDeleteUsersIdMutationOptions(clientOptions)
-  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
+  const { mutation: mutationOpts, client: clientOptions } = options ?? {}
+  return useMutation({ ...getDeleteUsersIdMutationOptions(clientOptions), ...mutationOpts })
 }
 `
       expect(code).toBe(expected)

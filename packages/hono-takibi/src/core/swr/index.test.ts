@@ -54,7 +54,7 @@ describe('swr', () => {
 import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
 import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
@@ -64,6 +64,10 @@ import { client } from '../client'
  */
 export function getGetHonoKey() {
   return ['hono', 'GET', '/hono'] as const
+}
+
+export async function getHono(options?: ClientRequestOptions) {
+  return await parseResponse(client.hono.$get(undefined, options))
 }
 
 /**
@@ -81,22 +85,22 @@ export function useGetHono(options?: {
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
   const swrKey = isEnabled ? (customKey ?? getGetHonoKey()) : null
-  return {
-    swrKey,
-    ...useSWR(
-      swrKey,
-      async () => parseResponse(client.hono.$get(undefined, clientOptions)),
-      restSwrOptions,
-    ),
-  }
+  return { swrKey, ...useSWR(swrKey, async () => getHono(clientOptions), restSwrOptions) }
 }
 
 /**
  * Generates SWR cache key for GET /users
  * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetUsersKey(args: InferRequestType<typeof client.users.$get>) {
+export function getGetUsersKey(args: Parameters<typeof getUsers>[0]) {
   return ['users', 'GET', '/users', args] as const
+}
+
+export async function getUsers(
+  args: InferRequestType<typeof client.users.$get>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.users.$get(args, options))
 }
 
 /**
@@ -107,7 +111,7 @@ export function getGetUsersKey(args: InferRequestType<typeof client.users.$get>)
  * List users with pagination.
  */
 export function useGetUsers(
-  args: InferRequestType<typeof client.users.$get>,
+  args: Parameters<typeof getUsers>[0],
   options?: {
     swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
@@ -117,14 +121,7 @@ export function useGetUsers(
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
   const swrKey = isEnabled ? (customKey ?? getGetUsersKey(args)) : null
-  return {
-    swrKey,
-    ...useSWR(
-      swrKey,
-      async () => parseResponse(client.users.$get(args, clientOptions)),
-      restSwrOptions,
-    ),
-  }
+  return { swrKey, ...useSWR(swrKey, async () => getUsers(args, clientOptions), restSwrOptions) }
 }
 
 /**
@@ -133,6 +130,13 @@ export function useGetUsers(
  */
 export function getPostUsersMutationKey() {
   return ['users', 'POST', '/users'] as const
+}
+
+export async function postUsers(
+  args: InferRequestType<typeof client.users.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.users.$post(args, options))
 }
 
 /**
@@ -144,10 +148,10 @@ export function getPostUsersMutationKey() {
  */
 export function usePostUsers(options?: {
   mutation?: SWRMutationConfiguration<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>,
+    Awaited<ReturnType<typeof postUsers>>,
     Error,
     Key,
-    InferRequestType<typeof client.users.$post>
+    Parameters<typeof postUsers>[0]
   > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
@@ -158,8 +162,8 @@ export function usePostUsers(options?: {
     swrKey,
     ...useSWRMutation(
       swrKey,
-      async (_: Key, { arg }: { arg: InferRequestType<typeof client.users.$post> }) =>
-        parseResponse(client.users.$post(arg, clientOptions)),
+      async (_: Key, { arg }: { arg: Parameters<typeof postUsers>[0] }) =>
+        postUsers(arg, clientOptions),
       restMutationOptions,
     ),
   }
@@ -210,6 +214,10 @@ export function getGetHonoKey() {
   return ['hono', 'GET', '/hono'] as const
 }
 
+export async function getHono(options?: ClientRequestOptions) {
+  return await parseResponse(client.hono.$get(undefined, options))
+}
+
 /**
  * GET /hono
  *
@@ -225,14 +233,7 @@ export function useGetHono(options?: {
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
   const swrKey = isEnabled ? (customKey ?? getGetHonoKey()) : null
-  return {
-    swrKey,
-    ...useSWR(
-      swrKey,
-      async () => parseResponse(client.hono.$get(undefined, clientOptions)),
-      restSwrOptions,
-    ),
-  }
+  return { swrKey, ...useSWR(swrKey, async () => getHono(clientOptions), restSwrOptions) }
 }
 `)
 
@@ -240,7 +241,7 @@ export function useGetHono(options?: {
       const useGetUsers = fs.readFileSync(path.join(dir, 'swr', 'useGetUsers.ts'), 'utf-8')
       expect(useGetUsers).toBe(`import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
@@ -248,8 +249,15 @@ import { client } from '../client'
  * Generates SWR cache key for GET /users
  * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetUsersKey(args: InferRequestType<typeof client.users.$get>) {
+export function getGetUsersKey(args: Parameters<typeof getUsers>[0]) {
   return ['users', 'GET', '/users', args] as const
+}
+
+export async function getUsers(
+  args: InferRequestType<typeof client.users.$get>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.users.$get(args, options))
 }
 
 /**
@@ -260,7 +268,7 @@ export function getGetUsersKey(args: InferRequestType<typeof client.users.$get>)
  * List users with pagination.
  */
 export function useGetUsers(
-  args: InferRequestType<typeof client.users.$get>,
+  args: Parameters<typeof getUsers>[0],
   options?: {
     swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
@@ -270,14 +278,7 @@ export function useGetUsers(
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
   const swrKey = isEnabled ? (customKey ?? getGetUsersKey(args)) : null
-  return {
-    swrKey,
-    ...useSWR(
-      swrKey,
-      async () => parseResponse(client.users.$get(args, clientOptions)),
-      restSwrOptions,
-    ),
-  }
+  return { swrKey, ...useSWR(swrKey, async () => getUsers(args, clientOptions), restSwrOptions) }
 }
 `)
 
@@ -286,7 +287,7 @@ export function useGetUsers(
       expect(usePostUsers).toBe(`import type { Key } from 'swr'
 import useSWRMutation from 'swr/mutation'
 import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
@@ -298,6 +299,13 @@ export function getPostUsersMutationKey() {
   return ['users', 'POST', '/users'] as const
 }
 
+export async function postUsers(
+  args: InferRequestType<typeof client.users.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.users.$post(args, options))
+}
+
 /**
  * POST /users
  *
@@ -307,10 +315,10 @@ export function getPostUsersMutationKey() {
  */
 export function usePostUsers(options?: {
   mutation?: SWRMutationConfiguration<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>,
+    Awaited<ReturnType<typeof postUsers>>,
     Error,
     Key,
-    InferRequestType<typeof client.users.$post>
+    Parameters<typeof postUsers>[0]
   > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
@@ -321,8 +329,8 @@ export function usePostUsers(options?: {
     swrKey,
     ...useSWRMutation(
       swrKey,
-      async (_: Key, { arg }: { arg: InferRequestType<typeof client.users.$post> }) =>
-        parseResponse(client.users.$post(arg, clientOptions)),
+      async (_: Key, { arg }: { arg: Parameters<typeof postUsers>[0] }) =>
+        postUsers(arg, clientOptions),
       restMutationOptions,
     ),
   }
@@ -379,6 +387,10 @@ export function getGetUsersKey() {
   return ['users', 'GET', '/users'] as const
 }
 
+export async function getUsers(options?: ClientRequestOptions) {
+  return await parseResponse(authClient.users.$get(undefined, options))
+}
+
 /**
  * GET /users
  *
@@ -392,14 +404,7 @@ export function useGetUsers(options?: {
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
   const swrKey = isEnabled ? (customKey ?? getGetUsersKey()) : null
-  return {
-    swrKey,
-    ...useSWR(
-      swrKey,
-      async () => parseResponse(authClient.users.$get(undefined, clientOptions)),
-      restSwrOptions,
-    ),
-  }
+  return { swrKey, ...useSWR(swrKey, async () => getUsers(clientOptions), restSwrOptions) }
 }
 `)
     } finally {
@@ -455,6 +460,10 @@ export function getGetPingKey() {
   return ['ping', 'GET', '/ping'] as const
 }
 
+export async function getPing(options?: ClientRequestOptions) {
+  return await parseResponse(client.ping.$get(undefined, options))
+}
+
 /**
  * GET /ping
  *
@@ -468,14 +477,7 @@ export function useGetPing(options?: {
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
   const swrKey = isEnabled ? (customKey ?? getGetPingKey()) : null
-  return {
-    swrKey,
-    ...useSWR(
-      swrKey,
-      async () => parseResponse(client.ping.$get(undefined, clientOptions)),
-      restSwrOptions,
-    ),
-  }
+  return { swrKey, ...useSWR(swrKey, async () => getPing(clientOptions), restSwrOptions) }
 }
 
 /**
@@ -486,6 +488,10 @@ export function getPostPingMutationKey() {
   return ['ping', 'POST', '/ping'] as const
 }
 
+export async function postPing(options?: ClientRequestOptions) {
+  return await parseResponse(client.ping.$post(undefined, options))
+}
+
 /**
  * POST /ping
  *
@@ -493,7 +499,7 @@ export function getPostPingMutationKey() {
  */
 export function usePostPing(options?: {
   mutation?: SWRMutationConfiguration<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.ping.$post>>>>>,
+    Awaited<ReturnType<typeof postPing>>,
     Error,
     Key,
     undefined
@@ -505,11 +511,7 @@ export function usePostPing(options?: {
   const swrKey = customKey ?? getPostPingMutationKey()
   return {
     swrKey,
-    ...useSWRMutation(
-      swrKey,
-      async () => parseResponse(client.ping.$post(undefined, clientOptions)),
-      restMutationOptions,
-    ),
+    ...useSWRMutation(swrKey, async () => postPing(clientOptions), restMutationOptions),
   }
 }
 `)
@@ -559,6 +561,10 @@ export function getGetHonoXKey() {
   return ['hono-x', 'GET', '/hono-x'] as const
 }
 
+export async function getHonoX(options?: ClientRequestOptions) {
+  return await parseResponse(client['hono-x'].$get(undefined, options))
+}
+
 /**
  * GET /hono-x
  *
@@ -572,14 +578,7 @@ export function useGetHonoX(options?: {
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
   const swrKey = isEnabled ? (customKey ?? getGetHonoXKey()) : null
-  return {
-    swrKey,
-    ...useSWR(
-      swrKey,
-      async () => parseResponse(client['hono-x'].$get(undefined, clientOptions)),
-      restSwrOptions,
-    ),
-  }
+  return { swrKey, ...useSWR(swrKey, async () => getHonoX(clientOptions), restSwrOptions) }
 }
 `)
     } finally {
@@ -624,7 +623,7 @@ describe('swr (path parameters)', () => {
 import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
 import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
@@ -632,8 +631,15 @@ import { client } from '../client'
  * Generates SWR cache key for GET /users/{id}
  * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetUsersIdKey(args: InferRequestType<(typeof client.users)[':id']['$get']>) {
+export function getGetUsersIdKey(args: Parameters<typeof getUsersId>[0]) {
   return ['users', 'GET', '/users/:id', args] as const
+}
+
+export async function getUsersId(
+  args: InferRequestType<(typeof client.users)[':id']['$get']>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.users[':id'].$get(args, options))
 }
 
 /**
@@ -642,7 +648,7 @@ export function getGetUsersIdKey(args: InferRequestType<(typeof client.users)[':
  * Get user
  */
 export function useGetUsersId(
-  args: InferRequestType<(typeof client.users)[':id']['$get']>,
+  args: Parameters<typeof getUsersId>[0],
   options?: {
     swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
@@ -652,14 +658,7 @@ export function useGetUsersId(
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
   const swrKey = isEnabled ? (customKey ?? getGetUsersIdKey(args)) : null
-  return {
-    swrKey,
-    ...useSWR(
-      swrKey,
-      async () => parseResponse(client.users[':id'].$get(args, clientOptions)),
-      restSwrOptions,
-    ),
-  }
+  return { swrKey, ...useSWR(swrKey, async () => getUsersId(args, clientOptions), restSwrOptions) }
 }
 
 /**
@@ -670,6 +669,13 @@ export function getDeleteUsersIdMutationKey() {
   return ['users', 'DELETE', '/users/:id'] as const
 }
 
+export async function deleteUsersId(
+  args: InferRequestType<(typeof client.users)[':id']['$delete']>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.users[':id'].$delete(args, options))
+}
+
 /**
  * DELETE /users/{id}
  *
@@ -677,15 +683,10 @@ export function getDeleteUsersIdMutationKey() {
  */
 export function useDeleteUsersId(options?: {
   mutation?: SWRMutationConfiguration<
-    | Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$delete']>>>
-        >
-      >
-    | undefined,
+    Awaited<ReturnType<typeof deleteUsersId>> | undefined,
     Error,
     Key,
-    InferRequestType<(typeof client.users)[':id']['$delete']>
+    Parameters<typeof deleteUsersId>[0]
   > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
@@ -696,8 +697,8 @@ export function useDeleteUsersId(options?: {
     swrKey,
     ...useSWRMutation(
       swrKey,
-      async (_: Key, { arg }: { arg: InferRequestType<(typeof client.users)[':id']['$delete']> }) =>
-        parseResponse(client.users[':id'].$delete(arg, clientOptions)),
+      async (_: Key, { arg }: { arg: Parameters<typeof deleteUsersId>[0] }) =>
+        deleteUsersId(arg, clientOptions),
       restMutationOptions,
     ),
   }
@@ -772,6 +773,10 @@ export function getGetUsersKey() {
   return ['users', 'GET', '/users'] as const
 }
 
+export async function getUsers(options?: ClientRequestOptions) {
+  return await parseResponse(client.users.$get(undefined, options))
+}
+
 /**
  * GET /users
  *
@@ -785,14 +790,7 @@ export function useGetUsers(options?: {
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
   const swrKey = isEnabled ? (customKey ?? getGetUsersKey()) : null
-  return {
-    swrKey,
-    ...useSWR(
-      swrKey,
-      async () => parseResponse(client.users.$get(undefined, clientOptions)),
-      restSwrOptions,
-    ),
-  }
+  return { swrKey, ...useSWR(swrKey, async () => getUsers(clientOptions), restSwrOptions) }
 }
 `)
     } finally {

@@ -4,7 +4,6 @@ import type { OpenAPI, OpenAPIPaths } from '../openapi/index.js'
 import {
   capitalize,
   escapeCommentEnd,
-  makeInferRequestType,
   makeOperationDocs,
   methodPath,
 } from '../utils/index.js'
@@ -13,7 +12,6 @@ import {
   formatPath,
   hasNoContentResponse,
   makeOperationDeps,
-  makeParseResponseType,
   operationHasArgs,
   parsePathItem,
   resolveSplitOutDir,
@@ -34,20 +32,57 @@ function makeHookName(method: string, pathStr: string, prefix: string): string {
   return `${prefix}${capitalize(funcName)}`
 }
 
-/* ─────────────────────────────── Fetcher Helper ─────────────────────────────── */
+/* ─────────────────────────────── Type Helpers ─────────────────────────────── */
 
 /**
- * Builds fetcher expression using parseResponse.
- *
- * parseResponse automatically throws DetailedError for non-OK responses,
- * so no explicit error handling is needed.
- *
- * @see https://github.com/honojs/hono/pull/4314
- * @param clientCall - Client method call expression
- * @returns Fetcher function body
+ * Creates a response type from parseResponse function name.
+ * e.g., 'getUsers' → 'Awaited<ReturnType<typeof getUsers>>'
  */
-function makeFetcher(clientCall: string): string {
-  return `parseResponse(${clientCall})`
+function makeResponseType(parseResponseFuncName: string): string {
+  return `Awaited<ReturnType<typeof ${parseResponseFuncName}>>`
+}
+
+/**
+ * Creates an args type from parseResponse function name.
+ * e.g., 'postUsers' → 'Parameters<typeof postUsers>[0]'
+ */
+function makeArgsType(parseResponseFuncName: string): string {
+  return `Parameters<typeof ${parseResponseFuncName}>[0]`
+}
+
+/* ─────────────────────────────── Inline parseResponse Wrapper ─────────────────────────────── */
+
+/**
+ * Generates inline parseResponse wrapper function code.
+ *
+ * For operations with args:
+ *   export async function getUsers(args: InferRequestType<typeof client.users.$get>, options?: ClientRequestOptions) {
+ *     return await parseResponse(client.users.$get(args, options))
+ *   }
+ *
+ * For operations without args:
+ *   export async function getHealth(options?: ClientRequestOptions) {
+ *     return await parseResponse(client.health.$get(undefined, options))
+ *   }
+ */
+function makeParseResponseWrapperCode(
+  parseResponseFuncName: string,
+  method: string,
+  pathStr: string,
+  hasArgs: boolean,
+  clientName: string,
+): string {
+  const pathResult = formatPath(pathStr)
+  const runtimeAccess = `${clientName}${pathResult.runtimePath}.$${method}`
+
+  if (hasArgs) {
+    const typeAccess = pathResult.hasBracket
+      ? `typeof ${clientName}${pathResult.typeofPrefix}${pathResult.bracketSuffix}['$${method}']`
+      : `typeof ${runtimeAccess}`
+    return `export async function ${parseResponseFuncName}(args:InferRequestType<${typeAccess}>,options?:ClientRequestOptions){return await parseResponse(${runtimeAccess}(args,options))}`
+  }
+
+  return `export async function ${parseResponseFuncName}(options?:ClientRequestOptions){return await parseResponse(${runtimeAccess}(undefined,options))}`
 }
 
 /* ─────────────────────────────── Query Key Getter ─────────────────────────────── */
@@ -95,9 +130,8 @@ function makeQueryOptionsGetterName(method: string, pathStr: string): string {
  *
  * @param keyGetterName - Function name for key getter
  * @param hasArgs - Whether the operation has arguments
- * @param inferRequestType - TypeScript type for request
+ * @param argsType - TypeScript type for request args
  * @param honoPath - Hono-style path (with :param)
- * @param clientPath - Client path expression
  * @param config - Framework configuration
  * @returns Query key getter function code
  * @see https://tanstack.com/query/latest/docs/framework/react/guides/query-keys
@@ -106,9 +140,8 @@ function makeQueryOptionsGetterName(method: string, pathStr: string): string {
 function makeQueryKeyGetterCode(
   keyGetterName: string,
   hasArgs: boolean,
-  inferRequestType: string,
+  argsType: string,
   honoPath: string,
-  _clientPath: string,
   config: { frameworkName: string; isVueQuery?: boolean; isSWR?: boolean },
 ): string {
   const safeCommentPath = escapeCommentEnd(honoPath.replace(/:([^/]+)/g, '{$1}'))
@@ -125,7 +158,7 @@ function makeQueryKeyGetterCode(
  * Generates ${config.frameworkName} cache key for GET ${safeCommentPath}
  * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function ${keyGetterName}(args:MaybeRef<${inferRequestType}>){return['${prefix}','GET','${honoPath}',unref(args)]as const}`
+export function ${keyGetterName}(args:MaybeRef<${argsType}>){return['${prefix}','GET','${honoPath}',unref(args)]as const}`
     }
     return `/**
  * Generates ${config.frameworkName} cache key for GET ${safeCommentPathNoParam}
@@ -140,7 +173,7 @@ export function ${keyGetterName}(){return['${prefix}','GET','${honoPath}']as con
  * Generates ${config.frameworkName} cache key for GET ${safeCommentPath}
  * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function ${keyGetterName}(args:${inferRequestType}){return['${prefix}','GET','${honoPath}',args]as const}`
+export function ${keyGetterName}(args:${argsType}){return['${prefix}','GET','${honoPath}',args]as const}`
   }
   return `/**
  * Generates ${config.frameworkName} cache key for GET ${safeCommentPathNoParam}
@@ -155,16 +188,14 @@ export function ${keyGetterName}(){return['${prefix}','GET','${honoPath}']as con
  * This function returns an object compatible with TanStack Query's queryOptions pattern,
  * enabling prefetching, ensureQueryData, and other advanced patterns.
  *
- * Returns a plain object (not using queryOptions() helper) to avoid type conflicts
- * when spreading with user-provided options. TypeScript infers the exact return type.
+ * Uses queryOptions() helper when available for proper type branding.
  * @see https://tanstack.com/query/latest/docs/framework/react/guides/query-options
  *
  * @param optionsGetterName - Function name for options getter
  * @param keyGetterName - Function name for key getter
  * @param hasArgs - Whether the operation has arguments
- * @param inferRequestType - TypeScript type for request
- * @param clientPath - Client path expression
- * @param method - HTTP method
+ * @param argsType - TypeScript type for request args
+ * @param parseResponseFuncName - Name of the parseResponse function to call
  * @param honoPath - Hono-style path (with :param)
  * @param config - Framework configuration
  * @returns Query options getter function code
@@ -173,40 +204,42 @@ function makeQueryOptionsGetterCode(
   optionsGetterName: string,
   keyGetterName: string,
   hasArgs: boolean,
-  inferRequestType: string,
-  clientPath: string,
-  method: string,
+  argsType: string,
+  parseResponseFuncName: string,
   honoPath: string,
-  config: { frameworkName: string },
+  config: { frameworkName: string; hasQueryOptionsHelper?: boolean },
 ): string {
   const safeCommentPath = escapeCommentEnd(honoPath.replace(/:([^/]+)/g, '{$1}'))
   const safeCommentPathNoParam = escapeCommentEnd(honoPath)
   const commentPath = hasArgs ? safeCommentPath : safeCommentPathNoParam
 
-  // Build client call WITH signal for query cancellation
-  // @see https://tanstack.com/query/latest/docs/framework/react/guides/query-cancellation
-  const clientCallWithSignal = hasArgs
-    ? `${clientPath}.$${method}(args,{...clientOptions,init:{...clientOptions?.init,signal}})`
-    : `${clientPath}.$${method}(undefined,{...clientOptions,init:{...clientOptions?.init,signal}})`
-  const fetcherBody = makeFetcher(clientCallWithSignal)
   const queryKeyCall = hasArgs ? `${keyGetterName}(args)` : `${keyGetterName}()`
 
-  // Return plain object - TypeScript infers the exact type
-  // This avoids DataTag branding conflicts when spreading with UseQueryOptions
+  // Build fetcher call using parseResponse function
+  const fetcherCall = hasArgs
+    ? `${parseResponseFuncName}(args,{...clientOptions,init:{...clientOptions?.init,signal}})`
+    : `${parseResponseFuncName}({...clientOptions,init:{...clientOptions?.init,signal}})`
+
+  // queryOptions() wrap for type safety with TanStack Query
+  const bodyContent = `queryKey:${queryKeyCall},queryFn({signal}:QueryFunctionContext){return ${fetcherCall}}`
+  const returnExpr = config.hasQueryOptionsHelper
+    ? `queryOptions({${bodyContent}})`
+    : `{${bodyContent}}`
+
   if (hasArgs) {
     return `/**
  * Returns ${config.frameworkName} query options for GET ${commentPath}
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function ${optionsGetterName}(args:${inferRequestType},clientOptions?:ClientRequestOptions){return{queryKey:${queryKeyCall},queryFn({signal}:QueryFunctionContext){return ${fetcherBody}}}}`
+export function ${optionsGetterName}(args:${argsType},clientOptions?:ClientRequestOptions){return ${returnExpr}}`
   }
   return `/**
  * Returns ${config.frameworkName} query options for GET ${commentPath}
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function ${optionsGetterName}(clientOptions?:ClientRequestOptions){return{queryKey:${queryKeyCall},queryFn({signal}:QueryFunctionContext){return ${fetcherBody}}}}`
+export function ${optionsGetterName}(clientOptions?:ClientRequestOptions){return ${returnExpr}}`
 }
 
 /* ─────────────────────────────── SWR Query Hook Code ─────────────────────────────── */
@@ -223,23 +256,21 @@ function makeSWRQueryHookCode(
   hookName: string,
   keyGetterName: string,
   hasArgs: boolean,
-  inferRequestType: string,
-  clientPath: string,
-  method: string,
+  argsType: string,
+  parseResponseFuncName: string,
   docs: string,
 ): string {
-  const argsSig = hasArgs ? `args:${inferRequestType},` : ''
+  const argsSig = hasArgs ? `args:${argsType},` : ''
   const swrConfigType = 'SWRConfiguration&{swrKey?:Key;enabled?:boolean}'
   const optionsSig = `options?:{swr?:${swrConfigType};client?:ClientRequestOptions}`
 
   const keyCall = hasArgs ? `${keyGetterName}(args)` : `${keyGetterName}()`
-  const clientCall = hasArgs
-    ? `${clientPath}.$${method}(args,clientOptions)`
-    : `${clientPath}.$${method}(undefined,clientOptions)`
-  const fetcherBody = makeFetcher(clientCall)
+  const fetcherCall = hasArgs
+    ? `${parseResponseFuncName}(args,clientOptions)`
+    : `${parseResponseFuncName}(clientOptions)`
 
   return `${docs}
-export function ${hookName}(${argsSig}${optionsSig}){const{swr:swrOptions,client:clientOptions}=options??{};const{swrKey:customKey,enabled,...restSwrOptions}=swrOptions??{};const isEnabled=enabled!==false;const swrKey=isEnabled?(customKey??${keyCall}):null;return{swrKey,...useSWR(swrKey,async()=>${fetcherBody},restSwrOptions)}}`
+export function ${hookName}(${argsSig}${optionsSig}){const{swr:swrOptions,client:clientOptions}=options??{};const{swrKey:customKey,enabled,...restSwrOptions}=swrOptions??{};const isEnabled=enabled!==false;const swrKey=isEnabled?(customKey??${keyCall}):null;return{swrKey,...useSWR(swrKey,async()=>${fetcherCall},restSwrOptions)}}`
 }
 
 /* ─────────────────────────────── Query Hook Code ─────────────────────────────── */
@@ -248,30 +279,20 @@ function makeQueryHookCode(
   hookName: string,
   optionsGetterName: string,
   hasArgs: boolean,
-  inferRequestType: string,
-  parseResponseType: string,
+  argsType: string,
+  responseType: string,
   docs: string,
   config: {
     queryFn: string
     useThunk?: boolean
     useQueryOptionsType: string
-    usePartialOmit?: boolean
   },
 ): string {
-  const argsSig = hasArgs ? `args:${inferRequestType},` : ''
+  const argsSig = hasArgs ? `args:${argsType},` : ''
 
   // Use official TanStack Query options type
-  // Vue Query needs Partial<Omit<...>> due to QueryKey type conflicts with MaybeRefOrGetter
-  // React/Svelte use runtime protection instead of type-level Omit
-  // @see https://tanstack.com/query/latest/docs/framework/react/guides/query-options
-  const queryOptionsType = config.usePartialOmit
-    ? `Partial<Omit<${config.useQueryOptionsType}<${parseResponseType},Error>,'queryKey'|'queryFn'>>`
-    : `${config.useQueryOptionsType}<${parseResponseType},Error>`
+  const queryOptionsType = `${config.useQueryOptionsType}<${responseType},Error>`
   const optionsType = `{query?:${queryOptionsType};client?:ClientRequestOptions}`
-
-  // All frameworks use runtime protection - destructure queryKey/queryFn and spread them last
-  // This ensures queryKey/queryFn cannot be overridden while allowing staleTime, gcTime, etc. override
-  // Vue Query additionally has type-level protection with Omit (usePartialOmit: true)
 
   // Svelte Query v5+ requires thunk pattern: createQuery(() => options)
   // Call options?.() once to avoid multiple evaluations (options could be a getter)
@@ -280,15 +301,15 @@ function makeQueryHookCode(
       ? `${optionsGetterName}(args,opts?.client)`
       : `${optionsGetterName}(opts?.client)`
     return `${docs}
-export function ${hookName}(${argsSig}options?:()=>${optionsType}){return ${config.queryFn}(()=>{const opts=options?.();const{queryKey,queryFn,...baseOptions}=${optionsGetterCall};return{...baseOptions,...opts?.query,queryKey,queryFn}})}`
+export function ${hookName}(${argsSig}options?:()=>${optionsType}){return ${config.queryFn}(()=>{const opts=options?.();return{...${optionsGetterCall},...opts?.query}})}`
   }
 
-  // React TanStack Query / Vue Query: runtime protection
+  // React TanStack Query / Vue Query: direct spread
   const optionsGetterCall = hasArgs
     ? `${optionsGetterName}(args,clientOptions)`
     : `${optionsGetterName}(clientOptions)`
   return `${docs}
-export function ${hookName}(${argsSig}options?:${optionsType}){const{query:queryOptions,client:clientOptions}=options??{};const{queryKey,queryFn,...baseOptions}=${optionsGetterCall};return ${config.queryFn}({...baseOptions,...queryOptions,queryKey,queryFn})}`
+export function ${hookName}(${argsSig}options?:${optionsType}){const{query:queryOpts,client:clientOptions}=options??{};return ${config.queryFn}({...${optionsGetterCall},...queryOpts})}`
 }
 
 /* ─────────────────────────────── Mutation Key Getter ─────────────────────────────── */
@@ -360,11 +381,13 @@ function makeMutationOptionsGetterName(method: string, pathStr: string): string 
  * This function returns an object with mutationKey and mutationFn,
  * enabling reusability with useMutation, setMutationDefaults, etc.
  *
+ * Uses mutationOptions() helper when available (React TanStack Query) for type branding.
+ *
  * @param optionsGetterName - Function name for options getter
  * @param keyGetterName - Function name for key getter
  * @param hasArgs - Whether the operation has arguments
- * @param inferRequestType - TypeScript type for request
- * @param clientPath - Client path expression
+ * @param argsType - TypeScript type for request args
+ * @param parseResponseFuncName - Name of the parseResponse function to call
  * @param method - HTTP method
  * @param honoPath - Hono-style path (with :param)
  * @param config - Framework configuration
@@ -374,34 +397,37 @@ function makeMutationOptionsGetterCode(
   optionsGetterName: string,
   keyGetterName: string,
   hasArgs: boolean,
-  inferRequestType: string,
-  clientPath: string,
+  argsType: string,
+  parseResponseFuncName: string,
   method: string,
   honoPath: string,
-  config: { frameworkName: string },
+  config: { frameworkName: string; hasMutationOptionsHelper?: boolean },
 ): string {
   const methodUpper = method.toUpperCase()
   const safeCommentPath = escapeCommentEnd(honoPath.replace(/:([^/]+)/g, '{$1}'))
 
-  const clientCall = hasArgs
-    ? `${clientPath}.$${method}(args,clientOptions)`
-    : `${clientPath}.$${method}(undefined,clientOptions)`
-  const fetcherBody = makeFetcher(clientCall)
-
   if (hasArgs) {
+    const bodyContent = `mutationKey:${keyGetterName}(),async mutationFn(args:${argsType}){return ${parseResponseFuncName}(args,clientOptions)}`
+    const returnExpr = config.hasMutationOptionsHelper
+      ? `mutationOptions({${bodyContent}})`
+      : `{${bodyContent}}`
     return `/**
  * Returns ${config.frameworkName} mutation options for ${methodUpper} ${safeCommentPath}
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export function ${optionsGetterName}(clientOptions?:ClientRequestOptions){return{mutationKey:${keyGetterName}(),async mutationFn(args:${inferRequestType}){return ${fetcherBody}}}}`
+export function ${optionsGetterName}(clientOptions?:ClientRequestOptions){return ${returnExpr}}`
   }
+  const bodyContent = `mutationKey:${keyGetterName}(),async mutationFn(){return ${parseResponseFuncName}(clientOptions)}`
+  const returnExpr = config.hasMutationOptionsHelper
+    ? `mutationOptions({${bodyContent}})`
+    : `{${bodyContent}}`
   return `/**
  * Returns ${config.frameworkName} mutation options for ${methodUpper} ${safeCommentPath}
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export function ${optionsGetterName}(clientOptions?:ClientRequestOptions){return{mutationKey:${keyGetterName}(),async mutationFn(){return ${fetcherBody}}}}`
+export function ${optionsGetterName}(clientOptions?:ClientRequestOptions){return ${returnExpr}}`
 }
 
 /* ─────────────────────────────── SWR Header ─────────────────────────────── */
@@ -411,10 +437,10 @@ export function ${optionsGetterName}(clientOptions?:ClientRequestOptions){return
  */
 function makeSWRHeader(
   importPath: string,
+  clientName: string,
   hasQuery: boolean,
   hasMutation: boolean,
-  needsInferRequestType: boolean,
-  clientName: string,
+  hasAnyArgs: boolean,
 ): string {
   const lines: string[] = []
 
@@ -432,10 +458,8 @@ function makeSWRHeader(
   }
 
   // Hono client imports
-  const typeImportParts: string[] = []
-  if (needsInferRequestType) typeImportParts.push('InferRequestType')
-  typeImportParts.push('ClientRequestOptions')
-  lines.push(`import type{${typeImportParts.join(',')}}from'hono/client'`)
+  const honoTypeImports = ['ClientRequestOptions', ...(hasAnyArgs ? ['InferRequestType'] : [])]
+  lines.push(`import type{${honoTypeImports.join(',')}}from'hono/client'`)
   lines.push("import{parseResponse}from'hono/client'")
   lines.push(`import{${clientName}}from'${importPath}'`)
 
@@ -456,33 +480,28 @@ function makeSWRMutationHookCode(
   hookName: string,
   keyGetterName: string,
   hasArgs: boolean,
-  inferRequestType: string,
-  parseResponseType: string,
-  clientPath: string,
-  method: string,
+  argsType: string,
+  responseType: string,
+  parseResponseFuncName: string,
   docs: string,
   hasNoContent: boolean,
 ): string {
-  const variablesType = hasArgs ? inferRequestType : 'undefined'
+  const variablesType = hasArgs ? argsType : 'undefined'
   const responseTypeWithUndefined = hasNoContent
-    ? `${parseResponseType}|undefined`
-    : parseResponseType
+    ? `${responseType}|undefined`
+    : responseType
   const mutationConfigType = `SWRMutationConfiguration<${responseTypeWithUndefined},Error,Key,${variablesType}>`
 
   if (hasArgs) {
-    const clientCall = `${clientPath}.$${method}(arg,clientOptions)`
-    const fetcherBody = makeFetcher(clientCall)
     const optionsSig = `options?:{mutation?:${mutationConfigType}&{swrKey?:Key};client?:ClientRequestOptions}`
     return `${docs}
-export function ${hookName}(${optionsSig}){const{mutation:mutationOptions,client:clientOptions}=options??{};const{swrKey:customKey,...restMutationOptions}=mutationOptions??{};const swrKey=customKey??${keyGetterName}();return{swrKey,...useSWRMutation(swrKey,async(_:Key,{arg}:{arg:${inferRequestType}})=>${fetcherBody},restMutationOptions)}}`
+export function ${hookName}(${optionsSig}){const{mutation:mutationOptions,client:clientOptions}=options??{};const{swrKey:customKey,...restMutationOptions}=mutationOptions??{};const swrKey=customKey??${keyGetterName}();return{swrKey,...useSWRMutation(swrKey,async(_:Key,{arg}:{arg:${argsType}})=>${parseResponseFuncName}(arg,clientOptions),restMutationOptions)}}`
   }
 
   // No args - simpler pattern
-  const clientCall = `${clientPath}.$${method}(undefined,clientOptions)`
-  const fetcherBody = makeFetcher(clientCall)
   const optionsSig = `options?:{mutation?:${mutationConfigType}&{swrKey?:Key};client?:ClientRequestOptions}`
   return `${docs}
-export function ${hookName}(${optionsSig}){const{mutation:mutationOptions,client:clientOptions}=options??{};const{swrKey:customKey,...restMutationOptions}=mutationOptions??{};const swrKey=customKey??${keyGetterName}();return{swrKey,...useSWRMutation(swrKey,async()=>${fetcherBody},restMutationOptions)}}`
+export function ${hookName}(${optionsSig}){const{mutation:mutationOptions,client:clientOptions}=options??{};const{swrKey:customKey,...restMutationOptions}=mutationOptions??{};const swrKey=customKey??${keyGetterName}();return{swrKey,...useSWRMutation(swrKey,async()=>${parseResponseFuncName}(clientOptions),restMutationOptions)}}`
 }
 
 /* ─────────────────────────────── Mutation Hook Code ─────────────────────────────── */
@@ -491,39 +510,35 @@ function makeMutationHookCode(
   hookName: string,
   optionsGetterName: string,
   hasArgs: boolean,
-  inferRequestType: string,
-  inferResponseType: string,
+  argsType: string,
+  responseType: string,
   docs: string,
   config: {
     mutationFn: string
     useThunk?: boolean
     useMutationOptionsType: string
-    usePartialOmit?: boolean
   },
   hasNoContent: boolean,
 ): string {
-  const variablesType = hasArgs ? inferRequestType : 'void'
+  const variablesType = hasArgs ? argsType : 'void'
 
   // For 204/205 responses, parseResponse returns undefined
-  const dataType = hasNoContent ? `${inferResponseType}|undefined` : inferResponseType
+  const dataType = hasNoContent ? `${responseType}|undefined` : responseType
 
   // Use official TanStack Query mutation options type
-  // Vue Query needs Partial<Omit<...>> due to type conflicts with MaybeRefOrGetter
-  const mutationOptionsType = config.usePartialOmit
-    ? `Partial<Omit<${config.useMutationOptionsType}<${dataType},Error,${variablesType}>,'mutationFn'|'mutationKey'>>`
-    : `${config.useMutationOptionsType}<${dataType},Error,${variablesType}>`
+  const mutationOptionsType = `${config.useMutationOptionsType}<${dataType},Error,${variablesType}>`
   const optionsType = `{mutation?:${mutationOptionsType};client?:ClientRequestOptions}`
 
   // Use getMutationOptions to include mutationKey (for setMutationDefaults, isMutating, etc.)
   // Svelte Query v5+ requires thunk pattern: createMutation(() => options)
   if (config.useThunk) {
     return `${docs}
-export function ${hookName}(options?:()=>${optionsType}){return ${config.mutationFn}(()=>{const opts=options?.();const{mutationKey,mutationFn,...baseOptions}=${optionsGetterName}(opts?.client);return{...baseOptions,...opts?.mutation,mutationKey,mutationFn}})}`
+export function ${hookName}(options?:()=>${optionsType}){return ${config.mutationFn}(()=>{const opts=options?.();return{...${optionsGetterName}(opts?.client),...opts?.mutation}})}`
   }
 
-  // React TanStack Query / Vue Query: use getMutationOptions
+  // React TanStack Query / Vue Query: direct spread
   return `${docs}
-export function ${hookName}(options?:${optionsType}){const{mutation:mutationOptions,client:clientOptions}=options??{};const{mutationKey,mutationFn,...baseOptions}=${optionsGetterName}(clientOptions);return ${config.mutationFn}({...baseOptions,...mutationOptions,mutationKey,mutationFn})}`
+export function ${hookName}(options?:${optionsType}){const{mutation:mutationOpts,client:clientOptions}=options??{};return ${config.mutationFn}({...${optionsGetterName}(clientOptions),...mutationOpts})}`
 }
 
 /* ─────────────────────────────── Single-hook generator ─────────────────────────────── */
@@ -541,32 +556,42 @@ function makeHookCode(
     useThunk?: boolean
     useQueryOptionsType: string
     useMutationOptionsType: string
-    usePartialOmit?: boolean
     isVueQuery?: boolean
     isSWR?: boolean
+    hasQueryOptionsHelper?: boolean
+    hasMutationOptionsHelper?: boolean
   },
-): { code: string; isQuery: boolean; hasArgs: boolean } | null {
+  clientName: string,
+): { code: string; isQuery: boolean; hasArgs: boolean; parseResponseFuncName: string } | null {
   const op = item[method]
   if (!isOperationLike(op)) return null
 
   const hookName = makeHookName(method, pathStr, config.hookPrefix)
-  const pathResult = formatPath(pathStr)
   const hasArgs = operationHasArgs(item, op, deps)
   const isQuery = method === 'get'
 
-  const inferRequestType = makeInferRequestType(deps.client, pathResult, method)
-  // Use parseResponse return type for accurate type inference
-  const parseResponseType = makeParseResponseType(deps.client, pathResult, method)
+  // parseResponse function name (same naming as parseResponse/ generator)
+  const parseResponseFuncName = methodPath(method, pathStr)
+  const argsType = makeArgsType(parseResponseFuncName)
+  const responseType = makeResponseType(parseResponseFuncName)
   // parseResponse returns undefined for 204/205 No Content responses
   const hasNoContent = hasNoContentResponse(op)
 
   // Convert {param} to :param for key path display
   const honoPath = pathStr.replace(/\{([^}]+)\}/g, ':$1')
-  const clientPath = `${deps.client}${pathResult.runtimePath}`
 
   const summary = typeof op.summary === 'string' ? op.summary : ''
   const description = typeof op.description === 'string' ? op.description : ''
   const docs = makeOperationDocs(method, pathStr, summary || undefined, description || undefined)
+
+  // Generate inline parseResponse wrapper function
+  const wrapperCode = makeParseResponseWrapperCode(
+    parseResponseFuncName,
+    method,
+    pathStr,
+    hasArgs,
+    clientName,
+  )
 
   // SWR: simpler pattern without options getter
   if (config.isSWR) {
@@ -575,24 +600,23 @@ function makeHookCode(
       const keyGetterCode = makeQueryKeyGetterCode(
         keyGetterName,
         hasArgs,
-        inferRequestType,
+        argsType,
         honoPath,
-        clientPath,
         config,
       )
       const hookCode = makeSWRQueryHookCode(
         hookName,
         keyGetterName,
         hasArgs,
-        inferRequestType,
-        clientPath,
-        method,
+        argsType,
+        parseResponseFuncName,
         docs,
       )
       return {
-        code: `${keyGetterCode}\n\n${hookCode}`,
+        code: `${keyGetterCode}\n\n${wrapperCode}\n\n${hookCode}`,
         isQuery: true,
         hasArgs,
+        parseResponseFuncName,
       }
     }
     // SWR mutation
@@ -602,17 +626,17 @@ function makeHookCode(
       hookName,
       keyGetterName,
       hasArgs,
-      inferRequestType,
-      parseResponseType,
-      clientPath,
-      method,
+      argsType,
+      responseType,
+      parseResponseFuncName,
       docs,
       hasNoContent,
     )
     return {
-      code: `${keyGetterCode}\n\n${hookCode}`,
+      code: `${keyGetterCode}\n\n${wrapperCode}\n\n${hookCode}`,
       isQuery: false,
       hasArgs,
+      parseResponseFuncName,
     }
   }
 
@@ -623,18 +647,16 @@ function makeHookCode(
     const keyGetterCode = makeQueryKeyGetterCode(
       keyGetterName,
       hasArgs,
-      inferRequestType,
+      argsType,
       honoPath,
-      clientPath,
       config,
     )
     const optionsGetterCode = makeQueryOptionsGetterCode(
       optionsGetterName,
       keyGetterName,
       hasArgs,
-      inferRequestType,
-      clientPath,
-      method,
+      argsType,
+      parseResponseFuncName,
       honoPath,
       config,
     )
@@ -642,16 +664,17 @@ function makeHookCode(
       hookName,
       optionsGetterName,
       hasArgs,
-      inferRequestType,
-      parseResponseType,
+      argsType,
+      responseType,
       docs,
       config,
     )
-    // Combine in Orval order: key getter → options getter → hook
+    // Order: key → wrapper → options → hook
     return {
-      code: `${keyGetterCode}\n\n${optionsGetterCode}\n\n${hookCode}`,
+      code: `${keyGetterCode}\n\n${wrapperCode}\n\n${optionsGetterCode}\n\n${hookCode}`,
       isQuery: true,
       hasArgs,
+      parseResponseFuncName,
     }
   }
 
@@ -663,8 +686,8 @@ function makeHookCode(
     optionsGetterName,
     keyGetterName,
     hasArgs,
-    inferRequestType,
-    clientPath,
+    argsType,
+    parseResponseFuncName,
     method,
     honoPath,
     config,
@@ -673,17 +696,18 @@ function makeHookCode(
     hookName,
     optionsGetterName,
     hasArgs,
-    inferRequestType,
-    parseResponseType,
+    argsType,
+    responseType,
     docs,
     config,
     hasNoContent,
   )
-  // Combine in Orval order: key getter → options getter → hook
+  // Order: key → wrapper → options → hook
   return {
-    code: `${keyGetterCode}\n\n${optionsGetterCode}\n\n${hookCode}`,
+    code: `${keyGetterCode}\n\n${wrapperCode}\n\n${optionsGetterCode}\n\n${hookCode}`,
     isQuery: false,
     hasArgs,
+    parseResponseFuncName,
   }
 }
 
@@ -701,11 +725,19 @@ function makeHookCodes(
     useThunk?: boolean
     useQueryOptionsType: string
     useMutationOptionsType: string
-    usePartialOmit?: boolean
     isVueQuery?: boolean
     isSWR?: boolean
+    hasQueryOptionsHelper?: boolean
+    hasMutationOptionsHelper?: boolean
   },
-): { hookName: string; code: string; isQuery: boolean; hasArgs: boolean }[] {
+  clientName: string,
+): {
+  hookName: string
+  code: string
+  isQuery: boolean
+  hasArgs: boolean
+  parseResponseFuncName: string
+}[] {
   return Object.entries(paths)
     .filter((entry): entry is [string, { [k: string]: unknown }] => isRecord(entry[1]))
     .flatMap(([p, rawItem]) => {
@@ -713,19 +745,27 @@ function makeHookCodes(
       const methods = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'] as const
       return methods
         .map((method) => {
-          const result = makeHookCode(p, method, pathItem, deps, config)
+          const result = makeHookCode(p, method, pathItem, deps, config, clientName)
           return result
             ? {
                 hookName: makeHookName(method, p, config.hookPrefix),
                 code: result.code,
                 isQuery: result.isQuery,
                 hasArgs: result.hasArgs,
+                parseResponseFuncName: result.parseResponseFuncName,
               }
             : null
         })
         .filter(
-          (item): item is { hookName: string; code: string; isQuery: boolean; hasArgs: boolean } =>
-            item !== null,
+          (
+            item,
+          ): item is {
+            hookName: string
+            code: string
+            isQuery: boolean
+            hasArgs: boolean
+            parseResponseFuncName: string
+          } => item !== null,
         )
     })
 }
@@ -737,16 +777,17 @@ function makeHookCodes(
  *
  * Imports include:
  * - Query/Mutation hooks from the framework package
+ * - queryOptions/mutationOptions helpers when available
  * - UseQueryOptions/UseMutationOptions types for proper typing
- * - Hono client types (InferRequestType, InferResponseType, ClientRequestOptions)
- * - parseResponse for type-safe response handling
+ * - ClientRequestOptions, InferRequestType, parseResponse from Hono client
+ * - client from importPath
  */
 function makeHeader(
   importPath: string,
+  clientName: string,
   hasQuery: boolean,
   hasMutation: boolean,
-  needsInferRequestType: boolean,
-  clientName: string,
+  hasAnyArgs: boolean,
   config: {
     packageName: string
     queryFn: string
@@ -755,17 +796,21 @@ function makeHeader(
     useMutationOptionsType: string
     isVueQuery?: boolean
     isSWR?: boolean
+    hasQueryOptionsHelper?: boolean
+    hasMutationOptionsHelper?: boolean
   },
   hasQueryWithArgs = false,
 ): string {
   // SWR has different import structure
   if (config.isSWR) {
-    return makeSWRHeader(importPath, hasQuery, hasMutation, needsInferRequestType, clientName)
+    return makeSWRHeader(importPath, clientName, hasQuery, hasMutation, hasAnyArgs)
   }
 
   const queryImports = [
     ...(hasQuery ? [config.queryFn] : []),
     ...(hasMutation ? [config.mutationFn] : []),
+    ...(hasQuery && config.hasQueryOptionsHelper ? ['queryOptions'] : []),
+    ...(hasMutation && config.hasMutationOptionsHelper ? ['mutationOptions'] : []),
   ]
 
   // Type imports for options - UseQueryOptions, UseMutationOptions, QueryFunctionContext
@@ -774,17 +819,12 @@ function makeHeader(
     ...(hasMutation ? [config.useMutationOptionsType] : []),
   ]
 
-  // Hono client type imports
-  // InferRequestType: needed when operation has args
-  // InferResponseType: no longer needed - using parseResponse return type instead
-  const honoTypeImportParts = [
-    ...(needsInferRequestType ? ['InferRequestType'] : []),
-    'ClientRequestOptions',
-  ]
-
   // Vue Query needs MaybeRef type and unref from 'vue' only when query has args
   // (used in makeQueryKeyGetterCode for args:MaybeRef<...> and unref(args))
   const needsVueImports = config.isVueQuery && hasQueryWithArgs
+
+  // Hono client imports
+  const honoTypeImports = ['ClientRequestOptions', ...(hasAnyArgs ? ['InferRequestType'] : [])]
 
   const lines = [
     ...(queryImports.length > 0
@@ -795,8 +835,8 @@ function makeHeader(
       : []),
     // Vue Query needs MaybeRef type and unref from 'vue' for queryKey generation (only when query has args)
     ...(needsVueImports ? ["import{unref}from'vue'", "import type{MaybeRef}from'vue'"] : []),
-    `import type{${honoTypeImportParts.join(',')}}from'hono/client'`,
-    "import{parseResponse}from'hono/client'",
+    `import type{${honoTypeImports.join(',')}}from'hono/client'`,
+    `import{parseResponse}from'hono/client'`,
     `import{${clientName}}from'${importPath}'`,
   ]
   return `${lines.join('\n')}\n\n`
@@ -831,9 +871,10 @@ export async function makeQueryHooks(
     useThunk?: boolean
     useQueryOptionsType: string
     useMutationOptionsType: string
-    usePartialOmit?: boolean
     isVueQuery?: boolean
     isSWR?: boolean
+    hasQueryOptionsHelper?: boolean
+    hasMutationOptionsHelper?: boolean
   },
   split?: boolean,
   clientName = 'client',
@@ -849,21 +890,22 @@ export async function makeQueryHooks(
   const componentsRequestBodies = openAPI.components?.requestBodies ?? {}
   const deps = makeOperationDeps(clientName, componentsParameters, componentsRequestBodies)
 
-  const hookCodes = makeHookCodes(pathsMaybe, deps, config)
+  const hookCodes = makeHookCodes(pathsMaybe, deps, config, clientName)
+
+  const hasAnyArgs = hookCodes.some(({ hasArgs }) => hasArgs)
 
   // Non-split: write single file
   if (!split) {
     const body = hookCodes.map(({ code }) => code).join('\n\n')
     const hasQuery = hookCodes.some(({ isQuery }) => isQuery)
     const hasMutation = hookCodes.some(({ isQuery }) => !isQuery)
-    const needsInferRequestType = hookCodes.some(({ hasArgs }) => hasArgs)
     const hasQueryWithArgs = hookCodes.some(({ isQuery, hasArgs }) => isQuery && hasArgs)
     const header = makeHeader(
       importPath,
+      clientName,
       hasQuery,
       hasMutation,
-      needsInferRequestType,
-      clientName,
+      hasAnyArgs,
       config,
       hasQueryWithArgs,
     )
@@ -889,10 +931,10 @@ export async function makeQueryHooks(
       const hasQueryWithArgs = isQuery && hasArgs
       const header = makeHeader(
         importPath,
+        clientName,
         isQuery,
         !isQuery,
         hasArgs,
-        clientName,
         config,
         hasQueryWithArgs,
       )
