@@ -51,6 +51,7 @@ describe('swr', () => {
       const code = fs.readFileSync(out, 'utf-8')
 
       expect(code).toBe(`import useSWR from 'swr'
+import useSWRImmutable from 'swr/immutable'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWRInfinite from 'swr/infinite'
 import type { SWRInfiniteConfiguration, SWRInfiniteKeyLoader } from 'swr/infinite'
@@ -95,6 +96,24 @@ export function useGetHono(options?: {
   const isEnabled = enabled !== false
   const swrKey = isEnabled ? (customKey ?? getGetHonoKey()) : null
   return { swrKey, ...useSWR(swrKey, async () => getHono(clientOptions), restSwrOptions) }
+}
+
+/**
+ * GET /hono
+ *
+ * Hono
+ *
+ * Simple ping for Hono
+ */
+export function useImmutableGetHono(options?: {
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
+  client?: ClientRequestOptions
+}) {
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetHonoKey()) : null
+  return { swrKey, ...useSWRImmutable(swrKey, async () => getHono(clientOptions), restSwrOptions) }
 }
 
 /**
@@ -166,6 +185,30 @@ export function useGetUsers(
   const isEnabled = enabled !== false
   const swrKey = isEnabled ? (customKey ?? getGetUsersKey(args)) : null
   return { swrKey, ...useSWR(swrKey, async () => getUsers(args, clientOptions), restSwrOptions) }
+}
+
+/**
+ * GET /users
+ *
+ * List users
+ *
+ * List users with pagination.
+ */
+export function useImmutableGetUsers(
+  args: Parameters<typeof getUsers>[0],
+  options?: {
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
+    client?: ClientRequestOptions
+  },
+) {
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetUsersKey(args)) : null
+  return {
+    swrKey,
+    ...useSWRImmutable(swrKey, async () => getUsers(args, clientOptions), restSwrOptions),
+  }
 }
 
 /**
@@ -283,6 +326,7 @@ export * from './postUsers'
       // Check GET hook file without args
       const useGetHono = fs.readFileSync(path.join(dir, 'swr', 'getHono.ts'), 'utf-8')
       expect(useGetHono).toBe(`import useSWR from 'swr'
+import useSWRImmutable from 'swr/immutable'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWRInfinite from 'swr/infinite'
 import type { SWRInfiniteConfiguration, SWRInfiniteKeyLoader } from 'swr/infinite'
@@ -328,6 +372,24 @@ export function useGetHono(options?: {
 }
 
 /**
+ * GET /hono
+ *
+ * Hono
+ *
+ * Simple ping for Hono
+ */
+export function useImmutableGetHono(options?: {
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
+  client?: ClientRequestOptions
+}) {
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetHonoKey()) : null
+  return { swrKey, ...useSWRImmutable(swrKey, async () => getHono(clientOptions), restSwrOptions) }
+}
+
+/**
  * Generates SWR infinite query cache key for GET /hono
  * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
  */
@@ -359,6 +421,7 @@ export function useInfiniteGetHono(options: {
       // Check GET hook file with args
       const useGetUsers = fs.readFileSync(path.join(dir, 'swr', 'getUsers.ts'), 'utf-8')
       expect(useGetUsers).toBe(`import useSWR from 'swr'
+import useSWRImmutable from 'swr/immutable'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWRInfinite from 'swr/infinite'
 import type { SWRInfiniteConfiguration, SWRInfiniteKeyLoader } from 'swr/infinite'
@@ -407,6 +470,30 @@ export function useGetUsers(
   const isEnabled = enabled !== false
   const swrKey = isEnabled ? (customKey ?? getGetUsersKey(args)) : null
   return { swrKey, ...useSWR(swrKey, async () => getUsers(args, clientOptions), restSwrOptions) }
+}
+
+/**
+ * GET /users
+ *
+ * List users
+ *
+ * List users with pagination.
+ */
+export function useImmutableGetUsers(
+  args: Parameters<typeof getUsers>[0],
+  options?: {
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
+    client?: ClientRequestOptions
+  },
+) {
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetUsersKey(args)) : null
+  return {
+    swrKey,
+    ...useSWRImmutable(swrKey, async () => getUsers(args, clientOptions), restSwrOptions),
+  }
 }
 
 /**
@@ -540,6 +627,7 @@ describe('swr (custom client name)', () => {
       const code = fs.readFileSync(out, 'utf-8')
 
       expect(code).toBe(`import useSWR from 'swr'
+import useSWRImmutable from 'swr/immutable'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWRInfinite from 'swr/infinite'
 import type { SWRInfiniteConfiguration, SWRInfiniteKeyLoader } from 'swr/infinite'
@@ -578,6 +666,22 @@ export function useGetUsers(options?: {
   const isEnabled = enabled !== false
   const swrKey = isEnabled ? (customKey ?? getGetUsersKey()) : null
   return { swrKey, ...useSWR(swrKey, async () => getUsers(clientOptions), restSwrOptions) }
+}
+
+/**
+ * GET /users
+ *
+ * Get users
+ */
+export function useImmutableGetUsers(options?: {
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
+  client?: ClientRequestOptions
+}) {
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetUsersKey()) : null
+  return { swrKey, ...useSWRImmutable(swrKey, async () => getUsers(clientOptions), restSwrOptions) }
 }
 
 /**
@@ -644,6 +748,7 @@ describe('swr (no args operations)', () => {
       const code = fs.readFileSync(out, 'utf-8')
 
       expect(code).toBe(`import useSWR from 'swr'
+import useSWRImmutable from 'swr/immutable'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWRInfinite from 'swr/infinite'
 import type { SWRInfiniteConfiguration, SWRInfiniteKeyLoader } from 'swr/infinite'
@@ -684,6 +789,22 @@ export function useGetPing(options?: {
   const isEnabled = enabled !== false
   const swrKey = isEnabled ? (customKey ?? getGetPingKey()) : null
   return { swrKey, ...useSWR(swrKey, async () => getPing(clientOptions), restSwrOptions) }
+}
+
+/**
+ * GET /ping
+ *
+ * Ping
+ */
+export function useImmutableGetPing(options?: {
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
+  client?: ClientRequestOptions
+}) {
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetPingKey()) : null
+  return { swrKey, ...useSWRImmutable(swrKey, async () => getPing(clientOptions), restSwrOptions) }
 }
 
 /**
@@ -785,6 +906,7 @@ describe('swr (path with special characters)', () => {
       const code = fs.readFileSync(out, 'utf-8')
 
       expect(code).toBe(`import useSWR from 'swr'
+import useSWRImmutable from 'swr/immutable'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWRInfinite from 'swr/infinite'
 import type { SWRInfiniteConfiguration, SWRInfiniteKeyLoader } from 'swr/infinite'
@@ -823,6 +945,22 @@ export function useGetHonoX(options?: {
   const isEnabled = enabled !== false
   const swrKey = isEnabled ? (customKey ?? getGetHonoXKey()) : null
   return { swrKey, ...useSWR(swrKey, async () => getHonoX(clientOptions), restSwrOptions) }
+}
+
+/**
+ * GET /hono-x
+ *
+ * HonoX
+ */
+export function useImmutableGetHonoX(options?: {
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
+  client?: ClientRequestOptions
+}) {
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetHonoXKey()) : null
+  return { swrKey, ...useSWRImmutable(swrKey, async () => getHonoX(clientOptions), restSwrOptions) }
 }
 
 /**
@@ -890,6 +1028,7 @@ describe('swr (path parameters)', () => {
       const code = fs.readFileSync(out, 'utf-8')
 
       expect(code).toBe(`import useSWR from 'swr'
+import useSWRImmutable from 'swr/immutable'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWRInfinite from 'swr/infinite'
 import type { SWRInfiniteConfiguration, SWRInfiniteKeyLoader } from 'swr/infinite'
@@ -936,6 +1075,28 @@ export function useGetUsersId(
   const isEnabled = enabled !== false
   const swrKey = isEnabled ? (customKey ?? getGetUsersIdKey(args)) : null
   return { swrKey, ...useSWR(swrKey, async () => getUsersId(args, clientOptions), restSwrOptions) }
+}
+
+/**
+ * GET /users/{id}
+ *
+ * Get user
+ */
+export function useImmutableGetUsersId(
+  args: Parameters<typeof getUsersId>[0],
+  options?: {
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
+    client?: ClientRequestOptions
+  },
+) {
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetUsersIdKey(args)) : null
+  return {
+    swrKey,
+    ...useSWRImmutable(swrKey, async () => getUsersId(args, clientOptions), restSwrOptions),
+  }
 }
 
 /**
@@ -1059,11 +1220,11 @@ const openapiImmutable: OpenAPI = {
 }
 
 describe('swr (immutable mode)', () => {
-  it('should generate useSWRImmutable instead of useSWR when immutable is true', async () => {
+  it('should generate both useSWR and useSWRImmutable hooks by default', async () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-swr-immutable-'))
     try {
       const out = path.join(dir, 'index.ts')
-      const result = await swr(openapiImmutable, out, '../client', false, 'client', true)
+      const result = await swr(openapiImmutable, out, '../client', false)
 
       if (!result.ok) {
         throw new Error(result.error)
@@ -1071,7 +1232,8 @@ describe('swr (immutable mode)', () => {
 
       const code = fs.readFileSync(out, 'utf-8')
 
-      const expected = `import useSWRImmutable from 'swr/immutable'
+      const expected = `import useSWR from 'swr'
+import useSWRImmutable from 'swr/immutable'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWRInfinite from 'swr/infinite'
 import type { SWRInfiniteConfiguration, SWRInfiniteKeyLoader } from 'swr/infinite'
@@ -1102,6 +1264,22 @@ export async function getHono(options?: ClientRequestOptions) {
  * Hono
  */
 export function useGetHono(options?: {
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
+  client?: ClientRequestOptions
+}) {
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetHonoKey()) : null
+  return { swrKey, ...useSWR(swrKey, async () => getHono(clientOptions), restSwrOptions) }
+}
+
+/**
+ * GET /hono
+ *
+ * Hono
+ */
+export function useImmutableGetHono(options?: {
   swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
 }) {
@@ -1172,6 +1350,7 @@ describe('swr (enabled priority)', () => {
       const code = fs.readFileSync(out, 'utf-8')
 
       expect(code).toBe(`import useSWR from 'swr'
+import useSWRImmutable from 'swr/immutable'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWRInfinite from 'swr/infinite'
 import type { SWRInfiniteConfiguration, SWRInfiniteKeyLoader } from 'swr/infinite'
@@ -1210,6 +1389,22 @@ export function useGetUsers(options?: {
   const isEnabled = enabled !== false
   const swrKey = isEnabled ? (customKey ?? getGetUsersKey()) : null
   return { swrKey, ...useSWR(swrKey, async () => getUsers(clientOptions), restSwrOptions) }
+}
+
+/**
+ * GET /users
+ *
+ * Get users
+ */
+export function useImmutableGetUsers(options?: {
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
+  client?: ClientRequestOptions
+}) {
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetUsersKey()) : null
+  return { swrKey, ...useSWRImmutable(swrKey, async () => getUsers(clientOptions), restSwrOptions) }
 }
 
 /**
