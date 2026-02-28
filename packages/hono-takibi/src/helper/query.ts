@@ -268,13 +268,28 @@ function makeQueryOptionsGetterCode(
   argsType: string,
   parseResponseFuncName: string,
   honoPath: string,
-  config: { frameworkName: string; hasQueryOptionsHelper?: boolean },
+  config: { frameworkName: string; hasQueryOptionsHelper?: boolean; isVueQuery?: boolean },
 ): string {
   const safeCommentPath = escapeCommentEnd(honoPath.replace(/:([^/]+)/g, '{$1}'))
   const safeCommentPathNoParam = escapeCommentEnd(honoPath)
   const commentPath = hasArgs ? safeCommentPath : safeCommentPathNoParam
 
   const queryKeyCall = hasArgs ? `${keyGetterName}(args)` : `${keyGetterName}()`
+
+  // Vue Query: use MaybeRef for args and unref in queryFn
+  if (config.isVueQuery && hasArgs) {
+    const vueFetcherCall = `${parseResponseFuncName}(unref(args),{...clientOptions,init:{...clientOptions?.init,signal}})`
+    const bodyContent = `queryKey:${queryKeyCall},queryFn({signal}:QueryFunctionContext){return ${vueFetcherCall}}`
+    const returnExpr = config.hasQueryOptionsHelper
+      ? `queryOptions({${bodyContent}})`
+      : `{${bodyContent}}`
+    return `/**
+ * Returns ${config.frameworkName} query options for GET ${commentPath}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function ${optionsGetterName}(args:MaybeRef<${argsType}>,clientOptions?:ClientRequestOptions){return ${returnExpr}}`
+  }
 
   // Build fetcher call using parseResponse function
   const fetcherCall = hasArgs
@@ -367,7 +382,7 @@ function makeSWRInfiniteHookCode(
     : `${parseResponseFuncName}(clientOptions)`
 
   return `${docs}
-export function ${hookName}(${argsSig}${optionsSig}){const{swr:swrOptions,client:clientOptions}=options??{};const{swrKey:customKeyLoader,...restSwrOptions}=swrOptions??{};const keyLoader=customKeyLoader??((_index:number)=>${keyCall});return useSWRInfinite(keyLoader,async()=>${fetcherCall},restSwrOptions)}`
+export function ${hookName}(${argsSig}${optionsSig}){const{swr:swrOptions,client:clientOptions}=options??{};const{swrKey:customKeyLoader,...restSwrOptions}=swrOptions??{};const keyLoader=customKeyLoader??((index:number)=>[...${keyCall},index]as const);return useSWRInfinite(keyLoader,async()=>${fetcherCall},restSwrOptions)}`
 }
 
 /* ─────────────────────────────── Query Hook Code ─────────────────────────────── */
@@ -423,6 +438,7 @@ function makeSuspenseQueryHookCode(
   config: {
     suspenseQueryFn: string
     useSuspenseQueryOptionsType: string
+    useThunk?: boolean
     errorType?: string
   },
 ): string {
@@ -433,6 +449,16 @@ function makeSuspenseQueryHookCode(
   const optionsGetterCall = hasArgs
     ? `${optionsGetterName}(args,clientOptions)`
     : `${optionsGetterName}(clientOptions)`
+
+  // Svelte Query v5+: thunk pattern createSuspenseQuery(() => options)
+  if (config.useThunk) {
+    const optionsGetterCallThunk = hasArgs
+      ? `${optionsGetterName}(args,opts?.client)`
+      : `${optionsGetterName}(opts?.client)`
+    return `${docs}
+export function ${hookName}(${argsSig}options?:()=>${optionsType}){return ${config.suspenseQueryFn}(()=>{const opts=options?.();return{...${optionsGetterCallThunk},...opts?.query}})}`
+  }
+
   return `${docs}
 export function ${hookName}(${argsSig}options?:${optionsType}){const{query:queryOpts,client:clientOptions}=options??{};return ${config.suspenseQueryFn}({...${optionsGetterCall},...queryOpts})}`
 }
@@ -463,13 +489,27 @@ function makeInfiniteQueryOptionsGetterCode(
   argsType: string,
   parseResponseFuncName: string,
   honoPath: string,
-  config: { frameworkName: string },
+  config: { frameworkName: string; isVueQuery?: boolean },
 ): string {
   const safeCommentPath = escapeCommentEnd(honoPath.replace(/:([^/]+)/g, '{$1}'))
   const safeCommentPathNoParam = escapeCommentEnd(honoPath)
   const commentPath = hasArgs ? safeCommentPath : safeCommentPathNoParam
 
   const queryKeyCall = hasArgs ? `${infiniteKeyGetterName}(args)` : `${infiniteKeyGetterName}()`
+
+  // Vue Query: use MaybeRef for args and unref in queryFn
+  if (config.isVueQuery && hasArgs) {
+    const vueFetcherCall = `${parseResponseFuncName}(unref(args),{...clientOptions,init:{...clientOptions?.init,signal}})`
+    const bodyContent = `queryKey:${queryKeyCall},queryFn({signal}:QueryFunctionContext){return ${vueFetcherCall}}`
+    return `/**
+ * Returns ${config.frameworkName} infinite query options for GET ${commentPath}
+ *
+ * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
+ * Requires initialPageParam and getNextPageParam to be provided separately.
+ */
+export function ${optionsGetterName}(args:MaybeRef<${argsType}>,clientOptions?:ClientRequestOptions){return{${bodyContent}}}`
+  }
+
   const fetcherCall = hasArgs
     ? `${parseResponseFuncName}(args,{...clientOptions,init:{...clientOptions?.init,signal}})`
     : `${parseResponseFuncName}({...clientOptions,init:{...clientOptions?.init,signal}})`
@@ -544,6 +584,7 @@ function makeSuspenseInfiniteQueryHookCode(
   config: {
     suspenseInfiniteQueryFn: string
     useSuspenseInfiniteQueryOptionsType: string
+    useThunk?: boolean
     errorType?: string
   },
 ): string {
@@ -554,6 +595,16 @@ function makeSuspenseInfiniteQueryHookCode(
   const optionsGetterCall = hasArgs
     ? `${infiniteOptionsGetterName}(args,clientOptions)`
     : `${infiniteOptionsGetterName}(clientOptions)`
+
+  // Svelte Query v5+: thunk pattern createSuspenseInfiniteQuery(() => options)
+  if (config.useThunk) {
+    const optionsGetterCallThunk = hasArgs
+      ? `${infiniteOptionsGetterName}(args,opts.client)`
+      : `${infiniteOptionsGetterName}(opts.client)`
+    return `${docs}
+export function ${hookName}(${argsSig}options:()=>${optionsType}){return ${config.suspenseInfiniteQueryFn}(()=>{const opts=options();return{...${optionsGetterCallThunk},...opts.query}})}`
+  }
+
   return `${docs}
 export function ${hookName}(${argsSig}options:${optionsType}){const{query:queryOpts,client:clientOptions}=options;return ${config.suspenseInfiniteQueryFn}({...${optionsGetterCall},...queryOpts})}`
 }
@@ -984,6 +1035,7 @@ function makeHookCode(
             {
               suspenseQueryFn: config.suspenseQueryFn,
               useSuspenseQueryOptionsType: config.useSuspenseQueryOptionsType,
+              ...(config.useThunk ? { useThunk: true } : {}),
               ...(config.errorType ? { errorType: config.errorType } : {}),
             },
           )
@@ -1022,6 +1074,7 @@ function makeHookCode(
             {
               suspenseInfiniteQueryFn: config.suspenseInfiniteQueryFn,
               useSuspenseInfiniteQueryOptionsType: config.useSuspenseInfiniteQueryOptionsType,
+              ...(config.useThunk ? { useThunk: true } : {}),
               ...(config.errorType ? { errorType: config.errorType } : {}),
             },
           )

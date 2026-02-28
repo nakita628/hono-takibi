@@ -120,7 +120,8 @@ export function useInfiniteGetHono(options: {
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
-  const keyLoader = customKeyLoader ?? ((_index: number) => getGetHonoInfiniteKey())
+  const keyLoader =
+    customKeyLoader ?? ((index: number) => [...getGetHonoInfiniteKey(), index] as const)
   return useSWRInfinite(keyLoader, async () => getHono(clientOptions), restSwrOptions)
 }
 
@@ -193,7 +194,8 @@ export function useInfiniteGetUsers(
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
-  const keyLoader = customKeyLoader ?? ((_index: number) => getGetUsersInfiniteKey(args))
+  const keyLoader =
+    customKeyLoader ?? ((index: number) => [...getGetUsersInfiniteKey(args), index] as const)
   return useSWRInfinite(keyLoader, async () => getUsers(args, clientOptions), restSwrOptions)
 }
 
@@ -348,7 +350,8 @@ export function useInfiniteGetHono(options: {
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
-  const keyLoader = customKeyLoader ?? ((_index: number) => getGetHonoInfiniteKey())
+  const keyLoader =
+    customKeyLoader ?? ((index: number) => [...getGetHonoInfiniteKey(), index] as const)
   return useSWRInfinite(keyLoader, async () => getHono(clientOptions), restSwrOptions)
 }
 `)
@@ -432,7 +435,8 @@ export function useInfiniteGetUsers(
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
-  const keyLoader = customKeyLoader ?? ((_index: number) => getGetUsersInfiniteKey(args))
+  const keyLoader =
+    customKeyLoader ?? ((index: number) => [...getGetUsersInfiniteKey(args), index] as const)
   return useSWRInfinite(keyLoader, async () => getUsers(args, clientOptions), restSwrOptions)
 }
 `)
@@ -597,7 +601,8 @@ export function useInfiniteGetUsers(options: {
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
-  const keyLoader = customKeyLoader ?? ((_index: number) => getGetUsersInfiniteKey())
+  const keyLoader =
+    customKeyLoader ?? ((index: number) => [...getGetUsersInfiniteKey(), index] as const)
   return useSWRInfinite(keyLoader, async () => getUsers(clientOptions), restSwrOptions)
 }
 `)
@@ -702,7 +707,8 @@ export function useInfiniteGetPing(options: {
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
-  const keyLoader = customKeyLoader ?? ((_index: number) => getGetPingInfiniteKey())
+  const keyLoader =
+    customKeyLoader ?? ((index: number) => [...getGetPingInfiniteKey(), index] as const)
   return useSWRInfinite(keyLoader, async () => getPing(clientOptions), restSwrOptions)
 }
 
@@ -840,7 +846,8 @@ export function useInfiniteGetHonoX(options: {
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
-  const keyLoader = customKeyLoader ?? ((_index: number) => getGetHonoXInfiniteKey())
+  const keyLoader =
+    customKeyLoader ?? ((index: number) => [...getGetHonoXInfiniteKey(), index] as const)
   return useSWRInfinite(keyLoader, async () => getHonoX(clientOptions), restSwrOptions)
 }
 `)
@@ -955,7 +962,8 @@ export function useInfiniteGetUsersId(
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
-  const keyLoader = customKeyLoader ?? ((_index: number) => getGetUsersIdInfiniteKey(args))
+  const keyLoader =
+    customKeyLoader ?? ((index: number) => [...getGetUsersIdInfiniteKey(args), index] as const)
   return useSWRInfinite(keyLoader, async () => getUsersId(args, clientOptions), restSwrOptions)
 }
 
@@ -1125,7 +1133,8 @@ export function useInfiniteGetHono(options: {
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
-  const keyLoader = customKeyLoader ?? ((_index: number) => getGetHonoInfiniteKey())
+  const keyLoader =
+    customKeyLoader ?? ((index: number) => [...getGetHonoInfiniteKey(), index] as const)
   return useSWRInfinite(keyLoader, async () => getHono(clientOptions), restSwrOptions)
 }
 `
@@ -1224,7 +1233,8 @@ export function useInfiniteGetUsers(options: {
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
-  const keyLoader = customKeyLoader ?? ((_index: number) => getGetUsersInfiniteKey())
+  const keyLoader =
+    customKeyLoader ?? ((index: number) => [...getGetUsersInfiniteKey(), index] as const)
   return useSWRInfinite(keyLoader, async () => getUsers(clientOptions), restSwrOptions)
 }
 `)

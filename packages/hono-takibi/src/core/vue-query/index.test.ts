@@ -218,13 +218,13 @@ export async function getUsers(
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetUsersQueryOptions(
-  args: Parameters<typeof getUsers>[0],
+  args: MaybeRef<Parameters<typeof getUsers>[0]>,
   clientOptions?: ClientRequestOptions,
 ) {
   return queryOptions({
     queryKey: getGetUsersQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
-      return getUsers(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
+      return getUsers(unref(args), { ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
 }
@@ -280,13 +280,13 @@ export function getGetUsersInfiniteQueryKey(args: MaybeRef<Parameters<typeof get
  * Requires initialPageParam and getNextPageParam to be provided separately.
  */
 export function getGetUsersInfiniteQueryOptions(
-  args: Parameters<typeof getUsers>[0],
+  args: MaybeRef<Parameters<typeof getUsers>[0]>,
   clientOptions?: ClientRequestOptions,
 ) {
   return {
     queryKey: getGetUsersInfiniteQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
-      return getUsers(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
+      return getUsers(unref(args), { ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   }
 }
@@ -607,13 +607,13 @@ export async function getUsers(
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetUsersQueryOptions(
-  args: Parameters<typeof getUsers>[0],
+  args: MaybeRef<Parameters<typeof getUsers>[0]>,
   clientOptions?: ClientRequestOptions,
 ) {
   return queryOptions({
     queryKey: getGetUsersQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
-      return getUsers(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
+      return getUsers(unref(args), { ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
 }
@@ -669,13 +669,13 @@ export function getGetUsersInfiniteQueryKey(args: MaybeRef<Parameters<typeof get
  * Requires initialPageParam and getNextPageParam to be provided separately.
  */
 export function getGetUsersInfiniteQueryOptions(
-  args: Parameters<typeof getUsers>[0],
+  args: MaybeRef<Parameters<typeof getUsers>[0]>,
   clientOptions?: ClientRequestOptions,
 ) {
   return {
     queryKey: getGetUsersInfiniteQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
-      return getUsers(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
+      return getUsers(unref(args), { ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   }
 }
@@ -1403,13 +1403,13 @@ export async function getUsersId(
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetUsersIdQueryOptions(
-  args: Parameters<typeof getUsersId>[0],
+  args: MaybeRef<Parameters<typeof getUsersId>[0]>,
   clientOptions?: ClientRequestOptions,
 ) {
   return queryOptions({
     queryKey: getGetUsersIdQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
-      return getUsersId(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
+      return getUsersId(unref(args), { ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
 }
@@ -1461,13 +1461,13 @@ export function getGetUsersIdInfiniteQueryKey(args: MaybeRef<Parameters<typeof g
  * Requires initialPageParam and getNextPageParam to be provided separately.
  */
 export function getGetUsersIdInfiniteQueryOptions(
-  args: Parameters<typeof getUsersId>[0],
+  args: MaybeRef<Parameters<typeof getUsersId>[0]>,
   clientOptions?: ClientRequestOptions,
 ) {
   return {
     queryKey: getGetUsersIdInfiniteQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
-      return getUsersId(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
+      return getUsersId(unref(args), { ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   }
 }

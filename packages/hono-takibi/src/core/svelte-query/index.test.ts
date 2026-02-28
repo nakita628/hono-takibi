@@ -63,14 +63,18 @@ describe('svelteQuery', () => {
       const code = fs.readFileSync(out, 'utf-8')
       const expected = `import {
   createQuery,
+  createSuspenseQuery,
   createInfiniteQuery,
+  createSuspenseInfiniteQuery,
   createMutation,
   queryOptions,
 } from '@tanstack/svelte-query'
 import type {
   CreateQueryOptions,
   QueryFunctionContext,
+  CreateSuspenseQueryOptions,
   CreateInfiniteQueryOptions,
+  CreateSuspenseInfiniteQueryOptions,
   CreateMutationOptions,
 } from '@tanstack/svelte-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
@@ -133,6 +137,24 @@ export function createGetPets(
 }
 
 /**
+ * GET /pets
+ *
+ * List pets
+ */
+export function createSuspenseGetPets(
+  args: Parameters<typeof getPets>[0],
+  options?: () => {
+    query?: CreateSuspenseQueryOptions<Awaited<ReturnType<typeof getPets>>, Error>
+    client?: ClientRequestOptions
+  },
+) {
+  return createSuspenseQuery(() => {
+    const opts = options?.()
+    return { ...getGetPetsQueryOptions(args, opts?.client), ...opts?.query }
+  })
+}
+
+/**
  * Generates Svelte Query infinite query cache key for GET /pets
  * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
  */
@@ -173,6 +195,24 @@ export function createInfiniteGetPets(
   return createInfiniteQuery(() => {
     const opts = options()
     return { ...getGetPetsInfiniteQueryOptions(args, opts?.client), ...opts.query }
+  })
+}
+
+/**
+ * GET /pets
+ *
+ * List pets
+ */
+export function createSuspenseInfiniteGetPets(
+  args: Parameters<typeof getPets>[0],
+  options: () => {
+    query: CreateSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getPets>>, Error>
+    client?: ClientRequestOptions
+  },
+) {
+  return createSuspenseInfiniteQuery(() => {
+    const opts = options()
+    return { ...getGetPetsInfiniteQueryOptions(args, opts.client), ...opts.query }
   })
 }
 
@@ -287,6 +327,24 @@ export function createGetPetsPetId(
 }
 
 /**
+ * GET /pets/{petId}
+ *
+ * Get a pet
+ */
+export function createSuspenseGetPetsPetId(
+  args: Parameters<typeof getPetsPetId>[0],
+  options?: () => {
+    query?: CreateSuspenseQueryOptions<Awaited<ReturnType<typeof getPetsPetId>>, Error>
+    client?: ClientRequestOptions
+  },
+) {
+  return createSuspenseQuery(() => {
+    const opts = options?.()
+    return { ...getGetPetsPetIdQueryOptions(args, opts?.client), ...opts?.query }
+  })
+}
+
+/**
  * Generates Svelte Query infinite query cache key for GET /pets/{petId}
  * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
  */
@@ -327,6 +385,24 @@ export function createInfiniteGetPetsPetId(
   return createInfiniteQuery(() => {
     const opts = options()
     return { ...getGetPetsPetIdInfiniteQueryOptions(args, opts?.client), ...opts.query }
+  })
+}
+
+/**
+ * GET /pets/{petId}
+ *
+ * Get a pet
+ */
+export function createSuspenseInfiniteGetPetsPetId(
+  args: Parameters<typeof getPetsPetId>[0],
+  options: () => {
+    query: CreateSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getPetsPetId>>, Error>
+    client?: ClientRequestOptions
+  },
+) {
+  return createSuspenseInfiniteQuery(() => {
+    const opts = options()
+    return { ...getGetPetsPetIdInfiniteQueryOptions(args, opts.client), ...opts.query }
   })
 }
 
@@ -475,11 +551,19 @@ export * from './deletePetsPetId'
 
       // Check GET hook file with args (getPets)
       const createGetPets = fs.readFileSync(path.join(dir, 'hooks', 'getPets.ts'), 'utf-8')
-      const createGetPetsExpected = `import { createQuery, createInfiniteQuery, queryOptions } from '@tanstack/svelte-query'
+      const createGetPetsExpected = `import {
+  createQuery,
+  createSuspenseQuery,
+  createInfiniteQuery,
+  createSuspenseInfiniteQuery,
+  queryOptions,
+} from '@tanstack/svelte-query'
 import type {
   CreateQueryOptions,
   QueryFunctionContext,
+  CreateSuspenseQueryOptions,
   CreateInfiniteQueryOptions,
+  CreateSuspenseInfiniteQueryOptions,
 } from '@tanstack/svelte-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -541,6 +625,24 @@ export function createGetPets(
 }
 
 /**
+ * GET /pets
+ *
+ * List pets
+ */
+export function createSuspenseGetPets(
+  args: Parameters<typeof getPets>[0],
+  options?: () => {
+    query?: CreateSuspenseQueryOptions<Awaited<ReturnType<typeof getPets>>, Error>
+    client?: ClientRequestOptions
+  },
+) {
+  return createSuspenseQuery(() => {
+    const opts = options?.()
+    return { ...getGetPetsQueryOptions(args, opts?.client), ...opts?.query }
+  })
+}
+
+/**
  * Generates Svelte Query infinite query cache key for GET /pets
  * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
  */
@@ -583,6 +685,24 @@ export function createInfiniteGetPets(
     return { ...getGetPetsInfiniteQueryOptions(args, opts?.client), ...opts.query }
   })
 }
+
+/**
+ * GET /pets
+ *
+ * List pets
+ */
+export function createSuspenseInfiniteGetPets(
+  args: Parameters<typeof getPets>[0],
+  options: () => {
+    query: CreateSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getPets>>, Error>
+    client?: ClientRequestOptions
+  },
+) {
+  return createSuspenseInfiniteQuery(() => {
+    const opts = options()
+    return { ...getGetPetsInfiniteQueryOptions(args, opts.client), ...opts.query }
+  })
+}
 `
       expect(createGetPets).toBe(createGetPetsExpected)
 
@@ -591,11 +711,19 @@ export function createInfiniteGetPets(
         path.join(dir, 'hooks', 'getPetsPetId.ts'),
         'utf-8',
       )
-      const createGetPetsPetIdExpected = `import { createQuery, createInfiniteQuery, queryOptions } from '@tanstack/svelte-query'
+      const createGetPetsPetIdExpected = `import {
+  createQuery,
+  createSuspenseQuery,
+  createInfiniteQuery,
+  createSuspenseInfiniteQuery,
+  queryOptions,
+} from '@tanstack/svelte-query'
 import type {
   CreateQueryOptions,
   QueryFunctionContext,
+  CreateSuspenseQueryOptions,
   CreateInfiniteQueryOptions,
+  CreateSuspenseInfiniteQueryOptions,
 } from '@tanstack/svelte-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -657,6 +785,24 @@ export function createGetPetsPetId(
 }
 
 /**
+ * GET /pets/{petId}
+ *
+ * Get a pet
+ */
+export function createSuspenseGetPetsPetId(
+  args: Parameters<typeof getPetsPetId>[0],
+  options?: () => {
+    query?: CreateSuspenseQueryOptions<Awaited<ReturnType<typeof getPetsPetId>>, Error>
+    client?: ClientRequestOptions
+  },
+) {
+  return createSuspenseQuery(() => {
+    const opts = options?.()
+    return { ...getGetPetsPetIdQueryOptions(args, opts?.client), ...opts?.query }
+  })
+}
+
+/**
  * Generates Svelte Query infinite query cache key for GET /pets/{petId}
  * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
  */
@@ -697,6 +843,24 @@ export function createInfiniteGetPetsPetId(
   return createInfiniteQuery(() => {
     const opts = options()
     return { ...getGetPetsPetIdInfiniteQueryOptions(args, opts?.client), ...opts.query }
+  })
+}
+
+/**
+ * GET /pets/{petId}
+ *
+ * Get a pet
+ */
+export function createSuspenseInfiniteGetPetsPetId(
+  args: Parameters<typeof getPetsPetId>[0],
+  options: () => {
+    query: CreateSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getPetsPetId>>, Error>
+    client?: ClientRequestOptions
+  },
+) {
+  return createSuspenseInfiniteQuery(() => {
+    const opts = options()
+    return { ...getGetPetsPetIdInfiniteQueryOptions(args, opts.client), ...opts.query }
   })
 }
 `
@@ -928,14 +1092,18 @@ describe('svelteQuery (custom client name)', () => {
       const code = fs.readFileSync(out, 'utf-8')
       const expected = `import {
   createQuery,
+  createSuspenseQuery,
   createInfiniteQuery,
+  createSuspenseInfiniteQuery,
   createMutation,
   queryOptions,
 } from '@tanstack/svelte-query'
 import type {
   CreateQueryOptions,
   QueryFunctionContext,
+  CreateSuspenseQueryOptions,
   CreateInfiniteQueryOptions,
+  CreateSuspenseInfiniteQueryOptions,
   CreateMutationOptions,
 } from '@tanstack/svelte-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
@@ -998,6 +1166,24 @@ export function createGetPets(
 }
 
 /**
+ * GET /pets
+ *
+ * List pets
+ */
+export function createSuspenseGetPets(
+  args: Parameters<typeof getPets>[0],
+  options?: () => {
+    query?: CreateSuspenseQueryOptions<Awaited<ReturnType<typeof getPets>>, Error>
+    client?: ClientRequestOptions
+  },
+) {
+  return createSuspenseQuery(() => {
+    const opts = options?.()
+    return { ...getGetPetsQueryOptions(args, opts?.client), ...opts?.query }
+  })
+}
+
+/**
  * Generates Svelte Query infinite query cache key for GET /pets
  * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
  */
@@ -1038,6 +1224,24 @@ export function createInfiniteGetPets(
   return createInfiniteQuery(() => {
     const opts = options()
     return { ...getGetPetsInfiniteQueryOptions(args, opts?.client), ...opts.query }
+  })
+}
+
+/**
+ * GET /pets
+ *
+ * List pets
+ */
+export function createSuspenseInfiniteGetPets(
+  args: Parameters<typeof getPets>[0],
+  options: () => {
+    query: CreateSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getPets>>, Error>
+    client?: ClientRequestOptions
+  },
+) {
+  return createSuspenseInfiniteQuery(() => {
+    const opts = options()
+    return { ...getGetPetsInfiniteQueryOptions(args, opts.client), ...opts.query }
   })
 }
 
@@ -1152,6 +1356,24 @@ export function createGetPetsPetId(
 }
 
 /**
+ * GET /pets/{petId}
+ *
+ * Get a pet
+ */
+export function createSuspenseGetPetsPetId(
+  args: Parameters<typeof getPetsPetId>[0],
+  options?: () => {
+    query?: CreateSuspenseQueryOptions<Awaited<ReturnType<typeof getPetsPetId>>, Error>
+    client?: ClientRequestOptions
+  },
+) {
+  return createSuspenseQuery(() => {
+    const opts = options?.()
+    return { ...getGetPetsPetIdQueryOptions(args, opts?.client), ...opts?.query }
+  })
+}
+
+/**
  * Generates Svelte Query infinite query cache key for GET /pets/{petId}
  * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
  */
@@ -1192,6 +1414,24 @@ export function createInfiniteGetPetsPetId(
   return createInfiniteQuery(() => {
     const opts = options()
     return { ...getGetPetsPetIdInfiniteQueryOptions(args, opts?.client), ...opts.query }
+  })
+}
+
+/**
+ * GET /pets/{petId}
+ *
+ * Get a pet
+ */
+export function createSuspenseInfiniteGetPetsPetId(
+  args: Parameters<typeof getPetsPetId>[0],
+  options: () => {
+    query: CreateSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getPetsPetId>>, Error>
+    client?: ClientRequestOptions
+  },
+) {
+  return createSuspenseInfiniteQuery(() => {
+    const opts = options()
+    return { ...getGetPetsPetIdInfiniteQueryOptions(args, opts.client), ...opts.query }
   })
 }
 
@@ -1338,11 +1578,19 @@ describe('svelteQuery (no args operations)', () => {
       }
 
       const code = fs.readFileSync(out, 'utf-8')
-      const expected = `import { createQuery, createInfiniteQuery, queryOptions } from '@tanstack/svelte-query'
+      const expected = `import {
+  createQuery,
+  createSuspenseQuery,
+  createInfiniteQuery,
+  createSuspenseInfiniteQuery,
+  queryOptions,
+} from '@tanstack/svelte-query'
 import type {
   CreateQueryOptions,
   QueryFunctionContext,
+  CreateSuspenseQueryOptions,
   CreateInfiniteQueryOptions,
+  CreateSuspenseInfiniteQueryOptions,
 } from '@tanstack/svelte-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -1397,6 +1645,23 @@ export function createGetHealth(
 }
 
 /**
+ * GET /health
+ *
+ * Health check
+ */
+export function createSuspenseGetHealth(
+  options?: () => {
+    query?: CreateSuspenseQueryOptions<Awaited<ReturnType<typeof getHealth>>, Error>
+    client?: ClientRequestOptions
+  },
+) {
+  return createSuspenseQuery(() => {
+    const opts = options?.()
+    return { ...getGetHealthQueryOptions(opts?.client), ...opts?.query }
+  })
+}
+
+/**
  * Generates Svelte Query infinite query cache key for GET /health
  * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
  */
@@ -1433,6 +1698,23 @@ export function createInfiniteGetHealth(
   return createInfiniteQuery(() => {
     const opts = options()
     return { ...getGetHealthInfiniteQueryOptions(opts?.client), ...opts.query }
+  })
+}
+
+/**
+ * GET /health
+ *
+ * Health check
+ */
+export function createSuspenseInfiniteGetHealth(
+  options: () => {
+    query: CreateSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getHealth>>, Error>
+    client?: ClientRequestOptions
+  },
+) {
+  return createSuspenseInfiniteQuery(() => {
+    const opts = options()
+    return { ...getGetHealthInfiniteQueryOptions(opts.client), ...opts.query }
   })
 }
 `
@@ -1478,14 +1760,18 @@ describe('svelteQuery (path with special characters)', () => {
       const code = fs.readFileSync(out, 'utf-8')
       const expected = `import {
   createQuery,
+  createSuspenseQuery,
   createInfiniteQuery,
+  createSuspenseInfiniteQuery,
   createMutation,
   queryOptions,
 } from '@tanstack/svelte-query'
 import type {
   CreateQueryOptions,
   QueryFunctionContext,
+  CreateSuspenseQueryOptions,
   CreateInfiniteQueryOptions,
+  CreateSuspenseInfiniteQueryOptions,
   CreateMutationOptions,
 } from '@tanstack/svelte-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
@@ -1541,6 +1827,23 @@ export function createGetUserSettings(
 }
 
 /**
+ * GET /user-settings
+ *
+ * Get user settings
+ */
+export function createSuspenseGetUserSettings(
+  options?: () => {
+    query?: CreateSuspenseQueryOptions<Awaited<ReturnType<typeof getUserSettings>>, Error>
+    client?: ClientRequestOptions
+  },
+) {
+  return createSuspenseQuery(() => {
+    const opts = options?.()
+    return { ...getGetUserSettingsQueryOptions(opts?.client), ...opts?.query }
+  })
+}
+
+/**
  * Generates Svelte Query infinite query cache key for GET /user-settings
  * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
  */
@@ -1577,6 +1880,23 @@ export function createInfiniteGetUserSettings(
   return createInfiniteQuery(() => {
     const opts = options()
     return { ...getGetUserSettingsInfiniteQueryOptions(opts?.client), ...opts.query }
+  })
+}
+
+/**
+ * GET /user-settings
+ *
+ * Get user settings
+ */
+export function createSuspenseInfiniteGetUserSettings(
+  options: () => {
+    query: CreateSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getUserSettings>>, Error>
+    client?: ClientRequestOptions
+  },
+) {
+  return createSuspenseInfiniteQuery(() => {
+    const opts = options()
+    return { ...getGetUserSettingsInfiniteQueryOptions(opts.client), ...opts.query }
   })
 }
 
@@ -1693,14 +2013,18 @@ describe('svelteQuery (path parameters)', () => {
       const code = fs.readFileSync(out, 'utf-8')
       const expected = `import {
   createQuery,
+  createSuspenseQuery,
   createInfiniteQuery,
+  createSuspenseInfiniteQuery,
   createMutation,
   queryOptions,
 } from '@tanstack/svelte-query'
 import type {
   CreateQueryOptions,
   QueryFunctionContext,
+  CreateSuspenseQueryOptions,
   CreateInfiniteQueryOptions,
+  CreateSuspenseInfiniteQueryOptions,
   CreateMutationOptions,
 } from '@tanstack/svelte-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
@@ -1768,6 +2092,24 @@ export function createGetUsersUserIdPostsPostId(
 }
 
 /**
+ * GET /users/{userId}/posts/{postId}
+ *
+ * Get user post
+ */
+export function createSuspenseGetUsersUserIdPostsPostId(
+  args: Parameters<typeof getUsersUserIdPostsPostId>[0],
+  options?: () => {
+    query?: CreateSuspenseQueryOptions<Awaited<ReturnType<typeof getUsersUserIdPostsPostId>>, Error>
+    client?: ClientRequestOptions
+  },
+) {
+  return createSuspenseQuery(() => {
+    const opts = options?.()
+    return { ...getGetUsersUserIdPostsPostIdQueryOptions(args, opts?.client), ...opts?.query }
+  })
+}
+
+/**
  * Generates Svelte Query infinite query cache key for GET /users/{userId}/posts/{postId}
  * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
  */
@@ -1816,6 +2158,27 @@ export function createInfiniteGetUsersUserIdPostsPostId(
       ...getGetUsersUserIdPostsPostIdInfiniteQueryOptions(args, opts?.client),
       ...opts.query,
     }
+  })
+}
+
+/**
+ * GET /users/{userId}/posts/{postId}
+ *
+ * Get user post
+ */
+export function createSuspenseInfiniteGetUsersUserIdPostsPostId(
+  args: Parameters<typeof getUsersUserIdPostsPostId>[0],
+  options: () => {
+    query: CreateSuspenseInfiniteQueryOptions<
+      Awaited<ReturnType<typeof getUsersUserIdPostsPostId>>,
+      Error
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createSuspenseInfiniteQuery(() => {
+    const opts = options()
+    return { ...getGetUsersUserIdPostsPostIdInfiniteQueryOptions(args, opts.client), ...opts.query }
   })
 }
 
