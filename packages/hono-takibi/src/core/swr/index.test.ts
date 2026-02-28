@@ -52,6 +52,8 @@ describe('swr', () => {
 
       expect(code).toBe(`import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
+import useSWRInfinite from 'swr/infinite'
+import type { SWRInfiniteConfiguration, SWRInfiniteKeyLoader } from 'swr/infinite'
 import useSWRMutation from 'swr/mutation'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
@@ -96,6 +98,33 @@ export function useGetHono(options?: {
 }
 
 /**
+ * Generates SWR infinite query cache key for GET /hono
+ * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ */
+export function getGetHonoInfiniteKey() {
+  return ['hono', 'GET', '/hono', 'infinite'] as const
+}
+
+/**
+ * GET /hono
+ *
+ * Hono
+ *
+ * Simple ping for Hono
+ */
+export function useInfiniteGetHono(options: {
+  swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getHono>>, Error> & {
+    swrKey?: SWRInfiniteKeyLoader
+  }
+  client?: ClientRequestOptions
+}) {
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
+  const keyLoader = customKeyLoader ?? ((_index: number) => getGetHonoInfiniteKey())
+  return useSWRInfinite(keyLoader, async () => getHono(clientOptions), restSwrOptions)
+}
+
+/**
  * Generates SWR cache key for GET /users
  * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
@@ -136,6 +165,36 @@ export function useGetUsers(
   const isEnabled = enabled !== false
   const swrKey = isEnabled ? (customKey ?? getGetUsersKey(args)) : null
   return { swrKey, ...useSWR(swrKey, async () => getUsers(args, clientOptions), restSwrOptions) }
+}
+
+/**
+ * Generates SWR infinite query cache key for GET /users
+ * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
+ */
+export function getGetUsersInfiniteKey(args: Parameters<typeof getUsers>[0]) {
+  return ['users', 'GET', '/users', args, 'infinite'] as const
+}
+
+/**
+ * GET /users
+ *
+ * List users
+ *
+ * List users with pagination.
+ */
+export function useInfiniteGetUsers(
+  args: Parameters<typeof getUsers>[0],
+  options: {
+    swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getUsers>>, Error> & {
+      swrKey?: SWRInfiniteKeyLoader
+    }
+    client?: ClientRequestOptions
+  },
+) {
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
+  const keyLoader = customKeyLoader ?? ((_index: number) => getGetUsersInfiniteKey(args))
+  return useSWRInfinite(keyLoader, async () => getUsers(args, clientOptions), restSwrOptions)
 }
 
 /**
@@ -223,6 +282,8 @@ export * from './postUsers'
       const useGetHono = fs.readFileSync(path.join(dir, 'swr', 'getHono.ts'), 'utf-8')
       expect(useGetHono).toBe(`import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
+import useSWRInfinite from 'swr/infinite'
+import type { SWRInfiniteConfiguration, SWRInfiniteKeyLoader } from 'swr/infinite'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
@@ -263,12 +324,41 @@ export function useGetHono(options?: {
   const swrKey = isEnabled ? (customKey ?? getGetHonoKey()) : null
   return { swrKey, ...useSWR(swrKey, async () => getHono(clientOptions), restSwrOptions) }
 }
+
+/**
+ * Generates SWR infinite query cache key for GET /hono
+ * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ */
+export function getGetHonoInfiniteKey() {
+  return ['hono', 'GET', '/hono', 'infinite'] as const
+}
+
+/**
+ * GET /hono
+ *
+ * Hono
+ *
+ * Simple ping for Hono
+ */
+export function useInfiniteGetHono(options: {
+  swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getHono>>, Error> & {
+    swrKey?: SWRInfiniteKeyLoader
+  }
+  client?: ClientRequestOptions
+}) {
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
+  const keyLoader = customKeyLoader ?? ((_index: number) => getGetHonoInfiniteKey())
+  return useSWRInfinite(keyLoader, async () => getHono(clientOptions), restSwrOptions)
+}
 `)
 
       // Check GET hook file with args
       const useGetUsers = fs.readFileSync(path.join(dir, 'swr', 'getUsers.ts'), 'utf-8')
       expect(useGetUsers).toBe(`import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
+import useSWRInfinite from 'swr/infinite'
+import type { SWRInfiniteConfiguration, SWRInfiniteKeyLoader } from 'swr/infinite'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
@@ -314,6 +404,36 @@ export function useGetUsers(
   const isEnabled = enabled !== false
   const swrKey = isEnabled ? (customKey ?? getGetUsersKey(args)) : null
   return { swrKey, ...useSWR(swrKey, async () => getUsers(args, clientOptions), restSwrOptions) }
+}
+
+/**
+ * Generates SWR infinite query cache key for GET /users
+ * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
+ */
+export function getGetUsersInfiniteKey(args: Parameters<typeof getUsers>[0]) {
+  return ['users', 'GET', '/users', args, 'infinite'] as const
+}
+
+/**
+ * GET /users
+ *
+ * List users
+ *
+ * List users with pagination.
+ */
+export function useInfiniteGetUsers(
+  args: Parameters<typeof getUsers>[0],
+  options: {
+    swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getUsers>>, Error> & {
+      swrKey?: SWRInfiniteKeyLoader
+    }
+    client?: ClientRequestOptions
+  },
+) {
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
+  const keyLoader = customKeyLoader ?? ((_index: number) => getGetUsersInfiniteKey(args))
+  return useSWRInfinite(keyLoader, async () => getUsers(args, clientOptions), restSwrOptions)
 }
 `)
 
@@ -417,6 +537,8 @@ describe('swr (custom client name)', () => {
 
       expect(code).toBe(`import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
+import useSWRInfinite from 'swr/infinite'
+import type { SWRInfiniteConfiguration, SWRInfiniteKeyLoader } from 'swr/infinite'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { authClient } from '../api'
@@ -452,6 +574,31 @@ export function useGetUsers(options?: {
   const isEnabled = enabled !== false
   const swrKey = isEnabled ? (customKey ?? getGetUsersKey()) : null
   return { swrKey, ...useSWR(swrKey, async () => getUsers(clientOptions), restSwrOptions) }
+}
+
+/**
+ * Generates SWR infinite query cache key for GET /users
+ * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ */
+export function getGetUsersInfiniteKey() {
+  return ['users', 'GET', '/users', 'infinite'] as const
+}
+
+/**
+ * GET /users
+ *
+ * Get users
+ */
+export function useInfiniteGetUsers(options: {
+  swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getUsers>>, Error> & {
+    swrKey?: SWRInfiniteKeyLoader
+  }
+  client?: ClientRequestOptions
+}) {
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
+  const keyLoader = customKeyLoader ?? ((_index: number) => getGetUsersInfiniteKey())
+  return useSWRInfinite(keyLoader, async () => getUsers(clientOptions), restSwrOptions)
 }
 `)
     } finally {
@@ -493,6 +640,8 @@ describe('swr (no args operations)', () => {
 
       expect(code).toBe(`import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
+import useSWRInfinite from 'swr/infinite'
+import type { SWRInfiniteConfiguration, SWRInfiniteKeyLoader } from 'swr/infinite'
 import useSWRMutation from 'swr/mutation'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import type { ClientRequestOptions } from 'hono/client'
@@ -530,6 +679,31 @@ export function useGetPing(options?: {
   const isEnabled = enabled !== false
   const swrKey = isEnabled ? (customKey ?? getGetPingKey()) : null
   return { swrKey, ...useSWR(swrKey, async () => getPing(clientOptions), restSwrOptions) }
+}
+
+/**
+ * Generates SWR infinite query cache key for GET /ping
+ * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ */
+export function getGetPingInfiniteKey() {
+  return ['ping', 'GET', '/ping', 'infinite'] as const
+}
+
+/**
+ * GET /ping
+ *
+ * Ping
+ */
+export function useInfiniteGetPing(options: {
+  swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getPing>>, Error> & {
+    swrKey?: SWRInfiniteKeyLoader
+  }
+  client?: ClientRequestOptions
+}) {
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
+  const keyLoader = customKeyLoader ?? ((_index: number) => getGetPingInfiniteKey())
+  return useSWRInfinite(keyLoader, async () => getPing(clientOptions), restSwrOptions)
 }
 
 /**
@@ -606,6 +780,8 @@ describe('swr (path with special characters)', () => {
 
       expect(code).toBe(`import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
+import useSWRInfinite from 'swr/infinite'
+import type { SWRInfiniteConfiguration, SWRInfiniteKeyLoader } from 'swr/infinite'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
@@ -641,6 +817,31 @@ export function useGetHonoX(options?: {
   const isEnabled = enabled !== false
   const swrKey = isEnabled ? (customKey ?? getGetHonoXKey()) : null
   return { swrKey, ...useSWR(swrKey, async () => getHonoX(clientOptions), restSwrOptions) }
+}
+
+/**
+ * Generates SWR infinite query cache key for GET /hono-x
+ * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ */
+export function getGetHonoXInfiniteKey() {
+  return ['hono-x', 'GET', '/hono-x', 'infinite'] as const
+}
+
+/**
+ * GET /hono-x
+ *
+ * HonoX
+ */
+export function useInfiniteGetHonoX(options: {
+  swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getHonoX>>, Error> & {
+    swrKey?: SWRInfiniteKeyLoader
+  }
+  client?: ClientRequestOptions
+}) {
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
+  const keyLoader = customKeyLoader ?? ((_index: number) => getGetHonoXInfiniteKey())
+  return useSWRInfinite(keyLoader, async () => getHonoX(clientOptions), restSwrOptions)
 }
 `)
     } finally {
@@ -683,6 +884,8 @@ describe('swr (path parameters)', () => {
 
       expect(code).toBe(`import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
+import useSWRInfinite from 'swr/infinite'
+import type { SWRInfiniteConfiguration, SWRInfiniteKeyLoader } from 'swr/infinite'
 import useSWRMutation from 'swr/mutation'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
@@ -726,6 +929,34 @@ export function useGetUsersId(
   const isEnabled = enabled !== false
   const swrKey = isEnabled ? (customKey ?? getGetUsersIdKey(args)) : null
   return { swrKey, ...useSWR(swrKey, async () => getUsersId(args, clientOptions), restSwrOptions) }
+}
+
+/**
+ * Generates SWR infinite query cache key for GET /users/{id}
+ * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
+ */
+export function getGetUsersIdInfiniteKey(args: Parameters<typeof getUsersId>[0]) {
+  return ['users', 'GET', '/users/:id', args, 'infinite'] as const
+}
+
+/**
+ * GET /users/{id}
+ *
+ * Get user
+ */
+export function useInfiniteGetUsersId(
+  args: Parameters<typeof getUsersId>[0],
+  options: {
+    swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getUsersId>>, Error> & {
+      swrKey?: SWRInfiniteKeyLoader
+    }
+    client?: ClientRequestOptions
+  },
+) {
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
+  const keyLoader = customKeyLoader ?? ((_index: number) => getGetUsersIdInfiniteKey(args))
+  return useSWRInfinite(keyLoader, async () => getUsersId(args, clientOptions), restSwrOptions)
 }
 
 /**
@@ -833,6 +1064,8 @@ describe('swr (enabled priority)', () => {
 
       expect(code).toBe(`import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
+import useSWRInfinite from 'swr/infinite'
+import type { SWRInfiniteConfiguration, SWRInfiniteKeyLoader } from 'swr/infinite'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
@@ -868,6 +1101,31 @@ export function useGetUsers(options?: {
   const isEnabled = enabled !== false
   const swrKey = isEnabled ? (customKey ?? getGetUsersKey()) : null
   return { swrKey, ...useSWR(swrKey, async () => getUsers(clientOptions), restSwrOptions) }
+}
+
+/**
+ * Generates SWR infinite query cache key for GET /users
+ * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ */
+export function getGetUsersInfiniteKey() {
+  return ['users', 'GET', '/users', 'infinite'] as const
+}
+
+/**
+ * GET /users
+ *
+ * Get users
+ */
+export function useInfiniteGetUsers(options: {
+  swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getUsers>>, Error> & {
+    swrKey?: SWRInfiniteKeyLoader
+  }
+  client?: ClientRequestOptions
+}) {
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
+  const keyLoader = customKeyLoader ?? ((_index: number) => getGetUsersInfiniteKey())
+  return useSWRInfinite(keyLoader, async () => getUsers(clientOptions), restSwrOptions)
 }
 `)
     } finally {

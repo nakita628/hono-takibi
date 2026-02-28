@@ -34,6 +34,8 @@ export async function vueQuery(
     // Vue Query uses different queryKey pattern (MaybeRef, unref)
     isVueQuery: true,
     hasQueryOptionsHelper: true,
+    infiniteQueryFn: 'useInfiniteQuery',
+    useInfiniteQueryOptionsType: 'UseInfiniteQueryOptions',
   }
   return makeQueryHooks(openAPI, output, importPath, config, split, clientName)
 }

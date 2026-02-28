@@ -35,6 +35,8 @@ export async function svelteQuery(
     useQueryOptionsType: 'CreateQueryOptions',
     useMutationOptionsType: 'CreateMutationOptions',
     hasQueryOptionsHelper: true,
+    infiniteQueryFn: 'createInfiniteQuery',
+    useInfiniteQueryOptionsType: 'CreateInfiniteQueryOptions',
   }
   return makeQueryHooks(openAPI, output, importPath, config, split, clientName)
 }

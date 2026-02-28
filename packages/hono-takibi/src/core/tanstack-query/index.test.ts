@@ -49,10 +49,21 @@ describe('tanstackQuery', () => {
       }
 
       const code = fs.readFileSync(out, 'utf-8')
-      const expected = `import { useQuery, useMutation, queryOptions, mutationOptions } from '@tanstack/react-query'
+      const expected = `import {
+  useQuery,
+  useSuspenseQuery,
+  useInfiniteQuery,
+  useSuspenseInfiniteQuery,
+  useMutation,
+  queryOptions,
+  mutationOptions,
+} from '@tanstack/react-query'
 import type {
   UseQueryOptions,
   QueryFunctionContext,
+  UseSuspenseQueryOptions,
+  UseInfiniteQueryOptions,
+  UseSuspenseInfiniteQueryOptions,
   UseMutationOptions,
 } from '@tanstack/react-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
@@ -105,6 +116,77 @@ export function useGetHono(options?: {
 }) {
   const { query: queryOpts, client: clientOptions } = options ?? {}
   return useQuery({ ...getGetHonoQueryOptions(clientOptions), ...queryOpts })
+}
+
+/**
+ * GET /hono
+ *
+ * Hono
+ *
+ * Simple ping for Hono
+ */
+export function useSuspenseGetHono(options?: {
+  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getHono>>, Error>
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOpts, client: clientOptions } = options ?? {}
+  return useSuspenseQuery({ ...getGetHonoQueryOptions(clientOptions), ...queryOpts })
+}
+
+/**
+ * Generates TanStack Query infinite query cache key for GET /hono
+ * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ */
+export function getGetHonoInfiniteQueryKey() {
+  return ['hono', 'GET', '/hono', 'infinite'] as const
+}
+
+/**
+ * Returns TanStack Query infinite query options for GET /hono
+ *
+ * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
+ * Requires initialPageParam and getNextPageParam to be provided separately.
+ */
+export function getGetHonoInfiniteQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetHonoInfiniteQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getHono({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+    },
+  }
+}
+
+/**
+ * GET /hono
+ *
+ * Hono
+ *
+ * Simple ping for Hono
+ */
+export function useInfiniteGetHono(options: {
+  query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getHono>>, Error>
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOpts, client: clientOptions } = options
+  return useInfiniteQuery({ ...queryOpts, ...getGetHonoInfiniteQueryOptions(clientOptions) })
+}
+
+/**
+ * GET /hono
+ *
+ * Hono
+ *
+ * Simple ping for Hono
+ */
+export function useSuspenseInfiniteGetHono(options: {
+  query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getHono>>, Error>
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOpts, client: clientOptions } = options
+  return useSuspenseInfiniteQuery({
+    ...queryOpts,
+    ...getGetHonoInfiniteQueryOptions(clientOptions),
+  })
 }
 
 /**
@@ -162,6 +244,89 @@ export function useGetUsers(
 ) {
   const { query: queryOpts, client: clientOptions } = options ?? {}
   return useQuery({ ...getGetUsersQueryOptions(args, clientOptions), ...queryOpts })
+}
+
+/**
+ * GET /users
+ *
+ * List users
+ *
+ * List users with pagination.
+ */
+export function useSuspenseGetUsers(
+  args: Parameters<typeof getUsers>[0],
+  options?: {
+    query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
+    client?: ClientRequestOptions
+  },
+) {
+  const { query: queryOpts, client: clientOptions } = options ?? {}
+  return useSuspenseQuery({ ...getGetUsersQueryOptions(args, clientOptions), ...queryOpts })
+}
+
+/**
+ * Generates TanStack Query infinite query cache key for GET /users
+ * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
+ */
+export function getGetUsersInfiniteQueryKey(args: Parameters<typeof getUsers>[0]) {
+  return ['users', 'GET', '/users', args, 'infinite'] as const
+}
+
+/**
+ * Returns TanStack Query infinite query options for GET /users
+ *
+ * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
+ * Requires initialPageParam and getNextPageParam to be provided separately.
+ */
+export function getGetUsersInfiniteQueryOptions(
+  args: Parameters<typeof getUsers>[0],
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetUsersInfiniteQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getUsers(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
+    },
+  }
+}
+
+/**
+ * GET /users
+ *
+ * List users
+ *
+ * List users with pagination.
+ */
+export function useInfiniteGetUsers(
+  args: Parameters<typeof getUsers>[0],
+  options: {
+    query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
+    client?: ClientRequestOptions
+  },
+) {
+  const { query: queryOpts, client: clientOptions } = options
+  return useInfiniteQuery({ ...queryOpts, ...getGetUsersInfiniteQueryOptions(args, clientOptions) })
+}
+
+/**
+ * GET /users
+ *
+ * List users
+ *
+ * List users with pagination.
+ */
+export function useSuspenseInfiniteGetUsers(
+  args: Parameters<typeof getUsers>[0],
+  options: {
+    query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
+    client?: ClientRequestOptions
+  },
+) {
+  const { query: queryOpts, client: clientOptions } = options
+  return useSuspenseInfiniteQuery({
+    ...queryOpts,
+    ...getGetUsersInfiniteQueryOptions(args, clientOptions),
+  })
 }
 
 /**
@@ -252,8 +417,20 @@ export * from './postUsers'
 
       // Check GET hook file without args
       const useGetHono = fs.readFileSync(path.join(dir, 'hooks', 'getHono.ts'), 'utf-8')
-      const useGetHonoExpected = `import { useQuery, queryOptions } from '@tanstack/react-query'
-import type { UseQueryOptions, QueryFunctionContext } from '@tanstack/react-query'
+      const useGetHonoExpected = `import {
+  useQuery,
+  useSuspenseQuery,
+  useInfiniteQuery,
+  useSuspenseInfiniteQuery,
+  queryOptions,
+} from '@tanstack/react-query'
+import type {
+  UseQueryOptions,
+  QueryFunctionContext,
+  UseSuspenseQueryOptions,
+  UseInfiniteQueryOptions,
+  UseSuspenseInfiniteQueryOptions,
+} from '@tanstack/react-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
@@ -305,13 +482,96 @@ export function useGetHono(options?: {
   const { query: queryOpts, client: clientOptions } = options ?? {}
   return useQuery({ ...getGetHonoQueryOptions(clientOptions), ...queryOpts })
 }
+
+/**
+ * GET /hono
+ *
+ * Hono
+ *
+ * Simple ping for Hono
+ */
+export function useSuspenseGetHono(options?: {
+  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getHono>>, Error>
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOpts, client: clientOptions } = options ?? {}
+  return useSuspenseQuery({ ...getGetHonoQueryOptions(clientOptions), ...queryOpts })
+}
+
+/**
+ * Generates TanStack Query infinite query cache key for GET /hono
+ * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ */
+export function getGetHonoInfiniteQueryKey() {
+  return ['hono', 'GET', '/hono', 'infinite'] as const
+}
+
+/**
+ * Returns TanStack Query infinite query options for GET /hono
+ *
+ * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
+ * Requires initialPageParam and getNextPageParam to be provided separately.
+ */
+export function getGetHonoInfiniteQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetHonoInfiniteQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getHono({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+    },
+  }
+}
+
+/**
+ * GET /hono
+ *
+ * Hono
+ *
+ * Simple ping for Hono
+ */
+export function useInfiniteGetHono(options: {
+  query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getHono>>, Error>
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOpts, client: clientOptions } = options
+  return useInfiniteQuery({ ...queryOpts, ...getGetHonoInfiniteQueryOptions(clientOptions) })
+}
+
+/**
+ * GET /hono
+ *
+ * Hono
+ *
+ * Simple ping for Hono
+ */
+export function useSuspenseInfiniteGetHono(options: {
+  query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getHono>>, Error>
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOpts, client: clientOptions } = options
+  return useSuspenseInfiniteQuery({
+    ...queryOpts,
+    ...getGetHonoInfiniteQueryOptions(clientOptions),
+  })
+}
 `
       expect(useGetHono).toBe(useGetHonoExpected)
 
       // Check GET hook file with args
       const useGetUsers = fs.readFileSync(path.join(dir, 'hooks', 'getUsers.ts'), 'utf-8')
-      const useGetUsersExpected = `import { useQuery, queryOptions } from '@tanstack/react-query'
-import type { UseQueryOptions, QueryFunctionContext } from '@tanstack/react-query'
+      const useGetUsersExpected = `import {
+  useQuery,
+  useSuspenseQuery,
+  useInfiniteQuery,
+  useSuspenseInfiniteQuery,
+  queryOptions,
+} from '@tanstack/react-query'
+import type {
+  UseQueryOptions,
+  QueryFunctionContext,
+  UseSuspenseQueryOptions,
+  UseInfiniteQueryOptions,
+  UseSuspenseInfiniteQueryOptions,
+} from '@tanstack/react-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
@@ -371,6 +631,89 @@ export function useGetUsers(
 ) {
   const { query: queryOpts, client: clientOptions } = options ?? {}
   return useQuery({ ...getGetUsersQueryOptions(args, clientOptions), ...queryOpts })
+}
+
+/**
+ * GET /users
+ *
+ * List users
+ *
+ * List users with pagination.
+ */
+export function useSuspenseGetUsers(
+  args: Parameters<typeof getUsers>[0],
+  options?: {
+    query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
+    client?: ClientRequestOptions
+  },
+) {
+  const { query: queryOpts, client: clientOptions } = options ?? {}
+  return useSuspenseQuery({ ...getGetUsersQueryOptions(args, clientOptions), ...queryOpts })
+}
+
+/**
+ * Generates TanStack Query infinite query cache key for GET /users
+ * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
+ */
+export function getGetUsersInfiniteQueryKey(args: Parameters<typeof getUsers>[0]) {
+  return ['users', 'GET', '/users', args, 'infinite'] as const
+}
+
+/**
+ * Returns TanStack Query infinite query options for GET /users
+ *
+ * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
+ * Requires initialPageParam and getNextPageParam to be provided separately.
+ */
+export function getGetUsersInfiniteQueryOptions(
+  args: Parameters<typeof getUsers>[0],
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetUsersInfiniteQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getUsers(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
+    },
+  }
+}
+
+/**
+ * GET /users
+ *
+ * List users
+ *
+ * List users with pagination.
+ */
+export function useInfiniteGetUsers(
+  args: Parameters<typeof getUsers>[0],
+  options: {
+    query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
+    client?: ClientRequestOptions
+  },
+) {
+  const { query: queryOpts, client: clientOptions } = options
+  return useInfiniteQuery({ ...queryOpts, ...getGetUsersInfiniteQueryOptions(args, clientOptions) })
+}
+
+/**
+ * GET /users
+ *
+ * List users
+ *
+ * List users with pagination.
+ */
+export function useSuspenseInfiniteGetUsers(
+  args: Parameters<typeof getUsers>[0],
+  options: {
+    query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
+    client?: ClientRequestOptions
+  },
+) {
+  const { query: queryOpts, client: clientOptions } = options
+  return useSuspenseInfiniteQuery({
+    ...queryOpts,
+    ...getGetUsersInfiniteQueryOptions(args, clientOptions),
+  })
 }
 `
       expect(useGetUsers).toBe(useGetUsersExpected)
@@ -475,8 +818,20 @@ describe('tanstackQuery (custom client name)', () => {
       }
 
       const code = fs.readFileSync(out, 'utf-8')
-      const expected = `import { useQuery, queryOptions } from '@tanstack/react-query'
-import type { UseQueryOptions, QueryFunctionContext } from '@tanstack/react-query'
+      const expected = `import {
+  useQuery,
+  useSuspenseQuery,
+  useInfiniteQuery,
+  useSuspenseInfiniteQuery,
+  queryOptions,
+} from '@tanstack/react-query'
+import type {
+  UseQueryOptions,
+  QueryFunctionContext,
+  UseSuspenseQueryOptions,
+  UseInfiniteQueryOptions,
+  UseSuspenseInfiniteQueryOptions,
+} from '@tanstack/react-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { authClient } from '../api'
@@ -524,6 +879,71 @@ export function useGetUsers(options?: {
   const { query: queryOpts, client: clientOptions } = options ?? {}
   return useQuery({ ...getGetUsersQueryOptions(clientOptions), ...queryOpts })
 }
+
+/**
+ * GET /users
+ *
+ * Get users
+ */
+export function useSuspenseGetUsers(options?: {
+  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOpts, client: clientOptions } = options ?? {}
+  return useSuspenseQuery({ ...getGetUsersQueryOptions(clientOptions), ...queryOpts })
+}
+
+/**
+ * Generates TanStack Query infinite query cache key for GET /users
+ * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ */
+export function getGetUsersInfiniteQueryKey() {
+  return ['users', 'GET', '/users', 'infinite'] as const
+}
+
+/**
+ * Returns TanStack Query infinite query options for GET /users
+ *
+ * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
+ * Requires initialPageParam and getNextPageParam to be provided separately.
+ */
+export function getGetUsersInfiniteQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetUsersInfiniteQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getUsers({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+    },
+  }
+}
+
+/**
+ * GET /users
+ *
+ * Get users
+ */
+export function useInfiniteGetUsers(options: {
+  query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOpts, client: clientOptions } = options
+  return useInfiniteQuery({ ...queryOpts, ...getGetUsersInfiniteQueryOptions(clientOptions) })
+}
+
+/**
+ * GET /users
+ *
+ * Get users
+ */
+export function useSuspenseInfiniteGetUsers(options: {
+  query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOpts, client: clientOptions } = options
+  return useSuspenseInfiniteQuery({
+    ...queryOpts,
+    ...getGetUsersInfiniteQueryOptions(clientOptions),
+  })
+}
 `
       expect(code).toBe(expected)
     } finally {
@@ -562,10 +982,21 @@ describe('tanstackQuery (no args operations)', () => {
       }
 
       const code = fs.readFileSync(out, 'utf-8')
-      const expected = `import { useQuery, useMutation, queryOptions, mutationOptions } from '@tanstack/react-query'
+      const expected = `import {
+  useQuery,
+  useSuspenseQuery,
+  useInfiniteQuery,
+  useSuspenseInfiniteQuery,
+  useMutation,
+  queryOptions,
+  mutationOptions,
+} from '@tanstack/react-query'
 import type {
   UseQueryOptions,
   QueryFunctionContext,
+  UseSuspenseQueryOptions,
+  UseInfiniteQueryOptions,
+  UseSuspenseInfiniteQueryOptions,
   UseMutationOptions,
 } from '@tanstack/react-query'
 import type { ClientRequestOptions } from 'hono/client'
@@ -614,6 +1045,71 @@ export function useGetPing(options?: {
 }) {
   const { query: queryOpts, client: clientOptions } = options ?? {}
   return useQuery({ ...getGetPingQueryOptions(clientOptions), ...queryOpts })
+}
+
+/**
+ * GET /ping
+ *
+ * Ping
+ */
+export function useSuspenseGetPing(options?: {
+  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getPing>>, Error>
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOpts, client: clientOptions } = options ?? {}
+  return useSuspenseQuery({ ...getGetPingQueryOptions(clientOptions), ...queryOpts })
+}
+
+/**
+ * Generates TanStack Query infinite query cache key for GET /ping
+ * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ */
+export function getGetPingInfiniteQueryKey() {
+  return ['ping', 'GET', '/ping', 'infinite'] as const
+}
+
+/**
+ * Returns TanStack Query infinite query options for GET /ping
+ *
+ * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
+ * Requires initialPageParam and getNextPageParam to be provided separately.
+ */
+export function getGetPingInfiniteQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetPingInfiniteQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getPing({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+    },
+  }
+}
+
+/**
+ * GET /ping
+ *
+ * Ping
+ */
+export function useInfiniteGetPing(options: {
+  query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getPing>>, Error>
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOpts, client: clientOptions } = options
+  return useInfiniteQuery({ ...queryOpts, ...getGetPingInfiniteQueryOptions(clientOptions) })
+}
+
+/**
+ * GET /ping
+ *
+ * Ping
+ */
+export function useSuspenseInfiniteGetPing(options: {
+  query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getPing>>, Error>
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOpts, client: clientOptions } = options
+  return useSuspenseInfiniteQuery({
+    ...queryOpts,
+    ...getGetPingInfiniteQueryOptions(clientOptions),
+  })
 }
 
 /**
@@ -692,8 +1188,20 @@ describe('tanstackQuery (path with special characters)', () => {
       }
 
       const code = fs.readFileSync(out, 'utf-8')
-      const expected = `import { useQuery, queryOptions } from '@tanstack/react-query'
-import type { UseQueryOptions, QueryFunctionContext } from '@tanstack/react-query'
+      const expected = `import {
+  useQuery,
+  useSuspenseQuery,
+  useInfiniteQuery,
+  useSuspenseInfiniteQuery,
+  queryOptions,
+} from '@tanstack/react-query'
+import type {
+  UseQueryOptions,
+  QueryFunctionContext,
+  UseSuspenseQueryOptions,
+  UseInfiniteQueryOptions,
+  UseSuspenseInfiniteQueryOptions,
+} from '@tanstack/react-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
@@ -741,6 +1249,71 @@ export function useGetHonoX(options?: {
   const { query: queryOpts, client: clientOptions } = options ?? {}
   return useQuery({ ...getGetHonoXQueryOptions(clientOptions), ...queryOpts })
 }
+
+/**
+ * GET /hono-x
+ *
+ * HonoX
+ */
+export function useSuspenseGetHonoX(options?: {
+  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getHonoX>>, Error>
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOpts, client: clientOptions } = options ?? {}
+  return useSuspenseQuery({ ...getGetHonoXQueryOptions(clientOptions), ...queryOpts })
+}
+
+/**
+ * Generates TanStack Query infinite query cache key for GET /hono-x
+ * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ */
+export function getGetHonoXInfiniteQueryKey() {
+  return ['hono-x', 'GET', '/hono-x', 'infinite'] as const
+}
+
+/**
+ * Returns TanStack Query infinite query options for GET /hono-x
+ *
+ * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
+ * Requires initialPageParam and getNextPageParam to be provided separately.
+ */
+export function getGetHonoXInfiniteQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetHonoXInfiniteQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getHonoX({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+    },
+  }
+}
+
+/**
+ * GET /hono-x
+ *
+ * HonoX
+ */
+export function useInfiniteGetHonoX(options: {
+  query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getHonoX>>, Error>
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOpts, client: clientOptions } = options
+  return useInfiniteQuery({ ...queryOpts, ...getGetHonoXInfiniteQueryOptions(clientOptions) })
+}
+
+/**
+ * GET /hono-x
+ *
+ * HonoX
+ */
+export function useSuspenseInfiniteGetHonoX(options: {
+  query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getHonoX>>, Error>
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOpts, client: clientOptions } = options
+  return useSuspenseInfiniteQuery({
+    ...queryOpts,
+    ...getGetHonoXInfiniteQueryOptions(clientOptions),
+  })
+}
 `
       expect(code).toBe(expected)
     } finally {
@@ -780,10 +1353,21 @@ describe('tanstackQuery (path parameters)', () => {
       }
 
       const code = fs.readFileSync(out, 'utf-8')
-      const expected = `import { useQuery, useMutation, queryOptions, mutationOptions } from '@tanstack/react-query'
+      const expected = `import {
+  useQuery,
+  useSuspenseQuery,
+  useInfiniteQuery,
+  useSuspenseInfiniteQuery,
+  useMutation,
+  queryOptions,
+  mutationOptions,
+} from '@tanstack/react-query'
 import type {
   UseQueryOptions,
   QueryFunctionContext,
+  UseSuspenseQueryOptions,
+  UseInfiniteQueryOptions,
+  UseSuspenseInfiniteQueryOptions,
   UseMutationOptions,
 } from '@tanstack/react-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
@@ -841,6 +1425,86 @@ export function useGetUsersId(
 ) {
   const { query: queryOpts, client: clientOptions } = options ?? {}
   return useQuery({ ...getGetUsersIdQueryOptions(args, clientOptions), ...queryOpts })
+}
+
+/**
+ * GET /users/{id}
+ *
+ * Get user
+ */
+export function useSuspenseGetUsersId(
+  args: Parameters<typeof getUsersId>[0],
+  options?: {
+    query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getUsersId>>, Error>
+    client?: ClientRequestOptions
+  },
+) {
+  const { query: queryOpts, client: clientOptions } = options ?? {}
+  return useSuspenseQuery({ ...getGetUsersIdQueryOptions(args, clientOptions), ...queryOpts })
+}
+
+/**
+ * Generates TanStack Query infinite query cache key for GET /users/{id}
+ * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
+ */
+export function getGetUsersIdInfiniteQueryKey(args: Parameters<typeof getUsersId>[0]) {
+  return ['users', 'GET', '/users/:id', args, 'infinite'] as const
+}
+
+/**
+ * Returns TanStack Query infinite query options for GET /users/{id}
+ *
+ * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
+ * Requires initialPageParam and getNextPageParam to be provided separately.
+ */
+export function getGetUsersIdInfiniteQueryOptions(
+  args: Parameters<typeof getUsersId>[0],
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetUsersIdInfiniteQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getUsersId(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
+    },
+  }
+}
+
+/**
+ * GET /users/{id}
+ *
+ * Get user
+ */
+export function useInfiniteGetUsersId(
+  args: Parameters<typeof getUsersId>[0],
+  options: {
+    query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsersId>>, Error>
+    client?: ClientRequestOptions
+  },
+) {
+  const { query: queryOpts, client: clientOptions } = options
+  return useInfiniteQuery({
+    ...queryOpts,
+    ...getGetUsersIdInfiniteQueryOptions(args, clientOptions),
+  })
+}
+
+/**
+ * GET /users/{id}
+ *
+ * Get user
+ */
+export function useSuspenseInfiniteGetUsersId(
+  args: Parameters<typeof getUsersId>[0],
+  options: {
+    query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsersId>>, Error>
+    client?: ClientRequestOptions
+  },
+) {
+  const { query: queryOpts, client: clientOptions } = options
+  return useSuspenseInfiniteQuery({
+    ...queryOpts,
+    ...getGetUsersIdInfiniteQueryOptions(args, clientOptions),
+  })
 }
 
 /**
