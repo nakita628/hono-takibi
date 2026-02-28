@@ -1036,6 +1036,106 @@ describe('swr (invalid paths)', () => {
   })
 })
 
+/** Simple OpenAPI spec for immutable tests */
+const openapiImmutable: OpenAPI = {
+  openapi: '3.1.0',
+  info: { title: 'Test', version: '1.0.0' },
+  paths: {
+    '/hono': {
+      get: {
+        summary: 'Hono',
+        responses: { '200': { description: 'OK' } },
+      },
+    },
+  },
+}
+
+describe('swr (immutable mode)', () => {
+  it('should generate useSWRImmutable instead of useSWR when immutable is true', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-swr-immutable-'))
+    try {
+      const out = path.join(dir, 'index.ts')
+      const result = await swr(openapiImmutable, out, '../client', false, 'client', true)
+
+      if (!result.ok) {
+        throw new Error(result.error)
+      }
+
+      const code = fs.readFileSync(out, 'utf-8')
+
+      const expected = `import useSWRImmutable from 'swr/immutable'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWRInfinite from 'swr/infinite'
+import type { SWRInfiniteConfiguration, SWRInfiniteKeyLoader } from 'swr/infinite'
+import type { ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
+import { client } from '../client'
+
+/**
+ * Generates SWR cache key for GET /hono
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
+ */
+export function getGetHonoKey() {
+  return ['hono', 'GET', '/hono'] as const
+}
+
+/**
+ * GET /hono
+ *
+ * Hono
+ */
+export async function getHono(options?: ClientRequestOptions) {
+  return await parseResponse(client.hono.$get(undefined, options))
+}
+
+/**
+ * GET /hono
+ *
+ * Hono
+ */
+export function useGetHono(options?: {
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
+  client?: ClientRequestOptions
+}) {
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetHonoKey()) : null
+  return { swrKey, ...useSWRImmutable(swrKey, async () => getHono(clientOptions), restSwrOptions) }
+}
+
+/**
+ * Generates SWR infinite query cache key for GET /hono
+ * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ */
+export function getGetHonoInfiniteKey() {
+  return ['hono', 'GET', '/hono', 'infinite'] as const
+}
+
+/**
+ * GET /hono
+ *
+ * Hono
+ */
+export function useInfiniteGetHono(options: {
+  swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getHono>>, Error> & {
+    swrKey?: SWRInfiniteKeyLoader
+  }
+  client?: ClientRequestOptions
+}) {
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
+  const keyLoader = customKeyLoader ?? ((_index: number) => getGetHonoInfiniteKey())
+  return useSWRInfinite(keyLoader, async () => getHono(clientOptions), restSwrOptions)
+}
+`
+      expect(code).toBe(expected)
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+})
+
 describe('swr (enabled priority)', () => {
   it('should prioritize enabled over swrKey - enabled:false means no fetch even with swrKey', async () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-swr-enabled-'))

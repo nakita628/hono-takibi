@@ -20,6 +20,7 @@ export async function swr(
   importPath: string,
   split?: boolean,
   clientName = 'client',
+  immutable?: boolean,
 ): Promise<
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {
@@ -27,11 +28,12 @@ export async function swr(
     packageName: 'swr',
     frameworkName: 'SWR',
     hookPrefix: 'use',
-    queryFn: 'useSWR',
+    queryFn: immutable ? 'useSWRImmutable' : 'useSWR',
     mutationFn: 'useSWRMutation',
     useQueryOptionsType: 'SWRConfiguration',
     useMutationOptionsType: 'SWRMutationConfiguration',
     isSWR: true,
+    ...(immutable ? { immutable: true } : {}),
   }
   const result = await makeQueryHooks(openAPI, output, importPath, config, split, clientName)
 

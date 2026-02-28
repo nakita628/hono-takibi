@@ -320,6 +320,7 @@ function makeSWRQueryHookCode(
   argsType: string,
   parseResponseFuncName: string,
   docs: string,
+  queryFn = 'useSWR',
 ): string {
   const argsSig = hasArgs ? `args:${argsType},` : ''
   const swrConfigType = 'SWRConfiguration&{swrKey?:Key;enabled?:boolean}'
@@ -331,7 +332,7 @@ function makeSWRQueryHookCode(
     : `${parseResponseFuncName}(clientOptions)`
 
   return `${docs}
-export function ${hookName}(${argsSig}${optionsSig}){const{swr:swrOptions,client:clientOptions}=options??{};const{swrKey:customKey,enabled,...restSwrOptions}=swrOptions??{};const isEnabled=enabled!==false;const swrKey=isEnabled?(customKey??${keyCall}):null;return{swrKey,...useSWR(swrKey,async()=>${fetcherCall},restSwrOptions)}}`
+export function ${hookName}(${argsSig}${optionsSig}){const{swr:swrOptions,client:clientOptions}=options??{};const{swrKey:customKey,enabled,...restSwrOptions}=swrOptions??{};const isEnabled=enabled!==false;const swrKey=isEnabled?(customKey??${keyCall}):null;return{swrKey,...${queryFn}(swrKey,async()=>${fetcherCall},restSwrOptions)}}`
 }
 
 /* ─────────────────────────────── SWR Infinite Query Hook Code ─────────────────────────────── */
@@ -352,9 +353,10 @@ function makeSWRInfiniteHookCode(
   responseType: string,
   parseResponseFuncName: string,
   docs: string,
+  errorType = 'Error',
 ): string {
   const argsSig = hasArgs ? `args:${argsType},` : ''
-  const swrConfigType = `SWRInfiniteConfiguration<${responseType},Error>&{swrKey?:SWRInfiniteKeyLoader}`
+  const swrConfigType = `SWRInfiniteConfiguration<${responseType},${errorType}>&{swrKey?:SWRInfiniteKeyLoader}`
   const optionsSig = `options:{swr?:${swrConfigType};client?:ClientRequestOptions}`
 
   const keyCall = hasArgs
@@ -381,12 +383,14 @@ function makeQueryHookCode(
     queryFn: string
     useThunk?: boolean
     useQueryOptionsType: string
+    errorType?: string
   },
 ): string {
   const argsSig = hasArgs ? `args:${argsType},` : ''
+  const errorType = config.errorType ?? 'Error'
 
   // Use official TanStack Query options type
-  const queryOptionsType = `${config.useQueryOptionsType}<${responseType},Error>`
+  const queryOptionsType = `${config.useQueryOptionsType}<${responseType},${errorType}>`
   const optionsType = `{query?:${queryOptionsType};client?:ClientRequestOptions}`
 
   // Svelte Query v5+ requires thunk pattern: createQuery(() => options)
@@ -419,10 +423,12 @@ function makeSuspenseQueryHookCode(
   config: {
     suspenseQueryFn: string
     useSuspenseQueryOptionsType: string
+    errorType?: string
   },
 ): string {
   const argsSig = hasArgs ? `args:${argsType},` : ''
-  const queryOptionsType = `${config.useSuspenseQueryOptionsType}<${responseType},Error>`
+  const errorType = config.errorType ?? 'Error'
+  const queryOptionsType = `${config.useSuspenseQueryOptionsType}<${responseType},${errorType}>`
   const optionsType = `{query?:${queryOptionsType};client?:ClientRequestOptions}`
   const optionsGetterCall = hasArgs
     ? `${optionsGetterName}(args,clientOptions)`
@@ -501,10 +507,12 @@ function makeInfiniteQueryHookCode(
     infiniteQueryFn: string
     useInfiniteQueryOptionsType: string
     useThunk?: boolean
+    errorType?: string
   },
 ): string {
   const argsSig = hasArgs ? `args:${argsType},` : ''
-  const queryOptionsType = `${config.useInfiniteQueryOptionsType}<${responseType},Error>`
+  const errorType = config.errorType ?? 'Error'
+  const queryOptionsType = `${config.useInfiniteQueryOptionsType}<${responseType},${errorType}>`
   const optionsType = `{query:${queryOptionsType};client?:ClientRequestOptions}`
   const optionsGetterCall = hasArgs
     ? `${infiniteOptionsGetterName}(args,clientOptions)`
@@ -516,12 +524,12 @@ function makeInfiniteQueryHookCode(
       ? `${infiniteOptionsGetterName}(args,opts?.client)`
       : `${infiniteOptionsGetterName}(opts?.client)`
     return `${docs}
-export function ${hookName}(${argsSig}options:()=>${optionsType}){return ${config.infiniteQueryFn}(()=>{const opts=options();return{...opts.query,...${optionsGetterCallThunk}}})}`
+export function ${hookName}(${argsSig}options:()=>${optionsType}){return ${config.infiniteQueryFn}(()=>{const opts=options();return{...${optionsGetterCallThunk},...opts.query}})}`
   }
 
   // React TanStack Query / Vue Query: direct spread
   return `${docs}
-export function ${hookName}(${argsSig}options:${optionsType}){const{query:queryOpts,client:clientOptions}=options;return ${config.infiniteQueryFn}({...queryOpts,...${optionsGetterCall}})}`
+export function ${hookName}(${argsSig}options:${optionsType}){const{query:queryOpts,client:clientOptions}=options;return ${config.infiniteQueryFn}({...${optionsGetterCall},...queryOpts})}`
 }
 
 /* ─────────────────────────────── Suspense Infinite Query Hook Code ─────────────────────────────── */
@@ -536,16 +544,18 @@ function makeSuspenseInfiniteQueryHookCode(
   config: {
     suspenseInfiniteQueryFn: string
     useSuspenseInfiniteQueryOptionsType: string
+    errorType?: string
   },
 ): string {
   const argsSig = hasArgs ? `args:${argsType},` : ''
-  const queryOptionsType = `${config.useSuspenseInfiniteQueryOptionsType}<${responseType},Error>`
+  const errorType = config.errorType ?? 'Error'
+  const queryOptionsType = `${config.useSuspenseInfiniteQueryOptionsType}<${responseType},${errorType}>`
   const optionsType = `{query:${queryOptionsType};client?:ClientRequestOptions}`
   const optionsGetterCall = hasArgs
     ? `${infiniteOptionsGetterName}(args,clientOptions)`
     : `${infiniteOptionsGetterName}(clientOptions)`
   return `${docs}
-export function ${hookName}(${argsSig}options:${optionsType}){const{query:queryOpts,client:clientOptions}=options;return ${config.suspenseInfiniteQueryFn}({...queryOpts,...${optionsGetterCall}})}`
+export function ${hookName}(${argsSig}options:${optionsType}){const{query:queryOpts,client:clientOptions}=options;return ${config.suspenseInfiniteQueryFn}({...${optionsGetterCall},...queryOpts})}`
 }
 
 /* ─────────────────────────────── Mutation Key Getter ─────────────────────────────── */
@@ -677,12 +687,17 @@ function makeSWRHeader(
   hasQuery: boolean,
   hasMutation: boolean,
   hasAnyArgs: boolean,
+  immutable?: boolean,
 ): string {
   const lines: string[] = []
 
   // SWR imports - Key is needed for both query and mutation
   if (hasQuery) {
-    lines.push("import useSWR from'swr'")
+    if (immutable) {
+      lines.push("import useSWRImmutable from'swr/immutable'")
+    } else {
+      lines.push("import useSWR from'swr'")
+    }
     lines.push("import type{Key,SWRConfiguration}from'swr'")
     lines.push("import useSWRInfinite from'swr/infinite'")
     lines.push("import type{SWRInfiniteConfiguration,SWRInfiniteKeyLoader}from'swr/infinite'")
@@ -723,10 +738,11 @@ function makeSWRMutationHookCode(
   parseResponseFuncName: string,
   docs: string,
   hasNoContent: boolean,
+  errorType = 'Error',
 ): string {
   const variablesType = hasArgs ? argsType : 'undefined'
   const responseTypeWithUndefined = hasNoContent ? `${responseType}|undefined` : responseType
-  const mutationConfigType = `SWRMutationConfiguration<${responseTypeWithUndefined},Error,Key,${variablesType}>`
+  const mutationConfigType = `SWRMutationConfiguration<${responseTypeWithUndefined},${errorType},Key,${variablesType}>`
 
   if (hasArgs) {
     const optionsSig = `options?:{mutation?:${mutationConfigType}&{swrKey?:Key};client?:ClientRequestOptions}`
@@ -753,16 +769,18 @@ function makeMutationHookCode(
     mutationFn: string
     useThunk?: boolean
     useMutationOptionsType: string
+    errorType?: string
   },
   hasNoContent: boolean,
 ): string {
   const variablesType = hasArgs ? argsType : 'void'
+  const errorType = config.errorType ?? 'Error'
 
   // For 204/205 responses, parseResponse returns undefined
   const dataType = hasNoContent ? `${responseType}|undefined` : responseType
 
   // Use official TanStack Query mutation options type
-  const mutationOptionsType = `${config.useMutationOptionsType}<${dataType},Error,${variablesType}>`
+  const mutationOptionsType = `${config.useMutationOptionsType}<${dataType},${errorType},${variablesType}>`
   const optionsType = `{mutation?:${mutationOptionsType};client?:ClientRequestOptions}`
 
   // Use getMutationOptions to include mutationKey (for setMutationDefaults, isMutating, etc.)
@@ -802,6 +820,8 @@ function makeHookCode(
     useSuspenseQueryOptionsType?: string
     useInfiniteQueryOptionsType?: string
     useSuspenseInfiniteQueryOptionsType?: string
+    errorType?: string
+    immutable?: boolean
   },
   clientName: string,
 ): { code: string; isQuery: boolean; hasArgs: boolean; parseResponseFuncName: string } | null {
@@ -854,6 +874,7 @@ function makeHookCode(
         argsType,
         parseResponseFuncName,
         docs,
+        config.queryFn,
       )
       // Infinite query support
       const infiniteKeyGetterName = makeInfiniteQueryKeyGetterName(method, pathStr, true)
@@ -873,6 +894,7 @@ function makeHookCode(
         responseType,
         parseResponseFuncName,
         docs,
+        config.errorType,
       )
       // Order: key → wrapper → hook → infiniteKey → infiniteHook
       return {
@@ -894,6 +916,7 @@ function makeHookCode(
       parseResponseFuncName,
       docs,
       hasNoContent,
+      config.errorType,
     )
     return {
       code: `${keyGetterCode}\n\n${wrapperCode}\n\n${hookCode}`,
@@ -961,6 +984,7 @@ function makeHookCode(
             {
               suspenseQueryFn: config.suspenseQueryFn,
               useSuspenseQueryOptionsType: config.useSuspenseQueryOptionsType,
+              ...(config.errorType ? { errorType: config.errorType } : {}),
             },
           )
         : null
@@ -979,6 +1003,7 @@ function makeHookCode(
             infiniteQueryFn: config.infiniteQueryFn!,
             useInfiniteQueryOptionsType: config.useInfiniteQueryOptionsType!,
             ...(config.useThunk ? { useThunk: true } : {}),
+            ...(config.errorType ? { errorType: config.errorType } : {}),
           },
         )
       : null
@@ -997,6 +1022,7 @@ function makeHookCode(
             {
               suspenseInfiniteQueryFn: config.suspenseInfiniteQueryFn,
               useSuspenseInfiniteQueryOptionsType: config.useSuspenseInfiniteQueryOptionsType,
+              ...(config.errorType ? { errorType: config.errorType } : {}),
             },
           )
         : null
@@ -1078,6 +1104,8 @@ function makeHookCodes(
     useSuspenseQueryOptionsType?: string
     useInfiniteQueryOptionsType?: string
     useSuspenseInfiniteQueryOptionsType?: string
+    errorType?: string
+    immutable?: boolean
   },
   clientName: string,
 ): {
@@ -1153,12 +1181,13 @@ function makeHeader(
     useSuspenseQueryOptionsType?: string
     useInfiniteQueryOptionsType?: string
     useSuspenseInfiniteQueryOptionsType?: string
+    immutable?: boolean
   },
   hasQueryWithArgs = false,
 ): string {
   // SWR has different import structure
   if (config.isSWR) {
-    return makeSWRHeader(importPath, clientName, hasQuery, hasMutation, hasAnyArgs)
+    return makeSWRHeader(importPath, clientName, hasQuery, hasMutation, hasAnyArgs, config.immutable)
   }
 
   const queryImports = [
@@ -1248,6 +1277,8 @@ export async function makeQueryHooks(
     useSuspenseQueryOptionsType?: string
     useInfiniteQueryOptionsType?: string
     useSuspenseInfiniteQueryOptionsType?: string
+    errorType?: string
+    immutable?: boolean
   },
   split?: boolean,
   clientName = 'client',

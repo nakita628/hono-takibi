@@ -172,7 +172,7 @@ export function createInfiniteGetPets(
 ) {
   return createInfiniteQuery(() => {
     const opts = options()
-    return { ...opts.query, ...getGetPetsInfiniteQueryOptions(args, opts?.client) }
+    return { ...getGetPetsInfiniteQueryOptions(args, opts?.client), ...opts.query }
   })
 }
 
@@ -326,7 +326,7 @@ export function createInfiniteGetPetsPetId(
 ) {
   return createInfiniteQuery(() => {
     const opts = options()
-    return { ...opts.query, ...getGetPetsPetIdInfiniteQueryOptions(args, opts?.client) }
+    return { ...getGetPetsPetIdInfiniteQueryOptions(args, opts?.client), ...opts.query }
   })
 }
 
@@ -580,7 +580,7 @@ export function createInfiniteGetPets(
 ) {
   return createInfiniteQuery(() => {
     const opts = options()
-    return { ...opts.query, ...getGetPetsInfiniteQueryOptions(args, opts?.client) }
+    return { ...getGetPetsInfiniteQueryOptions(args, opts?.client), ...opts.query }
   })
 }
 `
@@ -696,7 +696,7 @@ export function createInfiniteGetPetsPetId(
 ) {
   return createInfiniteQuery(() => {
     const opts = options()
-    return { ...opts.query, ...getGetPetsPetIdInfiniteQueryOptions(args, opts?.client) }
+    return { ...getGetPetsPetIdInfiniteQueryOptions(args, opts?.client), ...opts.query }
   })
 }
 `
@@ -1037,7 +1037,7 @@ export function createInfiniteGetPets(
 ) {
   return createInfiniteQuery(() => {
     const opts = options()
-    return { ...opts.query, ...getGetPetsInfiniteQueryOptions(args, opts?.client) }
+    return { ...getGetPetsInfiniteQueryOptions(args, opts?.client), ...opts.query }
   })
 }
 
@@ -1191,7 +1191,7 @@ export function createInfiniteGetPetsPetId(
 ) {
   return createInfiniteQuery(() => {
     const opts = options()
-    return { ...opts.query, ...getGetPetsPetIdInfiniteQueryOptions(args, opts?.client) }
+    return { ...getGetPetsPetIdInfiniteQueryOptions(args, opts?.client), ...opts.query }
   })
 }
 
@@ -1432,7 +1432,7 @@ export function createInfiniteGetHealth(
 ) {
   return createInfiniteQuery(() => {
     const opts = options()
-    return { ...opts.query, ...getGetHealthInfiniteQueryOptions(opts?.client) }
+    return { ...getGetHealthInfiniteQueryOptions(opts?.client), ...opts.query }
   })
 }
 `
@@ -1576,7 +1576,7 @@ export function createInfiniteGetUserSettings(
 ) {
   return createInfiniteQuery(() => {
     const opts = options()
-    return { ...opts.query, ...getGetUserSettingsInfiniteQueryOptions(opts?.client) }
+    return { ...getGetUserSettingsInfiniteQueryOptions(opts?.client), ...opts.query }
   })
 }
 
@@ -1813,8 +1813,8 @@ export function createInfiniteGetUsersUserIdPostsPostId(
   return createInfiniteQuery(() => {
     const opts = options()
     return {
-      ...opts.query,
       ...getGetUsersUserIdPostsPostIdInfiniteQueryOptions(args, opts?.client),
+      ...opts.query,
     }
   })
 }

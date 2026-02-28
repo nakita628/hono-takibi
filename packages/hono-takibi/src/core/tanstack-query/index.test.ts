@@ -168,7 +168,7 @@ export function useInfiniteGetHono(options: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOpts, client: clientOptions } = options
-  return useInfiniteQuery({ ...queryOpts, ...getGetHonoInfiniteQueryOptions(clientOptions) })
+  return useInfiniteQuery({ ...getGetHonoInfiniteQueryOptions(clientOptions), ...queryOpts })
 }
 
 /**
@@ -184,8 +184,8 @@ export function useSuspenseInfiniteGetHono(options: {
 }) {
   const { query: queryOpts, client: clientOptions } = options
   return useSuspenseInfiniteQuery({
-    ...queryOpts,
     ...getGetHonoInfiniteQueryOptions(clientOptions),
+    ...queryOpts,
   })
 }
 
@@ -305,7 +305,7 @@ export function useInfiniteGetUsers(
   },
 ) {
   const { query: queryOpts, client: clientOptions } = options
-  return useInfiniteQuery({ ...queryOpts, ...getGetUsersInfiniteQueryOptions(args, clientOptions) })
+  return useInfiniteQuery({ ...getGetUsersInfiniteQueryOptions(args, clientOptions), ...queryOpts })
 }
 
 /**
@@ -324,8 +324,8 @@ export function useSuspenseInfiniteGetUsers(
 ) {
   const { query: queryOpts, client: clientOptions } = options
   return useSuspenseInfiniteQuery({
-    ...queryOpts,
     ...getGetUsersInfiniteQueryOptions(args, clientOptions),
+    ...queryOpts,
   })
 }
 
@@ -533,7 +533,7 @@ export function useInfiniteGetHono(options: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOpts, client: clientOptions } = options
-  return useInfiniteQuery({ ...queryOpts, ...getGetHonoInfiniteQueryOptions(clientOptions) })
+  return useInfiniteQuery({ ...getGetHonoInfiniteQueryOptions(clientOptions), ...queryOpts })
 }
 
 /**
@@ -549,8 +549,8 @@ export function useSuspenseInfiniteGetHono(options: {
 }) {
   const { query: queryOpts, client: clientOptions } = options
   return useSuspenseInfiniteQuery({
-    ...queryOpts,
     ...getGetHonoInfiniteQueryOptions(clientOptions),
+    ...queryOpts,
   })
 }
 `
@@ -692,7 +692,7 @@ export function useInfiniteGetUsers(
   },
 ) {
   const { query: queryOpts, client: clientOptions } = options
-  return useInfiniteQuery({ ...queryOpts, ...getGetUsersInfiniteQueryOptions(args, clientOptions) })
+  return useInfiniteQuery({ ...getGetUsersInfiniteQueryOptions(args, clientOptions), ...queryOpts })
 }
 
 /**
@@ -711,8 +711,8 @@ export function useSuspenseInfiniteGetUsers(
 ) {
   const { query: queryOpts, client: clientOptions } = options
   return useSuspenseInfiniteQuery({
-    ...queryOpts,
     ...getGetUsersInfiniteQueryOptions(args, clientOptions),
+    ...queryOpts,
   })
 }
 `
@@ -926,7 +926,7 @@ export function useInfiniteGetUsers(options: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOpts, client: clientOptions } = options
-  return useInfiniteQuery({ ...queryOpts, ...getGetUsersInfiniteQueryOptions(clientOptions) })
+  return useInfiniteQuery({ ...getGetUsersInfiniteQueryOptions(clientOptions), ...queryOpts })
 }
 
 /**
@@ -940,8 +940,8 @@ export function useSuspenseInfiniteGetUsers(options: {
 }) {
   const { query: queryOpts, client: clientOptions } = options
   return useSuspenseInfiniteQuery({
-    ...queryOpts,
     ...getGetUsersInfiniteQueryOptions(clientOptions),
+    ...queryOpts,
   })
 }
 `
@@ -1093,7 +1093,7 @@ export function useInfiniteGetPing(options: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOpts, client: clientOptions } = options
-  return useInfiniteQuery({ ...queryOpts, ...getGetPingInfiniteQueryOptions(clientOptions) })
+  return useInfiniteQuery({ ...getGetPingInfiniteQueryOptions(clientOptions), ...queryOpts })
 }
 
 /**
@@ -1107,8 +1107,8 @@ export function useSuspenseInfiniteGetPing(options: {
 }) {
   const { query: queryOpts, client: clientOptions } = options
   return useSuspenseInfiniteQuery({
-    ...queryOpts,
     ...getGetPingInfiniteQueryOptions(clientOptions),
+    ...queryOpts,
   })
 }
 
@@ -1296,7 +1296,7 @@ export function useInfiniteGetHonoX(options: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOpts, client: clientOptions } = options
-  return useInfiniteQuery({ ...queryOpts, ...getGetHonoXInfiniteQueryOptions(clientOptions) })
+  return useInfiniteQuery({ ...getGetHonoXInfiniteQueryOptions(clientOptions), ...queryOpts })
 }
 
 /**
@@ -1310,8 +1310,8 @@ export function useSuspenseInfiniteGetHonoX(options: {
 }) {
   const { query: queryOpts, client: clientOptions } = options
   return useSuspenseInfiniteQuery({
-    ...queryOpts,
     ...getGetHonoXInfiniteQueryOptions(clientOptions),
+    ...queryOpts,
   })
 }
 `
@@ -1483,8 +1483,8 @@ export function useInfiniteGetUsersId(
 ) {
   const { query: queryOpts, client: clientOptions } = options
   return useInfiniteQuery({
-    ...queryOpts,
     ...getGetUsersIdInfiniteQueryOptions(args, clientOptions),
+    ...queryOpts,
   })
 }
 
@@ -1502,8 +1502,8 @@ export function useSuspenseInfiniteGetUsersId(
 ) {
   const { query: queryOpts, client: clientOptions } = options
   return useSuspenseInfiniteQuery({
-    ...queryOpts,
     ...getGetUsersIdInfiniteQueryOptions(args, clientOptions),
+    ...queryOpts,
   })
 }
 
