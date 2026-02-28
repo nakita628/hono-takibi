@@ -49,20 +49,11 @@ describe('vueQuery', () => {
       }
 
       const code = fs.readFileSync(out, 'utf-8')
-      const expected = `import {
-  useQuery,
-  useSuspenseQuery,
-  useInfiniteQuery,
-  useSuspenseInfiniteQuery,
-  useMutation,
-  queryOptions,
-} from '@tanstack/vue-query'
+      const expected = `import { useQuery, useInfiniteQuery, useMutation } from '@tanstack/vue-query'
 import type {
   UseQueryOptions,
   QueryFunctionContext,
-  UseSuspenseQueryOptions,
   UseInfiniteQueryOptions,
-  UseSuspenseInfiniteQueryOptions,
   UseMutationOptions,
 } from '@tanstack/vue-query'
 import { unref } from 'vue'
@@ -96,12 +87,12 @@ export async function getHono(options?: ClientRequestOptions) {
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetHonoQueryOptions(clientOptions?: ClientRequestOptions) {
-  return queryOptions({
+  return {
     queryKey: getGetHonoQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getHono({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  })
+  }
 }
 
 /**
@@ -117,21 +108,6 @@ export function useGetHono(options?: {
 }) {
   const { query: queryOpts, client: clientOptions } = options ?? {}
   return useQuery({ ...getGetHonoQueryOptions(clientOptions), ...queryOpts })
-}
-
-/**
- * GET /hono
- *
- * Hono
- *
- * Simple ping for Hono
- */
-export function useSuspenseGetHono(options?: {
-  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getHono>>, Error>
-  client?: ClientRequestOptions
-}) {
-  const { query: queryOpts, client: clientOptions } = options ?? {}
-  return useSuspenseQuery({ ...getGetHonoQueryOptions(clientOptions), ...queryOpts })
 }
 
 /**
@@ -173,24 +149,6 @@ export function useInfiniteGetHono(options: {
 }
 
 /**
- * GET /hono
- *
- * Hono
- *
- * Simple ping for Hono
- */
-export function useSuspenseInfiniteGetHono(options: {
-  query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getHono>>, Error>
-  client?: ClientRequestOptions
-}) {
-  const { query: queryOpts, client: clientOptions } = options
-  return useSuspenseInfiniteQuery({
-    ...getGetHonoInfiniteQueryOptions(clientOptions),
-    ...queryOpts,
-  })
-}
-
-/**
  * Generates Vue Query cache key for GET /users
  * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
@@ -221,12 +179,12 @@ export function getGetUsersQueryOptions(
   args: MaybeRef<Parameters<typeof getUsers>[0]>,
   clientOptions?: ClientRequestOptions,
 ) {
-  return queryOptions({
+  return {
     queryKey: getGetUsersQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getUsers(unref(args), { ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  })
+  }
 }
 
 /**
@@ -245,24 +203,6 @@ export function useGetUsers(
 ) {
   const { query: queryOpts, client: clientOptions } = options ?? {}
   return useQuery({ ...getGetUsersQueryOptions(args, clientOptions), ...queryOpts })
-}
-
-/**
- * GET /users
- *
- * List users
- *
- * List users with pagination.
- */
-export function useSuspenseGetUsers(
-  args: Parameters<typeof getUsers>[0],
-  options?: {
-    query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
-    client?: ClientRequestOptions
-  },
-) {
-  const { query: queryOpts, client: clientOptions } = options ?? {}
-  return useSuspenseQuery({ ...getGetUsersQueryOptions(args, clientOptions), ...queryOpts })
 }
 
 /**
@@ -307,27 +247,6 @@ export function useInfiniteGetUsers(
 ) {
   const { query: queryOpts, client: clientOptions } = options
   return useInfiniteQuery({ ...getGetUsersInfiniteQueryOptions(args, clientOptions), ...queryOpts })
-}
-
-/**
- * GET /users
- *
- * List users
- *
- * List users with pagination.
- */
-export function useSuspenseInfiniteGetUsers(
-  args: Parameters<typeof getUsers>[0],
-  options: {
-    query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
-    client?: ClientRequestOptions
-  },
-) {
-  const { query: queryOpts, client: clientOptions } = options
-  return useSuspenseInfiniteQuery({
-    ...getGetUsersInfiniteQueryOptions(args, clientOptions),
-    ...queryOpts,
-  })
 }
 
 /**
@@ -418,19 +337,11 @@ export * from './postUsers'
 
       // Check GET hook file without args
       const useGetHono = fs.readFileSync(path.join(dir, 'hooks', 'getHono.ts'), 'utf-8')
-      const useGetHonoExpected = `import {
-  useQuery,
-  useSuspenseQuery,
-  useInfiniteQuery,
-  useSuspenseInfiniteQuery,
-  queryOptions,
-} from '@tanstack/vue-query'
+      const useGetHonoExpected = `import { useQuery, useInfiniteQuery } from '@tanstack/vue-query'
 import type {
   UseQueryOptions,
   QueryFunctionContext,
-  UseSuspenseQueryOptions,
   UseInfiniteQueryOptions,
-  UseSuspenseInfiniteQueryOptions,
 } from '@tanstack/vue-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -461,12 +372,12 @@ export async function getHono(options?: ClientRequestOptions) {
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetHonoQueryOptions(clientOptions?: ClientRequestOptions) {
-  return queryOptions({
+  return {
     queryKey: getGetHonoQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getHono({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  })
+  }
 }
 
 /**
@@ -482,21 +393,6 @@ export function useGetHono(options?: {
 }) {
   const { query: queryOpts, client: clientOptions } = options ?? {}
   return useQuery({ ...getGetHonoQueryOptions(clientOptions), ...queryOpts })
-}
-
-/**
- * GET /hono
- *
- * Hono
- *
- * Simple ping for Hono
- */
-export function useSuspenseGetHono(options?: {
-  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getHono>>, Error>
-  client?: ClientRequestOptions
-}) {
-  const { query: queryOpts, client: clientOptions } = options ?? {}
-  return useSuspenseQuery({ ...getGetHonoQueryOptions(clientOptions), ...queryOpts })
 }
 
 /**
@@ -536,42 +432,16 @@ export function useInfiniteGetHono(options: {
   const { query: queryOpts, client: clientOptions } = options
   return useInfiniteQuery({ ...getGetHonoInfiniteQueryOptions(clientOptions), ...queryOpts })
 }
-
-/**
- * GET /hono
- *
- * Hono
- *
- * Simple ping for Hono
- */
-export function useSuspenseInfiniteGetHono(options: {
-  query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getHono>>, Error>
-  client?: ClientRequestOptions
-}) {
-  const { query: queryOpts, client: clientOptions } = options
-  return useSuspenseInfiniteQuery({
-    ...getGetHonoInfiniteQueryOptions(clientOptions),
-    ...queryOpts,
-  })
-}
 `
       expect(useGetHono).toBe(useGetHonoExpected)
 
       // Check GET hook file with args
       const useGetUsers = fs.readFileSync(path.join(dir, 'hooks', 'getUsers.ts'), 'utf-8')
-      const useGetUsersExpected = `import {
-  useQuery,
-  useSuspenseQuery,
-  useInfiniteQuery,
-  useSuspenseInfiniteQuery,
-  queryOptions,
-} from '@tanstack/vue-query'
+      const useGetUsersExpected = `import { useQuery, useInfiniteQuery } from '@tanstack/vue-query'
 import type {
   UseQueryOptions,
   QueryFunctionContext,
-  UseSuspenseQueryOptions,
   UseInfiniteQueryOptions,
-  UseSuspenseInfiniteQueryOptions,
 } from '@tanstack/vue-query'
 import { unref } from 'vue'
 import type { MaybeRef } from 'vue'
@@ -610,12 +480,12 @@ export function getGetUsersQueryOptions(
   args: MaybeRef<Parameters<typeof getUsers>[0]>,
   clientOptions?: ClientRequestOptions,
 ) {
-  return queryOptions({
+  return {
     queryKey: getGetUsersQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getUsers(unref(args), { ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  })
+  }
 }
 
 /**
@@ -634,24 +504,6 @@ export function useGetUsers(
 ) {
   const { query: queryOpts, client: clientOptions } = options ?? {}
   return useQuery({ ...getGetUsersQueryOptions(args, clientOptions), ...queryOpts })
-}
-
-/**
- * GET /users
- *
- * List users
- *
- * List users with pagination.
- */
-export function useSuspenseGetUsers(
-  args: Parameters<typeof getUsers>[0],
-  options?: {
-    query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
-    client?: ClientRequestOptions
-  },
-) {
-  const { query: queryOpts, client: clientOptions } = options ?? {}
-  return useSuspenseQuery({ ...getGetUsersQueryOptions(args, clientOptions), ...queryOpts })
 }
 
 /**
@@ -696,27 +548,6 @@ export function useInfiniteGetUsers(
 ) {
   const { query: queryOpts, client: clientOptions } = options
   return useInfiniteQuery({ ...getGetUsersInfiniteQueryOptions(args, clientOptions), ...queryOpts })
-}
-
-/**
- * GET /users
- *
- * List users
- *
- * List users with pagination.
- */
-export function useSuspenseInfiniteGetUsers(
-  args: Parameters<typeof getUsers>[0],
-  options: {
-    query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
-    client?: ClientRequestOptions
-  },
-) {
-  const { query: queryOpts, client: clientOptions } = options
-  return useSuspenseInfiniteQuery({
-    ...getGetUsersInfiniteQueryOptions(args, clientOptions),
-    ...queryOpts,
-  })
 }
 `
       expect(useGetUsers).toBe(useGetUsersExpected)
@@ -821,19 +652,11 @@ describe('vueQuery (custom client name)', () => {
       }
 
       const code = fs.readFileSync(out, 'utf-8')
-      const expected = `import {
-  useQuery,
-  useSuspenseQuery,
-  useInfiniteQuery,
-  useSuspenseInfiniteQuery,
-  queryOptions,
-} from '@tanstack/vue-query'
+      const expected = `import { useQuery, useInfiniteQuery } from '@tanstack/vue-query'
 import type {
   UseQueryOptions,
   QueryFunctionContext,
-  UseSuspenseQueryOptions,
   UseInfiniteQueryOptions,
-  UseSuspenseInfiniteQueryOptions,
 } from '@tanstack/vue-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -862,12 +685,12 @@ export async function getUsers(options?: ClientRequestOptions) {
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetUsersQueryOptions(clientOptions?: ClientRequestOptions) {
-  return queryOptions({
+  return {
     queryKey: getGetUsersQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getUsers({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  })
+  }
 }
 
 /**
@@ -881,19 +704,6 @@ export function useGetUsers(options?: {
 }) {
   const { query: queryOpts, client: clientOptions } = options ?? {}
   return useQuery({ ...getGetUsersQueryOptions(clientOptions), ...queryOpts })
-}
-
-/**
- * GET /users
- *
- * Get users
- */
-export function useSuspenseGetUsers(options?: {
-  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
-  client?: ClientRequestOptions
-}) {
-  const { query: queryOpts, client: clientOptions } = options ?? {}
-  return useSuspenseQuery({ ...getGetUsersQueryOptions(clientOptions), ...queryOpts })
 }
 
 /**
@@ -930,22 +740,6 @@ export function useInfiniteGetUsers(options: {
 }) {
   const { query: queryOpts, client: clientOptions } = options
   return useInfiniteQuery({ ...getGetUsersInfiniteQueryOptions(clientOptions), ...queryOpts })
-}
-
-/**
- * GET /users
- *
- * Get users
- */
-export function useSuspenseInfiniteGetUsers(options: {
-  query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
-  client?: ClientRequestOptions
-}) {
-  const { query: queryOpts, client: clientOptions } = options
-  return useSuspenseInfiniteQuery({
-    ...getGetUsersInfiniteQueryOptions(clientOptions),
-    ...queryOpts,
-  })
 }
 `
       expect(code).toBe(expected)
@@ -985,20 +779,11 @@ describe('vueQuery (no args operations)', () => {
       }
 
       const code = fs.readFileSync(out, 'utf-8')
-      const expected = `import {
-  useQuery,
-  useSuspenseQuery,
-  useInfiniteQuery,
-  useSuspenseInfiniteQuery,
-  useMutation,
-  queryOptions,
-} from '@tanstack/vue-query'
+      const expected = `import { useQuery, useInfiniteQuery, useMutation } from '@tanstack/vue-query'
 import type {
   UseQueryOptions,
   QueryFunctionContext,
-  UseSuspenseQueryOptions,
   UseInfiniteQueryOptions,
-  UseSuspenseInfiniteQueryOptions,
   UseMutationOptions,
 } from '@tanstack/vue-query'
 import type { ClientRequestOptions } from 'hono/client'
@@ -1028,12 +813,12 @@ export async function getPing(options?: ClientRequestOptions) {
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetPingQueryOptions(clientOptions?: ClientRequestOptions) {
-  return queryOptions({
+  return {
     queryKey: getGetPingQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getPing({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  })
+  }
 }
 
 /**
@@ -1047,19 +832,6 @@ export function useGetPing(options?: {
 }) {
   const { query: queryOpts, client: clientOptions } = options ?? {}
   return useQuery({ ...getGetPingQueryOptions(clientOptions), ...queryOpts })
-}
-
-/**
- * GET /ping
- *
- * Ping
- */
-export function useSuspenseGetPing(options?: {
-  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getPing>>, Error>
-  client?: ClientRequestOptions
-}) {
-  const { query: queryOpts, client: clientOptions } = options ?? {}
-  return useSuspenseQuery({ ...getGetPingQueryOptions(clientOptions), ...queryOpts })
 }
 
 /**
@@ -1096,22 +868,6 @@ export function useInfiniteGetPing(options: {
 }) {
   const { query: queryOpts, client: clientOptions } = options
   return useInfiniteQuery({ ...getGetPingInfiniteQueryOptions(clientOptions), ...queryOpts })
-}
-
-/**
- * GET /ping
- *
- * Ping
- */
-export function useSuspenseInfiniteGetPing(options: {
-  query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getPing>>, Error>
-  client?: ClientRequestOptions
-}) {
-  const { query: queryOpts, client: clientOptions } = options
-  return useSuspenseInfiniteQuery({
-    ...getGetPingInfiniteQueryOptions(clientOptions),
-    ...queryOpts,
-  })
 }
 
 /**
@@ -1190,19 +946,11 @@ describe('vueQuery (path with special characters)', () => {
       }
 
       const code = fs.readFileSync(out, 'utf-8')
-      const expected = `import {
-  useQuery,
-  useSuspenseQuery,
-  useInfiniteQuery,
-  useSuspenseInfiniteQuery,
-  queryOptions,
-} from '@tanstack/vue-query'
+      const expected = `import { useQuery, useInfiniteQuery } from '@tanstack/vue-query'
 import type {
   UseQueryOptions,
   QueryFunctionContext,
-  UseSuspenseQueryOptions,
   UseInfiniteQueryOptions,
-  UseSuspenseInfiniteQueryOptions,
 } from '@tanstack/vue-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -1231,12 +979,12 @@ export async function getHonoX(options?: ClientRequestOptions) {
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetHonoXQueryOptions(clientOptions?: ClientRequestOptions) {
-  return queryOptions({
+  return {
     queryKey: getGetHonoXQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getHonoX({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  })
+  }
 }
 
 /**
@@ -1250,19 +998,6 @@ export function useGetHonoX(options?: {
 }) {
   const { query: queryOpts, client: clientOptions } = options ?? {}
   return useQuery({ ...getGetHonoXQueryOptions(clientOptions), ...queryOpts })
-}
-
-/**
- * GET /hono-x
- *
- * HonoX
- */
-export function useSuspenseGetHonoX(options?: {
-  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getHonoX>>, Error>
-  client?: ClientRequestOptions
-}) {
-  const { query: queryOpts, client: clientOptions } = options ?? {}
-  return useSuspenseQuery({ ...getGetHonoXQueryOptions(clientOptions), ...queryOpts })
 }
 
 /**
@@ -1299,22 +1034,6 @@ export function useInfiniteGetHonoX(options: {
 }) {
   const { query: queryOpts, client: clientOptions } = options
   return useInfiniteQuery({ ...getGetHonoXInfiniteQueryOptions(clientOptions), ...queryOpts })
-}
-
-/**
- * GET /hono-x
- *
- * HonoX
- */
-export function useSuspenseInfiniteGetHonoX(options: {
-  query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getHonoX>>, Error>
-  client?: ClientRequestOptions
-}) {
-  const { query: queryOpts, client: clientOptions } = options
-  return useSuspenseInfiniteQuery({
-    ...getGetHonoXInfiniteQueryOptions(clientOptions),
-    ...queryOpts,
-  })
 }
 `
       expect(code).toBe(expected)
@@ -1355,20 +1074,11 @@ describe('vueQuery (path parameters)', () => {
       }
 
       const code = fs.readFileSync(out, 'utf-8')
-      const expected = `import {
-  useQuery,
-  useSuspenseQuery,
-  useInfiniteQuery,
-  useSuspenseInfiniteQuery,
-  useMutation,
-  queryOptions,
-} from '@tanstack/vue-query'
+      const expected = `import { useQuery, useInfiniteQuery, useMutation } from '@tanstack/vue-query'
 import type {
   UseQueryOptions,
   QueryFunctionContext,
-  UseSuspenseQueryOptions,
   UseInfiniteQueryOptions,
-  UseSuspenseInfiniteQueryOptions,
   UseMutationOptions,
 } from '@tanstack/vue-query'
 import { unref } from 'vue'
@@ -1406,12 +1116,12 @@ export function getGetUsersIdQueryOptions(
   args: MaybeRef<Parameters<typeof getUsersId>[0]>,
   clientOptions?: ClientRequestOptions,
 ) {
-  return queryOptions({
+  return {
     queryKey: getGetUsersIdQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getUsersId(unref(args), { ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  })
+  }
 }
 
 /**
@@ -1428,22 +1138,6 @@ export function useGetUsersId(
 ) {
   const { query: queryOpts, client: clientOptions } = options ?? {}
   return useQuery({ ...getGetUsersIdQueryOptions(args, clientOptions), ...queryOpts })
-}
-
-/**
- * GET /users/{id}
- *
- * Get user
- */
-export function useSuspenseGetUsersId(
-  args: Parameters<typeof getUsersId>[0],
-  options?: {
-    query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getUsersId>>, Error>
-    client?: ClientRequestOptions
-  },
-) {
-  const { query: queryOpts, client: clientOptions } = options ?? {}
-  return useSuspenseQuery({ ...getGetUsersIdQueryOptions(args, clientOptions), ...queryOpts })
 }
 
 /**
@@ -1486,25 +1180,6 @@ export function useInfiniteGetUsersId(
 ) {
   const { query: queryOpts, client: clientOptions } = options
   return useInfiniteQuery({
-    ...getGetUsersIdInfiniteQueryOptions(args, clientOptions),
-    ...queryOpts,
-  })
-}
-
-/**
- * GET /users/{id}
- *
- * Get user
- */
-export function useSuspenseInfiniteGetUsersId(
-  args: Parameters<typeof getUsersId>[0],
-  options: {
-    query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsersId>>, Error>
-    client?: ClientRequestOptions
-  },
-) {
-  const { query: queryOpts, client: clientOptions } = options
-  return useSuspenseInfiniteQuery({
     ...getGetUsersIdInfiniteQueryOptions(args, clientOptions),
     ...queryOpts,
   })
