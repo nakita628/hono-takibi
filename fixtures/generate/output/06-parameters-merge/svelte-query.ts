@@ -1,10 +1,10 @@
-import { createQuery, createMutation } from '@tanstack/svelte-query'
+import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
 import type {
   CreateQueryOptions,
   QueryFunctionContext,
   CreateMutationOptions,
 } from '@tanstack/svelte-query'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
@@ -12,10 +12,18 @@ import { client } from './client'
  * Generates Svelte Query cache key for GET /items/{itemId}
  * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetItemsItemIdQueryKey(
-  args: InferRequestType<(typeof client.items)[':itemId']['$get']>,
-) {
+export function getGetItemsItemIdQueryKey(args: Parameters<typeof getItemsItemId>[0]) {
   return ['items', 'GET', '/items/:itemId', args] as const
+}
+
+/**
+ * GET /items/{itemId}
+ */
+export async function getItemsItemId(
+  args: InferRequestType<(typeof client.items)[':itemId']['$get']>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.items[':itemId'].$get(args, options))
 }
 
 /**
@@ -24,43 +32,30 @@ export function getGetItemsItemIdQueryKey(
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetItemsItemIdQueryOptions(
-  args: InferRequestType<(typeof client.items)[':itemId']['$get']>,
+  args: Parameters<typeof getItemsItemId>[0],
   clientOptions?: ClientRequestOptions,
 ) {
-  return {
+  return queryOptions({
     queryKey: getGetItemsItemIdQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.items[':itemId'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+      return getItemsItemId(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
  * GET /items/{itemId}
  */
 export function createGetItemsItemId(
-  args: InferRequestType<(typeof client.items)[':itemId']['$get']>,
+  args: Parameters<typeof getItemsItemId>[0],
   options?: () => {
-    query?: CreateQueryOptions<
-      Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<(typeof client.items)[':itemId']['$get']>>>
-        >
-      >,
-      Error
-    >
+    query?: CreateQueryOptions<Awaited<ReturnType<typeof getItemsItemId>>, Error>
     client?: ClientRequestOptions
   },
 ) {
   return createQuery(() => {
     const opts = options?.()
-    const { queryKey, queryFn, ...baseOptions } = getGetItemsItemIdQueryOptions(args, opts?.client)
-    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+    return { ...getGetItemsItemIdQueryOptions(args, opts?.client), ...opts?.query }
   })
 }
 
@@ -73,6 +68,16 @@ export function getPutItemsItemIdMutationKey() {
 }
 
 /**
+ * PUT /items/{itemId}
+ */
+export async function putItemsItemId(
+  args: InferRequestType<(typeof client.items)[':itemId']['$put']>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.items[':itemId'].$put(args, options))
+}
+
+/**
  * Returns Svelte Query mutation options for PUT /items/{itemId}
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
@@ -80,8 +85,8 @@ export function getPutItemsItemIdMutationKey() {
 export function getPutItemsItemIdMutationOptions(clientOptions?: ClientRequestOptions) {
   return {
     mutationKey: getPutItemsItemIdMutationKey(),
-    async mutationFn(args: InferRequestType<(typeof client.items)[':itemId']['$put']>) {
-      return parseResponse(client.items[':itemId'].$put(args, clientOptions))
+    async mutationFn(args: Parameters<typeof putItemsItemId>[0]) {
+      return putItemsItemId(args, clientOptions)
     },
   }
 }
@@ -92,23 +97,16 @@ export function getPutItemsItemIdMutationOptions(clientOptions?: ClientRequestOp
 export function createPutItemsItemId(
   options?: () => {
     mutation?: CreateMutationOptions<
-      Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<(typeof client.items)[':itemId']['$put']>>>
-        >
-      >,
+      Awaited<ReturnType<typeof putItemsItemId>>,
       Error,
-      InferRequestType<(typeof client.items)[':itemId']['$put']>
+      Parameters<typeof putItemsItemId>[0]
     >
     client?: ClientRequestOptions
   },
 ) {
   return createMutation(() => {
     const opts = options?.()
-    const { mutationKey, mutationFn, ...baseOptions } = getPutItemsItemIdMutationOptions(
-      opts?.client,
-    )
-    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+    return { ...getPutItemsItemIdMutationOptions(opts?.client), ...opts?.mutation }
   })
 }
 
@@ -121,6 +119,16 @@ export function getDeleteItemsItemIdMutationKey() {
 }
 
 /**
+ * DELETE /items/{itemId}
+ */
+export async function deleteItemsItemId(
+  args: InferRequestType<(typeof client.items)[':itemId']['$delete']>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.items[':itemId'].$delete(args, options))
+}
+
+/**
  * Returns Svelte Query mutation options for DELETE /items/{itemId}
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
@@ -128,8 +136,8 @@ export function getDeleteItemsItemIdMutationKey() {
 export function getDeleteItemsItemIdMutationOptions(clientOptions?: ClientRequestOptions) {
   return {
     mutationKey: getDeleteItemsItemIdMutationKey(),
-    async mutationFn(args: InferRequestType<(typeof client.items)[':itemId']['$delete']>) {
-      return parseResponse(client.items[':itemId'].$delete(args, clientOptions))
+    async mutationFn(args: Parameters<typeof deleteItemsItemId>[0]) {
+      return deleteItemsItemId(args, clientOptions)
     },
   }
 }
@@ -140,24 +148,16 @@ export function getDeleteItemsItemIdMutationOptions(clientOptions?: ClientReques
 export function createDeleteItemsItemId(
   options?: () => {
     mutation?: CreateMutationOptions<
-      | Awaited<
-          ReturnType<
-            typeof parseResponse<Awaited<ReturnType<(typeof client.items)[':itemId']['$delete']>>>
-          >
-        >
-      | undefined,
+      Awaited<ReturnType<typeof deleteItemsItemId>> | undefined,
       Error,
-      InferRequestType<(typeof client.items)[':itemId']['$delete']>
+      Parameters<typeof deleteItemsItemId>[0]
     >
     client?: ClientRequestOptions
   },
 ) {
   return createMutation(() => {
     const opts = options?.()
-    const { mutationKey, mutationFn, ...baseOptions } = getDeleteItemsItemIdMutationOptions(
-      opts?.client,
-    )
-    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+    return { ...getDeleteItemsItemIdMutationOptions(opts?.client), ...opts?.mutation }
   })
 }
 
@@ -165,8 +165,18 @@ export function createDeleteItemsItemId(
  * Generates Svelte Query cache key for GET /items
  * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetItemsQueryKey(args: InferRequestType<typeof client.items.$get>) {
+export function getGetItemsQueryKey(args: Parameters<typeof getItems>[0]) {
   return ['items', 'GET', '/items', args] as const
+}
+
+/**
+ * GET /items
+ */
+export async function getItems(
+  args: InferRequestType<typeof client.items.$get>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.items.$get(args, options))
 }
 
 /**
@@ -175,35 +185,29 @@ export function getGetItemsQueryKey(args: InferRequestType<typeof client.items.$
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetItemsQueryOptions(
-  args: InferRequestType<typeof client.items.$get>,
+  args: Parameters<typeof getItems>[0],
   clientOptions?: ClientRequestOptions,
 ) {
-  return {
+  return queryOptions({
     queryKey: getGetItemsQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.items.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      )
+      return getItems(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
  * GET /items
  */
 export function createGetItems(
-  args: InferRequestType<typeof client.items.$get>,
+  args: Parameters<typeof getItems>[0],
   options?: () => {
-    query?: CreateQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.items.$get>>>>>,
-      Error
-    >
+    query?: CreateQueryOptions<Awaited<ReturnType<typeof getItems>>, Error>
     client?: ClientRequestOptions
   },
 ) {
   return createQuery(() => {
     const opts = options?.()
-    const { queryKey, queryFn, ...baseOptions } = getGetItemsQueryOptions(args, opts?.client)
-    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+    return { ...getGetItemsQueryOptions(args, opts?.client), ...opts?.query }
   })
 }

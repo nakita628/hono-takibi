@@ -1,4 +1,5 @@
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
+import { applyNumberCoerce } from './coerce.js'
 import { isOperation, isRecord, isRefObject } from '../guard/index.js'
 import type {
   Callbacks,
@@ -558,8 +559,8 @@ export function makeParameters(parameters: readonly Parameter[]): {
 
     // Apply coercion for query parameters
     const z =
-      param.in === 'query' && schema.type === 'number'
-        ? `z.coerce.${baseSchema.replace('z.', '')}`
+      param.in === 'query' && (schema.type === 'number' || schema.type === 'integer')
+        ? applyNumberCoerce(baseSchema, schema.type, schema.format)
         : param.in === 'query' && schema.type === 'boolean'
           ? baseSchema.replace('boolean', 'stringbool')
           : param.in === 'query' && schema.type === 'date'

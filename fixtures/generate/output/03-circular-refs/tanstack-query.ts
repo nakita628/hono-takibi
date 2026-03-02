@@ -1,10 +1,10 @@
-import { useQuery, useMutation } from '@tanstack/react-query'
+import { useQuery, useMutation, queryOptions, mutationOptions } from '@tanstack/react-query'
 import type {
   UseQueryOptions,
   QueryFunctionContext,
   UseMutationOptions,
 } from '@tanstack/react-query'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
@@ -17,34 +17,35 @@ export function getGetTreeQueryKey() {
 }
 
 /**
+ * GET /tree
+ */
+export async function getTree(options?: ClientRequestOptions) {
+  return await parseResponse(client.tree.$get(undefined, options))
+}
+
+/**
  * Returns TanStack Query query options for GET /tree
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetTreeQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return queryOptions({
     queryKey: getGetTreeQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.tree.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      )
+      return getTree({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
  * GET /tree
  */
 export function useGetTree(options?: {
-  query?: UseQueryOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.tree.$get>>>>>,
-    Error
-  >
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getTree>>, Error>
   client?: ClientRequestOptions
 }) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const { queryKey, queryFn, ...baseOptions } = getGetTreeQueryOptions(clientOptions)
-  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
+  const { query: queryOpts, client: clientOptions } = options ?? {}
+  return useQuery({ ...getGetTreeQueryOptions(clientOptions), ...queryOpts })
 }
 
 /**
@@ -56,17 +57,27 @@ export function getPostTreeMutationKey() {
 }
 
 /**
+ * POST /tree
+ */
+export async function postTree(
+  args: InferRequestType<typeof client.tree.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.tree.$post(args, options))
+}
+
+/**
  * Returns TanStack Query mutation options for POST /tree
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
 export function getPostTreeMutationOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return mutationOptions({
     mutationKey: getPostTreeMutationKey(),
-    async mutationFn(args: InferRequestType<typeof client.tree.$post>) {
-      return parseResponse(client.tree.$post(args, clientOptions))
+    async mutationFn(args: Parameters<typeof postTree>[0]) {
+      return postTree(args, clientOptions)
     },
-  }
+  })
 }
 
 /**
@@ -74,15 +85,14 @@ export function getPostTreeMutationOptions(clientOptions?: ClientRequestOptions)
  */
 export function usePostTree(options?: {
   mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.tree.$post>>>>>,
+    Awaited<ReturnType<typeof postTree>>,
     Error,
-    InferRequestType<typeof client.tree.$post>
+    Parameters<typeof postTree>[0]
   >
   client?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const { mutationKey, mutationFn, ...baseOptions } = getPostTreeMutationOptions(clientOptions)
-  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
+  const { mutation: mutationOpts, client: clientOptions } = options ?? {}
+  return useMutation({ ...getPostTreeMutationOptions(clientOptions), ...mutationOpts })
 }
 
 /**
@@ -94,35 +104,33 @@ export function getGetGraphQueryKey() {
 }
 
 /**
+ * GET /graph
+ */
+export async function getGraph(options?: ClientRequestOptions) {
+  return await parseResponse(client.graph.$get(undefined, options))
+}
+
+/**
  * Returns TanStack Query query options for GET /graph
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetGraphQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return queryOptions({
     queryKey: getGetGraphQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.graph.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+      return getGraph({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
  * GET /graph
  */
 export function useGetGraph(options?: {
-  query?: UseQueryOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.graph.$get>>>>>,
-    Error
-  >
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getGraph>>, Error>
   client?: ClientRequestOptions
 }) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const { queryKey, queryFn, ...baseOptions } = getGetGraphQueryOptions(clientOptions)
-  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
+  const { query: queryOpts, client: clientOptions } = options ?? {}
+  return useQuery({ ...getGetGraphQueryOptions(clientOptions), ...queryOpts })
 }

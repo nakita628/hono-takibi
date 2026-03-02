@@ -2,7 +2,7 @@ import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
 import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
@@ -12,6 +12,15 @@ import { client } from './client'
  */
 export function getGetApiReverseChibanIndexKey() {
   return ['api', 'GET', '/api/reverseChiban/'] as const
+}
+
+/**
+ * GET /api/reverseChiban/
+ *
+ * Reverse Chiban (trailing slash)
+ */
+export async function getApiReverseChibanIndex(options?: ClientRequestOptions) {
+  return await parseResponse(client.api.reverseChiban.index.$get(undefined, options))
 }
 
 /**
@@ -29,11 +38,7 @@ export function useGetApiReverseChibanIndex(options?: {
   const swrKey = isEnabled ? (customKey ?? getGetApiReverseChibanIndexKey()) : null
   return {
     swrKey,
-    ...useSWR(
-      swrKey,
-      async () => parseResponse(client.api.reverseChiban.index.$get(undefined, clientOptions)),
-      restSwrOptions,
-    ),
+    ...useSWR(swrKey, async () => getApiReverseChibanIndex(clientOptions), restSwrOptions),
   }
 }
 
@@ -43,6 +48,15 @@ export function useGetApiReverseChibanIndex(options?: {
  */
 export function getGetApiReverseChibanKey() {
   return ['api', 'GET', '/api/reverseChiban'] as const
+}
+
+/**
+ * GET /api/reverseChiban
+ *
+ * Reverse Chiban (no trailing slash)
+ */
+export async function getApiReverseChiban(options?: ClientRequestOptions) {
+  return await parseResponse(client.api.reverseChiban.$get(undefined, options))
 }
 
 /**
@@ -60,11 +74,7 @@ export function useGetApiReverseChiban(options?: {
   const swrKey = isEnabled ? (customKey ?? getGetApiReverseChibanKey()) : null
   return {
     swrKey,
-    ...useSWR(
-      swrKey,
-      async () => parseResponse(client.api.reverseChiban.$get(undefined, clientOptions)),
-      restSwrOptions,
-    ),
+    ...useSWR(swrKey, async () => getApiReverseChiban(clientOptions), restSwrOptions),
   }
 }
 
@@ -72,7 +82,7 @@ export function useGetApiReverseChiban(options?: {
  * Generates SWR cache key for GET /posts/
  * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetPostsIndexKey(args: InferRequestType<typeof client.posts.index.$get>) {
+export function getGetPostsIndexKey(args: Parameters<typeof getPostsIndex>[0]) {
   return ['posts', 'GET', '/posts/', args] as const
 }
 
@@ -81,8 +91,20 @@ export function getGetPostsIndexKey(args: InferRequestType<typeof client.posts.i
  *
  * List posts (trailing slash only)
  */
-export function useGetPostsIndex(
+export async function getPostsIndex(
   args: InferRequestType<typeof client.posts.index.$get>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.posts.index.$get(args, options))
+}
+
+/**
+ * GET /posts/
+ *
+ * List posts (trailing slash only)
+ */
+export function useGetPostsIndex(
+  args: Parameters<typeof getPostsIndex>[0],
   options?: {
     swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
@@ -94,11 +116,7 @@ export function useGetPostsIndex(
   const swrKey = isEnabled ? (customKey ?? getGetPostsIndexKey(args)) : null
   return {
     swrKey,
-    ...useSWR(
-      swrKey,
-      async () => parseResponse(client.posts.index.$get(args, clientOptions)),
-      restSwrOptions,
-    ),
+    ...useSWR(swrKey, async () => getPostsIndex(args, clientOptions), restSwrOptions),
   }
 }
 
@@ -115,12 +133,24 @@ export function getPostPostsIndexMutationKey() {
  *
  * Create post (trailing slash only)
  */
+export async function postPostsIndex(
+  args: InferRequestType<typeof client.posts.index.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.posts.index.$post(args, options))
+}
+
+/**
+ * POST /posts/
+ *
+ * Create post (trailing slash only)
+ */
 export function usePostPostsIndex(options?: {
   mutation?: SWRMutationConfiguration<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.posts.index.$post>>>>>,
+    Awaited<ReturnType<typeof postPostsIndex>>,
     Error,
     Key,
-    InferRequestType<typeof client.posts.index.$post>
+    Parameters<typeof postPostsIndex>[0]
   > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
@@ -131,8 +161,8 @@ export function usePostPostsIndex(options?: {
     swrKey,
     ...useSWRMutation(
       swrKey,
-      async (_: Key, { arg }: { arg: InferRequestType<typeof client.posts.index.$post> }) =>
-        parseResponse(client.posts.index.$post(arg, clientOptions)),
+      async (_: Key, { arg }: { arg: Parameters<typeof postPostsIndex>[0] }) =>
+        postPostsIndex(arg, clientOptions),
       restMutationOptions,
     ),
   }
@@ -142,9 +172,7 @@ export function usePostPostsIndex(options?: {
  * Generates SWR cache key for GET /users/{id}/
  * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetUsersIdIndexKey(
-  args: InferRequestType<(typeof client.users)[':id']['index']['$get']>,
-) {
+export function getGetUsersIdIndexKey(args: Parameters<typeof getUsersIdIndex>[0]) {
   return ['users', 'GET', '/users/:id/', args] as const
 }
 
@@ -153,8 +181,20 @@ export function getGetUsersIdIndexKey(
  *
  * Get user (trailing slash with path param)
  */
-export function useGetUsersIdIndex(
+export async function getUsersIdIndex(
   args: InferRequestType<(typeof client.users)[':id']['index']['$get']>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.users[':id'].index.$get(args, options))
+}
+
+/**
+ * GET /users/{id}/
+ *
+ * Get user (trailing slash with path param)
+ */
+export function useGetUsersIdIndex(
+  args: Parameters<typeof getUsersIdIndex>[0],
   options?: {
     swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
@@ -166,11 +206,7 @@ export function useGetUsersIdIndex(
   const swrKey = isEnabled ? (customKey ?? getGetUsersIdIndexKey(args)) : null
   return {
     swrKey,
-    ...useSWR(
-      swrKey,
-      async () => parseResponse(client.users[':id'].index.$get(args, clientOptions)),
-      restSwrOptions,
-    ),
+    ...useSWR(swrKey, async () => getUsersIdIndex(args, clientOptions), restSwrOptions),
   }
 }
 
@@ -187,6 +223,15 @@ export function getGetItemsIndexKey() {
  *
  * List items (trailing slash only)
  */
+export async function getItemsIndex(options?: ClientRequestOptions) {
+  return await parseResponse(client.items.index.$get(undefined, options))
+}
+
+/**
+ * GET /items/
+ *
+ * List items (trailing slash only)
+ */
 export function useGetItemsIndex(options?: {
   swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
@@ -195,12 +240,5 @@ export function useGetItemsIndex(options?: {
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
   const swrKey = isEnabled ? (customKey ?? getGetItemsIndexKey()) : null
-  return {
-    swrKey,
-    ...useSWR(
-      swrKey,
-      async () => parseResponse(client.items.index.$get(undefined, clientOptions)),
-      restSwrOptions,
-    ),
-  }
+  return { swrKey, ...useSWR(swrKey, async () => getItemsIndex(clientOptions), restSwrOptions) }
 }

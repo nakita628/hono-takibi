@@ -2,7 +2,7 @@ import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
 import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
@@ -17,6 +17,13 @@ export function getGetTreeKey() {
 /**
  * GET /tree
  */
+export async function getTree(options?: ClientRequestOptions) {
+  return await parseResponse(client.tree.$get(undefined, options))
+}
+
+/**
+ * GET /tree
+ */
 export function useGetTree(options?: {
   swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
@@ -25,14 +32,7 @@ export function useGetTree(options?: {
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
   const swrKey = isEnabled ? (customKey ?? getGetTreeKey()) : null
-  return {
-    swrKey,
-    ...useSWR(
-      swrKey,
-      async () => parseResponse(client.tree.$get(undefined, clientOptions)),
-      restSwrOptions,
-    ),
-  }
+  return { swrKey, ...useSWR(swrKey, async () => getTree(clientOptions), restSwrOptions) }
 }
 
 /**
@@ -46,12 +46,22 @@ export function getPostTreeMutationKey() {
 /**
  * POST /tree
  */
+export async function postTree(
+  args: InferRequestType<typeof client.tree.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.tree.$post(args, options))
+}
+
+/**
+ * POST /tree
+ */
 export function usePostTree(options?: {
   mutation?: SWRMutationConfiguration<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.tree.$post>>>>>,
+    Awaited<ReturnType<typeof postTree>>,
     Error,
     Key,
-    InferRequestType<typeof client.tree.$post>
+    Parameters<typeof postTree>[0]
   > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
@@ -62,8 +72,8 @@ export function usePostTree(options?: {
     swrKey,
     ...useSWRMutation(
       swrKey,
-      async (_: Key, { arg }: { arg: InferRequestType<typeof client.tree.$post> }) =>
-        parseResponse(client.tree.$post(arg, clientOptions)),
+      async (_: Key, { arg }: { arg: Parameters<typeof postTree>[0] }) =>
+        postTree(arg, clientOptions),
       restMutationOptions,
     ),
   }
@@ -80,6 +90,13 @@ export function getGetGraphKey() {
 /**
  * GET /graph
  */
+export async function getGraph(options?: ClientRequestOptions) {
+  return await parseResponse(client.graph.$get(undefined, options))
+}
+
+/**
+ * GET /graph
+ */
 export function useGetGraph(options?: {
   swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
@@ -88,12 +105,5 @@ export function useGetGraph(options?: {
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
   const swrKey = isEnabled ? (customKey ?? getGetGraphKey()) : null
-  return {
-    swrKey,
-    ...useSWR(
-      swrKey,
-      async () => parseResponse(client.graph.$get(undefined, clientOptions)),
-      restSwrOptions,
-    ),
-  }
+  return { swrKey, ...useSWR(swrKey, async () => getGraph(clientOptions), restSwrOptions) }
 }

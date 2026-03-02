@@ -1,6 +1,6 @@
-import { useQuery, useMutation } from '@tanstack/vue-query'
+import { useQuery, useMutation, queryOptions } from '@tanstack/vue-query'
 import type { UseQueryOptions, QueryFunctionContext, UseMutationOptions } from '@tanstack/vue-query'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
@@ -13,6 +13,18 @@ export function getPostOrdersMutationKey() {
 }
 
 /**
+ * POST /orders
+ *
+ * Create an order with callback
+ */
+export async function postOrders(
+  args: InferRequestType<typeof client.orders.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.orders.$post(args, options))
+}
+
+/**
  * Returns Vue Query mutation options for POST /orders
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
@@ -20,8 +32,8 @@ export function getPostOrdersMutationKey() {
 export function getPostOrdersMutationOptions(clientOptions?: ClientRequestOptions) {
   return {
     mutationKey: getPostOrdersMutationKey(),
-    async mutationFn(args: InferRequestType<typeof client.orders.$post>) {
-      return parseResponse(client.orders.$post(args, clientOptions))
+    async mutationFn(args: Parameters<typeof postOrders>[0]) {
+      return postOrders(args, clientOptions)
     },
   }
 }
@@ -32,21 +44,15 @@ export function getPostOrdersMutationOptions(clientOptions?: ClientRequestOption
  * Create an order with callback
  */
 export function usePostOrders(options?: {
-  mutation?: Partial<
-    Omit<
-      UseMutationOptions<
-        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.orders.$post>>>>>,
-        Error,
-        InferRequestType<typeof client.orders.$post>
-      >,
-      'mutationFn' | 'mutationKey'
-    >
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postOrders>>,
+    Error,
+    Parameters<typeof postOrders>[0]
   >
   client?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const { mutationKey, mutationFn, ...baseOptions } = getPostOrdersMutationOptions(clientOptions)
-  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
+  const { mutation: mutationOpts, client: clientOptions } = options ?? {}
+  return useMutation({ ...getPostOrdersMutationOptions(clientOptions), ...mutationOpts })
 }
 
 /**
@@ -58,6 +64,18 @@ export function getPostPaymentsMutationKey() {
 }
 
 /**
+ * POST /payments
+ *
+ * Create a payment with multiple callbacks
+ */
+export async function postPayments(
+  args: InferRequestType<typeof client.payments.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.payments.$post(args, options))
+}
+
+/**
  * Returns Vue Query mutation options for POST /payments
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
@@ -65,8 +83,8 @@ export function getPostPaymentsMutationKey() {
 export function getPostPaymentsMutationOptions(clientOptions?: ClientRequestOptions) {
   return {
     mutationKey: getPostPaymentsMutationKey(),
-    async mutationFn(args: InferRequestType<typeof client.payments.$post>) {
-      return parseResponse(client.payments.$post(args, clientOptions))
+    async mutationFn(args: Parameters<typeof postPayments>[0]) {
+      return postPayments(args, clientOptions)
     },
   }
 }
@@ -77,23 +95,15 @@ export function getPostPaymentsMutationOptions(clientOptions?: ClientRequestOpti
  * Create a payment with multiple callbacks
  */
 export function usePostPayments(options?: {
-  mutation?: Partial<
-    Omit<
-      UseMutationOptions<
-        Awaited<
-          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.payments.$post>>>>
-        >,
-        Error,
-        InferRequestType<typeof client.payments.$post>
-      >,
-      'mutationFn' | 'mutationKey'
-    >
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postPayments>>,
+    Error,
+    Parameters<typeof postPayments>[0]
   >
   client?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const { mutationKey, mutationFn, ...baseOptions } = getPostPaymentsMutationOptions(clientOptions)
-  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
+  const { mutation: mutationOpts, client: clientOptions } = options ?? {}
+  return useMutation({ ...getPostPaymentsMutationOptions(clientOptions), ...mutationOpts })
 }
 
 /**
@@ -105,22 +115,26 @@ export function getGetItemsQueryKey() {
 }
 
 /**
+ * GET /items
+ *
+ * List items (no callbacks)
+ */
+export async function getItems(options?: ClientRequestOptions) {
+  return await parseResponse(client.items.$get(undefined, options))
+}
+
+/**
  * Returns Vue Query query options for GET /items
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetItemsQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return queryOptions({
     queryKey: getGetItemsQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.items.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+      return getItems({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
@@ -129,18 +143,9 @@ export function getGetItemsQueryOptions(clientOptions?: ClientRequestOptions) {
  * List items (no callbacks)
  */
 export function useGetItems(options?: {
-  query?: Partial<
-    Omit<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.items.$get>>>>>,
-        Error
-      >,
-      'queryKey' | 'queryFn'
-    >
-  >
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getItems>>, Error>
   client?: ClientRequestOptions
 }) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const { queryKey, queryFn, ...baseOptions } = getGetItemsQueryOptions(clientOptions)
-  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
+  const { query: queryOpts, client: clientOptions } = options ?? {}
+  return useQuery({ ...getGetItemsQueryOptions(clientOptions), ...queryOpts })
 }

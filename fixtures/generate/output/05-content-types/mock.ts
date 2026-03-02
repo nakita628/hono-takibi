@@ -160,7 +160,7 @@ const postMultiContentRouteHandler: RouteHandler<typeof postMultiContentRoute> =
   )
 }
 
-const app = new OpenAPIHono().basePath('undefined')
+const app = new OpenAPIHono()
 
 export const api = app
   .openapi(postJsonRoute, postJsonRouteHandler)

@@ -31,10 +31,10 @@ export async function vueQuery(
     mutationFn: 'useMutation',
     useQueryOptionsType: 'UseQueryOptions',
     useMutationOptionsType: 'UseMutationOptions',
-    // Vue Query needs Partial<Omit<...>> due to QueryKey type conflicts with MaybeRefOrGetter
-    usePartialOmit: true,
-    // Vue Query uses different queryKey pattern (no leading slash, separate path params)
+    // Vue Query uses different queryKey pattern (MaybeRef, unref)
     isVueQuery: true,
+    infiniteQueryFn: 'useInfiniteQuery',
+    useInfiniteQueryOptionsType: 'UseInfiniteQueryOptions',
   }
   return makeQueryHooks(openAPI, output, importPath, config, split, clientName)
 }

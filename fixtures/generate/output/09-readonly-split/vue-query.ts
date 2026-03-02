@@ -1,8 +1,8 @@
-import { useQuery, useMutation } from '@tanstack/vue-query'
+import { useQuery, useMutation, queryOptions } from '@tanstack/vue-query'
 import type { UseQueryOptions, QueryFunctionContext, UseMutationOptions } from '@tanstack/vue-query'
 import { unref } from 'vue'
 import type { MaybeRef } from 'vue'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
@@ -10,8 +10,18 @@ import { client } from './client'
  * Generates Vue Query cache key for GET /posts
  * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetPostsQueryKey(args: MaybeRef<InferRequestType<typeof client.posts.$get>>) {
+export function getGetPostsQueryKey(args: MaybeRef<Parameters<typeof getPosts>[0]>) {
   return ['posts', 'GET', '/posts', unref(args)] as const
+}
+
+/**
+ * GET /posts
+ */
+export async function getPosts(
+  args: InferRequestType<typeof client.posts.$get>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.posts.$get(args, options))
 }
 
 /**
@@ -20,40 +30,29 @@ export function getGetPostsQueryKey(args: MaybeRef<InferRequestType<typeof clien
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetPostsQueryOptions(
-  args: InferRequestType<typeof client.posts.$get>,
+  args: Parameters<typeof getPosts>[0],
   clientOptions?: ClientRequestOptions,
 ) {
-  return {
+  return queryOptions({
     queryKey: getGetPostsQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.posts.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      )
+      return getPosts(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
  * GET /posts
  */
 export function useGetPosts(
-  args: InferRequestType<typeof client.posts.$get>,
+  args: Parameters<typeof getPosts>[0],
   options?: {
-    query?: Partial<
-      Omit<
-        UseQueryOptions<
-          Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.posts.$get>>>>>,
-          Error
-        >,
-        'queryKey' | 'queryFn'
-      >
-    >
+    query?: UseQueryOptions<Awaited<ReturnType<typeof getPosts>>, Error>
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const { queryKey, queryFn, ...baseOptions } = getGetPostsQueryOptions(args, clientOptions)
-  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
+  const { query: queryOpts, client: clientOptions } = options ?? {}
+  return useQuery({ ...getGetPostsQueryOptions(args, clientOptions), ...queryOpts })
 }
 
 /**
@@ -65,6 +64,16 @@ export function getPostPostsMutationKey() {
 }
 
 /**
+ * POST /posts
+ */
+export async function postPosts(
+  args: InferRequestType<typeof client.posts.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.posts.$post(args, options))
+}
+
+/**
  * Returns Vue Query mutation options for POST /posts
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
@@ -72,8 +81,8 @@ export function getPostPostsMutationKey() {
 export function getPostPostsMutationOptions(clientOptions?: ClientRequestOptions) {
   return {
     mutationKey: getPostPostsMutationKey(),
-    async mutationFn(args: InferRequestType<typeof client.posts.$post>) {
-      return parseResponse(client.posts.$post(args, clientOptions))
+    async mutationFn(args: Parameters<typeof postPosts>[0]) {
+      return postPosts(args, clientOptions)
     },
   }
 }
@@ -82,31 +91,33 @@ export function getPostPostsMutationOptions(clientOptions?: ClientRequestOptions
  * POST /posts
  */
 export function usePostPosts(options?: {
-  mutation?: Partial<
-    Omit<
-      UseMutationOptions<
-        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.posts.$post>>>>>,
-        Error,
-        InferRequestType<typeof client.posts.$post>
-      >,
-      'mutationFn' | 'mutationKey'
-    >
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postPosts>>,
+    Error,
+    Parameters<typeof postPosts>[0]
   >
   client?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const { mutationKey, mutationFn, ...baseOptions } = getPostPostsMutationOptions(clientOptions)
-  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
+  const { mutation: mutationOpts, client: clientOptions } = options ?? {}
+  return useMutation({ ...getPostPostsMutationOptions(clientOptions), ...mutationOpts })
 }
 
 /**
  * Generates Vue Query cache key for GET /posts/{id}
  * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetPostsIdQueryKey(
-  args: MaybeRef<InferRequestType<(typeof client.posts)[':id']['$get']>>,
-) {
+export function getGetPostsIdQueryKey(args: MaybeRef<Parameters<typeof getPostsId>[0]>) {
   return ['posts', 'GET', '/posts/:id', unref(args)] as const
+}
+
+/**
+ * GET /posts/{id}
+ */
+export async function getPostsId(
+  args: InferRequestType<(typeof client.posts)[':id']['$get']>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.posts[':id'].$get(args, options))
 }
 
 /**
@@ -115,47 +126,29 @@ export function getGetPostsIdQueryKey(
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetPostsIdQueryOptions(
-  args: InferRequestType<(typeof client.posts)[':id']['$get']>,
+  args: Parameters<typeof getPostsId>[0],
   clientOptions?: ClientRequestOptions,
 ) {
-  return {
+  return queryOptions({
     queryKey: getGetPostsIdQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.posts[':id'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+      return getPostsId(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
  * GET /posts/{id}
  */
 export function useGetPostsId(
-  args: InferRequestType<(typeof client.posts)[':id']['$get']>,
+  args: Parameters<typeof getPostsId>[0],
   options?: {
-    query?: Partial<
-      Omit<
-        UseQueryOptions<
-          Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<(typeof client.posts)[':id']['$get']>>>
-            >
-          >,
-          Error
-        >,
-        'queryKey' | 'queryFn'
-      >
-    >
+    query?: UseQueryOptions<Awaited<ReturnType<typeof getPostsId>>, Error>
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const { queryKey, queryFn, ...baseOptions } = getGetPostsIdQueryOptions(args, clientOptions)
-  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
+  const { query: queryOpts, client: clientOptions } = options ?? {}
+  return useQuery({ ...getGetPostsIdQueryOptions(args, clientOptions), ...queryOpts })
 }
 
 /**
@@ -167,6 +160,16 @@ export function getPutPostsIdMutationKey() {
 }
 
 /**
+ * PUT /posts/{id}
+ */
+export async function putPostsId(
+  args: InferRequestType<(typeof client.posts)[':id']['$put']>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.posts[':id'].$put(args, options))
+}
+
+/**
  * Returns Vue Query mutation options for PUT /posts/{id}
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
@@ -174,8 +177,8 @@ export function getPutPostsIdMutationKey() {
 export function getPutPostsIdMutationOptions(clientOptions?: ClientRequestOptions) {
   return {
     mutationKey: getPutPostsIdMutationKey(),
-    async mutationFn(args: InferRequestType<(typeof client.posts)[':id']['$put']>) {
-      return parseResponse(client.posts[':id'].$put(args, clientOptions))
+    async mutationFn(args: Parameters<typeof putPostsId>[0]) {
+      return putPostsId(args, clientOptions)
     },
   }
 }
@@ -184,25 +187,15 @@ export function getPutPostsIdMutationOptions(clientOptions?: ClientRequestOption
  * PUT /posts/{id}
  */
 export function usePutPostsId(options?: {
-  mutation?: Partial<
-    Omit<
-      UseMutationOptions<
-        Awaited<
-          ReturnType<
-            typeof parseResponse<Awaited<ReturnType<(typeof client.posts)[':id']['$put']>>>
-          >
-        >,
-        Error,
-        InferRequestType<(typeof client.posts)[':id']['$put']>
-      >,
-      'mutationFn' | 'mutationKey'
-    >
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof putPostsId>>,
+    Error,
+    Parameters<typeof putPostsId>[0]
   >
   client?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const { mutationKey, mutationFn, ...baseOptions } = getPutPostsIdMutationOptions(clientOptions)
-  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
+  const { mutation: mutationOpts, client: clientOptions } = options ?? {}
+  return useMutation({ ...getPutPostsIdMutationOptions(clientOptions), ...mutationOpts })
 }
 
 /**
@@ -214,6 +207,16 @@ export function getDeletePostsIdMutationKey() {
 }
 
 /**
+ * DELETE /posts/{id}
+ */
+export async function deletePostsId(
+  args: InferRequestType<(typeof client.posts)[':id']['$delete']>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.posts[':id'].$delete(args, options))
+}
+
+/**
  * Returns Vue Query mutation options for DELETE /posts/{id}
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
@@ -221,8 +224,8 @@ export function getDeletePostsIdMutationKey() {
 export function getDeletePostsIdMutationOptions(clientOptions?: ClientRequestOptions) {
   return {
     mutationKey: getDeletePostsIdMutationKey(),
-    async mutationFn(args: InferRequestType<(typeof client.posts)[':id']['$delete']>) {
-      return parseResponse(client.posts[':id'].$delete(args, clientOptions))
+    async mutationFn(args: Parameters<typeof deletePostsId>[0]) {
+      return deletePostsId(args, clientOptions)
     },
   }
 }
@@ -231,26 +234,15 @@ export function getDeletePostsIdMutationOptions(clientOptions?: ClientRequestOpt
  * DELETE /posts/{id}
  */
 export function useDeletePostsId(options?: {
-  mutation?: Partial<
-    Omit<
-      UseMutationOptions<
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<(typeof client.posts)[':id']['$delete']>>>
-            >
-          >
-        | undefined,
-        Error,
-        InferRequestType<(typeof client.posts)[':id']['$delete']>
-      >,
-      'mutationFn' | 'mutationKey'
-    >
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deletePostsId>> | undefined,
+    Error,
+    Parameters<typeof deletePostsId>[0]
   >
   client?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const { mutationKey, mutationFn, ...baseOptions } = getDeletePostsIdMutationOptions(clientOptions)
-  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
+  const { mutation: mutationOpts, client: clientOptions } = options ?? {}
+  return useMutation({ ...getDeletePostsIdMutationOptions(clientOptions), ...mutationOpts })
 }
 
 /**
@@ -258,9 +250,19 @@ export function useDeletePostsId(options?: {
  * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetPostsIdCommentsQueryKey(
-  args: MaybeRef<InferRequestType<(typeof client.posts)[':id']['comments']['$get']>>,
+  args: MaybeRef<Parameters<typeof getPostsIdComments>[0]>,
 ) {
   return ['posts', 'GET', '/posts/:id/comments', unref(args)] as const
+}
+
+/**
+ * GET /posts/{id}/comments
+ */
+export async function getPostsIdComments(
+  args: InferRequestType<(typeof client.posts)[':id']['comments']['$get']>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.posts[':id'].comments.$get(args, options))
 }
 
 /**
@@ -269,52 +271,32 @@ export function getGetPostsIdCommentsQueryKey(
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetPostsIdCommentsQueryOptions(
-  args: InferRequestType<(typeof client.posts)[':id']['comments']['$get']>,
+  args: Parameters<typeof getPostsIdComments>[0],
   clientOptions?: ClientRequestOptions,
 ) {
-  return {
+  return queryOptions({
     queryKey: getGetPostsIdCommentsQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.posts[':id'].comments.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+      return getPostsIdComments(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      })
     },
-  }
+  })
 }
 
 /**
  * GET /posts/{id}/comments
  */
 export function useGetPostsIdComments(
-  args: InferRequestType<(typeof client.posts)[':id']['comments']['$get']>,
+  args: Parameters<typeof getPostsIdComments>[0],
   options?: {
-    query?: Partial<
-      Omit<
-        UseQueryOptions<
-          Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client.posts)[':id']['comments']['$get']>>
-              >
-            >
-          >,
-          Error
-        >,
-        'queryKey' | 'queryFn'
-      >
-    >
+    query?: UseQueryOptions<Awaited<ReturnType<typeof getPostsIdComments>>, Error>
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const { queryKey, queryFn, ...baseOptions } = getGetPostsIdCommentsQueryOptions(
-    args,
-    clientOptions,
-  )
-  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
+  const { query: queryOpts, client: clientOptions } = options ?? {}
+  return useQuery({ ...getGetPostsIdCommentsQueryOptions(args, clientOptions), ...queryOpts })
 }
 
 /**
@@ -326,6 +308,16 @@ export function getPostPostsIdCommentsMutationKey() {
 }
 
 /**
+ * POST /posts/{id}/comments
+ */
+export async function postPostsIdComments(
+  args: InferRequestType<(typeof client.posts)[':id']['comments']['$post']>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.posts[':id'].comments.$post(args, options))
+}
+
+/**
  * Returns Vue Query mutation options for POST /posts/{id}/comments
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
@@ -333,8 +325,8 @@ export function getPostPostsIdCommentsMutationKey() {
 export function getPostPostsIdCommentsMutationOptions(clientOptions?: ClientRequestOptions) {
   return {
     mutationKey: getPostPostsIdCommentsMutationKey(),
-    async mutationFn(args: InferRequestType<(typeof client.posts)[':id']['comments']['$post']>) {
-      return parseResponse(client.posts[':id'].comments.$post(args, clientOptions))
+    async mutationFn(args: Parameters<typeof postPostsIdComments>[0]) {
+      return postPostsIdComments(args, clientOptions)
     },
   }
 }
@@ -343,28 +335,15 @@ export function getPostPostsIdCommentsMutationOptions(clientOptions?: ClientRequ
  * POST /posts/{id}/comments
  */
 export function usePostPostsIdComments(options?: {
-  mutation?: Partial<
-    Omit<
-      UseMutationOptions<
-        Awaited<
-          ReturnType<
-            typeof parseResponse<
-              Awaited<ReturnType<(typeof client.posts)[':id']['comments']['$post']>>
-            >
-          >
-        >,
-        Error,
-        InferRequestType<(typeof client.posts)[':id']['comments']['$post']>
-      >,
-      'mutationFn' | 'mutationKey'
-    >
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postPostsIdComments>>,
+    Error,
+    Parameters<typeof postPostsIdComments>[0]
   >
   client?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const { mutationKey, mutationFn, ...baseOptions } =
-    getPostPostsIdCommentsMutationOptions(clientOptions)
-  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
+  const { mutation: mutationOpts, client: clientOptions } = options ?? {}
+  return useMutation({ ...getPostPostsIdCommentsMutationOptions(clientOptions), ...mutationOpts })
 }
 
 /**
@@ -376,37 +355,33 @@ export function getGetTagsQueryKey() {
 }
 
 /**
+ * GET /tags
+ */
+export async function getTags(options?: ClientRequestOptions) {
+  return await parseResponse(client.tags.$get(undefined, options))
+}
+
+/**
  * Returns Vue Query query options for GET /tags
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetTagsQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return queryOptions({
     queryKey: getGetTagsQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.tags.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      )
+      return getTags({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
  * GET /tags
  */
 export function useGetTags(options?: {
-  query?: Partial<
-    Omit<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.tags.$get>>>>>,
-        Error
-      >,
-      'queryKey' | 'queryFn'
-    >
-  >
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getTags>>, Error>
   client?: ClientRequestOptions
 }) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const { queryKey, queryFn, ...baseOptions } = getGetTagsQueryOptions(clientOptions)
-  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
+  const { query: queryOpts, client: clientOptions } = options ?? {}
+  return useQuery({ ...getGetTagsQueryOptions(clientOptions), ...queryOpts })
 }

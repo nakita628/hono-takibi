@@ -2,7 +2,7 @@ import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
 import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
@@ -17,14 +17,22 @@ export function getPostOneOfMutationKey() {
 /**
  * POST /one-of
  */
+export async function postOneOf(
+  args: InferRequestType<(typeof client)['one-of']['$post']>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client['one-of'].$post(args, options))
+}
+
+/**
+ * POST /one-of
+ */
 export function usePostOneOf(options?: {
   mutation?: SWRMutationConfiguration<
-    Awaited<
-      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['one-of']['$post']>>>>
-    >,
+    Awaited<ReturnType<typeof postOneOf>>,
     Error,
     Key,
-    InferRequestType<(typeof client)['one-of']['$post']>
+    Parameters<typeof postOneOf>[0]
   > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
@@ -35,8 +43,8 @@ export function usePostOneOf(options?: {
     swrKey,
     ...useSWRMutation(
       swrKey,
-      async (_: Key, { arg }: { arg: InferRequestType<(typeof client)['one-of']['$post']> }) =>
-        parseResponse(client['one-of'].$post(arg, clientOptions)),
+      async (_: Key, { arg }: { arg: Parameters<typeof postOneOf>[0] }) =>
+        postOneOf(arg, clientOptions),
       restMutationOptions,
     ),
   }
@@ -53,14 +61,22 @@ export function getPostAnyOfMutationKey() {
 /**
  * POST /any-of
  */
+export async function postAnyOf(
+  args: InferRequestType<(typeof client)['any-of']['$post']>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client['any-of'].$post(args, options))
+}
+
+/**
+ * POST /any-of
+ */
 export function usePostAnyOf(options?: {
   mutation?: SWRMutationConfiguration<
-    Awaited<
-      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['any-of']['$post']>>>>
-    >,
+    Awaited<ReturnType<typeof postAnyOf>>,
     Error,
     Key,
-    InferRequestType<(typeof client)['any-of']['$post']>
+    Parameters<typeof postAnyOf>[0]
   > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
@@ -71,8 +87,8 @@ export function usePostAnyOf(options?: {
     swrKey,
     ...useSWRMutation(
       swrKey,
-      async (_: Key, { arg }: { arg: InferRequestType<(typeof client)['any-of']['$post']> }) =>
-        parseResponse(client['any-of'].$post(arg, clientOptions)),
+      async (_: Key, { arg }: { arg: Parameters<typeof postAnyOf>[0] }) =>
+        postAnyOf(arg, clientOptions),
       restMutationOptions,
     ),
   }
@@ -89,14 +105,22 @@ export function getPostAllOfMutationKey() {
 /**
  * POST /all-of
  */
+export async function postAllOf(
+  args: InferRequestType<(typeof client)['all-of']['$post']>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client['all-of'].$post(args, options))
+}
+
+/**
+ * POST /all-of
+ */
 export function usePostAllOf(options?: {
   mutation?: SWRMutationConfiguration<
-    Awaited<
-      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['all-of']['$post']>>>>
-    >,
+    Awaited<ReturnType<typeof postAllOf>>,
     Error,
     Key,
-    InferRequestType<(typeof client)['all-of']['$post']>
+    Parameters<typeof postAllOf>[0]
   > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
@@ -107,8 +131,8 @@ export function usePostAllOf(options?: {
     swrKey,
     ...useSWRMutation(
       swrKey,
-      async (_: Key, { arg }: { arg: InferRequestType<(typeof client)['all-of']['$post']> }) =>
-        parseResponse(client['all-of'].$post(arg, clientOptions)),
+      async (_: Key, { arg }: { arg: Parameters<typeof postAllOf>[0] }) =>
+        postAllOf(arg, clientOptions),
       restMutationOptions,
     ),
   }
@@ -125,12 +149,22 @@ export function getPostNotMutationKey() {
 /**
  * POST /not
  */
+export async function postNot(
+  args: InferRequestType<typeof client.not.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.not.$post(args, options))
+}
+
+/**
+ * POST /not
+ */
 export function usePostNot(options?: {
   mutation?: SWRMutationConfiguration<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.not.$post>>>>>,
+    Awaited<ReturnType<typeof postNot>>,
     Error,
     Key,
-    InferRequestType<typeof client.not.$post>
+    Parameters<typeof postNot>[0]
   > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
@@ -141,8 +175,8 @@ export function usePostNot(options?: {
     swrKey,
     ...useSWRMutation(
       swrKey,
-      async (_: Key, { arg }: { arg: InferRequestType<typeof client.not.$post> }) =>
-        parseResponse(client.not.$post(arg, clientOptions)),
+      async (_: Key, { arg }: { arg: Parameters<typeof postNot>[0] }) =>
+        postNot(arg, clientOptions),
       restMutationOptions,
     ),
   }
@@ -159,6 +193,13 @@ export function getGetNotRefKey() {
 /**
  * GET /not-ref
  */
+export async function getNotRef(options?: ClientRequestOptions) {
+  return await parseResponse(client['not-ref'].$get(undefined, options))
+}
+
+/**
+ * GET /not-ref
+ */
 export function useGetNotRef(options?: {
   swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
@@ -167,14 +208,7 @@ export function useGetNotRef(options?: {
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
   const swrKey = isEnabled ? (customKey ?? getGetNotRefKey()) : null
-  return {
-    swrKey,
-    ...useSWR(
-      swrKey,
-      async () => parseResponse(client['not-ref'].$get(undefined, clientOptions)),
-      restSwrOptions,
-    ),
-  }
+  return { swrKey, ...useSWR(swrKey, async () => getNotRef(clientOptions), restSwrOptions) }
 }
 
 /**
@@ -188,6 +222,13 @@ export function getGetNotEnumKey() {
 /**
  * GET /not-enum
  */
+export async function getNotEnum(options?: ClientRequestOptions) {
+  return await parseResponse(client['not-enum'].$get(undefined, options))
+}
+
+/**
+ * GET /not-enum
+ */
 export function useGetNotEnum(options?: {
   swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
@@ -196,14 +237,7 @@ export function useGetNotEnum(options?: {
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
   const swrKey = isEnabled ? (customKey ?? getGetNotEnumKey()) : null
-  return {
-    swrKey,
-    ...useSWR(
-      swrKey,
-      async () => parseResponse(client['not-enum'].$get(undefined, clientOptions)),
-      restSwrOptions,
-    ),
-  }
+  return { swrKey, ...useSWR(swrKey, async () => getNotEnum(clientOptions), restSwrOptions) }
 }
 
 /**
@@ -217,6 +251,13 @@ export function getGetNotConstKey() {
 /**
  * GET /not-const
  */
+export async function getNotConst(options?: ClientRequestOptions) {
+  return await parseResponse(client['not-const'].$get(undefined, options))
+}
+
+/**
+ * GET /not-const
+ */
 export function useGetNotConst(options?: {
   swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
@@ -225,14 +266,7 @@ export function useGetNotConst(options?: {
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
   const swrKey = isEnabled ? (customKey ?? getGetNotConstKey()) : null
-  return {
-    swrKey,
-    ...useSWR(
-      swrKey,
-      async () => parseResponse(client['not-const'].$get(undefined, clientOptions)),
-      restSwrOptions,
-    ),
-  }
+  return { swrKey, ...useSWR(swrKey, async () => getNotConst(clientOptions), restSwrOptions) }
 }
 
 /**
@@ -246,6 +280,13 @@ export function getGetNotCompositionKey() {
 /**
  * GET /not-composition
  */
+export async function getNotComposition(options?: ClientRequestOptions) {
+  return await parseResponse(client['not-composition'].$get(undefined, options))
+}
+
+/**
+ * GET /not-composition
+ */
 export function useGetNotComposition(options?: {
   swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
@@ -254,14 +295,7 @@ export function useGetNotComposition(options?: {
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
   const swrKey = isEnabled ? (customKey ?? getGetNotCompositionKey()) : null
-  return {
-    swrKey,
-    ...useSWR(
-      swrKey,
-      async () => parseResponse(client['not-composition'].$get(undefined, clientOptions)),
-      restSwrOptions,
-    ),
-  }
+  return { swrKey, ...useSWR(swrKey, async () => getNotComposition(clientOptions), restSwrOptions) }
 }
 
 /**
@@ -275,6 +309,13 @@ export function getGetAllOfSiblingKey() {
 /**
  * GET /all-of-sibling
  */
+export async function getAllOfSibling(options?: ClientRequestOptions) {
+  return await parseResponse(client['all-of-sibling'].$get(undefined, options))
+}
+
+/**
+ * GET /all-of-sibling
+ */
 export function useGetAllOfSibling(options?: {
   swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
@@ -283,14 +324,7 @@ export function useGetAllOfSibling(options?: {
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
   const swrKey = isEnabled ? (customKey ?? getGetAllOfSiblingKey()) : null
-  return {
-    swrKey,
-    ...useSWR(
-      swrKey,
-      async () => parseResponse(client['all-of-sibling'].$get(undefined, clientOptions)),
-      restSwrOptions,
-    ),
-  }
+  return { swrKey, ...useSWR(swrKey, async () => getAllOfSibling(clientOptions), restSwrOptions) }
 }
 
 /**
@@ -304,6 +338,13 @@ export function getGetNullableOneOfKey() {
 /**
  * GET /nullable-one-of
  */
+export async function getNullableOneOf(options?: ClientRequestOptions) {
+  return await parseResponse(client['nullable-one-of'].$get(undefined, options))
+}
+
+/**
+ * GET /nullable-one-of
+ */
 export function useGetNullableOneOf(options?: {
   swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
@@ -312,14 +353,7 @@ export function useGetNullableOneOf(options?: {
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
   const swrKey = isEnabled ? (customKey ?? getGetNullableOneOfKey()) : null
-  return {
-    swrKey,
-    ...useSWR(
-      swrKey,
-      async () => parseResponse(client['nullable-one-of'].$get(undefined, clientOptions)),
-      restSwrOptions,
-    ),
-  }
+  return { swrKey, ...useSWR(swrKey, async () => getNullableOneOf(clientOptions), restSwrOptions) }
 }
 
 /**
@@ -333,6 +367,13 @@ export function getGetAnyOfThreeKey() {
 /**
  * GET /any-of-three
  */
+export async function getAnyOfThree(options?: ClientRequestOptions) {
+  return await parseResponse(client['any-of-three'].$get(undefined, options))
+}
+
+/**
+ * GET /any-of-three
+ */
 export function useGetAnyOfThree(options?: {
   swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
@@ -341,14 +382,7 @@ export function useGetAnyOfThree(options?: {
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
   const swrKey = isEnabled ? (customKey ?? getGetAnyOfThreeKey()) : null
-  return {
-    swrKey,
-    ...useSWR(
-      swrKey,
-      async () => parseResponse(client['any-of-three'].$get(undefined, clientOptions)),
-      restSwrOptions,
-    ),
-  }
+  return { swrKey, ...useSWR(swrKey, async () => getAnyOfThree(clientOptions), restSwrOptions) }
 }
 
 /**
@@ -362,6 +396,13 @@ export function getGetAnyOfRefKey() {
 /**
  * GET /any-of-ref
  */
+export async function getAnyOfRef(options?: ClientRequestOptions) {
+  return await parseResponse(client['any-of-ref'].$get(undefined, options))
+}
+
+/**
+ * GET /any-of-ref
+ */
 export function useGetAnyOfRef(options?: {
   swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
@@ -370,12 +411,5 @@ export function useGetAnyOfRef(options?: {
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
   const swrKey = isEnabled ? (customKey ?? getGetAnyOfRefKey()) : null
-  return {
-    swrKey,
-    ...useSWR(
-      swrKey,
-      async () => parseResponse(client['any-of-ref'].$get(undefined, clientOptions)),
-      restSwrOptions,
-    ),
-  }
+  return { swrKey, ...useSWR(swrKey, async () => getAnyOfRef(clientOptions), restSwrOptions) }
 }

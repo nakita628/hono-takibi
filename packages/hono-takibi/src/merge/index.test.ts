@@ -2018,6 +2018,140 @@ export const api = app.basePath('/api/v1').openapi(getHealthRoute, getHealthRout
 export default app
 `)
     })
+
+    it('preserves basePath when generated code has multiline .openapi() chain', () => {
+      const existing = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute } from './routes/getHealth'
+import { postChatsRoute } from './routes/postChats'
+import { getHealthRouteHandler } from './handlers/getHealth'
+import { postChatsRouteHandler } from './handlers/postChats'
+
+const app = new OpenAPIHono()
+
+export const api = app.basePath('/api').openapi(getHealthRoute, getHealthRouteHandler).openapi(postChatsRoute, postChatsRouteHandler)
+
+export default app
+`
+
+      const generated = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute } from './routes/getHealth'
+import { postChatsRoute } from './routes/postChats'
+import { getHealthRouteHandler } from './handlers/getHealth'
+import { postChatsRouteHandler } from './handlers/postChats'
+
+const app = new OpenAPIHono()
+
+export const api = app
+  .openapi(getHealthRoute, getHealthRouteHandler)
+  .openapi(postChatsRoute, postChatsRouteHandler)
+
+export default app
+`
+
+      const result = mergeAppFile(existing, generated)
+      const expected = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute } from './routes/getHealth'
+import { postChatsRoute } from './routes/postChats'
+import { getHealthRouteHandler } from './handlers/getHealth'
+import { postChatsRouteHandler } from './handlers/postChats'
+
+const app = new OpenAPIHono()
+
+export const api = app.basePath('/api')
+  .openapi(getHealthRoute, getHealthRouteHandler)
+  .openapi(postChatsRoute, postChatsRouteHandler)
+
+export default app
+`
+      expect(result).toBe(expected)
+    })
+
+    it('preserves basePath when existing code has multiline format', () => {
+      const existing = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute } from './routes/getHealth'
+import { postChatsRoute } from './routes/postChats'
+import { getHealthRouteHandler } from './handlers/getHealth'
+import { postChatsRouteHandler } from './handlers/postChats'
+
+const app = new OpenAPIHono()
+
+export const api = app
+  .basePath('/api')
+  .openapi(getHealthRoute, getHealthRouteHandler)
+  .openapi(postChatsRoute, postChatsRouteHandler)
+
+export default app
+`
+
+      const generated = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute } from './routes/getHealth'
+import { getHealthRouteHandler } from './handlers/getHealth'
+
+const app = new OpenAPIHono()
+
+export const api = app.openapi(getHealthRoute, getHealthRouteHandler)
+
+export default app
+`
+
+      const result = mergeAppFile(existing, generated)
+      const expected = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute } from './routes/getHealth'
+import { getHealthRouteHandler } from './handlers/getHealth'
+
+const app = new OpenAPIHono()
+
+export const api = app.basePath('/api').openapi(getHealthRoute, getHealthRouteHandler)
+
+export default app
+`
+      expect(result).toBe(expected)
+    })
+
+    it('does not inject prefix when existing code has no basePath and generated is multiline', () => {
+      const existing = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute } from './routes/getHealth'
+import { getHealthRouteHandler } from './handlers/getHealth'
+
+const app = new OpenAPIHono()
+
+export const api = app.openapi(getHealthRoute, getHealthRouteHandler)
+
+export default app
+`
+
+      const generated = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute } from './routes/getHealth'
+import { postChatsRoute } from './routes/postChats'
+import { getHealthRouteHandler } from './handlers/getHealth'
+import { postChatsRouteHandler } from './handlers/postChats'
+
+const app = new OpenAPIHono()
+
+export const api = app
+  .openapi(getHealthRoute, getHealthRouteHandler)
+  .openapi(postChatsRoute, postChatsRouteHandler)
+
+export default app
+`
+
+      const result = mergeAppFile(existing, generated)
+      const expected = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute } from './routes/getHealth'
+import { getHealthRouteHandler } from './handlers/getHealth'
+import { postChatsRoute } from './routes/postChats'
+import { postChatsRouteHandler } from './handlers/postChats'
+
+const app = new OpenAPIHono()
+
+export const api = app
+  .openapi(getHealthRoute, getHealthRouteHandler)
+  .openapi(postChatsRoute, postChatsRouteHandler)
+
+export default app
+`
+      expect(result).toBe(expected)
+    })
   })
 
   describe('mergeImports edge cases', () => {

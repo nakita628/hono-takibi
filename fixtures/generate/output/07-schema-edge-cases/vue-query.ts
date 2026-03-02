@@ -1,6 +1,6 @@
-import { useQuery, useMutation } from '@tanstack/vue-query'
+import { useQuery, useMutation, queryOptions } from '@tanstack/vue-query'
 import type { UseQueryOptions, QueryFunctionContext, UseMutationOptions } from '@tanstack/vue-query'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
@@ -13,6 +13,16 @@ export function getPostNullableMutationKey() {
 }
 
 /**
+ * POST /nullable
+ */
+export async function postNullable(
+  args: InferRequestType<typeof client.nullable.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.nullable.$post(args, options))
+}
+
+/**
  * Returns Vue Query mutation options for POST /nullable
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
@@ -20,8 +30,8 @@ export function getPostNullableMutationKey() {
 export function getPostNullableMutationOptions(clientOptions?: ClientRequestOptions) {
   return {
     mutationKey: getPostNullableMutationKey(),
-    async mutationFn(args: InferRequestType<typeof client.nullable.$post>) {
-      return parseResponse(client.nullable.$post(args, clientOptions))
+    async mutationFn(args: Parameters<typeof postNullable>[0]) {
+      return postNullable(args, clientOptions)
     },
   }
 }
@@ -30,23 +40,15 @@ export function getPostNullableMutationOptions(clientOptions?: ClientRequestOpti
  * POST /nullable
  */
 export function usePostNullable(options?: {
-  mutation?: Partial<
-    Omit<
-      UseMutationOptions<
-        Awaited<
-          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.nullable.$post>>>>
-        >,
-        Error,
-        InferRequestType<typeof client.nullable.$post>
-      >,
-      'mutationFn' | 'mutationKey'
-    >
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postNullable>>,
+    Error,
+    Parameters<typeof postNullable>[0]
   >
   client?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const { mutationKey, mutationFn, ...baseOptions } = getPostNullableMutationOptions(clientOptions)
-  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
+  const { mutation: mutationOpts, client: clientOptions } = options ?? {}
+  return useMutation({ ...getPostNullableMutationOptions(clientOptions), ...mutationOpts })
 }
 
 /**
@@ -58,6 +60,16 @@ export function getPostDiscriminatedMutationKey() {
 }
 
 /**
+ * POST /discriminated
+ */
+export async function postDiscriminated(
+  args: InferRequestType<typeof client.discriminated.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.discriminated.$post(args, options))
+}
+
+/**
  * Returns Vue Query mutation options for POST /discriminated
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
@@ -65,8 +77,8 @@ export function getPostDiscriminatedMutationKey() {
 export function getPostDiscriminatedMutationOptions(clientOptions?: ClientRequestOptions) {
   return {
     mutationKey: getPostDiscriminatedMutationKey(),
-    async mutationFn(args: InferRequestType<typeof client.discriminated.$post>) {
-      return parseResponse(client.discriminated.$post(args, clientOptions))
+    async mutationFn(args: Parameters<typeof postDiscriminated>[0]) {
+      return postDiscriminated(args, clientOptions)
     },
   }
 }
@@ -75,24 +87,15 @@ export function getPostDiscriminatedMutationOptions(clientOptions?: ClientReques
  * POST /discriminated
  */
 export function usePostDiscriminated(options?: {
-  mutation?: Partial<
-    Omit<
-      UseMutationOptions<
-        Awaited<
-          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.discriminated.$post>>>>
-        >,
-        Error,
-        InferRequestType<typeof client.discriminated.$post>
-      >,
-      'mutationFn' | 'mutationKey'
-    >
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postDiscriminated>>,
+    Error,
+    Parameters<typeof postDiscriminated>[0]
   >
   client?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const { mutationKey, mutationFn, ...baseOptions } =
-    getPostDiscriminatedMutationOptions(clientOptions)
-  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
+  const { mutation: mutationOpts, client: clientOptions } = options ?? {}
+  return useMutation({ ...getPostDiscriminatedMutationOptions(clientOptions), ...mutationOpts })
 }
 
 /**
@@ -104,42 +107,35 @@ export function getGetComposedQueryKey() {
 }
 
 /**
+ * GET /composed
+ */
+export async function getComposed(options?: ClientRequestOptions) {
+  return await parseResponse(client.composed.$get(undefined, options))
+}
+
+/**
  * Returns Vue Query query options for GET /composed
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetComposedQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return queryOptions({
     queryKey: getGetComposedQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.composed.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+      return getComposed({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
  * GET /composed
  */
 export function useGetComposed(options?: {
-  query?: Partial<
-    Omit<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.composed.$get>>>>>,
-        Error
-      >,
-      'queryKey' | 'queryFn'
-    >
-  >
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getComposed>>, Error>
   client?: ClientRequestOptions
 }) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const { queryKey, queryFn, ...baseOptions } = getGetComposedQueryOptions(clientOptions)
-  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
+  const { query: queryOpts, client: clientOptions } = options ?? {}
+  return useQuery({ ...getGetComposedQueryOptions(clientOptions), ...queryOpts })
 }
 
 /**
@@ -151,46 +147,35 @@ export function getGetDeepNestedQueryKey() {
 }
 
 /**
+ * GET /deep-nested
+ */
+export async function getDeepNested(options?: ClientRequestOptions) {
+  return await parseResponse(client['deep-nested'].$get(undefined, options))
+}
+
+/**
  * Returns Vue Query query options for GET /deep-nested
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetDeepNestedQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return queryOptions({
     queryKey: getGetDeepNestedQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client['deep-nested'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+      return getDeepNested({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
  * GET /deep-nested
  */
 export function useGetDeepNested(options?: {
-  query?: Partial<
-    Omit<
-      UseQueryOptions<
-        Awaited<
-          ReturnType<
-            typeof parseResponse<Awaited<ReturnType<(typeof client)['deep-nested']['$get']>>>
-          >
-        >,
-        Error
-      >,
-      'queryKey' | 'queryFn'
-    >
-  >
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getDeepNested>>, Error>
   client?: ClientRequestOptions
 }) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const { queryKey, queryFn, ...baseOptions } = getGetDeepNestedQueryOptions(clientOptions)
-  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
+  const { query: queryOpts, client: clientOptions } = options ?? {}
+  return useQuery({ ...getGetDeepNestedQueryOptions(clientOptions), ...queryOpts })
 }
 
 /**
@@ -202,44 +187,33 @@ export function getGetAdditionalPropsQueryKey() {
 }
 
 /**
+ * GET /additional-props
+ */
+export async function getAdditionalProps(options?: ClientRequestOptions) {
+  return await parseResponse(client['additional-props'].$get(undefined, options))
+}
+
+/**
  * Returns Vue Query query options for GET /additional-props
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetAdditionalPropsQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return queryOptions({
     queryKey: getGetAdditionalPropsQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client['additional-props'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+      return getAdditionalProps({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
  * GET /additional-props
  */
 export function useGetAdditionalProps(options?: {
-  query?: Partial<
-    Omit<
-      UseQueryOptions<
-        Awaited<
-          ReturnType<
-            typeof parseResponse<Awaited<ReturnType<(typeof client)['additional-props']['$get']>>>
-          >
-        >,
-        Error
-      >,
-      'queryKey' | 'queryFn'
-    >
-  >
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getAdditionalProps>>, Error>
   client?: ClientRequestOptions
 }) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const { queryKey, queryFn, ...baseOptions } = getGetAdditionalPropsQueryOptions(clientOptions)
-  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
+  const { query: queryOpts, client: clientOptions } = options ?? {}
+  return useQuery({ ...getGetAdditionalPropsQueryOptions(clientOptions), ...queryOpts })
 }

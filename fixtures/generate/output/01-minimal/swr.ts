@@ -15,6 +15,13 @@ export function getGetHealthKey() {
 /**
  * GET /health
  */
+export async function getHealth(options?: ClientRequestOptions) {
+  return await parseResponse(client.health.$get(undefined, options))
+}
+
+/**
+ * GET /health
+ */
 export function useGetHealth(options?: {
   swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
@@ -23,12 +30,5 @@ export function useGetHealth(options?: {
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const isEnabled = enabled !== false
   const swrKey = isEnabled ? (customKey ?? getGetHealthKey()) : null
-  return {
-    swrKey,
-    ...useSWR(
-      swrKey,
-      async () => parseResponse(client.health.$get(undefined, clientOptions)),
-      restSwrOptions,
-    ),
-  }
+  return { swrKey, ...useSWR(swrKey, async () => getHealth(clientOptions), restSwrOptions) }
 }

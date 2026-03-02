@@ -1,10 +1,10 @@
-import { createQuery, createMutation } from '@tanstack/svelte-query'
+import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
 import type {
   CreateQueryOptions,
   QueryFunctionContext,
   CreateMutationOptions,
 } from '@tanstack/svelte-query'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
@@ -17,19 +17,24 @@ export function getGetTreeQueryKey() {
 }
 
 /**
+ * GET /tree
+ */
+export async function getTree(options?: ClientRequestOptions) {
+  return await parseResponse(client.tree.$get(undefined, options))
+}
+
+/**
  * Returns Svelte Query query options for GET /tree
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetTreeQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return queryOptions({
     queryKey: getGetTreeQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.tree.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      )
+      return getTree({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
@@ -37,17 +42,13 @@ export function getGetTreeQueryOptions(clientOptions?: ClientRequestOptions) {
  */
 export function createGetTree(
   options?: () => {
-    query?: CreateQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.tree.$get>>>>>,
-      Error
-    >
+    query?: CreateQueryOptions<Awaited<ReturnType<typeof getTree>>, Error>
     client?: ClientRequestOptions
   },
 ) {
   return createQuery(() => {
     const opts = options?.()
-    const { queryKey, queryFn, ...baseOptions } = getGetTreeQueryOptions(opts?.client)
-    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+    return { ...getGetTreeQueryOptions(opts?.client), ...opts?.query }
   })
 }
 
@@ -60,6 +61,16 @@ export function getPostTreeMutationKey() {
 }
 
 /**
+ * POST /tree
+ */
+export async function postTree(
+  args: InferRequestType<typeof client.tree.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.tree.$post(args, options))
+}
+
+/**
  * Returns Svelte Query mutation options for POST /tree
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
@@ -67,8 +78,8 @@ export function getPostTreeMutationKey() {
 export function getPostTreeMutationOptions(clientOptions?: ClientRequestOptions) {
   return {
     mutationKey: getPostTreeMutationKey(),
-    async mutationFn(args: InferRequestType<typeof client.tree.$post>) {
-      return parseResponse(client.tree.$post(args, clientOptions))
+    async mutationFn(args: Parameters<typeof postTree>[0]) {
+      return postTree(args, clientOptions)
     },
   }
 }
@@ -79,17 +90,16 @@ export function getPostTreeMutationOptions(clientOptions?: ClientRequestOptions)
 export function createPostTree(
   options?: () => {
     mutation?: CreateMutationOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.tree.$post>>>>>,
+      Awaited<ReturnType<typeof postTree>>,
       Error,
-      InferRequestType<typeof client.tree.$post>
+      Parameters<typeof postTree>[0]
     >
     client?: ClientRequestOptions
   },
 ) {
   return createMutation(() => {
     const opts = options?.()
-    const { mutationKey, mutationFn, ...baseOptions } = getPostTreeMutationOptions(opts?.client)
-    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+    return { ...getPostTreeMutationOptions(opts?.client), ...opts?.mutation }
   })
 }
 
@@ -102,22 +112,24 @@ export function getGetGraphQueryKey() {
 }
 
 /**
+ * GET /graph
+ */
+export async function getGraph(options?: ClientRequestOptions) {
+  return await parseResponse(client.graph.$get(undefined, options))
+}
+
+/**
  * Returns Svelte Query query options for GET /graph
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetGraphQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return queryOptions({
     queryKey: getGetGraphQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.graph.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+      return getGraph({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
@@ -125,16 +137,12 @@ export function getGetGraphQueryOptions(clientOptions?: ClientRequestOptions) {
  */
 export function createGetGraph(
   options?: () => {
-    query?: CreateQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.graph.$get>>>>>,
-      Error
-    >
+    query?: CreateQueryOptions<Awaited<ReturnType<typeof getGraph>>, Error>
     client?: ClientRequestOptions
   },
 ) {
   return createQuery(() => {
     const opts = options?.()
-    const { queryKey, queryFn, ...baseOptions } = getGetGraphQueryOptions(opts?.client)
-    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+    return { ...getGetGraphQueryOptions(opts?.client), ...opts?.query }
   })
 }

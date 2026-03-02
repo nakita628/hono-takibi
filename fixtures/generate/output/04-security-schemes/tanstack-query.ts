@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, queryOptions } from '@tanstack/react-query'
 import type { UseQueryOptions, QueryFunctionContext } from '@tanstack/react-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -13,37 +13,35 @@ export function getGetPublicQueryKey() {
 }
 
 /**
+ * GET /public
+ */
+export async function getPublic(options?: ClientRequestOptions) {
+  return await parseResponse(client.public.$get(undefined, options))
+}
+
+/**
  * Returns TanStack Query query options for GET /public
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetPublicQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return queryOptions({
     queryKey: getGetPublicQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.public.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+      return getPublic({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
  * GET /public
  */
 export function useGetPublic(options?: {
-  query?: UseQueryOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.public.$get>>>>>,
-    Error
-  >
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getPublic>>, Error>
   client?: ClientRequestOptions
 }) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const { queryKey, queryFn, ...baseOptions } = getGetPublicQueryOptions(clientOptions)
-  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
+  const { query: queryOpts, client: clientOptions } = options ?? {}
+  return useQuery({ ...getGetPublicQueryOptions(clientOptions), ...queryOpts })
 }
 
 /**
@@ -55,41 +53,35 @@ export function getGetBearerProtectedQueryKey() {
 }
 
 /**
+ * GET /bearer-protected
+ */
+export async function getBearerProtected(options?: ClientRequestOptions) {
+  return await parseResponse(client['bearer-protected'].$get(undefined, options))
+}
+
+/**
  * Returns TanStack Query query options for GET /bearer-protected
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetBearerProtectedQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return queryOptions({
     queryKey: getGetBearerProtectedQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client['bearer-protected'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+      return getBearerProtected({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
  * GET /bearer-protected
  */
 export function useGetBearerProtected(options?: {
-  query?: UseQueryOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<Awaited<ReturnType<(typeof client)['bearer-protected']['$get']>>>
-      >
-    >,
-    Error
-  >
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getBearerProtected>>, Error>
   client?: ClientRequestOptions
 }) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const { queryKey, queryFn, ...baseOptions } = getGetBearerProtectedQueryOptions(clientOptions)
-  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
+  const { query: queryOpts, client: clientOptions } = options ?? {}
+  return useQuery({ ...getGetBearerProtectedQueryOptions(clientOptions), ...queryOpts })
 }
 
 /**
@@ -101,41 +93,35 @@ export function getGetApiKeyProtectedQueryKey() {
 }
 
 /**
+ * GET /api-key-protected
+ */
+export async function getApiKeyProtected(options?: ClientRequestOptions) {
+  return await parseResponse(client['api-key-protected'].$get(undefined, options))
+}
+
+/**
  * Returns TanStack Query query options for GET /api-key-protected
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetApiKeyProtectedQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return queryOptions({
     queryKey: getGetApiKeyProtectedQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client['api-key-protected'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+      return getApiKeyProtected({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
  * GET /api-key-protected
  */
 export function useGetApiKeyProtected(options?: {
-  query?: UseQueryOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<Awaited<ReturnType<(typeof client)['api-key-protected']['$get']>>>
-      >
-    >,
-    Error
-  >
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getApiKeyProtected>>, Error>
   client?: ClientRequestOptions
 }) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const { queryKey, queryFn, ...baseOptions } = getGetApiKeyProtectedQueryOptions(clientOptions)
-  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
+  const { query: queryOpts, client: clientOptions } = options ?? {}
+  return useQuery({ ...getGetApiKeyProtectedQueryOptions(clientOptions), ...queryOpts })
 }
 
 /**
@@ -147,41 +133,35 @@ export function getGetBasicProtectedQueryKey() {
 }
 
 /**
+ * GET /basic-protected
+ */
+export async function getBasicProtected(options?: ClientRequestOptions) {
+  return await parseResponse(client['basic-protected'].$get(undefined, options))
+}
+
+/**
  * Returns TanStack Query query options for GET /basic-protected
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetBasicProtectedQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return queryOptions({
     queryKey: getGetBasicProtectedQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client['basic-protected'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+      return getBasicProtected({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
  * GET /basic-protected
  */
 export function useGetBasicProtected(options?: {
-  query?: UseQueryOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<Awaited<ReturnType<(typeof client)['basic-protected']['$get']>>>
-      >
-    >,
-    Error
-  >
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getBasicProtected>>, Error>
   client?: ClientRequestOptions
 }) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const { queryKey, queryFn, ...baseOptions } = getGetBasicProtectedQueryOptions(clientOptions)
-  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
+  const { query: queryOpts, client: clientOptions } = options ?? {}
+  return useQuery({ ...getGetBasicProtectedQueryOptions(clientOptions), ...queryOpts })
 }
 
 /**
@@ -193,41 +173,35 @@ export function getGetOauthProtectedQueryKey() {
 }
 
 /**
+ * GET /oauth-protected
+ */
+export async function getOauthProtected(options?: ClientRequestOptions) {
+  return await parseResponse(client['oauth-protected'].$get(undefined, options))
+}
+
+/**
  * Returns TanStack Query query options for GET /oauth-protected
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetOauthProtectedQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return queryOptions({
     queryKey: getGetOauthProtectedQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client['oauth-protected'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+      return getOauthProtected({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
  * GET /oauth-protected
  */
 export function useGetOauthProtected(options?: {
-  query?: UseQueryOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<Awaited<ReturnType<(typeof client)['oauth-protected']['$get']>>>
-      >
-    >,
-    Error
-  >
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getOauthProtected>>, Error>
   client?: ClientRequestOptions
 }) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const { queryKey, queryFn, ...baseOptions } = getGetOauthProtectedQueryOptions(clientOptions)
-  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
+  const { query: queryOpts, client: clientOptions } = options ?? {}
+  return useQuery({ ...getGetOauthProtectedQueryOptions(clientOptions), ...queryOpts })
 }
 
 /**
@@ -239,37 +213,33 @@ export function getGetMultiAuthQueryKey() {
 }
 
 /**
+ * GET /multi-auth
+ */
+export async function getMultiAuth(options?: ClientRequestOptions) {
+  return await parseResponse(client['multi-auth'].$get(undefined, options))
+}
+
+/**
  * Returns TanStack Query query options for GET /multi-auth
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetMultiAuthQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return queryOptions({
     queryKey: getGetMultiAuthQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client['multi-auth'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+      return getMultiAuth({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
  * GET /multi-auth
  */
 export function useGetMultiAuth(options?: {
-  query?: UseQueryOptions<
-    Awaited<
-      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['multi-auth']['$get']>>>>
-    >,
-    Error
-  >
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getMultiAuth>>, Error>
   client?: ClientRequestOptions
 }) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const { queryKey, queryFn, ...baseOptions } = getGetMultiAuthQueryOptions(clientOptions)
-  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
+  const { query: queryOpts, client: clientOptions } = options ?? {}
+  return useQuery({ ...getGetMultiAuthQueryOptions(clientOptions), ...queryOpts })
 }

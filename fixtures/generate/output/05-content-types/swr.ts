@@ -1,7 +1,7 @@
 import type { Key } from 'swr'
 import useSWRMutation from 'swr/mutation'
 import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
@@ -16,12 +16,22 @@ export function getPostJsonMutationKey() {
 /**
  * POST /json
  */
+export async function postJson(
+  args: InferRequestType<typeof client.json.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.json.$post(args, options))
+}
+
+/**
+ * POST /json
+ */
 export function usePostJson(options?: {
   mutation?: SWRMutationConfiguration<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.json.$post>>>>>,
+    Awaited<ReturnType<typeof postJson>>,
     Error,
     Key,
-    InferRequestType<typeof client.json.$post>
+    Parameters<typeof postJson>[0]
   > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
@@ -32,8 +42,8 @@ export function usePostJson(options?: {
     swrKey,
     ...useSWRMutation(
       swrKey,
-      async (_: Key, { arg }: { arg: InferRequestType<typeof client.json.$post> }) =>
-        parseResponse(client.json.$post(arg, clientOptions)),
+      async (_: Key, { arg }: { arg: Parameters<typeof postJson>[0] }) =>
+        postJson(arg, clientOptions),
       restMutationOptions,
     ),
   }
@@ -50,12 +60,22 @@ export function getPostFormMutationKey() {
 /**
  * POST /form
  */
+export async function postForm(
+  args: InferRequestType<typeof client.form.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.form.$post(args, options))
+}
+
+/**
+ * POST /form
+ */
 export function usePostForm(options?: {
   mutation?: SWRMutationConfiguration<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.form.$post>>>>>,
+    Awaited<ReturnType<typeof postForm>>,
     Error,
     Key,
-    InferRequestType<typeof client.form.$post>
+    Parameters<typeof postForm>[0]
   > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
@@ -66,8 +86,8 @@ export function usePostForm(options?: {
     swrKey,
     ...useSWRMutation(
       swrKey,
-      async (_: Key, { arg }: { arg: InferRequestType<typeof client.form.$post> }) =>
-        parseResponse(client.form.$post(arg, clientOptions)),
+      async (_: Key, { arg }: { arg: Parameters<typeof postForm>[0] }) =>
+        postForm(arg, clientOptions),
       restMutationOptions,
     ),
   }
@@ -84,12 +104,22 @@ export function getPostUploadMutationKey() {
 /**
  * POST /upload
  */
+export async function postUpload(
+  args: InferRequestType<typeof client.upload.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.upload.$post(args, options))
+}
+
+/**
+ * POST /upload
+ */
 export function usePostUpload(options?: {
   mutation?: SWRMutationConfiguration<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.upload.$post>>>>>,
+    Awaited<ReturnType<typeof postUpload>>,
     Error,
     Key,
-    InferRequestType<typeof client.upload.$post>
+    Parameters<typeof postUpload>[0]
   > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
@@ -100,8 +130,8 @@ export function usePostUpload(options?: {
     swrKey,
     ...useSWRMutation(
       swrKey,
-      async (_: Key, { arg }: { arg: InferRequestType<typeof client.upload.$post> }) =>
-        parseResponse(client.upload.$post(arg, clientOptions)),
+      async (_: Key, { arg }: { arg: Parameters<typeof postUpload>[0] }) =>
+        postUpload(arg, clientOptions),
       restMutationOptions,
     ),
   }
@@ -118,12 +148,22 @@ export function getPostTextMutationKey() {
 /**
  * POST /text
  */
+export async function postText(
+  args: InferRequestType<typeof client.text.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.text.$post(args, options))
+}
+
+/**
+ * POST /text
+ */
 export function usePostText(options?: {
   mutation?: SWRMutationConfiguration<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.text.$post>>>>>,
+    Awaited<ReturnType<typeof postText>>,
     Error,
     Key,
-    InferRequestType<typeof client.text.$post>
+    Parameters<typeof postText>[0]
   > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
@@ -134,8 +174,8 @@ export function usePostText(options?: {
     swrKey,
     ...useSWRMutation(
       swrKey,
-      async (_: Key, { arg }: { arg: InferRequestType<typeof client.text.$post> }) =>
-        parseResponse(client.text.$post(arg, clientOptions)),
+      async (_: Key, { arg }: { arg: Parameters<typeof postText>[0] }) =>
+        postText(arg, clientOptions),
       restMutationOptions,
     ),
   }
@@ -152,16 +192,22 @@ export function getPostMultiContentMutationKey() {
 /**
  * POST /multi-content
  */
+export async function postMultiContent(
+  args: InferRequestType<(typeof client)['multi-content']['$post']>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client['multi-content'].$post(args, options))
+}
+
+/**
+ * POST /multi-content
+ */
 export function usePostMultiContent(options?: {
   mutation?: SWRMutationConfiguration<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<Awaited<ReturnType<(typeof client)['multi-content']['$post']>>>
-      >
-    >,
+    Awaited<ReturnType<typeof postMultiContent>>,
     Error,
     Key,
-    InferRequestType<(typeof client)['multi-content']['$post']>
+    Parameters<typeof postMultiContent>[0]
   > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
@@ -172,10 +218,8 @@ export function usePostMultiContent(options?: {
     swrKey,
     ...useSWRMutation(
       swrKey,
-      async (
-        _: Key,
-        { arg }: { arg: InferRequestType<(typeof client)['multi-content']['$post']> },
-      ) => parseResponse(client['multi-content'].$post(arg, clientOptions)),
+      async (_: Key, { arg }: { arg: Parameters<typeof postMultiContent>[0] }) =>
+        postMultiContent(arg, clientOptions),
       restMutationOptions,
     ),
   }

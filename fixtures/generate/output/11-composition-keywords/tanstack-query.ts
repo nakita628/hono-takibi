@@ -1,10 +1,10 @@
-import { useQuery, useMutation } from '@tanstack/react-query'
+import { useQuery, useMutation, queryOptions, mutationOptions } from '@tanstack/react-query'
 import type {
   UseQueryOptions,
   QueryFunctionContext,
   UseMutationOptions,
 } from '@tanstack/react-query'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
@@ -17,17 +17,27 @@ export function getPostOneOfMutationKey() {
 }
 
 /**
+ * POST /one-of
+ */
+export async function postOneOf(
+  args: InferRequestType<(typeof client)['one-of']['$post']>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client['one-of'].$post(args, options))
+}
+
+/**
  * Returns TanStack Query mutation options for POST /one-of
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
 export function getPostOneOfMutationOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return mutationOptions({
     mutationKey: getPostOneOfMutationKey(),
-    async mutationFn(args: InferRequestType<(typeof client)['one-of']['$post']>) {
-      return parseResponse(client['one-of'].$post(args, clientOptions))
+    async mutationFn(args: Parameters<typeof postOneOf>[0]) {
+      return postOneOf(args, clientOptions)
     },
-  }
+  })
 }
 
 /**
@@ -35,17 +45,14 @@ export function getPostOneOfMutationOptions(clientOptions?: ClientRequestOptions
  */
 export function usePostOneOf(options?: {
   mutation?: UseMutationOptions<
-    Awaited<
-      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['one-of']['$post']>>>>
-    >,
+    Awaited<ReturnType<typeof postOneOf>>,
     Error,
-    InferRequestType<(typeof client)['one-of']['$post']>
+    Parameters<typeof postOneOf>[0]
   >
   client?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const { mutationKey, mutationFn, ...baseOptions } = getPostOneOfMutationOptions(clientOptions)
-  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
+  const { mutation: mutationOpts, client: clientOptions } = options ?? {}
+  return useMutation({ ...getPostOneOfMutationOptions(clientOptions), ...mutationOpts })
 }
 
 /**
@@ -57,17 +64,27 @@ export function getPostAnyOfMutationKey() {
 }
 
 /**
+ * POST /any-of
+ */
+export async function postAnyOf(
+  args: InferRequestType<(typeof client)['any-of']['$post']>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client['any-of'].$post(args, options))
+}
+
+/**
  * Returns TanStack Query mutation options for POST /any-of
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
 export function getPostAnyOfMutationOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return mutationOptions({
     mutationKey: getPostAnyOfMutationKey(),
-    async mutationFn(args: InferRequestType<(typeof client)['any-of']['$post']>) {
-      return parseResponse(client['any-of'].$post(args, clientOptions))
+    async mutationFn(args: Parameters<typeof postAnyOf>[0]) {
+      return postAnyOf(args, clientOptions)
     },
-  }
+  })
 }
 
 /**
@@ -75,17 +92,14 @@ export function getPostAnyOfMutationOptions(clientOptions?: ClientRequestOptions
  */
 export function usePostAnyOf(options?: {
   mutation?: UseMutationOptions<
-    Awaited<
-      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['any-of']['$post']>>>>
-    >,
+    Awaited<ReturnType<typeof postAnyOf>>,
     Error,
-    InferRequestType<(typeof client)['any-of']['$post']>
+    Parameters<typeof postAnyOf>[0]
   >
   client?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const { mutationKey, mutationFn, ...baseOptions } = getPostAnyOfMutationOptions(clientOptions)
-  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
+  const { mutation: mutationOpts, client: clientOptions } = options ?? {}
+  return useMutation({ ...getPostAnyOfMutationOptions(clientOptions), ...mutationOpts })
 }
 
 /**
@@ -97,17 +111,27 @@ export function getPostAllOfMutationKey() {
 }
 
 /**
+ * POST /all-of
+ */
+export async function postAllOf(
+  args: InferRequestType<(typeof client)['all-of']['$post']>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client['all-of'].$post(args, options))
+}
+
+/**
  * Returns TanStack Query mutation options for POST /all-of
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
 export function getPostAllOfMutationOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return mutationOptions({
     mutationKey: getPostAllOfMutationKey(),
-    async mutationFn(args: InferRequestType<(typeof client)['all-of']['$post']>) {
-      return parseResponse(client['all-of'].$post(args, clientOptions))
+    async mutationFn(args: Parameters<typeof postAllOf>[0]) {
+      return postAllOf(args, clientOptions)
     },
-  }
+  })
 }
 
 /**
@@ -115,17 +139,14 @@ export function getPostAllOfMutationOptions(clientOptions?: ClientRequestOptions
  */
 export function usePostAllOf(options?: {
   mutation?: UseMutationOptions<
-    Awaited<
-      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['all-of']['$post']>>>>
-    >,
+    Awaited<ReturnType<typeof postAllOf>>,
     Error,
-    InferRequestType<(typeof client)['all-of']['$post']>
+    Parameters<typeof postAllOf>[0]
   >
   client?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const { mutationKey, mutationFn, ...baseOptions } = getPostAllOfMutationOptions(clientOptions)
-  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
+  const { mutation: mutationOpts, client: clientOptions } = options ?? {}
+  return useMutation({ ...getPostAllOfMutationOptions(clientOptions), ...mutationOpts })
 }
 
 /**
@@ -137,17 +158,27 @@ export function getPostNotMutationKey() {
 }
 
 /**
+ * POST /not
+ */
+export async function postNot(
+  args: InferRequestType<typeof client.not.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.not.$post(args, options))
+}
+
+/**
  * Returns TanStack Query mutation options for POST /not
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
 export function getPostNotMutationOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return mutationOptions({
     mutationKey: getPostNotMutationKey(),
-    async mutationFn(args: InferRequestType<typeof client.not.$post>) {
-      return parseResponse(client.not.$post(args, clientOptions))
+    async mutationFn(args: Parameters<typeof postNot>[0]) {
+      return postNot(args, clientOptions)
     },
-  }
+  })
 }
 
 /**
@@ -155,15 +186,14 @@ export function getPostNotMutationOptions(clientOptions?: ClientRequestOptions) 
  */
 export function usePostNot(options?: {
   mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.not.$post>>>>>,
+    Awaited<ReturnType<typeof postNot>>,
     Error,
-    InferRequestType<typeof client.not.$post>
+    Parameters<typeof postNot>[0]
   >
   client?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const { mutationKey, mutationFn, ...baseOptions } = getPostNotMutationOptions(clientOptions)
-  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
+  const { mutation: mutationOpts, client: clientOptions } = options ?? {}
+  return useMutation({ ...getPostNotMutationOptions(clientOptions), ...mutationOpts })
 }
 
 /**
@@ -175,39 +205,35 @@ export function getGetNotRefQueryKey() {
 }
 
 /**
+ * GET /not-ref
+ */
+export async function getNotRef(options?: ClientRequestOptions) {
+  return await parseResponse(client['not-ref'].$get(undefined, options))
+}
+
+/**
  * Returns TanStack Query query options for GET /not-ref
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetNotRefQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return queryOptions({
     queryKey: getGetNotRefQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client['not-ref'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+      return getNotRef({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
  * GET /not-ref
  */
 export function useGetNotRef(options?: {
-  query?: UseQueryOptions<
-    Awaited<
-      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['not-ref']['$get']>>>>
-    >,
-    Error
-  >
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getNotRef>>, Error>
   client?: ClientRequestOptions
 }) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const { queryKey, queryFn, ...baseOptions } = getGetNotRefQueryOptions(clientOptions)
-  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
+  const { query: queryOpts, client: clientOptions } = options ?? {}
+  return useQuery({ ...getGetNotRefQueryOptions(clientOptions), ...queryOpts })
 }
 
 /**
@@ -219,39 +245,35 @@ export function getGetNotEnumQueryKey() {
 }
 
 /**
+ * GET /not-enum
+ */
+export async function getNotEnum(options?: ClientRequestOptions) {
+  return await parseResponse(client['not-enum'].$get(undefined, options))
+}
+
+/**
  * Returns TanStack Query query options for GET /not-enum
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetNotEnumQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return queryOptions({
     queryKey: getGetNotEnumQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client['not-enum'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+      return getNotEnum({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
  * GET /not-enum
  */
 export function useGetNotEnum(options?: {
-  query?: UseQueryOptions<
-    Awaited<
-      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['not-enum']['$get']>>>>
-    >,
-    Error
-  >
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getNotEnum>>, Error>
   client?: ClientRequestOptions
 }) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const { queryKey, queryFn, ...baseOptions } = getGetNotEnumQueryOptions(clientOptions)
-  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
+  const { query: queryOpts, client: clientOptions } = options ?? {}
+  return useQuery({ ...getGetNotEnumQueryOptions(clientOptions), ...queryOpts })
 }
 
 /**
@@ -263,39 +285,35 @@ export function getGetNotConstQueryKey() {
 }
 
 /**
+ * GET /not-const
+ */
+export async function getNotConst(options?: ClientRequestOptions) {
+  return await parseResponse(client['not-const'].$get(undefined, options))
+}
+
+/**
  * Returns TanStack Query query options for GET /not-const
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetNotConstQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return queryOptions({
     queryKey: getGetNotConstQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client['not-const'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+      return getNotConst({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
  * GET /not-const
  */
 export function useGetNotConst(options?: {
-  query?: UseQueryOptions<
-    Awaited<
-      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['not-const']['$get']>>>>
-    >,
-    Error
-  >
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getNotConst>>, Error>
   client?: ClientRequestOptions
 }) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const { queryKey, queryFn, ...baseOptions } = getGetNotConstQueryOptions(clientOptions)
-  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
+  const { query: queryOpts, client: clientOptions } = options ?? {}
+  return useQuery({ ...getGetNotConstQueryOptions(clientOptions), ...queryOpts })
 }
 
 /**
@@ -307,41 +325,35 @@ export function getGetNotCompositionQueryKey() {
 }
 
 /**
+ * GET /not-composition
+ */
+export async function getNotComposition(options?: ClientRequestOptions) {
+  return await parseResponse(client['not-composition'].$get(undefined, options))
+}
+
+/**
  * Returns TanStack Query query options for GET /not-composition
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetNotCompositionQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return queryOptions({
     queryKey: getGetNotCompositionQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client['not-composition'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+      return getNotComposition({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
  * GET /not-composition
  */
 export function useGetNotComposition(options?: {
-  query?: UseQueryOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<Awaited<ReturnType<(typeof client)['not-composition']['$get']>>>
-      >
-    >,
-    Error
-  >
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getNotComposition>>, Error>
   client?: ClientRequestOptions
 }) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const { queryKey, queryFn, ...baseOptions } = getGetNotCompositionQueryOptions(clientOptions)
-  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
+  const { query: queryOpts, client: clientOptions } = options ?? {}
+  return useQuery({ ...getGetNotCompositionQueryOptions(clientOptions), ...queryOpts })
 }
 
 /**
@@ -353,41 +365,35 @@ export function getGetAllOfSiblingQueryKey() {
 }
 
 /**
+ * GET /all-of-sibling
+ */
+export async function getAllOfSibling(options?: ClientRequestOptions) {
+  return await parseResponse(client['all-of-sibling'].$get(undefined, options))
+}
+
+/**
  * Returns TanStack Query query options for GET /all-of-sibling
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetAllOfSiblingQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return queryOptions({
     queryKey: getGetAllOfSiblingQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client['all-of-sibling'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+      return getAllOfSibling({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
  * GET /all-of-sibling
  */
 export function useGetAllOfSibling(options?: {
-  query?: UseQueryOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<Awaited<ReturnType<(typeof client)['all-of-sibling']['$get']>>>
-      >
-    >,
-    Error
-  >
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getAllOfSibling>>, Error>
   client?: ClientRequestOptions
 }) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const { queryKey, queryFn, ...baseOptions } = getGetAllOfSiblingQueryOptions(clientOptions)
-  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
+  const { query: queryOpts, client: clientOptions } = options ?? {}
+  return useQuery({ ...getGetAllOfSiblingQueryOptions(clientOptions), ...queryOpts })
 }
 
 /**
@@ -399,41 +405,35 @@ export function getGetNullableOneOfQueryKey() {
 }
 
 /**
+ * GET /nullable-one-of
+ */
+export async function getNullableOneOf(options?: ClientRequestOptions) {
+  return await parseResponse(client['nullable-one-of'].$get(undefined, options))
+}
+
+/**
  * Returns TanStack Query query options for GET /nullable-one-of
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetNullableOneOfQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return queryOptions({
     queryKey: getGetNullableOneOfQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client['nullable-one-of'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+      return getNullableOneOf({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
  * GET /nullable-one-of
  */
 export function useGetNullableOneOf(options?: {
-  query?: UseQueryOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<Awaited<ReturnType<(typeof client)['nullable-one-of']['$get']>>>
-      >
-    >,
-    Error
-  >
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getNullableOneOf>>, Error>
   client?: ClientRequestOptions
 }) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const { queryKey, queryFn, ...baseOptions } = getGetNullableOneOfQueryOptions(clientOptions)
-  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
+  const { query: queryOpts, client: clientOptions } = options ?? {}
+  return useQuery({ ...getGetNullableOneOfQueryOptions(clientOptions), ...queryOpts })
 }
 
 /**
@@ -445,39 +445,35 @@ export function getGetAnyOfThreeQueryKey() {
 }
 
 /**
+ * GET /any-of-three
+ */
+export async function getAnyOfThree(options?: ClientRequestOptions) {
+  return await parseResponse(client['any-of-three'].$get(undefined, options))
+}
+
+/**
  * Returns TanStack Query query options for GET /any-of-three
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetAnyOfThreeQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return queryOptions({
     queryKey: getGetAnyOfThreeQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client['any-of-three'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+      return getAnyOfThree({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
  * GET /any-of-three
  */
 export function useGetAnyOfThree(options?: {
-  query?: UseQueryOptions<
-    Awaited<
-      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['any-of-three']['$get']>>>>
-    >,
-    Error
-  >
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getAnyOfThree>>, Error>
   client?: ClientRequestOptions
 }) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const { queryKey, queryFn, ...baseOptions } = getGetAnyOfThreeQueryOptions(clientOptions)
-  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
+  const { query: queryOpts, client: clientOptions } = options ?? {}
+  return useQuery({ ...getGetAnyOfThreeQueryOptions(clientOptions), ...queryOpts })
 }
 
 /**
@@ -489,37 +485,33 @@ export function getGetAnyOfRefQueryKey() {
 }
 
 /**
+ * GET /any-of-ref
+ */
+export async function getAnyOfRef(options?: ClientRequestOptions) {
+  return await parseResponse(client['any-of-ref'].$get(undefined, options))
+}
+
+/**
  * Returns TanStack Query query options for GET /any-of-ref
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetAnyOfRefQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return queryOptions({
     queryKey: getGetAnyOfRefQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client['any-of-ref'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+      return getAnyOfRef({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
  * GET /any-of-ref
  */
 export function useGetAnyOfRef(options?: {
-  query?: UseQueryOptions<
-    Awaited<
-      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['any-of-ref']['$get']>>>>
-    >,
-    Error
-  >
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getAnyOfRef>>, Error>
   client?: ClientRequestOptions
 }) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const { queryKey, queryFn, ...baseOptions } = getGetAnyOfRefQueryOptions(clientOptions)
-  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
+  const { query: queryOpts, client: clientOptions } = options ?? {}
+  return useQuery({ ...getGetAnyOfRefQueryOptions(clientOptions), ...queryOpts })
 }

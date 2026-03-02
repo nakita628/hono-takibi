@@ -31,6 +31,14 @@ export async function tanstackQuery(
     mutationFn: 'useMutation',
     useQueryOptionsType: 'UseQueryOptions',
     useMutationOptionsType: 'UseMutationOptions',
+    hasQueryOptionsHelper: true,
+    hasMutationOptionsHelper: true,
+    suspenseQueryFn: 'useSuspenseQuery',
+    infiniteQueryFn: 'useInfiniteQuery',
+    suspenseInfiniteQueryFn: 'useSuspenseInfiniteQuery',
+    useSuspenseQueryOptionsType: 'UseSuspenseQueryOptions',
+    useInfiniteQueryOptionsType: 'UseInfiniteQueryOptions',
+    useSuspenseInfiniteQueryOptionsType: 'UseSuspenseInfiniteQueryOptions',
   }
   return makeQueryHooks(openAPI, output, importPath, config, split, clientName)
 }

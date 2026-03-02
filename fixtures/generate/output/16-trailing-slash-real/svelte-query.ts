@@ -1,10 +1,10 @@
-import { createQuery, createMutation } from '@tanstack/svelte-query'
+import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
 import type {
   CreateQueryOptions,
   QueryFunctionContext,
   CreateMutationOptions,
 } from '@tanstack/svelte-query'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
@@ -13,9 +13,21 @@ import { client } from './client'
  * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetApiReverseGeocodeIndexQueryKey(
-  args: InferRequestType<typeof client.api.reverseGeocode.index.$get>,
+  args: Parameters<typeof getApiReverseGeocodeIndex>[0],
 ) {
   return ['api', 'GET', '/api/reverseGeocode/', args] as const
+}
+
+/**
+ * GET /api/reverseGeocode/
+ *
+ * Reverse geocode lookup
+ */
+export async function getApiReverseGeocodeIndex(
+  args: InferRequestType<typeof client.api.reverseGeocode.index.$get>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.api.reverseGeocode.index.$get(args, options))
 }
 
 /**
@@ -24,20 +36,18 @@ export function getGetApiReverseGeocodeIndexQueryKey(
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetApiReverseGeocodeIndexQueryOptions(
-  args: InferRequestType<typeof client.api.reverseGeocode.index.$get>,
+  args: Parameters<typeof getApiReverseGeocodeIndex>[0],
   clientOptions?: ClientRequestOptions,
 ) {
-  return {
+  return queryOptions({
     queryKey: getGetApiReverseGeocodeIndexQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.api.reverseGeocode.index.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+      return getApiReverseGeocodeIndex(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      })
     },
-  }
+  })
 }
 
 /**
@@ -46,26 +56,15 @@ export function getGetApiReverseGeocodeIndexQueryOptions(
  * Reverse geocode lookup
  */
 export function createGetApiReverseGeocodeIndex(
-  args: InferRequestType<typeof client.api.reverseGeocode.index.$get>,
+  args: Parameters<typeof getApiReverseGeocodeIndex>[0],
   options?: () => {
-    query?: CreateQueryOptions<
-      Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<typeof client.api.reverseGeocode.index.$get>>>
-        >
-      >,
-      Error
-    >
+    query?: CreateQueryOptions<Awaited<ReturnType<typeof getApiReverseGeocodeIndex>>, Error>
     client?: ClientRequestOptions
   },
 ) {
   return createQuery(() => {
     const opts = options?.()
-    const { queryKey, queryFn, ...baseOptions } = getGetApiReverseGeocodeIndexQueryOptions(
-      args,
-      opts?.client,
-    )
-    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+    return { ...getGetApiReverseGeocodeIndexQueryOptions(args, opts?.client), ...opts?.query }
   })
 }
 
@@ -78,6 +77,18 @@ export function getPostApiV2PublicBookingAccountRegisterOauthIndexMutationKey() 
 }
 
 /**
+ * POST /api/v2/public/booking/account/register/oauth/
+ */
+export async function postApiV2PublicBookingAccountRegisterOauthIndex(
+  args: InferRequestType<typeof client.api.v2.public.booking.account.register.oauth.index.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(
+    client.api.v2.public.booking.account.register.oauth.index.$post(args, options),
+  )
+}
+
+/**
  * Returns Svelte Query mutation options for POST /api/v2/public/booking/account/register/oauth/
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
@@ -87,14 +98,8 @@ export function getPostApiV2PublicBookingAccountRegisterOauthIndexMutationOption
 ) {
   return {
     mutationKey: getPostApiV2PublicBookingAccountRegisterOauthIndexMutationKey(),
-    async mutationFn(
-      args: InferRequestType<
-        typeof client.api.v2.public.booking.account.register.oauth.index.$post
-      >,
-    ) {
-      return parseResponse(
-        client.api.v2.public.booking.account.register.oauth.index.$post(args, clientOptions),
-      )
+    async mutationFn(args: Parameters<typeof postApiV2PublicBookingAccountRegisterOauthIndex>[0]) {
+      return postApiV2PublicBookingAccountRegisterOauthIndex(args, clientOptions)
     },
   }
 }
@@ -105,26 +110,19 @@ export function getPostApiV2PublicBookingAccountRegisterOauthIndexMutationOption
 export function createPostApiV2PublicBookingAccountRegisterOauthIndex(
   options?: () => {
     mutation?: CreateMutationOptions<
-      Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<
-              ReturnType<typeof client.api.v2.public.booking.account.register.oauth.index.$post>
-            >
-          >
-        >
-      >,
+      Awaited<ReturnType<typeof postApiV2PublicBookingAccountRegisterOauthIndex>>,
       Error,
-      InferRequestType<typeof client.api.v2.public.booking.account.register.oauth.index.$post>
+      Parameters<typeof postApiV2PublicBookingAccountRegisterOauthIndex>[0]
     >
     client?: ClientRequestOptions
   },
 ) {
   return createMutation(() => {
     const opts = options?.()
-    const { mutationKey, mutationFn, ...baseOptions } =
-      getPostApiV2PublicBookingAccountRegisterOauthIndexMutationOptions(opts?.client)
-    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+    return {
+      ...getPostApiV2PublicBookingAccountRegisterOauthIndexMutationOptions(opts?.client),
+      ...opts?.mutation,
+    }
   })
 }
 
@@ -137,6 +135,20 @@ export function getPostApiV2PublicBookingAccountRegisterEmailMutationKey() {
 }
 
 /**
+ * POST /api/v2/public/booking/account/register/email
+ *
+ * Send registration URL via email
+ */
+export async function postApiV2PublicBookingAccountRegisterEmail(
+  args: InferRequestType<typeof client.api.v2.public.booking.account.register.email.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(
+    client.api.v2.public.booking.account.register.email.$post(args, options),
+  )
+}
+
+/**
  * Returns Svelte Query mutation options for POST /api/v2/public/booking/account/register/email
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
@@ -146,12 +158,8 @@ export function getPostApiV2PublicBookingAccountRegisterEmailMutationOptions(
 ) {
   return {
     mutationKey: getPostApiV2PublicBookingAccountRegisterEmailMutationKey(),
-    async mutationFn(
-      args: InferRequestType<typeof client.api.v2.public.booking.account.register.email.$post>,
-    ) {
-      return parseResponse(
-        client.api.v2.public.booking.account.register.email.$post(args, clientOptions),
-      )
+    async mutationFn(args: Parameters<typeof postApiV2PublicBookingAccountRegisterEmail>[0]) {
+      return postApiV2PublicBookingAccountRegisterEmail(args, clientOptions)
     },
   }
 }
@@ -164,23 +172,18 @@ export function getPostApiV2PublicBookingAccountRegisterEmailMutationOptions(
 export function createPostApiV2PublicBookingAccountRegisterEmail(
   options?: () => {
     mutation?: CreateMutationOptions<
-      Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<typeof client.api.v2.public.booking.account.register.email.$post>>
-          >
-        >
-      >,
+      Awaited<ReturnType<typeof postApiV2PublicBookingAccountRegisterEmail>>,
       Error,
-      InferRequestType<typeof client.api.v2.public.booking.account.register.email.$post>
+      Parameters<typeof postApiV2PublicBookingAccountRegisterEmail>[0]
     >
     client?: ClientRequestOptions
   },
 ) {
   return createMutation(() => {
     const opts = options?.()
-    const { mutationKey, mutationFn, ...baseOptions } =
-      getPostApiV2PublicBookingAccountRegisterEmailMutationOptions(opts?.client)
-    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+    return {
+      ...getPostApiV2PublicBookingAccountRegisterEmailMutationOptions(opts?.client),
+      ...opts?.mutation,
+    }
   })
 }

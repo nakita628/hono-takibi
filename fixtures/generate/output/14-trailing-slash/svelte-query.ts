@@ -1,10 +1,10 @@
-import { createQuery, createMutation } from '@tanstack/svelte-query'
+import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
 import type {
   CreateQueryOptions,
   QueryFunctionContext,
   CreateMutationOptions,
 } from '@tanstack/svelte-query'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
@@ -17,22 +17,29 @@ export function getGetApiReverseChibanIndexQueryKey() {
 }
 
 /**
+ * GET /api/reverseChiban/
+ *
+ * Reverse Chiban (trailing slash)
+ */
+export async function getApiReverseChibanIndex(options?: ClientRequestOptions) {
+  return await parseResponse(client.api.reverseChiban.index.$get(undefined, options))
+}
+
+/**
  * Returns Svelte Query query options for GET /api/reverseChiban/
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetApiReverseChibanIndexQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return queryOptions({
     queryKey: getGetApiReverseChibanIndexQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.api.reverseChiban.index.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+      return getApiReverseChibanIndex({
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      })
     },
-  }
+  })
 }
 
 /**
@@ -42,23 +49,13 @@ export function getGetApiReverseChibanIndexQueryOptions(clientOptions?: ClientRe
  */
 export function createGetApiReverseChibanIndex(
   options?: () => {
-    query?: CreateQueryOptions<
-      Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<typeof client.api.reverseChiban.index.$get>>>
-        >
-      >,
-      Error
-    >
+    query?: CreateQueryOptions<Awaited<ReturnType<typeof getApiReverseChibanIndex>>, Error>
     client?: ClientRequestOptions
   },
 ) {
   return createQuery(() => {
     const opts = options?.()
-    const { queryKey, queryFn, ...baseOptions } = getGetApiReverseChibanIndexQueryOptions(
-      opts?.client,
-    )
-    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+    return { ...getGetApiReverseChibanIndexQueryOptions(opts?.client), ...opts?.query }
   })
 }
 
@@ -71,22 +68,26 @@ export function getGetApiReverseChibanQueryKey() {
 }
 
 /**
+ * GET /api/reverseChiban
+ *
+ * Reverse Chiban (no trailing slash)
+ */
+export async function getApiReverseChiban(options?: ClientRequestOptions) {
+  return await parseResponse(client.api.reverseChiban.$get(undefined, options))
+}
+
+/**
  * Returns Svelte Query query options for GET /api/reverseChiban
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetApiReverseChibanQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return queryOptions({
     queryKey: getGetApiReverseChibanQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.api.reverseChiban.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+      return getApiReverseChiban({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
@@ -96,19 +97,13 @@ export function getGetApiReverseChibanQueryOptions(clientOptions?: ClientRequest
  */
 export function createGetApiReverseChiban(
   options?: () => {
-    query?: CreateQueryOptions<
-      Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.api.reverseChiban.$get>>>>
-      >,
-      Error
-    >
+    query?: CreateQueryOptions<Awaited<ReturnType<typeof getApiReverseChiban>>, Error>
     client?: ClientRequestOptions
   },
 ) {
   return createQuery(() => {
     const opts = options?.()
-    const { queryKey, queryFn, ...baseOptions } = getGetApiReverseChibanQueryOptions(opts?.client)
-    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+    return { ...getGetApiReverseChibanQueryOptions(opts?.client), ...opts?.query }
   })
 }
 
@@ -116,8 +111,20 @@ export function createGetApiReverseChiban(
  * Generates Svelte Query cache key for GET /posts/
  * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetPostsIndexQueryKey(args: InferRequestType<typeof client.posts.index.$get>) {
+export function getGetPostsIndexQueryKey(args: Parameters<typeof getPostsIndex>[0]) {
   return ['posts', 'GET', '/posts/', args] as const
+}
+
+/**
+ * GET /posts/
+ *
+ * List posts (trailing slash only)
+ */
+export async function getPostsIndex(
+  args: InferRequestType<typeof client.posts.index.$get>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.posts.index.$get(args, options))
 }
 
 /**
@@ -126,20 +133,15 @@ export function getGetPostsIndexQueryKey(args: InferRequestType<typeof client.po
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetPostsIndexQueryOptions(
-  args: InferRequestType<typeof client.posts.index.$get>,
+  args: Parameters<typeof getPostsIndex>[0],
   clientOptions?: ClientRequestOptions,
 ) {
-  return {
+  return queryOptions({
     queryKey: getGetPostsIndexQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.posts.index.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+      return getPostsIndex(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
@@ -148,21 +150,15 @@ export function getGetPostsIndexQueryOptions(
  * List posts (trailing slash only)
  */
 export function createGetPostsIndex(
-  args: InferRequestType<typeof client.posts.index.$get>,
+  args: Parameters<typeof getPostsIndex>[0],
   options?: () => {
-    query?: CreateQueryOptions<
-      Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.posts.index.$get>>>>
-      >,
-      Error
-    >
+    query?: CreateQueryOptions<Awaited<ReturnType<typeof getPostsIndex>>, Error>
     client?: ClientRequestOptions
   },
 ) {
   return createQuery(() => {
     const opts = options?.()
-    const { queryKey, queryFn, ...baseOptions } = getGetPostsIndexQueryOptions(args, opts?.client)
-    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+    return { ...getGetPostsIndexQueryOptions(args, opts?.client), ...opts?.query }
   })
 }
 
@@ -175,6 +171,18 @@ export function getPostPostsIndexMutationKey() {
 }
 
 /**
+ * POST /posts/
+ *
+ * Create post (trailing slash only)
+ */
+export async function postPostsIndex(
+  args: InferRequestType<typeof client.posts.index.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.posts.index.$post(args, options))
+}
+
+/**
  * Returns Svelte Query mutation options for POST /posts/
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
@@ -182,8 +190,8 @@ export function getPostPostsIndexMutationKey() {
 export function getPostPostsIndexMutationOptions(clientOptions?: ClientRequestOptions) {
   return {
     mutationKey: getPostPostsIndexMutationKey(),
-    async mutationFn(args: InferRequestType<typeof client.posts.index.$post>) {
-      return parseResponse(client.posts.index.$post(args, clientOptions))
+    async mutationFn(args: Parameters<typeof postPostsIndex>[0]) {
+      return postPostsIndex(args, clientOptions)
     },
   }
 }
@@ -196,21 +204,16 @@ export function getPostPostsIndexMutationOptions(clientOptions?: ClientRequestOp
 export function createPostPostsIndex(
   options?: () => {
     mutation?: CreateMutationOptions<
-      Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.posts.index.$post>>>>
-      >,
+      Awaited<ReturnType<typeof postPostsIndex>>,
       Error,
-      InferRequestType<typeof client.posts.index.$post>
+      Parameters<typeof postPostsIndex>[0]
     >
     client?: ClientRequestOptions
   },
 ) {
   return createMutation(() => {
     const opts = options?.()
-    const { mutationKey, mutationFn, ...baseOptions } = getPostPostsIndexMutationOptions(
-      opts?.client,
-    )
-    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+    return { ...getPostPostsIndexMutationOptions(opts?.client), ...opts?.mutation }
   })
 }
 
@@ -218,10 +221,20 @@ export function createPostPostsIndex(
  * Generates Svelte Query cache key for GET /users/{id}/
  * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetUsersIdIndexQueryKey(
-  args: InferRequestType<(typeof client.users)[':id']['index']['$get']>,
-) {
+export function getGetUsersIdIndexQueryKey(args: Parameters<typeof getUsersIdIndex>[0]) {
   return ['users', 'GET', '/users/:id/', args] as const
+}
+
+/**
+ * GET /users/{id}/
+ *
+ * Get user (trailing slash with path param)
+ */
+export async function getUsersIdIndex(
+  args: InferRequestType<(typeof client.users)[':id']['index']['$get']>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.users[':id'].index.$get(args, options))
 }
 
 /**
@@ -230,20 +243,15 @@ export function getGetUsersIdIndexQueryKey(
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetUsersIdIndexQueryOptions(
-  args: InferRequestType<(typeof client.users)[':id']['index']['$get']>,
+  args: Parameters<typeof getUsersIdIndex>[0],
   clientOptions?: ClientRequestOptions,
 ) {
-  return {
+  return queryOptions({
     queryKey: getGetUsersIdIndexQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.users[':id'].index.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+      return getUsersIdIndex(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
@@ -252,23 +260,15 @@ export function getGetUsersIdIndexQueryOptions(
  * Get user (trailing slash with path param)
  */
 export function createGetUsersIdIndex(
-  args: InferRequestType<(typeof client.users)[':id']['index']['$get']>,
+  args: Parameters<typeof getUsersIdIndex>[0],
   options?: () => {
-    query?: CreateQueryOptions<
-      Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['index']['$get']>>>
-        >
-      >,
-      Error
-    >
+    query?: CreateQueryOptions<Awaited<ReturnType<typeof getUsersIdIndex>>, Error>
     client?: ClientRequestOptions
   },
 ) {
   return createQuery(() => {
     const opts = options?.()
-    const { queryKey, queryFn, ...baseOptions } = getGetUsersIdIndexQueryOptions(args, opts?.client)
-    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+    return { ...getGetUsersIdIndexQueryOptions(args, opts?.client), ...opts?.query }
   })
 }
 
@@ -281,22 +281,26 @@ export function getGetItemsIndexQueryKey() {
 }
 
 /**
+ * GET /items/
+ *
+ * List items (trailing slash only)
+ */
+export async function getItemsIndex(options?: ClientRequestOptions) {
+  return await parseResponse(client.items.index.$get(undefined, options))
+}
+
+/**
  * Returns Svelte Query query options for GET /items/
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetItemsIndexQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return queryOptions({
     queryKey: getGetItemsIndexQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.items.index.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+      return getItemsIndex({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  }
+  })
 }
 
 /**
@@ -306,18 +310,12 @@ export function getGetItemsIndexQueryOptions(clientOptions?: ClientRequestOption
  */
 export function createGetItemsIndex(
   options?: () => {
-    query?: CreateQueryOptions<
-      Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.items.index.$get>>>>
-      >,
-      Error
-    >
+    query?: CreateQueryOptions<Awaited<ReturnType<typeof getItemsIndex>>, Error>
     client?: ClientRequestOptions
   },
 ) {
   return createQuery(() => {
     const opts = options?.()
-    const { queryKey, queryFn, ...baseOptions } = getGetItemsIndexQueryOptions(opts?.client)
-    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+    return { ...getGetItemsIndexQueryOptions(opts?.client), ...opts?.query }
   })
 }
