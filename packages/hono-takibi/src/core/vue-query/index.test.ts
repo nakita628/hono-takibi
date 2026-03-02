@@ -49,7 +49,7 @@ describe('vueQuery', () => {
       }
 
       const code = fs.readFileSync(out, 'utf-8')
-      const expected = `import { useQuery, useInfiniteQuery, useMutation } from '@tanstack/vue-query'
+      const expected = `import { useQuery, useInfiniteQuery, useMutation, queryOptions } from '@tanstack/vue-query'
 import type {
   UseQueryOptions,
   QueryFunctionContext,
@@ -87,12 +87,12 @@ export async function getHono(options?: ClientRequestOptions) {
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetHonoQueryOptions(options?: ClientRequestOptions) {
-  return {
+  return queryOptions({
     queryKey: getGetHonoQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getHono({ ...options, init: { ...options?.init, signal } })
     },
-  }
+  })
 }
 
 /**
@@ -181,12 +181,12 @@ export function getGetUsersQueryOptions(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
   options?: ClientRequestOptions,
 ) {
-  return {
+  return queryOptions({
     queryKey: getGetUsersQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getUsers(toValue(args), { ...options, init: { ...options?.init, signal } })
     },
-  }
+  })
 }
 
 /**
@@ -341,7 +341,7 @@ export * from './postUsers'
 
       // Check GET hook file without args
       const useGetHono = fs.readFileSync(path.join(dir, 'hooks', 'getHono.ts'), 'utf-8')
-      const useGetHonoExpected = `import { useQuery, useInfiniteQuery } from '@tanstack/vue-query'
+      const useGetHonoExpected = `import { useQuery, useInfiniteQuery, queryOptions } from '@tanstack/vue-query'
 import type {
   UseQueryOptions,
   QueryFunctionContext,
@@ -376,12 +376,12 @@ export async function getHono(options?: ClientRequestOptions) {
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetHonoQueryOptions(options?: ClientRequestOptions) {
-  return {
+  return queryOptions({
     queryKey: getGetHonoQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getHono({ ...options, init: { ...options?.init, signal } })
     },
-  }
+  })
 }
 
 /**
@@ -441,7 +441,7 @@ export function useInfiniteGetHono(options: {
 
       // Check GET hook file with args
       const useGetUsers = fs.readFileSync(path.join(dir, 'hooks', 'getUsers.ts'), 'utf-8')
-      const useGetUsersExpected = `import { useQuery, useInfiniteQuery } from '@tanstack/vue-query'
+      const useGetUsersExpected = `import { useQuery, useInfiniteQuery, queryOptions } from '@tanstack/vue-query'
 import type {
   UseQueryOptions,
   QueryFunctionContext,
@@ -486,12 +486,12 @@ export function getGetUsersQueryOptions(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
   options?: ClientRequestOptions,
 ) {
-  return {
+  return queryOptions({
     queryKey: getGetUsersQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getUsers(toValue(args), { ...options, init: { ...options?.init, signal } })
     },
-  }
+  })
 }
 
 /**
@@ -660,7 +660,7 @@ describe('vueQuery (custom client name)', () => {
       }
 
       const code = fs.readFileSync(out, 'utf-8')
-      const expected = `import { useQuery, useInfiniteQuery } from '@tanstack/vue-query'
+      const expected = `import { useQuery, useInfiniteQuery, queryOptions } from '@tanstack/vue-query'
 import type {
   UseQueryOptions,
   QueryFunctionContext,
@@ -693,12 +693,12 @@ export async function getUsers(options?: ClientRequestOptions) {
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetUsersQueryOptions(options?: ClientRequestOptions) {
-  return {
+  return queryOptions({
     queryKey: getGetUsersQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getUsers({ ...options, init: { ...options?.init, signal } })
     },
-  }
+  })
 }
 
 /**
@@ -787,7 +787,7 @@ describe('vueQuery (no args operations)', () => {
       }
 
       const code = fs.readFileSync(out, 'utf-8')
-      const expected = `import { useQuery, useInfiniteQuery, useMutation } from '@tanstack/vue-query'
+      const expected = `import { useQuery, useInfiniteQuery, useMutation, queryOptions } from '@tanstack/vue-query'
 import type {
   UseQueryOptions,
   QueryFunctionContext,
@@ -821,12 +821,12 @@ export async function getPing(options?: ClientRequestOptions) {
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetPingQueryOptions(options?: ClientRequestOptions) {
-  return {
+  return queryOptions({
     queryKey: getGetPingQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getPing({ ...options, init: { ...options?.init, signal } })
     },
-  }
+  })
 }
 
 /**
@@ -954,7 +954,7 @@ describe('vueQuery (path with special characters)', () => {
       }
 
       const code = fs.readFileSync(out, 'utf-8')
-      const expected = `import { useQuery, useInfiniteQuery } from '@tanstack/vue-query'
+      const expected = `import { useQuery, useInfiniteQuery, queryOptions } from '@tanstack/vue-query'
 import type {
   UseQueryOptions,
   QueryFunctionContext,
@@ -987,12 +987,12 @@ export async function getHonoX(options?: ClientRequestOptions) {
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetHonoXQueryOptions(options?: ClientRequestOptions) {
-  return {
+  return queryOptions({
     queryKey: getGetHonoXQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getHonoX({ ...options, init: { ...options?.init, signal } })
     },
-  }
+  })
 }
 
 /**
@@ -1082,7 +1082,7 @@ describe('vueQuery (path parameters)', () => {
       }
 
       const code = fs.readFileSync(out, 'utf-8')
-      const expected = `import { useQuery, useInfiniteQuery, useMutation } from '@tanstack/vue-query'
+      const expected = `import { useQuery, useInfiniteQuery, useMutation, queryOptions } from '@tanstack/vue-query'
 import type {
   UseQueryOptions,
   QueryFunctionContext,
@@ -1126,12 +1126,12 @@ export function getGetUsersIdQueryOptions(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':id']['$get']>>,
   options?: ClientRequestOptions,
 ) {
-  return {
+  return queryOptions({
     queryKey: getGetUsersIdQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getUsersId(toValue(args), { ...options, init: { ...options?.init, signal } })
     },
-  }
+  })
 }
 
 /**
