@@ -35,6 +35,9 @@ export async function vueQuery(
     hasQueryOptionsHelper: true,
     // Vue Query uses different queryKey pattern (no leading slash, separate path params)
     isVueQuery: true,
+    // Infinite query support
+    infiniteQueryFn: 'useInfiniteQuery',
+    useInfiniteQueryOptionsType: 'UseInfiniteQueryOptions',
   }
   return makeQueryHooks(openAPI, output, importPath, config, split, clientName)
 }

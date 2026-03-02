@@ -49,11 +49,12 @@ describe('svelteQuery', () => {
       }
 
       const code = fs.readFileSync(out, 'utf-8')
-      const expected = `import { createQuery, createMutation } from '@tanstack/svelte-query'
+      const expected = `import { createQuery, createMutation, createInfiniteQuery } from '@tanstack/svelte-query'
 import type {
   CreateQueryOptions,
   QueryFunctionContext,
   CreateMutationOptions,
+  CreateInfiniteQueryOptions,
 } from '@tanstack/svelte-query'
 import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -107,6 +108,53 @@ export function createGetHono(
 }
 
 /**
+ * Generates Svelte Query infinite cache key for GET /hono
+ * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ */
+export function getGetHonoInfiniteQueryKey() {
+  return ['hono', 'GET', '/hono', 'infinite'] as const
+}
+
+/**
+ * Returns Svelte Query infinite query options for GET /hono
+ *
+ * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or directly with useInfiniteQuery.
+ */
+export function getGetHonoInfiniteQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetHonoInfiniteQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.hono.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      )
+    },
+  }
+}
+
+/**
+ * GET /hono
+ *
+ * Hono
+ *
+ * Simple ping for Hono
+ */
+export function createInfiniteGetHono(
+  options: () => {
+    query: CreateInfiniteQueryOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
+      Error
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createInfiniteQuery(() => {
+    const opts = options()
+    const { queryKey, queryFn, ...baseOptions } = getGetHonoInfiniteQueryOptions(opts.client)
+    return { ...baseOptions, ...opts.query, queryKey, queryFn }
+  })
+}
+
+/**
  * Generates Svelte Query cache key for GET /users
  * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
@@ -154,6 +202,57 @@ export function createGetUsers(
     const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetUsersQueryOptions(args, opts?.client)
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
+}
+
+/**
+ * Generates Svelte Query infinite cache key for GET /users
+ * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
+ */
+export function getGetUsersInfiniteQueryKey(args: InferRequestType<typeof client.users.$get>) {
+  return ['users', 'GET', '/users', args, 'infinite'] as const
+}
+
+/**
+ * Returns Svelte Query infinite query options for GET /users
+ *
+ * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or directly with useInfiniteQuery.
+ */
+export function getGetUsersInfiniteQueryOptions(
+  args: InferRequestType<typeof client.users.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetUsersInfiniteQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.users.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      )
+    },
+  }
+}
+
+/**
+ * GET /users
+ *
+ * List users
+ *
+ * List users with pagination.
+ */
+export function createInfiniteGetUsers(
+  args: InferRequestType<typeof client.users.$get>,
+  options: () => {
+    query: CreateInfiniteQueryOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+      Error
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createInfiniteQuery(() => {
+    const opts = options()
+    const { queryKey, queryFn, ...baseOptions } = getGetUsersInfiniteQueryOptions(args, opts.client)
+    return { ...baseOptions, ...opts.query, queryKey, queryFn }
   })
 }
 
@@ -236,8 +335,12 @@ export * from './createPostUsers'
 
       // Check GET hook file without args
       const createGetHono = fs.readFileSync(path.join(dir, 'hooks', 'createGetHono.ts'), 'utf-8')
-      const createGetHonoExpected = `import { createQuery } from '@tanstack/svelte-query'
-import type { CreateQueryOptions, QueryFunctionContext } from '@tanstack/svelte-query'
+      const createGetHonoExpected = `import { createQuery, createInfiniteQuery } from '@tanstack/svelte-query'
+import type {
+  CreateQueryOptions,
+  QueryFunctionContext,
+  CreateInfiniteQueryOptions,
+} from '@tanstack/svelte-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
@@ -288,13 +391,64 @@ export function createGetHono(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
+
+/**
+ * Generates Svelte Query infinite cache key for GET /hono
+ * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ */
+export function getGetHonoInfiniteQueryKey() {
+  return ['hono', 'GET', '/hono', 'infinite'] as const
+}
+
+/**
+ * Returns Svelte Query infinite query options for GET /hono
+ *
+ * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or directly with useInfiniteQuery.
+ */
+export function getGetHonoInfiniteQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetHonoInfiniteQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.hono.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      )
+    },
+  }
+}
+
+/**
+ * GET /hono
+ *
+ * Hono
+ *
+ * Simple ping for Hono
+ */
+export function createInfiniteGetHono(
+  options: () => {
+    query: CreateInfiniteQueryOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
+      Error
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createInfiniteQuery(() => {
+    const opts = options()
+    const { queryKey, queryFn, ...baseOptions } = getGetHonoInfiniteQueryOptions(opts.client)
+    return { ...baseOptions, ...opts.query, queryKey, queryFn }
+  })
+}
 `
       expect(createGetHono).toBe(createGetHonoExpected)
 
       // Check GET hook file with args
       const createGetUsers = fs.readFileSync(path.join(dir, 'hooks', 'createGetUsers.ts'), 'utf-8')
-      const createGetUsersExpected = `import { createQuery } from '@tanstack/svelte-query'
-import type { CreateQueryOptions, QueryFunctionContext } from '@tanstack/svelte-query'
+      const createGetUsersExpected = `import { createQuery, createInfiniteQuery } from '@tanstack/svelte-query'
+import type {
+  CreateQueryOptions,
+  QueryFunctionContext,
+  CreateInfiniteQueryOptions,
+} from '@tanstack/svelte-query'
 import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
@@ -347,6 +501,57 @@ export function createGetUsers(
     const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetUsersQueryOptions(args, opts?.client)
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
+}
+
+/**
+ * Generates Svelte Query infinite cache key for GET /users
+ * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
+ */
+export function getGetUsersInfiniteQueryKey(args: InferRequestType<typeof client.users.$get>) {
+  return ['users', 'GET', '/users', args, 'infinite'] as const
+}
+
+/**
+ * Returns Svelte Query infinite query options for GET /users
+ *
+ * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or directly with useInfiniteQuery.
+ */
+export function getGetUsersInfiniteQueryOptions(
+  args: InferRequestType<typeof client.users.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetUsersInfiniteQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.users.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      )
+    },
+  }
+}
+
+/**
+ * GET /users
+ *
+ * List users
+ *
+ * List users with pagination.
+ */
+export function createInfiniteGetUsers(
+  args: InferRequestType<typeof client.users.$get>,
+  options: () => {
+    query: CreateInfiniteQueryOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+      Error
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createInfiniteQuery(() => {
+    const opts = options()
+    const { queryKey, queryFn, ...baseOptions } = getGetUsersInfiniteQueryOptions(args, opts.client)
+    return { ...baseOptions, ...opts.query, queryKey, queryFn }
   })
 }
 `
@@ -446,8 +651,12 @@ describe('svelteQuery (custom client name)', () => {
       }
 
       const code = fs.readFileSync(out, 'utf-8')
-      const expected = `import { createQuery } from '@tanstack/svelte-query'
-import type { CreateQueryOptions, QueryFunctionContext } from '@tanstack/svelte-query'
+      const expected = `import { createQuery, createInfiniteQuery } from '@tanstack/svelte-query'
+import type {
+  CreateQueryOptions,
+  QueryFunctionContext,
+  CreateInfiniteQueryOptions,
+} from '@tanstack/svelte-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { authClient } from '../api'
@@ -499,6 +708,54 @@ export function createGetUsers(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
+
+/**
+ * Generates Svelte Query infinite cache key for GET /users
+ * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ */
+export function getGetUsersInfiniteQueryKey() {
+  return ['users', 'GET', '/users', 'infinite'] as const
+}
+
+/**
+ * Returns Svelte Query infinite query options for GET /users
+ *
+ * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or directly with useInfiniteQuery.
+ */
+export function getGetUsersInfiniteQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetUsersInfiniteQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        authClient.users.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      )
+    },
+  }
+}
+
+/**
+ * GET /users
+ *
+ * Get users
+ */
+export function createInfiniteGetUsers(
+  options: () => {
+    query: CreateInfiniteQueryOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof authClient.users.$get>>>>>,
+      Error
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createInfiniteQuery(() => {
+    const opts = options()
+    const { queryKey, queryFn, ...baseOptions } = getGetUsersInfiniteQueryOptions(opts.client)
+    return { ...baseOptions, ...opts.query, queryKey, queryFn }
+  })
+}
 `
       expect(code).toBe(expected)
     } finally {
@@ -537,11 +794,12 @@ describe('svelteQuery (no args operations)', () => {
       }
 
       const code = fs.readFileSync(out, 'utf-8')
-      const expected = `import { createQuery, createMutation } from '@tanstack/svelte-query'
+      const expected = `import { createQuery, createMutation, createInfiniteQuery } from '@tanstack/svelte-query'
 import type {
   CreateQueryOptions,
   QueryFunctionContext,
   CreateMutationOptions,
+  CreateInfiniteQueryOptions,
 } from '@tanstack/svelte-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -589,6 +847,51 @@ export function createGetPing(
     const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetPingQueryOptions(opts?.client)
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
+}
+
+/**
+ * Generates Svelte Query infinite cache key for GET /ping
+ * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ */
+export function getGetPingInfiniteQueryKey() {
+  return ['ping', 'GET', '/ping', 'infinite'] as const
+}
+
+/**
+ * Returns Svelte Query infinite query options for GET /ping
+ *
+ * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or directly with useInfiniteQuery.
+ */
+export function getGetPingInfiniteQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetPingInfiniteQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.ping.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      )
+    },
+  }
+}
+
+/**
+ * GET /ping
+ *
+ * Ping
+ */
+export function createInfiniteGetPing(
+  options: () => {
+    query: CreateInfiniteQueryOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.ping.$get>>>>>,
+      Error
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createInfiniteQuery(() => {
+    const opts = options()
+    const { queryKey, queryFn, ...baseOptions } = getGetPingInfiniteQueryOptions(opts.client)
+    return { ...baseOptions, ...opts.query, queryKey, queryFn }
   })
 }
 
@@ -668,8 +971,12 @@ describe('svelteQuery (path with special characters)', () => {
       }
 
       const code = fs.readFileSync(out, 'utf-8')
-      const expected = `import { createQuery } from '@tanstack/svelte-query'
-import type { CreateQueryOptions, QueryFunctionContext } from '@tanstack/svelte-query'
+      const expected = `import { createQuery, createInfiniteQuery } from '@tanstack/svelte-query'
+import type {
+  CreateQueryOptions,
+  QueryFunctionContext,
+  CreateInfiniteQueryOptions,
+} from '@tanstack/svelte-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
@@ -723,6 +1030,56 @@ export function createGetHonoX(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
+
+/**
+ * Generates Svelte Query infinite cache key for GET /hono-x
+ * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ */
+export function getGetHonoXInfiniteQueryKey() {
+  return ['hono-x', 'GET', '/hono-x', 'infinite'] as const
+}
+
+/**
+ * Returns Svelte Query infinite query options for GET /hono-x
+ *
+ * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or directly with useInfiniteQuery.
+ */
+export function getGetHonoXInfiniteQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetHonoXInfiniteQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client['hono-x'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      )
+    },
+  }
+}
+
+/**
+ * GET /hono-x
+ *
+ * HonoX
+ */
+export function createInfiniteGetHonoX(
+  options: () => {
+    query: CreateInfiniteQueryOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['hono-x']['$get']>>>>
+      >,
+      Error
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createInfiniteQuery(() => {
+    const opts = options()
+    const { queryKey, queryFn, ...baseOptions } = getGetHonoXInfiniteQueryOptions(opts.client)
+    return { ...baseOptions, ...opts.query, queryKey, queryFn }
+  })
+}
 `
       expect(code).toBe(expected)
     } finally {
@@ -762,11 +1119,12 @@ describe('svelteQuery (path parameters)', () => {
       }
 
       const code = fs.readFileSync(out, 'utf-8')
-      const expected = `import { createQuery, createMutation } from '@tanstack/svelte-query'
+      const expected = `import { createQuery, createMutation, createInfiniteQuery } from '@tanstack/svelte-query'
 import type {
   CreateQueryOptions,
   QueryFunctionContext,
   CreateMutationOptions,
+  CreateInfiniteQueryOptions,
 } from '@tanstack/svelte-query'
 import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -825,6 +1183,65 @@ export function createGetUsersId(
     const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetUsersIdQueryOptions(args, opts?.client)
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+  })
+}
+
+/**
+ * Generates Svelte Query infinite cache key for GET /users/{id}
+ * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
+ */
+export function getGetUsersIdInfiniteQueryKey(
+  args: InferRequestType<(typeof client.users)[':id']['$get']>,
+) {
+  return ['users', 'GET', '/users/:id', args, 'infinite'] as const
+}
+
+/**
+ * Returns Svelte Query infinite query options for GET /users/{id}
+ *
+ * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or directly with useInfiniteQuery.
+ */
+export function getGetUsersIdInfiniteQueryOptions(
+  args: InferRequestType<(typeof client.users)[':id']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetUsersIdInfiniteQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.users[':id'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      )
+    },
+  }
+}
+
+/**
+ * GET /users/{id}
+ *
+ * Get user
+ */
+export function createInfiniteGetUsersId(
+  args: InferRequestType<(typeof client.users)[':id']['$get']>,
+  options: () => {
+    query: CreateInfiniteQueryOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$get']>>>>
+      >,
+      Error
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createInfiniteQuery(() => {
+    const opts = options()
+    const { queryKey, queryFn, ...baseOptions } = getGetUsersIdInfiniteQueryOptions(
+      args,
+      opts.client,
+    )
+    return { ...baseOptions, ...opts.query, queryKey, queryFn }
   })
 }
 

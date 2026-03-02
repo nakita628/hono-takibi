@@ -49,10 +49,15 @@ describe('vueQuery', () => {
       }
 
       const code = fs.readFileSync(out, 'utf-8')
-      const expected = `import { useQuery, useMutation, queryOptions } from '@tanstack/vue-query'
-import type { UseQueryOptions, QueryFunctionContext, UseMutationOptions } from '@tanstack/vue-query'
-import { unref } from 'vue'
-import type { MaybeRef } from 'vue'
+      const expected = `import { useQuery, useMutation, queryOptions, useInfiniteQuery } from '@tanstack/vue-query'
+import type {
+  UseQueryOptions,
+  QueryFunctionContext,
+  UseMutationOptions,
+  UseInfiniteQueryOptions,
+} from '@tanstack/vue-query'
+import { toValue } from 'vue'
+import type { MaybeRefOrGetter } from 'vue'
 import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
@@ -95,16 +100,61 @@ export function useGetHono(options?: {
   >
   client?: ClientRequestOptions
 }) {
-  const { query: queryOpts, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetHonoQueryOptions(clientOptions), ...queryOpts })
+  const { query, client } = options ?? {}
+  return useQuery({ ...getGetHonoQueryOptions(client), ...query })
+}
+
+/**
+ * Generates Vue Query infinite cache key for GET /hono
+ * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ */
+export function getGetHonoInfiniteQueryKey() {
+  return ['hono', 'GET', '/hono', 'infinite'] as const
+}
+
+/**
+ * Returns Vue Query infinite query options for GET /hono
+ *
+ * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or directly with useInfiniteQuery.
+ */
+export function getGetHonoInfiniteQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetHonoInfiniteQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.hono.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      )
+    },
+  }
+}
+
+/**
+ * GET /hono
+ *
+ * Hono
+ *
+ * Simple ping for Hono
+ */
+export function useInfiniteGetHono(options: {
+  query: UseInfiniteQueryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
+    Error
+  >
+  client?: ClientRequestOptions
+}) {
+  const { query, client } = options
+  const { queryKey, queryFn, ...baseOptions } = getGetHonoInfiniteQueryOptions(client)
+  return useInfiniteQuery({ ...baseOptions, ...query, queryKey, queryFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /users
  * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetUsersQueryKey(args: MaybeRef<InferRequestType<typeof client.users.$get>>) {
-  return ['users', 'GET', '/users', unref(args)] as const
+export function getGetUsersQueryKey(
+  args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
+) {
+  return ['users', 'GET', '/users', toValue(args)] as const
 }
 
 /**
@@ -143,8 +193,59 @@ export function useGetUsers(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOpts, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetUsersQueryOptions(args, clientOptions), ...queryOpts })
+  const { query, client } = options ?? {}
+  return useQuery({ ...getGetUsersQueryOptions(args, client), ...query })
+}
+
+/**
+ * Generates Vue Query infinite cache key for GET /users
+ * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
+ */
+export function getGetUsersInfiniteQueryKey(
+  args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
+) {
+  return ['users', 'GET', '/users', toValue(args), 'infinite'] as const
+}
+
+/**
+ * Returns Vue Query infinite query options for GET /users
+ *
+ * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or directly with useInfiniteQuery.
+ */
+export function getGetUsersInfiniteQueryOptions(
+  args: InferRequestType<typeof client.users.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetUsersInfiniteQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.users.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      )
+    },
+  }
+}
+
+/**
+ * GET /users
+ *
+ * List users
+ *
+ * List users with pagination.
+ */
+export function useInfiniteGetUsers(
+  args: InferRequestType<typeof client.users.$get>,
+  options: {
+    query: UseInfiniteQueryOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+      Error
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  const { query, client } = options
+  const { queryKey, queryFn, ...baseOptions } = getGetUsersInfiniteQueryOptions(args, client)
+  return useInfiniteQuery({ ...baseOptions, ...query, queryKey, queryFn })
 }
 
 /**
@@ -222,8 +323,12 @@ export * from './usePostUsers'
 
       // Check GET hook file without args
       const useGetHono = fs.readFileSync(path.join(dir, 'hooks', 'useGetHono.ts'), 'utf-8')
-      const useGetHonoExpected = `import { useQuery, queryOptions } from '@tanstack/vue-query'
-import type { UseQueryOptions, QueryFunctionContext } from '@tanstack/vue-query'
+      const useGetHonoExpected = `import { useQuery, queryOptions, useInfiniteQuery } from '@tanstack/vue-query'
+import type {
+  UseQueryOptions,
+  QueryFunctionContext,
+  UseInfiniteQueryOptions,
+} from '@tanstack/vue-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
@@ -266,18 +371,65 @@ export function useGetHono(options?: {
   >
   client?: ClientRequestOptions
 }) {
-  const { query: queryOpts, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetHonoQueryOptions(clientOptions), ...queryOpts })
+  const { query, client } = options ?? {}
+  return useQuery({ ...getGetHonoQueryOptions(client), ...query })
+}
+
+/**
+ * Generates Vue Query infinite cache key for GET /hono
+ * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ */
+export function getGetHonoInfiniteQueryKey() {
+  return ['hono', 'GET', '/hono', 'infinite'] as const
+}
+
+/**
+ * Returns Vue Query infinite query options for GET /hono
+ *
+ * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or directly with useInfiniteQuery.
+ */
+export function getGetHonoInfiniteQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetHonoInfiniteQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.hono.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      )
+    },
+  }
+}
+
+/**
+ * GET /hono
+ *
+ * Hono
+ *
+ * Simple ping for Hono
+ */
+export function useInfiniteGetHono(options: {
+  query: UseInfiniteQueryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
+    Error
+  >
+  client?: ClientRequestOptions
+}) {
+  const { query, client } = options
+  const { queryKey, queryFn, ...baseOptions } = getGetHonoInfiniteQueryOptions(client)
+  return useInfiniteQuery({ ...baseOptions, ...query, queryKey, queryFn })
 }
 `
       expect(useGetHono).toBe(useGetHonoExpected)
 
       // Check GET hook file with args
       const useGetUsers = fs.readFileSync(path.join(dir, 'hooks', 'useGetUsers.ts'), 'utf-8')
-      const useGetUsersExpected = `import { useQuery, queryOptions } from '@tanstack/vue-query'
-import type { UseQueryOptions, QueryFunctionContext } from '@tanstack/vue-query'
-import { unref } from 'vue'
-import type { MaybeRef } from 'vue'
+      const useGetUsersExpected = `import { useQuery, queryOptions, useInfiniteQuery } from '@tanstack/vue-query'
+import type {
+  UseQueryOptions,
+  QueryFunctionContext,
+  UseInfiniteQueryOptions,
+} from '@tanstack/vue-query'
+import { toValue } from 'vue'
+import type { MaybeRefOrGetter } from 'vue'
 import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
@@ -286,8 +438,10 @@ import { client } from '../client'
  * Generates Vue Query cache key for GET /users
  * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetUsersQueryKey(args: MaybeRef<InferRequestType<typeof client.users.$get>>) {
-  return ['users', 'GET', '/users', unref(args)] as const
+export function getGetUsersQueryKey(
+  args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
+) {
+  return ['users', 'GET', '/users', toValue(args)] as const
 }
 
 /**
@@ -326,8 +480,59 @@ export function useGetUsers(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOpts, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetUsersQueryOptions(args, clientOptions), ...queryOpts })
+  const { query, client } = options ?? {}
+  return useQuery({ ...getGetUsersQueryOptions(args, client), ...query })
+}
+
+/**
+ * Generates Vue Query infinite cache key for GET /users
+ * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
+ */
+export function getGetUsersInfiniteQueryKey(
+  args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
+) {
+  return ['users', 'GET', '/users', toValue(args), 'infinite'] as const
+}
+
+/**
+ * Returns Vue Query infinite query options for GET /users
+ *
+ * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or directly with useInfiniteQuery.
+ */
+export function getGetUsersInfiniteQueryOptions(
+  args: InferRequestType<typeof client.users.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetUsersInfiniteQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.users.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      )
+    },
+  }
+}
+
+/**
+ * GET /users
+ *
+ * List users
+ *
+ * List users with pagination.
+ */
+export function useInfiniteGetUsers(
+  args: InferRequestType<typeof client.users.$get>,
+  options: {
+    query: UseInfiniteQueryOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+      Error
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  const { query, client } = options
+  const { queryKey, queryFn, ...baseOptions } = getGetUsersInfiniteQueryOptions(args, client)
+  return useInfiniteQuery({ ...baseOptions, ...query, queryKey, queryFn })
 }
 `
       expect(useGetUsers).toBe(useGetUsersExpected)
@@ -419,8 +624,12 @@ describe('vueQuery (custom client name)', () => {
       }
 
       const code = fs.readFileSync(out, 'utf-8')
-      const expected = `import { useQuery, queryOptions } from '@tanstack/vue-query'
-import type { UseQueryOptions, QueryFunctionContext } from '@tanstack/vue-query'
+      const expected = `import { useQuery, queryOptions, useInfiniteQuery } from '@tanstack/vue-query'
+import type {
+  UseQueryOptions,
+  QueryFunctionContext,
+  UseInfiniteQueryOptions,
+} from '@tanstack/vue-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { authClient } from '../api'
@@ -464,8 +673,52 @@ export function useGetUsers(options?: {
   >
   client?: ClientRequestOptions
 }) {
-  const { query: queryOpts, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetUsersQueryOptions(clientOptions), ...queryOpts })
+  const { query, client } = options ?? {}
+  return useQuery({ ...getGetUsersQueryOptions(client), ...query })
+}
+
+/**
+ * Generates Vue Query infinite cache key for GET /users
+ * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ */
+export function getGetUsersInfiniteQueryKey() {
+  return ['users', 'GET', '/users', 'infinite'] as const
+}
+
+/**
+ * Returns Vue Query infinite query options for GET /users
+ *
+ * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or directly with useInfiniteQuery.
+ */
+export function getGetUsersInfiniteQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetUsersInfiniteQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        authClient.users.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      )
+    },
+  }
+}
+
+/**
+ * GET /users
+ *
+ * Get users
+ */
+export function useInfiniteGetUsers(options: {
+  query: UseInfiniteQueryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof authClient.users.$get>>>>>,
+    Error
+  >
+  client?: ClientRequestOptions
+}) {
+  const { query, client } = options
+  const { queryKey, queryFn, ...baseOptions } = getGetUsersInfiniteQueryOptions(client)
+  return useInfiniteQuery({ ...baseOptions, ...query, queryKey, queryFn })
 }
 `
       expect(code).toBe(expected)
@@ -505,8 +758,13 @@ describe('vueQuery (no args operations)', () => {
       }
 
       const code = fs.readFileSync(out, 'utf-8')
-      const expected = `import { useQuery, useMutation, queryOptions } from '@tanstack/vue-query'
-import type { UseQueryOptions, QueryFunctionContext, UseMutationOptions } from '@tanstack/vue-query'
+      const expected = `import { useQuery, useMutation, queryOptions, useInfiniteQuery } from '@tanstack/vue-query'
+import type {
+  UseQueryOptions,
+  QueryFunctionContext,
+  UseMutationOptions,
+  UseInfiniteQueryOptions,
+} from '@tanstack/vue-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
@@ -547,8 +805,49 @@ export function useGetPing(options?: {
   >
   client?: ClientRequestOptions
 }) {
-  const { query: queryOpts, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetPingQueryOptions(clientOptions), ...queryOpts })
+  const { query, client } = options ?? {}
+  return useQuery({ ...getGetPingQueryOptions(client), ...query })
+}
+
+/**
+ * Generates Vue Query infinite cache key for GET /ping
+ * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ */
+export function getGetPingInfiniteQueryKey() {
+  return ['ping', 'GET', '/ping', 'infinite'] as const
+}
+
+/**
+ * Returns Vue Query infinite query options for GET /ping
+ *
+ * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or directly with useInfiniteQuery.
+ */
+export function getGetPingInfiniteQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetPingInfiniteQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.ping.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      )
+    },
+  }
+}
+
+/**
+ * GET /ping
+ *
+ * Ping
+ */
+export function useInfiniteGetPing(options: {
+  query: UseInfiniteQueryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.ping.$get>>>>>,
+    Error
+  >
+  client?: ClientRequestOptions
+}) {
+  const { query, client } = options
+  const { queryKey, queryFn, ...baseOptions } = getGetPingInfiniteQueryOptions(client)
+  return useInfiniteQuery({ ...baseOptions, ...query, queryKey, queryFn })
 }
 
 /**
@@ -623,8 +922,12 @@ describe('vueQuery (path with special characters)', () => {
       }
 
       const code = fs.readFileSync(out, 'utf-8')
-      const expected = `import { useQuery, queryOptions } from '@tanstack/vue-query'
-import type { UseQueryOptions, QueryFunctionContext } from '@tanstack/vue-query'
+      const expected = `import { useQuery, queryOptions, useInfiniteQuery } from '@tanstack/vue-query'
+import type {
+  UseQueryOptions,
+  QueryFunctionContext,
+  UseInfiniteQueryOptions,
+} from '@tanstack/vue-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
@@ -670,8 +973,54 @@ export function useGetHonoX(options?: {
   >
   client?: ClientRequestOptions
 }) {
-  const { query: queryOpts, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetHonoXQueryOptions(clientOptions), ...queryOpts })
+  const { query, client } = options ?? {}
+  return useQuery({ ...getGetHonoXQueryOptions(client), ...query })
+}
+
+/**
+ * Generates Vue Query infinite cache key for GET /hono-x
+ * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ */
+export function getGetHonoXInfiniteQueryKey() {
+  return ['hono-x', 'GET', '/hono-x', 'infinite'] as const
+}
+
+/**
+ * Returns Vue Query infinite query options for GET /hono-x
+ *
+ * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or directly with useInfiniteQuery.
+ */
+export function getGetHonoXInfiniteQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetHonoXInfiniteQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client['hono-x'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      )
+    },
+  }
+}
+
+/**
+ * GET /hono-x
+ *
+ * HonoX
+ */
+export function useInfiniteGetHonoX(options: {
+  query: UseInfiniteQueryOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['hono-x']['$get']>>>>
+    >,
+    Error
+  >
+  client?: ClientRequestOptions
+}) {
+  const { query, client } = options
+  const { queryKey, queryFn, ...baseOptions } = getGetHonoXInfiniteQueryOptions(client)
+  return useInfiniteQuery({ ...baseOptions, ...query, queryKey, queryFn })
 }
 `
       expect(code).toBe(expected)
@@ -712,10 +1061,15 @@ describe('vueQuery (path parameters)', () => {
       }
 
       const code = fs.readFileSync(out, 'utf-8')
-      const expected = `import { useQuery, useMutation, queryOptions } from '@tanstack/vue-query'
-import type { UseQueryOptions, QueryFunctionContext, UseMutationOptions } from '@tanstack/vue-query'
-import { unref } from 'vue'
-import type { MaybeRef } from 'vue'
+      const expected = `import { useQuery, useMutation, queryOptions, useInfiniteQuery } from '@tanstack/vue-query'
+import type {
+  UseQueryOptions,
+  QueryFunctionContext,
+  UseMutationOptions,
+  UseInfiniteQueryOptions,
+} from '@tanstack/vue-query'
+import { toValue } from 'vue'
+import type { MaybeRefOrGetter } from 'vue'
 import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
@@ -725,9 +1079,9 @@ import { client } from '../client'
  * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetUsersIdQueryKey(
-  args: MaybeRef<InferRequestType<(typeof client.users)[':id']['$get']>>,
+  args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':id']['$get']>>,
 ) {
-  return ['users', 'GET', '/users/:id', unref(args)] as const
+  return ['users', 'GET', '/users/:id', toValue(args)] as const
 }
 
 /**
@@ -769,8 +1123,62 @@ export function useGetUsersId(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOpts, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetUsersIdQueryOptions(args, clientOptions), ...queryOpts })
+  const { query, client } = options ?? {}
+  return useQuery({ ...getGetUsersIdQueryOptions(args, client), ...query })
+}
+
+/**
+ * Generates Vue Query infinite cache key for GET /users/{id}
+ * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
+ */
+export function getGetUsersIdInfiniteQueryKey(
+  args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':id']['$get']>>,
+) {
+  return ['users', 'GET', '/users/:id', toValue(args), 'infinite'] as const
+}
+
+/**
+ * Returns Vue Query infinite query options for GET /users/{id}
+ *
+ * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or directly with useInfiniteQuery.
+ */
+export function getGetUsersIdInfiniteQueryOptions(
+  args: InferRequestType<(typeof client.users)[':id']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetUsersIdInfiniteQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.users[':id'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      )
+    },
+  }
+}
+
+/**
+ * GET /users/{id}
+ *
+ * Get user
+ */
+export function useInfiniteGetUsersId(
+  args: InferRequestType<(typeof client.users)[':id']['$get']>,
+  options: {
+    query: UseInfiniteQueryOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$get']>>>>
+      >,
+      Error
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  const { query, client } = options
+  const { queryKey, queryFn, ...baseOptions } = getGetUsersIdInfiniteQueryOptions(args, client)
+  return useInfiniteQuery({ ...baseOptions, ...query, queryKey, queryFn })
 }
 
 /**
