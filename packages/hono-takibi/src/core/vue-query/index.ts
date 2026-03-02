@@ -31,7 +31,7 @@ export async function vueQuery(
     mutationFn: 'useMutation',
     useQueryOptionsType: 'UseQueryOptions',
     useMutationOptionsType: 'UseMutationOptions',
-    // Vue Query uses different queryKey pattern (MaybeRef, unref)
+    hasQueryOptionsHelper: true,
     isVueQuery: true,
     infiniteQueryFn: 'useInfiniteQuery',
     useInfiniteQueryOptionsType: 'UseInfiniteQueryOptions',

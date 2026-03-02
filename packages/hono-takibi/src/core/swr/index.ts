@@ -33,6 +33,8 @@ export async function swr(
     useMutationOptionsType: 'SWRMutationConfiguration',
     isSWR: true,
     immutableQueryFn: 'useSWRImmutable',
+    infiniteQueryFn: 'useSWRInfinite',
+    useInfiniteQueryOptionsType: 'SWRInfiniteConfiguration',
   }
   const result = await makeQueryHooks(openAPI, output, importPath, config, split, clientName)
 
