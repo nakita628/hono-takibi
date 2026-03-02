@@ -245,6 +245,39 @@ function makeSWRQueryHookCode(
 export function ${hookName}(${argsSig}${optionsSig}){const{swr:swrOptions,client:clientOptions}=options??{};const{swrKey:customKey,enabled,...restSwrOptions}=swrOptions??{};const isEnabled=enabled!==false;const swrKey=isEnabled?(customKey??${keyCall}):null;return{swrKey,...useSWR(swrKey,async()=>${fetcherBody},restSwrOptions)}}`
 }
 
+/* ─────────────────────────────── SWR Infinite Query Hook Code ─────────────────────────────── */
+
+/**
+ * Generates SWR infinite query hook code.
+ *
+ * SWR infinite pattern: useSWRInfinite(getKey, fetcher, options)
+ * - getKey: (index, prevData) => key | null
+ * - fetcher: async function returning data
+ * - options: SWRInfiniteConfiguration
+ */
+function makeSWRInfiniteQueryHookCode(
+  hookName: string,
+  keyGetterName: string,
+  hasArgs: boolean,
+  inferRequestType: string,
+  clientPath: string,
+  method: string,
+  docs: string,
+): string {
+  const argsSig = hasArgs ? `args:${inferRequestType},` : ''
+  const swrConfigType = 'SWRInfiniteConfiguration&{enabled?:boolean}'
+  const optionsSig = `options?:{swr?:${swrConfigType};client?:ClientRequestOptions}`
+
+  const keyCall = hasArgs ? `${keyGetterName}(args)` : `${keyGetterName}()`
+  const clientCall = hasArgs
+    ? `${clientPath}.$${method}(args,clientOptions)`
+    : `${clientPath}.$${method}(undefined,clientOptions)`
+  const fetcherBody = makeFetcher(clientCall)
+
+  return `${docs}
+export function ${hookName}(${argsSig}${optionsSig}){const{swr:swrOptions,client:clientOptions}=options??{};const{enabled,...restSwrOptions}=swrOptions??{};const isEnabled=enabled!==false;return useSWRInfinite((index)=>(isEnabled?[...${keyCall},index]:null),async()=>${fetcherBody},restSwrOptions)}`
+}
+
 /* ─────────────────────────────── Query Hook Code ─────────────────────────────── */
 
 function makeQueryHookCode(
@@ -584,6 +617,7 @@ function makeSWRHeader(
   hasMutation: boolean,
   needsInferRequestType: boolean,
   clientName: string,
+  hasInfiniteQuery = false,
 ): string {
   const lines: string[] = []
 
@@ -594,6 +628,10 @@ function makeSWRHeader(
   } else if (hasMutation) {
     // Mutation needs Key type from 'swr'
     lines.push("import type{Key}from'swr'")
+  }
+  if (hasInfiniteQuery) {
+    lines.push("import useSWRInfinite from'swr/infinite'")
+    lines.push("import type{SWRInfiniteConfiguration}from'swr/infinite'")
   }
   if (hasMutation) {
     lines.push("import useSWRMutation from'swr/mutation'")
@@ -762,11 +800,39 @@ function makeHookCode(
         method,
         docs,
       )
+      const codeParts = [keyGetterCode, hookCode]
+
+      // SWR Infinite query variant
+      const hasInfinite = !!config.infiniteQueryFn
+      if (hasInfinite) {
+        const funcName = methodPath(method, pathStr)
+        const infKeyGetterName = makeInfiniteQueryKeyGetterName(method, pathStr)
+        const infKeyCode = makeInfiniteQueryKeyGetterCode(
+          infKeyGetterName,
+          hasArgs,
+          inferRequestType,
+          honoPath,
+          clientPath,
+          config,
+        )
+        const infHookName = `${config.hookPrefix}Infinite${capitalize(funcName)}`
+        const infHookCode = makeSWRInfiniteQueryHookCode(
+          infHookName,
+          infKeyGetterName,
+          hasArgs,
+          inferRequestType,
+          clientPath,
+          method,
+          docs,
+        )
+        codeParts.push(infKeyCode, infHookCode)
+      }
+
       return {
-        code: `${keyGetterCode}\n\n${hookCode}`,
+        code: codeParts.join('\n\n'),
         isQuery: true,
         hasArgs,
-        hasInfiniteQuery: false,
+        hasInfiniteQuery: hasInfinite,
         hasSuspenseQuery: false,
         hasSuspenseInfiniteQuery: false,
       }
@@ -1061,7 +1127,7 @@ function makeHeader(
 ): string {
   // SWR has different import structure
   if (config.isSWR) {
-    return makeSWRHeader(importPath, hasQuery, hasMutation, needsInferRequestType, clientName)
+    return makeSWRHeader(importPath, hasQuery, hasMutation, needsInferRequestType, clientName, hasInfiniteQuery)
   }
 
   const queryImports = [

@@ -533,10 +533,10 @@ describe('openapi helper', () => {
         { name: 'limit', in: 'query', schema: { type: 'integer' } },
       ])
       expect(result.query.page).toBe(
-        'z.int().exactOptional().openapi({param:{"name":"page","in":"query","schema":{"type":"integer"}}})',
+        'z.coerce.number().pipe(z.int()).exactOptional().openapi({param:{"name":"page","in":"query","schema":{"type":"integer"}}})',
       )
       expect(result.query.limit).toBe(
-        'z.int().exactOptional().openapi({param:{"name":"limit","in":"query","schema":{"type":"integer"}}})',
+        'z.coerce.number().pipe(z.int()).exactOptional().openapi({param:{"name":"limit","in":"query","schema":{"type":"integer"}}})',
       )
     })
     it.concurrent('generates path parameter with exact string output', () => {
@@ -752,7 +752,7 @@ describe('openapi helper', () => {
         undefined,
       )
       expect(result).toBe(
-        '{query:z.object({page:z.int().exactOptional().openapi({param:{"name":"page","in":"query","schema":{"type":"integer"}}})})}',
+        '{query:z.object({page:z.coerce.number().pipe(z.int()).exactOptional().openapi({param:{"name":"page","in":"query","schema":{"type":"integer"}}})})}',
       )
     })
     it.concurrent('generates request with header parameters', () => {
@@ -773,7 +773,7 @@ describe('openapi helper', () => {
         undefined,
       )
       expect(result).toBe(
-        '{params:z.object({id:z.string().exactOptional().openapi({param:{"name":"id","in":"path","schema":{"type":"string"}}})}),query:z.object({page:z.int().exactOptional().openapi({param:{"name":"page","in":"query","schema":{"type":"integer"}}})})}',
+        '{params:z.object({id:z.string().exactOptional().openapi({param:{"name":"id","in":"path","schema":{"type":"string"}}})}),query:z.object({page:z.coerce.number().pipe(z.int()).exactOptional().openapi({param:{"name":"page","in":"query","schema":{"type":"integer"}}})})}',
       )
     })
   })
@@ -788,7 +788,7 @@ describe('openapi helper', () => {
     it.concurrent('generates query for query parameter', () => {
       const result = makeRequestParams([{ name: 'page', in: 'query', schema: { type: 'integer' } }])
       expect(result).toBe(
-        'query:z.object({page:z.int().exactOptional().openapi({param:{"name":"page","in":"query","schema":{"type":"integer"}}})})',
+        'query:z.object({page:z.coerce.number().pipe(z.int()).exactOptional().openapi({param:{"name":"page","in":"query","schema":{"type":"integer"}}})})',
       )
     })
     it.concurrent('generates header for header parameter', () => {
@@ -818,7 +818,7 @@ describe('openapi helper', () => {
         { name: 'Authorization', in: 'header', schema: { type: 'string' } },
       ])
       expect(result).toBe(
-        'params:z.object({id:z.string().exactOptional().openapi({param:{"name":"id","in":"path","schema":{"type":"string"}}})}),query:z.object({page:z.int().exactOptional().openapi({param:{"name":"page","in":"query","schema":{"type":"integer"}}})}),headers:z.object({Authorization:z.string().exactOptional().openapi({param:{"name":"Authorization","in":"header","schema":{"type":"string"}}})})',
+        'params:z.object({id:z.string().exactOptional().openapi({param:{"name":"id","in":"path","schema":{"type":"string"}}})}),query:z.object({page:z.coerce.number().pipe(z.int()).exactOptional().openapi({param:{"name":"page","in":"query","schema":{"type":"integer"}}})}),headers:z.object({Authorization:z.string().exactOptional().openapi({param:{"name":"Authorization","in":"header","schema":{"type":"string"}}})})',
       )
     })
     it.concurrent('generates multiple query parameters', () => {
@@ -828,7 +828,7 @@ describe('openapi helper', () => {
         { name: 'sort', in: 'query', schema: { type: 'string' } },
       ])
       expect(result).toBe(
-        'query:z.object({page:z.int().exactOptional().openapi({param:{"name":"page","in":"query","schema":{"type":"integer"}}}),limit:z.int().exactOptional().openapi({param:{"name":"limit","in":"query","schema":{"type":"integer"}}}),sort:z.string().exactOptional().openapi({param:{"name":"sort","in":"query","schema":{"type":"string"}}})})',
+        'query:z.object({page:z.coerce.number().pipe(z.int()).exactOptional().openapi({param:{"name":"page","in":"query","schema":{"type":"integer"}}}),limit:z.coerce.number().pipe(z.int()).exactOptional().openapi({param:{"name":"limit","in":"query","schema":{"type":"integer"}}}),sort:z.string().exactOptional().openapi({param:{"name":"sort","in":"query","schema":{"type":"string"}}})})',
       )
     })
   })

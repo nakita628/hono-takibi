@@ -52,6 +52,8 @@ describe('swr', () => {
 
       expect(code).toBe(`import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
+import useSWRInfinite from 'swr/infinite'
+import type { SWRInfiniteConfiguration } from 'swr/infinite'
 import useSWRMutation from 'swr/mutation'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import type { InferRequestType, ClientRequestOptions } from 'hono/client'
@@ -92,6 +94,35 @@ export function useGetHono(options?: {
 }
 
 /**
+ * Generates SWR infinite cache key for GET /hono
+ * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ */
+export function getGetHonoInfiniteQueryKey() {
+  return ['hono', 'GET', '/hono', 'infinite'] as const
+}
+
+/**
+ * GET /hono
+ *
+ * Hono
+ *
+ * Simple ping for Hono
+ */
+export function useInfiniteGetHono(options?: {
+  swr?: SWRInfiniteConfiguration & { enabled?: boolean }
+  client?: ClientRequestOptions
+}) {
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const { enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  return useSWRInfinite(
+    (index) => (isEnabled ? [...getGetHonoInfiniteQueryKey(), index] : null),
+    async () => parseResponse(client.hono.$get(undefined, clientOptions)),
+    restSwrOptions,
+  )
+}
+
+/**
  * Generates SWR cache key for GET /users
  * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
@@ -125,6 +156,38 @@ export function useGetUsers(
       restSwrOptions,
     ),
   }
+}
+
+/**
+ * Generates SWR infinite cache key for GET /users
+ * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
+ */
+export function getGetUsersInfiniteQueryKey(args: InferRequestType<typeof client.users.$get>) {
+  return ['users', 'GET', '/users', args, 'infinite'] as const
+}
+
+/**
+ * GET /users
+ *
+ * List users
+ *
+ * List users with pagination.
+ */
+export function useInfiniteGetUsers(
+  args: InferRequestType<typeof client.users.$get>,
+  options?: {
+    swr?: SWRInfiniteConfiguration & { enabled?: boolean }
+    client?: ClientRequestOptions
+  },
+) {
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const { enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  return useSWRInfinite(
+    (index) => (isEnabled ? [...getGetUsersInfiniteQueryKey(args), index] : null),
+    async () => parseResponse(client.users.$get(args, clientOptions)),
+    restSwrOptions,
+  )
 }
 
 /**
@@ -198,6 +261,8 @@ export * from './usePostUsers'
       const useGetHono = fs.readFileSync(path.join(dir, 'swr', 'useGetHono.ts'), 'utf-8')
       expect(useGetHono).toBe(`import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
+import useSWRInfinite from 'swr/infinite'
+import type { SWRInfiniteConfiguration } from 'swr/infinite'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
@@ -234,12 +299,43 @@ export function useGetHono(options?: {
     ),
   }
 }
+
+/**
+ * Generates SWR infinite cache key for GET /hono
+ * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ */
+export function getGetHonoInfiniteQueryKey() {
+  return ['hono', 'GET', '/hono', 'infinite'] as const
+}
+
+/**
+ * GET /hono
+ *
+ * Hono
+ *
+ * Simple ping for Hono
+ */
+export function useInfiniteGetHono(options?: {
+  swr?: SWRInfiniteConfiguration & { enabled?: boolean }
+  client?: ClientRequestOptions
+}) {
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const { enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  return useSWRInfinite(
+    (index) => (isEnabled ? [...getGetHonoInfiniteQueryKey(), index] : null),
+    async () => parseResponse(client.hono.$get(undefined, clientOptions)),
+    restSwrOptions,
+  )
+}
 `)
 
       // Check GET hook file with args
       const useGetUsers = fs.readFileSync(path.join(dir, 'swr', 'useGetUsers.ts'), 'utf-8')
       expect(useGetUsers).toBe(`import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
+import useSWRInfinite from 'swr/infinite'
+import type { SWRInfiniteConfiguration } from 'swr/infinite'
 import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
@@ -278,6 +374,38 @@ export function useGetUsers(
       restSwrOptions,
     ),
   }
+}
+
+/**
+ * Generates SWR infinite cache key for GET /users
+ * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
+ */
+export function getGetUsersInfiniteQueryKey(args: InferRequestType<typeof client.users.$get>) {
+  return ['users', 'GET', '/users', args, 'infinite'] as const
+}
+
+/**
+ * GET /users
+ *
+ * List users
+ *
+ * List users with pagination.
+ */
+export function useInfiniteGetUsers(
+  args: InferRequestType<typeof client.users.$get>,
+  options?: {
+    swr?: SWRInfiniteConfiguration & { enabled?: boolean }
+    client?: ClientRequestOptions
+  },
+) {
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const { enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  return useSWRInfinite(
+    (index) => (isEnabled ? [...getGetUsersInfiniteQueryKey(args), index] : null),
+    async () => parseResponse(client.users.$get(args, clientOptions)),
+    restSwrOptions,
+  )
 }
 `)
 
@@ -367,6 +495,8 @@ describe('swr (custom client name)', () => {
 
       expect(code).toBe(`import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
+import useSWRInfinite from 'swr/infinite'
+import type { SWRInfiniteConfiguration } from 'swr/infinite'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { authClient } from '../api'
@@ -400,6 +530,33 @@ export function useGetUsers(options?: {
       restSwrOptions,
     ),
   }
+}
+
+/**
+ * Generates SWR infinite cache key for GET /users
+ * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ */
+export function getGetUsersInfiniteQueryKey() {
+  return ['users', 'GET', '/users', 'infinite'] as const
+}
+
+/**
+ * GET /users
+ *
+ * Get users
+ */
+export function useInfiniteGetUsers(options?: {
+  swr?: SWRInfiniteConfiguration & { enabled?: boolean }
+  client?: ClientRequestOptions
+}) {
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const { enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  return useSWRInfinite(
+    (index) => (isEnabled ? [...getGetUsersInfiniteQueryKey(), index] : null),
+    async () => parseResponse(authClient.users.$get(undefined, clientOptions)),
+    restSwrOptions,
+  )
 }
 `)
     } finally {
@@ -441,6 +598,8 @@ describe('swr (no args operations)', () => {
 
       expect(code).toBe(`import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
+import useSWRInfinite from 'swr/infinite'
+import type { SWRInfiniteConfiguration } from 'swr/infinite'
 import useSWRMutation from 'swr/mutation'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import type { ClientRequestOptions } from 'hono/client'
@@ -476,6 +635,33 @@ export function useGetPing(options?: {
       restSwrOptions,
     ),
   }
+}
+
+/**
+ * Generates SWR infinite cache key for GET /ping
+ * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ */
+export function getGetPingInfiniteQueryKey() {
+  return ['ping', 'GET', '/ping', 'infinite'] as const
+}
+
+/**
+ * GET /ping
+ *
+ * Ping
+ */
+export function useInfiniteGetPing(options?: {
+  swr?: SWRInfiniteConfiguration & { enabled?: boolean }
+  client?: ClientRequestOptions
+}) {
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const { enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  return useSWRInfinite(
+    (index) => (isEnabled ? [...getGetPingInfiniteQueryKey(), index] : null),
+    async () => parseResponse(client.ping.$get(undefined, clientOptions)),
+    restSwrOptions,
+  )
 }
 
 /**
@@ -547,6 +733,8 @@ describe('swr (path with special characters)', () => {
 
       expect(code).toBe(`import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
+import useSWRInfinite from 'swr/infinite'
+import type { SWRInfiniteConfiguration } from 'swr/infinite'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
@@ -580,6 +768,33 @@ export function useGetHonoX(options?: {
       restSwrOptions,
     ),
   }
+}
+
+/**
+ * Generates SWR infinite cache key for GET /hono-x
+ * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ */
+export function getGetHonoXInfiniteQueryKey() {
+  return ['hono-x', 'GET', '/hono-x', 'infinite'] as const
+}
+
+/**
+ * GET /hono-x
+ *
+ * HonoX
+ */
+export function useInfiniteGetHonoX(options?: {
+  swr?: SWRInfiniteConfiguration & { enabled?: boolean }
+  client?: ClientRequestOptions
+}) {
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const { enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  return useSWRInfinite(
+    (index) => (isEnabled ? [...getGetHonoXInfiniteQueryKey(), index] : null),
+    async () => parseResponse(client['hono-x'].$get(undefined, clientOptions)),
+    restSwrOptions,
+  )
 }
 `)
     } finally {
@@ -622,6 +837,8 @@ describe('swr (path parameters)', () => {
 
       expect(code).toBe(`import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
+import useSWRInfinite from 'swr/infinite'
+import type { SWRInfiniteConfiguration } from 'swr/infinite'
 import useSWRMutation from 'swr/mutation'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import type { InferRequestType, ClientRequestOptions } from 'hono/client'
@@ -660,6 +877,38 @@ export function useGetUsersId(
       restSwrOptions,
     ),
   }
+}
+
+/**
+ * Generates SWR infinite cache key for GET /users/{id}
+ * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
+ */
+export function getGetUsersIdInfiniteQueryKey(
+  args: InferRequestType<(typeof client.users)[':id']['$get']>,
+) {
+  return ['users', 'GET', '/users/:id', args, 'infinite'] as const
+}
+
+/**
+ * GET /users/{id}
+ *
+ * Get user
+ */
+export function useInfiniteGetUsersId(
+  args: InferRequestType<(typeof client.users)[':id']['$get']>,
+  options?: {
+    swr?: SWRInfiniteConfiguration & { enabled?: boolean }
+    client?: ClientRequestOptions
+  },
+) {
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const { enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  return useSWRInfinite(
+    (index) => (isEnabled ? [...getGetUsersIdInfiniteQueryKey(args), index] : null),
+    async () => parseResponse(client.users[':id'].$get(args, clientOptions)),
+    restSwrOptions,
+  )
 }
 
 /**
@@ -760,6 +1009,8 @@ describe('swr (enabled priority)', () => {
 
       expect(code).toBe(`import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
+import useSWRInfinite from 'swr/infinite'
+import type { SWRInfiniteConfiguration } from 'swr/infinite'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
@@ -793,6 +1044,33 @@ export function useGetUsers(options?: {
       restSwrOptions,
     ),
   }
+}
+
+/**
+ * Generates SWR infinite cache key for GET /users
+ * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ */
+export function getGetUsersInfiniteQueryKey() {
+  return ['users', 'GET', '/users', 'infinite'] as const
+}
+
+/**
+ * GET /users
+ *
+ * Get users
+ */
+export function useInfiniteGetUsers(options?: {
+  swr?: SWRInfiniteConfiguration & { enabled?: boolean }
+  client?: ClientRequestOptions
+}) {
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const { enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  return useSWRInfinite(
+    (index) => (isEnabled ? [...getGetUsersInfiniteQueryKey(), index] : null),
+    async () => parseResponse(client.users.$get(undefined, clientOptions)),
+    restSwrOptions,
+  )
 }
 `)
     } finally {

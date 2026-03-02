@@ -560,11 +560,17 @@ export function makeParameters(parameters: readonly Parameter[]): {
     const z =
       param.in === 'query' && schema.type === 'number'
         ? `z.coerce.${baseSchema.replace('z.', '')}`
-        : param.in === 'query' && schema.type === 'boolean'
-          ? baseSchema.replace('boolean', 'stringbool')
-          : param.in === 'query' && schema.type === 'date'
-            ? `z.coerce.${baseSchema.replace('z.', '')}`
-            : baseSchema
+        : param.in === 'query' && schema.type === 'integer'
+          ? baseSchema.replace(
+              /^z\.(int\d*|bigint)\(\)/,
+              (_: string, type: string) =>
+                type === 'bigint' ? 'z.coerce.bigint()' : `z.coerce.number().pipe(z.${type}())`,
+            )
+          : param.in === 'query' && schema.type === 'boolean'
+            ? baseSchema.replace('boolean', 'stringbool')
+            : param.in === 'query' && schema.type === 'date'
+              ? `z.coerce.${baseSchema.replace('z.', '')}`
+              : baseSchema
 
     acc[param.in][makeSafeKey(param.name)] = z
     return acc

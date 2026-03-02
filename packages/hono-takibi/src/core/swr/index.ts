@@ -32,6 +32,8 @@ export async function swr(
     useQueryOptionsType: 'SWRConfiguration',
     useMutationOptionsType: 'SWRMutationConfiguration',
     isSWR: true,
+    infiniteQueryFn: 'useSWRInfinite',
+    useInfiniteQueryOptionsType: 'SWRInfiniteConfiguration',
   }
   const result = await makeQueryHooks(openAPI, output, importPath, config, split, clientName)
 

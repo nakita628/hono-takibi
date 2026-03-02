@@ -50,11 +50,17 @@ export function parametersCode(
       const z =
         parameter.in === 'query' && schema?.type === 'number'
           ? `z.coerce.${baseSchema.replace('z.', '')}`
-          : parameter.in === 'query' && schema?.type === 'boolean'
-            ? baseSchema.replace('boolean', 'stringbool')
-            : parameter.in === 'query' && schema?.type === 'date'
-              ? `z.coerce.${baseSchema.replace('z.', '')}`
-              : baseSchema
+          : parameter.in === 'query' && schema?.type === 'integer'
+            ? baseSchema.replace(
+                /^z\.(int\d*|bigint)\(\)/,
+                (_: string, type: string) =>
+                  type === 'bigint' ? 'z.coerce.bigint()' : `z.coerce.number().pipe(z.${type}())`,
+              )
+            : parameter.in === 'query' && schema?.type === 'boolean'
+              ? baseSchema.replace('boolean', 'stringbool')
+              : parameter.in === 'query' && schema?.type === 'date'
+                ? `z.coerce.${baseSchema.replace('z.', '')}`
+                : baseSchema
       return zodToOpenAPISchema(
         toIdentifierPascalCase(ensureSuffix(k, 'ParamsSchema')),
         z,
