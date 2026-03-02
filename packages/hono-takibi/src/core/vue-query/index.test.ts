@@ -89,14 +89,9 @@ export function getGetHonoQueryOptions(clientOptions?: ClientRequestOptions) {
  * Simple ping for Hono
  */
 export function useGetHono(options?: {
-  query?: Partial<
-    Omit<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
-        Error
-      >,
-      'queryKey' | 'queryFn'
-    >
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
+    Error
   >
   client?: ClientRequestOptions
 }) {
@@ -141,14 +136,9 @@ export function getGetUsersQueryOptions(
 export function useGetUsers(
   args: InferRequestType<typeof client.users.$get>,
   options?: {
-    query?: Partial<
-      Omit<
-        UseQueryOptions<
-          Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-          Error
-        >,
-        'queryKey' | 'queryFn'
-      >
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
@@ -187,15 +177,10 @@ export function getPostUsersMutationOptions(clientOptions?: ClientRequestOptions
  * Create a new user.
  */
 export function usePostUsers(options?: {
-  mutation?: Partial<
-    Omit<
-      UseMutationOptions<
-        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>,
-        Error,
-        InferRequestType<typeof client.users.$post>
-      >,
-      'mutationFn' | 'mutationKey'
-    >
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>,
+    Error,
+    InferRequestType<typeof client.users.$post>
   >
   client?: ClientRequestOptions
 }) {
@@ -275,14 +260,9 @@ export function getGetHonoQueryOptions(clientOptions?: ClientRequestOptions) {
  * Simple ping for Hono
  */
 export function useGetHono(options?: {
-  query?: Partial<
-    Omit<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
-        Error
-      >,
-      'queryKey' | 'queryFn'
-    >
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
+    Error
   >
   client?: ClientRequestOptions
 }) {
@@ -339,14 +319,9 @@ export function getGetUsersQueryOptions(
 export function useGetUsers(
   args: InferRequestType<typeof client.users.$get>,
   options?: {
-    query?: Partial<
-      Omit<
-        UseQueryOptions<
-          Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-          Error
-        >,
-        'queryKey' | 'queryFn'
-      >
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+      Error
     >
     client?: ClientRequestOptions
   },
@@ -395,15 +370,10 @@ export function getPostUsersMutationOptions(clientOptions?: ClientRequestOptions
  * Create a new user.
  */
 export function usePostUsers(options?: {
-  mutation?: Partial<
-    Omit<
-      UseMutationOptions<
-        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>,
-        Error,
-        InferRequestType<typeof client.users.$post>
-      >,
-      'mutationFn' | 'mutationKey'
-    >
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>,
+    Error,
+    InferRequestType<typeof client.users.$post>
   >
   client?: ClientRequestOptions
 }) {
@@ -488,16 +458,9 @@ export function getGetUsersQueryOptions(clientOptions?: ClientRequestOptions) {
  * Get users
  */
 export function useGetUsers(options?: {
-  query?: Partial<
-    Omit<
-      UseQueryOptions<
-        Awaited<
-          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof authClient.users.$get>>>>
-        >,
-        Error
-      >,
-      'queryKey' | 'queryFn'
-    >
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof authClient.users.$get>>>>>,
+    Error
   >
   client?: ClientRequestOptions
 }) {
@@ -578,14 +541,9 @@ export function getGetPingQueryOptions(clientOptions?: ClientRequestOptions) {
  * Ping
  */
 export function useGetPing(options?: {
-  query?: Partial<
-    Omit<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.ping.$get>>>>>,
-        Error
-      >,
-      'queryKey' | 'queryFn'
-    >
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.ping.$get>>>>>,
+    Error
   >
   client?: ClientRequestOptions
 }) {
@@ -621,15 +579,10 @@ export function getPostPingMutationOptions(clientOptions?: ClientRequestOptions)
  * Post ping
  */
 export function usePostPing(options?: {
-  mutation?: Partial<
-    Omit<
-      UseMutationOptions<
-        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.ping.$post>>>>>,
-        Error,
-        void
-      >,
-      'mutationFn' | 'mutationKey'
-    >
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.ping.$post>>>>>,
+    Error,
+    void
   >
   client?: ClientRequestOptions
 }) {
@@ -709,16 +662,11 @@ export function getGetHonoXQueryOptions(clientOptions?: ClientRequestOptions) {
  * HonoX
  */
 export function useGetHonoX(options?: {
-  query?: Partial<
-    Omit<
-      UseQueryOptions<
-        Awaited<
-          ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['hono-x']['$get']>>>>
-        >,
-        Error
-      >,
-      'queryKey' | 'queryFn'
-    >
+  query?: UseQueryOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['hono-x']['$get']>>>>
+    >,
+    Error
   >
   client?: ClientRequestOptions
 }) {
@@ -812,18 +760,11 @@ export function getGetUsersIdQueryOptions(
 export function useGetUsersId(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   options?: {
-    query?: Partial<
-      Omit<
-        UseQueryOptions<
-          Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$get']>>>
-            >
-          >,
-          Error
-        >,
-        'queryKey' | 'queryFn'
-      >
+    query?: UseQueryOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$get']>>>>
+      >,
+      Error
     >
     client?: ClientRequestOptions
   },
@@ -860,20 +801,15 @@ export function getDeleteUsersIdMutationOptions(clientOptions?: ClientRequestOpt
  * Delete user
  */
 export function useDeleteUsersId(options?: {
-  mutation?: Partial<
-    Omit<
-      UseMutationOptions<
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$delete']>>>
-            >
-          >
-        | undefined,
-        Error,
-        InferRequestType<(typeof client.users)[':id']['$delete']>
-      >,
-      'mutationFn' | 'mutationKey'
-    >
+  mutation?: UseMutationOptions<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$delete']>>>
+        >
+      >
+    | undefined,
+    Error,
+    InferRequestType<(typeof client.users)[':id']['$delete']>
   >
   client?: ClientRequestOptions
 }) {
@@ -985,19 +921,12 @@ export function getPutUsersIdMutationOptions(clientOptions?: ClientRequestOption
  * Replace user
  */
 export function usePutUsersId(options?: {
-  mutation?: Partial<
-    Omit<
-      UseMutationOptions<
-        Awaited<
-          ReturnType<
-            typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$put']>>>
-          >
-        >,
-        Error,
-        InferRequestType<(typeof client.users)[':id']['$put']>
-      >,
-      'mutationFn' | 'mutationKey'
-    >
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$put']>>>>
+    >,
+    Error,
+    InferRequestType<(typeof client.users)[':id']['$put']>
   >
   client?: ClientRequestOptions
 }) {
@@ -1034,19 +963,12 @@ export function getPatchUsersIdMutationOptions(clientOptions?: ClientRequestOpti
  * Update user
  */
 export function usePatchUsersId(options?: {
-  mutation?: Partial<
-    Omit<
-      UseMutationOptions<
-        Awaited<
-          ReturnType<
-            typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$patch']>>>
-          >
-        >,
-        Error,
-        InferRequestType<(typeof client.users)[':id']['$patch']>
-      >,
-      'mutationFn' | 'mutationKey'
-    >
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$patch']>>>>
+    >,
+    Error,
+    InferRequestType<(typeof client.users)[':id']['$patch']>
   >
   client?: ClientRequestOptions
 }) {

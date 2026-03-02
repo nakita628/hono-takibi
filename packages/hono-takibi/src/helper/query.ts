@@ -511,7 +511,6 @@ function makeMutationHookCode(
     mutationFn: string
     useThunk?: boolean
     useMutationOptionsType: string
-    usePartialOmit?: boolean
   },
   hasNoContent: boolean,
 ): string {
@@ -521,10 +520,8 @@ function makeMutationHookCode(
   const dataType = hasNoContent ? `${inferResponseType}|undefined` : inferResponseType
 
   // Use official TanStack Query mutation options type
-  // Vue Query needs Partial<Omit<...>> due to type conflicts with MaybeRefOrGetter
-  const mutationOptionsType = config.usePartialOmit
-    ? `Partial<Omit<${config.useMutationOptionsType}<${dataType},Error,${variablesType}>,'mutationFn'|'mutationKey'>>`
-    : `${config.useMutationOptionsType}<${dataType},Error,${variablesType}>`
+  // Runtime protection (destructure + spread last) prevents overriding mutationKey/mutationFn
+  const mutationOptionsType = `${config.useMutationOptionsType}<${dataType},Error,${variablesType}>`
   const optionsType = `{mutation?:${mutationOptionsType};client?:ClientRequestOptions}`
 
   // Use getMutationOptions to include mutationKey (for setMutationDefaults, isMutating, etc.)
