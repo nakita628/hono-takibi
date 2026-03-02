@@ -33,6 +33,8 @@ export async function vueQuery(
     useMutationOptionsType: 'UseMutationOptions',
     // Vue Query needs Partial<Omit<...>> due to QueryKey type conflicts with MaybeRefOrGetter
     usePartialOmit: true,
+    // queryOptions() helper for type branding - fixes exactOptionalPropertyTypes type errors
+    hasQueryOptionsHelper: true,
     // Vue Query uses different queryKey pattern (no leading slash, separate path params)
     isVueQuery: true,
   }

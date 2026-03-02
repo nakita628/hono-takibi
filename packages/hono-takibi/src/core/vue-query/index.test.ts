@@ -49,7 +49,7 @@ describe('vueQuery', () => {
       }
 
       const code = fs.readFileSync(out, 'utf-8')
-      const expected = `import { useQuery, useMutation } from '@tanstack/vue-query'
+      const expected = `import { useQuery, useMutation, queryOptions } from '@tanstack/vue-query'
 import type { UseQueryOptions, QueryFunctionContext, UseMutationOptions } from '@tanstack/vue-query'
 import { unref } from 'vue'
 import type { MaybeRef } from 'vue'
@@ -71,14 +71,14 @@ export function getGetHonoQueryKey() {
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetHonoQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return queryOptions({
     queryKey: getGetHonoQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return parseResponse(
         client.hono.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       )
     },
-  }
+  })
 }
 
 /**
@@ -100,9 +100,8 @@ export function useGetHono(options?: {
   >
   client?: ClientRequestOptions
 }) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const { queryKey, queryFn, ...baseOptions } = getGetHonoQueryOptions(clientOptions)
-  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
+  const { query: queryOpts, client: clientOptions } = options ?? {}
+  return useQuery({ ...getGetHonoQueryOptions(clientOptions), ...queryOpts })
 }
 
 /**
@@ -122,14 +121,14 @@ export function getGetUsersQueryOptions(
   args: InferRequestType<typeof client.users.$get>,
   clientOptions?: ClientRequestOptions,
 ) {
-  return {
+  return queryOptions({
     queryKey: getGetUsersQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return parseResponse(
         client.users.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       )
     },
-  }
+  })
 }
 
 /**
@@ -154,9 +153,8 @@ export function useGetUsers(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const { queryKey, queryFn, ...baseOptions } = getGetUsersQueryOptions(args, clientOptions)
-  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
+  const { query: queryOpts, client: clientOptions } = options ?? {}
+  return useQuery({ ...getGetUsersQueryOptions(args, clientOptions), ...queryOpts })
 }
 
 /**
@@ -239,7 +237,7 @@ export * from './usePostUsers'
 
       // Check GET hook file without args
       const useGetHono = fs.readFileSync(path.join(dir, 'hooks', 'useGetHono.ts'), 'utf-8')
-      const useGetHonoExpected = `import { useQuery } from '@tanstack/vue-query'
+      const useGetHonoExpected = `import { useQuery, queryOptions } from '@tanstack/vue-query'
 import type { UseQueryOptions, QueryFunctionContext } from '@tanstack/vue-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -259,14 +257,14 @@ export function getGetHonoQueryKey() {
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetHonoQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return queryOptions({
     queryKey: getGetHonoQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return parseResponse(
         client.hono.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       )
     },
-  }
+  })
 }
 
 /**
@@ -288,16 +286,15 @@ export function useGetHono(options?: {
   >
   client?: ClientRequestOptions
 }) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const { queryKey, queryFn, ...baseOptions } = getGetHonoQueryOptions(clientOptions)
-  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
+  const { query: queryOpts, client: clientOptions } = options ?? {}
+  return useQuery({ ...getGetHonoQueryOptions(clientOptions), ...queryOpts })
 }
 `
       expect(useGetHono).toBe(useGetHonoExpected)
 
       // Check GET hook file with args
       const useGetUsers = fs.readFileSync(path.join(dir, 'hooks', 'useGetUsers.ts'), 'utf-8')
-      const useGetUsersExpected = `import { useQuery } from '@tanstack/vue-query'
+      const useGetUsersExpected = `import { useQuery, queryOptions } from '@tanstack/vue-query'
 import type { UseQueryOptions, QueryFunctionContext } from '@tanstack/vue-query'
 import { unref } from 'vue'
 import type { MaybeRef } from 'vue'
@@ -322,14 +319,14 @@ export function getGetUsersQueryOptions(
   args: InferRequestType<typeof client.users.$get>,
   clientOptions?: ClientRequestOptions,
 ) {
-  return {
+  return queryOptions({
     queryKey: getGetUsersQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return parseResponse(
         client.users.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       )
     },
-  }
+  })
 }
 
 /**
@@ -354,9 +351,8 @@ export function useGetUsers(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const { queryKey, queryFn, ...baseOptions } = getGetUsersQueryOptions(args, clientOptions)
-  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
+  const { query: queryOpts, client: clientOptions } = options ?? {}
+  return useQuery({ ...getGetUsersQueryOptions(args, clientOptions), ...queryOpts })
 }
 `
       expect(useGetUsers).toBe(useGetUsersExpected)
@@ -453,7 +449,7 @@ describe('vueQuery (custom client name)', () => {
       }
 
       const code = fs.readFileSync(out, 'utf-8')
-      const expected = `import { useQuery } from '@tanstack/vue-query'
+      const expected = `import { useQuery, queryOptions } from '@tanstack/vue-query'
 import type { UseQueryOptions, QueryFunctionContext } from '@tanstack/vue-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -473,7 +469,7 @@ export function getGetUsersQueryKey() {
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetUsersQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return queryOptions({
     queryKey: getGetUsersQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return parseResponse(
@@ -483,7 +479,7 @@ export function getGetUsersQueryOptions(clientOptions?: ClientRequestOptions) {
         }),
       )
     },
-  }
+  })
 }
 
 /**
@@ -505,9 +501,8 @@ export function useGetUsers(options?: {
   >
   client?: ClientRequestOptions
 }) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const { queryKey, queryFn, ...baseOptions } = getGetUsersQueryOptions(clientOptions)
-  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
+  const { query: queryOpts, client: clientOptions } = options ?? {}
+  return useQuery({ ...getGetUsersQueryOptions(clientOptions), ...queryOpts })
 }
 `
       expect(code).toBe(expected)
@@ -547,7 +542,7 @@ describe('vueQuery (no args operations)', () => {
       }
 
       const code = fs.readFileSync(out, 'utf-8')
-      const expected = `import { useQuery, useMutation } from '@tanstack/vue-query'
+      const expected = `import { useQuery, useMutation, queryOptions } from '@tanstack/vue-query'
 import type { UseQueryOptions, QueryFunctionContext, UseMutationOptions } from '@tanstack/vue-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -567,14 +562,14 @@ export function getGetPingQueryKey() {
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetPingQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return queryOptions({
     queryKey: getGetPingQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return parseResponse(
         client.ping.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       )
     },
-  }
+  })
 }
 
 /**
@@ -594,9 +589,8 @@ export function useGetPing(options?: {
   >
   client?: ClientRequestOptions
 }) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const { queryKey, queryFn, ...baseOptions } = getGetPingQueryOptions(clientOptions)
-  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
+  const { query: queryOpts, client: clientOptions } = options ?? {}
+  return useQuery({ ...getGetPingQueryOptions(clientOptions), ...queryOpts })
 }
 
 /**
@@ -676,7 +670,7 @@ describe('vueQuery (path with special characters)', () => {
       }
 
       const code = fs.readFileSync(out, 'utf-8')
-      const expected = `import { useQuery } from '@tanstack/vue-query'
+      const expected = `import { useQuery, queryOptions } from '@tanstack/vue-query'
 import type { UseQueryOptions, QueryFunctionContext } from '@tanstack/vue-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -696,7 +690,7 @@ export function getGetHonoXQueryKey() {
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetHonoXQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return queryOptions({
     queryKey: getGetHonoXQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return parseResponse(
@@ -706,7 +700,7 @@ export function getGetHonoXQueryOptions(clientOptions?: ClientRequestOptions) {
         }),
       )
     },
-  }
+  })
 }
 
 /**
@@ -728,9 +722,8 @@ export function useGetHonoX(options?: {
   >
   client?: ClientRequestOptions
 }) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const { queryKey, queryFn, ...baseOptions } = getGetHonoXQueryOptions(clientOptions)
-  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
+  const { query: queryOpts, client: clientOptions } = options ?? {}
+  return useQuery({ ...getGetHonoXQueryOptions(clientOptions), ...queryOpts })
 }
 `
       expect(code).toBe(expected)
@@ -771,7 +764,7 @@ describe('vueQuery (path parameters)', () => {
       }
 
       const code = fs.readFileSync(out, 'utf-8')
-      const expected = `import { useQuery, useMutation } from '@tanstack/vue-query'
+      const expected = `import { useQuery, useMutation, queryOptions } from '@tanstack/vue-query'
 import type { UseQueryOptions, QueryFunctionContext, UseMutationOptions } from '@tanstack/vue-query'
 import { unref } from 'vue'
 import type { MaybeRef } from 'vue'
@@ -798,7 +791,7 @@ export function getGetUsersIdQueryOptions(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   clientOptions?: ClientRequestOptions,
 ) {
-  return {
+  return queryOptions({
     queryKey: getGetUsersIdQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return parseResponse(
@@ -808,7 +801,7 @@ export function getGetUsersIdQueryOptions(
         }),
       )
     },
-  }
+  })
 }
 
 /**
@@ -835,9 +828,8 @@ export function useGetUsersId(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const { queryKey, queryFn, ...baseOptions } = getGetUsersIdQueryOptions(args, clientOptions)
-  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
+  const { query: queryOpts, client: clientOptions } = options ?? {}
+  return useQuery({ ...getGetUsersIdQueryOptions(args, clientOptions), ...queryOpts })
 }
 
 /**

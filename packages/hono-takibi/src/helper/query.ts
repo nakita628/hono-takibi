@@ -177,7 +177,7 @@ function makeQueryOptionsGetterCode(
   clientPath: string,
   method: string,
   honoPath: string,
-  config: { frameworkName: string },
+  config: { frameworkName: string; hasQueryOptionsHelper?: boolean },
 ): string {
   const safeCommentPath = escapeCommentEnd(honoPath.replace(/:([^/]+)/g, '{$1}'))
   const safeCommentPathNoParam = escapeCommentEnd(honoPath)
@@ -191,22 +191,25 @@ function makeQueryOptionsGetterCode(
   const fetcherBody = makeFetcher(clientCallWithSignal)
   const queryKeyCall = hasArgs ? `${keyGetterName}(args)` : `${keyGetterName}()`
 
-  // Return plain object - TypeScript infers the exact type
-  // This avoids DataTag branding conflicts when spreading with UseQueryOptions
+  // When hasQueryOptionsHelper is true, wrap with queryOptions() for type branding
+  // This fixes exactOptionalPropertyTypes type errors with useQuery() overloads
+  const wrapStart = config.hasQueryOptionsHelper ? 'queryOptions(' : ''
+  const wrapEnd = config.hasQueryOptionsHelper ? ')' : ''
+
   if (hasArgs) {
     return `/**
  * Returns ${config.frameworkName} query options for GET ${commentPath}
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function ${optionsGetterName}(args:${inferRequestType},clientOptions?:ClientRequestOptions){return{queryKey:${queryKeyCall},queryFn({signal}:QueryFunctionContext){return ${fetcherBody}}}}`
+export function ${optionsGetterName}(args:${inferRequestType},clientOptions?:ClientRequestOptions){return ${wrapStart}{queryKey:${queryKeyCall},queryFn({signal}:QueryFunctionContext){return ${fetcherBody}}}${wrapEnd}}`
   }
   return `/**
  * Returns ${config.frameworkName} query options for GET ${commentPath}
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function ${optionsGetterName}(clientOptions?:ClientRequestOptions){return{queryKey:${queryKeyCall},queryFn({signal}:QueryFunctionContext){return ${fetcherBody}}}}`
+export function ${optionsGetterName}(clientOptions?:ClientRequestOptions){return ${wrapStart}{queryKey:${queryKeyCall},queryFn({signal}:QueryFunctionContext){return ${fetcherBody}}}${wrapEnd}}`
 }
 
 /* ─────────────────────────────── SWR Query Hook Code ─────────────────────────────── */
@@ -256,6 +259,7 @@ function makeQueryHookCode(
     useThunk?: boolean
     useQueryOptionsType: string
     usePartialOmit?: boolean
+    hasQueryOptionsHelper?: boolean
   },
 ): string {
   const argsSig = hasArgs ? `args:${inferRequestType},` : ''
@@ -287,6 +291,15 @@ export function ${hookName}(${argsSig}options?:()=>${optionsType}){return ${conf
   const optionsGetterCall = hasArgs
     ? `${optionsGetterName}(args,clientOptions)`
     : `${optionsGetterName}(clientOptions)`
+
+  // When queryOptions() helper is used, the return type is branded and queryFn/queryKey
+  // can't be destructured directly. Use simple spread instead.
+  // Also rename local variable to 'queryOpts' to avoid shadowing the queryOptions import.
+  if (config.hasQueryOptionsHelper) {
+    return `${docs}
+export function ${hookName}(${argsSig}options?:${optionsType}){const{query:queryOpts,client:clientOptions}=options??{};return ${config.queryFn}({...${optionsGetterCall},...queryOpts})}`
+  }
+
   return `${docs}
 export function ${hookName}(${argsSig}options?:${optionsType}){const{query:queryOptions,client:clientOptions}=options??{};const{queryKey,queryFn,...baseOptions}=${optionsGetterCall};return ${config.queryFn}({...baseOptions,...queryOptions,queryKey,queryFn})}`
 }
@@ -542,6 +555,7 @@ function makeHookCode(
     useQueryOptionsType: string
     useMutationOptionsType: string
     usePartialOmit?: boolean
+    hasQueryOptionsHelper?: boolean
     isVueQuery?: boolean
     isSWR?: boolean
   },
@@ -702,6 +716,7 @@ function makeHookCodes(
     useQueryOptionsType: string
     useMutationOptionsType: string
     usePartialOmit?: boolean
+    hasQueryOptionsHelper?: boolean
     isVueQuery?: boolean
     isSWR?: boolean
   },
@@ -753,6 +768,7 @@ function makeHeader(
     mutationFn: string
     useQueryOptionsType: string
     useMutationOptionsType: string
+    hasQueryOptionsHelper?: boolean
     isVueQuery?: boolean
     isSWR?: boolean
   },
@@ -766,6 +782,7 @@ function makeHeader(
   const queryImports = [
     ...(hasQuery ? [config.queryFn] : []),
     ...(hasMutation ? [config.mutationFn] : []),
+    ...(hasQuery && config.hasQueryOptionsHelper ? ['queryOptions'] : []),
   ]
 
   // Type imports for options - UseQueryOptions, UseMutationOptions, QueryFunctionContext
@@ -832,6 +849,7 @@ export async function makeQueryHooks(
     useQueryOptionsType: string
     useMutationOptionsType: string
     usePartialOmit?: boolean
+    hasQueryOptionsHelper?: boolean
     isVueQuery?: boolean
     isSWR?: boolean
   },
