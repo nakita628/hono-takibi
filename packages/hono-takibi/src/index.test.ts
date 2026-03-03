@@ -378,7 +378,7 @@ export const postUsersRoute = createRoute({
     const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
     expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
 
-export const UserListResponse = {
+export const UserListResponseResponse = {
   description: 'List of users',
   content: { 'application/json': { schema: z.array(z.object({})) } },
 }
@@ -387,7 +387,7 @@ export const getUsersRoute = createRoute({
   method: 'get',
   path: '/users',
   operationId: 'getUsers',
-  responses: { 200: UserListResponse },
+  responses: { 200: UserListResponseResponse },
 })
 `)
   })
@@ -536,7 +536,7 @@ export const getUsersRoute = createRoute({
     const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
     expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
 
-export const UserExample = { summary: 'User example', value: { id: 1, name: 'John' } }
+export const UserExampleExample = { summary: 'User example', value: { id: 1, name: 'John' } }
 
 export const getUsersRoute = createRoute({
   method: 'get',
@@ -546,7 +546,7 @@ export const getUsersRoute = createRoute({
     200: {
       description: 'Success',
       content: {
-        'application/json': { schema: z.object({}), examples: { UserExample: UserExample } },
+        'application/json': { schema: z.object({}), examples: { UserExample: UserExampleExample } },
       },
     },
   },
@@ -774,7 +774,7 @@ export const GetRelatedLink = {
   parameters: { id: '$response.body#/id' },
 }
 
-export const ItemResponse = {
+export const ItemResponseResponse = {
   description: 'Item response',
   headers: z.object({ 'X-Rate-Limit': RateLimitHeaderSchema }),
   content: { 'application/json': { schema: ItemSchema } },
@@ -787,7 +787,7 @@ export const ItemIdParamsSchema = z
 
 export type ItemIdParams = z.infer<typeof ItemIdParamsSchema>
 
-export const ItemExample = { summary: 'Item example', value: { id: 1, name: 'Test' } }
+export const ItemExampleExample = { summary: 'Item example', value: { id: 1, name: 'Test' } }
 
 export const ItemBodyRequestBody = {
   content: { 'application/json': { schema: ItemSchema } },
@@ -807,7 +807,7 @@ export const getItemsIdRoute = createRoute({
   path: '/items/{id}',
   operationId: 'getItem',
   request: { params: z.object({ id: ItemIdParamsSchema }) },
-  responses: { 200: ItemResponse },
+  responses: { 200: ItemResponseResponse },
   security: [{ BearerAuth: [] }],
 })
 
@@ -1806,12 +1806,12 @@ export const postUsersRoute = createRoute({
     )
     expect(
       userExampleFile,
-    ).toBe(`export const UserExample = { summary: 'User example', value: { id: 1, name: 'John' } }
+    ).toBe(`export const UserExampleExample = { summary: 'User example', value: { id: 1, name: 'John' } }
 `)
 
     const getUsersRoute = fs.readFileSync(path.join(testDir, 'src/routes/getUsers.ts'), 'utf-8')
     expect(getUsersRoute).toBe(`import { createRoute, z } from '@hono/zod-openapi'
-import { UserExample } from '~/examples'
+import { UserExample, UserExampleExample } from '~/examples'
 
 export const getUsersRoute = createRoute({
   method: 'get',
@@ -1821,7 +1821,7 @@ export const getUsersRoute = createRoute({
     200: {
       description: 'Success',
       content: {
-        'application/json': { schema: z.object({}), examples: { UserExample: UserExample } },
+        'application/json': { schema: z.object({}), examples: { UserExample: UserExampleExample } },
       },
     },
   },
@@ -2575,7 +2575,7 @@ export const getSimpleRoute = createRoute({
     const postMixedRoute = fs.readFileSync(path.join(testDir, 'src/routes/postMixed.ts'), 'utf-8')
 
     expect(postMixedRoute).toBe(`import { createRoute, z } from '@hono/zod-openapi'
-import { MixedSchema } from '@/schemas'
+import { MixedSchemaSchema } from '@/schemas'
 import { MixedParamParamsSchema } from '@/parameters'
 
 export const postMixedRoute = createRoute({
@@ -2584,10 +2584,10 @@ export const postMixedRoute = createRoute({
   operationId: 'createMixed',
   request: {
     query: z.object({ mixedParam: MixedParamParamsSchema }),
-    body: { content: { 'application/json': { schema: MixedSchema } } },
+    body: { content: { 'application/json': { schema: MixedSchemaSchema } } },
   },
   responses: {
-    200: { description: 'Success', content: { 'application/json': { schema: MixedSchema } } },
+    200: { description: 'Success', content: { 'application/json': { schema: MixedSchemaSchema } } },
   },
 })
 `)
@@ -2596,7 +2596,7 @@ export const postMixedRoute = createRoute({
     const importLines = lines.filter((line) => line.startsWith('import'))
 
     expect(importLines[0]).toBe("import { createRoute, z } from '@hono/zod-openapi'")
-    expect(importLines[1]).toBe("import { MixedSchema } from '@/schemas'")
+    expect(importLines[1]).toBe("import { MixedSchemaSchema } from '@/schemas'")
     expect(importLines[2]).toBe("import { MixedParamParamsSchema } from '@/parameters'")
   })
 
