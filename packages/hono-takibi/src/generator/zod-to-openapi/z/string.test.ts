@@ -54,15 +54,11 @@ describe('string', () => {
         'z.ipv4({error:"Invalid IPv4"})',
       ],
       // Transform formats should ignore x-error-message
-      [
-        { type: 'string', format: 'toLowerCase', 'x-error-message': 'ignored' },
-        'z.toLowerCase()',
-      ],
-      [
-        { type: 'string', format: 'toUpperCase', 'x-error-message': 'ignored' },
-        'z.toUpperCase()',
-      ],
+      [{ type: 'string', format: 'toLowerCase', 'x-error-message': 'ignored' }, 'z.toLowerCase()'],
+      [{ type: 'string', format: 'toUpperCase', 'x-error-message': 'ignored' }, 'z.toUpperCase()'],
       [{ type: 'string', format: 'trim', 'x-error-message': 'ignored' }, 'z.trim()'],
+      // x-error-message on base z.string() (no format)
+      [{ type: 'string', 'x-error-message': '文字列必須' }, 'z.string({error:"文字列必須"})'],
       // No x-error-message → existing behavior
       [{ type: 'string', format: 'email' }, 'z.email()'],
     ])('string(%o) → %s', (input, expected) => {

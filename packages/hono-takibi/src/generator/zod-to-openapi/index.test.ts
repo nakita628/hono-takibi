@@ -925,6 +925,34 @@ describe('zodToOpenAPI', () => {
             { type: 'string', minLength: 5, maxLength: 5, 'x-size-message': 'Exactly 5' },
             'z.string().length(5,{error:"Exactly 5"})',
           ],
+          // x-error-message on base z.string() (no format)
+          [{ type: 'string', 'x-error-message': '文字列必須' }, 'z.string({error:"文字列必須"})'],
+          // x-error-message on z.number()
+          [{ type: 'number', 'x-error-message': '数値必須' }, 'z.number({error:"数値必須"})'],
+          // x-error-message on z.number() with format
+          [
+            { type: 'number', format: 'float', 'x-error-message': 'float必須' },
+            'z.float32({error:"float必須"})',
+          ],
+          // x-error-message on z.int()
+          [{ type: 'integer', 'x-error-message': '整数必須' }, 'z.int({error:"整数必須"})'],
+          // x-error-message on z.boolean()
+          [{ type: 'boolean', 'x-error-message': 'ブール必須' }, 'z.boolean({error:"ブール必須"})'],
+          // x-error-message on z.array()
+          [
+            { type: 'array', items: { type: 'string' }, 'x-error-message': '配列必須' },
+            'z.array(z.string(),{error:"配列必須"})',
+          ],
+          // x-error-message on z.null()
+          [
+            { type: 'null', 'x-error-message': 'null必須' },
+            'z.null({error:"null必須"}).nullable()',
+          ],
+          // x-error-message on z.enum()
+          [
+            { enum: ['A', 'B'], 'x-error-message': '無効な値' },
+            'z.enum(["A","B"],{error:"無効な値"})',
+          ],
         ])('zodToOpenAPI(%o) → %s', (input, expected) => {
           expect(zodToOpenAPI(input)).toBe(expected)
         })

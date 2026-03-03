@@ -23,4 +23,22 @@ describe('_enum', () => {
   ])('_enum(%o) → %s', (input, expected) => {
     expect(_enum(input)).toBe(expected)
   })
+
+  describe('x-error-message', () => {
+    it.concurrent.each<[Schema, string]>([
+      // String enum with x-error-message
+      [
+        { enum: ['active', 'inactive'], 'x-error-message': '無効なステータス' },
+        'z.enum(["active","inactive"],{error:"無効なステータス"})',
+      ],
+      // Single string value → z.literal (no error param)
+      [{ enum: ['only'], 'x-error-message': 'ignored' }, `z.literal('only')`],
+      // Number enum → z.union (no error param on z.union)
+      [{ enum: [1, 2], 'x-error-message': 'ignored' }, 'z.union([z.literal(1),z.literal(2)])'],
+      // No x-error-message → existing behavior
+      [{ enum: ['A', 'B'] }, 'z.enum(["A","B"])'],
+    ])('_enum(%o) → %s', (input, expected) => {
+      expect(_enum(input)).toBe(expected)
+    })
+  })
 })

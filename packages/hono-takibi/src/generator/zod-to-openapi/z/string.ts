@@ -62,7 +62,7 @@ export function string(schema: Schema): string {
 
   // Apply x-error-message to format validators (not transforms)
   const base = (() => {
-    if (!format) return 'z.string()'
+    if (!format) return errorMessage ? `z.string(${error(errorMessage)})` : 'z.string()'
     if (errorMessage && !TRANSFORM_FORMATS.has(schema.format as string)) {
       return `z.${format.replace(/\(\)$/, `(${error(errorMessage)})`)}`
     }

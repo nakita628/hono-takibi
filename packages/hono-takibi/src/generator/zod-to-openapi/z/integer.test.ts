@@ -136,6 +136,33 @@ describe('integer', () => {
     })
   })
 
+  describe('x-error-message (integer base)', () => {
+    it.concurrent.each<[Schema, string]>([
+      [{ type: 'integer', 'x-error-message': '整数必須' }, 'z.int({error:"整数必須"})'],
+      [
+        { type: 'integer', format: 'int32', 'x-error-message': 'int32必須' },
+        'z.int32({error:"int32必須"})',
+      ],
+      [
+        { type: 'integer', format: 'int64', 'x-error-message': 'int64必須' },
+        'z.int64({error:"int64必須"})',
+      ],
+      [
+        { type: 'integer', format: 'bigint', 'x-error-message': 'bigint必須' },
+        'z.bigint({error:"bigint必須"})',
+      ],
+      // x-error-message + constraints
+      [
+        { type: 'integer', minimum: 0, 'x-error-message': '整数必須' },
+        'z.int({error:"整数必須"}).min(0)',
+      ],
+      // No x-error-message → existing behavior
+      [{ type: 'integer' }, 'z.int()'],
+    ])('integer(%o) → %s', (input, expected) => {
+      expect(integer(input)).toBe(expected)
+    })
+  })
+
   describe('x-minimum-message (int)', () => {
     it.concurrent.each<[Schema, string]>([
       [

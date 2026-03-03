@@ -27,14 +27,16 @@ import { error } from '../../../utils/index.js'
  * ```
  */
 export function integer(schema: Schema): string {
+  const errorMessage = schema['x-error-message']
+  const baseErrorArg = errorMessage ? error(errorMessage) : ''
   const base =
     schema.format === 'int32'
-      ? 'z.int32()'
+      ? `z.int32(${baseErrorArg})`
       : schema.format === 'int64'
-        ? 'z.int64()'
+        ? `z.int64(${baseErrorArg})`
         : schema.format === 'bigint'
-          ? 'z.bigint()'
-          : 'z.int()'
+          ? `z.bigint(${baseErrorArg})`
+          : `z.int(${baseErrorArg})`
 
   const lit = (n: number): string => {
     if (schema.format === 'bigint') return `BigInt(${n})`

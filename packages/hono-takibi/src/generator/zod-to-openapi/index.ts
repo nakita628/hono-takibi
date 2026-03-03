@@ -220,7 +220,11 @@ export function zodToOpenAPI(
   /* integer & bigint */
   if (t.includes('integer')) return wrap(integer(schema), schema, meta)
   /* boolean */
-  if (t.includes('boolean')) return wrap('z.boolean()', schema, meta)
+  if (t.includes('boolean')) {
+    const errorMessage = schema['x-error-message']
+    const base = errorMessage ? `z.boolean(${error(errorMessage)})` : 'z.boolean()'
+    return wrap(base, schema, meta)
+  }
   /* array */
   if (t.includes('array')) {
     const readonlyMod = readonly ? '.readonly()' : ''
@@ -241,7 +245,9 @@ export function zodToOpenAPI(
         ? makeRef(itemSchema.$ref)
         : zodToOpenAPI(itemSchema, innerMeta, readonly)
       : 'z.any()'
-    const z = `z.array(${item})`
+    const arrayErrorMessage = schema['x-error-message']
+    const arrayErrArg = arrayErrorMessage ? `,${error(arrayErrorMessage)}` : ''
+    const z = `z.array(${item}${arrayErrArg})`
     const unique =
       schema.uniqueItems === true ? '.refine((items)=>new Set(items).size===items.length)' : ''
     const sizeMessage = schema['x-size-message']
@@ -264,9 +270,17 @@ export function zodToOpenAPI(
   /* object */
   if (t.includes('object')) return wrap(object(schema, readonly), schema, meta)
   /* date */
-  if (t.includes('date')) return wrap('z.date()', schema, meta)
+  if (t.includes('date')) {
+    const errorMessage = schema['x-error-message']
+    const base = errorMessage ? `z.date(${error(errorMessage)})` : 'z.date()'
+    return wrap(base, schema, meta)
+  }
   /* null only */
-  if (t.length === 1 && t[0] === 'null') return wrap('z.null()', schema, meta)
+  if (t.length === 1 && t[0] === 'null') {
+    const errorMessage = schema['x-error-message']
+    const base = errorMessage ? `z.null(${error(errorMessage)})` : 'z.null()'
+    return wrap(base, schema, meta)
+  }
   console.warn(`fallback to z.any(): schema=${JSON.stringify(schema)}`)
   return wrap('z.any()', schema, meta)
 }

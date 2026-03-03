@@ -44,6 +44,33 @@ describe('type: number, format: float', () => {
   })
 })
 
+describe('x-error-message (number base)', () => {
+  it.concurrent.each<[Schema, string]>([
+    [{ type: 'number', 'x-error-message': '数値必須' }, 'z.number({error:"数値必須"})'],
+    [
+      { type: 'number', format: 'float', 'x-error-message': 'float必須' },
+      'z.float32({error:"float必須"})',
+    ],
+    [
+      { type: 'number', format: 'float32', 'x-error-message': 'float32必須' },
+      'z.float32({error:"float32必須"})',
+    ],
+    [
+      { type: 'number', format: 'float64', 'x-error-message': 'float64必須' },
+      'z.float64({error:"float64必須"})',
+    ],
+    // x-error-message + constraints
+    [
+      { type: 'number', minimum: 0, 'x-error-message': '数値必須' },
+      'z.number({error:"数値必須"}).min(0)',
+    ],
+    // No x-error-message → existing behavior
+    [{ type: 'number' }, 'z.number()'],
+  ])('number(%o) → %s', (input, expected) => {
+    expect(number(input)).toBe(expected)
+  })
+})
+
 describe('x-minimum-message', () => {
   it.concurrent.each<[Schema, string]>([
     [

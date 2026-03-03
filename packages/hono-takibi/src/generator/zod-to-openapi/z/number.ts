@@ -27,12 +27,14 @@ import { error } from '../../../utils/index.js'
  * ```
  */
 export function number(schema: Schema): string {
+  const errorMessage = schema['x-error-message']
+  const baseErrorArg = errorMessage ? error(errorMessage) : ''
   const base =
     schema.format === 'float' || schema.format === 'float32'
-      ? 'z.float32()'
+      ? `z.float32(${baseErrorArg})`
       : schema.format === 'float64'
-        ? 'z.float64()'
-        : 'z.number()'
+        ? `z.float64(${baseErrorArg})`
+        : `z.number(${baseErrorArg})`
 
   const minimumMessage = schema['x-minimum-message']
   const minErrArg = minimumMessage ? error(minimumMessage) : ''

@@ -1,4 +1,5 @@
 import type { Schema } from '../../../openapi/index.js'
+import { error } from '../../../utils/index.js'
 
 /**
  * Generates a Zod enum schema from an OpenAPI schema definition.
@@ -75,9 +76,12 @@ export function _enum(schema: Schema): string {
   }
   /* string enum */
   if (schema.enum.every((v) => typeof v === 'string')) {
-    return schema.enum.length > 1
-      ? `z.enum(${JSON.stringify(schema.enum)})`
-      : `z.literal(${lit(schema.enum[0])})`
+    if (schema.enum.length > 1) {
+      const errorMessage = schema['x-error-message']
+      const errArg = errorMessage ? `,${error(errorMessage)}` : ''
+      return `z.enum(${JSON.stringify(schema.enum)}${errArg})`
+    }
+    return `z.literal(${lit(schema.enum[0])})`
   }
   /* mixed / null only */
   if (schema.enum.length > 1) {

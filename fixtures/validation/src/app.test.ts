@@ -72,9 +72,7 @@ describe('Custom validation messages via x-* extensions', () => {
     })
     expect(res.status).toBe(422)
     const body = await res.json()
-    expect(body.errors).toStrictEqual([
-      { pointer: '/email', detail: 'Invalid email address' },
-    ])
+    expect(body.errors).toStrictEqual([{ pointer: '/email', detail: 'Invalid email address' }])
   })
 
   it('rejects negative age with x-minimum-message', async () => {
@@ -90,9 +88,7 @@ describe('Custom validation messages via x-* extensions', () => {
     })
     expect(res.status).toBe(422)
     const body = await res.json()
-    expect(body.errors).toStrictEqual([
-      { pointer: '/age', detail: 'Age must be >= 0' },
-    ])
+    expect(body.errors).toStrictEqual([{ pointer: '/age', detail: 'Age must be >= 0' }])
   })
 
   it('rejects age over 150 with x-maximum-message', async () => {
@@ -108,9 +104,7 @@ describe('Custom validation messages via x-* extensions', () => {
     })
     expect(res.status).toBe(422)
     const body = await res.json()
-    expect(body.errors).toStrictEqual([
-      { pointer: '/age', detail: 'Age must be <= 150' },
-    ])
+    expect(body.errors).toStrictEqual([{ pointer: '/age', detail: 'Age must be <= 150' }])
   })
 
   it('rejects weak password with x-pattern-message', async () => {
@@ -167,9 +161,7 @@ describe('Custom validation messages via x-* extensions', () => {
     })
     expect(res.status).toBe(422)
     const body = await res.json()
-    expect(body.errors).toStrictEqual([
-      { pointer: '/tags', detail: 'Must have 1-5 tags' },
-    ])
+    expect(body.errors).toStrictEqual([{ pointer: '/tags', detail: 'Must have 1-5 tags' }])
   })
 
   it('rejects too many tags with x-size-message', async () => {
@@ -185,9 +177,7 @@ describe('Custom validation messages via x-* extensions', () => {
     })
     expect(res.status).toBe(422)
     const body = await res.json()
-    expect(body.errors).toStrictEqual([
-      { pointer: '/tags', detail: 'Must have 1-5 tags' },
-    ])
+    expect(body.errors).toStrictEqual([{ pointer: '/tags', detail: 'Must have 1-5 tags' }])
   })
 
   it('returns all custom error messages for multiple violations', async () => {
