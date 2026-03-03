@@ -172,7 +172,7 @@ function makeQueryKeyGetterCode(
  * Generates ${config.frameworkName} cache key for GET ${safeCommentPath}
  * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function ${keyGetterName}(args:MaybeRefOrGetter<${argsType}>){return['${prefix}','GET','${honoPath}',toValue(args)]as const}`
+export function ${keyGetterName}(args:MaybeRefOrGetter<${argsType}>){return['${prefix}','GET','${honoPath}',args]as const}`
     }
     return `/**
  * Generates ${config.frameworkName} cache key for GET ${safeCommentPathNoParam}
@@ -219,7 +219,7 @@ function makeInfiniteQueryKeyGetterCode(
  * Generates ${config.frameworkName} infinite query cache key for GET ${safeCommentPath}
  * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
  */
-export function ${keyGetterName}(args:MaybeRefOrGetter<${argsType}>){return['${prefix}','GET','${honoPath}',toValue(args),'infinite']as const}`
+export function ${keyGetterName}(args:MaybeRefOrGetter<${argsType}>){return['${prefix}','GET','${honoPath}',args,'infinite']as const}`
     }
     return `/**
  * Generates ${config.frameworkName} infinite query cache key for GET ${safeCommentPathNoParam}
@@ -395,11 +395,11 @@ function makeQueryHookCode(
   config: {
     queryFn: string
     useThunk?: boolean
+    isVueQuery?: boolean
     useQueryOptionsType: string
     errorType?: string
   },
 ): string {
-  const argsSig = hasArgs ? `args:${argsType},` : ''
   const errorType = config.errorType ?? 'Error'
 
   // Use official TanStack Query options type
@@ -407,16 +407,28 @@ function makeQueryHookCode(
   const optionsType = `{query?:${queryOptionsType};options?:ClientRequestOptions}`
 
   // Svelte Query v5+ requires thunk pattern: createQuery(() => options)
-  // Call options?.() once to avoid multiple evaluations (options could be a getter)
+  // args is a getter function so $state tracking is maintained inside the thunk
   if (config.useThunk) {
+    const argsSig = hasArgs ? `args:()=>${argsType},` : ''
     const optionsGetterCall = hasArgs
-      ? `${optionsGetterName}(args,clientOptions)`
+      ? `${optionsGetterName}(args(),clientOptions)`
       : `${optionsGetterName}(clientOptions)`
     return `${docs}
 export function ${hookName}(${argsSig}options?:()=>${optionsType}){return ${config.queryFn}(()=>{const{query,options:clientOptions}=options?.()??{};return{...${optionsGetterCall},...query}})}`
   }
 
-  // React TanStack Query / Vue Query: direct spread
+  // Vue Query: args typed as MaybeRefOrGetter so Vue can track Ref changes in queryKey
+  if (config.isVueQuery) {
+    const argsSig = hasArgs ? `args:MaybeRefOrGetter<${argsType}>,` : ''
+    const optionsGetterCall = hasArgs
+      ? `${optionsGetterName}(args,clientOptions)`
+      : `${optionsGetterName}(clientOptions)`
+    return `${docs}
+export function ${hookName}(${argsSig}options?:${optionsType}){const{query:queryOptions,options:clientOptions}=options??{};return ${config.queryFn}({...${optionsGetterCall},...queryOptions})}`
+  }
+
+  // React TanStack Query: direct spread
+  const argsSig = hasArgs ? `args:${argsType},` : ''
   const optionsGetterCall = hasArgs
     ? `${optionsGetterName}(args,clientOptions)`
     : `${optionsGetterName}(clientOptions)`
@@ -437,23 +449,36 @@ function makeSuspenseQueryHookCode(
     suspenseQueryFn: string
     useSuspenseQueryOptionsType: string
     useThunk?: boolean
+    isVueQuery?: boolean
     errorType?: string
   },
 ): string {
-  const argsSig = hasArgs ? `args:${argsType},` : ''
   const errorType = config.errorType ?? 'Error'
   const queryOptionsType = `${config.useSuspenseQueryOptionsType}<${responseType},${errorType}>`
   const optionsType = `{query?:${queryOptionsType};options?:ClientRequestOptions}`
 
   // Svelte Query v5+: thunk pattern createSuspenseQuery(() => options)
   if (config.useThunk) {
+    const argsSig = hasArgs ? `args:()=>${argsType},` : ''
     const optionsGetterCall = hasArgs
-      ? `${optionsGetterName}(args,clientOptions)`
+      ? `${optionsGetterName}(args(),clientOptions)`
       : `${optionsGetterName}(clientOptions)`
     return `${docs}
 export function ${hookName}(${argsSig}options?:()=>${optionsType}){return ${config.suspenseQueryFn}(()=>{const{query,options:clientOptions}=options?.()??{};return{...${optionsGetterCall},...query}})}`
   }
 
+  // Vue Query: args typed as MaybeRefOrGetter
+  if (config.isVueQuery) {
+    const argsSig = hasArgs ? `args:MaybeRefOrGetter<${argsType}>,` : ''
+    const optionsGetterCall = hasArgs
+      ? `${optionsGetterName}(args,clientOptions)`
+      : `${optionsGetterName}(clientOptions)`
+    return `${docs}
+export function ${hookName}(${argsSig}options?:${optionsType}){const{query:queryOptions,options:clientOptions}=options??{};return ${config.suspenseQueryFn}({...${optionsGetterCall},...queryOptions})}`
+  }
+
+  // React TanStack Query: direct spread
+  const argsSig = hasArgs ? `args:${argsType},` : ''
   const optionsGetterCall = hasArgs
     ? `${optionsGetterName}(args,clientOptions)`
     : `${optionsGetterName}(clientOptions)`
@@ -545,24 +570,36 @@ function makeInfiniteQueryHookCode(
     infiniteQueryFn: string
     useInfiniteQueryOptionsType: string
     useThunk?: boolean
+    isVueQuery?: boolean
     errorType?: string
   },
 ): string {
-  const argsSig = hasArgs ? `args:${argsType},` : ''
   const errorType = config.errorType ?? 'Error'
   const queryOptionsType = `${config.useInfiniteQueryOptionsType}<${responseType},${errorType}>`
   const optionsType = `{query:${queryOptionsType};options?:ClientRequestOptions}`
 
   // Svelte Query v5+: thunk pattern — createInfiniteQuery(() => options)
   if (config.useThunk) {
+    const argsSig = hasArgs ? `args:()=>${argsType},` : ''
     const optionsGetterCall = hasArgs
-      ? `${infiniteOptionsGetterName}(args,clientOptions)`
+      ? `${infiniteOptionsGetterName}(args(),clientOptions)`
       : `${infiniteOptionsGetterName}(clientOptions)`
     return `${docs}
 export function ${hookName}(${argsSig}options:()=>${optionsType}){return ${config.infiniteQueryFn}(()=>{const{query,options:clientOptions}=options();return{...${optionsGetterCall},...query}})}`
   }
 
-  // React TanStack Query / Vue Query: direct spread
+  // Vue Query: args typed as MaybeRefOrGetter
+  if (config.isVueQuery) {
+    const argsSig = hasArgs ? `args:MaybeRefOrGetter<${argsType}>,` : ''
+    const optionsGetterCall = hasArgs
+      ? `${infiniteOptionsGetterName}(args,clientOptions)`
+      : `${infiniteOptionsGetterName}(clientOptions)`
+    return `${docs}
+export function ${hookName}(${argsSig}options:${optionsType}){const{query:queryOptions,options:clientOptions}=options;return ${config.infiniteQueryFn}({...${optionsGetterCall},...queryOptions})}`
+  }
+
+  // React TanStack Query: direct spread
+  const argsSig = hasArgs ? `args:${argsType},` : ''
   const optionsGetterCall = hasArgs
     ? `${infiniteOptionsGetterName}(args,clientOptions)`
     : `${infiniteOptionsGetterName}(clientOptions)`
@@ -583,23 +620,36 @@ function makeSuspenseInfiniteQueryHookCode(
     suspenseInfiniteQueryFn: string
     useSuspenseInfiniteQueryOptionsType: string
     useThunk?: boolean
+    isVueQuery?: boolean
     errorType?: string
   },
 ): string {
-  const argsSig = hasArgs ? `args:${argsType},` : ''
   const errorType = config.errorType ?? 'Error'
   const queryOptionsType = `${config.useSuspenseInfiniteQueryOptionsType}<${responseType},${errorType}>`
   const optionsType = `{query:${queryOptionsType};options?:ClientRequestOptions}`
 
   // Svelte Query v5+: thunk pattern createSuspenseInfiniteQuery(() => options)
   if (config.useThunk) {
+    const argsSig = hasArgs ? `args:()=>${argsType},` : ''
     const optionsGetterCall = hasArgs
-      ? `${infiniteOptionsGetterName}(args,clientOptions)`
+      ? `${infiniteOptionsGetterName}(args(),clientOptions)`
       : `${infiniteOptionsGetterName}(clientOptions)`
     return `${docs}
 export function ${hookName}(${argsSig}options:()=>${optionsType}){return ${config.suspenseInfiniteQueryFn}(()=>{const{query,options:clientOptions}=options();return{...${optionsGetterCall},...query}})}`
   }
 
+  // Vue Query: args typed as MaybeRefOrGetter
+  if (config.isVueQuery) {
+    const argsSig = hasArgs ? `args:MaybeRefOrGetter<${argsType}>,` : ''
+    const optionsGetterCall = hasArgs
+      ? `${infiniteOptionsGetterName}(args,clientOptions)`
+      : `${infiniteOptionsGetterName}(clientOptions)`
+    return `${docs}
+export function ${hookName}(${argsSig}options:${optionsType}){const{query:queryOptions,options:clientOptions}=options;return ${config.suspenseInfiniteQueryFn}({...${optionsGetterCall},...queryOptions})}`
+  }
+
+  // React TanStack Query: direct spread
+  const argsSig = hasArgs ? `args:${argsType},` : ''
   const optionsGetterCall = hasArgs
     ? `${infiniteOptionsGetterName}(args,clientOptions)`
     : `${infiniteOptionsGetterName}(clientOptions)`
@@ -1053,6 +1103,7 @@ function makeHookCode(
               suspenseQueryFn: config.suspenseQueryFn,
               useSuspenseQueryOptionsType: config.useSuspenseQueryOptionsType,
               ...(config.useThunk ? { useThunk: true } : {}),
+              ...(config.isVueQuery ? { isVueQuery: true } : {}),
               ...(config.errorType ? { errorType: config.errorType } : {}),
             },
           )
@@ -1072,6 +1123,7 @@ function makeHookCode(
             infiniteQueryFn,
             useInfiniteQueryOptionsType,
             ...(config.useThunk ? { useThunk: true } : {}),
+            ...(config.isVueQuery ? { isVueQuery: true } : {}),
             ...(config.errorType ? { errorType: config.errorType } : {}),
           },
         )
@@ -1092,6 +1144,7 @@ function makeHookCode(
               suspenseInfiniteQueryFn: config.suspenseInfiniteQueryFn,
               useSuspenseInfiniteQueryOptionsType: config.useSuspenseInfiniteQueryOptionsType,
               ...(config.useThunk ? { useThunk: true } : {}),
+              ...(config.isVueQuery ? { isVueQuery: true } : {}),
               ...(config.errorType ? { errorType: config.errorType } : {}),
             },
           )

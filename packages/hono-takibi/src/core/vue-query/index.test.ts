@@ -155,7 +155,7 @@ export function useInfiniteGetHono(options: {
 export function getGetUsersQueryKey(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
 ) {
-  return ['users', 'GET', '/users', toValue(args)] as const
+  return ['users', 'GET', '/users', args] as const
 }
 
 /**
@@ -197,7 +197,7 @@ export function getGetUsersQueryOptions(
  * List users with pagination.
  */
 export function useGetUsers(
-  args: InferRequestType<typeof client.users.$get>,
+  args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
   options?: {
     query?: UseQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
     options?: ClientRequestOptions
@@ -214,7 +214,7 @@ export function useGetUsers(
 export function getGetUsersInfiniteQueryKey(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
 ) {
-  return ['users', 'GET', '/users', toValue(args), 'infinite'] as const
+  return ['users', 'GET', '/users', args, 'infinite'] as const
 }
 
 /**
@@ -243,7 +243,7 @@ export function getGetUsersInfiniteQueryOptions(
  * List users with pagination.
  */
 export function useInfiniteGetUsers(
-  args: InferRequestType<typeof client.users.$get>,
+  args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
   options: {
     query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
     options?: ClientRequestOptions
@@ -463,7 +463,7 @@ import { client } from '../client'
 export function getGetUsersQueryKey(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
 ) {
-  return ['users', 'GET', '/users', toValue(args)] as const
+  return ['users', 'GET', '/users', args] as const
 }
 
 /**
@@ -505,7 +505,7 @@ export function getGetUsersQueryOptions(
  * List users with pagination.
  */
 export function useGetUsers(
-  args: InferRequestType<typeof client.users.$get>,
+  args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
   options?: {
     query?: UseQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
     options?: ClientRequestOptions
@@ -522,7 +522,7 @@ export function useGetUsers(
 export function getGetUsersInfiniteQueryKey(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
 ) {
-  return ['users', 'GET', '/users', toValue(args), 'infinite'] as const
+  return ['users', 'GET', '/users', args, 'infinite'] as const
 }
 
 /**
@@ -551,7 +551,7 @@ export function getGetUsersInfiniteQueryOptions(
  * List users with pagination.
  */
 export function useInfiniteGetUsers(
-  args: InferRequestType<typeof client.users.$get>,
+  args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
   options: {
     query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
     options?: ClientRequestOptions
@@ -1108,7 +1108,7 @@ import { client } from '../client'
 export function getGetUsersIdQueryKey(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':id']['$get']>>,
 ) {
-  return ['users', 'GET', '/users/:id', toValue(args)] as const
+  return ['users', 'GET', '/users/:id', args] as const
 }
 
 /**
@@ -1146,7 +1146,7 @@ export function getGetUsersIdQueryOptions(
  * Get user
  */
 export function useGetUsersId(
-  args: InferRequestType<(typeof client.users)[':id']['$get']>,
+  args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':id']['$get']>>,
   options?: {
     query?: UseQueryOptions<Awaited<ReturnType<typeof getUsersId>>, Error>
     options?: ClientRequestOptions
@@ -1163,7 +1163,7 @@ export function useGetUsersId(
 export function getGetUsersIdInfiniteQueryKey(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':id']['$get']>>,
 ) {
-  return ['users', 'GET', '/users/:id', toValue(args), 'infinite'] as const
+  return ['users', 'GET', '/users/:id', args, 'infinite'] as const
 }
 
 /**
@@ -1190,7 +1190,7 @@ export function getGetUsersIdInfiniteQueryOptions(
  * Get user
  */
 export function useInfiniteGetUsersId(
-  args: InferRequestType<(typeof client.users)[':id']['$get']>,
+  args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':id']['$get']>>,
   options: {
     query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsersId>>, Error>
     options?: ClientRequestOptions
