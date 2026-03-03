@@ -1016,14 +1016,16 @@ function makeHookCode(
       config,
     )
     // Generate infinite query key getter (only when infinite query hooks are enabled)
-    const hasInfinite = !!(config.infiniteQueryFn && config.useInfiniteQueryOptionsType)
     const infiniteKeyGetterName = makeInfiniteQueryKeyGetterName(method, pathStr)
+    const infiniteOptionsGetterName = makeInfiniteQueryOptionsGetterName(method, pathStr)
+
+    const { infiniteQueryFn, useInfiniteQueryOptionsType } = config
+    const hasInfinite = !!(infiniteQueryFn && useInfiniteQueryOptionsType)
     const infiniteKeyGetterCode = hasInfinite
       ? makeInfiniteQueryKeyGetterCode(infiniteKeyGetterName, hasArgs, argsType, honoPath, config)
       : null
 
     // Generate infinite query options getter
-    const infiniteOptionsGetterName = makeInfiniteQueryOptionsGetterName(method, pathStr)
     const infiniteOptionsGetterCode = hasInfinite
       ? makeInfiniteQueryOptionsGetterCode(
           infiniteOptionsGetterName,
@@ -1067,8 +1069,8 @@ function makeHookCode(
           responseType,
           docs,
           {
-            infiniteQueryFn: config.infiniteQueryFn!,
-            useInfiniteQueryOptionsType: config.useInfiniteQueryOptionsType!,
+            infiniteQueryFn,
+            useInfiniteQueryOptionsType,
             ...(config.useThunk ? { useThunk: true } : {}),
             ...(config.errorType ? { errorType: config.errorType } : {}),
           },
