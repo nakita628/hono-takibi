@@ -1,0 +1,74 @@
+openapi: '3.1.0'
+info:
+  title: Validation Message Test API
+  version: '1.0.0'
+  description: OpenAPI spec with x-* vendor extensions for custom validation messages
+paths:
+  /users:
+    post:
+      operationId: createUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUser'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+components:
+  schemas:
+    CreateUser:
+      type: object
+      required:
+        - name
+        - email
+        - age
+        - tags
+      properties:
+        name:
+          type: string
+          minLength: 3
+          maxLength: 20
+          x-size-message: 'Name must be 3-20 characters'
+        email:
+          type: string
+          format: email
+          x-error-message: 'Invalid email address'
+        age:
+          type: integer
+          minimum: 0
+          maximum: 150
+          x-minimum-message: 'Age must be >= 0'
+          x-maximum-message: 'Age must be <= 150'
+        password:
+          type: string
+          pattern: '^(?=.*[A-Z])(?=.*[0-9]).{8,}$'
+          x-pattern-message: 'Password must contain uppercase and number, min 8 chars'
+        code:
+          type: string
+          minLength: 5
+          maxLength: 5
+          x-size-message: 'Code must be exactly 5 characters'
+        tags:
+          type: array
+          items:
+            type: string
+          minItems: 1
+          maxItems: 5
+          x-size-message: 'Must have 1-5 tags'
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        age:
+          type: integer

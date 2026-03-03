@@ -244,19 +244,21 @@ export function zodToOpenAPI(
     const z = `z.array(${item})`
     const unique =
       schema.uniqueItems === true ? '.refine((items)=>new Set(items).size===items.length)' : ''
+    const sizeMsg = schema['x-size-message']
+    const sizeErrArg = sizeMsg ? `,{error:${JSON.stringify(sizeMsg)}}` : ''
     if (typeof schema.minItems === 'number' && typeof schema.maxItems === 'number') {
       return schema.minItems === schema.maxItems
-        ? wrap(`${z}.length(${schema.minItems})${unique}${readonlyMod}`, schema, meta)
+        ? wrap(`${z}.length(${schema.minItems}${sizeErrArg})${unique}${readonlyMod}`, schema, meta)
         : wrap(
-            `${z}.min(${schema.minItems}).max(${schema.maxItems})${unique}${readonlyMod}`,
+            `${z}.min(${schema.minItems}${sizeErrArg}).max(${schema.maxItems}${sizeErrArg})${unique}${readonlyMod}`,
             schema,
             meta,
           )
     }
     if (typeof schema.minItems === 'number')
-      return wrap(`${z}.min(${schema.minItems})${unique}${readonlyMod}`, schema, meta)
+      return wrap(`${z}.min(${schema.minItems}${sizeErrArg})${unique}${readonlyMod}`, schema, meta)
     if (typeof schema.maxItems === 'number')
-      return wrap(`${z}.max(${schema.maxItems})${unique}${readonlyMod}`, schema, meta)
+      return wrap(`${z}.max(${schema.maxItems}${sizeErrArg})${unique}${readonlyMod}`, schema, meta)
     return wrap(`${z}${unique}${readonlyMod}`, schema, meta)
   }
   /* object */

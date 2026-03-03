@@ -31,6 +31,18 @@ const FORMAT_STRING: { readonly [k: string]: string } = {
   trim: 'trim()',
 }
 
+// Transform formats that do not accept error messages
+const TRANSFORM_FORMATS = new Set(['toLowerCase', 'toUpperCase', 'trim'])
+
+/**
+ * Formats an error message argument using the Zod v4 unified `error` parameter.
+ *
+ * @returns `{error:"msg"}` or empty string if no message
+ */
+function errorArg(msg: string | undefined): string {
+  return msg ? `{error:${JSON.stringify(msg)}}` : ''
+}
+
 /**
  * Builds a Zod string schema from an OpenAPI string schema definition.
  *
@@ -38,6 +50,8 @@ const FORMAT_STRING: { readonly [k: string]: string } = {
  * - If `schema.pattern` is set, appends `.regex(...)` using the `regex()` helper
  * - If `minLength` and `maxLength` are defined and equal, appends `.length(n)`
  * - Otherwise, appends `.min(n)` and/or `.max(n)` individually
+ * - Supports `x-error-message`, `x-pattern-message`, and `x-size-message` vendor extensions
+ *   using the Zod v4 unified `{ error: "msg" }` parameter
  * - Returns the concatenated Zod schema string
  *
  * @example
@@ -52,26 +66,46 @@ const FORMAT_STRING: { readonly [k: string]: string } = {
  */
 export function string(schema: Schema): string {
   const format = schema.format && FORMAT_STRING[schema.format]
-  const base = format ? `z.${format}` : 'z.string()'
+  const xErrorMessage = schema['x-error-message']
 
+  // Apply x-error-message to format validators (not transforms)
+  const base = (() => {
+    if (!format) return 'z.string()'
+    if (xErrorMessage && !TRANSFORM_FORMATS.has(schema.format as string)) {
+      const arg = errorArg(xErrorMessage)
+      return `z.${format.replace(/\(\)$/, `(${arg})`)}`
+    }
+    return `z.${format}`
+  })()
+
+  const patternMessage = schema['x-pattern-message']
   // Add 'u' flag for Unicode property escapes (\p{...} or \P{...})
   const hasUnicodeProperty = schema.pattern && /\\[pP]\{/.test(schema.pattern)
+  const patternMsgPart = patternMessage ? `,${errorArg(patternMessage)}` : ''
   const pattern = schema.pattern
-    ? `.regex(/${schema.pattern.replace(/(?<!\\)\//g, '\\/')}/${hasUnicodeProperty ? 'u' : ''})`
+    ? `.regex(/${schema.pattern.replace(/(?<!\\)\//g, '\\/')}/${hasUnicodeProperty ? 'u' : ''}${patternMsgPart})`
     : undefined
+
+  const sizeMessage = schema['x-size-message']
 
   const isFixedLength =
     schema.minLength !== undefined &&
     schema.maxLength !== undefined &&
     schema.minLength === schema.maxLength
 
+  const sizeMsgPart = sizeMessage ? `,${errorArg(sizeMessage)}` : ''
+
   return [
     base,
     pattern,
     // minLength === maxLength → .length(n)
-    isFixedLength ? `.length(${schema.minLength})` : undefined,
-    !isFixedLength && schema.minLength !== undefined ? `.min(${schema.minLength})` : undefined,
-    !isFixedLength && schema.maxLength !== undefined ? `.max(${schema.maxLength})` : undefined,
+    isFixedLength ? `.length(${schema.minLength}${sizeMsgPart})` : undefined,
+    !isFixedLength && schema.minLength !== undefined
+      ? `.min(${schema.minLength}${sizeMsgPart})`
+      : undefined,
+    !isFixedLength && schema.maxLength !== undefined
+      ? `.max(${schema.maxLength}${sizeMsgPart})`
+      : undefined,
   ]
     .filter((v) => v !== undefined)
     .join('')

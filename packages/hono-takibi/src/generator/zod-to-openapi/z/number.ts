@@ -1,9 +1,20 @@
 import type { Schema } from '../../../openapi/index.js'
 
 /**
+ * Formats an error message argument using the Zod v4 unified `error` parameter.
+ *
+ * @returns `{error:"msg"}` or empty string if no message
+ */
+function errorArg(msg: string | undefined): string {
+  return msg ? `{error:${JSON.stringify(msg)}}` : ''
+}
+
+/**
  * Generates a Zod schema for number types based on OpenAPI schema.
  *
  * Supports float, float32, float64, and number formats with constraints.
+ * Supports `x-minimum-message` and `x-maximum-message` vendor extensions
+ * using the Zod v4 unified `{ error: "msg" }` parameter.
  *
  * @param schema - The OpenAPI schema object
  * @returns The Zod schema string
@@ -31,40 +42,48 @@ export function number(schema: Schema): string {
         ? 'z.float64()'
         : 'z.number()'
 
+  const minMsg = schema['x-minimum-message']
+  const minErrArg = errorArg(minMsg)
+  const minErrPart = minMsg ? `,${minErrArg}` : ''
+
   const minimum = (() => {
     if (schema.minimum !== undefined) {
       if (schema.minimum === 0 && schema.exclusiveMinimum === true) {
-        return '.positive()'
+        return `.positive(${minErrArg})`
       }
       if (schema.minimum === 0 && schema.exclusiveMinimum === false) {
-        return '.nonnegative()'
+        return `.nonnegative(${minErrArg})`
       }
       if (schema.exclusiveMinimum === true) {
-        return `.gt(${schema.minimum})`
+        return `.gt(${schema.minimum}${minErrPart})`
       }
-      return `.min(${schema.minimum})`
+      return `.min(${schema.minimum}${minErrPart})`
     }
     if (typeof schema.exclusiveMinimum === 'number') {
-      return `.gt(${schema.exclusiveMinimum})`
+      return `.gt(${schema.exclusiveMinimum}${minErrPart})`
     }
     return undefined
   })()
 
+  const maxMsg = schema['x-maximum-message']
+  const maxErrArg = errorArg(maxMsg)
+  const maxErrPart = maxMsg ? `,${maxErrArg}` : ''
+
   const maximum = (() => {
     if (schema.maximum !== undefined) {
       if (schema.maximum === 0 && schema.exclusiveMaximum === true) {
-        return '.negative()'
+        return `.negative(${maxErrArg})`
       }
       if (schema.maximum === 0 && schema.exclusiveMaximum === false) {
-        return '.nonpositive()'
+        return `.nonpositive(${maxErrArg})`
       }
       if (schema.exclusiveMaximum === true) {
-        return `.lt(${schema.maximum})`
+        return `.lt(${schema.maximum}${maxErrPart})`
       }
-      return `.max(${schema.maximum})`
+      return `.max(${schema.maximum}${maxErrPart})`
     }
     if (typeof schema.exclusiveMaximum === 'number') {
-      return `.lt(${schema.exclusiveMaximum})`
+      return `.lt(${schema.exclusiveMaximum}${maxErrPart})`
     }
     return undefined
   })()

@@ -43,3 +43,104 @@ describe('type: number, format: float', () => {
     expect(number(input)).toBe(expected)
   })
 })
+
+describe('x-minimum-message', () => {
+  it.concurrent.each<[Schema, string]>([
+    [
+      { type: 'number', minimum: 0, 'x-minimum-message': '0以上' },
+      'z.number().min(0,{error:"0以上"})',
+    ],
+    [
+      {
+        type: 'number',
+        minimum: 0,
+        exclusiveMinimum: true,
+        'x-minimum-message': '正の数',
+      },
+      'z.number().positive({error:"正の数"})',
+    ],
+    [
+      {
+        type: 'number',
+        minimum: 0,
+        exclusiveMinimum: false,
+        'x-minimum-message': '非負',
+      },
+      'z.number().nonnegative({error:"非負"})',
+    ],
+    [
+      {
+        type: 'number',
+        minimum: 100,
+        exclusiveMinimum: true,
+        'x-minimum-message': '100超',
+      },
+      'z.number().gt(100,{error:"100超"})',
+    ],
+    [
+      { type: 'number', exclusiveMinimum: 5, 'x-minimum-message': '5超' },
+      'z.number().gt(5,{error:"5超"})',
+    ],
+  ])('number(%o) → %s', (input, expected) => {
+    expect(number(input)).toBe(expected)
+  })
+})
+
+describe('x-maximum-message', () => {
+  it.concurrent.each<[Schema, string]>([
+    [
+      { type: 'number', maximum: 100, 'x-maximum-message': '100以下' },
+      'z.number().max(100,{error:"100以下"})',
+    ],
+    [
+      {
+        type: 'number',
+        maximum: 0,
+        exclusiveMaximum: true,
+        'x-maximum-message': '負の数',
+      },
+      'z.number().negative({error:"負の数"})',
+    ],
+    [
+      {
+        type: 'number',
+        maximum: 0,
+        exclusiveMaximum: false,
+        'x-maximum-message': '非正',
+      },
+      'z.number().nonpositive({error:"非正"})',
+    ],
+    [
+      {
+        type: 'number',
+        maximum: 100,
+        exclusiveMaximum: true,
+        'x-maximum-message': '100未満',
+      },
+      'z.number().lt(100,{error:"100未満"})',
+    ],
+    [
+      { type: 'number', exclusiveMaximum: 50, 'x-maximum-message': '50未満' },
+      'z.number().lt(50,{error:"50未満"})',
+    ],
+  ])('number(%o) → %s', (input, expected) => {
+    expect(number(input)).toBe(expected)
+  })
+})
+
+describe('x-minimum-message and x-maximum-message combined', () => {
+  it.concurrent.each<[Schema, string]>([
+    [
+      {
+        type: 'number',
+        minimum: 0,
+        maximum: 100,
+        'x-minimum-message': '0以上',
+        'x-maximum-message': '100以下',
+      },
+      'z.number().min(0,{error:"0以上"}).max(100,{error:"100以下"})',
+    ],
+  ])('number(%o) → %s', (input, expected) => {
+    expect(number(input)).toBe(expected)
+  })
+})

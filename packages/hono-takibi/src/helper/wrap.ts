@@ -147,6 +147,11 @@ export function wrap(
     'const',
     '$ref',
     'prefixItems',
+    'x-error-message',
+    'x-size-message',
+    'x-pattern-message',
+    'x-minimum-message',
+    'x-maximum-message',
   ])
 
   const baseArgs = Object.fromEntries(

@@ -486,6 +486,12 @@ export type Schema = {
   }
   readonly contentEncoding?: string
   readonly contentMediaType?: string
+  // Vendor extensions for custom validation messages (OpenAPI Generator compatible)
+  readonly 'x-error-message'?: string
+  readonly 'x-size-message'?: string
+  readonly 'x-pattern-message'?: string
+  readonly 'x-minimum-message'?: string
+  readonly 'x-maximum-message'?: string
 }
 
 export type Parameter = {

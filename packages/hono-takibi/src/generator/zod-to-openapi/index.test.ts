@@ -872,6 +872,111 @@ describe('zodToOpenAPI', () => {
         })
       })
 
+      // x-* vendor extensions for custom validation messages
+      describe('x-* vendor extensions', () => {
+        it.concurrent.each<[Schema, string]>([
+          // x-error-message on format
+          [
+            { type: 'string', format: 'email', 'x-error-message': 'Invalid email' },
+            'z.email({error:"Invalid email"})',
+          ],
+          // x-size-message on string
+          [
+            { type: 'string', minLength: 3, maxLength: 20, 'x-size-message': '3-20 chars' },
+            'z.string().min(3,{error:"3-20 chars"}).max(20,{error:"3-20 chars"})',
+          ],
+          // x-pattern-message on string
+          [
+            { type: 'string', pattern: '^[a-z]+$', 'x-pattern-message': 'lowercase only' },
+            'z.string().regex(/^[a-z]+$/,{error:"lowercase only"})',
+          ],
+          // x-minimum-message on number
+          [
+            { type: 'number', minimum: 0, 'x-minimum-message': 'Must be >= 0' },
+            'z.number().min(0,{error:"Must be >= 0"})',
+          ],
+          // x-maximum-message on number
+          [
+            { type: 'number', maximum: 100, 'x-maximum-message': 'Must be <= 100' },
+            'z.number().max(100,{error:"Must be <= 100"})',
+          ],
+          // x-minimum-message on integer
+          [
+            { type: 'integer', minimum: 1, 'x-minimum-message': '1以上' },
+            'z.int().min(1,{error:"1以上"})',
+          ],
+          // x-maximum-message on int64
+          [
+            { type: 'integer', format: 'int64', maximum: 100, 'x-maximum-message': '100以下' },
+            'z.int64().max(100n,{error:"100以下"})',
+          ],
+          // x-error-message with description (description goes to .openapi(), message stays in validator)
+          [
+            {
+              type: 'string',
+              format: 'email',
+              'x-error-message': 'メール不正',
+              description: 'User email',
+            },
+            'z.email({error:"メール不正"}).openapi({"description":"User email"})',
+          ],
+          // x-size-message with fixed length
+          [
+            { type: 'string', minLength: 5, maxLength: 5, 'x-size-message': 'Exactly 5' },
+            'z.string().length(5,{error:"Exactly 5"})',
+          ],
+        ])('zodToOpenAPI(%o) → %s', (input, expected) => {
+          expect(zodToOpenAPI(input)).toBe(expected)
+        })
+      })
+
+      // x-size-message on array
+      describe('x-size-message on array', () => {
+        // biome-ignore lint: test
+        it.concurrent.each<[any, string]>([
+          [
+            {
+              type: 'array',
+              items: { type: 'string' },
+              minItems: 1,
+              maxItems: 10,
+              'x-size-message': '1-10 items',
+            },
+            'z.array(z.string()).min(1,{error:"1-10 items"}).max(10,{error:"1-10 items"})',
+          ],
+          [
+            {
+              type: 'array',
+              items: { type: 'string' },
+              minItems: 3,
+              maxItems: 3,
+              'x-size-message': 'Exactly 3',
+            },
+            'z.array(z.string()).length(3,{error:"Exactly 3"})',
+          ],
+          [
+            {
+              type: 'array',
+              items: { type: 'number' },
+              minItems: 1,
+              'x-size-message': 'At least 1',
+            },
+            'z.array(z.number()).min(1,{error:"At least 1"})',
+          ],
+          [
+            {
+              type: 'array',
+              items: { type: 'number' },
+              maxItems: 5,
+              'x-size-message': 'At most 5',
+            },
+            'z.array(z.number()).max(5,{error:"At most 5"})',
+          ],
+        ])('zodToOpenAPI(%o) → %s', (input, expected) => {
+          expect(zodToOpenAPI(input)).toBe(expected)
+        })
+      })
+
       // with description and example
       describe('with meta info', () => {
         it.concurrent.each<[Schema, string]>([

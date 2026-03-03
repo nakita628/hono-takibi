@@ -470,6 +470,69 @@ describe('wrap', () => {
     })
   })
 
+  describe('x-* vendor extensions excluded from .openapi()', () => {
+    it.concurrent('should not include x-error-message in openapi()', () => {
+      const result = wrap('z.email({error:"メール不正"})', {
+        type: 'string',
+        format: 'email',
+        'x-error-message': 'メール不正',
+        description: 'Email field',
+      })
+      expect(result).toBe('z.email({error:"メール不正"}).openapi({"description":"Email field"})')
+    })
+
+    it.concurrent('should not include x-size-message in openapi()', () => {
+      const result = wrap('z.string().min(3,{error:"3-20文字"}).max(20,{error:"3-20文字"})', {
+        type: 'string',
+        minLength: 3,
+        maxLength: 20,
+        'x-size-message': '3-20文字',
+      })
+      expect(result).toBe('z.string().min(3,{error:"3-20文字"}).max(20,{error:"3-20文字"})')
+    })
+
+    it.concurrent('should not include x-pattern-message in openapi()', () => {
+      const result = wrap('z.string().regex(/^[a-z]+$/,{error:"小文字のみ"})', {
+        type: 'string',
+        pattern: '^[a-z]+$',
+        'x-pattern-message': '小文字のみ',
+      })
+      expect(result).toBe('z.string().regex(/^[a-z]+$/,{error:"小文字のみ"})')
+    })
+
+    it.concurrent('should not include x-minimum-message in openapi()', () => {
+      const result = wrap('z.number().min(0,{error:"0以上"})', {
+        type: 'number',
+        minimum: 0,
+        'x-minimum-message': '0以上',
+      })
+      expect(result).toBe('z.number().min(0,{error:"0以上"})')
+    })
+
+    it.concurrent('should not include x-maximum-message in openapi()', () => {
+      const result = wrap('z.number().max(100,{error:"100以下"})', {
+        type: 'number',
+        maximum: 100,
+        'x-maximum-message': '100以下',
+      })
+      expect(result).toBe('z.number().max(100,{error:"100以下"})')
+    })
+
+    it.concurrent('should not include any x-* messages in openapi() with description', () => {
+      const result = wrap('z.number().min(0,{error:"0以上"}).max(100,{error:"100以下"})', {
+        type: 'number',
+        minimum: 0,
+        maximum: 100,
+        'x-minimum-message': '0以上',
+        'x-maximum-message': '100以下',
+        description: 'A number field',
+      })
+      expect(result).toBe(
+        'z.number().min(0,{error:"0以上"}).max(100,{error:"100以下"}).openapi({"description":"A number field"})',
+      )
+    })
+  })
+
   describe('parameters required combinations', () => {
     it.concurrent('should handle path parameter (always required implicitly)', () => {
       const testParameter: Parameter = {
