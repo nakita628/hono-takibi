@@ -266,9 +266,7 @@ export function zodToOpenAPISchema(
     ? `export const ${schemaName}=${zodSchema}${readonlyModifier}.openapi('${typeName}')`
     : `const ${schemaName}=${zodSchema}${readonlyModifier}.openapi('${typeName}')`
   // zod infer code
-  const zodInferCode = exportType
-    ? `\n\nexport type ${typeName}=z.infer<typeof ${schemaName}>`
-    : ''
+  const zodInferCode = exportType ? `\n\nexport type ${typeName}=z.infer<typeof ${schemaName}>` : ''
 
   if (notComponentSchema) return `${schemaCode}${zodInferCode}`
   return `${componentSchemaCode}${zodInferCode}`

@@ -1,5 +1,4 @@
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
-import { applyNumberCoerce } from './coerce.js'
 import { isOperation, isRecord, isRefObject } from '../guard/index.js'
 import type {
   Callbacks,
@@ -22,6 +21,7 @@ import {
   requestParamsArray,
   toIdentifierPascalCase,
 } from '../utils/index.js'
+import { applyNumberCoerce } from './coerce.js'
 
 /**
  * Converts an OpenAPI `$ref` string to a variable name with the appropriate suffix.
@@ -179,6 +179,7 @@ export function makeResponses(responses: Responses) {
 
   const result = [
     responses.summary ? `summary:${JSON.stringify(responses.summary)}` : undefined,
+    // Always include description: ResponseConfig requires it (OpenAPI 3.0 §Response Object REQUIRED field)
     `description:${JSON.stringify(responses.description || '')}`,
     responses.headers ? `headers:${makeHeaderResponses(responses.headers)}` : undefined,
     responses.content ? `content:{${makeContent(responses.content)}}` : undefined,

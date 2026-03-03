@@ -55,8 +55,7 @@ export function parametersCode(
             ? baseSchema.replace('boolean', 'stringbool')
             : parameter.in === 'query' && schema?.type === 'date'
               ? `z.coerce.${baseSchema.replace('z.', '')}`
-              : parameter.in === 'query' &&
-                  (schema?.type === 'object' || schema?.type === 'array')
+              : parameter.in === 'query' && (schema?.type === 'object' || schema?.type === 'array')
                 ? baseSchema
                     .replace(
                       /z\.(int\d*)\(\)((?:\.(?:min|max|gt|lt|positive|negative|nonnegative|nonpositive|multipleOf)\([^)]*\))*)/g,

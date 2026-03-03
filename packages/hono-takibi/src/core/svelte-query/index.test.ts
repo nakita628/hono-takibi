@@ -1384,16 +1384,12 @@ describe('svelteQuery (path parameters)', () => {
           '/users/{id}': {
             get: {
               summary: 'Get user',
-              parameters: [
-                { name: 'id', in: 'path', required: true, schema: { type: 'string' } },
-              ],
+              parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
               responses: { '200': { description: 'OK' } },
             },
             delete: {
               summary: 'Delete user',
-              parameters: [
-                { name: 'id', in: 'path', required: true, schema: { type: 'string' } },
-              ],
+              parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
               responses: { '204': { description: 'Deleted' } },
             },
           },

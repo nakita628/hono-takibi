@@ -25,23 +25,17 @@ describe('applyNumberCoerce', () => {
       )
     })
 
-    it.concurrent(
-      'z.float32() with constraints → z.coerce.number().pipe(z.float32() with constraints)',
-      () => {
-        expect(applyNumberCoerce('z.float32().min(0).max(1)', 'number', 'float')).toBe(
-          'z.coerce.number().pipe(z.float32().min(0).max(1))',
-        )
-      },
-    )
+    it.concurrent('z.float32() with constraints → z.coerce.number().pipe(z.float32() with constraints)', () => {
+      expect(applyNumberCoerce('z.float32().min(0).max(1)', 'number', 'float')).toBe(
+        'z.coerce.number().pipe(z.float32().min(0).max(1))',
+      )
+    })
 
-    it.concurrent(
-      'z.float32() with suffix → z.coerce.number().pipe(z.float32()) with suffix',
-      () => {
-        expect(
-          applyNumberCoerce('z.float32().exactOptional().openapi({})', 'number', 'float'),
-        ).toBe('z.coerce.number().pipe(z.float32()).exactOptional().openapi({})')
-      },
-    )
+    it.concurrent('z.float32() with suffix → z.coerce.number().pipe(z.float32()) with suffix', () => {
+      expect(applyNumberCoerce('z.float32().exactOptional().openapi({})', 'number', 'float')).toBe(
+        'z.coerce.number().pipe(z.float32()).exactOptional().openapi({})',
+      )
+    })
 
     it.concurrent('z.float64() → z.coerce.number().pipe(z.float64())', () => {
       expect(applyNumberCoerce('z.float64()', 'number', 'float64')).toBe(
@@ -49,14 +43,11 @@ describe('applyNumberCoerce', () => {
       )
     })
 
-    it.concurrent(
-      'z.float64() with constraints → z.coerce.number().pipe(z.float64() with constraints)',
-      () => {
-        expect(applyNumberCoerce('z.float64().min(0)', 'number', 'float64')).toBe(
-          'z.coerce.number().pipe(z.float64().min(0))',
-        )
-      },
-    )
+    it.concurrent('z.float64() with constraints → z.coerce.number().pipe(z.float64() with constraints)', () => {
+      expect(applyNumberCoerce('z.float64().min(0)', 'number', 'float64')).toBe(
+        'z.coerce.number().pipe(z.float64().min(0))',
+      )
+    })
   })
 
   describe('integer type', () => {
@@ -64,23 +55,17 @@ describe('applyNumberCoerce', () => {
       expect(applyNumberCoerce('z.int()', 'integer')).toBe('z.coerce.number().pipe(z.int())')
     })
 
-    it.concurrent(
-      'z.int() with constraints → z.coerce.number().pipe(z.int() with constraints)',
-      () => {
-        expect(applyNumberCoerce('z.int().min(1)', 'integer')).toBe(
-          'z.coerce.number().pipe(z.int().min(1))',
-        )
-      },
-    )
+    it.concurrent('z.int() with constraints → z.coerce.number().pipe(z.int() with constraints)', () => {
+      expect(applyNumberCoerce('z.int().min(1)', 'integer')).toBe(
+        'z.coerce.number().pipe(z.int().min(1))',
+      )
+    })
 
-    it.concurrent(
-      'z.int() with suffix → z.coerce.number().pipe(z.int()) with suffix',
-      () => {
-        expect(
-          applyNumberCoerce('z.int().exactOptional().openapi({})', 'integer'),
-        ).toBe('z.coerce.number().pipe(z.int()).exactOptional().openapi({})')
-      },
-    )
+    it.concurrent('z.int() with suffix → z.coerce.number().pipe(z.int()) with suffix', () => {
+      expect(applyNumberCoerce('z.int().exactOptional().openapi({})', 'integer')).toBe(
+        'z.coerce.number().pipe(z.int()).exactOptional().openapi({})',
+      )
+    })
 
     it.concurrent('z.int32() → z.coerce.number().pipe(z.int32())', () => {
       expect(applyNumberCoerce('z.int32()', 'integer', 'int32')).toBe(

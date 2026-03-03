@@ -107,11 +107,7 @@ function makeQueryKeyGetterName(method: string, pathStr: string, isSWR?: boolean
  * @param pathStr - API path
  * @returns Infinite query key getter function name (e.g., "getGetUsersInfiniteQueryKey")
  */
-function makeInfiniteQueryKeyGetterName(
-  method: string,
-  pathStr: string,
-  isSWR?: boolean,
-): string {
+function makeInfiniteQueryKeyGetterName(method: string, pathStr: string, isSWR?: boolean): string {
   const funcName = methodPath(method, pathStr)
   return isSWR
     ? `get${capitalize(funcName)}InfiniteKey`
@@ -378,9 +374,7 @@ function makeSWRInfiniteHookCode(
   const swrConfigType = `SWRInfiniteConfiguration<${responseType},${errorType}>&{swrKey?:SWRInfiniteKeyLoader}`
   const optionsSig = `options:{swr?:${swrConfigType};options?:ClientRequestOptions}`
 
-  const keyCall = hasArgs
-    ? `${infiniteKeyGetterName}(args)`
-    : `${infiniteKeyGetterName}()`
+  const keyCall = hasArgs ? `${infiniteKeyGetterName}(args)` : `${infiniteKeyGetterName}()`
   const fetcherCall = hasArgs
     ? `${parseResponseFuncName}(args,clientOptions)`
     : `${parseResponseFuncName}(clientOptions)`
@@ -1277,12 +1271,8 @@ function makeHeader(
   // Type imports for options - UseQueryOptions, UseMutationOptions, QueryFunctionContext
   const typeImports = [
     ...(hasQuery ? [config.useQueryOptionsType, 'QueryFunctionContext'] : []),
-    ...(hasQuery && config.useSuspenseQueryOptionsType
-      ? [config.useSuspenseQueryOptionsType]
-      : []),
-    ...(hasQuery && config.useInfiniteQueryOptionsType
-      ? [config.useInfiniteQueryOptionsType]
-      : []),
+    ...(hasQuery && config.useSuspenseQueryOptionsType ? [config.useSuspenseQueryOptionsType] : []),
+    ...(hasQuery && config.useInfiniteQueryOptionsType ? [config.useInfiniteQueryOptionsType] : []),
     ...(hasQuery && config.useSuspenseInfiniteQueryOptionsType
       ? [config.useSuspenseInfiniteQueryOptionsType]
       : []),
@@ -1304,7 +1294,9 @@ function makeHeader(
       ? [`import type{${typeImports.join(',')}}from'${config.packageName}'`]
       : []),
     // Vue Query needs MaybeRefOrGetter type and toValue from 'vue' for queryKey generation (only when query has args)
-    ...(needsVueImports ? ["import{toValue}from'vue'", "import type{MaybeRefOrGetter}from'vue'"] : []),
+    ...(needsVueImports
+      ? ["import{toValue}from'vue'", "import type{MaybeRefOrGetter}from'vue'"]
+      : []),
     `import type{${honoTypeImports.join(',')}}from'hono/client'`,
     `import{parseResponse}from'hono/client'`,
     `import{${clientName}}from'${importPath}'`,
