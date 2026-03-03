@@ -32,6 +32,6 @@ describe('linksCode', () => {
       },
     }
     const result = linksCode(components, false)
-    expect(result).toBe(`const SimpleLink={operationId:"simpleOp"}`)
+    expect(result).toBe(`const SimpleLinkLink={operationId:"simpleOp"}`)
   })
 })

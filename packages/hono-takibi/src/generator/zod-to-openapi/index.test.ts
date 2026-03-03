@@ -545,9 +545,9 @@ describe('zodToOpenAPI', () => {
         [{ type: 'string', default: 'test' }, 'z.string().default("test")'],
         [
           { type: 'string', default: 'test', nullable: true },
-          'z.string().default("test").nullable()',
+          'z.string().nullable().default("test")',
         ],
-        [{ type: ['string', 'null'], default: 'test' }, 'z.string().default("test").nullable()'],
+        [{ type: ['string', 'null'], default: 'test' }, 'z.string().nullable().default("test")'],
         [{ type: 'string', format: 'email' }, 'z.email()'],
         [{ type: 'string', format: 'uuid' }, 'z.uuid()'],
         [{ type: 'string', format: 'uuidv4' }, 'z.uuidv4()'],
@@ -594,9 +594,9 @@ describe('zodToOpenAPI', () => {
             [{ type: 'number', default: 100 }, 'z.number().default(100)'],
             [
               { type: 'number', default: 100, nullable: true },
-              'z.number().default(100).nullable()',
+              'z.number().nullable().default(100)',
             ],
-            [{ type: ['number', 'null'], default: 100 }, 'z.number().default(100).nullable()'],
+            [{ type: ['number', 'null'], default: 100 }, 'z.number().nullable().default(100)'],
           ])('zodToOpenAPI(%o) → %s', (input, expected) => {
             expect(zodToOpenAPI(input)).toBe(expected)
           })
@@ -642,8 +642,8 @@ describe('zodToOpenAPI', () => {
             [{ type: 'integer', exclusiveMaximum: 100 }, 'z.int().lt(100)'],
             [{ type: 'integer', multipleOf: 2 }, 'z.int().multipleOf(2)'],
             [{ type: 'integer', default: 100 }, 'z.int().default(100)'],
-            [{ type: 'integer', default: 100, nullable: true }, 'z.int().default(100).nullable()'],
-            [{ type: ['integer', 'null'], default: 100 }, 'z.int().default(100).nullable()'],
+            [{ type: 'integer', default: 100, nullable: true }, 'z.int().nullable().default(100)'],
+            [{ type: ['integer', 'null'], default: 100 }, 'z.int().nullable().default(100)'],
           ])('zodToOpenAPI(%o) → %s', (input, expected) => {
             expect(zodToOpenAPI(input)).toBe(expected)
           })
@@ -687,11 +687,11 @@ describe('zodToOpenAPI', () => {
             [{ type: 'integer', format: 'int32', default: 100 }, 'z.int32().default(100)'],
             [
               { type: 'integer', format: 'int32', default: 100, nullable: true },
-              'z.int32().default(100).nullable()',
+              'z.int32().nullable().default(100)',
             ],
             [
               { type: ['integer', 'null'], format: 'int32', default: 100 },
-              'z.int32().default(100).nullable()',
+              'z.int32().nullable().default(100)',
             ],
           ])('zodToOpenAPI(%o) → %s', (input, expected) => {
             expect(zodToOpenAPI(input)).toBe(expected)
@@ -736,11 +736,11 @@ describe('zodToOpenAPI', () => {
             [{ type: 'integer', format: 'int64', default: 100 }, 'z.int64().default(100n)'],
             [
               { type: 'integer', format: 'int64', default: 100, nullable: true },
-              'z.int64().default(100n).nullable()',
+              'z.int64().nullable().default(100n)',
             ],
             [
               { type: ['integer', 'null'], format: 'int64', default: 100 },
-              'z.int64().default(100n).nullable()',
+              'z.int64().nullable().default(100n)',
             ],
           ])('zodToOpenAPI(%o) → %s', (input, expected) => {
             expect(zodToOpenAPI(input)).toBe(expected)
@@ -757,9 +757,9 @@ describe('zodToOpenAPI', () => {
           [{ type: 'boolean', default: true }, 'z.boolean().default(true)'],
           [
             { type: 'boolean', default: true, nullable: true },
-            'z.boolean().default(true).nullable()',
+            'z.boolean().nullable().default(true)',
           ],
-          [{ type: ['boolean', 'null'], default: true }, 'z.boolean().default(true).nullable()'],
+          [{ type: ['boolean', 'null'], default: true }, 'z.boolean().nullable().default(true)'],
         ])('zodToOpenAPI(%o) → %s', (input, expected) => {
           expect(zodToOpenAPI(input)).toBe(expected)
         })
@@ -793,8 +793,8 @@ describe('zodToOpenAPI', () => {
             'z.record(z.string(),z.string())',
           ],
           [{ type: 'object', default: {} }, 'z.object({}).default({})'],
-          [{ type: 'object', default: {}, nullable: true }, 'z.object({}).default({}).nullable()'],
-          [{ type: ['object', 'null'], default: {} }, 'z.object({}).default({}).nullable()'],
+          [{ type: 'object', default: {}, nullable: true }, 'z.object({}).nullable().default({})'],
+          [{ type: ['object', 'null'], default: {} }, 'z.object({}).nullable().default({})'],
         ])('zodToOpenAPI(%o) → %s', (input, expected) => {
           expect(zodToOpenAPI(input)).toBe(expected)
         })
@@ -836,11 +836,11 @@ describe('zodToOpenAPI', () => {
           ],
           [
             { type: 'array', items: { type: 'string' }, default: [], nullable: true },
-            'z.array(z.string()).default([]).nullable()',
+            'z.array(z.string()).nullable().default([])',
           ],
           [
             { type: ['array', 'null'], items: { type: 'string' }, default: [] },
-            'z.array(z.string()).default([]).nullable()',
+            'z.array(z.string()).nullable().default([])',
           ],
         ])('zodToOpenAPI(%o) → %s', (input, expected) => {
           expect(zodToOpenAPI(input)).toBe(expected)
@@ -855,8 +855,8 @@ describe('zodToOpenAPI', () => {
           [{ type: 'any', nullable: true }, 'z.any().nullable()'],
           [{ type: ['any', 'null'] }, 'z.any().nullable()'],
           [{ type: 'any', default: 'test' }, 'z.any().default("test")'],
-          [{ type: 'any', nullable: true, default: 'test' }, 'z.any().default("test").nullable()'],
-          [{ type: ['any', 'null'], default: 'test' }, 'z.any().default("test").nullable()'],
+          [{ type: 'any', nullable: true, default: 'test' }, 'z.any().nullable().default("test")'],
+          [{ type: ['any', 'null'], default: 'test' }, 'z.any().nullable().default("test")'],
         ])('zodToOpenAPI(%o) → %s', (input, expected) => {
           expect(zodToOpenAPI(input)).toBe(expected)
         })

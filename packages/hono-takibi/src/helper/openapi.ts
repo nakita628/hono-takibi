@@ -179,7 +179,7 @@ export function makeResponses(responses: Responses) {
 
   const result = [
     responses.summary ? `summary:${JSON.stringify(responses.summary)}` : undefined,
-    responses.description ? `description:${JSON.stringify(responses.description)}` : undefined,
+    `description:${JSON.stringify(responses.description || '')}`,
     responses.headers ? `headers:${makeHeaderResponses(responses.headers)}` : undefined,
     responses.content ? `content:{${makeContent(responses.content)}}` : undefined,
     responses.links
@@ -562,7 +562,10 @@ export function makeParameters(parameters: readonly Parameter[]): {
       param.in === 'query' && (schema.type === 'number' || schema.type === 'integer')
         ? applyNumberCoerce(baseSchema, schema.type, schema.format)
         : param.in === 'query' && schema.type === 'boolean'
-          ? baseSchema.replace('boolean', 'stringbool')
+          ? baseSchema
+              .replace('boolean', 'stringbool')
+              .replace(/\.default\("true"\)/g, '.default(true)')
+              .replace(/\.default\("false"\)/g, '.default(false)')
           : param.in === 'query' && schema.type === 'date'
             ? `z.coerce.${baseSchema.replace('z.', '')}`
             : param.in === 'query' && (schema.type === 'object' || schema.type === 'array')

@@ -36,6 +36,11 @@ export function wrap(
     'contentMediaType',
     '$schema',
     '$id',
+    '$recursiveRef',
+    '$recursiveAnchor',
+    'optional',
+    'min_items',
+    'max_items',
   ])
 
   // Type guard for objects with 'not' property
@@ -99,14 +104,15 @@ export function wrap(
     return JSON.stringify(v)
   }
 
-  /* why schema.default !== undefined: because schema.default === 0 is falsy */
-  const s = schema.default !== undefined ? `${zod}.default(${formatLiteral(schema.default)})` : zod
-
   const isNullable =
     schema.nullable === true ||
     (Array.isArray(schema.type) ? schema.type.includes('null') : schema.type === 'null')
 
-  const z = isNullable ? `${s}.nullable()` : s
+  /* Apply .nullable() before .default() so that .default(null) is valid on nullable types */
+  const n = isNullable ? `${zod}.nullable()` : zod
+
+  /* why schema.default !== undefined: because schema.default === 0 is falsy */
+  const z = schema.default !== undefined ? `${n}.default(${formatLiteral(schema.default)})` : n
 
   // zod method chain already expressed properties (to prevent double management)
   const zodExpressedProps = new Set([

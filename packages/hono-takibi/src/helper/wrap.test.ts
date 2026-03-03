@@ -11,7 +11,7 @@ describe('wrap', () => {
           default: 'test',
           nullable: true,
         }),
-      ).toBe('z.string().default("test").nullable()')
+      ).toBe('z.string().nullable().default("test")')
     })
 
     it.concurrent('marks schema as nullable and adds default when type includes null', () => {
@@ -20,7 +20,7 @@ describe('wrap', () => {
           type: ['string', 'null'],
           default: 'test',
         }),
-      ).toBe('z.string().default("test").nullable()')
+      ).toBe('z.string().nullable().default("test")')
     })
   })
 
@@ -32,7 +32,7 @@ describe('wrap', () => {
           default: 0,
           nullable: true,
         }),
-      ).toBe('z.number().default(0).nullable()')
+      ).toBe('z.number().nullable().default(0)')
     })
 
     it.concurrent('marks schema as nullable and adds default when type includes null', () => {
@@ -41,7 +41,7 @@ describe('wrap', () => {
           type: ['number', 'null'],
           default: 0,
         }),
-      ).toBe('z.number().default(0).nullable()')
+      ).toBe('z.number().nullable().default(0)')
     })
   })
 
@@ -54,7 +54,7 @@ describe('wrap', () => {
           default: 0,
           nullable: true,
         }),
-      ).toBe('z.int32().default(0).nullable()')
+      ).toBe('z.int32().nullable().default(0)')
     })
 
     it.concurrent('marks schema as nullable and adds default for z.int32() when type includes null', () => {
@@ -64,7 +64,7 @@ describe('wrap', () => {
           format: 'int32',
           default: 0,
         }),
-      ).toBe('z.int32().default(0).nullable()')
+      ).toBe('z.int32().nullable().default(0)')
     })
   })
 
@@ -77,7 +77,7 @@ describe('wrap', () => {
           default: 0,
           nullable: true,
         }),
-      ).toBe('z.int64().default(0n).nullable()')
+      ).toBe('z.int64().nullable().default(0n)')
     })
 
     it.concurrent('handles default number and marks schema nullable when type includes null', () => {
@@ -87,7 +87,7 @@ describe('wrap', () => {
           format: 'int64',
           default: 0,
         }),
-      ).toBe('z.int64().default(0n).nullable()')
+      ).toBe('z.int64().nullable().default(0n)')
     })
 
     it.concurrent('uses BigInt default and adds .nullable for z.int64()', () => {
@@ -98,7 +98,7 @@ describe('wrap', () => {
           default: 0,
           nullable: true,
         }),
-      ).toBe('z.int64().default(0n).nullable()')
+      ).toBe('z.int64().nullable().default(0n)')
     })
 
     it.concurrent('uses BigInt default and marks schema nullable when type includes null', () => {
@@ -108,7 +108,7 @@ describe('wrap', () => {
           format: 'int64',
           default: 0,
         }),
-      ).toBe('z.int64().default(0n).nullable()')
+      ).toBe('z.int64().nullable().default(0n)')
     })
   })
 
@@ -121,7 +121,7 @@ describe('wrap', () => {
           default: 0,
           nullable: true,
         }),
-      ).toBe('z.bigint().default(BigInt(0)).nullable()')
+      ).toBe('z.bigint().nullable().default(BigInt(0))')
     })
 
     it.concurrent('handles BigInt default and marks schema nullable when type includes null', () => {
@@ -131,7 +131,7 @@ describe('wrap', () => {
           format: 'bigint',
           default: 0,
         }),
-      ).toBe('z.bigint().default(BigInt(0)).nullable()')
+      ).toBe('z.bigint().nullable().default(BigInt(0))')
     })
   })
 
@@ -143,7 +143,7 @@ describe('wrap', () => {
           default: true,
           nullable: true,
         }),
-      ).toBe('z.boolean().default(true).nullable()')
+      ).toBe('z.boolean().nullable().default(true)')
     })
 
     it.concurrent('marks schema as nullable and adds default when type includes null', () => {
@@ -152,7 +152,7 @@ describe('wrap', () => {
           type: ['boolean', 'null'],
           default: true,
         }),
-      ).toBe('z.boolean().default(true).nullable()')
+      ).toBe('z.boolean().nullable().default(true)')
     })
   })
 

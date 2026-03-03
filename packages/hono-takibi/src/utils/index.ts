@@ -207,21 +207,25 @@ export function escapeCommentEnd(text: string): string {
 }
 
 /**
- * Ensures that a string ends with the specified suffix.
+ * Appends a suffix to a string unconditionally.
  *
- * @param text - The string to check and potentially modify.
- * @param suffix - The suffix that the string should end with.
- * @returns The original string if it already ends with the suffix, otherwise the string with the suffix appended.
+ * Always concatenates the suffix to ensure unique variable names even when
+ * the original name already ends with the suffix (e.g., an OpenAPI schema
+ * named `UserSchema` must produce the variable `UserSchemaSchema`).
+ *
+ * @param text - The base string.
+ * @param suffix - The suffix to append.
+ * @returns The string with the suffix appended.
  *
  * @example
  * ```ts
- * ensureSuffix('User', 'Schema')     // → 'UserSchema'
- * ensureSuffix('UserSchema', 'Schema') // → 'UserSchema'
- * ensureSuffix('file', '.ts')        // → 'file.ts'
+ * ensureSuffix('User', 'Schema')           // → 'UserSchema'
+ * ensureSuffix('UserSchema', 'Schema')     // → 'UserSchemaSchema'
+ * ensureSuffix('file', '.ts')              // → 'file.ts'
  * ```
  */
 export function ensureSuffix(text: string, suffix: string): string {
-  return text.endsWith(suffix) ? text : `${text}${suffix}`
+  return `${text}${suffix}`
 }
 
 /**
@@ -256,13 +260,14 @@ export function zodToOpenAPISchema(
     ? `export const ${schemaName}=${zodSchema}${readonlyModifier}`
     : `const ${schemaName}=${zodSchema}${readonlyModifier}`
 
-  // schema code
+  // schema code — strip trailing 'Schema' suffix to get the OpenAPI type name
+  const typeName = schemaName.replace(/Schema$/, '')
   const componentSchemaCode = exportSchema
-    ? `export const ${schemaName}=${zodSchema}${readonlyModifier}.openapi('${schemaName.replace('Schema', '')}')`
-    : `const ${schemaName}=${zodSchema}${readonlyModifier}.openapi('${schemaName.replace('Schema', '')}')`
+    ? `export const ${schemaName}=${zodSchema}${readonlyModifier}.openapi('${typeName}')`
+    : `const ${schemaName}=${zodSchema}${readonlyModifier}.openapi('${typeName}')`
   // zod infer code
   const zodInferCode = exportType
-    ? `\n\nexport type ${schemaName.replace('Schema', '')}=z.infer<typeof ${schemaName}>`
+    ? `\n\nexport type ${typeName}=z.infer<typeof ${schemaName}>`
     : ''
 
   if (notComponentSchema) return `${schemaCode}${zodInferCode}`

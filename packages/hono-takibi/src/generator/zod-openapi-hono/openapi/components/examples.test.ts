@@ -21,7 +21,7 @@ describe('examplesCode', () => {
     }
     const result = examplesCode(components, true)
     expect(result).toBe(
-      `export const UserExample={"summary":"Example user","dataValue":{"id":1,"name":"John"},"serializedValue":"{\\"id\\":1,\\"name\\":\\"John\\"}","value":{"id":1,"name":"John"}}`,
+      `export const UserExampleExample={"summary":"Example user","dataValue":{"id":1,"name":"John"},"serializedValue":"{\\"id\\":1,\\"name\\":\\"John\\"}","value":{"id":1,"name":"John"}}`,
     )
   })
 
@@ -37,7 +37,7 @@ describe('examplesCode', () => {
     }
     const result = examplesCode(components, false)
     expect(result).toBe(
-      `const SimpleExample={"dataValue":"test","serializedValue":"\\"test\\"","value":"test"}`,
+      `const SimpleExampleExample={"dataValue":"test","serializedValue":"\\"test\\"","value":"test"}`,
     )
   })
 
@@ -50,7 +50,7 @@ describe('examplesCode', () => {
       },
     }
     const result = examplesCode(components, true, true)
-    expect(result).toBe(`export const UserExample={"value":{"id":1,"name":"John"}} as const`)
+    expect(result).toBe(`export const UserExampleExample={"value":{"id":1,"name":"John"}} as const`)
   })
 
   it('should not add as const for $ref example', () => {
@@ -86,7 +86,7 @@ describe('examplesCode', () => {
     }
     const result = examplesCode(components, true)
     expect(result).toBe(
-      `export const BaseExample={"dataValue":{"id":1,"name":"Base"},"serializedValue":"{\\"id\\":1,\\"name\\":\\"Base\\"}","value":{"id":1,"name":"Base"}}\n\nexport const AliasExample=BaseExample`,
+      `export const BaseExampleExample={"dataValue":{"id":1,"name":"Base"},"serializedValue":"{\\"id\\":1,\\"name\\":\\"Base\\"}","value":{"id":1,"name":"Base"}}\n\nexport const AliasExampleExample=BaseExampleExample`,
     )
   })
 
@@ -110,7 +110,7 @@ describe('examplesCode', () => {
     }
     const result = examplesCode(components, true)
     expect(result).toBe(
-      `export const FirstExample={"dataValue":{"data":"first"},"serializedValue":"{\\"data\\":\\"first\\"}","value":{"data":"first"}}\n\nexport const SecondExample=FirstExample\n\nexport const ThirdExample=SecondExample`,
+      `export const FirstExampleExample={"dataValue":{"data":"first"},"serializedValue":"{\\"data\\":\\"first\\"}","value":{"data":"first"}}\n\nexport const SecondExampleExample=FirstExampleExample\n\nexport const ThirdExampleExample=SecondExampleExample`,
     )
   })
 
@@ -135,7 +135,7 @@ describe('examplesCode', () => {
     }
     const result = examplesCode(components, true)
     expect(result).toBe(
-      `export const InlineExample={"dataValue":"inline","serializedValue":"\\"inline\\"","value":"inline"}\n\nexport const RefExample=InlineExample\n\nexport const AnotherInlineExample={"dataValue":"another","serializedValue":"\\"another\\"","value":"another"}`,
+      `export const InlineExampleExample={"dataValue":"inline","serializedValue":"\\"inline\\"","value":"inline"}\n\nexport const RefExampleExample=InlineExampleExample\n\nexport const AnotherInlineExample={"dataValue":"another","serializedValue":"\\"another\\"","value":"another"}`,
     )
   })
 
