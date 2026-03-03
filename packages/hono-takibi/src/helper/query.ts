@@ -343,15 +343,15 @@ function makeSWRQueryHookCode(
 ): string {
   const argsSig = hasArgs ? `args:${argsType},` : ''
   const swrConfigType = 'SWRConfiguration&{swrKey?:Key;enabled?:boolean}'
-  const optionsSig = `options?:{swr?:${swrConfigType};client?:ClientRequestOptions}`
+  const optionsSig = `options?:{swr?:${swrConfigType};options?:ClientRequestOptions}`
 
   const keyCall = hasArgs ? `${keyGetterName}(args)` : `${keyGetterName}()`
   const fetcherCall = hasArgs
-    ? `${parseResponseFuncName}(args,client)`
-    : `${parseResponseFuncName}(client)`
+    ? `${parseResponseFuncName}(args,clientOptions)`
+    : `${parseResponseFuncName}(clientOptions)`
 
   return `${docs}
-export function ${hookName}(${argsSig}${optionsSig}){const{swr:swrOptions,client}=options??{};const{swrKey:customKey,enabled,...restSwrOptions}=swrOptions??{};const isEnabled=enabled!==false;const swrKey=isEnabled?(customKey??${keyCall}):null;return{swrKey,...${queryFn}(swrKey,async()=>${fetcherCall},restSwrOptions)}}`
+export function ${hookName}(${argsSig}${optionsSig}){const{swr:swrOptions,options:clientOptions}=options??{};const{swrKey:customKey,enabled,...restSwrOptions}=swrOptions??{};const swrKey=enabled!==false?(customKey??${keyCall}):null;return{swrKey,...${queryFn}(swrKey,async()=>${fetcherCall},restSwrOptions)}}`
 }
 
 /* ─────────────────────────────── SWR Infinite Query Hook Code ─────────────────────────────── */
@@ -376,17 +376,17 @@ function makeSWRInfiniteHookCode(
 ): string {
   const argsSig = hasArgs ? `args:${argsType},` : ''
   const swrConfigType = `SWRInfiniteConfiguration<${responseType},${errorType}>&{swrKey?:SWRInfiniteKeyLoader}`
-  const optionsSig = `options:{swr?:${swrConfigType};client?:ClientRequestOptions}`
+  const optionsSig = `options:{swr?:${swrConfigType};options?:ClientRequestOptions}`
 
   const keyCall = hasArgs
     ? `${infiniteKeyGetterName}(args)`
     : `${infiniteKeyGetterName}()`
   const fetcherCall = hasArgs
-    ? `${parseResponseFuncName}(args,client)`
-    : `${parseResponseFuncName}(client)`
+    ? `${parseResponseFuncName}(args,clientOptions)`
+    : `${parseResponseFuncName}(clientOptions)`
 
   return `${docs}
-export function ${hookName}(${argsSig}${optionsSig}){const{swr:swrOptions,client}=options??{};const{swrKey:customKeyLoader,...restSwrOptions}=swrOptions??{};const keyLoader=customKeyLoader??((index:number)=>[...${keyCall},index]as const);return useSWRInfinite(keyLoader,async()=>${fetcherCall},restSwrOptions)}`
+export function ${hookName}(${argsSig}${optionsSig}){const{swr:swrOptions,options:clientOptions}=options??{};const{swrKey:customKeyLoader,...restSwrOptions}=swrOptions??{};const keyLoader=customKeyLoader??((index:number)=>[...${keyCall},index]as const);return useSWRInfinite(keyLoader,async()=>${fetcherCall},restSwrOptions)}`
 }
 
 /* ─────────────────────────────── Query Hook Code ─────────────────────────────── */
@@ -410,24 +410,24 @@ function makeQueryHookCode(
 
   // Use official TanStack Query options type
   const queryOptionsType = `${config.useQueryOptionsType}<${responseType},${errorType}>`
-  const optionsType = `{query?:${queryOptionsType};client?:ClientRequestOptions}`
+  const optionsType = `{query?:${queryOptionsType};options?:ClientRequestOptions}`
 
   // Svelte Query v5+ requires thunk pattern: createQuery(() => options)
   // Call options?.() once to avoid multiple evaluations (options could be a getter)
   if (config.useThunk) {
     const optionsGetterCall = hasArgs
-      ? `${optionsGetterName}(args,opts?.client)`
-      : `${optionsGetterName}(opts?.client)`
+      ? `${optionsGetterName}(args,clientOptions)`
+      : `${optionsGetterName}(clientOptions)`
     return `${docs}
-export function ${hookName}(${argsSig}options?:()=>${optionsType}){return ${config.queryFn}(()=>{const opts=options?.();return{...${optionsGetterCall},...opts?.query}})}`
+export function ${hookName}(${argsSig}options?:()=>${optionsType}){return ${config.queryFn}(()=>{const{query,options:clientOptions}=options?.()??{};return{...${optionsGetterCall},...query}})}`
   }
 
   // React TanStack Query / Vue Query: direct spread
   const optionsGetterCall = hasArgs
-    ? `${optionsGetterName}(args,client)`
-    : `${optionsGetterName}(client)`
+    ? `${optionsGetterName}(args,clientOptions)`
+    : `${optionsGetterName}(clientOptions)`
   return `${docs}
-export function ${hookName}(${argsSig}options?:${optionsType}){const{query,client}=options??{};return ${config.queryFn}({...${optionsGetterCall},...query})}`
+export function ${hookName}(${argsSig}options?:${optionsType}){const{query:queryOptions,options:clientOptions}=options??{};return ${config.queryFn}({...${optionsGetterCall},...queryOptions})}`
 }
 
 /* ─────────────────────────────── Suspense Query Hook Code ─────────────────────────────── */
@@ -449,22 +449,22 @@ function makeSuspenseQueryHookCode(
   const argsSig = hasArgs ? `args:${argsType},` : ''
   const errorType = config.errorType ?? 'Error'
   const queryOptionsType = `${config.useSuspenseQueryOptionsType}<${responseType},${errorType}>`
-  const optionsType = `{query?:${queryOptionsType};client?:ClientRequestOptions}`
-  const optionsGetterCall = hasArgs
-    ? `${optionsGetterName}(args,client)`
-    : `${optionsGetterName}(client)`
+  const optionsType = `{query?:${queryOptionsType};options?:ClientRequestOptions}`
 
   // Svelte Query v5+: thunk pattern createSuspenseQuery(() => options)
   if (config.useThunk) {
-    const optionsGetterCallThunk = hasArgs
-      ? `${optionsGetterName}(args,opts?.client)`
-      : `${optionsGetterName}(opts?.client)`
+    const optionsGetterCall = hasArgs
+      ? `${optionsGetterName}(args,clientOptions)`
+      : `${optionsGetterName}(clientOptions)`
     return `${docs}
-export function ${hookName}(${argsSig}options?:()=>${optionsType}){return ${config.suspenseQueryFn}(()=>{const opts=options?.();return{...${optionsGetterCallThunk},...opts?.query}})}`
+export function ${hookName}(${argsSig}options?:()=>${optionsType}){return ${config.suspenseQueryFn}(()=>{const{query,options:clientOptions}=options?.()??{};return{...${optionsGetterCall},...query}})}`
   }
 
+  const optionsGetterCall = hasArgs
+    ? `${optionsGetterName}(args,clientOptions)`
+    : `${optionsGetterName}(clientOptions)`
   return `${docs}
-export function ${hookName}(${argsSig}options?:${optionsType}){const{query,client}=options??{};return ${config.suspenseQueryFn}({...${optionsGetterCall},...query})}`
+export function ${hookName}(${argsSig}options?:${optionsType}){const{query:queryOptions,options:clientOptions}=options??{};return ${config.suspenseQueryFn}({...${optionsGetterCall},...queryOptions})}`
 }
 
 /* ─────────────────────────────── Infinite Query Options Getter ─────────────────────────────── */
@@ -557,23 +557,23 @@ function makeInfiniteQueryHookCode(
   const argsSig = hasArgs ? `args:${argsType},` : ''
   const errorType = config.errorType ?? 'Error'
   const queryOptionsType = `${config.useInfiniteQueryOptionsType}<${responseType},${errorType}>`
-  const optionsType = `{query:${queryOptionsType};client?:ClientRequestOptions}`
-  const optionsGetterCall = hasArgs
-    ? `${infiniteOptionsGetterName}(args,client)`
-    : `${infiniteOptionsGetterName}(client)`
+  const optionsType = `{query:${queryOptionsType};options?:ClientRequestOptions}`
 
   // Svelte Query v5+: thunk pattern — createInfiniteQuery(() => options)
   if (config.useThunk) {
-    const optionsGetterCallThunk = hasArgs
-      ? `${infiniteOptionsGetterName}(args,opts?.client)`
-      : `${infiniteOptionsGetterName}(opts?.client)`
+    const optionsGetterCall = hasArgs
+      ? `${infiniteOptionsGetterName}(args,clientOptions)`
+      : `${infiniteOptionsGetterName}(clientOptions)`
     return `${docs}
-export function ${hookName}(${argsSig}options:()=>${optionsType}){return ${config.infiniteQueryFn}(()=>{const opts=options();return{...${optionsGetterCallThunk},...opts.query}})}`
+export function ${hookName}(${argsSig}options:()=>${optionsType}){return ${config.infiniteQueryFn}(()=>{const{query,options:clientOptions}=options();return{...${optionsGetterCall},...query}})}`
   }
 
   // React TanStack Query / Vue Query: direct spread
+  const optionsGetterCall = hasArgs
+    ? `${infiniteOptionsGetterName}(args,clientOptions)`
+    : `${infiniteOptionsGetterName}(clientOptions)`
   return `${docs}
-export function ${hookName}(${argsSig}options:${optionsType}){const{query,client}=options;return ${config.infiniteQueryFn}({...${optionsGetterCall},...query})}`
+export function ${hookName}(${argsSig}options:${optionsType}){const{query:queryOptions,options:clientOptions}=options;return ${config.infiniteQueryFn}({...${optionsGetterCall},...queryOptions})}`
 }
 
 /* ─────────────────────────────── Suspense Infinite Query Hook Code ─────────────────────────────── */
@@ -595,22 +595,22 @@ function makeSuspenseInfiniteQueryHookCode(
   const argsSig = hasArgs ? `args:${argsType},` : ''
   const errorType = config.errorType ?? 'Error'
   const queryOptionsType = `${config.useSuspenseInfiniteQueryOptionsType}<${responseType},${errorType}>`
-  const optionsType = `{query:${queryOptionsType};client?:ClientRequestOptions}`
-  const optionsGetterCall = hasArgs
-    ? `${infiniteOptionsGetterName}(args,client)`
-    : `${infiniteOptionsGetterName}(client)`
+  const optionsType = `{query:${queryOptionsType};options?:ClientRequestOptions}`
 
   // Svelte Query v5+: thunk pattern createSuspenseInfiniteQuery(() => options)
   if (config.useThunk) {
-    const optionsGetterCallThunk = hasArgs
-      ? `${infiniteOptionsGetterName}(args,opts.client)`
-      : `${infiniteOptionsGetterName}(opts.client)`
+    const optionsGetterCall = hasArgs
+      ? `${infiniteOptionsGetterName}(args,clientOptions)`
+      : `${infiniteOptionsGetterName}(clientOptions)`
     return `${docs}
-export function ${hookName}(${argsSig}options:()=>${optionsType}){return ${config.suspenseInfiniteQueryFn}(()=>{const opts=options();return{...${optionsGetterCallThunk},...opts.query}})}`
+export function ${hookName}(${argsSig}options:()=>${optionsType}){return ${config.suspenseInfiniteQueryFn}(()=>{const{query,options:clientOptions}=options();return{...${optionsGetterCall},...query}})}`
   }
 
+  const optionsGetterCall = hasArgs
+    ? `${infiniteOptionsGetterName}(args,clientOptions)`
+    : `${infiniteOptionsGetterName}(clientOptions)`
   return `${docs}
-export function ${hookName}(${argsSig}options:${optionsType}){const{query,client}=options;return ${config.suspenseInfiniteQueryFn}({...${optionsGetterCall},...query})}`
+export function ${hookName}(${argsSig}options:${optionsType}){const{query:queryOptions,options:clientOptions}=options;return ${config.suspenseInfiniteQueryFn}({...${optionsGetterCall},...queryOptions})}`
 }
 
 /* ─────────────────────────────── Mutation Key Getter ─────────────────────────────── */
@@ -796,15 +796,15 @@ function makeSWRMutationHookCode(
   const mutationConfigType = `SWRMutationConfiguration<${responseTypeWithUndefined},${errorType},Key,${variablesType}>`
 
   if (hasArgs) {
-    const optionsSig = `options?:{mutation?:${mutationConfigType}&{swrKey?:Key};client?:ClientRequestOptions}`
+    const optionsSig = `options?:{mutation?:${mutationConfigType}&{swrKey?:Key};options?:ClientRequestOptions}`
     return `${docs}
-export function ${hookName}(${optionsSig}){const{mutation:mutationOptions,client}=options??{};const{swrKey:customKey,...restMutationOptions}=mutationOptions??{};const swrKey=customKey??${keyGetterName}();return{swrKey,...useSWRMutation(swrKey,async(_:Key,{arg}:{arg:${argsType}})=>${parseResponseFuncName}(arg,client),restMutationOptions)}}`
+export function ${hookName}(${optionsSig}){const{mutation:mutationOptions,options:clientOptions}=options??{};const{swrKey:customKey,...restMutationOptions}=mutationOptions??{};const swrKey=customKey??${keyGetterName}();return{swrKey,...useSWRMutation(swrKey,async(_:Key,{arg}:{arg:${argsType}})=>${parseResponseFuncName}(arg,clientOptions),restMutationOptions)}}`
   }
 
   // No args - simpler pattern
-  const optionsSig = `options?:{mutation?:${mutationConfigType}&{swrKey?:Key};client?:ClientRequestOptions}`
+  const optionsSig = `options?:{mutation?:${mutationConfigType}&{swrKey?:Key};options?:ClientRequestOptions}`
   return `${docs}
-export function ${hookName}(${optionsSig}){const{mutation:mutationOptions,client}=options??{};const{swrKey:customKey,...restMutationOptions}=mutationOptions??{};const swrKey=customKey??${keyGetterName}();return{swrKey,...useSWRMutation(swrKey,async()=>${parseResponseFuncName}(client),restMutationOptions)}}`
+export function ${hookName}(${optionsSig}){const{mutation:mutationOptions,options:clientOptions}=options??{};const{swrKey:customKey,...restMutationOptions}=mutationOptions??{};const swrKey=customKey??${keyGetterName}();return{swrKey,...useSWRMutation(swrKey,async()=>${parseResponseFuncName}(clientOptions),restMutationOptions)}}`
 }
 
 /* ─────────────────────────────── Mutation Hook Code ─────────────────────────────── */
@@ -832,18 +832,18 @@ function makeMutationHookCode(
 
   // Use official TanStack Query mutation options type
   const mutationOptionsType = `${config.useMutationOptionsType}<${dataType},${errorType},${variablesType}>`
-  const optionsType = `{mutation?:${mutationOptionsType};client?:ClientRequestOptions}`
+  const optionsType = `{mutation?:${mutationOptionsType};options?:ClientRequestOptions}`
 
   // Use getMutationOptions to include mutationKey (for setMutationDefaults, isMutating, etc.)
   // Svelte Query v5+ requires thunk pattern: createMutation(() => options)
   if (config.useThunk) {
     return `${docs}
-export function ${hookName}(options?:()=>${optionsType}){return ${config.mutationFn}(()=>{const opts=options?.();return{...${optionsGetterName}(opts?.client),...opts?.mutation}})}`
+export function ${hookName}(options?:()=>${optionsType}){return ${config.mutationFn}(()=>{const{mutation,options:clientOptions}=options?.()??{};return{...${optionsGetterName}(clientOptions),...mutation}})}`
   }
 
   // React TanStack Query / Vue Query: direct spread
   return `${docs}
-export function ${hookName}(options?:${optionsType}){const{mutation,client}=options??{};return ${config.mutationFn}({...${optionsGetterName}(client),...mutation})}`
+export function ${hookName}(options?:${optionsType}){const{mutation:mutationOptions,options:clientOptions}=options??{};return ${config.mutationFn}({...${optionsGetterName}(clientOptions),...mutationOptions})}`
 }
 
 /* ─────────────────────────────── Single-hook generator ─────────────────────────────── */

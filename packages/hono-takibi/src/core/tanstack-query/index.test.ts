@@ -112,10 +112,10 @@ export function getGetHonoQueryOptions(options?: ClientRequestOptions) {
  */
 export function useGetHono(options?: {
   query?: UseQueryOptions<Awaited<ReturnType<typeof getHono>>, Error>
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { query, client } = options ?? {}
-  return useQuery({ ...getGetHonoQueryOptions(client), ...query })
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useQuery({ ...getGetHonoQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -127,10 +127,10 @@ export function useGetHono(options?: {
  */
 export function useSuspenseGetHono(options?: {
   query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getHono>>, Error>
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { query, client } = options ?? {}
-  return useSuspenseQuery({ ...getGetHonoQueryOptions(client), ...query })
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useSuspenseQuery({ ...getGetHonoQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -165,10 +165,10 @@ export function getGetHonoInfiniteQueryOptions(options?: ClientRequestOptions) {
  */
 export function useInfiniteGetHono(options: {
   query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getHono>>, Error>
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { query, client } = options
-  return useInfiniteQuery({ ...getGetHonoInfiniteQueryOptions(client), ...query })
+  const { query: queryOptions, options: clientOptions } = options
+  return useInfiniteQuery({ ...getGetHonoInfiniteQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -180,10 +180,13 @@ export function useInfiniteGetHono(options: {
  */
 export function useSuspenseInfiniteGetHono(options: {
   query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getHono>>, Error>
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { query, client } = options
-  return useSuspenseInfiniteQuery({ ...getGetHonoInfiniteQueryOptions(client), ...query })
+  const { query: queryOptions, options: clientOptions } = options
+  return useSuspenseInfiniteQuery({
+    ...getGetHonoInfiniteQueryOptions(clientOptions),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -236,11 +239,11 @@ export function useGetUsers(
   args: InferRequestType<typeof client.users.$get>,
   options?: {
     query?: UseQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
-  const { query, client } = options ?? {}
-  return useQuery({ ...getGetUsersQueryOptions(args, client), ...query })
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useQuery({ ...getGetUsersQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -254,11 +257,11 @@ export function useSuspenseGetUsers(
   args: InferRequestType<typeof client.users.$get>,
   options?: {
     query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
-  const { query, client } = options ?? {}
-  return useSuspenseQuery({ ...getGetUsersQueryOptions(args, client), ...query })
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useSuspenseQuery({ ...getGetUsersQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -298,11 +301,14 @@ export function useInfiniteGetUsers(
   args: InferRequestType<typeof client.users.$get>,
   options: {
     query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
-  const { query, client } = options
-  return useInfiniteQuery({ ...getGetUsersInfiniteQueryOptions(args, client), ...query })
+  const { query: queryOptions, options: clientOptions } = options
+  return useInfiniteQuery({
+    ...getGetUsersInfiniteQueryOptions(args, clientOptions),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -316,11 +322,14 @@ export function useSuspenseInfiniteGetUsers(
   args: InferRequestType<typeof client.users.$get>,
   options: {
     query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
-  const { query, client } = options
-  return useSuspenseInfiniteQuery({ ...getGetUsersInfiniteQueryOptions(args, client), ...query })
+  const { query: queryOptions, options: clientOptions } = options
+  return useSuspenseInfiniteQuery({
+    ...getGetUsersInfiniteQueryOptions(args, clientOptions),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -372,10 +381,10 @@ export function usePostUsers(options?: {
     Error,
     InferRequestType<typeof client.users.$post>
   >
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { mutation, client } = options ?? {}
-  return useMutation({ ...getPostUsersMutationOptions(client), ...mutation })
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
+  return useMutation({ ...getPostUsersMutationOptions(clientOptions), ...mutationOptions })
 }
 `
 
@@ -471,10 +480,10 @@ export function getGetHonoQueryOptions(options?: ClientRequestOptions) {
  */
 export function useGetHono(options?: {
   query?: UseQueryOptions<Awaited<ReturnType<typeof getHono>>, Error>
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { query, client } = options ?? {}
-  return useQuery({ ...getGetHonoQueryOptions(client), ...query })
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useQuery({ ...getGetHonoQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -486,10 +495,10 @@ export function useGetHono(options?: {
  */
 export function useSuspenseGetHono(options?: {
   query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getHono>>, Error>
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { query, client } = options ?? {}
-  return useSuspenseQuery({ ...getGetHonoQueryOptions(client), ...query })
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useSuspenseQuery({ ...getGetHonoQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -524,10 +533,10 @@ export function getGetHonoInfiniteQueryOptions(options?: ClientRequestOptions) {
  */
 export function useInfiniteGetHono(options: {
   query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getHono>>, Error>
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { query, client } = options
-  return useInfiniteQuery({ ...getGetHonoInfiniteQueryOptions(client), ...query })
+  const { query: queryOptions, options: clientOptions } = options
+  return useInfiniteQuery({ ...getGetHonoInfiniteQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -539,10 +548,13 @@ export function useInfiniteGetHono(options: {
  */
 export function useSuspenseInfiniteGetHono(options: {
   query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getHono>>, Error>
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { query, client } = options
-  return useSuspenseInfiniteQuery({ ...getGetHonoInfiniteQueryOptions(client), ...query })
+  const { query: queryOptions, options: clientOptions } = options
+  return useSuspenseInfiniteQuery({
+    ...getGetHonoInfiniteQueryOptions(clientOptions),
+    ...queryOptions,
+  })
 }
 `
       expect(useGetHono).toBe(useGetHonoExpected)
@@ -617,11 +629,11 @@ export function useGetUsers(
   args: InferRequestType<typeof client.users.$get>,
   options?: {
     query?: UseQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
-  const { query, client } = options ?? {}
-  return useQuery({ ...getGetUsersQueryOptions(args, client), ...query })
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useQuery({ ...getGetUsersQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -635,11 +647,11 @@ export function useSuspenseGetUsers(
   args: InferRequestType<typeof client.users.$get>,
   options?: {
     query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
-  const { query, client } = options ?? {}
-  return useSuspenseQuery({ ...getGetUsersQueryOptions(args, client), ...query })
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useSuspenseQuery({ ...getGetUsersQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -679,11 +691,14 @@ export function useInfiniteGetUsers(
   args: InferRequestType<typeof client.users.$get>,
   options: {
     query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
-  const { query, client } = options
-  return useInfiniteQuery({ ...getGetUsersInfiniteQueryOptions(args, client), ...query })
+  const { query: queryOptions, options: clientOptions } = options
+  return useInfiniteQuery({
+    ...getGetUsersInfiniteQueryOptions(args, clientOptions),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -697,11 +712,14 @@ export function useSuspenseInfiniteGetUsers(
   args: InferRequestType<typeof client.users.$get>,
   options: {
     query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
-  const { query, client } = options
-  return useSuspenseInfiniteQuery({ ...getGetUsersInfiniteQueryOptions(args, client), ...query })
+  const { query: queryOptions, options: clientOptions } = options
+  return useSuspenseInfiniteQuery({
+    ...getGetUsersInfiniteQueryOptions(args, clientOptions),
+    ...queryOptions,
+  })
 }
 `
       expect(useGetUsers).toBe(useGetUsersExpected)
@@ -763,10 +781,10 @@ export function usePostUsers(options?: {
     Error,
     InferRequestType<typeof client.users.$post>
   >
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { mutation, client } = options ?? {}
-  return useMutation({ ...getPostUsersMutationOptions(client), ...mutation })
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
+  return useMutation({ ...getPostUsersMutationOptions(clientOptions), ...mutationOptions })
 }
 `
       expect(usePostUsers).toBe(usePostUsersExpected)
@@ -862,10 +880,10 @@ export function getGetUsersQueryOptions(options?: ClientRequestOptions) {
  */
 export function useGetUsers(options?: {
   query?: UseQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { query, client } = options ?? {}
-  return useQuery({ ...getGetUsersQueryOptions(client), ...query })
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useQuery({ ...getGetUsersQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -875,10 +893,10 @@ export function useGetUsers(options?: {
  */
 export function useSuspenseGetUsers(options?: {
   query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { query, client } = options ?? {}
-  return useSuspenseQuery({ ...getGetUsersQueryOptions(client), ...query })
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useSuspenseQuery({ ...getGetUsersQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -911,10 +929,10 @@ export function getGetUsersInfiniteQueryOptions(options?: ClientRequestOptions) 
  */
 export function useInfiniteGetUsers(options: {
   query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { query, client } = options
-  return useInfiniteQuery({ ...getGetUsersInfiniteQueryOptions(client), ...query })
+  const { query: queryOptions, options: clientOptions } = options
+  return useInfiniteQuery({ ...getGetUsersInfiniteQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -924,10 +942,13 @@ export function useInfiniteGetUsers(options: {
  */
 export function useSuspenseInfiniteGetUsers(options: {
   query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { query, client } = options
-  return useSuspenseInfiniteQuery({ ...getGetUsersInfiniteQueryOptions(client), ...query })
+  const { query: queryOptions, options: clientOptions } = options
+  return useSuspenseInfiniteQuery({
+    ...getGetUsersInfiniteQueryOptions(clientOptions),
+    ...queryOptions,
+  })
 }
 `
       expect(code).toBe(expected)
@@ -1026,10 +1047,10 @@ export function getGetPingQueryOptions(options?: ClientRequestOptions) {
  */
 export function useGetPing(options?: {
   query?: UseQueryOptions<Awaited<ReturnType<typeof getPing>>, Error>
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { query, client } = options ?? {}
-  return useQuery({ ...getGetPingQueryOptions(client), ...query })
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useQuery({ ...getGetPingQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -1039,10 +1060,10 @@ export function useGetPing(options?: {
  */
 export function useSuspenseGetPing(options?: {
   query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getPing>>, Error>
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { query, client } = options ?? {}
-  return useSuspenseQuery({ ...getGetPingQueryOptions(client), ...query })
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useSuspenseQuery({ ...getGetPingQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -1075,10 +1096,10 @@ export function getGetPingInfiniteQueryOptions(options?: ClientRequestOptions) {
  */
 export function useInfiniteGetPing(options: {
   query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getPing>>, Error>
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { query, client } = options
-  return useInfiniteQuery({ ...getGetPingInfiniteQueryOptions(client), ...query })
+  const { query: queryOptions, options: clientOptions } = options
+  return useInfiniteQuery({ ...getGetPingInfiniteQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -1088,10 +1109,13 @@ export function useInfiniteGetPing(options: {
  */
 export function useSuspenseInfiniteGetPing(options: {
   query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getPing>>, Error>
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { query, client } = options
-  return useSuspenseInfiniteQuery({ ...getGetPingInfiniteQueryOptions(client), ...query })
+  const { query: queryOptions, options: clientOptions } = options
+  return useSuspenseInfiniteQuery({
+    ...getGetPingInfiniteQueryOptions(clientOptions),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -1132,10 +1156,10 @@ export function getPostPingMutationOptions(options?: ClientRequestOptions) {
  */
 export function usePostPing(options?: {
   mutation?: UseMutationOptions<Awaited<ReturnType<typeof postPing>>, Error, void>
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { mutation, client } = options ?? {}
-  return useMutation({ ...getPostPingMutationOptions(client), ...mutation })
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
+  return useMutation({ ...getPostPingMutationOptions(clientOptions), ...mutationOptions })
 }
 `
       expect(code).toBe(expected)
@@ -1226,10 +1250,10 @@ export function getGetHonoXQueryOptions(options?: ClientRequestOptions) {
  */
 export function useGetHonoX(options?: {
   query?: UseQueryOptions<Awaited<ReturnType<typeof getHonoX>>, Error>
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { query, client } = options ?? {}
-  return useQuery({ ...getGetHonoXQueryOptions(client), ...query })
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useQuery({ ...getGetHonoXQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -1239,10 +1263,10 @@ export function useGetHonoX(options?: {
  */
 export function useSuspenseGetHonoX(options?: {
   query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getHonoX>>, Error>
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { query, client } = options ?? {}
-  return useSuspenseQuery({ ...getGetHonoXQueryOptions(client), ...query })
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useSuspenseQuery({ ...getGetHonoXQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -1275,10 +1299,10 @@ export function getGetHonoXInfiniteQueryOptions(options?: ClientRequestOptions) 
  */
 export function useInfiniteGetHonoX(options: {
   query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getHonoX>>, Error>
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { query, client } = options
-  return useInfiniteQuery({ ...getGetHonoXInfiniteQueryOptions(client), ...query })
+  const { query: queryOptions, options: clientOptions } = options
+  return useInfiniteQuery({ ...getGetHonoXInfiniteQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -1288,10 +1312,13 @@ export function useInfiniteGetHonoX(options: {
  */
 export function useSuspenseInfiniteGetHonoX(options: {
   query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getHonoX>>, Error>
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { query, client } = options
-  return useSuspenseInfiniteQuery({ ...getGetHonoXInfiniteQueryOptions(client), ...query })
+  const { query: queryOptions, options: clientOptions } = options
+  return useSuspenseInfiniteQuery({
+    ...getGetHonoXInfiniteQueryOptions(clientOptions),
+    ...queryOptions,
+  })
 }
 `
       expect(code).toBe(expected)
@@ -1401,11 +1428,11 @@ export function useGetUsersId(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   options?: {
     query?: UseQueryOptions<Awaited<ReturnType<typeof getUsersId>>, Error>
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
-  const { query, client } = options ?? {}
-  return useQuery({ ...getGetUsersIdQueryOptions(args, client), ...query })
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useQuery({ ...getGetUsersIdQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -1417,11 +1444,11 @@ export function useSuspenseGetUsersId(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   options?: {
     query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getUsersId>>, Error>
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
-  const { query, client } = options ?? {}
-  return useSuspenseQuery({ ...getGetUsersIdQueryOptions(args, client), ...query })
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useSuspenseQuery({ ...getGetUsersIdQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -1461,11 +1488,14 @@ export function useInfiniteGetUsersId(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   options: {
     query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsersId>>, Error>
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
-  const { query, client } = options
-  return useInfiniteQuery({ ...getGetUsersIdInfiniteQueryOptions(args, client), ...query })
+  const { query: queryOptions, options: clientOptions } = options
+  return useInfiniteQuery({
+    ...getGetUsersIdInfiniteQueryOptions(args, clientOptions),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -1477,11 +1507,14 @@ export function useSuspenseInfiniteGetUsersId(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   options: {
     query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsersId>>, Error>
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
-  const { query, client } = options
-  return useSuspenseInfiniteQuery({ ...getGetUsersIdInfiniteQueryOptions(args, client), ...query })
+  const { query: queryOptions, options: clientOptions } = options
+  return useSuspenseInfiniteQuery({
+    ...getGetUsersIdInfiniteQueryOptions(args, clientOptions),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -1529,10 +1562,10 @@ export function useDeleteUsersId(options?: {
     Error,
     InferRequestType<(typeof client.users)[':id']['$delete']>
   >
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { mutation, client } = options ?? {}
-  return useMutation({ ...getDeleteUsersIdMutationOptions(client), ...mutation })
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
+  return useMutation({ ...getDeleteUsersIdMutationOptions(clientOptions), ...mutationOptions })
 }
 `
       expect(code).toBe(expected)
