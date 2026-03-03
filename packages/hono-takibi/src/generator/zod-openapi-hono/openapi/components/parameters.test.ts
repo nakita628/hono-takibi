@@ -94,7 +94,7 @@ export type LimitParams=z.infer<typeof LimitParamsSchema>`,
     }
     const result = parametersCode(components, true, false)
     expect(result).toBe(
-      `export const PaginationParamsSchema=z.object({page:z.coerce.number().pipe(z.int()).min(1).default(1).exactOptional(),limit:z.coerce.number().pipe(z.int()).min(1).max(100).default(20).exactOptional(),cursor:z.string().exactOptional()}).exactOptional().openapi({param:{"name":"pagination","in":"query","schema":{"type":"object","properties":{"page":{"type":"integer","minimum":1,"default":1},"limit":{"type":"integer","minimum":1,"maximum":100,"default":20},"cursor":{"type":"string"}}}}})`,
+      `export const PaginationParamsSchema=z.object({page:z.coerce.number().pipe(z.int().min(1)).default(1).exactOptional(),limit:z.coerce.number().pipe(z.int().min(1).max(100)).default(20).exactOptional(),cursor:z.string().exactOptional()}).exactOptional().openapi({param:{"name":"pagination","in":"query","schema":{"type":"object","properties":{"page":{"type":"integer","minimum":1,"default":1},"limit":{"type":"integer","minimum":1,"maximum":100,"default":20},"cursor":{"type":"string"}}}}})`,
     )
   })
 

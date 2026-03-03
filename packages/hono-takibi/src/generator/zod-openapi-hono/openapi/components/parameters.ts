@@ -59,8 +59,9 @@ export function parametersCode(
                   (schema?.type === 'object' || schema?.type === 'array')
                 ? baseSchema
                     .replace(
-                      /z\.(int\d*)\(\)/g,
-                      (_: string, type: string) => `z.coerce.number().pipe(z.${type}())`,
+                      /z\.(int\d*)\(\)((?:\.(?:min|max|gt|lt|positive|negative|nonnegative|nonpositive|multipleOf)\([^)]*\))*)/g,
+                      (_: string, type: string, constraints: string) =>
+                        `z.coerce.number().pipe(z.${type}()${constraints})`,
                     )
                     .replace(/z\.bigint\(\)/g, 'z.coerce.bigint()')
                     .replace(/z\.number\(\)/g, 'z.coerce.number()')
