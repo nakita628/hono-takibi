@@ -1,4 +1,5 @@
 import type { Schema } from '../../../openapi/index.js'
+import { error } from '../../../utils/index.js'
 
 const FORMAT_STRING: { readonly [k: string]: string } = {
   email: 'email()',
@@ -35,15 +36,6 @@ const FORMAT_STRING: { readonly [k: string]: string } = {
 const TRANSFORM_FORMATS = new Set(['toLowerCase', 'toUpperCase', 'trim'])
 
 /**
- * Formats an error message argument using the Zod v4 unified `error` parameter.
- *
- * @returns `{error:"msg"}` or empty string if no message
- */
-function errorArg(msg: string | undefined): string {
-  return msg ? `{error:${JSON.stringify(msg)}}` : ''
-}
-
-/**
  * Builds a Zod string schema from an OpenAPI string schema definition.
  *
  * - If `schema.format` exists and matches `FORMAT_STRING`, uses `z.<format>()`; otherwise falls back to `z.string()`
@@ -66,14 +58,13 @@ function errorArg(msg: string | undefined): string {
  */
 export function string(schema: Schema): string {
   const format = schema.format && FORMAT_STRING[schema.format]
-  const xErrorMessage = schema['x-error-message']
+  const errorMessage = schema['x-error-message']
 
   // Apply x-error-message to format validators (not transforms)
   const base = (() => {
     if (!format) return 'z.string()'
-    if (xErrorMessage && !TRANSFORM_FORMATS.has(schema.format as string)) {
-      const arg = errorArg(xErrorMessage)
-      return `z.${format.replace(/\(\)$/, `(${arg})`)}`
+    if (errorMessage && !TRANSFORM_FORMATS.has(schema.format as string)) {
+      return `z.${format.replace(/\(\)$/, `(${error(errorMessage)})`)}`
     }
     return `z.${format}`
   })()
@@ -81,7 +72,7 @@ export function string(schema: Schema): string {
   const patternMessage = schema['x-pattern-message']
   // Add 'u' flag for Unicode property escapes (\p{...} or \P{...})
   const hasUnicodeProperty = schema.pattern && /\\[pP]\{/.test(schema.pattern)
-  const patternMsgPart = patternMessage ? `,${errorArg(patternMessage)}` : ''
+  const patternMsgPart = patternMessage ? `,${error(patternMessage)}` : ''
   const pattern = schema.pattern
     ? `.regex(/${schema.pattern.replace(/(?<!\\)\//g, '\\/')}/${hasUnicodeProperty ? 'u' : ''}${patternMsgPart})`
     : undefined
@@ -93,7 +84,7 @@ export function string(schema: Schema): string {
     schema.maxLength !== undefined &&
     schema.minLength === schema.maxLength
 
-  const sizeMsgPart = sizeMessage ? `,${errorArg(sizeMessage)}` : ''
+  const sizeMsgPart = sizeMessage ? `,${error(sizeMessage)}` : ''
 
   return [
     base,

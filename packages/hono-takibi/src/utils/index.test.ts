@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { isHttpMethod, isRecord } from '../guard/index.js'
 import {
   ensureSuffix,
+  error,
   makeBarrel,
   makeSafeKey,
   methodPath,
@@ -242,6 +243,18 @@ export * from './user'
       ['', 'Example', 'Example'],
     ])(`ensureSuffix('%s', '%s') -> '%s'`, (input, suffix, expected) => {
       expect(ensureSuffix(input, suffix)).toBe(expected)
+    })
+  })
+  // error
+  describe('error', () => {
+    it.concurrent.each([
+      ['Name must be 3-20 characters', '{error:"Name must be 3-20 characters"}'],
+      ['Invalid email address', '{error:"Invalid email address"}'],
+      ['Age must be >= 0', '{error:"Age must be >= 0"}'],
+      ['Must have 1-5 tags', '{error:"Must have 1-5 tags"}'],
+      ['Contains "quotes"', '{error:"Contains \\"quotes\\""}'],
+    ])(`error('%s') -> '%s'`, (input, expected) => {
+      expect(error(input)).toBe(expected)
     })
   })
   // zodToOpenAPISchema

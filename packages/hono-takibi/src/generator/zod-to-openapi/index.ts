@@ -1,7 +1,7 @@
 import { makeRef } from '../../helper/index.js'
 import { wrap } from '../../helper/wrap.js'
 import type { Header, Parameter, Schema } from '../../openapi/index.js'
-import { normalizeTypes } from '../../utils/index.js'
+import { error, normalizeTypes } from '../../utils/index.js'
 import { _enum } from './z/enum.js'
 import { integer } from './z/integer.js'
 import { number } from './z/number.js'
@@ -244,8 +244,8 @@ export function zodToOpenAPI(
     const z = `z.array(${item})`
     const unique =
       schema.uniqueItems === true ? '.refine((items)=>new Set(items).size===items.length)' : ''
-    const sizeMsg = schema['x-size-message']
-    const sizeErrArg = sizeMsg ? `,{error:${JSON.stringify(sizeMsg)}}` : ''
+    const sizeMessage = schema['x-size-message']
+    const sizeErrArg = sizeMessage ? `,${error(sizeMessage)}` : ''
     if (typeof schema.minItems === 'number' && typeof schema.maxItems === 'number') {
       return schema.minItems === schema.maxItems
         ? wrap(`${z}.length(${schema.minItems}${sizeErrArg})${unique}${readonlyMod}`, schema, meta)

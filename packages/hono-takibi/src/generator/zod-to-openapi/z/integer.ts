@@ -1,13 +1,5 @@
 import type { Schema } from '../../../openapi/index.js'
-
-/**
- * Formats an error message argument using the Zod v4 unified `error` parameter.
- *
- * @returns `{error:"msg"}` or empty string if no message
- */
-function errorArg(msg: string | undefined): string {
-  return msg ? `{error:${JSON.stringify(msg)}}` : ''
-}
+import { error } from '../../../utils/index.js'
 
 /**
  * Generates a Zod schema for integer types based on OpenAPI schema.
@@ -50,9 +42,9 @@ export function integer(schema: Schema): string {
     return `${n}`
   }
 
-  const minMsg = schema['x-minimum-message']
-  const minErrArg = errorArg(minMsg)
-  const minErrPart = minMsg ? `,${minErrArg}` : ''
+  const minimumMessage = schema['x-minimum-message']
+  const minErrArg = minimumMessage ? error(minimumMessage) : ''
+  const minErrPart = minErrArg ? `,${minErrArg}` : ''
 
   const minimum = (() => {
     if (schema.minimum === undefined && schema.exclusiveMinimum === undefined) {
@@ -77,9 +69,9 @@ export function integer(schema: Schema): string {
     return undefined
   })()
 
-  const maxMsg = schema['x-maximum-message']
-  const maxErrArg = errorArg(maxMsg)
-  const maxErrPart = maxMsg ? `,${maxErrArg}` : ''
+  const maximumMessage = schema['x-maximum-message']
+  const maxErrArg = maximumMessage ? error(maximumMessage) : ''
+  const maxErrPart = maxErrArg ? `,${maxErrArg}` : ''
 
   const maximum = (() => {
     if (schema.maximum === undefined && schema.exclusiveMaximum === undefined) {

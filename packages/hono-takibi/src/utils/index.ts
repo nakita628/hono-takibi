@@ -318,6 +318,22 @@ export function makeOperationDocs(
 }
 
 /**
+ * Formats an error message argument using the Zod v4 unified `error` parameter.
+ *
+ * @param message - The error message string
+ * @returns `{error:"message"}` formatted string
+ *
+ * @example
+ * ```ts
+ * error('Name must be 3-20 characters')
+ * // → '{error:"Name must be 3-20 characters"}'
+ * ```
+ */
+export function error(message: string): string {
+  return `{error:${JSON.stringify(message)}}`
+}
+
+/**
  * Build InferRequestType expression.
  */
 export function makeInferRequestType(
