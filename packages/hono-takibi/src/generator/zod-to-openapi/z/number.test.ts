@@ -171,3 +171,20 @@ describe('x-minimum-message and x-maximum-message combined', () => {
     expect(number(input)).toBe(expected)
   })
 })
+
+describe('x-error-message on multipleOf', () => {
+  it.concurrent.each<[Schema, string]>([
+    [
+      { type: 'number', multipleOf: 2, 'x-error-message': '偶数のみ' },
+      'z.number({error:"偶数のみ"}).multipleOf(2,{error:"偶数のみ"})',
+    ],
+    [
+      { type: 'number', format: 'float', multipleOf: 0.5, 'x-error-message': '0.5刻み' },
+      'z.float32({error:"0.5刻み"}).multipleOf(0.5,{error:"0.5刻み"})',
+    ],
+    // No x-error-message → existing behavior
+    [{ type: 'number', multipleOf: 3 }, 'z.number().multipleOf(3)'],
+  ])('number(%o) → %s', (input, expected) => {
+    expect(number(input)).toBe(expected)
+  })
+})

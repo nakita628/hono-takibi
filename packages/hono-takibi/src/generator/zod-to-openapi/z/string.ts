@@ -78,13 +78,16 @@ export function string(schema: Schema): string {
     : undefined
 
   const sizeMessage = schema['x-size-message']
+  const sizeMsgPart = sizeMessage ? `,${error(sizeMessage)}` : ''
+  const minimumMessage = schema['x-minimum-message']
+  const minMsgPart = minimumMessage ? `,${error(minimumMessage)}` : ''
+  const maximumMessage = schema['x-maximum-message']
+  const maxMsgPart = maximumMessage ? `,${error(maximumMessage)}` : ''
 
   const isFixedLength =
     schema.minLength !== undefined &&
     schema.maxLength !== undefined &&
     schema.minLength === schema.maxLength
-
-  const sizeMsgPart = sizeMessage ? `,${error(sizeMessage)}` : ''
 
   return [
     base,
@@ -92,10 +95,10 @@ export function string(schema: Schema): string {
     // minLength === maxLength → .length(n)
     isFixedLength ? `.length(${schema.minLength}${sizeMsgPart})` : undefined,
     !isFixedLength && schema.minLength !== undefined
-      ? `.min(${schema.minLength}${sizeMsgPart})`
+      ? `.min(${schema.minLength}${minMsgPart})`
       : undefined,
     !isFixedLength && schema.maxLength !== undefined
-      ? `.max(${schema.maxLength}${sizeMsgPart})`
+      ? `.max(${schema.maxLength}${maxMsgPart})`
       : undefined,
   ]
     .filter((v) => v !== undefined)

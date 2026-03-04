@@ -100,7 +100,7 @@ export function integer(schema: Schema): string {
 
   const multipleOf =
     schema.multipleOf !== undefined && typeof schema.multipleOf === 'number'
-      ? `.multipleOf(${lit(schema.multipleOf)})`
+      ? `.multipleOf(${lit(schema.multipleOf)}${baseErrorArg ? `,${baseErrorArg}` : ''})`
       : undefined
 
   return [base, minimum, maximum, multipleOf].filter((v) => v !== undefined).join('')

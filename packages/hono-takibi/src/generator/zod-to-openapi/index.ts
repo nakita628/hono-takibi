@@ -197,6 +197,8 @@ export function zodToOpenAPI(
   /* const */
   if (schema.const !== undefined) {
     const value = schema.const
+    const errorMessage = schema['x-error-message']
+    const errArg = errorMessage ? `,${error(errorMessage)}` : ''
     // z.literal only supports primitives in Zod 4
     const isPrimitive =
       value === null ||
@@ -204,7 +206,7 @@ export function zodToOpenAPI(
       typeof value === 'number' ||
       typeof value === 'boolean'
     const z = isPrimitive
-      ? `z.literal(${JSON.stringify(value)})`
+      ? `z.literal(${JSON.stringify(value)}${errArg})`
       : `z.custom<${JSON.stringify(value)}>()`
     return wrap(z, schema, meta)
   }
@@ -228,12 +230,14 @@ export function zodToOpenAPI(
   /* array */
   if (t.includes('array')) {
     const readonlyMod = readonly ? '.readonly()' : ''
+    const arrayErrorMessage = schema['x-error-message']
+    const arrayErrArg = arrayErrorMessage ? `,${error(arrayErrorMessage)}` : ''
     // JSON Schema 2020-12: prefixItems for tuple validation
     if (schema.prefixItems !== undefined && Array.isArray(schema.prefixItems)) {
       const tupleItems = schema.prefixItems.map((item) =>
         item.$ref ? makeRef(item.$ref) : zodToOpenAPI(item, innerMeta, readonly),
       )
-      const z = `z.tuple([${tupleItems.join(',')}])`
+      const z = `z.tuple([${tupleItems.join(',')}]${arrayErrArg})`
       return wrap(`${z}${readonlyMod}`, schema, meta)
     }
     // items can be Schema or readonly Schema[] (JSON Schema draft-04 tuple validation)
@@ -245,26 +249,32 @@ export function zodToOpenAPI(
         ? makeRef(itemSchema.$ref)
         : zodToOpenAPI(itemSchema, innerMeta, readonly)
       : 'z.any()'
-    const arrayErrorMessage = schema['x-error-message']
-    const arrayErrArg = arrayErrorMessage ? `,${error(arrayErrorMessage)}` : ''
     const z = `z.array(${item}${arrayErrArg})`
+    const patternMessage = schema['x-pattern-message']
+    const patternErrArg = patternMessage ? `,${error(patternMessage)}` : ''
     const unique =
-      schema.uniqueItems === true ? '.refine((items)=>new Set(items).size===items.length)' : ''
+      schema.uniqueItems === true
+        ? `.refine((items)=>new Set(items).size===items.length${patternErrArg})`
+        : ''
     const sizeMessage = schema['x-size-message']
     const sizeErrArg = sizeMessage ? `,${error(sizeMessage)}` : ''
+    const minMessage = schema['x-minimum-message']
+    const minErrArg = minMessage ? `,${error(minMessage)}` : ''
+    const maxMessage = schema['x-maximum-message']
+    const maxErrArg = maxMessage ? `,${error(maxMessage)}` : ''
     if (typeof schema.minItems === 'number' && typeof schema.maxItems === 'number') {
       return schema.minItems === schema.maxItems
         ? wrap(`${z}.length(${schema.minItems}${sizeErrArg})${unique}${readonlyMod}`, schema, meta)
         : wrap(
-            `${z}.min(${schema.minItems}${sizeErrArg}).max(${schema.maxItems}${sizeErrArg})${unique}${readonlyMod}`,
+            `${z}.min(${schema.minItems}${minErrArg}).max(${schema.maxItems}${maxErrArg})${unique}${readonlyMod}`,
             schema,
             meta,
           )
     }
     if (typeof schema.minItems === 'number')
-      return wrap(`${z}.min(${schema.minItems}${sizeErrArg})${unique}${readonlyMod}`, schema, meta)
+      return wrap(`${z}.min(${schema.minItems}${minErrArg})${unique}${readonlyMod}`, schema, meta)
     if (typeof schema.maxItems === 'number')
-      return wrap(`${z}.max(${schema.maxItems}${sizeErrArg})${unique}${readonlyMod}`, schema, meta)
+      return wrap(`${z}.max(${schema.maxItems}${maxErrArg})${unique}${readonlyMod}`, schema, meta)
     return wrap(`${z}${unique}${readonlyMod}`, schema, meta)
   }
   /* object */

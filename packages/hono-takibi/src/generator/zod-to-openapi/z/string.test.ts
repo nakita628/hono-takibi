@@ -81,24 +81,41 @@ describe('string', () => {
 
   describe('x-size-message', () => {
     it.concurrent.each<[Schema, string]>([
-      [
-        { type: 'string', minLength: 3, maxLength: 20, 'x-size-message': '3-20文字' },
-        'z.string().min(3,{error:"3-20文字"}).max(20,{error:"3-20文字"})',
-      ],
+      // x-size-message on .length() (minLength === maxLength)
       [
         { type: 'string', minLength: 5, maxLength: 5, 'x-size-message': '5文字' },
         'z.string().length(5,{error:"5文字"})',
       ],
-      [
-        { type: 'string', minLength: 1, 'x-size-message': '1文字以上' },
-        'z.string().min(1,{error:"1文字以上"})',
-      ],
-      [
-        { type: 'string', maxLength: 100, 'x-size-message': '100文字以下' },
-        'z.string().max(100,{error:"100文字以下"})',
-      ],
       // No x-size-message → existing behavior
       [{ type: 'string', minLength: 3, maxLength: 20 }, 'z.string().min(3).max(20)'],
+    ])('string(%o) → %s', (input, expected) => {
+      expect(string(input)).toBe(expected)
+    })
+  })
+
+  describe('x-minimum-message / x-maximum-message', () => {
+    it.concurrent.each<[Schema, string]>([
+      // x-minimum-message on .min()
+      [
+        { type: 'string', minLength: 1, 'x-minimum-message': '1文字以上' },
+        'z.string().min(1,{error:"1文字以上"})',
+      ],
+      // x-maximum-message on .max()
+      [
+        { type: 'string', maxLength: 100, 'x-maximum-message': '100文字以下' },
+        'z.string().max(100,{error:"100文字以下"})',
+      ],
+      // both
+      [
+        {
+          type: 'string',
+          minLength: 3,
+          maxLength: 20,
+          'x-minimum-message': '3文字以上',
+          'x-maximum-message': '20文字以下',
+        },
+        'z.string().min(3,{error:"3文字以上"}).max(20,{error:"20文字以下"})',
+      ],
     ])('string(%o) → %s', (input, expected) => {
       expect(string(input)).toBe(expected)
     })
@@ -113,9 +130,10 @@ describe('string', () => {
           minLength: 5,
           maxLength: 100,
           'x-error-message': 'メール不正',
-          'x-size-message': '5-100文字',
+          'x-minimum-message': '5文字以上',
+          'x-maximum-message': '100文字以下',
         },
-        'z.email({error:"メール不正"}).min(5,{error:"5-100文字"}).max(100,{error:"5-100文字"})',
+        'z.email({error:"メール不正"}).min(5,{error:"5文字以上"}).max(100,{error:"100文字以下"})',
       ],
     ])('string(%o) → %s', (input, expected) => {
       expect(string(input)).toBe(expected)

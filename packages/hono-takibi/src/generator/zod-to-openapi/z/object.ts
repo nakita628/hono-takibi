@@ -41,8 +41,12 @@ export function object(schema: Schema, readonly?: boolean): string {
   }
 
   // Read vendor extensions for error messages
-  const sizeMessage = schema['x-size-message']
-  const sizeErrArg = sizeMessage ? `,${error(sizeMessage)}` : ''
+  const errorMessage = schema['x-error-message']
+  const errorErrArg = errorMessage ? `,${error(errorMessage)}` : ''
+  const minimumMessage = schema['x-minimum-message']
+  const minErrArg = minimumMessage ? `,${error(minimumMessage)}` : ''
+  const maximumMessage = schema['x-maximum-message']
+  const maxErrArg = maximumMessage ? `,${error(maximumMessage)}` : ''
   const patternMessage = schema['x-pattern-message']
   const patternErrArg = patternMessage ? `,${error(patternMessage)}` : ''
 
@@ -90,11 +94,11 @@ export function object(schema: Schema, readonly?: boolean): string {
   const base = `z.${objectType}({${propertiesCode}})`
   const minP =
     typeof schema.minProperties === 'number'
-      ? `.refine((o)=>Object.keys(o).length>=${schema.minProperties}${sizeErrArg})`
+      ? `.refine((o)=>Object.keys(o).length>=${schema.minProperties}${minErrArg})`
       : ''
   const maxP =
     typeof schema.maxProperties === 'number'
-      ? `.refine((o)=>Object.keys(o).length<=${schema.maxProperties}${sizeErrArg})`
+      ? `.refine((o)=>Object.keys(o).length<=${schema.maxProperties}${maxErrArg})`
       : ''
   // propertyNames: validate that all keys match the given schema constraints
   const propNames = schema.propertyNames?.pattern
@@ -116,7 +120,7 @@ export function object(schema: Schema, readonly?: boolean): string {
     ? Object.entries(schema.dependentRequired)
         .map(([key, deps]) => {
           const depsCheck = deps.map((d) => `'${d}' in o`).join('&&')
-          return `.refine((o)=>!('${key}' in o)||(${depsCheck}))`
+          return `.refine((o)=>!('${key}' in o)||(${depsCheck})${errorErrArg})`
         })
         .join('')
     : ''

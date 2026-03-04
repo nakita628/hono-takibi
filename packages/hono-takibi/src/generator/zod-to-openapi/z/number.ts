@@ -83,7 +83,9 @@ export function number(schema: Schema): string {
   })()
 
   const multipleOf =
-    schema.multipleOf !== undefined ? `.multipleOf(${schema.multipleOf})` : undefined
+    schema.multipleOf !== undefined
+      ? `.multipleOf(${schema.multipleOf}${baseErrorArg ? `,${baseErrorArg}` : ''})`
+      : undefined
 
   return [base, minimum, maximum, multipleOf].filter((v) => v !== undefined).join('')
 }

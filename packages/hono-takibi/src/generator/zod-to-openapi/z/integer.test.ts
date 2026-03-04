@@ -293,4 +293,25 @@ describe('integer', () => {
       expect(integer(input)).toBe(expected)
     })
   })
+
+  describe('x-error-message on multipleOf', () => {
+    it.concurrent.each<[Schema, string]>([
+      [
+        { type: 'integer', multipleOf: 2, 'x-error-message': '偶数のみ' },
+        'z.int({error:"偶数のみ"}).multipleOf(2,{error:"偶数のみ"})',
+      ],
+      [
+        { type: 'integer', format: 'int64', multipleOf: 3, 'x-error-message': '3の倍数' },
+        'z.int64({error:"3の倍数"}).multipleOf(3n,{error:"3の倍数"})',
+      ],
+      [
+        { type: 'integer', format: 'bigint', multipleOf: 5, 'x-error-message': '5の倍数' },
+        'z.bigint({error:"5の倍数"}).multipleOf(BigInt(5),{error:"5の倍数"})',
+      ],
+      // No x-error-message → existing behavior
+      [{ type: 'integer', multipleOf: 2 }, 'z.int().multipleOf(2)'],
+    ])('integer(%o) → %s', (input, expected) => {
+      expect(integer(input)).toBe(expected)
+    })
+  })
 })

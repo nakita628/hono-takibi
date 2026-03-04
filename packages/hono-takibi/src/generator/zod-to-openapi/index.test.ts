@@ -880,10 +880,16 @@ describe('zodToOpenAPI', () => {
             { type: 'string', format: 'email', 'x-error-message': 'Invalid email' },
             'z.email({error:"Invalid email"})',
           ],
-          // x-size-message on string
+          // x-minimum-message / x-maximum-message on string
           [
-            { type: 'string', minLength: 3, maxLength: 20, 'x-size-message': '3-20 chars' },
-            'z.string().min(3,{error:"3-20 chars"}).max(20,{error:"3-20 chars"})',
+            {
+              type: 'string',
+              minLength: 3,
+              maxLength: 20,
+              'x-minimum-message': '3文字以上',
+              'x-maximum-message': '20文字以下',
+            },
+            'z.string().min(3,{error:"3文字以上"}).max(20,{error:"20文字以下"})',
           ],
           // x-pattern-message on string
           [
@@ -978,20 +984,43 @@ describe('zodToOpenAPI', () => {
         })
       })
 
-      // x-size-message on array
-      describe('x-size-message on array', () => {
+      // x-*-message on array (min → x-minimum-message, max → x-maximum-message, length → x-size-message)
+      describe('x-*-message on array', () => {
         // biome-ignore lint: test
         it.concurrent.each<[any, string]>([
+          // x-minimum-message on .min()
+          [
+            {
+              type: 'array',
+              items: { type: 'number' },
+              minItems: 1,
+              'x-minimum-message': 'At least 1',
+            },
+            'z.array(z.number()).min(1,{error:"At least 1"})',
+          ],
+          // x-maximum-message on .max()
+          [
+            {
+              type: 'array',
+              items: { type: 'number' },
+              maxItems: 5,
+              'x-maximum-message': 'At most 5',
+            },
+            'z.array(z.number()).max(5,{error:"At most 5"})',
+          ],
+          // x-minimum-message + x-maximum-message on .min().max()
           [
             {
               type: 'array',
               items: { type: 'string' },
               minItems: 1,
               maxItems: 10,
-              'x-size-message': '1-10 items',
+              'x-minimum-message': '1個以上',
+              'x-maximum-message': '10個以下',
             },
-            'z.array(z.string()).min(1,{error:"1-10 items"}).max(10,{error:"1-10 items"})',
+            'z.array(z.string()).min(1,{error:"1個以上"}).max(10,{error:"10個以下"})',
           ],
+          // x-size-message on .length() (minItems === maxItems)
           [
             {
               type: 'array',
@@ -1002,48 +1031,86 @@ describe('zodToOpenAPI', () => {
             },
             'z.array(z.string()).length(3,{error:"Exactly 3"})',
           ],
+          // x-pattern-message on uniqueItems .refine()
           [
             {
               type: 'array',
-              items: { type: 'number' },
-              minItems: 1,
-              'x-size-message': 'At least 1',
+              items: { type: 'string' },
+              uniqueItems: true,
+              'x-pattern-message': '重複不可',
             },
-            'z.array(z.number()).min(1,{error:"At least 1"})',
+            'z.array(z.string()).refine((items)=>new Set(items).size===items.length,{error:"重複不可"})',
           ],
+          // x-error-message on z.array() constructor
           [
             {
               type: 'array',
-              items: { type: 'number' },
-              maxItems: 5,
-              'x-size-message': 'At most 5',
+              items: { type: 'string' },
+              'x-error-message': '配列必須',
             },
-            'z.array(z.number()).max(5,{error:"At most 5"})',
+            'z.array(z.string(),{error:"配列必須"})',
+          ],
+          // x-error-message on z.tuple() (prefixItems)
+          [
+            {
+              type: 'array',
+              prefixItems: [{ type: 'string' }, { type: 'number' }],
+              'x-error-message': 'タプル不正',
+            },
+            'z.tuple([z.string(),z.number()],{error:"タプル不正"})',
+          ],
+          // all combined: x-error-message + x-minimum-message + x-maximum-message + x-pattern-message
+          [
+            {
+              type: 'array',
+              items: { type: 'string' },
+              minItems: 1,
+              maxItems: 5,
+              uniqueItems: true,
+              'x-error-message': '配列必須',
+              'x-minimum-message': '1個以上',
+              'x-maximum-message': '5個以下',
+              'x-pattern-message': '重複不可',
+            },
+            'z.array(z.string(),{error:"配列必須"}).min(1,{error:"1個以上"}).max(5,{error:"5個以下"}).refine((items)=>new Set(items).size===items.length,{error:"重複不可"})',
           ],
         ])('zodToOpenAPI(%o) → %s', (input, expected) => {
           expect(zodToOpenAPI(input)).toBe(expected)
         })
       })
 
-      // x-size-message on object
-      describe('x-size-message on object', () => {
+      // x-minimum-message / x-maximum-message on object
+      describe('x-minimum/maximum-message on object', () => {
         it.concurrent.each<[Schema, string]>([
+          // minProperties → x-minimum-message
           [
-            { type: 'object', minProperties: 1, 'x-size-message': 'At least 1' },
+            { type: 'object', minProperties: 1, 'x-minimum-message': 'At least 1' },
             'z.object({}).refine((o)=>Object.keys(o).length>=1,{error:"At least 1"})',
           ],
+          // maxProperties → x-maximum-message
           [
-            { type: 'object', maxProperties: 5, 'x-size-message': 'At most 5' },
+            { type: 'object', maxProperties: 5, 'x-maximum-message': 'At most 5' },
             'z.object({}).refine((o)=>Object.keys(o).length<=5,{error:"At most 5"})',
           ],
+          // both
           [
             {
               type: 'object',
               minProperties: 2,
               maxProperties: 10,
-              'x-size-message': '2-10 properties',
+              'x-minimum-message': '2個以上',
+              'x-maximum-message': '10個以下',
             },
-            'z.object({}).refine((o)=>Object.keys(o).length>=2,{error:"2-10 properties"}).refine((o)=>Object.keys(o).length<=10,{error:"2-10 properties"})',
+            'z.object({}).refine((o)=>Object.keys(o).length>=2,{error:"2個以上"}).refine((o)=>Object.keys(o).length<=10,{error:"10個以下"})',
+          ],
+          // dependentRequired → x-error-message
+          [
+            {
+              type: 'object',
+              dependentRequired: { foo: ['bar'] },
+              'x-error-message': 'fooにはbarが必要',
+            },
+            `z.object({}).refine((o)=>!('foo' in o)||('bar' in o),{error:"fooにはbarが必要"})`,
           ],
         ])('zodToOpenAPI(%o) → %s', (input, expected) => {
           expect(zodToOpenAPI(input)).toBe(expected)
@@ -1069,6 +1136,62 @@ describe('zodToOpenAPI', () => {
             },
             'z.object({}).refine((o)=>Object.entries(o).every(([k,v])=>!new RegExp("^S_").test(k)||z.string().safeParse(v).success),{error:"S_ keys must be strings"})',
           ],
+        ])('zodToOpenAPI(%o) → %s', (input, expected) => {
+          expect(zodToOpenAPI(input)).toBe(expected)
+        })
+      })
+
+      // x-error-message on const (z.literal)
+      describe('x-error-message on const', () => {
+        it.concurrent.each<[Schema, string]>([
+          [
+            { const: 'fixed', 'x-error-message': 'fixedのみ' },
+            `z.literal("fixed",{error:"fixedのみ"})`,
+          ],
+          [
+            { const: 42, 'x-error-message': '42のみ' },
+            'z.literal(42,{error:"42のみ"})',
+          ],
+          [
+            { const: true, 'x-error-message': 'trueのみ' },
+            'z.literal(true,{error:"trueのみ"})',
+          ],
+          // No x-error-message → existing behavior
+          [{ const: 'fixed' }, `z.literal("fixed")`],
+        ])('zodToOpenAPI(%o) → %s', (input, expected) => {
+          expect(zodToOpenAPI(input)).toBe(expected)
+        })
+      })
+
+      // x-error-message on multipleOf
+      describe('x-error-message on multipleOf', () => {
+        it.concurrent.each<[Schema, string]>([
+          [
+            { type: 'number', multipleOf: 2, 'x-error-message': '偶数のみ' },
+            'z.number({error:"偶数のみ"}).multipleOf(2,{error:"偶数のみ"})',
+          ],
+          [
+            { type: 'integer', multipleOf: 3, 'x-error-message': '3の倍数' },
+            'z.int({error:"3の倍数"}).multipleOf(3,{error:"3の倍数"})',
+          ],
+          [
+            { type: 'integer', format: 'int64', multipleOf: 5, 'x-error-message': '5の倍数' },
+            'z.int64({error:"5の倍数"}).multipleOf(5n,{error:"5の倍数"})',
+          ],
+        ])('zodToOpenAPI(%o) → %s', (input, expected) => {
+          expect(zodToOpenAPI(input)).toBe(expected)
+        })
+      })
+
+      // x-error-message on date
+      describe('x-error-message on date', () => {
+        it.concurrent.each<[Schema, string]>([
+          [
+            { type: 'date', 'x-error-message': '日付必須' },
+            'z.date({error:"日付必須"})',
+          ],
+          // No x-error-message → existing behavior
+          [{ type: 'date' }, 'z.date()'],
         ])('zodToOpenAPI(%o) → %s', (input, expected) => {
           expect(zodToOpenAPI(input)).toBe(expected)
         })

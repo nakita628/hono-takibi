@@ -70,27 +70,43 @@ describe('object', () => {
     expect(object(input)).toBe(expected)
   })
 
-  describe('x-size-message', () => {
+  describe('x-minimum-message / x-maximum-message', () => {
     it.concurrent.each<[Schema, string]>([
-      // minProperties + x-size-message
+      // minProperties + x-minimum-message
       [
-        { type: 'object', minProperties: 1, 'x-size-message': 'At least 1 property' },
+        { type: 'object', minProperties: 1, 'x-minimum-message': 'At least 1 property' },
         'z.object({}).refine((o)=>Object.keys(o).length>=1,{error:"At least 1 property"})',
       ],
-      // maxProperties + x-size-message
+      // maxProperties + x-maximum-message
       [
-        { type: 'object', maxProperties: 5, 'x-size-message': 'At most 5 properties' },
+        { type: 'object', maxProperties: 5, 'x-maximum-message': 'At most 5 properties' },
         'z.object({}).refine((o)=>Object.keys(o).length<=5,{error:"At most 5 properties"})',
       ],
-      // minProperties + maxProperties + x-size-message
+      // minProperties + maxProperties with separate messages
       [
         {
           type: 'object',
           minProperties: 1,
           maxProperties: 10,
-          'x-size-message': '1-10 properties',
+          'x-minimum-message': 'At least 1',
+          'x-maximum-message': 'At most 10',
         },
-        'z.object({}).refine((o)=>Object.keys(o).length>=1,{error:"1-10 properties"}).refine((o)=>Object.keys(o).length<=10,{error:"1-10 properties"})',
+        'z.object({}).refine((o)=>Object.keys(o).length>=1,{error:"At least 1"}).refine((o)=>Object.keys(o).length<=10,{error:"At most 10"})',
+      ],
+    ])('object(%o) → %s', (input, expected) => {
+      expect(object(input)).toBe(expected)
+    })
+  })
+
+  describe('x-error-message (dependentRequired)', () => {
+    it.concurrent.each<[Schema, string]>([
+      [
+        {
+          type: 'object',
+          dependentRequired: { foo: ['bar'] },
+          'x-error-message': 'fooにはbarが必要',
+        },
+        `z.object({}).refine((o)=>!('foo' in o)||('bar' in o),{error:"fooにはbarが必要"})`,
       ],
     ])('object(%o) → %s', (input, expected) => {
       expect(object(input)).toBe(expected)
