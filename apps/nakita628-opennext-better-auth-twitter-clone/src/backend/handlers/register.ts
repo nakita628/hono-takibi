@@ -25,7 +25,7 @@ export const postRegisterRouteHandler: RouteHandler<
   const { email, name, username, password } = c.req.valid('json')
 
   return Effect.runPromise(
-    UserTransaction.create({ email, name, username, password }).pipe(
+    UserTransaction.create(email, name, username, password).pipe(
       Effect.provide(DBLive),
       Effect.match({
         onSuccess: (user) => c.json(user, 201),

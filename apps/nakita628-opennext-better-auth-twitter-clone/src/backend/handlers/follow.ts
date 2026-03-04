@@ -33,10 +33,10 @@ export const postFollowRouteHandler: RouteHandler<
   }
 
   const userId = user.id
-  const body = c.req.valid('json')
+  const { userId: targetUserId } = c.req.valid('json')
 
   return Effect.runPromise(
-    FollowTransaction.create(userId, body).pipe(
+    FollowTransaction.create(userId, targetUserId).pipe(
       Effect.provide(DBLive),
       Effect.match({
         onSuccess: (result) => c.json(result, 200),
@@ -74,10 +74,10 @@ export const deleteFollowRouteHandler: RouteHandler<
   }
 
   const userId = user.id
-  const body = c.req.valid('json')
+  const { userId: targetUserId } = c.req.valid('json')
 
   return Effect.runPromise(
-    FollowTransaction.remove(userId, body).pipe(
+    FollowTransaction.remove(userId, targetUserId).pipe(
       Effect.provide(DBLive),
       Effect.match({
         onSuccess: (result) => c.json(result, 200),

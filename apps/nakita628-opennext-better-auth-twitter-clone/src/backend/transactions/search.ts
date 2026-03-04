@@ -8,10 +8,9 @@ import * as SearchService from '@/backend/services/search'
 /**
  * Transaction that orchestrates post and user search with pagination.
  *
- * @param args - Search parameters
- * @param args.query - Search keyword
- * @param args.page - Current page number
- * @param args.limit - Results per page
+ * @param query - Search keyword
+ * @param page - Current page number
+ * @param limit - Results per page
  * @returns Effect yielding validated `SearchResults`
  *
  * @mermaid
@@ -26,13 +25,13 @@ import * as SearchService from '@/backend/services/search'
  *   G -- valid --> H[return data]
  *   G -- invalid --> I[ContractViolationError]
  */
-export function search(args: { query: string; page: number; limit: number }) {
+export function search(query: string, page: number, limit: number) {
   return Effect.gen(function* () {
-    const offset = (args.page - 1) * args.limit
+    const offset = (page - 1) * limit
 
     const [postsResult, usersResult] = yield* Effect.all([
-      SearchService.searchPosts({ query: args.query, limit: args.limit, offset }),
-      SearchService.searchUsers({ query: args.query, limit: args.limit, offset }),
+      SearchService.searchPosts(query, limit, offset),
+      SearchService.searchUsers(query, limit, offset),
     ])
 
     const postIds = postsResult.posts.map((p) => p.id)
@@ -50,20 +49,20 @@ export function search(args: { query: string; page: number; limit: number }) {
         likeCount: likeCounts[post.id] ?? 0,
       })),
       meta: {
-        page: args.page,
-        limit: args.limit,
+        page,
+        limit,
         total: postsResult.total,
-        totalPages: Math.ceil(postsResult.total / args.limit),
+        totalPages: Math.ceil(postsResult.total / limit),
       },
     }
 
     const users = {
       data: usersResult.users.map((user) => UserDomain.makeFormatPublicUser(user)),
       meta: {
-        page: args.page,
-        limit: args.limit,
+        page,
+        limit,
         total: usersResult.total,
-        totalPages: Math.ceil(usersResult.total / args.limit),
+        totalPages: Math.ceil(usersResult.total / limit),
       },
     }
 

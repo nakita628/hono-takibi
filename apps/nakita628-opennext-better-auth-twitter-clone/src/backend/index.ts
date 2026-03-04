@@ -17,7 +17,7 @@ import {
   postPostsRouteHandler,
   postRegisterRouteHandler,
 } from '@/backend/handlers'
-import { formatZodErrors } from '@/backend/lib/error'
+import { formatZodErrors } from '@/backend/domain'
 import { rateLimit } from '@/backend/middleware/rateLimit'
 import {
   deleteFollowRoute,
@@ -37,7 +37,7 @@ import {
   postPostsRoute,
   postRegisterRoute,
 } from '@/backend/routes'
-import { type AuthType, auth } from '@/infra'
+import { auth, type AuthType } from '@/infra'
 
 const app = new OpenAPIHono<{ Variables: AuthType }>({
   defaultHook: (result, c) => {

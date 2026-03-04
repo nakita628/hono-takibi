@@ -59,7 +59,7 @@ export const getUsersRouteHandler: RouteHandler<
   const { page, limit } = c.req.valid('query')
 
   return Effect.runPromise(
-    UsersTransaction.getAll({ page: page ?? 1, limit: limit ?? 20 }).pipe(
+    UsersTransaction.getAll(page ?? 1, limit ?? 20).pipe(
       Effect.provide(DBLive),
       Effect.match({
         onSuccess: (users) => c.json(users, 200),

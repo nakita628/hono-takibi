@@ -5,18 +5,18 @@ import { schema } from '@/db'
 import { DB } from '@/infra'
 
 /** Insert a follow relationship between two users. */
-export function create(args: { followerId: string; followingId: string }) {
+export function create(followerId: string, followingId: string) {
   return Effect.gen(function* () {
     const db = yield* DB
     return yield* Effect.tryPromise({
-      try: () => db.insert(schema.follows).values(args).returning().get(),
+      try: () => db.insert(schema.follows).values({ followerId, followingId }).returning().get(),
       catch: () => new DatabaseError({ message: 'Database error' }),
     })
   })
 }
 
 /** Delete a follow relationship between two users. */
-export function remove(args: { followerId: string; followingId: string }) {
+export function remove(followerId: string, followingId: string) {
   return Effect.gen(function* () {
     const db = yield* DB
     return yield* Effect.tryPromise({
@@ -25,8 +25,8 @@ export function remove(args: { followerId: string; followingId: string }) {
           .delete(schema.follows)
           .where(
             and(
-              eq(schema.follows.followerId, args.followerId),
-              eq(schema.follows.followingId, args.followingId),
+              eq(schema.follows.followerId, followerId),
+              eq(schema.follows.followingId, followingId),
             ),
           )
           .returning()

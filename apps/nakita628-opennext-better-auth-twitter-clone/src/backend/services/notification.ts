@@ -5,11 +5,11 @@ import { schema } from '@/db'
 import { DB } from '@/infra'
 
 /** Insert a new notification row for a user. */
-export function create(args: { body: string; userId: string }) {
+export function create(body: string, userId: string) {
   return Effect.gen(function* () {
     const db = yield* DB
     return yield* Effect.tryPromise({
-      try: () => db.insert(schema.notifications).values(args).returning().get(),
+      try: () => db.insert(schema.notifications).values({ body, userId }).returning().get(),
       catch: () => new DatabaseError({ message: 'Database error' }),
     })
   })
@@ -33,17 +33,17 @@ export function findByUserId(userId: string) {
 }
 
 /** Insert a notification and set the user's `hasNotification` flag in parallel. */
-export function createAndNotify(args: { body: string; userId: string }) {
+export function createAndNotify(body: string, userId: string) {
   return Effect.gen(function* () {
     const db = yield* DB
     const [notification] = yield* Effect.tryPromise({
       try: () =>
         Promise.all([
-          db.insert(schema.notifications).values(args).returning().get(),
+          db.insert(schema.notifications).values({ body, userId }).returning().get(),
           db
             .update(schema.userProfile)
             .set({ hasNotification: true })
-            .where(eq(schema.userProfile.userId, args.userId))
+            .where(eq(schema.userProfile.userId, userId))
             .run(),
         ]),
       catch: () => new DatabaseError({ message: 'Database error' }),

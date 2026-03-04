@@ -17,20 +17,13 @@ import * as PostService from '@/backend/services/post'
  *   D --> E[validate + return]
  * ```
  */
-export function create(userId: string, args: { body: string; postId: string }) {
+export function create(userId: string, body: string, postId: string) {
   return Effect.gen(function* () {
-    const comment = yield* CommentService.create({
-      body: args.body,
-      userId,
-      postId: args.postId,
-    })
+    const comment = yield* CommentService.create(body, userId, postId)
 
-    const post = yield* PostService.findById(args.postId)
+    const post = yield* PostService.findById(postId)
     if (post?.userId) {
-      yield* NotificationService.createAndNotify({
-        body: 'Someone replied to your tweet',
-        userId: post.userId,
-      })
+      yield* NotificationService.createAndNotify('Someone replied to your tweet', post.userId)
     }
 
     const data = {

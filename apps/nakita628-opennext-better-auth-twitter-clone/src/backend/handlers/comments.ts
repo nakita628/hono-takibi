@@ -32,7 +32,7 @@ export const postCommentsRouteHandler: RouteHandler<
   const { body } = c.req.valid('json')
 
   return Effect.runPromise(
-    CommentsTransaction.create(userId, { body, postId }).pipe(
+    CommentsTransaction.create(userId, body, postId).pipe(
       Effect.provide(DBLive),
       Effect.match({
         onSuccess: (comment) => c.json(comment, 200),

@@ -17,27 +17,20 @@ import * as UserService from '@/backend/services/user'
  *   E --> F[validate + return]
  * ```
  */
-export function create(args: { email: string; name: string; username: string; password: string }) {
+export function create(email: string, name: string, username: string, password: string) {
   return Effect.gen(function* () {
-    yield* UserService.exists({ email: args.email })
+    yield* UserService.exists(email)
 
-    const signUpResult = yield* AuthService.signUpEmail({
-      email: args.email,
-      password: args.password,
-      name: args.name,
-    })
+    const signUpResult = yield* AuthService.signUpEmail(email, password, name)
 
     const user = signUpResult.user
 
-    yield* UserService.createProfile({
-      userId: user.id,
-      username: args.username,
-    })
+    yield* UserService.createProfile(user.id, username)
 
     const data = {
       id: user.id,
       name: user.name,
-      username: args.username,
+      username,
       bio: '',
       email: user.email,
       emailVerified: user.emailVerified ? user.createdAt.toISOString() : null,

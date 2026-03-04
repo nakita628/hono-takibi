@@ -18,26 +18,20 @@ import * as UserService from '@/backend/services/user'
  *   E --> F[validate + return]
  * ```
  */
-export function create(userId: string, args: { userId: string }) {
+export function create(userId: string, targetUserId: string) {
   return Effect.gen(function* () {
-    if (userId === args.userId) {
+    if (userId === targetUserId) {
       return yield* Effect.fail(new ConflictError({ message: 'Cannot follow yourself' }))
     }
 
-    const targetUser = yield* UserService.findById(args.userId)
+    const targetUser = yield* UserService.findById(targetUserId)
     if (!targetUser) {
       return yield* Effect.fail(new NotFoundError({ message: 'User not found' }))
     }
 
-    yield* FollowService.create({
-      followerId: userId,
-      followingId: args.userId,
-    })
+    yield* FollowService.create(userId, targetUserId)
 
-    yield* NotificationService.createAndNotify({
-      body: 'Someone followed you!',
-      userId: args.userId,
-    })
+    yield* NotificationService.createAndNotify('Someone followed you!', targetUserId)
 
     const data = { message: 'Success' }
     const valid = MessageResponseSchema.safeParse(data)
@@ -57,12 +51,9 @@ export function create(userId: string, args: { userId: string }) {
  *   A[removeFollow] --> B[validate + return]
  * ```
  */
-export function remove(userId: string, args: { userId: string }) {
+export function remove(userId: string, targetUserId: string) {
   return Effect.gen(function* () {
-    yield* FollowService.remove({
-      followerId: userId,
-      followingId: args.userId,
-    })
+    yield* FollowService.remove(userId, targetUserId)
 
     const data = { message: 'Success' }
     const valid = MessageResponseSchema.safeParse(data)

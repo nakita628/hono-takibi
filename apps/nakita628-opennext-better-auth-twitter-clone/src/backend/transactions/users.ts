@@ -60,10 +60,10 @@ export function getById(userId: string) {
  *   D --> E[validate + return]
  * ```
  */
-export function getAll(args: { page: number; limit: number }) {
+export function getAll(page: number, limit: number) {
   return Effect.gen(function* () {
-    const offset = (args.page - 1) * args.limit
-    const result = yield* UserService.findAllPaginated({ limit: args.limit, offset })
+    const offset = (page - 1) * limit
+    const result = yield* UserService.findAllPaginated(limit, offset)
 
     const data = {
       data: result.users.map((user) => {
@@ -81,10 +81,10 @@ export function getAll(args: { page: number; limit: number }) {
         }
       }),
       meta: {
-        page: args.page,
-        limit: args.limit,
+        page,
+        limit,
         total: result.total,
-        totalPages: Math.ceil(result.total / args.limit),
+        totalPages: Math.ceil(result.total / limit),
       },
     }
 

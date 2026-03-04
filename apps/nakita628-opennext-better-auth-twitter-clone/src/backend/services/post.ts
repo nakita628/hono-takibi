@@ -5,11 +5,11 @@ import { schema } from '@/db'
 import { DB } from '@/infra'
 
 /** Insert a new post row and return the created record. */
-export function create(args: { body: string; userId: string }) {
+export function create(body: string, userId: string) {
   return Effect.gen(function* () {
     const db = yield* DB
     return yield* Effect.tryPromise({
-      try: () => db.insert(schema.posts).values(args).returning().get(),
+      try: () => db.insert(schema.posts).values({ body, userId }).returning().get(),
       catch: () => new DatabaseError({ message: 'Database error' }),
     })
   })
@@ -141,10 +141,9 @@ export function findAllWithRelations(userId?: string) {
 export function getCountsForPostIds(postIds: string[]) {
   return Effect.gen(function* () {
     if (postIds.length === 0) {
-      return {
-        commentCounts: {} as Record<string, number>,
-        likeCounts: {} as Record<string, number>,
-      }
+      const commentCounts: Record<string, number> = {}
+      const likeCounts: Record<string, number> = {}
+      return { commentCounts, likeCounts }
     }
 
     const db = yield* DB
@@ -196,10 +195,10 @@ export function getCountsForPostIds(postIds: string[]) {
  *   E --> F[Return posts + counts]
  * ```
  */
-export function findAllPaginated(args: { userId?: string; limit: number; offset: number }) {
+export function findAllPaginated(limit: number, offset: number, userId?: string) {
   return Effect.gen(function* () {
     const db = yield* DB
-    const whereClause = args.userId ? eq(schema.posts.userId, args.userId) : undefined
+    const whereClause = userId ? eq(schema.posts.userId, userId) : undefined
 
     const [postRows, [{ total }]] = yield* Effect.tryPromise({
       try: () =>
@@ -211,8 +210,8 @@ export function findAllPaginated(args: { userId?: string; limit: number; offset:
             .leftJoin(schema.userProfile, eq(schema.user.id, schema.userProfile.userId))
             .where(whereClause)
             .orderBy(desc(schema.posts.createdAt))
-            .limit(args.limit)
-            .offset(args.offset)
+            .limit(limit)
+            .offset(offset)
             .all(),
           db.select({ total: count() }).from(schema.posts).where(whereClause),
         ]),

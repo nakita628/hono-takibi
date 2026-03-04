@@ -15,35 +15,35 @@ model MessageResponse {
 }
 
 model PublicUser {
-  @format("uuid") id: string;
+  @format("uuid") @extension("x-error-message", "User ID must be a valid UUID") id: string;
   name: string;
   username: string;
   bio?: string | null;
-  image: url | null;
-  coverImage: url | null;
-  profileImage: url | null;
-  createdAt: utcDateTime;
-  updatedAt: utcDateTime;
+  @extension("x-error-message", "Image must be a valid URL") image: url | null;
+  @extension("x-error-message", "Cover image must be a valid URL") coverImage: url | null;
+  @extension("x-error-message", "Profile image must be a valid URL") profileImage: url | null;
+  @extension("x-error-message", "Created date must be a valid datetime") createdAt: utcDateTime;
+  @extension("x-error-message", "Updated date must be a valid datetime") updatedAt: utcDateTime;
 }
 
 model User {
   ...PublicUser;
-  @format("email") email: string;
-  emailVerified: utcDateTime | null;
+  @format("email") @extension("x-error-message", "Must be a valid email address") email: string;
+  @extension("x-error-message", "Email verified date must be a valid datetime") emailVerified: utcDateTime | null;
   hasNotification?: boolean | null;
 }
 
 model CurrentUser {
-  @format("uuid") id: string;
+  @format("uuid") @extension("x-error-message", "User ID must be a valid UUID") id: string;
   name: string;
   username: string;
   bio?: string | null;
-  @format("email") email: string;
-  image: url | null;
-  coverImage: url | null;
-  profileImage: url | null;
-  createdAt: utcDateTime;
-  updatedAt: utcDateTime;
+  @format("email") @extension("x-error-message", "Must be a valid email address") email: string;
+  @extension("x-error-message", "Image must be a valid URL") image: url | null;
+  @extension("x-error-message", "Cover image must be a valid URL") coverImage: url | null;
+  @extension("x-error-message", "Profile image must be a valid URL") profileImage: url | null;
+  @extension("x-error-message", "Created date must be a valid datetime") createdAt: utcDateTime;
+  @extension("x-error-message", "Updated date must be a valid datetime") updatedAt: utcDateTime;
   followers: Follow[];
   following: Follow[];
   hasNotification: boolean | null;
@@ -58,70 +58,70 @@ model UserWithFollowCount {
 }
 
 model Follow {
-  @format("uuid") followerId: string;
-  @format("uuid") followingId: string;
-  createdAt: utcDateTime;
+  @format("uuid") @extension("x-error-message", "Follower ID must be a valid UUID") followerId: string;
+  @format("uuid") @extension("x-error-message", "Following ID must be a valid UUID") followingId: string;
+  @extension("x-error-message", "Created date must be a valid datetime") createdAt: utcDateTime;
 }
 
 model Comment {
-  @format("uuid") id: string;
+  @format("uuid") @extension("x-error-message", "Comment ID must be a valid UUID") id: string;
   body: string;
-  createdAt: utcDateTime;
-  updatedAt: utcDateTime;
-  @format("uuid") userId: string;
-  @format("uuid") postId: string;
+  @extension("x-error-message", "Created date must be a valid datetime") createdAt: utcDateTime;
+  @extension("x-error-message", "Updated date must be a valid datetime") updatedAt: utcDateTime;
+  @format("uuid") @extension("x-error-message", "User ID must be a valid UUID") userId: string;
+  @format("uuid") @extension("x-error-message", "Post ID must be a valid UUID") postId: string;
 }
 
 model CommentWithUser {
-  @format("uuid") id: string;
+  @format("uuid") @extension("x-error-message", "Comment ID must be a valid UUID") id: string;
   body: string;
-  createdAt: utcDateTime;
-  updatedAt: utcDateTime;
-  @format("uuid") userId: string;
-  @format("uuid") postId: string;
+  @extension("x-error-message", "Created date must be a valid datetime") createdAt: utcDateTime;
+  @extension("x-error-message", "Updated date must be a valid datetime") updatedAt: utcDateTime;
+  @format("uuid") @extension("x-error-message", "User ID must be a valid UUID") userId: string;
+  @format("uuid") @extension("x-error-message", "Post ID must be a valid UUID") postId: string;
   user: PublicUser;
 }
 
 model Like {
-  @format("uuid") userId: string;
-  @format("uuid") postId: string;
-  createdAt: utcDateTime;
+  @format("uuid") @extension("x-error-message", "User ID must be a valid UUID") userId: string;
+  @format("uuid") @extension("x-error-message", "Post ID must be a valid UUID") postId: string;
+  @extension("x-error-message", "Created date must be a valid datetime") createdAt: utcDateTime;
 }
 
 model Post {
-  @format("uuid") id: string;
+  @format("uuid") @extension("x-error-message", "Post ID must be a valid UUID") id: string;
   body: string;
-  createdAt: utcDateTime;
-  updatedAt: utcDateTime;
-  @format("uuid") userId: string;
+  @extension("x-error-message", "Created date must be a valid datetime") createdAt: utcDateTime;
+  @extension("x-error-message", "Updated date must be a valid datetime") updatedAt: utcDateTime;
+  @format("uuid") @extension("x-error-message", "User ID must be a valid UUID") userId: string;
 }
 
 model PostWithLikes {
-  @format("uuid") id: string;
+  @format("uuid") @extension("x-error-message", "Post ID must be a valid UUID") id: string;
   body: string;
-  createdAt: utcDateTime;
-  updatedAt: utcDateTime;
-  @format("uuid") userId: string;
+  @extension("x-error-message", "Created date must be a valid datetime") createdAt: utcDateTime;
+  @extension("x-error-message", "Updated date must be a valid datetime") updatedAt: utcDateTime;
+  @format("uuid") @extension("x-error-message", "User ID must be a valid UUID") userId: string;
   likes: Like[];
 }
 
 model PostWithDetails {
-  @format("uuid") id: string;
+  @format("uuid") @extension("x-error-message", "Post ID must be a valid UUID") id: string;
   body: string;
-  createdAt: utcDateTime;
-  updatedAt: utcDateTime;
-  @format("uuid") userId: string;
+  @extension("x-error-message", "Created date must be a valid datetime") createdAt: utcDateTime;
+  @extension("x-error-message", "Updated date must be a valid datetime") updatedAt: utcDateTime;
+  @format("uuid") @extension("x-error-message", "User ID must be a valid UUID") userId: string;
   user: PublicUser;
   comments: Comment[];
   likes: Like[];
 }
 
 model PostSummary {
-  @format("uuid") id: string;
+  @format("uuid") @extension("x-error-message", "Post ID must be a valid UUID") id: string;
   body: string;
-  createdAt: utcDateTime;
-  updatedAt: utcDateTime;
-  @format("uuid") userId: string;
+  @extension("x-error-message", "Created date must be a valid datetime") createdAt: utcDateTime;
+  @extension("x-error-message", "Updated date must be a valid datetime") updatedAt: utcDateTime;
+  @format("uuid") @extension("x-error-message", "User ID must be a valid UUID") userId: string;
   user: PublicUser;
   commentCount: numeric;
   likeCount: numeric;
@@ -145,15 +145,15 @@ model PaginatedUsers {
 }
 
 model PostDetail {
-  @format("uuid") id: string;
+  @format("uuid") @extension("x-error-message", "Post ID must be a valid UUID") id: string;
   body: string;
-  createdAt: utcDateTime;
-  updatedAt: utcDateTime;
-  @format("uuid") userId: string;
+  @extension("x-error-message", "Created date must be a valid datetime") createdAt: utcDateTime;
+  @extension("x-error-message", "Updated date must be a valid datetime") updatedAt: utcDateTime;
+  @format("uuid") @extension("x-error-message", "User ID must be a valid UUID") userId: string;
   user: PublicUser;
   comments: CommentWithUser[];
   likes: {
-    @format("uuid")
+    @format("uuid") @extension("x-error-message", "User ID must be a valid UUID")
     userId: string;
   }[];
   _count: {
@@ -162,41 +162,41 @@ model PostDetail {
 }
 
 model Notification {
-  @format("uuid") id: string;
+  @format("uuid") @extension("x-error-message", "Notification ID must be a valid UUID") id: string;
   body: string;
-  @format("uuid") userId: string;
-  createdAt: utcDateTime;
+  @format("uuid") @extension("x-error-message", "User ID must be a valid UUID") userId: string;
+  @extension("x-error-message", "Created date must be a valid datetime") createdAt: utcDateTime;
 }
 
 model CreateCommentRequest {
-  body: string;
+  @minLength(1) @extension("x-minimum-message", "Comment must not be empty") body: string;
 }
 
 model CreatePostRequest {
-  body: string;
+  @minLength(1) @extension("x-minimum-message", "Post must not be empty") body: string;
 }
 
 model EditUserRequest {
   name: string;
   username: string;
   bio?: string;
-  coverImage: url | null;
-  profileImage: url | null;
+  @extension("x-error-message", "Cover image must be a valid URL") coverImage: url | null;
+  @extension("x-error-message", "Profile image must be a valid URL") profileImage: url | null;
 }
 
 model FollowUserRequest {
-  @format("uuid") userId: string;
+  @format("uuid") @extension("x-error-message", "User ID must be a valid UUID") userId: string;
 }
 
 model LikePostRequest {
-  @format("uuid") postId: string;
+  @format("uuid") @extension("x-error-message", "Post ID must be a valid UUID") postId: string;
 }
 
 model RegisterRequest {
-  @format("email") email: string;
-  name: string;
-  username: string;
-  password: string;
+  @format("email") @extension("x-error-message", "Must be a valid email address") email: string;
+  @minLength(1) @extension("x-minimum-message", "Name must not be empty") name: string;
+  @minLength(1) @extension("x-minimum-message", "Username must not be empty") username: string;
+  @minLength(1) @extension("x-minimum-message", "Password must not be empty") password: string;
 }
 
 model SearchResults {
@@ -465,22 +465,22 @@ op getUsers(...Parameters.PaginationQuery): PaginatedUsers | {
 
 namespace Parameters {
   model PostIdPath {
-    @format("uuid") @path postId: string;
+    @format("uuid") @extension("x-error-message", "Post ID must be a valid UUID") @path postId: string;
   }
   model PostIdQuery {
-    @format("uuid") @query(#{ explode: true }) postId: string;
+    @format("uuid") @extension("x-error-message", "Post ID must be a valid UUID") @query(#{ explode: true }) postId: string;
   }
   model UserIdPath {
-    @format("uuid") @path userId: string;
+    @format("uuid") @extension("x-error-message", "User ID must be a valid UUID") @path userId: string;
   }
   model UserIdQuery {
-    @format("uuid") @query(#{ explode: true }) userId?: string;
+    @format("uuid") @extension("x-error-message", "User ID must be a valid UUID") @query(#{ explode: true }) userId?: string;
   }
   model SearchQuery {
-    @minLength(1) @query(#{ explode: true }) q: string;
+    @minLength(1) @extension("x-minimum-message", "Search query must not be empty") @query(#{ explode: true }) q: string;
   }
   model PaginationQuery {
-    @minValue(1) @query(#{ explode: true }) page?: numeric;
-    @minValue(1) @maxValue(100) @query(#{ explode: true }) limit?: numeric;
+    @minValue(1) @extension("x-minimum-message", "Page must be at least 1") @query(#{ explode: true }) page?: numeric;
+    @minValue(1) @extension("x-minimum-message", "Limit must be at least 1") @maxValue(100) @extension("x-maximum-message", "Limit must be at most 100") @query(#{ explode: true }) limit?: numeric;
   }
 }

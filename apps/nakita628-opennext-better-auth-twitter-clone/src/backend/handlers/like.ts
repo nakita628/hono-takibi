@@ -36,7 +36,7 @@ export const postLikeRouteHandler: RouteHandler<
   const { postId } = c.req.valid('json')
 
   return Effect.runPromise(
-    LikeTransaction.create(userId, { postId }).pipe(
+    LikeTransaction.create(userId, postId).pipe(
       Effect.provide(DBLive),
       Effect.match({
         onSuccess: (result) => c.json(result, 200),
@@ -78,7 +78,7 @@ export const deleteLikeRouteHandler: RouteHandler<
   const { postId } = c.req.valid('json')
 
   return Effect.runPromise(
-    LikeTransaction.remove(userId, { postId }).pipe(
+    LikeTransaction.remove(userId, postId).pipe(
       Effect.provide(DBLive),
       Effect.match({
         onSuccess: (result) => c.json(result, 200),

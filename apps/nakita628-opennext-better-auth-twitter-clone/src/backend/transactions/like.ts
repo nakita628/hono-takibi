@@ -22,9 +22,9 @@ import * as PostService from '@/backend/services/post'
  *   H --> I[validate + return]
  * ```
  */
-export function create(userId: string, args: { postId: string }) {
+export function create(userId: string, postId: string) {
   return Effect.gen(function* () {
-    const post = yield* PostService.findByIdWithLikes(args.postId)
+    const post = yield* PostService.findByIdWithLikes(postId)
     if (!post) {
       return yield* Effect.fail(new NotFoundError({ message: 'Post not found' }))
     }
@@ -33,16 +33,13 @@ export function create(userId: string, args: { postId: string }) {
       return yield* Effect.fail(new ConflictError({ message: 'Already liked' }))
     }
 
-    yield* LikeService.create({ userId, postId: args.postId })
+    yield* LikeService.create(userId, postId)
 
     if (post.userId) {
-      yield* NotificationService.createAndNotify({
-        body: 'Someone liked your tweet',
-        userId: post.userId,
-      })
+      yield* NotificationService.createAndNotify('Someone liked your tweet', post.userId)
     }
 
-    const updatedLikes = [...post.likes, { userId, postId: args.postId, createdAt: new Date() }]
+    const updatedLikes = [...post.likes, { userId, postId, createdAt: new Date() }]
     const data = PostDomain.makeFormatPostWithLikes({ ...post, likes: updatedLikes })
     const valid = PostWithLikesSchema.safeParse(data)
     if (!valid.success) {
@@ -62,11 +59,11 @@ export function create(userId: string, args: { postId: string }) {
  *   B --> C[validate + return]
  * ```
  */
-export function remove(userId: string, args: { postId: string }) {
+export function remove(userId: string, postId: string) {
   return Effect.gen(function* () {
-    yield* LikeService.remove({ userId, postId: args.postId })
+    yield* LikeService.remove(userId, postId)
 
-    const updated = yield* PostService.findByIdWithLikes(args.postId)
+    const updated = yield* PostService.findByIdWithLikes(postId)
     if (!updated) {
       return yield* Effect.fail(new NotFoundError({ message: 'Post not found' }))
     }

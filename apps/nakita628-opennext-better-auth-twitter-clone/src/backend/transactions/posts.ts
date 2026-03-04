@@ -15,9 +15,9 @@ const { makeFormatPublicUser } = UserDomain
  *   A[createPost] --> B[validate + return]
  * ```
  */
-export function create(userId: string, args: { body: string }) {
+export function create(userId: string, body: string) {
   return Effect.gen(function* () {
-    const post = yield* PostService.create({ body: args.body, userId })
+    const post = yield* PostService.create(body, userId)
 
     const data = {
       id: post.id,
@@ -47,14 +47,10 @@ export function create(userId: string, args: { body: string }) {
  *   D --> E[validate + return]
  * ```
  */
-export function getAll(args: { userId?: string; page: number; limit: number }) {
+export function getAll(page: number, limit: number, userId?: string) {
   return Effect.gen(function* () {
-    const offset = (args.page - 1) * args.limit
-    const result = yield* PostService.findAllPaginated({
-      ...(args.userId !== undefined ? { userId: args.userId } : {}),
-      limit: args.limit,
-      offset,
-    })
+    const offset = (page - 1) * limit
+    const result = yield* PostService.findAllPaginated(limit, offset, userId)
 
     const data = {
       data: result.posts.map((post) => ({
@@ -68,10 +64,10 @@ export function getAll(args: { userId?: string; page: number; limit: number }) {
         likeCount: result.likeCounts[post.id] ?? 0,
       })),
       meta: {
-        page: args.page,
-        limit: args.limit,
+        page,
+        limit,
         total: result.total,
-        totalPages: Math.ceil(result.total / args.limit),
+        totalPages: Math.ceil(result.total / limit),
       },
     }
 

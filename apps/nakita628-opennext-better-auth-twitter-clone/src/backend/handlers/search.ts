@@ -24,7 +24,7 @@ export const getSearchRouteHandler: RouteHandler<
   const { q, page, limit } = c.req.valid('query')
 
   return Effect.runPromise(
-    SearchTransaction.search({ query: q, page: page ?? 1, limit: limit ?? 20 }).pipe(
+    SearchTransaction.search(q, page ?? 1, limit ?? 20).pipe(
       Effect.provide(DBLive),
       Effect.match({
         onSuccess: (results) => c.json(results, 200),

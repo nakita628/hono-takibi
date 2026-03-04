@@ -24,11 +24,7 @@ export const getPostsRouteHandler: RouteHandler<
   const { userId, page, limit } = c.req.valid('query')
 
   return Effect.runPromise(
-    PostsTransaction.getAll({
-      ...(userId !== undefined ? { userId } : {}),
-      page: page ?? 1,
-      limit: limit ?? 20,
-    }).pipe(
+    PostsTransaction.getAll(page ?? 1, limit ?? 20, userId).pipe(
       Effect.provide(DBLive),
       Effect.match({
         onSuccess: (posts) => c.json(posts, 200),
@@ -68,7 +64,7 @@ export const postPostsRouteHandler: RouteHandler<
   const { body } = c.req.valid('json')
 
   return Effect.runPromise(
-    PostsTransaction.create(userId, { body }).pipe(
+    PostsTransaction.create(userId, body).pipe(
       Effect.provide(DBLive),
       Effect.match({
         onSuccess: (post) => c.json(post, 200),

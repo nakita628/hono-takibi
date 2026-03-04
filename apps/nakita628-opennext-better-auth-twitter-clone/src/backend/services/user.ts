@@ -15,11 +15,11 @@ import { DB } from '@/infra'
  *   B -- no --> D[return null]
  * ```
  */
-export function exists(args: { email: string }) {
+export function exists(email: string) {
   return Effect.gen(function* () {
     const db = yield* DB
     const u = yield* Effect.tryPromise({
-      try: () => db.select().from(schema.user).where(eq(schema.user.email, args.email)).get(),
+      try: () => db.select().from(schema.user).where(eq(schema.user.email, email)).get(),
       catch: () => new DatabaseError({ message: 'Database error' }),
     })
     if (u) {
@@ -186,7 +186,7 @@ export function findAll() {
 }
 
 /** Paginated user query returning users with profiles and total count. */
-export function findAllPaginated(args: { limit: number; offset: number }) {
+export function findAllPaginated(limit: number, offset: number) {
   return Effect.gen(function* () {
     const db = yield* DB
     const [rows, [{ total }]] = yield* Effect.tryPromise({
@@ -197,8 +197,8 @@ export function findAllPaginated(args: { limit: number; offset: number }) {
             .from(schema.user)
             .leftJoin(schema.userProfile, eq(schema.user.id, schema.userProfile.userId))
             .orderBy(desc(schema.user.createdAt))
-            .limit(args.limit)
-            .offset(args.offset)
+            .limit(limit)
+            .offset(offset)
             .all(),
           db.select({ total: count() }).from(schema.user),
         ]),
@@ -210,11 +210,11 @@ export function findAllPaginated(args: { limit: number; offset: number }) {
 }
 
 /** Create a user profile row with a username. */
-export function createProfile(args: { userId: string; username: string }) {
+export function createProfile(userId: string, username: string) {
   return Effect.gen(function* () {
     const db = yield* DB
     return yield* Effect.tryPromise({
-      try: () => db.insert(schema.userProfile).values(args).returning().get(),
+      try: () => db.insert(schema.userProfile).values({ userId, username }).returning().get(),
       catch: () => new DatabaseError({ message: 'Database error' }),
     })
   })
