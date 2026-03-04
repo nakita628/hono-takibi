@@ -314,4 +314,53 @@ describe('integer', () => {
       expect(integer(input)).toBe(expected)
     })
   })
+
+  describe('x-multipleOf-message', () => {
+    it.concurrent.each<[Schema, string]>([
+      // x-multipleOf-message overrides x-error-message for multipleOf (int)
+      [
+        {
+          type: 'integer',
+          multipleOf: 2,
+          'x-error-message': '整数必須',
+          'x-multipleOf-message': '偶数のみ',
+        },
+        'z.int({error:"整数必須"}).multipleOf(2,{error:"偶数のみ"})',
+      ],
+      // x-multipleOf-message alone (no x-error-message)
+      [
+        { type: 'integer', multipleOf: 2, 'x-multipleOf-message': '偶数のみ' },
+        'z.int().multipleOf(2,{error:"偶数のみ"})',
+      ],
+      // x-multipleOf-message with int64
+      [
+        {
+          type: 'integer',
+          format: 'int64',
+          multipleOf: 3,
+          'x-error-message': 'int64必須',
+          'x-multipleOf-message': '3の倍数',
+        },
+        'z.int64({error:"int64必須"}).multipleOf(3n,{error:"3の倍数"})',
+      ],
+      // x-multipleOf-message with bigint
+      [
+        {
+          type: 'integer',
+          format: 'bigint',
+          multipleOf: 5,
+          'x-error-message': 'bigint必須',
+          'x-multipleOf-message': '5の倍数',
+        },
+        'z.bigint({error:"bigint必須"}).multipleOf(BigInt(5),{error:"5の倍数"})',
+      ],
+      // fallback: no x-multipleOf-message → x-error-message used
+      [
+        { type: 'integer', multipleOf: 2, 'x-error-message': '整数必須' },
+        'z.int({error:"整数必須"}).multipleOf(2,{error:"整数必須"})',
+      ],
+    ])('integer(%o) → %s', (input, expected) => {
+      expect(integer(input)).toBe(expected)
+    })
+  })
 })

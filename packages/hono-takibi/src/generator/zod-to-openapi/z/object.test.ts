@@ -113,6 +113,41 @@ describe('object', () => {
     })
   })
 
+  describe('x-dependentRequired-message', () => {
+    it.concurrent.each<[Schema, string]>([
+      // x-dependentRequired-message overrides x-error-message for dependentRequired
+      [
+        {
+          type: 'object',
+          dependentRequired: { foo: ['bar'] },
+          'x-error-message': 'オブジェクト必須',
+          'x-dependentRequired-message': 'fooにはbarが必要',
+        },
+        `z.object({}).refine((o)=>!('foo' in o)||('bar' in o),{error:"fooにはbarが必要"})`,
+      ],
+      // x-dependentRequired-message alone (no x-error-message)
+      [
+        {
+          type: 'object',
+          dependentRequired: { foo: ['bar'] },
+          'x-dependentRequired-message': 'fooにはbarが必要',
+        },
+        `z.object({}).refine((o)=>!('foo' in o)||('bar' in o),{error:"fooにはbarが必要"})`,
+      ],
+      // fallback: no x-dependentRequired-message → x-error-message used
+      [
+        {
+          type: 'object',
+          dependentRequired: { foo: ['bar'] },
+          'x-error-message': 'エラー',
+        },
+        `z.object({}).refine((o)=>!('foo' in o)||('bar' in o),{error:"エラー"})`,
+      ],
+    ])('object(%o) → %s', (input, expected) => {
+      expect(object(input)).toBe(expected)
+    })
+  })
+
   describe('x-pattern-message', () => {
     it.concurrent.each<[Schema, string]>([
       // propertyNames.pattern + x-pattern-message
@@ -161,6 +196,60 @@ describe('object', () => {
           'x-pattern-message': 'x- keys must be strings',
         },
         'z.record(z.string(),z.number()).refine((o)=>Object.entries(o).every(([k,v])=>!new RegExp("^x-").test(k)||z.string().safeParse(v).success),{error:"x- keys must be strings"})',
+      ],
+    ])('object(%o) → %s', (input, expected) => {
+      expect(object(input)).toBe(expected)
+    })
+  })
+
+  describe('x-propertyNames-message', () => {
+    it.concurrent.each<[Schema, string]>([
+      // x-propertyNames-message overrides x-pattern-message for propertyNames
+      [
+        {
+          type: 'object',
+          propertyNames: { pattern: '^[a-z]+$' },
+          'x-pattern-message': 'パターンエラー',
+          'x-propertyNames-message': 'キー名は小文字のみ',
+        },
+        'z.object({}).refine((o)=>Object.keys(o).every((k)=>new RegExp("^[a-z]+$").test(k)),{error:"キー名は小文字のみ"})',
+      ],
+      // x-propertyNames-message alone (no x-pattern-message)
+      [
+        {
+          type: 'object',
+          propertyNames: { pattern: '^[a-z]+$' },
+          'x-propertyNames-message': 'キー名は小文字のみ',
+        },
+        'z.object({}).refine((o)=>Object.keys(o).every((k)=>new RegExp("^[a-z]+$").test(k)),{error:"キー名は小文字のみ"})',
+      ],
+      // x-propertyNames-message with enum
+      [
+        {
+          type: 'object',
+          propertyNames: { enum: ['a', 'b', 'c'] },
+          'x-propertyNames-message': 'a,b,cのみ',
+        },
+        'z.object({}).refine((o)=>Object.keys(o).every((k)=>["a","b","c"].includes(k)),{error:"a,b,cのみ"})',
+      ],
+      // x-propertyNames-message on record path
+      [
+        {
+          type: 'object',
+          additionalProperties: { type: 'string' },
+          propertyNames: { pattern: '^[a-z]+$' },
+          'x-propertyNames-message': 'キー名は小文字のみ',
+        },
+        'z.record(z.string(),z.string()).refine((o)=>Object.keys(o).every((k)=>new RegExp("^[a-z]+$").test(k)),{error:"キー名は小文字のみ"})',
+      ],
+      // fallback: no x-propertyNames-message → x-pattern-message used
+      [
+        {
+          type: 'object',
+          propertyNames: { pattern: '^[a-z]+$' },
+          'x-pattern-message': 'パターンエラー',
+        },
+        'z.object({}).refine((o)=>Object.keys(o).every((k)=>new RegExp("^[a-z]+$").test(k)),{error:"パターンエラー"})',
       ],
     ])('object(%o) → %s', (input, expected) => {
       expect(object(input)).toBe(expected)

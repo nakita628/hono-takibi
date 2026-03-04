@@ -189,6 +189,13 @@ export function wrap(
     'x-pattern-message',
     'x-minimum-message',
     'x-maximum-message',
+    'x-multipleOf-message',
+    'x-dependentRequired-message',
+    'x-propertyNames-message',
+    'x-anyOf-message',
+    'x-oneOf-message',
+    'x-not-message',
+    'x-enum-error-messages',
   ])
 
   const baseArgs = Object.fromEntries(

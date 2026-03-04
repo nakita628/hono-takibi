@@ -188,3 +188,41 @@ describe('x-error-message on multipleOf', () => {
     expect(number(input)).toBe(expected)
   })
 })
+
+describe('x-multipleOf-message', () => {
+  it.concurrent.each<[Schema, string]>([
+    // x-multipleOf-message overrides x-error-message for multipleOf
+    [
+      {
+        type: 'number',
+        multipleOf: 2,
+        'x-error-message': '数値必須',
+        'x-multipleOf-message': '偶数のみ',
+      },
+      'z.number({error:"数値必須"}).multipleOf(2,{error:"偶数のみ"})',
+    ],
+    // x-multipleOf-message alone (no x-error-message)
+    [
+      { type: 'number', multipleOf: 2, 'x-multipleOf-message': '偶数のみ' },
+      'z.number().multipleOf(2,{error:"偶数のみ"})',
+    ],
+    // x-multipleOf-message with float
+    [
+      {
+        type: 'number',
+        format: 'float',
+        multipleOf: 0.5,
+        'x-error-message': 'float必須',
+        'x-multipleOf-message': '0.5刻み',
+      },
+      'z.float32({error:"float必須"}).multipleOf(0.5,{error:"0.5刻み"})',
+    ],
+    // fallback: no x-multipleOf-message → x-error-message used
+    [
+      { type: 'number', multipleOf: 2, 'x-error-message': '数値必須' },
+      'z.number({error:"数値必須"}).multipleOf(2,{error:"数値必須"})',
+    ],
+  ])('number(%o) → %s', (input, expected) => {
+    expect(number(input)).toBe(expected)
+  })
+})

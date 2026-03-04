@@ -82,9 +82,15 @@ export function number(schema: Schema): string {
     return undefined
   })()
 
+  const multipleOfMsg = schema['x-multipleOf-message']
+  const multipleOfErrArg = multipleOfMsg
+    ? `,${error(multipleOfMsg)}`
+    : baseErrorArg
+      ? `,${baseErrorArg}`
+      : ''
   const multipleOf =
     schema.multipleOf !== undefined
-      ? `.multipleOf(${schema.multipleOf}${baseErrorArg ? `,${baseErrorArg}` : ''})`
+      ? `.multipleOf(${schema.multipleOf}${multipleOfErrArg})`
       : undefined
 
   return [base, minimum, maximum, multipleOf].filter((v) => v !== undefined).join('')

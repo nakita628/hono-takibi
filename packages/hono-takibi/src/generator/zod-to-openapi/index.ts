@@ -116,7 +116,9 @@ export function zodToOpenAPI(
     const anyOfSchemas = schema.anyOf.map((s) =>
       isRefOnly(s) ? makeRef(s.$ref ?? '') : zodToOpenAPI(s, innerMeta, readonly),
     )
-    return wrap(`z.union([${anyOfSchemas.join(',')}])`, schema, meta)
+    const anyOfMsg = schema['x-anyOf-message']
+    const anyOfErrArg = anyOfMsg ? `,${error(anyOfMsg)}` : ''
+    return wrap(`z.union([${anyOfSchemas.join(',')}]${anyOfErrArg})`, schema, meta)
   }
   /* oneOf */
   if (schema.oneOf !== undefined) {
@@ -128,15 +130,18 @@ export function zodToOpenAPI(
       isRefOnly(s) ? makeRef(s.$ref ?? '') : zodToOpenAPI(s, innerMeta, readonly),
     )
     const discriminator = schema.discriminator?.propertyName
-    // Use z.xor when $ref is present (referenced schema might use allOf)
+    const oneOfMsg = schema['x-oneOf-message']
+    const oneOfErrArg = oneOfMsg ? `,${error(oneOfMsg)}` : ''
     const z =
       discriminator && !hasRefOrAllOf
-        ? `z.discriminatedUnion('${discriminator}',[${oneOfSchemas.join(',')}])`
-        : `z.xor([${oneOfSchemas.join(',')}])`
+        ? `z.discriminatedUnion('${discriminator}',[${oneOfSchemas.join(',')}]${oneOfErrArg})`
+        : `z.xor([${oneOfSchemas.join(',')}]${oneOfErrArg})`
     return wrap(z, schema, meta)
   }
   /* not */
   if (schema.not !== undefined) {
+    const notMsg = schema['x-not-message']
+    const notErrArg = notMsg ? `,${error(notMsg)}` : ''
     const typePredicates: { readonly [k: string]: string } = {
       string: `(v) => typeof v !== 'string'`,
       number: `(v) => typeof v !== 'number'`,
@@ -149,19 +154,23 @@ export function zodToOpenAPI(
     // 0. not.$ref
     if (typeof schema.not === 'object' && schema.not.$ref !== undefined) {
       const refName = makeRef(schema.not.$ref)
-      return wrap(`z.any().refine((v) => !${refName}.safeParse(v).success)`, schema, meta)
+      return wrap(
+        `z.any().refine((v) => !${refName}.safeParse(v).success${notErrArg})`,
+        schema,
+        meta,
+      )
     }
     // 1. not.const
     if (typeof schema.not === 'object' && 'const' in schema.not) {
       const value = JSON.stringify(schema.not.const)
       const predicate = `(v) => v !== ${value}`
-      return wrap(`z.any().refine(${predicate})`, schema, meta)
+      return wrap(`z.any().refine(${predicate}${notErrArg})`, schema, meta)
     }
     // 2a. not.type (single type)
     if (typeof schema.not === 'object' && typeof schema.not.type === 'string') {
       const predicate = typePredicates[schema.not.type]
       if (predicate) {
-        return wrap(`z.any().refine(${predicate})`, schema, meta)
+        return wrap(`z.any().refine(${predicate}${notErrArg})`, schema, meta)
       }
     }
     // 2b. not.type (array of types)
@@ -172,14 +181,14 @@ export function zodToOpenAPI(
       if (predicates.length > 0) {
         const bodies = predicates.map((p) => `(${p.replace(/^\(v\) => /, '')})`)
         const combined = `(v) => ${bodies.join(' && ')}`
-        return wrap(`z.any().refine(${combined})`, schema, meta)
+        return wrap(`z.any().refine(${combined}${notErrArg})`, schema, meta)
       }
     }
     // 3. not.enum
     if (typeof schema.not === 'object' && Array.isArray(schema.not.enum)) {
       const list = JSON.stringify(schema.not.enum)
       const predicate = `(v) => !${list}.includes(v)`
-      return wrap(`z.any().refine(${predicate})`, schema, meta)
+      return wrap(`z.any().refine(${predicate}${notErrArg})`, schema, meta)
     }
     // 3b. not with composition (oneOf/anyOf/allOf)
     if (
@@ -189,7 +198,11 @@ export function zodToOpenAPI(
         schema.not.allOf !== undefined)
     ) {
       const innerZod = zodToOpenAPI(schema.not, innerMeta, readonly)
-      return wrap(`z.any().refine((v) => !${innerZod}.safeParse(v).success)`, schema, meta)
+      return wrap(
+        `z.any().refine((v) => !${innerZod}.safeParse(v).success${notErrArg})`,
+        schema,
+        meta,
+      )
     }
     // 4. fallback
     return wrap('z.any()', schema, meta)

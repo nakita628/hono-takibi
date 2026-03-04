@@ -94,6 +94,22 @@ describe('zodToOpenAPI', () => {
         },
         'z.xor([ASchema,BSchema]).nullable()',
       ],
+      // x-oneOf-message
+      [
+        {
+          oneOf: [{ type: 'string' }, { type: 'number' }],
+          'x-oneOf-message': 'いずれか1つを指定',
+        },
+        'z.xor([z.string(),z.number()],{error:"いずれか1つを指定"})',
+      ],
+      // x-oneOf-message with $ref
+      [
+        {
+          oneOf: [{ $ref: '#/components/schemas/A' }, { $ref: '#/components/schemas/B' }],
+          'x-oneOf-message': 'AかBのいずれか',
+        },
+        'z.xor([ASchema,BSchema],{error:"AかBのいずれか"})',
+      ],
     ])('zodToOpenAPI(%o) → %s', (input, expected) => {
       expect(zodToOpenAPI(input)).toBe(expected)
     })
@@ -126,6 +142,26 @@ describe('zodToOpenAPI', () => {
           },
           // $ref schemas might use allOf (ZodIntersection), so use z.xor instead of discriminatedUnion
           `z.xor([ASchema,BSchema]).openapi({"discriminator":{"propertyName":"type"}})`,
+        ],
+        // x-oneOf-message
+        [
+          {
+            oneOf: [
+              {
+                type: 'object',
+                properties: { type: { const: 'a' }, value: { type: 'string' } },
+                required: ['type', 'value'],
+              },
+              {
+                type: 'object',
+                properties: { type: { const: 'b' }, count: { type: 'number' } },
+                required: ['type', 'count'],
+              },
+            ],
+            discriminator: { propertyName: 'type' },
+            'x-oneOf-message': '型が不正',
+          },
+          `z.discriminatedUnion('type',[z.object({type:z.literal("a"),value:z.string()}).openapi({"required":["type","value"]}),z.object({type:z.literal("b"),count:z.number()}).openapi({"required":["type","count"]})],{error:"型が不正"}).openapi({"discriminator":{"propertyName":"type"}})`,
         ],
       ])('zodToOpenAPI(%o) → %s', (input, expected) => {
         expect(zodToOpenAPI(input)).toBe(expected)
@@ -195,6 +231,22 @@ describe('zodToOpenAPI', () => {
             nullable: true,
           },
           'z.union([z.string(),z.number()]).nullable()',
+        ],
+        // x-anyOf-message
+        [
+          {
+            anyOf: [{ type: 'string' }, { type: 'number' }],
+            'x-anyOf-message': '文字列か数値を指定',
+          },
+          'z.union([z.string(),z.number()],{error:"文字列か数値を指定"})',
+        ],
+        // x-anyOf-message with $ref
+        [
+          {
+            anyOf: [{ $ref: '#/components/schemas/Cat' }, { $ref: '#/components/schemas/Dog' }],
+            'x-anyOf-message': '猫か犬を指定',
+          },
+          'z.union([CatSchema,DogSchema],{error:"猫か犬を指定"})',
         ],
       ])('zodToOpenAPI(%o) → %s', (input, expected) => {
         expect(zodToOpenAPI(input)).toBe(expected)
@@ -442,6 +494,49 @@ describe('zodToOpenAPI', () => {
       describe('not fallback', () => {
         it.concurrent.each<[Schema, string]>([
           [{ not: {} }, 'z.any()'],
+        ])('zodToOpenAPI(%o) → %s', (input, expected) => {
+          expect(zodToOpenAPI(input as Schema)).toBe(expected)
+        })
+      })
+
+      describe('x-not-message', () => {
+        it.concurrent.each<[Schema, string]>([
+          // not.type + x-not-message
+          [
+            { not: { type: 'string' }, 'x-not-message': '文字列は不可' },
+            `z.any().refine((v) => typeof v !== 'string',{error:"文字列は不可"})`,
+          ],
+          // not.const + x-not-message
+          [
+            { not: { const: 42 }, 'x-not-message': '42は不可' },
+            'z.any().refine((v) => v !== 42,{error:"42は不可"})',
+          ],
+          // not.enum + x-not-message
+          [
+            { not: { enum: [1, 2, 3] }, 'x-not-message': '1,2,3は不可' },
+            'z.any().refine((v) => ![1,2,3].includes(v),{error:"1,2,3は不可"})',
+          ],
+          // not.$ref + x-not-message
+          [
+            {
+              not: { $ref: '#/components/schemas/Forbidden' },
+              'x-not-message': '禁止スキーマ不可',
+            },
+            'z.any().refine((v) => !ForbiddenSchema.safeParse(v).success,{error:"禁止スキーマ不可"})',
+          ],
+          // not.type (array) + x-not-message
+          [
+            { not: { type: ['string', 'number'] }, 'x-not-message': '文字列・数値は不可' },
+            `z.any().refine((v) => (typeof v !== 'string') && (typeof v !== 'number'),{error:"文字列・数値は不可"})`,
+          ],
+          // not + composition + x-not-message
+          [
+            {
+              not: { anyOf: [{ type: 'string' }, { type: 'number' }] },
+              'x-not-message': 'union不可',
+            },
+            'z.any().refine((v) => !z.union([z.string(),z.number()]).safeParse(v).success,{error:"union不可"})',
+          ],
         ])('zodToOpenAPI(%o) → %s', (input, expected) => {
           expect(zodToOpenAPI(input as Schema)).toBe(expected)
         })
@@ -964,20 +1059,20 @@ describe('zodToOpenAPI', () => {
             { enum: ['only'], 'x-error-message': 'onlyのみ' },
             `z.literal('only',{error:"onlyのみ"})`,
           ],
-          // x-error-message on number enum → z.union
+          // x-error-message on number enum → z.union (individual literals also get errArg)
           [
             { enum: [1, 2, 3], 'x-error-message': '1-3のみ' },
-            'z.union([z.literal(1),z.literal(2),z.literal(3)],{error:"1-3のみ"})',
+            'z.union([z.literal(1,{error:"1-3のみ"}),z.literal(2,{error:"1-3のみ"}),z.literal(3,{error:"1-3のみ"})],{error:"1-3のみ"})',
           ],
           // x-error-message on single number enum → z.literal
           [
             { type: 'number', enum: [42], 'x-error-message': '42のみ' },
             'z.literal(42,{error:"42のみ"})',
           ],
-          // x-error-message on boolean enum → z.union
+          // x-error-message on boolean enum → z.union (individual literals also get errArg)
           [
             { type: 'boolean', enum: [true, false], 'x-error-message': 'ブール値' },
-            'z.union([z.literal(true),z.literal(false)],{error:"ブール値"})',
+            'z.union([z.literal(true,{error:"ブール値"}),z.literal(false,{error:"ブール値"})],{error:"ブール値"})',
           ],
           // x-error-message with arrow function (no args)
           [

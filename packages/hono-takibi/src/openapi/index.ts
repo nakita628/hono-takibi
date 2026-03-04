@@ -492,6 +492,13 @@ export type Schema = {
   readonly 'x-pattern-message'?: string
   readonly 'x-minimum-message'?: string
   readonly 'x-maximum-message'?: string
+  readonly 'x-multipleOf-message'?: string
+  readonly 'x-dependentRequired-message'?: string
+  readonly 'x-propertyNames-message'?: string
+  readonly 'x-anyOf-message'?: string
+  readonly 'x-oneOf-message'?: string
+  readonly 'x-not-message'?: string
+  readonly 'x-enum-error-messages'?: { readonly [k: string]: string }
 }
 
 export type Parameter = {

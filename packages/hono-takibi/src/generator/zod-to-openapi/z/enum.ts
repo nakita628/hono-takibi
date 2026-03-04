@@ -49,45 +49,59 @@ export function _enum(schema: Schema): string {
   /* x-error-message (shared across all branches) */
   const errorMessage = schema['x-error-message']
   const errArg = errorMessage ? `,${error(errorMessage)}` : ''
+  /* x-enum-error-messages (per-value, falls back to errArg) */
+  const enumMessages = schema['x-enum-error-messages']
+  const litErrArg = (v: unknown): string => {
+    if (enumMessages) {
+      const key = String(v)
+      if (key in enumMessages) return `,${error(enumMessages[key])}`
+    }
+    return errArg
+  }
   /* zLit - wraps value appropriately for Zod 4 */
   const zLit = (v: unknown): string =>
-    isPrimitive(v) ? `z.literal(${lit(v)}${errArg})` : `z.custom<${JSON.stringify(v)}>()`
+    isPrimitive(v) ? `z.literal(${lit(v)}${litErrArg(v)})` : `z.custom<${JSON.stringify(v)}>()`
   /* tuple */
   const tuple = (arr: readonly unknown[]): string =>
-    `z.tuple([${arr.map((v) => `z.literal(${lit(v)})`).join(',')}]${errArg})`
+    `z.tuple([${arr.map((v) => `z.literal(${lit(v)}${litErrArg(v)})`).join(',')}]${errArg})`
   /* guard */
   if (!schema.enum || schema.enum.length === 0) return 'z.any()'
   /* number / integer enum  */
   if (ht('number') || ht('integer')) {
     return schema.enum.length > 1
-      ? `z.union([${schema.enum.map((v) => `z.literal(${lit(v)})`).join(',')}]${errArg})`
-      : `z.literal(${lit(schema.enum[0])}${errArg})`
+      ? `z.union([${schema.enum.map((v) => `z.literal(${lit(v)}${litErrArg(v)})`).join(',')}]${errArg})`
+      : `z.literal(${lit(schema.enum[0])}${litErrArg(schema.enum[0])})`
   }
   /* boolean enum */
   if (ht('boolean')) {
     return schema.enum.length > 1
-      ? `z.union([${schema.enum.map((v) => `z.literal(${lit(v)})`).join(',')}]${errArg})`
-      : `z.literal(${lit(schema.enum[0])}${errArg})`
+      ? `z.union([${schema.enum.map((v) => `z.literal(${lit(v)}${litErrArg(v)})`).join(',')}]${errArg})`
+      : `z.literal(${lit(schema.enum[0])}${litErrArg(schema.enum[0])})`
   }
   /* array enum */
   if (ht('array')) {
     if (schema.enum.length === 1 && Array.isArray(schema.enum[0])) {
       return tuple(schema.enum[0])
     }
-    const parts = schema.enum.map((v) => (Array.isArray(v) ? tuple(v) : `z.literal(${lit(v)})`))
+    const parts = schema.enum.map((v) =>
+      Array.isArray(v) ? tuple(v) : `z.literal(${lit(v)}${litErrArg(v)})`,
+    )
     return `z.union([${parts.join(',')}]${errArg})`
   }
   /* string enum */
   if (schema.enum.every((v) => typeof v === 'string')) {
     if (schema.enum.length > 1) {
+      if (enumMessages) {
+        return `z.union([${schema.enum.map((v) => `z.literal(${lit(v)}${litErrArg(v)})`).join(',')}]${errArg})`
+      }
       return `z.enum(${JSON.stringify(schema.enum)}${errArg})`
     }
-    return `z.literal(${lit(schema.enum[0])}${errArg})`
+    return `z.literal(${lit(schema.enum[0])}${litErrArg(schema.enum[0])})`
   }
   /* mixed / null only */
   if (schema.enum.length > 1) {
     const parts = schema.enum.map((v) =>
-      isPrimitive(v) ? `z.literal(${lit(v)})` : `z.custom<${JSON.stringify(v)}>()`,
+      isPrimitive(v) ? `z.literal(${lit(v)}${litErrArg(v)})` : `z.custom<${JSON.stringify(v)}>()`,
     )
     return `z.union([${parts.join(',')}]${errArg})`
   }
