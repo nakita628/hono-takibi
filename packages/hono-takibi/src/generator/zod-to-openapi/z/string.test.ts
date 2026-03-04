@@ -34,4 +34,109 @@ describe('string', () => {
   ])('string(%o) → %s', (input, expected) => {
     expect(string(input)).toBe(expected)
   })
+
+  describe('x-error-message', () => {
+    it.concurrent.each<[Schema, string]>([
+      [
+        { type: 'string', format: 'email', 'x-error-message': 'メール不正' },
+        'z.email({error:"メール不正"})',
+      ],
+      [
+        { type: 'string', format: 'uuid', 'x-error-message': 'Invalid UUID' },
+        'z.uuid({error:"Invalid UUID"})',
+      ],
+      [
+        { type: 'string', format: 'uri', 'x-error-message': 'Invalid URL' },
+        'z.url({error:"Invalid URL"})',
+      ],
+      [
+        { type: 'string', format: 'ipv4', 'x-error-message': 'Invalid IPv4' },
+        'z.ipv4({error:"Invalid IPv4"})',
+      ],
+      // Transform formats should ignore x-error-message
+      [{ type: 'string', format: 'toLowerCase', 'x-error-message': 'ignored' }, 'z.toLowerCase()'],
+      [{ type: 'string', format: 'toUpperCase', 'x-error-message': 'ignored' }, 'z.toUpperCase()'],
+      [{ type: 'string', format: 'trim', 'x-error-message': 'ignored' }, 'z.trim()'],
+      // x-error-message on base z.string() (no format)
+      [{ type: 'string', 'x-error-message': '文字列必須' }, 'z.string({error:"文字列必須"})'],
+      // No x-error-message → existing behavior
+      [{ type: 'string', format: 'email' }, 'z.email()'],
+    ])('string(%o) → %s', (input, expected) => {
+      expect(string(input)).toBe(expected)
+    })
+  })
+
+  describe('x-pattern-message', () => {
+    it.concurrent.each<[Schema, string]>([
+      [
+        { type: 'string', pattern: '^[a-z]+$', 'x-pattern-message': '小文字のみ' },
+        'z.string().regex(/^[a-z]+$/,{error:"小文字のみ"})',
+      ],
+      // No x-pattern-message → existing behavior
+      [{ type: 'string', pattern: '^[a-z]+$' }, 'z.string().regex(/^[a-z]+$/)'],
+    ])('string(%o) → %s', (input, expected) => {
+      expect(string(input)).toBe(expected)
+    })
+  })
+
+  describe('x-size-message', () => {
+    it.concurrent.each<[Schema, string]>([
+      // x-size-message on .length() (minLength === maxLength)
+      [
+        { type: 'string', minLength: 5, maxLength: 5, 'x-size-message': '5文字' },
+        'z.string().length(5,{error:"5文字"})',
+      ],
+      // No x-size-message → existing behavior
+      [{ type: 'string', minLength: 3, maxLength: 20 }, 'z.string().min(3).max(20)'],
+    ])('string(%o) → %s', (input, expected) => {
+      expect(string(input)).toBe(expected)
+    })
+  })
+
+  describe('x-minimum-message / x-maximum-message', () => {
+    it.concurrent.each<[Schema, string]>([
+      // x-minimum-message on .min()
+      [
+        { type: 'string', minLength: 1, 'x-minimum-message': '1文字以上' },
+        'z.string().min(1,{error:"1文字以上"})',
+      ],
+      // x-maximum-message on .max()
+      [
+        { type: 'string', maxLength: 100, 'x-maximum-message': '100文字以下' },
+        'z.string().max(100,{error:"100文字以下"})',
+      ],
+      // both
+      [
+        {
+          type: 'string',
+          minLength: 3,
+          maxLength: 20,
+          'x-minimum-message': '3文字以上',
+          'x-maximum-message': '20文字以下',
+        },
+        'z.string().min(3,{error:"3文字以上"}).max(20,{error:"20文字以下"})',
+      ],
+    ])('string(%o) → %s', (input, expected) => {
+      expect(string(input)).toBe(expected)
+    })
+  })
+
+  describe('combined x-* extensions', () => {
+    it.concurrent.each<[Schema, string]>([
+      [
+        {
+          type: 'string',
+          format: 'email',
+          minLength: 5,
+          maxLength: 100,
+          'x-error-message': 'メール不正',
+          'x-minimum-message': '5文字以上',
+          'x-maximum-message': '100文字以下',
+        },
+        'z.email({error:"メール不正"}).min(5,{error:"5文字以上"}).max(100,{error:"100文字以下"})',
+      ],
+    ])('string(%o) → %s', (input, expected) => {
+      expect(string(input)).toBe(expected)
+    })
+  })
 })

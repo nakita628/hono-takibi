@@ -34,7 +34,7 @@ export async function svelteQuery(
     useThunk: true,
     useQueryOptionsType: 'CreateQueryOptions',
     useMutationOptionsType: 'CreateMutationOptions',
-    // Infinite query support
+    hasQueryOptionsHelper: true,
     infiniteQueryFn: 'createInfiniteQuery',
     useInfiniteQueryOptionsType: 'CreateInfiniteQueryOptions',
   }

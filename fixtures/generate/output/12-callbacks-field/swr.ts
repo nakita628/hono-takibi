@@ -1,8 +1,11 @@
 import useSWR from 'swr'
+import useSWRImmutable from 'swr/immutable'
 import type { Key, SWRConfiguration } from 'swr'
+import useSWRInfinite from 'swr/infinite'
+import type { SWRInfiniteConfiguration, SWRInfiniteKeyLoader } from 'swr/infinite'
 import useSWRMutation from 'swr/mutation'
 import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
@@ -19,16 +22,28 @@ export function getPostOrdersMutationKey() {
  *
  * Create an order with callback
  */
+export async function postOrders(
+  args: InferRequestType<typeof client.orders.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.orders.$post(args, options))
+}
+
+/**
+ * POST /orders
+ *
+ * Create an order with callback
+ */
 export function usePostOrders(options?: {
   mutation?: SWRMutationConfiguration<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.orders.$post>>>>>,
+    Awaited<ReturnType<typeof postOrders>>,
     Error,
     Key,
     InferRequestType<typeof client.orders.$post>
   > & { swrKey?: Key }
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey = customKey ?? getPostOrdersMutationKey()
   return {
@@ -36,7 +51,7 @@ export function usePostOrders(options?: {
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.orders.$post> }) =>
-        parseResponse(client.orders.$post(arg, clientOptions)),
+        postOrders(arg, clientOptions),
       restMutationOptions,
     ),
   }
@@ -55,16 +70,28 @@ export function getPostPaymentsMutationKey() {
  *
  * Create a payment with multiple callbacks
  */
+export async function postPayments(
+  args: InferRequestType<typeof client.payments.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.payments.$post(args, options))
+}
+
+/**
+ * POST /payments
+ *
+ * Create a payment with multiple callbacks
+ */
 export function usePostPayments(options?: {
   mutation?: SWRMutationConfiguration<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.payments.$post>>>>>,
+    Awaited<ReturnType<typeof postPayments>>,
     Error,
     Key,
     InferRequestType<typeof client.payments.$post>
   > & { swrKey?: Key }
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey = customKey ?? getPostPaymentsMutationKey()
   return {
@@ -72,7 +99,7 @@ export function usePostPayments(options?: {
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.payments.$post> }) =>
-        parseResponse(client.payments.$post(arg, clientOptions)),
+        postPayments(arg, clientOptions),
       restMutationOptions,
     ),
   }
@@ -91,20 +118,62 @@ export function getGetItemsKey() {
  *
  * List items (no callbacks)
  */
+export async function getItems(options?: ClientRequestOptions) {
+  return await parseResponse(client.items.$get(undefined, options))
+}
+
+/**
+ * GET /items
+ *
+ * List items (no callbacks)
+ */
 export function useGetItems(options?: {
   swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
-  const isEnabled = enabled !== false
-  const swrKey = isEnabled ? (customKey ?? getGetItemsKey()) : null
-  return {
-    swrKey,
-    ...useSWR(
-      swrKey,
-      async () => parseResponse(client.items.$get(undefined, clientOptions)),
-      restSwrOptions,
-    ),
+  const swrKey = enabled !== false ? (customKey ?? getGetItemsKey()) : null
+  return { swrKey, ...useSWR(swrKey, async () => getItems(clientOptions), restSwrOptions) }
+}
+
+/**
+ * GET /items
+ *
+ * List items (no callbacks)
+ */
+export function useImmutableGetItems(options?: {
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
+  options?: ClientRequestOptions
+}) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const swrKey = enabled !== false ? (customKey ?? getGetItemsKey()) : null
+  return { swrKey, ...useSWRImmutable(swrKey, async () => getItems(clientOptions), restSwrOptions) }
+}
+
+/**
+ * Generates SWR infinite query cache key for GET /items
+ * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ */
+export function getGetItemsInfiniteKey() {
+  return ['items', 'GET', '/items', 'infinite'] as const
+}
+
+/**
+ * GET /items
+ *
+ * List items (no callbacks)
+ */
+export function useInfiniteGetItems(options: {
+  swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getItems>>, Error> & {
+    swrKey?: SWRInfiniteKeyLoader
   }
+  options?: ClientRequestOptions
+}) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
+  const keyLoader =
+    customKeyLoader ?? ((index: number) => [...getGetItemsInfiniteKey(), index] as const)
+  return useSWRInfinite(keyLoader, async () => getItems(clientOptions), restSwrOptions)
 }

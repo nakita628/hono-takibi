@@ -188,7 +188,7 @@ const postTagsRouteHandler: RouteHandler<typeof postTagsRoute> = async (c) => {
 }
 
 const getSettingsRouteHandler: RouteHandler<typeof getSettingsRoute> = async (c) => {
-  return c.json(undefined, 200)
+  return c.json({}, 200)
 }
 
 const putSettingsRouteHandler: RouteHandler<typeof putSettingsRoute> = async (c) => {
@@ -203,7 +203,7 @@ const postPaymentRouteHandler: RouteHandler<typeof postPaymentRoute> = async (c)
   return c.body(null, 200)
 }
 
-const app = new OpenAPIHono().basePath('undefined')
+const app = new OpenAPIHono()
 
 export const api = app
   .openapi(getTagsRoute, getTagsRouteHandler)

@@ -51,6 +51,13 @@ paths:
             type: integer
             minimum: 0
             default: 0
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int64
+            minimum: 0
       responses:
         "200":
           description: Task list

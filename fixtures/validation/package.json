@@ -1,0 +1,20 @@
+{
+  "name": "@fixtures/validation",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "test": "vitest run",
+    "takibi": "hono-takibi"
+  },
+  "dependencies": {
+    "@hono/zod-openapi": "^1.2.1",
+    "hono": "^4.11.7",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "hono-takibi": "workspace:^",
+    "@types/node": "^22.15.21",
+    "vitest": "^4.0.18"
+  }
+}

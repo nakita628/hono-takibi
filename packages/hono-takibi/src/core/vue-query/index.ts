@@ -31,11 +31,8 @@ export async function vueQuery(
     mutationFn: 'useMutation',
     useQueryOptionsType: 'UseQueryOptions',
     useMutationOptionsType: 'UseMutationOptions',
-    // queryOptions() helper for type branding - fixes exactOptionalPropertyTypes type errors
     hasQueryOptionsHelper: true,
-    // Vue Query uses different queryKey pattern (no leading slash, separate path params)
     isVueQuery: true,
-    // Infinite query support
     infiniteQueryFn: 'useInfiniteQuery',
     useInfiniteQueryOptionsType: 'UseInfiniteQueryOptions',
   }

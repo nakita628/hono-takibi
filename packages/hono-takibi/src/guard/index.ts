@@ -5,6 +5,7 @@ import type {
   Parameter,
   Reference,
   RequestBody,
+  Responses,
   Schema,
 } from '../openapi/index.js'
 
@@ -237,4 +238,28 @@ export function isSecurityArray(
   security: unknown,
 ): security is readonly { readonly [k: string]: readonly string[] }[] {
   return Array.isArray(security)
+}
+
+/* ─────────────────────────────── Responses Guards ─────────────────────────────── */
+
+/**
+ * Type guard for OpenAPI Responses objects.
+ */
+export function isResponses(v: unknown): v is Responses {
+  if (typeof v !== 'object' || v === null || Array.isArray(v)) return false
+  return '$ref' in v || 'description' in v || 'content' in v || 'headers' in v || 'links' in v
+}
+
+/* ─────────────────────────────── OAuth Flow Guards ─────────────────────────────── */
+
+/**
+ * Type guard for OAuth flow value objects.
+ */
+export function isOAuthFlowValue(v: unknown): v is {
+  readonly authorizationUrl?: string
+  readonly tokenUrl?: string
+  readonly scopes?: { readonly [k: string]: string }
+} {
+  if (typeof v !== 'object' || v === null || Array.isArray(v)) return false
+  return 'authorizationUrl' in v || 'tokenUrl' in v || 'scopes' in v
 }

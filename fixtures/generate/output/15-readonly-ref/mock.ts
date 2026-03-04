@@ -42,16 +42,16 @@ const ServerErrorResponse = {
   content: { 'application/json': { schema: ErrorBodySchema } },
 }
 
-const UserExample = {
+const UserExampleExample = {
   summary: 'A sample user',
   value: { id: 'u-001', name: 'Alice', email: 'alice@example.com' },
 }
 
-const UserAliasExample = UserExample
+const UserAliasExample = UserExampleExample
 
-const ItemExample = { summary: 'A sample item', value: { id: 1, title: 'Widget' } }
+const ItemExampleExample = { summary: 'A sample item', value: { id: 1, title: 'Widget' } }
 
-const ItemAliasExample = ItemExample
+const ItemAliasExample = ItemExampleExample
 
 const CreateUserRequestBody = {
   content: {
@@ -184,7 +184,7 @@ const getItemsRouteHandler: RouteHandler<typeof getItemsRoute> = async (c) => {
   )
 }
 
-const app = new OpenAPIHono().basePath('undefined')
+const app = new OpenAPIHono()
 
 export const api = app
   .openapi(getUsersRoute, getUsersRouteHandler)

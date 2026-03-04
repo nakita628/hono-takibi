@@ -1,10 +1,16 @@
-import { createQuery, createMutation } from '@tanstack/svelte-query'
+import {
+  createQuery,
+  createInfiniteQuery,
+  createMutation,
+  queryOptions,
+} from '@tanstack/svelte-query'
 import type {
   CreateQueryOptions,
   QueryFunctionContext,
+  CreateInfiniteQueryOptions,
   CreateMutationOptions,
 } from '@tanstack/svelte-query'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
@@ -17,19 +23,24 @@ export function getGetTreeQueryKey() {
 }
 
 /**
+ * GET /tree
+ */
+export async function getTree(options?: ClientRequestOptions) {
+  return await parseResponse(client.tree.$get(undefined, options))
+}
+
+/**
  * Returns Svelte Query query options for GET /tree
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetTreeQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export function getGetTreeQueryOptions(options?: ClientRequestOptions) {
+  return queryOptions({
     queryKey: getGetTreeQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.tree.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      )
+      return getTree({ ...options, init: { ...options?.init, signal } })
     },
-  }
+  })
 }
 
 /**
@@ -37,17 +48,51 @@ export function getGetTreeQueryOptions(clientOptions?: ClientRequestOptions) {
  */
 export function createGetTree(
   options?: () => {
-    query?: CreateQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.tree.$get>>>>>,
-      Error
-    >
-    client?: ClientRequestOptions
+    query?: CreateQueryOptions<Awaited<ReturnType<typeof getTree>>, Error>
+    options?: ClientRequestOptions
   },
 ) {
   return createQuery(() => {
-    const opts = options?.()
-    const { queryKey, queryFn, ...baseOptions } = getGetTreeQueryOptions(opts?.client)
-    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+    const { query, options: clientOptions } = options?.() ?? {}
+    return { ...getGetTreeQueryOptions(clientOptions), ...query }
+  })
+}
+
+/**
+ * Generates Svelte Query infinite query cache key for GET /tree
+ * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ */
+export function getGetTreeInfiniteQueryKey() {
+  return ['tree', 'GET', '/tree', 'infinite'] as const
+}
+
+/**
+ * Returns Svelte Query infinite query options for GET /tree
+ *
+ * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
+ * Requires initialPageParam and getNextPageParam to be provided separately.
+ */
+export function getGetTreeInfiniteQueryOptions(options?: ClientRequestOptions) {
+  return {
+    queryKey: getGetTreeInfiniteQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getTree({ ...options, init: { ...options?.init, signal } })
+    },
+  }
+}
+
+/**
+ * GET /tree
+ */
+export function createInfiniteGetTree(
+  options: () => {
+    query: CreateInfiniteQueryOptions<Awaited<ReturnType<typeof getTree>>, Error>
+    options?: ClientRequestOptions
+  },
+) {
+  return createInfiniteQuery(() => {
+    const { query, options: clientOptions } = options()
+    return { ...getGetTreeInfiniteQueryOptions(clientOptions), ...query }
   })
 }
 
@@ -60,15 +105,25 @@ export function getPostTreeMutationKey() {
 }
 
 /**
+ * POST /tree
+ */
+export async function postTree(
+  args: InferRequestType<typeof client.tree.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.tree.$post(args, options))
+}
+
+/**
  * Returns Svelte Query mutation options for POST /tree
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export function getPostTreeMutationOptions(clientOptions?: ClientRequestOptions) {
+export function getPostTreeMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: getPostTreeMutationKey(),
     async mutationFn(args: InferRequestType<typeof client.tree.$post>) {
-      return parseResponse(client.tree.$post(args, clientOptions))
+      return postTree(args, options)
     },
   }
 }
@@ -79,17 +134,16 @@ export function getPostTreeMutationOptions(clientOptions?: ClientRequestOptions)
 export function createPostTree(
   options?: () => {
     mutation?: CreateMutationOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.tree.$post>>>>>,
+      Awaited<ReturnType<typeof postTree>>,
       Error,
       InferRequestType<typeof client.tree.$post>
     >
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
   return createMutation(() => {
-    const opts = options?.()
-    const { mutationKey, mutationFn, ...baseOptions } = getPostTreeMutationOptions(opts?.client)
-    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+    const { mutation, options: clientOptions } = options?.() ?? {}
+    return { ...getPostTreeMutationOptions(clientOptions), ...mutation }
   })
 }
 
@@ -102,22 +156,24 @@ export function getGetGraphQueryKey() {
 }
 
 /**
+ * GET /graph
+ */
+export async function getGraph(options?: ClientRequestOptions) {
+  return await parseResponse(client.graph.$get(undefined, options))
+}
+
+/**
  * Returns Svelte Query query options for GET /graph
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetGraphQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export function getGetGraphQueryOptions(options?: ClientRequestOptions) {
+  return queryOptions({
     queryKey: getGetGraphQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.graph.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+      return getGraph({ ...options, init: { ...options?.init, signal } })
     },
-  }
+  })
 }
 
 /**
@@ -125,16 +181,50 @@ export function getGetGraphQueryOptions(clientOptions?: ClientRequestOptions) {
  */
 export function createGetGraph(
   options?: () => {
-    query?: CreateQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.graph.$get>>>>>,
-      Error
-    >
-    client?: ClientRequestOptions
+    query?: CreateQueryOptions<Awaited<ReturnType<typeof getGraph>>, Error>
+    options?: ClientRequestOptions
   },
 ) {
   return createQuery(() => {
-    const opts = options?.()
-    const { queryKey, queryFn, ...baseOptions } = getGetGraphQueryOptions(opts?.client)
-    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+    const { query, options: clientOptions } = options?.() ?? {}
+    return { ...getGetGraphQueryOptions(clientOptions), ...query }
+  })
+}
+
+/**
+ * Generates Svelte Query infinite query cache key for GET /graph
+ * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ */
+export function getGetGraphInfiniteQueryKey() {
+  return ['graph', 'GET', '/graph', 'infinite'] as const
+}
+
+/**
+ * Returns Svelte Query infinite query options for GET /graph
+ *
+ * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
+ * Requires initialPageParam and getNextPageParam to be provided separately.
+ */
+export function getGetGraphInfiniteQueryOptions(options?: ClientRequestOptions) {
+  return {
+    queryKey: getGetGraphInfiniteQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getGraph({ ...options, init: { ...options?.init, signal } })
+    },
+  }
+}
+
+/**
+ * GET /graph
+ */
+export function createInfiniteGetGraph(
+  options: () => {
+    query: CreateInfiniteQueryOptions<Awaited<ReturnType<typeof getGraph>>, Error>
+    options?: ClientRequestOptions
+  },
+) {
+  return createInfiniteQuery(() => {
+    const { query, options: clientOptions } = options()
+    return { ...getGetGraphInfiniteQueryOptions(clientOptions), ...query }
   })
 }

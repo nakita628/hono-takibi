@@ -90,7 +90,7 @@ function makeTasks(openAPI: Parameters<typeof type>[0], outDir: string, flags: (
     { mode: 'tanstack-query', fn: () => tanstackQuery(openAPI, `${outDir}/tanstack-query.ts`, './client', false, 'client') },
     { mode: 'svelte-query', fn: () => svelteQuery(openAPI, `${outDir}/svelte-query.ts`, './client', false, 'client') },
     { mode: 'vue-query', fn: () => vueQuery(openAPI, `${outDir}/vue-query.ts`, './client', false, 'client') },
-    { mode: 'mock', fn: () => mock(openAPI, `${outDir}/mock.ts`) },
+    { mode: 'mock', fn: () => mock(openAPI, `${outDir}/mock.ts`, '/') },
     { mode: 'test', fn: () => test(openAPI, `${outDir}/test.ts`, './mock') },
     { mode: 'parse-response', fn: () => rpc(openAPI, `${outDir}/parse-response.ts`, './client', false, 'client', true) },
     { mode: 'docs', fn: () => docs(openAPI, `${outDir}/docs.md`, 'src/index.ts') },

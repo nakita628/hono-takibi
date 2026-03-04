@@ -63,13 +63,15 @@ export const getPostsRoute = createRoute({
   operationId: 'listPosts',
   request: {
     query: z.object({
-      page: z
-        .int()
+      page: z.coerce
+        .number()
+        .pipe(z.int())
         .default(1)
         .exactOptional()
         .openapi({ param: { name: 'page', in: 'query', schema: { type: 'integer', default: 1 } } }),
-      limit: z
-        .int()
+      limit: z.coerce
+        .number()
+        .pipe(z.int())
         .default(10)
         .exactOptional()
         .openapi({
@@ -288,7 +290,7 @@ const getTagsRouteHandler: RouteHandler<typeof getTagsRoute> = async (c) => {
   )
 }
 
-const app = new OpenAPIHono().basePath('undefined')
+const app = new OpenAPIHono()
 
 export const api = app
   .openapi(getPostsRoute, getPostsRouteHandler)

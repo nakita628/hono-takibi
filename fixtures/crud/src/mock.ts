@@ -1,5 +1,5 @@
+import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
-import { createRoute, OpenAPIHono, type RouteHandler, z } from '@hono/zod-openapi'
 
 const TaskSchema = z
   .object({
@@ -78,10 +78,9 @@ export const getTasksRoute = createRoute({
             schema: { type: 'string', enum: ['pending', 'in_progress', 'done'] },
           },
         }),
-      limit: z
-        .int()
-        .min(1)
-        .max(100)
+      limit: z.coerce
+        .number()
+        .pipe(z.int().min(1).max(100))
         .default(20)
         .exactOptional()
         .openapi({
@@ -92,9 +91,9 @@ export const getTasksRoute = createRoute({
             schema: { type: 'integer', minimum: 1, maximum: 100, default: 20 },
           },
         }),
-      offset: z
-        .int()
-        .min(0)
+      offset: z.coerce
+        .number()
+        .pipe(z.int().min(0))
         .default(0)
         .exactOptional()
         .openapi({
@@ -103,6 +102,18 @@ export const getTasksRoute = createRoute({
             in: 'query',
             required: false,
             schema: { type: 'integer', minimum: 0, default: 0 },
+          },
+        }),
+      cursor: z.coerce
+        .bigint()
+        .pipe(z.int64().min(0n))
+        .exactOptional()
+        .openapi({
+          param: {
+            name: 'cursor',
+            in: 'query',
+            required: false,
+            schema: { type: 'integer', format: 'int64', minimum: 0 },
           },
         }),
     }),

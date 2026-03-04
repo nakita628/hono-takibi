@@ -36,11 +36,53 @@ export function wrap(
     'contentMediaType',
     '$schema',
     '$id',
+    '$recursiveRef',
+    '$recursiveAnchor',
+    'optional',
+    'min_items',
+    'max_items',
   ])
 
   // Type guard for objects with 'not' property
   const hasNotProperty = (v: unknown): v is { not: unknown } =>
     typeof v === 'object' && v !== null && 'not' in v
+
+  // Type guard for makeExamples parameter (record of non-array objects)
+  const isExamplesInput = (
+    v: unknown,
+  ): v is {
+    readonly [k: string]:
+      | {
+          readonly summary?: string
+          readonly description?: string
+          readonly defaultValue?: unknown
+          readonly serializedValue?: string
+          readonly externalValue?: string
+          readonly value?: unknown
+        }
+      | {
+          readonly $ref?:
+            | `#/components/schemas/${string}`
+            | `#/components/parameters/${string}`
+            | `#/components/securitySchemes/${string}`
+            | `#/components/requestBodies/${string}`
+            | `#/components/responses/${string}`
+            | `#/components/headers/${string}`
+            | `#/components/examples/${string}`
+            | `#/components/links/${string}`
+            | `#/components/callbacks/${string}`
+            | `#/components/pathItems/${string}`
+            | `#/components/mediaTypes/${string}`
+          readonly summary?: string
+          readonly description?: string
+        }
+  } =>
+    typeof v === 'object' &&
+    v !== null &&
+    !Array.isArray(v) &&
+    Object.values(v).every(
+      (entry) => typeof entry === 'object' && entry !== null && !Array.isArray(entry),
+    )
 
   const filterUnsupportedProps = (obj: unknown): unknown => {
     if (obj === null || typeof obj !== 'object') {
@@ -99,14 +141,15 @@ export function wrap(
     return JSON.stringify(v)
   }
 
-  /* why schema.default !== undefined: because schema.default === 0 is falsy */
-  const s = schema.default !== undefined ? `${zod}.default(${formatLiteral(schema.default)})` : zod
-
   const isNullable =
     schema.nullable === true ||
     (Array.isArray(schema.type) ? schema.type.includes('null') : schema.type === 'null')
 
-  const z = isNullable ? `${s}.nullable()` : s
+  /* Apply .nullable() before .default() so that .default(null) is valid on nullable types */
+  const n = isNullable ? `${zod}.nullable()` : zod
+
+  /* why schema.default !== undefined: because schema.default === 0 is falsy */
+  const z = schema.default !== undefined ? `${n}.default(${formatLiteral(schema.default)})` : n
 
   // zod method chain already expressed properties (to prevent double management)
   const zodExpressedProps = new Set([
@@ -141,6 +184,18 @@ export function wrap(
     'const',
     '$ref',
     'prefixItems',
+    'x-error-message',
+    'x-size-message',
+    'x-pattern-message',
+    'x-minimum-message',
+    'x-maximum-message',
+    'x-multipleOf-message',
+    'x-dependentRequired-message',
+    'x-propertyNames-message',
+    'x-anyOf-message',
+    'x-oneOf-message',
+    'x-not-message',
+    'x-enum-error-messages',
   ])
 
   const baseArgs = Object.fromEntries(
@@ -192,8 +247,8 @@ export function wrap(
     const restEntries = Object.entries(mediaRest).map(
       ([k, v]) => `${JSON.stringify(k)}:${JSON.stringify(v)}`,
     )
-    const examplesEntry = isRecord(mediaExamples)
-      ? `"examples":${makeExamples(mediaExamples as Parameters<typeof makeExamples>[0])}`
+    const examplesEntry = isExamplesInput(mediaExamples)
+      ? `"examples":${makeExamples(mediaExamples)}`
       : undefined
     const entries = examplesEntry ? [...restEntries, examplesEntry] : restEntries
     return `{${entries.join(',')}}`
@@ -214,8 +269,8 @@ export function wrap(
    */
   const serializeParam = (param: Parameter): string => {
     const entries = Object.entries(param).map(([key, value]) => {
-      if (key === 'examples' && isRecord(value)) {
-        return `"examples":${makeExamples(value as Parameters<typeof makeExamples>[0])}`
+      if (key === 'examples' && isExamplesInput(value)) {
+        return `"examples":${makeExamples(value)}`
       }
       if (key === 'content' && isRecord(value)) {
         return `"content":${serializeContent(value)}`

@@ -155,7 +155,7 @@ const getItemsRouteHandler: RouteHandler<typeof getItemsRoute> = async (c) => {
   )
 }
 
-const app = new OpenAPIHono().basePath('undefined')
+const app = new OpenAPIHono()
 
 export const api = app
   .openapi(postOrdersRoute, postOrdersRouteHandler)

@@ -31,14 +31,13 @@ export async function tanstackQuery(
     mutationFn: 'useMutation',
     useQueryOptionsType: 'UseQueryOptions',
     useMutationOptionsType: 'UseMutationOptions',
-    // Infinite query support
-    infiniteQueryFn: 'useInfiniteQuery',
-    useInfiniteQueryOptionsType: 'UseInfiniteQueryOptions',
-    // Suspense query support
+    hasQueryOptionsHelper: true,
+    hasMutationOptionsHelper: true,
     suspenseQueryFn: 'useSuspenseQuery',
-    useSuspenseQueryOptionsType: 'UseSuspenseQueryOptions',
-    // Suspense infinite query support
+    infiniteQueryFn: 'useInfiniteQuery',
     suspenseInfiniteQueryFn: 'useSuspenseInfiniteQuery',
+    useSuspenseQueryOptionsType: 'UseSuspenseQueryOptions',
+    useInfiniteQueryOptionsType: 'UseInfiniteQueryOptions',
     useSuspenseInfiniteQueryOptionsType: 'UseSuspenseInfiniteQueryOptions',
   }
   return makeQueryHooks(openAPI, output, importPath, config, split, clientName)

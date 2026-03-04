@@ -415,7 +415,7 @@ function mockFullConfig() {
 function mockSuccessResult() {
   return {
     status: 'success' as const,
-    data: undefined,
+    data: {},
   }
 }
 
@@ -467,7 +467,7 @@ const getNestedCircularRouteHandler: RouteHandler<typeof getNestedCircularRoute>
   return c.json(mockCategory(), 200)
 }
 
-const app = new OpenAPIHono().basePath('undefined')
+const app = new OpenAPIHono()
 
 export const api = app
   .openapi(postExpressionsRoute, postExpressionsRouteHandler)

@@ -1,5 +1,9 @@
-import { useQuery } from '@tanstack/vue-query'
-import type { UseQueryOptions, QueryFunctionContext } from '@tanstack/vue-query'
+import { useQuery, useInfiniteQuery, queryOptions } from '@tanstack/vue-query'
+import type {
+  UseQueryOptions,
+  QueryFunctionContext,
+  UseInfiniteQueryOptions,
+} from '@tanstack/vue-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
@@ -13,20 +17,56 @@ export function getGetHealthQueryKey() {
 }
 
 /**
+ * GET /health
+ */
+export async function getHealth(options?: ClientRequestOptions) {
+  return await parseResponse(client.health.$get(undefined, options))
+}
+
+/**
  * Returns Vue Query query options for GET /health
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetHealthQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export function getGetHealthQueryOptions(options?: ClientRequestOptions) {
+  return queryOptions({
     queryKey: getGetHealthQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.health.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+      return getHealth({ ...options, init: { ...options?.init, signal } })
+    },
+  })
+}
+
+/**
+ * GET /health
+ */
+export function useGetHealth(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getHealth>>, Error>
+  options?: ClientRequestOptions
+}) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useQuery({ ...getGetHealthQueryOptions(clientOptions), ...queryOptions })
+}
+
+/**
+ * Generates Vue Query infinite query cache key for GET /health
+ * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ */
+export function getGetHealthInfiniteQueryKey() {
+  return ['health', 'GET', '/health', 'infinite'] as const
+}
+
+/**
+ * Returns Vue Query infinite query options for GET /health
+ *
+ * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
+ * Requires initialPageParam and getNextPageParam to be provided separately.
+ */
+export function getGetHealthInfiniteQueryOptions(options?: ClientRequestOptions) {
+  return {
+    queryKey: getGetHealthInfiniteQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getHealth({ ...options, init: { ...options?.init, signal } })
     },
   }
 }
@@ -34,19 +74,10 @@ export function getGetHealthQueryOptions(clientOptions?: ClientRequestOptions) {
 /**
  * GET /health
  */
-export function useGetHealth(options?: {
-  query?: Partial<
-    Omit<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.health.$get>>>>>,
-        Error
-      >,
-      'queryKey' | 'queryFn'
-    >
-  >
-  client?: ClientRequestOptions
+export function useInfiniteGetHealth(options: {
+  query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getHealth>>, Error>
+  options?: ClientRequestOptions
 }) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const { queryKey, queryFn, ...baseOptions } = getGetHealthQueryOptions(clientOptions)
-  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
+  const { query: queryOptions, options: clientOptions } = options
+  return useInfiniteQuery({ ...getGetHealthInfiniteQueryOptions(clientOptions), ...queryOptions })
 }

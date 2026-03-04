@@ -192,7 +192,10 @@ export function mergeAppFile(existingCode: string, generatedCode: string): strin
   const existingApiText = existingApiStmt?.getText() ?? ''
   const chainPrefix = extractChainPrefix(existingApiText)
   const generatedApiText = chainPrefix
-    ? rawGeneratedApiText.replace(/\bapp\.(?=(?:openapi|route)\s*\()/, () => `app${chainPrefix}.`)
+    ? rawGeneratedApiText.replace(
+        /\bapp(\s*)\.(?=\s*(?:openapi|route)\s*\()/,
+        (_, ws) => `app${chainPrefix}${ws}.`,
+      )
     : rawGeneratedApiText
 
   const mergedImports = mergeImports(existingCode, generatedCode)
@@ -381,7 +384,7 @@ function extractChainPrefix(apiStmtText: string): string {
   const routeMatch = afterApp.match(/\.(?:openapi|route)\s*\(/)
   if (!routeMatch || routeMatch.index === undefined || routeMatch.index === 0) return ''
 
-  return afterApp.slice(0, routeMatch.index)
+  return afterApp.slice(0, routeMatch.index).trim()
 }
 
 /**

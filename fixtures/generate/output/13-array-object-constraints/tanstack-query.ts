@@ -1,10 +1,21 @@
-import { useQuery, useMutation } from '@tanstack/react-query'
+import {
+  useQuery,
+  useSuspenseQuery,
+  useInfiniteQuery,
+  useSuspenseInfiniteQuery,
+  useMutation,
+  queryOptions,
+  mutationOptions,
+} from '@tanstack/react-query'
 import type {
   UseQueryOptions,
   QueryFunctionContext,
+  UseSuspenseQueryOptions,
+  UseInfiniteQueryOptions,
+  UseSuspenseInfiniteQueryOptions,
   UseMutationOptions,
 } from '@tanstack/react-query'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
@@ -17,17 +28,67 @@ export function getGetTagsQueryKey() {
 }
 
 /**
+ * GET /tags
+ */
+export async function getTags(options?: ClientRequestOptions) {
+  return await parseResponse(client.tags.$get(undefined, options))
+}
+
+/**
  * Returns TanStack Query query options for GET /tags
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetTagsQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export function getGetTagsQueryOptions(options?: ClientRequestOptions) {
+  return queryOptions({
     queryKey: getGetTagsQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.tags.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      )
+      return getTags({ ...options, init: { ...options?.init, signal } })
+    },
+  })
+}
+
+/**
+ * GET /tags
+ */
+export function useGetTags(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getTags>>, Error>
+  options?: ClientRequestOptions
+}) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useQuery({ ...getGetTagsQueryOptions(clientOptions), ...queryOptions })
+}
+
+/**
+ * GET /tags
+ */
+export function useSuspenseGetTags(options?: {
+  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getTags>>, Error>
+  options?: ClientRequestOptions
+}) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useSuspenseQuery({ ...getGetTagsQueryOptions(clientOptions), ...queryOptions })
+}
+
+/**
+ * Generates TanStack Query infinite query cache key for GET /tags
+ * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ */
+export function getGetTagsInfiniteQueryKey() {
+  return ['tags', 'GET', '/tags', 'infinite'] as const
+}
+
+/**
+ * Returns TanStack Query infinite query options for GET /tags
+ *
+ * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
+ * Requires initialPageParam and getNextPageParam to be provided separately.
+ */
+export function getGetTagsInfiniteQueryOptions(options?: ClientRequestOptions) {
+  return {
+    queryKey: getGetTagsInfiniteQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getTags({ ...options, init: { ...options?.init, signal } })
     },
   }
 }
@@ -35,16 +96,26 @@ export function getGetTagsQueryOptions(clientOptions?: ClientRequestOptions) {
 /**
  * GET /tags
  */
-export function useGetTags(options?: {
-  query?: UseQueryOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.tags.$get>>>>>,
-    Error
-  >
-  client?: ClientRequestOptions
+export function useInfiniteGetTags(options: {
+  query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getTags>>, Error>
+  options?: ClientRequestOptions
 }) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const { queryKey, queryFn, ...baseOptions } = getGetTagsQueryOptions(clientOptions)
-  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
+  const { query: queryOptions, options: clientOptions } = options
+  return useInfiniteQuery({ ...getGetTagsInfiniteQueryOptions(clientOptions), ...queryOptions })
+}
+
+/**
+ * GET /tags
+ */
+export function useSuspenseInfiniteGetTags(options: {
+  query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getTags>>, Error>
+  options?: ClientRequestOptions
+}) {
+  const { query: queryOptions, options: clientOptions } = options
+  return useSuspenseInfiniteQuery({
+    ...getGetTagsInfiniteQueryOptions(clientOptions),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -56,17 +127,27 @@ export function getPostTagsMutationKey() {
 }
 
 /**
+ * POST /tags
+ */
+export async function postTags(
+  args: InferRequestType<typeof client.tags.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.tags.$post(args, options))
+}
+
+/**
  * Returns TanStack Query mutation options for POST /tags
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export function getPostTagsMutationOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export function getPostTagsMutationOptions(options?: ClientRequestOptions) {
+  return mutationOptions({
     mutationKey: getPostTagsMutationKey(),
     async mutationFn(args: InferRequestType<typeof client.tags.$post>) {
-      return parseResponse(client.tags.$post(args, clientOptions))
+      return postTags(args, options)
     },
-  }
+  })
 }
 
 /**
@@ -74,15 +155,14 @@ export function getPostTagsMutationOptions(clientOptions?: ClientRequestOptions)
  */
 export function usePostTags(options?: {
   mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.tags.$post>>>>>,
+    Awaited<ReturnType<typeof postTags>>,
     Error,
     InferRequestType<typeof client.tags.$post>
   >
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const { mutationKey, mutationFn, ...baseOptions } = getPostTagsMutationOptions(clientOptions)
-  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
+  return useMutation({ ...getPostTagsMutationOptions(clientOptions), ...mutationOptions })
 }
 
 /**
@@ -94,22 +174,30 @@ export function getGetSettingsQueryKey(args: InferRequestType<typeof client.sett
 }
 
 /**
+ * GET /settings
+ */
+export async function getSettings(
+  args: InferRequestType<typeof client.settings.$get>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.settings.$get(args, options))
+}
+
+/**
  * Returns TanStack Query query options for GET /settings
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetSettingsQueryOptions(
   args: InferRequestType<typeof client.settings.$get>,
-  clientOptions?: ClientRequestOptions,
+  options?: ClientRequestOptions,
 ) {
-  return {
+  return queryOptions({
     queryKey: getGetSettingsQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.settings.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      )
+      return getSettings(args, { ...options, init: { ...options?.init, signal } })
     },
-  }
+  })
 }
 
 /**
@@ -118,16 +206,88 @@ export function getGetSettingsQueryOptions(
 export function useGetSettings(
   args: InferRequestType<typeof client.settings.$get>,
   options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.settings.$get>>>>>,
-      Error
-    >
-    client?: ClientRequestOptions
+    query?: UseQueryOptions<Awaited<ReturnType<typeof getSettings>>, Error>
+    options?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const { queryKey, queryFn, ...baseOptions } = getGetSettingsQueryOptions(args, clientOptions)
-  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useQuery({ ...getGetSettingsQueryOptions(args, clientOptions), ...queryOptions })
+}
+
+/**
+ * GET /settings
+ */
+export function useSuspenseGetSettings(
+  args: InferRequestType<typeof client.settings.$get>,
+  options?: {
+    query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getSettings>>, Error>
+    options?: ClientRequestOptions
+  },
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useSuspenseQuery({ ...getGetSettingsQueryOptions(args, clientOptions), ...queryOptions })
+}
+
+/**
+ * Generates TanStack Query infinite query cache key for GET /settings
+ * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
+ */
+export function getGetSettingsInfiniteQueryKey(
+  args: InferRequestType<typeof client.settings.$get>,
+) {
+  return ['settings', 'GET', '/settings', args, 'infinite'] as const
+}
+
+/**
+ * Returns TanStack Query infinite query options for GET /settings
+ *
+ * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
+ * Requires initialPageParam and getNextPageParam to be provided separately.
+ */
+export function getGetSettingsInfiniteQueryOptions(
+  args: InferRequestType<typeof client.settings.$get>,
+  options?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetSettingsInfiniteQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getSettings(args, { ...options, init: { ...options?.init, signal } })
+    },
+  }
+}
+
+/**
+ * GET /settings
+ */
+export function useInfiniteGetSettings(
+  args: InferRequestType<typeof client.settings.$get>,
+  options: {
+    query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getSettings>>, Error>
+    options?: ClientRequestOptions
+  },
+) {
+  const { query: queryOptions, options: clientOptions } = options
+  return useInfiniteQuery({
+    ...getGetSettingsInfiniteQueryOptions(args, clientOptions),
+    ...queryOptions,
+  })
+}
+
+/**
+ * GET /settings
+ */
+export function useSuspenseInfiniteGetSettings(
+  args: InferRequestType<typeof client.settings.$get>,
+  options: {
+    query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getSettings>>, Error>
+    options?: ClientRequestOptions
+  },
+) {
+  const { query: queryOptions, options: clientOptions } = options
+  return useSuspenseInfiniteQuery({
+    ...getGetSettingsInfiniteQueryOptions(args, clientOptions),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -139,17 +299,27 @@ export function getPutSettingsMutationKey() {
 }
 
 /**
+ * PUT /settings
+ */
+export async function putSettings(
+  args: InferRequestType<typeof client.settings.$put>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.settings.$put(args, options))
+}
+
+/**
  * Returns TanStack Query mutation options for PUT /settings
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export function getPutSettingsMutationOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export function getPutSettingsMutationOptions(options?: ClientRequestOptions) {
+  return mutationOptions({
     mutationKey: getPutSettingsMutationKey(),
     async mutationFn(args: InferRequestType<typeof client.settings.$put>) {
-      return parseResponse(client.settings.$put(args, clientOptions))
+      return putSettings(args, options)
     },
-  }
+  })
 }
 
 /**
@@ -157,15 +327,14 @@ export function getPutSettingsMutationOptions(clientOptions?: ClientRequestOptio
  */
 export function usePutSettings(options?: {
   mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.settings.$put>>>>>,
+    Awaited<ReturnType<typeof putSettings>>,
     Error,
     InferRequestType<typeof client.settings.$put>
   >
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const { mutationKey, mutationFn, ...baseOptions } = getPutSettingsMutationOptions(clientOptions)
-  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
+  return useMutation({ ...getPutSettingsMutationOptions(clientOptions), ...mutationOptions })
 }
 
 /**
@@ -177,17 +346,27 @@ export function getPostConfigMutationKey() {
 }
 
 /**
+ * POST /config
+ */
+export async function postConfig(
+  args: InferRequestType<typeof client.config.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.config.$post(args, options))
+}
+
+/**
  * Returns TanStack Query mutation options for POST /config
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export function getPostConfigMutationOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export function getPostConfigMutationOptions(options?: ClientRequestOptions) {
+  return mutationOptions({
     mutationKey: getPostConfigMutationKey(),
     async mutationFn(args: InferRequestType<typeof client.config.$post>) {
-      return parseResponse(client.config.$post(args, clientOptions))
+      return postConfig(args, options)
     },
-  }
+  })
 }
 
 /**
@@ -195,15 +374,14 @@ export function getPostConfigMutationOptions(clientOptions?: ClientRequestOption
  */
 export function usePostConfig(options?: {
   mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.config.$post>>>>>,
+    Awaited<ReturnType<typeof postConfig>>,
     Error,
     InferRequestType<typeof client.config.$post>
   >
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const { mutationKey, mutationFn, ...baseOptions } = getPostConfigMutationOptions(clientOptions)
-  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
+  return useMutation({ ...getPostConfigMutationOptions(clientOptions), ...mutationOptions })
 }
 
 /**
@@ -215,17 +393,27 @@ export function getPostPaymentMutationKey() {
 }
 
 /**
+ * POST /payment
+ */
+export async function postPayment(
+  args: InferRequestType<typeof client.payment.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.payment.$post(args, options))
+}
+
+/**
  * Returns TanStack Query mutation options for POST /payment
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export function getPostPaymentMutationOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export function getPostPaymentMutationOptions(options?: ClientRequestOptions) {
+  return mutationOptions({
     mutationKey: getPostPaymentMutationKey(),
     async mutationFn(args: InferRequestType<typeof client.payment.$post>) {
-      return parseResponse(client.payment.$post(args, clientOptions))
+      return postPayment(args, options)
     },
-  }
+  })
 }
 
 /**
@@ -233,13 +421,12 @@ export function getPostPaymentMutationOptions(clientOptions?: ClientRequestOptio
  */
 export function usePostPayment(options?: {
   mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.payment.$post>>>>>,
+    Awaited<ReturnType<typeof postPayment>>,
     Error,
     InferRequestType<typeof client.payment.$post>
   >
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const { mutationKey, mutationFn, ...baseOptions } = getPostPaymentMutationOptions(clientOptions)
-  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
+  return useMutation({ ...getPostPaymentMutationOptions(clientOptions), ...mutationOptions })
 }

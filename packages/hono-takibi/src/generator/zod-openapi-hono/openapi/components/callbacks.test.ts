@@ -60,7 +60,7 @@ describe('callbacksCode', () => {
     }
     const result = callbacksCode(components, false)
     expect(result).toBe(
-      `const SimpleCallback={"{url}":{get:{responses:{200:{description:"Success"}}}}}`,
+      `const SimpleCallbackCallback={"{url}":{get:{responses:{200:{description:"Success"}}}}}`,
     )
   })
 })

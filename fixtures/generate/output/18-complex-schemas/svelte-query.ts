@@ -1,10 +1,16 @@
-import { createQuery, createMutation } from '@tanstack/svelte-query'
+import {
+  createQuery,
+  createInfiniteQuery,
+  createMutation,
+  queryOptions,
+} from '@tanstack/svelte-query'
 import type {
   CreateQueryOptions,
   QueryFunctionContext,
+  CreateInfiniteQueryOptions,
   CreateMutationOptions,
 } from '@tanstack/svelte-query'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
@@ -17,15 +23,27 @@ export function getPostExpressionsMutationKey() {
 }
 
 /**
+ * POST /expressions
+ *
+ * Circular reference with oneOf (expression tree)
+ */
+export async function postExpressions(
+  args: InferRequestType<typeof client.expressions.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.expressions.$post(args, options))
+}
+
+/**
  * Returns Svelte Query mutation options for POST /expressions
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export function getPostExpressionsMutationOptions(clientOptions?: ClientRequestOptions) {
+export function getPostExpressionsMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: getPostExpressionsMutationKey(),
     async mutationFn(args: InferRequestType<typeof client.expressions.$post>) {
-      return parseResponse(client.expressions.$post(args, clientOptions))
+      return postExpressions(args, options)
     },
   }
 }
@@ -38,21 +56,16 @@ export function getPostExpressionsMutationOptions(clientOptions?: ClientRequestO
 export function createPostExpressions(
   options?: () => {
     mutation?: CreateMutationOptions<
-      Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.expressions.$post>>>>
-      >,
+      Awaited<ReturnType<typeof postExpressions>>,
       Error,
       InferRequestType<typeof client.expressions.$post>
     >
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
   return createMutation(() => {
-    const opts = options?.()
-    const { mutationKey, mutationFn, ...baseOptions } = getPostExpressionsMutationOptions(
-      opts?.client,
-    )
-    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+    const { mutation, options: clientOptions } = options?.() ?? {}
+    return { ...getPostExpressionsMutationOptions(clientOptions), ...mutation }
   })
 }
 
@@ -65,15 +78,27 @@ export function getPostShapesMutationKey() {
 }
 
 /**
+ * POST /shapes
+ *
+ * 5-variant discriminated union
+ */
+export async function postShapes(
+  args: InferRequestType<typeof client.shapes.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.shapes.$post(args, options))
+}
+
+/**
  * Returns Svelte Query mutation options for POST /shapes
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export function getPostShapesMutationOptions(clientOptions?: ClientRequestOptions) {
+export function getPostShapesMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: getPostShapesMutationKey(),
     async mutationFn(args: InferRequestType<typeof client.shapes.$post>) {
-      return parseResponse(client.shapes.$post(args, clientOptions))
+      return postShapes(args, options)
     },
   }
 }
@@ -86,17 +111,16 @@ export function getPostShapesMutationOptions(clientOptions?: ClientRequestOption
 export function createPostShapes(
   options?: () => {
     mutation?: CreateMutationOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.shapes.$post>>>>>,
+      Awaited<ReturnType<typeof postShapes>>,
       Error,
       InferRequestType<typeof client.shapes.$post>
     >
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
   return createMutation(() => {
-    const opts = options?.()
-    const { mutationKey, mutationFn, ...baseOptions } = getPostShapesMutationOptions(opts?.client)
-    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+    const { mutation, options: clientOptions } = options?.() ?? {}
+    return { ...getPostShapesMutationOptions(clientOptions), ...mutation }
   })
 }
 
@@ -109,15 +133,27 @@ export function getPostDocumentsMutationKey() {
 }
 
 /**
+ * POST /documents
+ *
+ * allOf inside oneOf (nested composition)
+ */
+export async function postDocuments(
+  args: InferRequestType<typeof client.documents.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.documents.$post(args, options))
+}
+
+/**
  * Returns Svelte Query mutation options for POST /documents
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export function getPostDocumentsMutationOptions(clientOptions?: ClientRequestOptions) {
+export function getPostDocumentsMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: getPostDocumentsMutationKey(),
     async mutationFn(args: InferRequestType<typeof client.documents.$post>) {
-      return parseResponse(client.documents.$post(args, clientOptions))
+      return postDocuments(args, options)
     },
   }
 }
@@ -130,19 +166,16 @@ export function getPostDocumentsMutationOptions(clientOptions?: ClientRequestOpt
 export function createPostDocuments(
   options?: () => {
     mutation?: CreateMutationOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.documents.$post>>>>>,
+      Awaited<ReturnType<typeof postDocuments>>,
       Error,
       InferRequestType<typeof client.documents.$post>
     >
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
   return createMutation(() => {
-    const opts = options?.()
-    const { mutationKey, mutationFn, ...baseOptions } = getPostDocumentsMutationOptions(
-      opts?.client,
-    )
-    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+    const { mutation, options: clientOptions } = options?.() ?? {}
+    return { ...getPostDocumentsMutationOptions(clientOptions), ...mutation }
   })
 }
 
@@ -155,15 +188,27 @@ export function getPostConfigsMutationKey() {
 }
 
 /**
+ * POST /configs
+ *
+ * Deeply nested allOf chain
+ */
+export async function postConfigs(
+  args: InferRequestType<typeof client.configs.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.configs.$post(args, options))
+}
+
+/**
  * Returns Svelte Query mutation options for POST /configs
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export function getPostConfigsMutationOptions(clientOptions?: ClientRequestOptions) {
+export function getPostConfigsMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: getPostConfigsMutationKey(),
     async mutationFn(args: InferRequestType<typeof client.configs.$post>) {
-      return parseResponse(client.configs.$post(args, clientOptions))
+      return postConfigs(args, options)
     },
   }
 }
@@ -176,17 +221,16 @@ export function getPostConfigsMutationOptions(clientOptions?: ClientRequestOptio
 export function createPostConfigs(
   options?: () => {
     mutation?: CreateMutationOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.configs.$post>>>>>,
+      Awaited<ReturnType<typeof postConfigs>>,
       Error,
       InferRequestType<typeof client.configs.$post>
     >
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
   return createMutation(() => {
-    const opts = options?.()
-    const { mutationKey, mutationFn, ...baseOptions } = getPostConfigsMutationOptions(opts?.client)
-    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+    const { mutation, options: clientOptions } = options?.() ?? {}
+    return { ...getPostConfigsMutationOptions(clientOptions), ...mutation }
   })
 }
 
@@ -199,22 +243,26 @@ export function getGetNullableUnionQueryKey() {
 }
 
 /**
+ * GET /nullable-union
+ *
+ * Nullable anyOf with mixed types
+ */
+export async function getNullableUnion(options?: ClientRequestOptions) {
+  return await parseResponse(client['nullable-union'].$get(undefined, options))
+}
+
+/**
  * Returns Svelte Query query options for GET /nullable-union
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetNullableUnionQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export function getGetNullableUnionQueryOptions(options?: ClientRequestOptions) {
+  return queryOptions({
     queryKey: getGetNullableUnionQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client['nullable-union'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+      return getNullableUnion({ ...options, init: { ...options?.init, signal } })
     },
-  }
+  })
 }
 
 /**
@@ -224,21 +272,53 @@ export function getGetNullableUnionQueryOptions(clientOptions?: ClientRequestOpt
  */
 export function createGetNullableUnion(
   options?: () => {
-    query?: CreateQueryOptions<
-      Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<(typeof client)['nullable-union']['$get']>>>
-        >
-      >,
-      Error
-    >
-    client?: ClientRequestOptions
+    query?: CreateQueryOptions<Awaited<ReturnType<typeof getNullableUnion>>, Error>
+    options?: ClientRequestOptions
   },
 ) {
   return createQuery(() => {
-    const opts = options?.()
-    const { queryKey, queryFn, ...baseOptions } = getGetNullableUnionQueryOptions(opts?.client)
-    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+    const { query, options: clientOptions } = options?.() ?? {}
+    return { ...getGetNullableUnionQueryOptions(clientOptions), ...query }
+  })
+}
+
+/**
+ * Generates Svelte Query infinite query cache key for GET /nullable-union
+ * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ */
+export function getGetNullableUnionInfiniteQueryKey() {
+  return ['nullable-union', 'GET', '/nullable-union', 'infinite'] as const
+}
+
+/**
+ * Returns Svelte Query infinite query options for GET /nullable-union
+ *
+ * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
+ * Requires initialPageParam and getNextPageParam to be provided separately.
+ */
+export function getGetNullableUnionInfiniteQueryOptions(options?: ClientRequestOptions) {
+  return {
+    queryKey: getGetNullableUnionInfiniteQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getNullableUnion({ ...options, init: { ...options?.init, signal } })
+    },
+  }
+}
+
+/**
+ * GET /nullable-union
+ *
+ * Nullable anyOf with mixed types
+ */
+export function createInfiniteGetNullableUnion(
+  options: () => {
+    query: CreateInfiniteQueryOptions<Awaited<ReturnType<typeof getNullableUnion>>, Error>
+    options?: ClientRequestOptions
+  },
+) {
+  return createInfiniteQuery(() => {
+    const { query, options: clientOptions } = options()
+    return { ...getGetNullableUnionInfiniteQueryOptions(clientOptions), ...query }
   })
 }
 
@@ -251,22 +331,26 @@ export function getGetNestedCircularQueryKey() {
 }
 
 /**
+ * GET /nested-circular
+ *
+ * Circular reference through allOf
+ */
+export async function getNestedCircular(options?: ClientRequestOptions) {
+  return await parseResponse(client['nested-circular'].$get(undefined, options))
+}
+
+/**
  * Returns Svelte Query query options for GET /nested-circular
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetNestedCircularQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export function getGetNestedCircularQueryOptions(options?: ClientRequestOptions) {
+  return queryOptions({
     queryKey: getGetNestedCircularQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client['nested-circular'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+      return getNestedCircular({ ...options, init: { ...options?.init, signal } })
     },
-  }
+  })
 }
 
 /**
@@ -276,20 +360,52 @@ export function getGetNestedCircularQueryOptions(clientOptions?: ClientRequestOp
  */
 export function createGetNestedCircular(
   options?: () => {
-    query?: CreateQueryOptions<
-      Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<(typeof client)['nested-circular']['$get']>>>
-        >
-      >,
-      Error
-    >
-    client?: ClientRequestOptions
+    query?: CreateQueryOptions<Awaited<ReturnType<typeof getNestedCircular>>, Error>
+    options?: ClientRequestOptions
   },
 ) {
   return createQuery(() => {
-    const opts = options?.()
-    const { queryKey, queryFn, ...baseOptions } = getGetNestedCircularQueryOptions(opts?.client)
-    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+    const { query, options: clientOptions } = options?.() ?? {}
+    return { ...getGetNestedCircularQueryOptions(clientOptions), ...query }
+  })
+}
+
+/**
+ * Generates Svelte Query infinite query cache key for GET /nested-circular
+ * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ */
+export function getGetNestedCircularInfiniteQueryKey() {
+  return ['nested-circular', 'GET', '/nested-circular', 'infinite'] as const
+}
+
+/**
+ * Returns Svelte Query infinite query options for GET /nested-circular
+ *
+ * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
+ * Requires initialPageParam and getNextPageParam to be provided separately.
+ */
+export function getGetNestedCircularInfiniteQueryOptions(options?: ClientRequestOptions) {
+  return {
+    queryKey: getGetNestedCircularInfiniteQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getNestedCircular({ ...options, init: { ...options?.init, signal } })
+    },
+  }
+}
+
+/**
+ * GET /nested-circular
+ *
+ * Circular reference through allOf
+ */
+export function createInfiniteGetNestedCircular(
+  options: () => {
+    query: CreateInfiniteQueryOptions<Awaited<ReturnType<typeof getNestedCircular>>, Error>
+    options?: ClientRequestOptions
+  },
+) {
+  return createInfiniteQuery(() => {
+    const { query, options: clientOptions } = options()
+    return { ...getGetNestedCircularInfiniteQueryOptions(clientOptions), ...query }
   })
 }

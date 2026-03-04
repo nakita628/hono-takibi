@@ -1,0 +1,298 @@
+openapi: '3.1.0'
+info:
+  title: TypeSpec Validation Test API
+  version: '1.0.0'
+  description: >
+    Comprehensive validation test covering all Zod patterns with x-* vendor extensions.
+    Source: main.tsp (TypeSpec) → openapi.yaml (compiled) → generated.ts (hono-takibi)
+paths:
+  /users:
+    post:
+      operationId: createUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUser'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+  /products:
+    post:
+      operationId: createProduct
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProduct'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+  /settings:
+    put:
+      operationId: updateSettings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Settings'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Settings'
+  /orders:
+    post:
+      operationId: createOrder
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOrder'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+components:
+  schemas:
+    # ── string patterns ──────────────────────────────────────
+    CreateUser:
+      type: object
+      required:
+        - name
+        - email
+        - role
+        - status
+        - tags
+        - score
+        - level
+      properties:
+        # x-size-message (minLength === maxLength → .length())
+        code:
+          type: string
+          minLength: 6
+          maxLength: 6
+          x-size-message: 'Code must be exactly 6 characters'
+        # x-minimum-message / x-maximum-message (separate min/max)
+        name:
+          type: string
+          minLength: 2
+          maxLength: 50
+          x-minimum-message: 'Name must be at least 2 characters'
+          x-maximum-message: 'Name must be at most 50 characters'
+        # x-error-message on format (email)
+        email:
+          type: string
+          format: email
+          x-error-message: 'Invalid email address'
+        # x-error-message on format (uuid)
+        requestId:
+          type: string
+          format: uuid
+          x-error-message: 'Invalid UUID format'
+        # x-error-message on format (uri)
+        website:
+          type: string
+          format: uri
+          x-error-message: 'Invalid URL'
+        # x-pattern-message on regex
+        password:
+          type: string
+          pattern: '^(?=.*[A-Z])(?=.*[0-9]).{8,}$'
+          x-pattern-message: 'Password must have uppercase + number, min 8 chars'
+        # x-error-message on base string (no format, no constraints)
+        nickname:
+          type: string
+          x-error-message: 'Nickname must be a string'
+        # x-error-message with arrow function (no args) — Zod v4
+        dynamicField:
+          type: string
+          x-error-message: '()=>"dynamic validation error"'
+
+        # ── enum patterns ──────────────────────────────────────
+        # string enum + x-error-message
+        role:
+          enum: ['admin', 'user', 'guest']
+          x-error-message: 'Role must be admin, user, or guest'
+        # single string enum (→ z.literal) + x-error-message
+        status:
+          enum: ['active']
+          x-error-message: 'Status must be active'
+
+        # ── number / integer patterns ────────────────────────
+        # integer + x-minimum-message / x-maximum-message
+        age:
+          type: integer
+          minimum: 0
+          maximum: 150
+          x-minimum-message: 'Age must be >= 0'
+          x-maximum-message: 'Age must be <= 150'
+        # number + x-error-message on base type
+        score:
+          type: number
+          x-error-message: 'Score must be a number'
+        # integer + x-error-message with arrow function (iss arg) — Zod v4
+        level:
+          type: integer
+          minimum: 1
+          maximum: 100
+          x-error-message: '(iss) => iss.input === undefined ? "Level is required" : "Level must be an integer"'
+          x-minimum-message: 'Level must be >= 1'
+          x-maximum-message: 'Level must be <= 100'
+        # number + multipleOf + x-error-message
+        rating:
+          type: number
+          multipleOf: 0.5
+          x-error-message: 'Rating must be a multiple of 0.5'
+
+        # ── boolean pattern ──────────────────────────────────
+        # boolean + x-error-message
+        agreed:
+          type: boolean
+          x-error-message: 'Must be a boolean'
+
+        # ── array patterns ───────────────────────────────────
+        # array + x-minimum-message / x-maximum-message (separate)
+        tags:
+          type: array
+          items:
+            type: string
+          minItems: 1
+          maxItems: 10
+          x-minimum-message: 'At least 1 tag required'
+          x-maximum-message: 'At most 10 tags allowed'
+        # array + x-size-message (minItems === maxItems → .length())
+        coordinates:
+          type: array
+          items:
+            type: number
+          minItems: 2
+          maxItems: 2
+          x-size-message: 'Must have exactly 2 coordinates'
+        # array + x-error-message on constructor
+        favoriteNumbers:
+          type: array
+          items:
+            type: integer
+          x-error-message: 'Must be an array'
+
+        # ── null pattern ─────────────────────────────────────
+        deletedAt:
+          type: 'null'
+          x-error-message: 'Must be null'
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+
+    # ── const (z.literal) patterns ───────────────────────────
+    CreateProduct:
+      type: object
+      required:
+        - type
+        - priority
+      properties:
+        type:
+          const: 'product'
+          x-error-message: 'Type must be "product"'
+        priority:
+          const: 1
+          x-error-message: 'Priority must be 1'
+        enabled:
+          const: true
+          x-error-message: 'Must be true'
+
+    Product:
+      type: object
+      properties:
+        id:
+          type: integer
+        type:
+          type: string
+
+    # ── object constraint patterns ───────────────────────────
+    Settings:
+      type: object
+      minProperties: 1
+      maxProperties: 20
+      x-minimum-message: 'At least 1 setting required'
+      x-maximum-message: 'At most 20 settings allowed'
+      properties:
+        theme:
+          type: string
+        locale:
+          type: string
+
+    # ── nested object (object mismatch test) ─────────────────
+    Address:
+      type: object
+      required:
+        - street
+        - city
+        - zip
+      properties:
+        street:
+          type: string
+          minLength: 1
+          x-minimum-message: 'Street is required'
+        city:
+          type: string
+          minLength: 1
+          x-minimum-message: 'City is required'
+        zip:
+          type: string
+          pattern: '^[0-9]{3}-[0-9]{4}$'
+          x-pattern-message: 'Zip code must be format: 000-0000'
+
+    CreateOrder:
+      type: object
+      required:
+        - productName
+        - quantity
+        - address
+      properties:
+        productName:
+          type: string
+          minLength: 1
+          maxLength: 100
+          x-minimum-message: 'Product name is required'
+          x-maximum-message: 'Product name must be at most 100 characters'
+        quantity:
+          type: integer
+          minimum: 1
+          x-minimum-message: 'Quantity must be >= 1'
+        address:
+          $ref: '#/components/schemas/Address'
+
+    Order:
+      type: object
+      properties:
+        id:
+          type: integer
+        productName:
+          type: string
+        quantity:
+          type: integer

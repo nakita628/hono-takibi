@@ -102,6 +102,38 @@ export const getRoute = createRoute({
 });
 ```
 
+## Custom Validation Error Messages
+
+Use `x-*` vendor extensions to customize Zod error messages:
+
+```yaml
+name:
+  type: string
+  minLength: 1
+  x-error-message: "Name is required"
+  x-minimum-message: "Name cannot be empty"
+```
+
+```ts
+// Generated output
+z.string({ error: "Name is required" }).min(1, { error: "Name cannot be empty" });
+```
+
+| Extension | Applies to |
+|-----------|-----------|
+| `x-error-message` | Schema constructor (`z.string()`, `z.number()`, `z.enum()`, etc.) |
+| `x-minimum-message` | `.min()`, `.gte()` |
+| `x-maximum-message` | `.max()`, `.lte()` |
+| `x-size-message` | `.length()` |
+| `x-pattern-message` | `.regex()` |
+| `x-multipleOf-message` | `.multipleOf()` |
+| `x-enum-error-messages` | Per-value enum messages (`{ "value": "message" }`) |
+| `x-anyOf-message` | `anyOf` |
+| `x-oneOf-message` | `oneOf` |
+| `x-not-message` | `not` |
+| `x-propertyNames-message` | `propertyNames` |
+| `x-dependentRequired-message` | `dependentRequired` |
+
 ## Vite Plugin
 
 Watches your OpenAPI spec and `hono-takibi.config.ts` for changes, then auto-regenerates code on save.

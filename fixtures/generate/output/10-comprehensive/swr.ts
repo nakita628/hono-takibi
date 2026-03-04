@@ -1,8 +1,11 @@
 import useSWR from 'swr'
+import useSWRImmutable from 'swr/immutable'
 import type { Key, SWRConfiguration } from 'swr'
+import useSWRInfinite from 'swr/infinite'
+import type { SWRInfiniteConfiguration, SWRInfiniteKeyLoader } from 'swr/infinite'
 import useSWRMutation from 'swr/mutation'
 import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
@@ -17,25 +20,73 @@ export function getGetUsersKey(args: InferRequestType<typeof client.users.$get>)
 /**
  * GET /users
  */
+export async function getUsers(
+  args: InferRequestType<typeof client.users.$get>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.users.$get(args, options))
+}
+
+/**
+ * GET /users
+ */
 export function useGetUsers(
   args: InferRequestType<typeof client.users.$get>,
   options?: {
     swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
-  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
-  const isEnabled = enabled !== false
-  const swrKey = isEnabled ? (customKey ?? getGetUsersKey(args)) : null
+  const swrKey = enabled !== false ? (customKey ?? getGetUsersKey(args)) : null
+  return { swrKey, ...useSWR(swrKey, async () => getUsers(args, clientOptions), restSwrOptions) }
+}
+
+/**
+ * GET /users
+ */
+export function useImmutableGetUsers(
+  args: InferRequestType<typeof client.users.$get>,
+  options?: {
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
+    options?: ClientRequestOptions
+  },
+) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const swrKey = enabled !== false ? (customKey ?? getGetUsersKey(args)) : null
   return {
     swrKey,
-    ...useSWR(
-      swrKey,
-      async () => parseResponse(client.users.$get(args, clientOptions)),
-      restSwrOptions,
-    ),
+    ...useSWRImmutable(swrKey, async () => getUsers(args, clientOptions), restSwrOptions),
   }
+}
+
+/**
+ * Generates SWR infinite query cache key for GET /users
+ * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
+ */
+export function getGetUsersInfiniteKey(args: InferRequestType<typeof client.users.$get>) {
+  return ['users', 'GET', '/users', args, 'infinite'] as const
+}
+
+/**
+ * GET /users
+ */
+export function useInfiniteGetUsers(
+  args: InferRequestType<typeof client.users.$get>,
+  options: {
+    swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getUsers>>, Error> & {
+      swrKey?: SWRInfiniteKeyLoader
+    }
+    options?: ClientRequestOptions
+  },
+) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
+  const keyLoader =
+    customKeyLoader ?? ((index: number) => [...getGetUsersInfiniteKey(args), index] as const)
+  return useSWRInfinite(keyLoader, async () => getUsers(args, clientOptions), restSwrOptions)
 }
 
 /**
@@ -49,16 +100,26 @@ export function getPostUsersMutationKey() {
 /**
  * POST /users
  */
+export async function postUsers(
+  args: InferRequestType<typeof client.users.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.users.$post(args, options))
+}
+
+/**
+ * POST /users
+ */
 export function usePostUsers(options?: {
   mutation?: SWRMutationConfiguration<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>,
+    Awaited<ReturnType<typeof postUsers>>,
     Error,
     Key,
     InferRequestType<typeof client.users.$post>
   > & { swrKey?: Key }
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey = customKey ?? getPostUsersMutationKey()
   return {
@@ -66,7 +127,7 @@ export function usePostUsers(options?: {
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.users.$post> }) =>
-        parseResponse(client.users.$post(arg, clientOptions)),
+        postUsers(arg, clientOptions),
       restMutationOptions,
     ),
   }
@@ -85,25 +146,78 @@ export function getGetUsersUserIdKey(
 /**
  * GET /users/{userId}
  */
+export async function getUsersUserId(
+  args: InferRequestType<(typeof client.users)[':userId']['$get']>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.users[':userId'].$get(args, options))
+}
+
+/**
+ * GET /users/{userId}
+ */
 export function useGetUsersUserId(
   args: InferRequestType<(typeof client.users)[':userId']['$get']>,
   options?: {
     swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
-  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
-  const isEnabled = enabled !== false
-  const swrKey = isEnabled ? (customKey ?? getGetUsersUserIdKey(args)) : null
+  const swrKey = enabled !== false ? (customKey ?? getGetUsersUserIdKey(args)) : null
   return {
     swrKey,
-    ...useSWR(
-      swrKey,
-      async () => parseResponse(client.users[':userId'].$get(args, clientOptions)),
-      restSwrOptions,
-    ),
+    ...useSWR(swrKey, async () => getUsersUserId(args, clientOptions), restSwrOptions),
   }
+}
+
+/**
+ * GET /users/{userId}
+ */
+export function useImmutableGetUsersUserId(
+  args: InferRequestType<(typeof client.users)[':userId']['$get']>,
+  options?: {
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
+    options?: ClientRequestOptions
+  },
+) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const swrKey = enabled !== false ? (customKey ?? getGetUsersUserIdKey(args)) : null
+  return {
+    swrKey,
+    ...useSWRImmutable(swrKey, async () => getUsersUserId(args, clientOptions), restSwrOptions),
+  }
+}
+
+/**
+ * Generates SWR infinite query cache key for GET /users/{userId}
+ * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
+ */
+export function getGetUsersUserIdInfiniteKey(
+  args: InferRequestType<(typeof client.users)[':userId']['$get']>,
+) {
+  return ['users', 'GET', '/users/:userId', args, 'infinite'] as const
+}
+
+/**
+ * GET /users/{userId}
+ */
+export function useInfiniteGetUsersUserId(
+  args: InferRequestType<(typeof client.users)[':userId']['$get']>,
+  options: {
+    swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getUsersUserId>>, Error> & {
+      swrKey?: SWRInfiniteKeyLoader
+    }
+    options?: ClientRequestOptions
+  },
+) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
+  const keyLoader =
+    customKeyLoader ?? ((index: number) => [...getGetUsersUserIdInfiniteKey(args), index] as const)
+  return useSWRInfinite(keyLoader, async () => getUsersUserId(args, clientOptions), restSwrOptions)
 }
 
 /**
@@ -117,20 +231,26 @@ export function getPutUsersUserIdMutationKey() {
 /**
  * PUT /users/{userId}
  */
+export async function putUsersUserId(
+  args: InferRequestType<(typeof client.users)[':userId']['$put']>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.users[':userId'].$put(args, options))
+}
+
+/**
+ * PUT /users/{userId}
+ */
 export function usePutUsersUserId(options?: {
   mutation?: SWRMutationConfiguration<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':userId']['$put']>>>
-      >
-    >,
+    Awaited<ReturnType<typeof putUsersUserId>>,
     Error,
     Key,
     InferRequestType<(typeof client.users)[':userId']['$put']>
   > & { swrKey?: Key }
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey = customKey ?? getPutUsersUserIdMutationKey()
   return {
@@ -140,7 +260,7 @@ export function usePutUsersUserId(options?: {
       async (
         _: Key,
         { arg }: { arg: InferRequestType<(typeof client.users)[':userId']['$put']> },
-      ) => parseResponse(client.users[':userId'].$put(arg, clientOptions)),
+      ) => putUsersUserId(arg, clientOptions),
       restMutationOptions,
     ),
   }
@@ -157,21 +277,26 @@ export function getDeleteUsersUserIdMutationKey() {
 /**
  * DELETE /users/{userId}
  */
+export async function deleteUsersUserId(
+  args: InferRequestType<(typeof client.users)[':userId']['$delete']>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.users[':userId'].$delete(args, options))
+}
+
+/**
+ * DELETE /users/{userId}
+ */
 export function useDeleteUsersUserId(options?: {
   mutation?: SWRMutationConfiguration<
-    | Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':userId']['$delete']>>>
-        >
-      >
-    | undefined,
+    Awaited<ReturnType<typeof deleteUsersUserId>> | undefined,
     Error,
     Key,
     InferRequestType<(typeof client.users)[':userId']['$delete']>
   > & { swrKey?: Key }
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey = customKey ?? getDeleteUsersUserIdMutationKey()
   return {
@@ -181,7 +306,7 @@ export function useDeleteUsersUserId(options?: {
       async (
         _: Key,
         { arg }: { arg: InferRequestType<(typeof client.users)[':userId']['$delete']> },
-      ) => parseResponse(client.users[':userId'].$delete(arg, clientOptions)),
+      ) => deleteUsersUserId(arg, clientOptions),
       restMutationOptions,
     ),
   }
@@ -198,25 +323,73 @@ export function getGetProductsKey(args: InferRequestType<typeof client.products.
 /**
  * GET /products
  */
+export async function getProducts(
+  args: InferRequestType<typeof client.products.$get>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.products.$get(args, options))
+}
+
+/**
+ * GET /products
+ */
 export function useGetProducts(
   args: InferRequestType<typeof client.products.$get>,
   options?: {
     swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
-  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
-  const isEnabled = enabled !== false
-  const swrKey = isEnabled ? (customKey ?? getGetProductsKey(args)) : null
+  const swrKey = enabled !== false ? (customKey ?? getGetProductsKey(args)) : null
+  return { swrKey, ...useSWR(swrKey, async () => getProducts(args, clientOptions), restSwrOptions) }
+}
+
+/**
+ * GET /products
+ */
+export function useImmutableGetProducts(
+  args: InferRequestType<typeof client.products.$get>,
+  options?: {
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
+    options?: ClientRequestOptions
+  },
+) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const swrKey = enabled !== false ? (customKey ?? getGetProductsKey(args)) : null
   return {
     swrKey,
-    ...useSWR(
-      swrKey,
-      async () => parseResponse(client.products.$get(args, clientOptions)),
-      restSwrOptions,
-    ),
+    ...useSWRImmutable(swrKey, async () => getProducts(args, clientOptions), restSwrOptions),
   }
+}
+
+/**
+ * Generates SWR infinite query cache key for GET /products
+ * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
+ */
+export function getGetProductsInfiniteKey(args: InferRequestType<typeof client.products.$get>) {
+  return ['products', 'GET', '/products', args, 'infinite'] as const
+}
+
+/**
+ * GET /products
+ */
+export function useInfiniteGetProducts(
+  args: InferRequestType<typeof client.products.$get>,
+  options: {
+    swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getProducts>>, Error> & {
+      swrKey?: SWRInfiniteKeyLoader
+    }
+    options?: ClientRequestOptions
+  },
+) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
+  const keyLoader =
+    customKeyLoader ?? ((index: number) => [...getGetProductsInfiniteKey(args), index] as const)
+  return useSWRInfinite(keyLoader, async () => getProducts(args, clientOptions), restSwrOptions)
 }
 
 /**
@@ -230,16 +403,26 @@ export function getPostProductsMutationKey() {
 /**
  * POST /products
  */
+export async function postProducts(
+  args: InferRequestType<typeof client.products.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.products.$post(args, options))
+}
+
+/**
+ * POST /products
+ */
 export function usePostProducts(options?: {
   mutation?: SWRMutationConfiguration<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.products.$post>>>>>,
+    Awaited<ReturnType<typeof postProducts>>,
     Error,
     Key,
     InferRequestType<typeof client.products.$post>
   > & { swrKey?: Key }
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey = customKey ?? getPostProductsMutationKey()
   return {
@@ -247,7 +430,7 @@ export function usePostProducts(options?: {
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.products.$post> }) =>
-        parseResponse(client.products.$post(arg, clientOptions)),
+        postProducts(arg, clientOptions),
       restMutationOptions,
     ),
   }
@@ -266,25 +449,87 @@ export function getGetProductsProductIdKey(
 /**
  * GET /products/{productId}
  */
+export async function getProductsProductId(
+  args: InferRequestType<(typeof client.products)[':productId']['$get']>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.products[':productId'].$get(args, options))
+}
+
+/**
+ * GET /products/{productId}
+ */
 export function useGetProductsProductId(
   args: InferRequestType<(typeof client.products)[':productId']['$get']>,
   options?: {
     swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
-  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
-  const isEnabled = enabled !== false
-  const swrKey = isEnabled ? (customKey ?? getGetProductsProductIdKey(args)) : null
+  const swrKey = enabled !== false ? (customKey ?? getGetProductsProductIdKey(args)) : null
   return {
     swrKey,
-    ...useSWR(
+    ...useSWR(swrKey, async () => getProductsProductId(args, clientOptions), restSwrOptions),
+  }
+}
+
+/**
+ * GET /products/{productId}
+ */
+export function useImmutableGetProductsProductId(
+  args: InferRequestType<(typeof client.products)[':productId']['$get']>,
+  options?: {
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
+    options?: ClientRequestOptions
+  },
+) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const swrKey = enabled !== false ? (customKey ?? getGetProductsProductIdKey(args)) : null
+  return {
+    swrKey,
+    ...useSWRImmutable(
       swrKey,
-      async () => parseResponse(client.products[':productId'].$get(args, clientOptions)),
+      async () => getProductsProductId(args, clientOptions),
       restSwrOptions,
     ),
   }
+}
+
+/**
+ * Generates SWR infinite query cache key for GET /products/{productId}
+ * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
+ */
+export function getGetProductsProductIdInfiniteKey(
+  args: InferRequestType<(typeof client.products)[':productId']['$get']>,
+) {
+  return ['products', 'GET', '/products/:productId', args, 'infinite'] as const
+}
+
+/**
+ * GET /products/{productId}
+ */
+export function useInfiniteGetProductsProductId(
+  args: InferRequestType<(typeof client.products)[':productId']['$get']>,
+  options: {
+    swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getProductsProductId>>, Error> & {
+      swrKey?: SWRInfiniteKeyLoader
+    }
+    options?: ClientRequestOptions
+  },
+) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
+  const keyLoader =
+    customKeyLoader ??
+    ((index: number) => [...getGetProductsProductIdInfiniteKey(args), index] as const)
+  return useSWRInfinite(
+    keyLoader,
+    async () => getProductsProductId(args, clientOptions),
+    restSwrOptions,
+  )
 }
 
 /**
@@ -298,20 +543,26 @@ export function getPutProductsProductIdMutationKey() {
 /**
  * PUT /products/{productId}
  */
+export async function putProductsProductId(
+  args: InferRequestType<(typeof client.products)[':productId']['$put']>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.products[':productId'].$put(args, options))
+}
+
+/**
+ * PUT /products/{productId}
+ */
 export function usePutProductsProductId(options?: {
   mutation?: SWRMutationConfiguration<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<Awaited<ReturnType<(typeof client.products)[':productId']['$put']>>>
-      >
-    >,
+    Awaited<ReturnType<typeof putProductsProductId>>,
     Error,
     Key,
     InferRequestType<(typeof client.products)[':productId']['$put']>
   > & { swrKey?: Key }
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey = customKey ?? getPutProductsProductIdMutationKey()
   return {
@@ -321,7 +572,7 @@ export function usePutProductsProductId(options?: {
       async (
         _: Key,
         { arg }: { arg: InferRequestType<(typeof client.products)[':productId']['$put']> },
-      ) => parseResponse(client.products[':productId'].$put(arg, clientOptions)),
+      ) => putProductsProductId(arg, clientOptions),
       restMutationOptions,
     ),
   }
@@ -340,25 +591,88 @@ export function getGetProductsProductIdReviewsKey(
 /**
  * GET /products/{productId}/reviews
  */
+export async function getProductsProductIdReviews(
+  args: InferRequestType<(typeof client.products)[':productId']['reviews']['$get']>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.products[':productId'].reviews.$get(args, options))
+}
+
+/**
+ * GET /products/{productId}/reviews
+ */
 export function useGetProductsProductIdReviews(
   args: InferRequestType<(typeof client.products)[':productId']['reviews']['$get']>,
   options?: {
     swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
-  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
-  const isEnabled = enabled !== false
-  const swrKey = isEnabled ? (customKey ?? getGetProductsProductIdReviewsKey(args)) : null
+  const swrKey = enabled !== false ? (customKey ?? getGetProductsProductIdReviewsKey(args)) : null
   return {
     swrKey,
-    ...useSWR(
+    ...useSWR(swrKey, async () => getProductsProductIdReviews(args, clientOptions), restSwrOptions),
+  }
+}
+
+/**
+ * GET /products/{productId}/reviews
+ */
+export function useImmutableGetProductsProductIdReviews(
+  args: InferRequestType<(typeof client.products)[':productId']['reviews']['$get']>,
+  options?: {
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
+    options?: ClientRequestOptions
+  },
+) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const swrKey = enabled !== false ? (customKey ?? getGetProductsProductIdReviewsKey(args)) : null
+  return {
+    swrKey,
+    ...useSWRImmutable(
       swrKey,
-      async () => parseResponse(client.products[':productId'].reviews.$get(args, clientOptions)),
+      async () => getProductsProductIdReviews(args, clientOptions),
       restSwrOptions,
     ),
   }
+}
+
+/**
+ * Generates SWR infinite query cache key for GET /products/{productId}/reviews
+ * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
+ */
+export function getGetProductsProductIdReviewsInfiniteKey(
+  args: InferRequestType<(typeof client.products)[':productId']['reviews']['$get']>,
+) {
+  return ['products', 'GET', '/products/:productId/reviews', args, 'infinite'] as const
+}
+
+/**
+ * GET /products/{productId}/reviews
+ */
+export function useInfiniteGetProductsProductIdReviews(
+  args: InferRequestType<(typeof client.products)[':productId']['reviews']['$get']>,
+  options: {
+    swr?: SWRInfiniteConfiguration<
+      Awaited<ReturnType<typeof getProductsProductIdReviews>>,
+      Error
+    > & { swrKey?: SWRInfiniteKeyLoader }
+    options?: ClientRequestOptions
+  },
+) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
+  const keyLoader =
+    customKeyLoader ??
+    ((index: number) => [...getGetProductsProductIdReviewsInfiniteKey(args), index] as const)
+  return useSWRInfinite(
+    keyLoader,
+    async () => getProductsProductIdReviews(args, clientOptions),
+    restSwrOptions,
+  )
 }
 
 /**
@@ -372,22 +686,26 @@ export function getPostProductsProductIdReviewsMutationKey() {
 /**
  * POST /products/{productId}/reviews
  */
+export async function postProductsProductIdReviews(
+  args: InferRequestType<(typeof client.products)[':productId']['reviews']['$post']>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.products[':productId'].reviews.$post(args, options))
+}
+
+/**
+ * POST /products/{productId}/reviews
+ */
 export function usePostProductsProductIdReviews(options?: {
   mutation?: SWRMutationConfiguration<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<ReturnType<(typeof client.products)[':productId']['reviews']['$post']>>
-        >
-      >
-    >,
+    Awaited<ReturnType<typeof postProductsProductIdReviews>>,
     Error,
     Key,
     InferRequestType<(typeof client.products)[':productId']['reviews']['$post']>
   > & { swrKey?: Key }
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey = customKey ?? getPostProductsProductIdReviewsMutationKey()
   return {
@@ -399,7 +717,7 @@ export function usePostProductsProductIdReviews(options?: {
         {
           arg,
         }: { arg: InferRequestType<(typeof client.products)[':productId']['reviews']['$post']> },
-      ) => parseResponse(client.products[':productId'].reviews.$post(arg, clientOptions)),
+      ) => postProductsProductIdReviews(arg, clientOptions),
       restMutationOptions,
     ),
   }
@@ -416,25 +734,73 @@ export function getGetOrdersKey(args: InferRequestType<typeof client.orders.$get
 /**
  * GET /orders
  */
+export async function getOrders(
+  args: InferRequestType<typeof client.orders.$get>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.orders.$get(args, options))
+}
+
+/**
+ * GET /orders
+ */
 export function useGetOrders(
   args: InferRequestType<typeof client.orders.$get>,
   options?: {
     swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
-  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
-  const isEnabled = enabled !== false
-  const swrKey = isEnabled ? (customKey ?? getGetOrdersKey(args)) : null
+  const swrKey = enabled !== false ? (customKey ?? getGetOrdersKey(args)) : null
+  return { swrKey, ...useSWR(swrKey, async () => getOrders(args, clientOptions), restSwrOptions) }
+}
+
+/**
+ * GET /orders
+ */
+export function useImmutableGetOrders(
+  args: InferRequestType<typeof client.orders.$get>,
+  options?: {
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
+    options?: ClientRequestOptions
+  },
+) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const swrKey = enabled !== false ? (customKey ?? getGetOrdersKey(args)) : null
   return {
     swrKey,
-    ...useSWR(
-      swrKey,
-      async () => parseResponse(client.orders.$get(args, clientOptions)),
-      restSwrOptions,
-    ),
+    ...useSWRImmutable(swrKey, async () => getOrders(args, clientOptions), restSwrOptions),
   }
+}
+
+/**
+ * Generates SWR infinite query cache key for GET /orders
+ * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
+ */
+export function getGetOrdersInfiniteKey(args: InferRequestType<typeof client.orders.$get>) {
+  return ['orders', 'GET', '/orders', args, 'infinite'] as const
+}
+
+/**
+ * GET /orders
+ */
+export function useInfiniteGetOrders(
+  args: InferRequestType<typeof client.orders.$get>,
+  options: {
+    swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getOrders>>, Error> & {
+      swrKey?: SWRInfiniteKeyLoader
+    }
+    options?: ClientRequestOptions
+  },
+) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
+  const keyLoader =
+    customKeyLoader ?? ((index: number) => [...getGetOrdersInfiniteKey(args), index] as const)
+  return useSWRInfinite(keyLoader, async () => getOrders(args, clientOptions), restSwrOptions)
 }
 
 /**
@@ -448,16 +814,26 @@ export function getPostOrdersMutationKey() {
 /**
  * POST /orders
  */
+export async function postOrders(
+  args: InferRequestType<typeof client.orders.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.orders.$post(args, options))
+}
+
+/**
+ * POST /orders
+ */
 export function usePostOrders(options?: {
   mutation?: SWRMutationConfiguration<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.orders.$post>>>>>,
+    Awaited<ReturnType<typeof postOrders>>,
     Error,
     Key,
     InferRequestType<typeof client.orders.$post>
   > & { swrKey?: Key }
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey = customKey ?? getPostOrdersMutationKey()
   return {
@@ -465,7 +841,7 @@ export function usePostOrders(options?: {
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.orders.$post> }) =>
-        parseResponse(client.orders.$post(arg, clientOptions)),
+        postOrders(arg, clientOptions),
       restMutationOptions,
     ),
   }
@@ -484,25 +860,83 @@ export function getGetOrdersOrderIdKey(
 /**
  * GET /orders/{orderId}
  */
+export async function getOrdersOrderId(
+  args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.orders[':orderId'].$get(args, options))
+}
+
+/**
+ * GET /orders/{orderId}
+ */
 export function useGetOrdersOrderId(
   args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
   options?: {
     swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
-  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
-  const isEnabled = enabled !== false
-  const swrKey = isEnabled ? (customKey ?? getGetOrdersOrderIdKey(args)) : null
+  const swrKey = enabled !== false ? (customKey ?? getGetOrdersOrderIdKey(args)) : null
   return {
     swrKey,
-    ...useSWR(
-      swrKey,
-      async () => parseResponse(client.orders[':orderId'].$get(args, clientOptions)),
-      restSwrOptions,
-    ),
+    ...useSWR(swrKey, async () => getOrdersOrderId(args, clientOptions), restSwrOptions),
   }
+}
+
+/**
+ * GET /orders/{orderId}
+ */
+export function useImmutableGetOrdersOrderId(
+  args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
+  options?: {
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
+    options?: ClientRequestOptions
+  },
+) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const swrKey = enabled !== false ? (customKey ?? getGetOrdersOrderIdKey(args)) : null
+  return {
+    swrKey,
+    ...useSWRImmutable(swrKey, async () => getOrdersOrderId(args, clientOptions), restSwrOptions),
+  }
+}
+
+/**
+ * Generates SWR infinite query cache key for GET /orders/{orderId}
+ * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
+ */
+export function getGetOrdersOrderIdInfiniteKey(
+  args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
+) {
+  return ['orders', 'GET', '/orders/:orderId', args, 'infinite'] as const
+}
+
+/**
+ * GET /orders/{orderId}
+ */
+export function useInfiniteGetOrdersOrderId(
+  args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
+  options: {
+    swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getOrdersOrderId>>, Error> & {
+      swrKey?: SWRInfiniteKeyLoader
+    }
+    options?: ClientRequestOptions
+  },
+) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
+  const keyLoader =
+    customKeyLoader ??
+    ((index: number) => [...getGetOrdersOrderIdInfiniteKey(args), index] as const)
+  return useSWRInfinite(
+    keyLoader,
+    async () => getOrdersOrderId(args, clientOptions),
+    restSwrOptions,
+  )
 }
 
 /**
@@ -516,22 +950,61 @@ export function getGetCategoriesKey() {
 /**
  * GET /categories
  */
+export async function getCategories(options?: ClientRequestOptions) {
+  return await parseResponse(client.categories.$get(undefined, options))
+}
+
+/**
+ * GET /categories
+ */
 export function useGetCategories(options?: {
   swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
-  const isEnabled = enabled !== false
-  const swrKey = isEnabled ? (customKey ?? getGetCategoriesKey()) : null
+  const swrKey = enabled !== false ? (customKey ?? getGetCategoriesKey()) : null
+  return { swrKey, ...useSWR(swrKey, async () => getCategories(clientOptions), restSwrOptions) }
+}
+
+/**
+ * GET /categories
+ */
+export function useImmutableGetCategories(options?: {
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
+  options?: ClientRequestOptions
+}) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const swrKey = enabled !== false ? (customKey ?? getGetCategoriesKey()) : null
   return {
     swrKey,
-    ...useSWR(
-      swrKey,
-      async () => parseResponse(client.categories.$get(undefined, clientOptions)),
-      restSwrOptions,
-    ),
+    ...useSWRImmutable(swrKey, async () => getCategories(clientOptions), restSwrOptions),
   }
+}
+
+/**
+ * Generates SWR infinite query cache key for GET /categories
+ * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ */
+export function getGetCategoriesInfiniteKey() {
+  return ['categories', 'GET', '/categories', 'infinite'] as const
+}
+
+/**
+ * GET /categories
+ */
+export function useInfiniteGetCategories(options: {
+  swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getCategories>>, Error> & {
+    swrKey?: SWRInfiniteKeyLoader
+  }
+  options?: ClientRequestOptions
+}) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
+  const keyLoader =
+    customKeyLoader ?? ((index: number) => [...getGetCategoriesInfiniteKey(), index] as const)
+  return useSWRInfinite(keyLoader, async () => getCategories(clientOptions), restSwrOptions)
 }
 
 /**
@@ -545,18 +1018,26 @@ export function getPostUploadImageMutationKey() {
 /**
  * POST /upload/image
  */
+export async function postUploadImage(
+  args: InferRequestType<typeof client.upload.image.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.upload.image.$post(args, options))
+}
+
+/**
+ * POST /upload/image
+ */
 export function usePostUploadImage(options?: {
   mutation?: SWRMutationConfiguration<
-    Awaited<
-      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.upload.image.$post>>>>
-    >,
+    Awaited<ReturnType<typeof postUploadImage>>,
     Error,
     Key,
     InferRequestType<typeof client.upload.image.$post>
   > & { swrKey?: Key }
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey = customKey ?? getPostUploadImageMutationKey()
   return {
@@ -564,7 +1045,7 @@ export function usePostUploadImage(options?: {
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.upload.image.$post> }) =>
-        parseResponse(client.upload.image.$post(arg, clientOptions)),
+        postUploadImage(arg, clientOptions),
       restMutationOptions,
     ),
   }

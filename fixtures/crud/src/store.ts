@@ -16,10 +16,14 @@ export function listTasks(
   status?: string,
   limit = 20,
   offset = 0,
+  cursor?: bigint,
 ): { tasks: Task[]; total: number } {
   let items = [...tasks.values()]
   if (status) {
     items = items.filter((t) => t.status === status)
+  }
+  if (cursor !== undefined) {
+    items = items.filter((t) => BigInt(t.id) > cursor)
   }
   const total = items.length
   return { tasks: items.slice(offset, offset + limit), total }

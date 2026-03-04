@@ -1,6 +1,6 @@
 import { createMutation } from '@tanstack/svelte-query'
 import type { CreateMutationOptions } from '@tanstack/svelte-query'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
@@ -13,15 +13,25 @@ export function getPostJsonMutationKey() {
 }
 
 /**
+ * POST /json
+ */
+export async function postJson(
+  args: InferRequestType<typeof client.json.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.json.$post(args, options))
+}
+
+/**
  * Returns Svelte Query mutation options for POST /json
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export function getPostJsonMutationOptions(clientOptions?: ClientRequestOptions) {
+export function getPostJsonMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: getPostJsonMutationKey(),
     async mutationFn(args: InferRequestType<typeof client.json.$post>) {
-      return parseResponse(client.json.$post(args, clientOptions))
+      return postJson(args, options)
     },
   }
 }
@@ -32,17 +42,16 @@ export function getPostJsonMutationOptions(clientOptions?: ClientRequestOptions)
 export function createPostJson(
   options?: () => {
     mutation?: CreateMutationOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.json.$post>>>>>,
+      Awaited<ReturnType<typeof postJson>>,
       Error,
       InferRequestType<typeof client.json.$post>
     >
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
   return createMutation(() => {
-    const opts = options?.()
-    const { mutationKey, mutationFn, ...baseOptions } = getPostJsonMutationOptions(opts?.client)
-    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+    const { mutation, options: clientOptions } = options?.() ?? {}
+    return { ...getPostJsonMutationOptions(clientOptions), ...mutation }
   })
 }
 
@@ -55,15 +64,25 @@ export function getPostFormMutationKey() {
 }
 
 /**
+ * POST /form
+ */
+export async function postForm(
+  args: InferRequestType<typeof client.form.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.form.$post(args, options))
+}
+
+/**
  * Returns Svelte Query mutation options for POST /form
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export function getPostFormMutationOptions(clientOptions?: ClientRequestOptions) {
+export function getPostFormMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: getPostFormMutationKey(),
     async mutationFn(args: InferRequestType<typeof client.form.$post>) {
-      return parseResponse(client.form.$post(args, clientOptions))
+      return postForm(args, options)
     },
   }
 }
@@ -74,17 +93,16 @@ export function getPostFormMutationOptions(clientOptions?: ClientRequestOptions)
 export function createPostForm(
   options?: () => {
     mutation?: CreateMutationOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.form.$post>>>>>,
+      Awaited<ReturnType<typeof postForm>>,
       Error,
       InferRequestType<typeof client.form.$post>
     >
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
   return createMutation(() => {
-    const opts = options?.()
-    const { mutationKey, mutationFn, ...baseOptions } = getPostFormMutationOptions(opts?.client)
-    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+    const { mutation, options: clientOptions } = options?.() ?? {}
+    return { ...getPostFormMutationOptions(clientOptions), ...mutation }
   })
 }
 
@@ -97,15 +115,25 @@ export function getPostUploadMutationKey() {
 }
 
 /**
+ * POST /upload
+ */
+export async function postUpload(
+  args: InferRequestType<typeof client.upload.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.upload.$post(args, options))
+}
+
+/**
  * Returns Svelte Query mutation options for POST /upload
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export function getPostUploadMutationOptions(clientOptions?: ClientRequestOptions) {
+export function getPostUploadMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: getPostUploadMutationKey(),
     async mutationFn(args: InferRequestType<typeof client.upload.$post>) {
-      return parseResponse(client.upload.$post(args, clientOptions))
+      return postUpload(args, options)
     },
   }
 }
@@ -116,17 +144,16 @@ export function getPostUploadMutationOptions(clientOptions?: ClientRequestOption
 export function createPostUpload(
   options?: () => {
     mutation?: CreateMutationOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.upload.$post>>>>>,
+      Awaited<ReturnType<typeof postUpload>>,
       Error,
       InferRequestType<typeof client.upload.$post>
     >
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
   return createMutation(() => {
-    const opts = options?.()
-    const { mutationKey, mutationFn, ...baseOptions } = getPostUploadMutationOptions(opts?.client)
-    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+    const { mutation, options: clientOptions } = options?.() ?? {}
+    return { ...getPostUploadMutationOptions(clientOptions), ...mutation }
   })
 }
 
@@ -139,15 +166,25 @@ export function getPostTextMutationKey() {
 }
 
 /**
+ * POST /text
+ */
+export async function postText(
+  args: InferRequestType<typeof client.text.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.text.$post(args, options))
+}
+
+/**
  * Returns Svelte Query mutation options for POST /text
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export function getPostTextMutationOptions(clientOptions?: ClientRequestOptions) {
+export function getPostTextMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: getPostTextMutationKey(),
     async mutationFn(args: InferRequestType<typeof client.text.$post>) {
-      return parseResponse(client.text.$post(args, clientOptions))
+      return postText(args, options)
     },
   }
 }
@@ -158,17 +195,16 @@ export function getPostTextMutationOptions(clientOptions?: ClientRequestOptions)
 export function createPostText(
   options?: () => {
     mutation?: CreateMutationOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.text.$post>>>>>,
+      Awaited<ReturnType<typeof postText>>,
       Error,
       InferRequestType<typeof client.text.$post>
     >
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
   return createMutation(() => {
-    const opts = options?.()
-    const { mutationKey, mutationFn, ...baseOptions } = getPostTextMutationOptions(opts?.client)
-    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+    const { mutation, options: clientOptions } = options?.() ?? {}
+    return { ...getPostTextMutationOptions(clientOptions), ...mutation }
   })
 }
 
@@ -181,15 +217,25 @@ export function getPostMultiContentMutationKey() {
 }
 
 /**
+ * POST /multi-content
+ */
+export async function postMultiContent(
+  args: InferRequestType<(typeof client)['multi-content']['$post']>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client['multi-content'].$post(args, options))
+}
+
+/**
  * Returns Svelte Query mutation options for POST /multi-content
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export function getPostMultiContentMutationOptions(clientOptions?: ClientRequestOptions) {
+export function getPostMultiContentMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: getPostMultiContentMutationKey(),
     async mutationFn(args: InferRequestType<(typeof client)['multi-content']['$post']>) {
-      return parseResponse(client['multi-content'].$post(args, clientOptions))
+      return postMultiContent(args, options)
     },
   }
 }
@@ -200,22 +246,15 @@ export function getPostMultiContentMutationOptions(clientOptions?: ClientRequest
 export function createPostMultiContent(
   options?: () => {
     mutation?: CreateMutationOptions<
-      Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<(typeof client)['multi-content']['$post']>>>
-        >
-      >,
+      Awaited<ReturnType<typeof postMultiContent>>,
       Error,
       InferRequestType<(typeof client)['multi-content']['$post']>
     >
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
   return createMutation(() => {
-    const opts = options?.()
-    const { mutationKey, mutationFn, ...baseOptions } = getPostMultiContentMutationOptions(
-      opts?.client,
-    )
-    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+    const { mutation, options: clientOptions } = options?.() ?? {}
+    return { ...getPostMultiContentMutationOptions(clientOptions), ...mutation }
   })
 }

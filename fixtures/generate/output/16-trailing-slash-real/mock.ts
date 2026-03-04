@@ -73,9 +73,9 @@ export const getApiReverseGeocodeIndexRoute = createRoute({
             },
           },
         }),
-      radius: z
-        .int()
-        .max(200)
+      radius: z.coerce
+        .number()
+        .pipe(z.int().max(200))
         .exactOptional()
         .openapi({
           param: {
@@ -112,9 +112,9 @@ export const getApiReverseGeocodeIndexRoute = createRoute({
             schema: { type: 'boolean', default: false },
           },
         }),
-      limit: z
-        .int()
-        .max(50)
+      limit: z.coerce
+        .number()
+        .pipe(z.int().max(50))
         .default(10)
         .exactOptional()
         .openapi({
@@ -126,8 +126,9 @@ export const getApiReverseGeocodeIndexRoute = createRoute({
             schema: { type: 'integer', default: 10, maximum: 50 },
           },
         }),
-      offset: z
-        .int()
+      offset: z.coerce
+        .number()
+        .pipe(z.int())
         .default(0)
         .exactOptional()
         .openapi({
@@ -281,7 +282,7 @@ const postApiV2PublicBookingAccountRegisterEmailRouteHandler: RouteHandler<
   )
 }
 
-const app = new OpenAPIHono().basePath('undefined')
+const app = new OpenAPIHono()
 
 export const api = app
   .openapi(getApiReverseGeocodeIndexRoute, getApiReverseGeocodeIndexRouteHandler)

@@ -75,6 +75,7 @@ hono request \
 |status|query|string|false|none|
 |limit|query|integer|false|none|
 |offset|query|integer|false|none|
+|cursor|query|integer(int64)|false|none|
 
 #### Enumerated Values
 

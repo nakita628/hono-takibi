@@ -169,16 +169,18 @@ export const NotFoundResponse = {
   content: { 'application/json': { schema: ErrorSchema } },
 }
 
-export const PageParamParamsSchema = z
-  .int()
+export const PageParamParamsSchema = z.coerce
+  .number()
+  .pipe(z.int())
   .default(1)
   .exactOptional()
   .openapi({ param: { name: 'page', in: 'query', schema: { type: 'integer', default: 1 } } })
 
 export type PageParamParams = z.infer<typeof PageParamParamsSchema>
 
-export const LimitParamParamsSchema = z
-  .int()
+export const LimitParamParamsSchema = z.coerce
+  .number()
+  .pipe(z.int())
   .default(20)
   .exactOptional()
   .openapi({ param: { name: 'limit', in: 'query', schema: { type: 'integer', default: 20 } } })

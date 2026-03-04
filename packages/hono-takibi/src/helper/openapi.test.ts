@@ -34,17 +34,17 @@ describe('openapi helper', () => {
       ['#/components/pathItems/UserOperations', 'UserOperationsPathItem'],
       ['#/components/schemas/Test%20Name', 'TestNameSchema'],
       ['', 'Schema'],
-      ['#/components/schemas/TestSchema', 'TestSchema'],
-      ['#/components/parameters/TestParamsSchema', 'TestParamsSchema'],
+      ['#/components/schemas/TestSchema', 'TestSchemaSchema'],
+      ['#/components/parameters/TestParamsSchema', 'TestParamsSchemaParamsSchema'],
       ['#/components/schemas/User/properties/parent', 'z.lazy(()=>UserSchema)'],
-      ['#/components/schemas/UserSchema/properties/children', 'z.lazy(()=>UserSchema)'],
+      ['#/components/schemas/UserSchema/properties/children', 'z.lazy(()=>UserSchemaSchema)'],
       ['#/unknown/path/Test', 'TestSchema'],
       ['#/components/schemas/my-test-schema', 'MyTestSchemaSchema'],
       ['#/components/schemas/my_test_schema', 'MyTestSchemaSchema'],
       ['#/components/schemas/Test%2FName%2FPath', 'TestNamePathSchema'],
-      ['#/components/headers/RateLimitHeaderSchema', 'RateLimitHeaderSchema'],
-      ['#/components/responses/ErrorResponse', 'ErrorResponse'],
-      ['#/components/callbacks/EventCallback', 'EventCallback'],
+      ['#/components/headers/RateLimitHeaderSchema', 'RateLimitHeaderSchemaHeaderSchema'],
+      ['#/components/responses/ErrorResponse', 'ErrorResponseResponse'],
+      ['#/components/callbacks/EventCallback', 'EventCallbackCallback'],
       [
         '#/components/schemas/Category/properties/subcategories/items',
         'z.lazy(()=>CategorySchema)',
@@ -71,7 +71,7 @@ describe('openapi helper', () => {
       const result = makeExamples({
         example1: { $ref: '#/components/examples/MyExample' } as const,
       })
-      expect(result).toBe(`{"example1":MyExample}`)
+      expect(result).toBe(`{"example1":MyExampleExample}`)
     })
     it.concurrent('generates example with defaultValue', () => {
       const result = makeExamples({
@@ -191,7 +191,7 @@ describe('openapi helper', () => {
         description: 'Success',
         links: { GetUser: { $ref: '#/components/links/UserLink' } },
       })
-      expect(result).toBe('{description:"Success",links:{"GetUser":UserLink}}')
+      expect(result).toBe('{description:"Success",links:{"GetUser":UserLinkLink}}')
     })
     it.concurrent('generates response with all fields', () => {
       const result = makeResponses({
@@ -205,9 +205,9 @@ describe('openapi helper', () => {
         `{summary:"Sum",description:"Desc",headers:z.object({"X-Custom":{schema:z.string().exactOptional()}}),content:{'application/json':{schema:z.object({})}},links:{"Next":{operationId:"getNext"}}}`,
       )
     })
-    it.concurrent('generates empty response object', () => {
+    it.concurrent('generates empty response object with description fallback', () => {
       const result = makeResponses({})
-      expect(result).toBe('{}')
+      expect(result).toBe('{description:""}')
     })
     it.concurrent('generates response with multiple links', () => {
       const result = makeResponses({
@@ -281,7 +281,7 @@ describe('openapi helper', () => {
       const result = makeLinkOrReference({
         $ref: '#/components/links/UserLink',
       })
-      expect(result).toBe('{$ref:UserLink}')
+      expect(result).toBe('{$ref:UserLinkLink}')
     })
     it.concurrent('generates link with all fields', () => {
       const result = makeLinkOrReference({
@@ -838,7 +838,7 @@ describe('openapi helper', () => {
       const result = makeCallbacks({
         onEvent: { $ref: '#/components/callbacks/EventCallback' },
       })
-      expect(result).toBe('"onEvent":EventCallback')
+      expect(result).toBe('"onEvent":EventCallbackCallback')
     })
     it.concurrent('generates callback with operation', () => {
       const result = makeCallbacks({
@@ -935,7 +935,7 @@ describe('openapi helper', () => {
         onSuccess: { $ref: '#/components/callbacks/SuccessCallback' },
         onError: { $ref: '#/components/callbacks/ErrorCallback' },
       })
-      expect(result).toBe('"onSuccess":SuccessCallback,"onError":ErrorCallback')
+      expect(result).toBe('"onSuccess":SuccessCallbackCallback,"onError":ErrorCallbackCallback')
     })
   })
 
@@ -948,7 +948,7 @@ describe('openapi helper', () => {
       const result = makeOperationCallbacks({
         onEvent: { $ref: '#/components/callbacks/EventCallback' },
       })
-      expect(result).toBe('{"onEvent":EventCallback}')
+      expect(result).toBe('{"onEvent":EventCallbackCallback}')
     })
     it.concurrent('generates operation callback with summary and description', () => {
       const result = makeOperationCallbacks({

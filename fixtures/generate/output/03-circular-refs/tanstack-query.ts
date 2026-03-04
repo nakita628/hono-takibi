@@ -1,10 +1,21 @@
-import { useQuery, useMutation } from '@tanstack/react-query'
+import {
+  useQuery,
+  useSuspenseQuery,
+  useInfiniteQuery,
+  useSuspenseInfiniteQuery,
+  useMutation,
+  queryOptions,
+  mutationOptions,
+} from '@tanstack/react-query'
 import type {
   UseQueryOptions,
   QueryFunctionContext,
+  UseSuspenseQueryOptions,
+  UseInfiniteQueryOptions,
+  UseSuspenseInfiniteQueryOptions,
   UseMutationOptions,
 } from '@tanstack/react-query'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
@@ -17,17 +28,67 @@ export function getGetTreeQueryKey() {
 }
 
 /**
+ * GET /tree
+ */
+export async function getTree(options?: ClientRequestOptions) {
+  return await parseResponse(client.tree.$get(undefined, options))
+}
+
+/**
  * Returns TanStack Query query options for GET /tree
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetTreeQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export function getGetTreeQueryOptions(options?: ClientRequestOptions) {
+  return queryOptions({
     queryKey: getGetTreeQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.tree.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      )
+      return getTree({ ...options, init: { ...options?.init, signal } })
+    },
+  })
+}
+
+/**
+ * GET /tree
+ */
+export function useGetTree(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getTree>>, Error>
+  options?: ClientRequestOptions
+}) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useQuery({ ...getGetTreeQueryOptions(clientOptions), ...queryOptions })
+}
+
+/**
+ * GET /tree
+ */
+export function useSuspenseGetTree(options?: {
+  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getTree>>, Error>
+  options?: ClientRequestOptions
+}) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useSuspenseQuery({ ...getGetTreeQueryOptions(clientOptions), ...queryOptions })
+}
+
+/**
+ * Generates TanStack Query infinite query cache key for GET /tree
+ * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ */
+export function getGetTreeInfiniteQueryKey() {
+  return ['tree', 'GET', '/tree', 'infinite'] as const
+}
+
+/**
+ * Returns TanStack Query infinite query options for GET /tree
+ *
+ * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
+ * Requires initialPageParam and getNextPageParam to be provided separately.
+ */
+export function getGetTreeInfiniteQueryOptions(options?: ClientRequestOptions) {
+  return {
+    queryKey: getGetTreeInfiniteQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getTree({ ...options, init: { ...options?.init, signal } })
     },
   }
 }
@@ -35,16 +96,26 @@ export function getGetTreeQueryOptions(clientOptions?: ClientRequestOptions) {
 /**
  * GET /tree
  */
-export function useGetTree(options?: {
-  query?: UseQueryOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.tree.$get>>>>>,
-    Error
-  >
-  client?: ClientRequestOptions
+export function useInfiniteGetTree(options: {
+  query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getTree>>, Error>
+  options?: ClientRequestOptions
 }) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const { queryKey, queryFn, ...baseOptions } = getGetTreeQueryOptions(clientOptions)
-  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
+  const { query: queryOptions, options: clientOptions } = options
+  return useInfiniteQuery({ ...getGetTreeInfiniteQueryOptions(clientOptions), ...queryOptions })
+}
+
+/**
+ * GET /tree
+ */
+export function useSuspenseInfiniteGetTree(options: {
+  query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getTree>>, Error>
+  options?: ClientRequestOptions
+}) {
+  const { query: queryOptions, options: clientOptions } = options
+  return useSuspenseInfiniteQuery({
+    ...getGetTreeInfiniteQueryOptions(clientOptions),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -56,17 +127,27 @@ export function getPostTreeMutationKey() {
 }
 
 /**
+ * POST /tree
+ */
+export async function postTree(
+  args: InferRequestType<typeof client.tree.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.tree.$post(args, options))
+}
+
+/**
  * Returns TanStack Query mutation options for POST /tree
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export function getPostTreeMutationOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export function getPostTreeMutationOptions(options?: ClientRequestOptions) {
+  return mutationOptions({
     mutationKey: getPostTreeMutationKey(),
     async mutationFn(args: InferRequestType<typeof client.tree.$post>) {
-      return parseResponse(client.tree.$post(args, clientOptions))
+      return postTree(args, options)
     },
-  }
+  })
 }
 
 /**
@@ -74,15 +155,14 @@ export function getPostTreeMutationOptions(clientOptions?: ClientRequestOptions)
  */
 export function usePostTree(options?: {
   mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.tree.$post>>>>>,
+    Awaited<ReturnType<typeof postTree>>,
     Error,
     InferRequestType<typeof client.tree.$post>
   >
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const { mutationKey, mutationFn, ...baseOptions } = getPostTreeMutationOptions(clientOptions)
-  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
+  return useMutation({ ...getPostTreeMutationOptions(clientOptions), ...mutationOptions })
 }
 
 /**
@@ -94,20 +174,67 @@ export function getGetGraphQueryKey() {
 }
 
 /**
+ * GET /graph
+ */
+export async function getGraph(options?: ClientRequestOptions) {
+  return await parseResponse(client.graph.$get(undefined, options))
+}
+
+/**
  * Returns TanStack Query query options for GET /graph
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetGraphQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export function getGetGraphQueryOptions(options?: ClientRequestOptions) {
+  return queryOptions({
     queryKey: getGetGraphQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.graph.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+      return getGraph({ ...options, init: { ...options?.init, signal } })
+    },
+  })
+}
+
+/**
+ * GET /graph
+ */
+export function useGetGraph(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getGraph>>, Error>
+  options?: ClientRequestOptions
+}) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useQuery({ ...getGetGraphQueryOptions(clientOptions), ...queryOptions })
+}
+
+/**
+ * GET /graph
+ */
+export function useSuspenseGetGraph(options?: {
+  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getGraph>>, Error>
+  options?: ClientRequestOptions
+}) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useSuspenseQuery({ ...getGetGraphQueryOptions(clientOptions), ...queryOptions })
+}
+
+/**
+ * Generates TanStack Query infinite query cache key for GET /graph
+ * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ */
+export function getGetGraphInfiniteQueryKey() {
+  return ['graph', 'GET', '/graph', 'infinite'] as const
+}
+
+/**
+ * Returns TanStack Query infinite query options for GET /graph
+ *
+ * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
+ * Requires initialPageParam and getNextPageParam to be provided separately.
+ */
+export function getGetGraphInfiniteQueryOptions(options?: ClientRequestOptions) {
+  return {
+    queryKey: getGetGraphInfiniteQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getGraph({ ...options, init: { ...options?.init, signal } })
     },
   }
 }
@@ -115,14 +242,24 @@ export function getGetGraphQueryOptions(clientOptions?: ClientRequestOptions) {
 /**
  * GET /graph
  */
-export function useGetGraph(options?: {
-  query?: UseQueryOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.graph.$get>>>>>,
-    Error
-  >
-  client?: ClientRequestOptions
+export function useInfiniteGetGraph(options: {
+  query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getGraph>>, Error>
+  options?: ClientRequestOptions
 }) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const { queryKey, queryFn, ...baseOptions } = getGetGraphQueryOptions(clientOptions)
-  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
+  const { query: queryOptions, options: clientOptions } = options
+  return useInfiniteQuery({ ...getGetGraphInfiniteQueryOptions(clientOptions), ...queryOptions })
+}
+
+/**
+ * GET /graph
+ */
+export function useSuspenseInfiniteGetGraph(options: {
+  query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getGraph>>, Error>
+  options?: ClientRequestOptions
+}) {
+  const { query: queryOptions, options: clientOptions } = options
+  return useSuspenseInfiniteQuery({
+    ...getGetGraphInfiniteQueryOptions(clientOptions),
+    ...queryOptions,
+  })
 }

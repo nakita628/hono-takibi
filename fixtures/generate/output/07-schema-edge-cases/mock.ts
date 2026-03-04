@@ -173,7 +173,7 @@ function mockLevel1() {
 }
 
 function mockDynamicMap() {
-  return undefined
+  return {}
 }
 
 const postNullableRouteHandler: RouteHandler<typeof postNullableRoute> = async (c) => {
@@ -196,7 +196,7 @@ const getAdditionalPropsRouteHandler: RouteHandler<typeof getAdditionalPropsRout
   return c.json(mockDynamicMap(), 200)
 }
 
-const app = new OpenAPIHono().basePath('undefined')
+const app = new OpenAPIHono()
 
 export const api = app
   .openapi(postNullableRoute, postNullableRouteHandler)

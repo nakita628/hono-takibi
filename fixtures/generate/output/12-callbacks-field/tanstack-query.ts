@@ -1,10 +1,21 @@
-import { useQuery, useMutation } from '@tanstack/react-query'
+import {
+  useQuery,
+  useSuspenseQuery,
+  useInfiniteQuery,
+  useSuspenseInfiniteQuery,
+  useMutation,
+  queryOptions,
+  mutationOptions,
+} from '@tanstack/react-query'
 import type {
   UseQueryOptions,
   QueryFunctionContext,
+  UseSuspenseQueryOptions,
+  UseInfiniteQueryOptions,
+  UseSuspenseInfiniteQueryOptions,
   UseMutationOptions,
 } from '@tanstack/react-query'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
@@ -17,17 +28,29 @@ export function getPostOrdersMutationKey() {
 }
 
 /**
+ * POST /orders
+ *
+ * Create an order with callback
+ */
+export async function postOrders(
+  args: InferRequestType<typeof client.orders.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.orders.$post(args, options))
+}
+
+/**
  * Returns TanStack Query mutation options for POST /orders
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export function getPostOrdersMutationOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export function getPostOrdersMutationOptions(options?: ClientRequestOptions) {
+  return mutationOptions({
     mutationKey: getPostOrdersMutationKey(),
     async mutationFn(args: InferRequestType<typeof client.orders.$post>) {
-      return parseResponse(client.orders.$post(args, clientOptions))
+      return postOrders(args, options)
     },
-  }
+  })
 }
 
 /**
@@ -37,15 +60,14 @@ export function getPostOrdersMutationOptions(clientOptions?: ClientRequestOption
  */
 export function usePostOrders(options?: {
   mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.orders.$post>>>>>,
+    Awaited<ReturnType<typeof postOrders>>,
     Error,
     InferRequestType<typeof client.orders.$post>
   >
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const { mutationKey, mutationFn, ...baseOptions } = getPostOrdersMutationOptions(clientOptions)
-  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
+  return useMutation({ ...getPostOrdersMutationOptions(clientOptions), ...mutationOptions })
 }
 
 /**
@@ -57,17 +79,29 @@ export function getPostPaymentsMutationKey() {
 }
 
 /**
+ * POST /payments
+ *
+ * Create a payment with multiple callbacks
+ */
+export async function postPayments(
+  args: InferRequestType<typeof client.payments.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.payments.$post(args, options))
+}
+
+/**
  * Returns TanStack Query mutation options for POST /payments
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export function getPostPaymentsMutationOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export function getPostPaymentsMutationOptions(options?: ClientRequestOptions) {
+  return mutationOptions({
     mutationKey: getPostPaymentsMutationKey(),
     async mutationFn(args: InferRequestType<typeof client.payments.$post>) {
-      return parseResponse(client.payments.$post(args, clientOptions))
+      return postPayments(args, options)
     },
-  }
+  })
 }
 
 /**
@@ -77,15 +111,14 @@ export function getPostPaymentsMutationOptions(clientOptions?: ClientRequestOpti
  */
 export function usePostPayments(options?: {
   mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.payments.$post>>>>>,
+    Awaited<ReturnType<typeof postPayments>>,
     Error,
     InferRequestType<typeof client.payments.$post>
   >
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const { mutationKey, mutationFn, ...baseOptions } = getPostPaymentsMutationOptions(clientOptions)
-  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
+  return useMutation({ ...getPostPaymentsMutationOptions(clientOptions), ...mutationOptions })
 }
 
 /**
@@ -97,20 +130,73 @@ export function getGetItemsQueryKey() {
 }
 
 /**
+ * GET /items
+ *
+ * List items (no callbacks)
+ */
+export async function getItems(options?: ClientRequestOptions) {
+  return await parseResponse(client.items.$get(undefined, options))
+}
+
+/**
  * Returns TanStack Query query options for GET /items
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetItemsQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export function getGetItemsQueryOptions(options?: ClientRequestOptions) {
+  return queryOptions({
     queryKey: getGetItemsQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.items.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+      return getItems({ ...options, init: { ...options?.init, signal } })
+    },
+  })
+}
+
+/**
+ * GET /items
+ *
+ * List items (no callbacks)
+ */
+export function useGetItems(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getItems>>, Error>
+  options?: ClientRequestOptions
+}) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useQuery({ ...getGetItemsQueryOptions(clientOptions), ...queryOptions })
+}
+
+/**
+ * GET /items
+ *
+ * List items (no callbacks)
+ */
+export function useSuspenseGetItems(options?: {
+  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getItems>>, Error>
+  options?: ClientRequestOptions
+}) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useSuspenseQuery({ ...getGetItemsQueryOptions(clientOptions), ...queryOptions })
+}
+
+/**
+ * Generates TanStack Query infinite query cache key for GET /items
+ * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ */
+export function getGetItemsInfiniteQueryKey() {
+  return ['items', 'GET', '/items', 'infinite'] as const
+}
+
+/**
+ * Returns TanStack Query infinite query options for GET /items
+ *
+ * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
+ * Requires initialPageParam and getNextPageParam to be provided separately.
+ */
+export function getGetItemsInfiniteQueryOptions(options?: ClientRequestOptions) {
+  return {
+    queryKey: getGetItemsInfiniteQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getItems({ ...options, init: { ...options?.init, signal } })
     },
   }
 }
@@ -120,14 +206,26 @@ export function getGetItemsQueryOptions(clientOptions?: ClientRequestOptions) {
  *
  * List items (no callbacks)
  */
-export function useGetItems(options?: {
-  query?: UseQueryOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.items.$get>>>>>,
-    Error
-  >
-  client?: ClientRequestOptions
+export function useInfiniteGetItems(options: {
+  query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getItems>>, Error>
+  options?: ClientRequestOptions
 }) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const { queryKey, queryFn, ...baseOptions } = getGetItemsQueryOptions(clientOptions)
-  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
+  const { query: queryOptions, options: clientOptions } = options
+  return useInfiniteQuery({ ...getGetItemsInfiniteQueryOptions(clientOptions), ...queryOptions })
+}
+
+/**
+ * GET /items
+ *
+ * List items (no callbacks)
+ */
+export function useSuspenseInfiniteGetItems(options: {
+  query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getItems>>, Error>
+  options?: ClientRequestOptions
+}) {
+  const { query: queryOptions, options: clientOptions } = options
+  return useSuspenseInfiniteQuery({
+    ...getGetItemsInfiniteQueryOptions(clientOptions),
+    ...queryOptions,
+  })
 }

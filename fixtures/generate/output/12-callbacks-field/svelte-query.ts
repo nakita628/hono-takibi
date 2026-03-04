@@ -1,10 +1,16 @@
-import { createQuery, createMutation } from '@tanstack/svelte-query'
+import {
+  createQuery,
+  createInfiniteQuery,
+  createMutation,
+  queryOptions,
+} from '@tanstack/svelte-query'
 import type {
   CreateQueryOptions,
   QueryFunctionContext,
+  CreateInfiniteQueryOptions,
   CreateMutationOptions,
 } from '@tanstack/svelte-query'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
@@ -17,15 +23,27 @@ export function getPostOrdersMutationKey() {
 }
 
 /**
+ * POST /orders
+ *
+ * Create an order with callback
+ */
+export async function postOrders(
+  args: InferRequestType<typeof client.orders.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.orders.$post(args, options))
+}
+
+/**
  * Returns Svelte Query mutation options for POST /orders
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export function getPostOrdersMutationOptions(clientOptions?: ClientRequestOptions) {
+export function getPostOrdersMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: getPostOrdersMutationKey(),
     async mutationFn(args: InferRequestType<typeof client.orders.$post>) {
-      return parseResponse(client.orders.$post(args, clientOptions))
+      return postOrders(args, options)
     },
   }
 }
@@ -38,17 +56,16 @@ export function getPostOrdersMutationOptions(clientOptions?: ClientRequestOption
 export function createPostOrders(
   options?: () => {
     mutation?: CreateMutationOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.orders.$post>>>>>,
+      Awaited<ReturnType<typeof postOrders>>,
       Error,
       InferRequestType<typeof client.orders.$post>
     >
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
   return createMutation(() => {
-    const opts = options?.()
-    const { mutationKey, mutationFn, ...baseOptions } = getPostOrdersMutationOptions(opts?.client)
-    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+    const { mutation, options: clientOptions } = options?.() ?? {}
+    return { ...getPostOrdersMutationOptions(clientOptions), ...mutation }
   })
 }
 
@@ -61,15 +78,27 @@ export function getPostPaymentsMutationKey() {
 }
 
 /**
+ * POST /payments
+ *
+ * Create a payment with multiple callbacks
+ */
+export async function postPayments(
+  args: InferRequestType<typeof client.payments.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.payments.$post(args, options))
+}
+
+/**
  * Returns Svelte Query mutation options for POST /payments
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export function getPostPaymentsMutationOptions(clientOptions?: ClientRequestOptions) {
+export function getPostPaymentsMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: getPostPaymentsMutationKey(),
     async mutationFn(args: InferRequestType<typeof client.payments.$post>) {
-      return parseResponse(client.payments.$post(args, clientOptions))
+      return postPayments(args, options)
     },
   }
 }
@@ -82,17 +111,16 @@ export function getPostPaymentsMutationOptions(clientOptions?: ClientRequestOpti
 export function createPostPayments(
   options?: () => {
     mutation?: CreateMutationOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.payments.$post>>>>>,
+      Awaited<ReturnType<typeof postPayments>>,
       Error,
       InferRequestType<typeof client.payments.$post>
     >
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
   return createMutation(() => {
-    const opts = options?.()
-    const { mutationKey, mutationFn, ...baseOptions } = getPostPaymentsMutationOptions(opts?.client)
-    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+    const { mutation, options: clientOptions } = options?.() ?? {}
+    return { ...getPostPaymentsMutationOptions(clientOptions), ...mutation }
   })
 }
 
@@ -105,22 +133,26 @@ export function getGetItemsQueryKey() {
 }
 
 /**
+ * GET /items
+ *
+ * List items (no callbacks)
+ */
+export async function getItems(options?: ClientRequestOptions) {
+  return await parseResponse(client.items.$get(undefined, options))
+}
+
+/**
  * Returns Svelte Query query options for GET /items
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetItemsQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export function getGetItemsQueryOptions(options?: ClientRequestOptions) {
+  return queryOptions({
     queryKey: getGetItemsQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.items.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+      return getItems({ ...options, init: { ...options?.init, signal } })
     },
-  }
+  })
 }
 
 /**
@@ -130,16 +162,52 @@ export function getGetItemsQueryOptions(clientOptions?: ClientRequestOptions) {
  */
 export function createGetItems(
   options?: () => {
-    query?: CreateQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.items.$get>>>>>,
-      Error
-    >
-    client?: ClientRequestOptions
+    query?: CreateQueryOptions<Awaited<ReturnType<typeof getItems>>, Error>
+    options?: ClientRequestOptions
   },
 ) {
   return createQuery(() => {
-    const opts = options?.()
-    const { queryKey, queryFn, ...baseOptions } = getGetItemsQueryOptions(opts?.client)
-    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
+    const { query, options: clientOptions } = options?.() ?? {}
+    return { ...getGetItemsQueryOptions(clientOptions), ...query }
+  })
+}
+
+/**
+ * Generates Svelte Query infinite query cache key for GET /items
+ * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ */
+export function getGetItemsInfiniteQueryKey() {
+  return ['items', 'GET', '/items', 'infinite'] as const
+}
+
+/**
+ * Returns Svelte Query infinite query options for GET /items
+ *
+ * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
+ * Requires initialPageParam and getNextPageParam to be provided separately.
+ */
+export function getGetItemsInfiniteQueryOptions(options?: ClientRequestOptions) {
+  return {
+    queryKey: getGetItemsInfiniteQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getItems({ ...options, init: { ...options?.init, signal } })
+    },
+  }
+}
+
+/**
+ * GET /items
+ *
+ * List items (no callbacks)
+ */
+export function createInfiniteGetItems(
+  options: () => {
+    query: CreateInfiniteQueryOptions<Awaited<ReturnType<typeof getItems>>, Error>
+    options?: ClientRequestOptions
+  },
+) {
+  return createInfiniteQuery(() => {
+    const { query, options: clientOptions } = options()
+    return { ...getGetItemsInfiniteQueryOptions(clientOptions), ...query }
   })
 }

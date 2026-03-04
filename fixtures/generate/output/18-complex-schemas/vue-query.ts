@@ -1,6 +1,11 @@
-import { useQuery, useMutation } from '@tanstack/vue-query'
-import type { UseQueryOptions, QueryFunctionContext, UseMutationOptions } from '@tanstack/vue-query'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import { useQuery, useInfiniteQuery, useMutation, queryOptions } from '@tanstack/vue-query'
+import type {
+  UseQueryOptions,
+  QueryFunctionContext,
+  UseInfiniteQueryOptions,
+  UseMutationOptions,
+} from '@tanstack/vue-query'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
@@ -13,15 +18,27 @@ export function getPostExpressionsMutationKey() {
 }
 
 /**
+ * POST /expressions
+ *
+ * Circular reference with oneOf (expression tree)
+ */
+export async function postExpressions(
+  args: InferRequestType<typeof client.expressions.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.expressions.$post(args, options))
+}
+
+/**
  * Returns Vue Query mutation options for POST /expressions
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export function getPostExpressionsMutationOptions(clientOptions?: ClientRequestOptions) {
+export function getPostExpressionsMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: getPostExpressionsMutationKey(),
     async mutationFn(args: InferRequestType<typeof client.expressions.$post>) {
-      return parseResponse(client.expressions.$post(args, clientOptions))
+      return postExpressions(args, options)
     },
   }
 }
@@ -32,24 +49,15 @@ export function getPostExpressionsMutationOptions(clientOptions?: ClientRequestO
  * Circular reference with oneOf (expression tree)
  */
 export function usePostExpressions(options?: {
-  mutation?: Partial<
-    Omit<
-      UseMutationOptions<
-        Awaited<
-          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.expressions.$post>>>>
-        >,
-        Error,
-        InferRequestType<typeof client.expressions.$post>
-      >,
-      'mutationFn' | 'mutationKey'
-    >
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postExpressions>>,
+    Error,
+    InferRequestType<typeof client.expressions.$post>
   >
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const { mutationKey, mutationFn, ...baseOptions } =
-    getPostExpressionsMutationOptions(clientOptions)
-  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
+  return useMutation({ ...getPostExpressionsMutationOptions(clientOptions), ...mutationOptions })
 }
 
 /**
@@ -61,15 +69,27 @@ export function getPostShapesMutationKey() {
 }
 
 /**
+ * POST /shapes
+ *
+ * 5-variant discriminated union
+ */
+export async function postShapes(
+  args: InferRequestType<typeof client.shapes.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.shapes.$post(args, options))
+}
+
+/**
  * Returns Vue Query mutation options for POST /shapes
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export function getPostShapesMutationOptions(clientOptions?: ClientRequestOptions) {
+export function getPostShapesMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: getPostShapesMutationKey(),
     async mutationFn(args: InferRequestType<typeof client.shapes.$post>) {
-      return parseResponse(client.shapes.$post(args, clientOptions))
+      return postShapes(args, options)
     },
   }
 }
@@ -80,21 +100,15 @@ export function getPostShapesMutationOptions(clientOptions?: ClientRequestOption
  * 5-variant discriminated union
  */
 export function usePostShapes(options?: {
-  mutation?: Partial<
-    Omit<
-      UseMutationOptions<
-        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.shapes.$post>>>>>,
-        Error,
-        InferRequestType<typeof client.shapes.$post>
-      >,
-      'mutationFn' | 'mutationKey'
-    >
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postShapes>>,
+    Error,
+    InferRequestType<typeof client.shapes.$post>
   >
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const { mutationKey, mutationFn, ...baseOptions } = getPostShapesMutationOptions(clientOptions)
-  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
+  return useMutation({ ...getPostShapesMutationOptions(clientOptions), ...mutationOptions })
 }
 
 /**
@@ -106,15 +120,27 @@ export function getPostDocumentsMutationKey() {
 }
 
 /**
+ * POST /documents
+ *
+ * allOf inside oneOf (nested composition)
+ */
+export async function postDocuments(
+  args: InferRequestType<typeof client.documents.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.documents.$post(args, options))
+}
+
+/**
  * Returns Vue Query mutation options for POST /documents
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export function getPostDocumentsMutationOptions(clientOptions?: ClientRequestOptions) {
+export function getPostDocumentsMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: getPostDocumentsMutationKey(),
     async mutationFn(args: InferRequestType<typeof client.documents.$post>) {
-      return parseResponse(client.documents.$post(args, clientOptions))
+      return postDocuments(args, options)
     },
   }
 }
@@ -125,23 +151,15 @@ export function getPostDocumentsMutationOptions(clientOptions?: ClientRequestOpt
  * allOf inside oneOf (nested composition)
  */
 export function usePostDocuments(options?: {
-  mutation?: Partial<
-    Omit<
-      UseMutationOptions<
-        Awaited<
-          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.documents.$post>>>>
-        >,
-        Error,
-        InferRequestType<typeof client.documents.$post>
-      >,
-      'mutationFn' | 'mutationKey'
-    >
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postDocuments>>,
+    Error,
+    InferRequestType<typeof client.documents.$post>
   >
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const { mutationKey, mutationFn, ...baseOptions } = getPostDocumentsMutationOptions(clientOptions)
-  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
+  return useMutation({ ...getPostDocumentsMutationOptions(clientOptions), ...mutationOptions })
 }
 
 /**
@@ -153,15 +171,27 @@ export function getPostConfigsMutationKey() {
 }
 
 /**
+ * POST /configs
+ *
+ * Deeply nested allOf chain
+ */
+export async function postConfigs(
+  args: InferRequestType<typeof client.configs.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.configs.$post(args, options))
+}
+
+/**
  * Returns Vue Query mutation options for POST /configs
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export function getPostConfigsMutationOptions(clientOptions?: ClientRequestOptions) {
+export function getPostConfigsMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: getPostConfigsMutationKey(),
     async mutationFn(args: InferRequestType<typeof client.configs.$post>) {
-      return parseResponse(client.configs.$post(args, clientOptions))
+      return postConfigs(args, options)
     },
   }
 }
@@ -172,21 +202,15 @@ export function getPostConfigsMutationOptions(clientOptions?: ClientRequestOptio
  * Deeply nested allOf chain
  */
 export function usePostConfigs(options?: {
-  mutation?: Partial<
-    Omit<
-      UseMutationOptions<
-        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.configs.$post>>>>>,
-        Error,
-        InferRequestType<typeof client.configs.$post>
-      >,
-      'mutationFn' | 'mutationKey'
-    >
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postConfigs>>,
+    Error,
+    InferRequestType<typeof client.configs.$post>
   >
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const { mutationKey, mutationFn, ...baseOptions } = getPostConfigsMutationOptions(clientOptions)
-  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
+  return useMutation({ ...getPostConfigsMutationOptions(clientOptions), ...mutationOptions })
 }
 
 /**
@@ -198,20 +222,60 @@ export function getGetNullableUnionQueryKey() {
 }
 
 /**
+ * GET /nullable-union
+ *
+ * Nullable anyOf with mixed types
+ */
+export async function getNullableUnion(options?: ClientRequestOptions) {
+  return await parseResponse(client['nullable-union'].$get(undefined, options))
+}
+
+/**
  * Returns Vue Query query options for GET /nullable-union
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetNullableUnionQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export function getGetNullableUnionQueryOptions(options?: ClientRequestOptions) {
+  return queryOptions({
     queryKey: getGetNullableUnionQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client['nullable-union'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+      return getNullableUnion({ ...options, init: { ...options?.init, signal } })
+    },
+  })
+}
+
+/**
+ * GET /nullable-union
+ *
+ * Nullable anyOf with mixed types
+ */
+export function useGetNullableUnion(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getNullableUnion>>, Error>
+  options?: ClientRequestOptions
+}) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useQuery({ ...getGetNullableUnionQueryOptions(clientOptions), ...queryOptions })
+}
+
+/**
+ * Generates Vue Query infinite query cache key for GET /nullable-union
+ * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ */
+export function getGetNullableUnionInfiniteQueryKey() {
+  return ['nullable-union', 'GET', '/nullable-union', 'infinite'] as const
+}
+
+/**
+ * Returns Vue Query infinite query options for GET /nullable-union
+ *
+ * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
+ * Requires initialPageParam and getNextPageParam to be provided separately.
+ */
+export function getGetNullableUnionInfiniteQueryOptions(options?: ClientRequestOptions) {
+  return {
+    queryKey: getGetNullableUnionInfiniteQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getNullableUnion({ ...options, init: { ...options?.init, signal } })
     },
   }
 }
@@ -221,25 +285,15 @@ export function getGetNullableUnionQueryOptions(clientOptions?: ClientRequestOpt
  *
  * Nullable anyOf with mixed types
  */
-export function useGetNullableUnion(options?: {
-  query?: Partial<
-    Omit<
-      UseQueryOptions<
-        Awaited<
-          ReturnType<
-            typeof parseResponse<Awaited<ReturnType<(typeof client)['nullable-union']['$get']>>>
-          >
-        >,
-        Error
-      >,
-      'queryKey' | 'queryFn'
-    >
-  >
-  client?: ClientRequestOptions
+export function useInfiniteGetNullableUnion(options: {
+  query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getNullableUnion>>, Error>
+  options?: ClientRequestOptions
 }) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const { queryKey, queryFn, ...baseOptions } = getGetNullableUnionQueryOptions(clientOptions)
-  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
+  const { query: queryOptions, options: clientOptions } = options
+  return useInfiniteQuery({
+    ...getGetNullableUnionInfiniteQueryOptions(clientOptions),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -251,20 +305,60 @@ export function getGetNestedCircularQueryKey() {
 }
 
 /**
+ * GET /nested-circular
+ *
+ * Circular reference through allOf
+ */
+export async function getNestedCircular(options?: ClientRequestOptions) {
+  return await parseResponse(client['nested-circular'].$get(undefined, options))
+}
+
+/**
  * Returns Vue Query query options for GET /nested-circular
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetNestedCircularQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export function getGetNestedCircularQueryOptions(options?: ClientRequestOptions) {
+  return queryOptions({
     queryKey: getGetNestedCircularQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client['nested-circular'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+      return getNestedCircular({ ...options, init: { ...options?.init, signal } })
+    },
+  })
+}
+
+/**
+ * GET /nested-circular
+ *
+ * Circular reference through allOf
+ */
+export function useGetNestedCircular(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getNestedCircular>>, Error>
+  options?: ClientRequestOptions
+}) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useQuery({ ...getGetNestedCircularQueryOptions(clientOptions), ...queryOptions })
+}
+
+/**
+ * Generates Vue Query infinite query cache key for GET /nested-circular
+ * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ */
+export function getGetNestedCircularInfiniteQueryKey() {
+  return ['nested-circular', 'GET', '/nested-circular', 'infinite'] as const
+}
+
+/**
+ * Returns Vue Query infinite query options for GET /nested-circular
+ *
+ * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
+ * Requires initialPageParam and getNextPageParam to be provided separately.
+ */
+export function getGetNestedCircularInfiniteQueryOptions(options?: ClientRequestOptions) {
+  return {
+    queryKey: getGetNestedCircularInfiniteQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getNestedCircular({ ...options, init: { ...options?.init, signal } })
     },
   }
 }
@@ -274,23 +368,13 @@ export function getGetNestedCircularQueryOptions(clientOptions?: ClientRequestOp
  *
  * Circular reference through allOf
  */
-export function useGetNestedCircular(options?: {
-  query?: Partial<
-    Omit<
-      UseQueryOptions<
-        Awaited<
-          ReturnType<
-            typeof parseResponse<Awaited<ReturnType<(typeof client)['nested-circular']['$get']>>>
-          >
-        >,
-        Error
-      >,
-      'queryKey' | 'queryFn'
-    >
-  >
-  client?: ClientRequestOptions
+export function useInfiniteGetNestedCircular(options: {
+  query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getNestedCircular>>, Error>
+  options?: ClientRequestOptions
 }) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  const { queryKey, queryFn, ...baseOptions } = getGetNestedCircularQueryOptions(clientOptions)
-  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
+  const { query: queryOptions, options: clientOptions } = options
+  return useInfiniteQuery({
+    ...getGetNestedCircularInfiniteQueryOptions(clientOptions),
+    ...queryOptions,
+  })
 }

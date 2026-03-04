@@ -94,6 +94,22 @@ describe('zodToOpenAPI', () => {
         },
         'z.xor([ASchema,BSchema]).nullable()',
       ],
+      // x-oneOf-message
+      [
+        {
+          oneOf: [{ type: 'string' }, { type: 'number' }],
+          'x-oneOf-message': 'いずれか1つを指定',
+        },
+        'z.xor([z.string(),z.number()],{error:"いずれか1つを指定"})',
+      ],
+      // x-oneOf-message with $ref
+      [
+        {
+          oneOf: [{ $ref: '#/components/schemas/A' }, { $ref: '#/components/schemas/B' }],
+          'x-oneOf-message': 'AかBのいずれか',
+        },
+        'z.xor([ASchema,BSchema],{error:"AかBのいずれか"})',
+      ],
     ])('zodToOpenAPI(%o) → %s', (input, expected) => {
       expect(zodToOpenAPI(input)).toBe(expected)
     })
@@ -126,6 +142,26 @@ describe('zodToOpenAPI', () => {
           },
           // $ref schemas might use allOf (ZodIntersection), so use z.xor instead of discriminatedUnion
           `z.xor([ASchema,BSchema]).openapi({"discriminator":{"propertyName":"type"}})`,
+        ],
+        // x-oneOf-message
+        [
+          {
+            oneOf: [
+              {
+                type: 'object',
+                properties: { type: { const: 'a' }, value: { type: 'string' } },
+                required: ['type', 'value'],
+              },
+              {
+                type: 'object',
+                properties: { type: { const: 'b' }, count: { type: 'number' } },
+                required: ['type', 'count'],
+              },
+            ],
+            discriminator: { propertyName: 'type' },
+            'x-oneOf-message': '型が不正',
+          },
+          `z.discriminatedUnion('type',[z.object({type:z.literal("a"),value:z.string()}).openapi({"required":["type","value"]}),z.object({type:z.literal("b"),count:z.number()}).openapi({"required":["type","count"]})],{error:"型が不正"}).openapi({"discriminator":{"propertyName":"type"}})`,
         ],
       ])('zodToOpenAPI(%o) → %s', (input, expected) => {
         expect(zodToOpenAPI(input)).toBe(expected)
@@ -195,6 +231,22 @@ describe('zodToOpenAPI', () => {
             nullable: true,
           },
           'z.union([z.string(),z.number()]).nullable()',
+        ],
+        // x-anyOf-message
+        [
+          {
+            anyOf: [{ type: 'string' }, { type: 'number' }],
+            'x-anyOf-message': '文字列か数値を指定',
+          },
+          'z.union([z.string(),z.number()],{error:"文字列か数値を指定"})',
+        ],
+        // x-anyOf-message with $ref
+        [
+          {
+            anyOf: [{ $ref: '#/components/schemas/Cat' }, { $ref: '#/components/schemas/Dog' }],
+            'x-anyOf-message': '猫か犬を指定',
+          },
+          'z.union([CatSchema,DogSchema],{error:"猫か犬を指定"})',
         ],
       ])('zodToOpenAPI(%o) → %s', (input, expected) => {
         expect(zodToOpenAPI(input)).toBe(expected)
@@ -446,6 +498,49 @@ describe('zodToOpenAPI', () => {
           expect(zodToOpenAPI(input as Schema)).toBe(expected)
         })
       })
+
+      describe('x-not-message', () => {
+        it.concurrent.each<[Schema, string]>([
+          // not.type + x-not-message
+          [
+            { not: { type: 'string' }, 'x-not-message': '文字列は不可' },
+            `z.any().refine((v) => typeof v !== 'string',{error:"文字列は不可"})`,
+          ],
+          // not.const + x-not-message
+          [
+            { not: { const: 42 }, 'x-not-message': '42は不可' },
+            'z.any().refine((v) => v !== 42,{error:"42は不可"})',
+          ],
+          // not.enum + x-not-message
+          [
+            { not: { enum: [1, 2, 3] }, 'x-not-message': '1,2,3は不可' },
+            'z.any().refine((v) => ![1,2,3].includes(v),{error:"1,2,3は不可"})',
+          ],
+          // not.$ref + x-not-message
+          [
+            {
+              not: { $ref: '#/components/schemas/Forbidden' },
+              'x-not-message': '禁止スキーマ不可',
+            },
+            'z.any().refine((v) => !ForbiddenSchema.safeParse(v).success,{error:"禁止スキーマ不可"})',
+          ],
+          // not.type (array) + x-not-message
+          [
+            { not: { type: ['string', 'number'] }, 'x-not-message': '文字列・数値は不可' },
+            `z.any().refine((v) => (typeof v !== 'string') && (typeof v !== 'number'),{error:"文字列・数値は不可"})`,
+          ],
+          // not + composition + x-not-message
+          [
+            {
+              not: { anyOf: [{ type: 'string' }, { type: 'number' }] },
+              'x-not-message': 'union不可',
+            },
+            'z.any().refine((v) => !z.union([z.string(),z.number()]).safeParse(v).success,{error:"union不可"})',
+          ],
+        ])('zodToOpenAPI(%o) → %s', (input, expected) => {
+          expect(zodToOpenAPI(input as Schema)).toBe(expected)
+        })
+      })
     })
 
     describe('const', () => {
@@ -545,9 +640,9 @@ describe('zodToOpenAPI', () => {
         [{ type: 'string', default: 'test' }, 'z.string().default("test")'],
         [
           { type: 'string', default: 'test', nullable: true },
-          'z.string().default("test").nullable()',
+          'z.string().nullable().default("test")',
         ],
-        [{ type: ['string', 'null'], default: 'test' }, 'z.string().default("test").nullable()'],
+        [{ type: ['string', 'null'], default: 'test' }, 'z.string().nullable().default("test")'],
         [{ type: 'string', format: 'email' }, 'z.email()'],
         [{ type: 'string', format: 'uuid' }, 'z.uuid()'],
         [{ type: 'string', format: 'uuidv4' }, 'z.uuidv4()'],
@@ -594,9 +689,9 @@ describe('zodToOpenAPI', () => {
             [{ type: 'number', default: 100 }, 'z.number().default(100)'],
             [
               { type: 'number', default: 100, nullable: true },
-              'z.number().default(100).nullable()',
+              'z.number().nullable().default(100)',
             ],
-            [{ type: ['number', 'null'], default: 100 }, 'z.number().default(100).nullable()'],
+            [{ type: ['number', 'null'], default: 100 }, 'z.number().nullable().default(100)'],
           ])('zodToOpenAPI(%o) → %s', (input, expected) => {
             expect(zodToOpenAPI(input)).toBe(expected)
           })
@@ -642,8 +737,8 @@ describe('zodToOpenAPI', () => {
             [{ type: 'integer', exclusiveMaximum: 100 }, 'z.int().lt(100)'],
             [{ type: 'integer', multipleOf: 2 }, 'z.int().multipleOf(2)'],
             [{ type: 'integer', default: 100 }, 'z.int().default(100)'],
-            [{ type: 'integer', default: 100, nullable: true }, 'z.int().default(100).nullable()'],
-            [{ type: ['integer', 'null'], default: 100 }, 'z.int().default(100).nullable()'],
+            [{ type: 'integer', default: 100, nullable: true }, 'z.int().nullable().default(100)'],
+            [{ type: ['integer', 'null'], default: 100 }, 'z.int().nullable().default(100)'],
           ])('zodToOpenAPI(%o) → %s', (input, expected) => {
             expect(zodToOpenAPI(input)).toBe(expected)
           })
@@ -687,11 +782,11 @@ describe('zodToOpenAPI', () => {
             [{ type: 'integer', format: 'int32', default: 100 }, 'z.int32().default(100)'],
             [
               { type: 'integer', format: 'int32', default: 100, nullable: true },
-              'z.int32().default(100).nullable()',
+              'z.int32().nullable().default(100)',
             ],
             [
               { type: ['integer', 'null'], format: 'int32', default: 100 },
-              'z.int32().default(100).nullable()',
+              'z.int32().nullable().default(100)',
             ],
           ])('zodToOpenAPI(%o) → %s', (input, expected) => {
             expect(zodToOpenAPI(input)).toBe(expected)
@@ -736,11 +831,11 @@ describe('zodToOpenAPI', () => {
             [{ type: 'integer', format: 'int64', default: 100 }, 'z.int64().default(100n)'],
             [
               { type: 'integer', format: 'int64', default: 100, nullable: true },
-              'z.int64().default(100n).nullable()',
+              'z.int64().nullable().default(100n)',
             ],
             [
               { type: ['integer', 'null'], format: 'int64', default: 100 },
-              'z.int64().default(100n).nullable()',
+              'z.int64().nullable().default(100n)',
             ],
           ])('zodToOpenAPI(%o) → %s', (input, expected) => {
             expect(zodToOpenAPI(input)).toBe(expected)
@@ -757,9 +852,9 @@ describe('zodToOpenAPI', () => {
           [{ type: 'boolean', default: true }, 'z.boolean().default(true)'],
           [
             { type: 'boolean', default: true, nullable: true },
-            'z.boolean().default(true).nullable()',
+            'z.boolean().nullable().default(true)',
           ],
-          [{ type: ['boolean', 'null'], default: true }, 'z.boolean().default(true).nullable()'],
+          [{ type: ['boolean', 'null'], default: true }, 'z.boolean().nullable().default(true)'],
         ])('zodToOpenAPI(%o) → %s', (input, expected) => {
           expect(zodToOpenAPI(input)).toBe(expected)
         })
@@ -793,8 +888,8 @@ describe('zodToOpenAPI', () => {
             'z.record(z.string(),z.string())',
           ],
           [{ type: 'object', default: {} }, 'z.object({}).default({})'],
-          [{ type: 'object', default: {}, nullable: true }, 'z.object({}).default({}).nullable()'],
-          [{ type: ['object', 'null'], default: {} }, 'z.object({}).default({}).nullable()'],
+          [{ type: 'object', default: {}, nullable: true }, 'z.object({}).nullable().default({})'],
+          [{ type: ['object', 'null'], default: {} }, 'z.object({}).nullable().default({})'],
         ])('zodToOpenAPI(%o) → %s', (input, expected) => {
           expect(zodToOpenAPI(input)).toBe(expected)
         })
@@ -836,11 +931,11 @@ describe('zodToOpenAPI', () => {
           ],
           [
             { type: 'array', items: { type: 'string' }, default: [], nullable: true },
-            'z.array(z.string()).default([]).nullable()',
+            'z.array(z.string()).nullable().default([])',
           ],
           [
             { type: ['array', 'null'], items: { type: 'string' }, default: [] },
-            'z.array(z.string()).default([]).nullable()',
+            'z.array(z.string()).nullable().default([])',
           ],
         ])('zodToOpenAPI(%o) → %s', (input, expected) => {
           expect(zodToOpenAPI(input)).toBe(expected)
@@ -855,8 +950,8 @@ describe('zodToOpenAPI', () => {
           [{ type: 'any', nullable: true }, 'z.any().nullable()'],
           [{ type: ['any', 'null'] }, 'z.any().nullable()'],
           [{ type: 'any', default: 'test' }, 'z.any().default("test")'],
-          [{ type: 'any', nullable: true, default: 'test' }, 'z.any().default("test").nullable()'],
-          [{ type: ['any', 'null'], default: 'test' }, 'z.any().default("test").nullable()'],
+          [{ type: 'any', nullable: true, default: 'test' }, 'z.any().nullable().default("test")'],
+          [{ type: ['any', 'null'], default: 'test' }, 'z.any().nullable().default("test")'],
         ])('zodToOpenAPI(%o) → %s', (input, expected) => {
           expect(zodToOpenAPI(input)).toBe(expected)
         })
@@ -867,6 +962,336 @@ describe('zodToOpenAPI', () => {
         it.concurrent.each<[Schema, string]>([
           [{ type: 'null' }, 'z.null().nullable()'],
           [{ type: ['null'] }, 'z.null().nullable()'],
+        ])('zodToOpenAPI(%o) → %s', (input, expected) => {
+          expect(zodToOpenAPI(input)).toBe(expected)
+        })
+      })
+
+      // x-* vendor extensions for custom validation messages
+      describe('x-* vendor extensions', () => {
+        it.concurrent.each<[Schema, string]>([
+          // x-error-message on format
+          [
+            { type: 'string', format: 'email', 'x-error-message': 'Invalid email' },
+            'z.email({error:"Invalid email"})',
+          ],
+          // x-minimum-message / x-maximum-message on string
+          [
+            {
+              type: 'string',
+              minLength: 3,
+              maxLength: 20,
+              'x-minimum-message': '3文字以上',
+              'x-maximum-message': '20文字以下',
+            },
+            'z.string().min(3,{error:"3文字以上"}).max(20,{error:"20文字以下"})',
+          ],
+          // x-pattern-message on string
+          [
+            { type: 'string', pattern: '^[a-z]+$', 'x-pattern-message': 'lowercase only' },
+            'z.string().regex(/^[a-z]+$/,{error:"lowercase only"})',
+          ],
+          // x-minimum-message on number
+          [
+            { type: 'number', minimum: 0, 'x-minimum-message': 'Must be >= 0' },
+            'z.number().min(0,{error:"Must be >= 0"})',
+          ],
+          // x-maximum-message on number
+          [
+            { type: 'number', maximum: 100, 'x-maximum-message': 'Must be <= 100' },
+            'z.number().max(100,{error:"Must be <= 100"})',
+          ],
+          // x-minimum-message on integer
+          [
+            { type: 'integer', minimum: 1, 'x-minimum-message': '1以上' },
+            'z.int().min(1,{error:"1以上"})',
+          ],
+          // x-maximum-message on int64
+          [
+            { type: 'integer', format: 'int64', maximum: 100, 'x-maximum-message': '100以下' },
+            'z.int64().max(100n,{error:"100以下"})',
+          ],
+          // x-error-message with description (description goes to .openapi(), message stays in validator)
+          [
+            {
+              type: 'string',
+              format: 'email',
+              'x-error-message': 'メール不正',
+              description: 'User email',
+            },
+            'z.email({error:"メール不正"}).openapi({"description":"User email"})',
+          ],
+          // x-size-message with fixed length
+          [
+            { type: 'string', minLength: 5, maxLength: 5, 'x-size-message': 'Exactly 5' },
+            'z.string().length(5,{error:"Exactly 5"})',
+          ],
+          // x-error-message on base z.string() (no format)
+          [{ type: 'string', 'x-error-message': '文字列必須' }, 'z.string({error:"文字列必須"})'],
+          // x-error-message on z.number()
+          [{ type: 'number', 'x-error-message': '数値必須' }, 'z.number({error:"数値必須"})'],
+          // x-error-message on z.number() with format
+          [
+            { type: 'number', format: 'float', 'x-error-message': 'float必須' },
+            'z.float32({error:"float必須"})',
+          ],
+          // x-error-message on z.int()
+          [{ type: 'integer', 'x-error-message': '整数必須' }, 'z.int({error:"整数必須"})'],
+          // x-error-message on z.boolean()
+          [{ type: 'boolean', 'x-error-message': 'ブール必須' }, 'z.boolean({error:"ブール必須"})'],
+          // x-error-message on z.array()
+          [
+            { type: 'array', items: { type: 'string' }, 'x-error-message': '配列必須' },
+            'z.array(z.string(),{error:"配列必須"})',
+          ],
+          // x-error-message on z.null()
+          [
+            { type: 'null', 'x-error-message': 'null必須' },
+            'z.null({error:"null必須"}).nullable()',
+          ],
+          // x-error-message on z.enum()
+          [
+            { enum: ['A', 'B'], 'x-error-message': '無効な値' },
+            'z.enum(["A","B"],{error:"無効な値"})',
+          ],
+          // x-error-message on single string enum → z.literal
+          [
+            { enum: ['only'], 'x-error-message': 'onlyのみ' },
+            `z.literal('only',{error:"onlyのみ"})`,
+          ],
+          // x-error-message on number enum → z.union (individual literals also get errArg)
+          [
+            { enum: [1, 2, 3], 'x-error-message': '1-3のみ' },
+            'z.union([z.literal(1,{error:"1-3のみ"}),z.literal(2,{error:"1-3のみ"}),z.literal(3,{error:"1-3のみ"})],{error:"1-3のみ"})',
+          ],
+          // x-error-message on single number enum → z.literal
+          [
+            { type: 'number', enum: [42], 'x-error-message': '42のみ' },
+            'z.literal(42,{error:"42のみ"})',
+          ],
+          // x-error-message on boolean enum → z.union (individual literals also get errArg)
+          [
+            { type: 'boolean', enum: [true, false], 'x-error-message': 'ブール値' },
+            'z.union([z.literal(true,{error:"ブール値"}),z.literal(false,{error:"ブール値"})],{error:"ブール値"})',
+          ],
+          // x-error-message with arrow function (no args)
+          [
+            { type: 'string', 'x-error-message': '()=>"required"' },
+            'z.string({error:()=>"required"})',
+          ],
+          // x-minimum-message with arrow function (issue arg)
+          [
+            {
+              type: 'number',
+              minimum: 0,
+              'x-minimum-message': '(iss)=>iss.input===undefined?"required":"invalid"',
+            },
+            'z.number().min(0,{error:(iss)=>iss.input===undefined?"required":"invalid"})',
+          ],
+        ])('zodToOpenAPI(%o) → %s', (input, expected) => {
+          expect(zodToOpenAPI(input)).toBe(expected)
+        })
+      })
+
+      // x-*-message on array (min → x-minimum-message, max → x-maximum-message, length → x-size-message)
+      describe('x-*-message on array', () => {
+        // biome-ignore lint: test
+        it.concurrent.each<[any, string]>([
+          // x-minimum-message on .min()
+          [
+            {
+              type: 'array',
+              items: { type: 'number' },
+              minItems: 1,
+              'x-minimum-message': 'At least 1',
+            },
+            'z.array(z.number()).min(1,{error:"At least 1"})',
+          ],
+          // x-maximum-message on .max()
+          [
+            {
+              type: 'array',
+              items: { type: 'number' },
+              maxItems: 5,
+              'x-maximum-message': 'At most 5',
+            },
+            'z.array(z.number()).max(5,{error:"At most 5"})',
+          ],
+          // x-minimum-message + x-maximum-message on .min().max()
+          [
+            {
+              type: 'array',
+              items: { type: 'string' },
+              minItems: 1,
+              maxItems: 10,
+              'x-minimum-message': '1個以上',
+              'x-maximum-message': '10個以下',
+            },
+            'z.array(z.string()).min(1,{error:"1個以上"}).max(10,{error:"10個以下"})',
+          ],
+          // x-size-message on .length() (minItems === maxItems)
+          [
+            {
+              type: 'array',
+              items: { type: 'string' },
+              minItems: 3,
+              maxItems: 3,
+              'x-size-message': 'Exactly 3',
+            },
+            'z.array(z.string()).length(3,{error:"Exactly 3"})',
+          ],
+          // x-pattern-message on uniqueItems .refine()
+          [
+            {
+              type: 'array',
+              items: { type: 'string' },
+              uniqueItems: true,
+              'x-pattern-message': '重複不可',
+            },
+            'z.array(z.string()).refine((items)=>new Set(items).size===items.length,{error:"重複不可"})',
+          ],
+          // x-error-message on z.array() constructor
+          [
+            {
+              type: 'array',
+              items: { type: 'string' },
+              'x-error-message': '配列必須',
+            },
+            'z.array(z.string(),{error:"配列必須"})',
+          ],
+          // x-error-message on z.tuple() (prefixItems)
+          [
+            {
+              type: 'array',
+              prefixItems: [{ type: 'string' }, { type: 'number' }],
+              'x-error-message': 'タプル不正',
+            },
+            'z.tuple([z.string(),z.number()],{error:"タプル不正"})',
+          ],
+          // all combined: x-error-message + x-minimum-message + x-maximum-message + x-pattern-message
+          [
+            {
+              type: 'array',
+              items: { type: 'string' },
+              minItems: 1,
+              maxItems: 5,
+              uniqueItems: true,
+              'x-error-message': '配列必須',
+              'x-minimum-message': '1個以上',
+              'x-maximum-message': '5個以下',
+              'x-pattern-message': '重複不可',
+            },
+            'z.array(z.string(),{error:"配列必須"}).min(1,{error:"1個以上"}).max(5,{error:"5個以下"}).refine((items)=>new Set(items).size===items.length,{error:"重複不可"})',
+          ],
+        ])('zodToOpenAPI(%o) → %s', (input, expected) => {
+          expect(zodToOpenAPI(input)).toBe(expected)
+        })
+      })
+
+      // x-minimum-message / x-maximum-message on object
+      describe('x-minimum/maximum-message on object', () => {
+        it.concurrent.each<[Schema, string]>([
+          // minProperties → x-minimum-message
+          [
+            { type: 'object', minProperties: 1, 'x-minimum-message': 'At least 1' },
+            'z.object({}).refine((o)=>Object.keys(o).length>=1,{error:"At least 1"})',
+          ],
+          // maxProperties → x-maximum-message
+          [
+            { type: 'object', maxProperties: 5, 'x-maximum-message': 'At most 5' },
+            'z.object({}).refine((o)=>Object.keys(o).length<=5,{error:"At most 5"})',
+          ],
+          // both
+          [
+            {
+              type: 'object',
+              minProperties: 2,
+              maxProperties: 10,
+              'x-minimum-message': '2個以上',
+              'x-maximum-message': '10個以下',
+            },
+            'z.object({}).refine((o)=>Object.keys(o).length>=2,{error:"2個以上"}).refine((o)=>Object.keys(o).length<=10,{error:"10個以下"})',
+          ],
+          // dependentRequired → x-error-message
+          [
+            {
+              type: 'object',
+              dependentRequired: { foo: ['bar'] },
+              'x-error-message': 'fooにはbarが必要',
+            },
+            `z.object({}).refine((o)=>!('foo' in o)||('bar' in o),{error:"fooにはbarが必要"})`,
+          ],
+        ])('zodToOpenAPI(%o) → %s', (input, expected) => {
+          expect(zodToOpenAPI(input)).toBe(expected)
+        })
+      })
+
+      // x-pattern-message on object
+      describe('x-pattern-message on object', () => {
+        it.concurrent.each<[Schema, string]>([
+          [
+            {
+              type: 'object',
+              propertyNames: { pattern: '^[a-z]+$' },
+              'x-pattern-message': 'lowercase keys',
+            },
+            'z.object({}).refine((o)=>Object.keys(o).every((k)=>new RegExp("^[a-z]+$").test(k)),{error:"lowercase keys"})',
+          ],
+          [
+            {
+              type: 'object',
+              patternProperties: { '^S_': { type: 'string' } },
+              'x-pattern-message': 'S_ keys must be strings',
+            },
+            'z.object({}).refine((o)=>Object.entries(o).every(([k,v])=>!new RegExp("^S_").test(k)||z.string().safeParse(v).success),{error:"S_ keys must be strings"})',
+          ],
+        ])('zodToOpenAPI(%o) → %s', (input, expected) => {
+          expect(zodToOpenAPI(input)).toBe(expected)
+        })
+      })
+
+      // x-error-message on const (z.literal)
+      describe('x-error-message on const', () => {
+        it.concurrent.each<[Schema, string]>([
+          [
+            { const: 'fixed', 'x-error-message': 'fixedのみ' },
+            `z.literal("fixed",{error:"fixedのみ"})`,
+          ],
+          [{ const: 42, 'x-error-message': '42のみ' }, 'z.literal(42,{error:"42のみ"})'],
+          [{ const: true, 'x-error-message': 'trueのみ' }, 'z.literal(true,{error:"trueのみ"})'],
+          // No x-error-message → existing behavior
+          [{ const: 'fixed' }, `z.literal("fixed")`],
+        ])('zodToOpenAPI(%o) → %s', (input, expected) => {
+          expect(zodToOpenAPI(input)).toBe(expected)
+        })
+      })
+
+      // x-error-message on multipleOf
+      describe('x-error-message on multipleOf', () => {
+        it.concurrent.each<[Schema, string]>([
+          [
+            { type: 'number', multipleOf: 2, 'x-error-message': '偶数のみ' },
+            'z.number({error:"偶数のみ"}).multipleOf(2,{error:"偶数のみ"})',
+          ],
+          [
+            { type: 'integer', multipleOf: 3, 'x-error-message': '3の倍数' },
+            'z.int({error:"3の倍数"}).multipleOf(3,{error:"3の倍数"})',
+          ],
+          [
+            { type: 'integer', format: 'int64', multipleOf: 5, 'x-error-message': '5の倍数' },
+            'z.int64({error:"5の倍数"}).multipleOf(5n,{error:"5の倍数"})',
+          ],
+        ])('zodToOpenAPI(%o) → %s', (input, expected) => {
+          expect(zodToOpenAPI(input)).toBe(expected)
+        })
+      })
+
+      // x-error-message on date
+      describe('x-error-message on date', () => {
+        it.concurrent.each<[Schema, string]>([
+          [{ type: 'date', 'x-error-message': '日付必須' }, 'z.date({error:"日付必須"})'],
+          // No x-error-message → existing behavior
+          [{ type: 'date' }, 'z.date()'],
         ])('zodToOpenAPI(%o) → %s', (input, expected) => {
           expect(zodToOpenAPI(input)).toBe(expected)
         })

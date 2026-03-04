@@ -166,9 +166,32 @@ export function schemaToFaker(
     return `{\n    ${props}\n  }`
   }
 
+  // 5b. Handle object with only additionalProperties (no explicit properties)
+  if (schema.type === 'object' && !schema.properties && schema.additionalProperties) {
+    return '{}'
+  }
+
   // 6. Handle allOf (intersection)
   if (schema.allOf && schema.allOf.length > 0) {
     const merged = schema.allOf.map((s) => schemaToFaker(s, propertyName, options))
+    // Include sibling properties alongside allOf
+    if (schema.properties) {
+      const requiredSet = new Set(schema.required || [])
+      const siblingProps = Object.entries(schema.properties)
+        .map(([key, prop]) => {
+          const value = schemaToFaker(prop, key, options)
+          const isRequired = requiredSet.has(key)
+          if (!(isRequired || prop.nullable)) {
+            return `${key}: faker.helpers.arrayElement([${value}, undefined])`
+          }
+          if (prop.nullable) {
+            return `${key}: faker.helpers.arrayElement([${value}, null])`
+          }
+          return `${key}: ${value}`
+        })
+        .join(', ')
+      return `{ ${merged.map((m) => `...${m}`).join(', ')}, ${siblingProps} }`
+    }
     return `{ ${merged.map((m) => `...${m}`).join(', ')} }`
   }
 

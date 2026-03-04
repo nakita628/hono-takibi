@@ -1000,11 +1000,6 @@ Status Code **200**
 |» status|string|true|none|none|
 |» totalPrice|number|true|none|none|
 |» shippingAddress|[Address](#schemaaddress)|true|none|none|
-|» » street|string|true|none|none|
-|» » city|string|true|none|none|
-|» » state|string|false|none|none|
-|» » zip|string|false|none|none|
-|» » country|string|true|none|none|
 |» createdAt|string(date-time)|true|none|none|
 |total|integer|true|none|none|
 

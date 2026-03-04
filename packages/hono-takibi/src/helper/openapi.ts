@@ -1,5 +1,5 @@
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
-import { isOperation, isRecord, isRefObject } from '../guard/index.js'
+import { isOperation, isParameter, isRecord, isRefObject } from '../guard/index.js'
 import type {
   Callbacks,
   Content,
@@ -21,6 +21,7 @@ import {
   requestParamsArray,
   toIdentifierPascalCase,
 } from '../utils/index.js'
+import { applyNumberCoerce } from './coerce.js'
 
 /**
  * Converts an OpenAPI `$ref` string to a variable name with the appropriate suffix.
@@ -178,7 +179,8 @@ export function makeResponses(responses: Responses) {
 
   const result = [
     responses.summary ? `summary:${JSON.stringify(responses.summary)}` : undefined,
-    responses.description ? `description:${JSON.stringify(responses.description)}` : undefined,
+    // Always include description: ResponseConfig requires it (OpenAPI 3.0 §Response Object REQUIRED field)
+    `description:${JSON.stringify(responses.description || '')}`,
     responses.headers ? `headers:${makeHeaderResponses(responses.headers)}` : undefined,
     responses.content ? `content:{${makeContent(responses.content)}}` : undefined,
     responses.links
@@ -558,29 +560,27 @@ export function makeParameters(parameters: readonly Parameter[]): {
 
     // Apply coercion for query parameters
     const z =
-      param.in === 'query' && schema.type === 'number'
-        ? `z.coerce.${baseSchema.replace('z.', '')}`
-        : param.in === 'query' && schema.type === 'integer'
-          ? baseSchema.replace(
-              /^z\.(int\d*|bigint)\(\)/,
-              (_: string, type: string) =>
-                type === 'bigint' ? 'z.coerce.bigint()' : `z.coerce.number().pipe(z.${type}())`,
-            )
-          : param.in === 'query' && schema.type === 'boolean'
-            ? baseSchema.replace('boolean', 'stringbool')
-            : param.in === 'query' && schema.type === 'date'
-              ? `z.coerce.${baseSchema.replace('z.', '')}`
-              : param.in === 'query' && (schema.type === 'object' || schema.type === 'array')
-                ? baseSchema
-                    .replace(
-                      /z\.(int\d*)\(\)/g,
-                      (_: string, type: string) => `z.coerce.number().pipe(z.${type}())`,
-                    )
-                    .replace(/z\.bigint\(\)/g, 'z.coerce.bigint()')
-                    .replace(/z\.number\(\)/g, 'z.coerce.number()')
-                    .replace(/z\.boolean\(\)/g, 'z.stringbool()')
-                    .replace(/z\.date\(\)/g, 'z.coerce.date()')
-                : baseSchema
+      param.in === 'query' && (schema.type === 'number' || schema.type === 'integer')
+        ? applyNumberCoerce(baseSchema, schema.type, schema.format)
+        : param.in === 'query' && schema.type === 'boolean'
+          ? baseSchema
+              .replace('boolean', 'stringbool')
+              .replace(/\.default\("true"\)/g, '.default(true)')
+              .replace(/\.default\("false"\)/g, '.default(false)')
+          : param.in === 'query' && schema.type === 'date'
+            ? `z.coerce.${baseSchema.replace('z.', '')}`
+            : param.in === 'query' && (schema.type === 'object' || schema.type === 'array')
+              ? baseSchema
+                  .replace(
+                    /z\.(int\d*)\(\)((?:\.(?:min|max|gt|lt|positive|negative|nonnegative|nonpositive|multipleOf)\([^)]*\))*)/g,
+                    (_: string, type: string, constraints: string) =>
+                      `z.coerce.number().pipe(z.${type}()${constraints})`,
+                  )
+                  .replace(/z\.bigint\(\)/g, 'z.coerce.bigint()')
+                  .replace(/z\.number\(\)/g, 'z.coerce.number()')
+                  .replace(/z\.boolean\(\)/g, 'z.stringbool()')
+                  .replace(/z\.date\(\)/g, 'z.coerce.date()')
+              : baseSchema
 
     acc[param.in][makeSafeKey(param.name)] = z
     return acc
@@ -649,9 +649,8 @@ function makeOperationParameters(parameters: readonly (Parameter | Reference)[])
     if (isRefObject(param)) {
       return makeRef(param.$ref)
     }
-    const p = param as Parameter
-    if (p.schema) {
-      return zodToOpenAPI(p.schema, { parameters: p })
+    if (isParameter(param) && param.schema) {
+      return zodToOpenAPI(param.schema, { parameters: param })
     }
     return JSON.stringify(param)
   })

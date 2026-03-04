@@ -42,8 +42,9 @@ export const getPostsIndexRoute = createRoute({
   operationId: 'getPostsIndex',
   request: {
     query: z.object({
-      limit: z
-        .int()
+      limit: z.coerce
+        .number()
+        .pipe(z.int())
         .exactOptional()
         .openapi({
           param: { name: 'limit', in: 'query', required: false, schema: { type: 'integer' } },
@@ -201,7 +202,7 @@ const getItemsIndexRouteHandler: RouteHandler<typeof getItemsIndexRoute> = async
   )
 }
 
-const app = new OpenAPIHono().basePath('undefined')
+const app = new OpenAPIHono()
 
 export const api = app
   .openapi(getApiReverseChibanIndexRoute, getApiReverseChibanIndexRouteHandler)

@@ -330,7 +330,11 @@ function mockBaseEntity() {
 }
 
 function mockExtendedWithSibling() {
-  return { ...mockBaseEntity() }
+  return {
+    ...mockBaseEntity(),
+    label: faker.string.alpha({ length: { min: 5, max: 20 } }),
+    active: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]),
+  }
 }
 
 function mockNullablePayment() {
@@ -414,7 +418,7 @@ const getAnyOfRefRouteHandler: RouteHandler<typeof getAnyOfRefRoute> = async (c)
   return c.json(mockPetChoice(), 200)
 }
 
-const app = new OpenAPIHono().basePath('undefined')
+const app = new OpenAPIHono()
 
 export const api = app
   .openapi(postOneOfRoute, postOneOfRouteHandler)
