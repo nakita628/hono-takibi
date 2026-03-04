@@ -979,6 +979,16 @@ describe('zodToOpenAPI', () => {
             { type: 'boolean', enum: [true, false], 'x-error-message': 'ブール値' },
             'z.union([z.literal(true),z.literal(false)],{error:"ブール値"})',
           ],
+          // x-error-message with arrow function (no args)
+          [
+            { type: 'string', 'x-error-message': '()=>"required"' },
+            'z.string({error:()=>"required"})',
+          ],
+          // x-minimum-message with arrow function (issue arg)
+          [
+            { type: 'number', minimum: 0, 'x-minimum-message': '(iss)=>iss.input===undefined?"required":"invalid"' },
+            'z.number().min(0,{error:(iss)=>iss.input===undefined?"required":"invalid"})',
+          ],
         ])('zodToOpenAPI(%o) → %s', (input, expected) => {
           expect(zodToOpenAPI(input)).toBe(expected)
         })

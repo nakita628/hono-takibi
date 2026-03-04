@@ -253,6 +253,10 @@ export * from './user'
       ['Age must be >= 0', '{error:"Age must be >= 0"}'],
       ['Must have 1-5 tags', '{error:"Must have 1-5 tags"}'],
       ['Contains "quotes"', '{error:"Contains \\"quotes\\""}'],
+      // Arrow function expressions (Zod v4)
+      ['()=>`[${Date.now()}]: Validation failure.`', '{error:()=>`[${Date.now()}]: Validation failure.`}'],
+      ['(iss) => iss.input === undefined ? "Field is required." : "Invalid input."', '{error:(iss) => iss.input === undefined ? "Field is required." : "Invalid input."}'],
+      ['()=>"error"', '{error:()=>"error"}'],
     ])(`error('%s') -> '%s'`, (input, expected) => {
       expect(error(input)).toBe(expected)
     })

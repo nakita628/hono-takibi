@@ -330,6 +330,9 @@ export function makeOperationDocs(
  * ```
  */
 export function error(message: string): string {
+  if (/^\s*\(.*?\)\s*=>/.test(message)) {
+    return `{error:${message}}`
+  }
   return `{error:${JSON.stringify(message)}}`
 }
 
