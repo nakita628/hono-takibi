@@ -179,6 +179,52 @@ const multiTagSpec: OpenAPI = {
   },
 }
 
+const refParamSpec: OpenAPI = {
+  openapi: '3.1.0',
+  info: { title: 'RefParam API', version: '1.0.0' },
+  paths: {
+    '/tasks/{taskId}': {
+      get: {
+        operationId: 'getTask',
+        summary: 'Get task',
+        tags: ['tasks'],
+        parameters: [{ $ref: '#/components/parameters/TaskId', name: '', in: 'path', schema: {} }],
+        responses: {
+          '200': { description: 'OK' },
+          '404': { description: 'Not found' },
+        },
+      },
+    },
+  },
+  components: {
+    parameters: {
+      TaskId: { name: 'taskId', in: 'path', required: true, schema: { type: 'string' } },
+    },
+  },
+}
+
+const basePathRootSpec: OpenAPI = {
+  openapi: '3.1.0',
+  info: { title: 'BasePath Root API', version: '1.0.0' },
+  paths: {
+    '/': {
+      get: {
+        operationId: 'getIndex',
+        summary: 'Health check',
+        responses: { '200': { description: 'OK' } },
+      },
+    },
+    '/tasks': {
+      get: {
+        operationId: 'listTasks',
+        summary: 'List tasks',
+        tags: ['tasks'],
+        responses: { '200': { description: 'OK' } },
+      },
+    },
+  },
+}
+
 // ─── extractTestCases ───────────────────────────────────────────
 
 describe('extractTestCases', () => {
@@ -276,6 +322,15 @@ describe('extractTestCases', () => {
     expect(result[0].tag).toBe('users')
     expect(result[1].tag).toBe('tasks')
   })
+
+  it('$ref path parameter is resolved', () => {
+    const result = extractTestCases(refParamSpec)
+    expect(result.length).toBe(1)
+    const tc = result[0]
+    expect(tc.pathParams.length).toBe(1)
+    expect(tc.pathParams[0].name).toBe('taskId')
+    expect(tc.errorStatuses).toStrictEqual([404])
+  })
 })
 
 // ─── makeTestFile ───────────────────────────────────────────────
@@ -366,6 +421,21 @@ describe('makeTestFile', () => {
     const result = makeTestFile(simpleGetSpec, './app', '/', 'vitest')
     expect(result).toBe(
       "import{describe,it,expect}from'vitest'\nimport app from'./app'\n\ndescribe('Simple API',()=>{describe('default',()=>{describe('GET /',()=>{it('should return 200 - Health check',async()=>{\nconst res=await app.request(`/`,{method:'GET'})\nexpect(res.status).toBe(200)})})\n})\n})\n",
+    )
+  })
+
+  it('$ref path parameter — resolved and substituted', () => {
+    const result = makeTestFile(refParamSpec)
+    expect(result).toBe(
+      // biome-ignore lint/suspicious/noTemplateCurlyInString: expected output contains template literals
+      "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\ndescribe('RefParam API',()=>{describe('tasks',()=>{describe('GET /tasks/{taskId}',()=>{it('should return 200 - Get task',async()=>{const taskId=faker.string.alpha({ length: { min: 5, max: 20 } })\nconst res=await app.request(`/tasks/${taskId}`,{method:'GET'})\nexpect(res.status).toBe(200)})\nit('should return 404 for non-existent resource',async()=>{\nconst res=await app.request(`/tasks/__non_existent__`,{method:'GET'})\nexpect(res.status).toBe(404)})})\n})\n})\n",
+    )
+  })
+
+  it('basePath /api with root path / — no trailing slash', () => {
+    const result = makeTestFile(basePathRootSpec, './app', '/api')
+    expect(result).toBe(
+      "import{describe,it,expect}from'vitest'\nimport app from'./app'\n\ndescribe('BasePath Root API',()=>{describe('default',()=>{describe('GET /api',()=>{it('should return 200 - Health check',async()=>{\nconst res=await app.request(`/api`,{method:'GET'})\nexpect(res.status).toBe(200)})})\n})\ndescribe('tasks',()=>{describe('GET /api/tasks',()=>{it('should return 200 - List tasks',async()=>{\nconst res=await app.request(`/api/tasks`,{method:'GET'})\nexpect(res.status).toBe(200)})})\n})\n})\n",
     )
   })
 })

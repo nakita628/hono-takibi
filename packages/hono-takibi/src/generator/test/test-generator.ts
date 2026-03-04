@@ -119,8 +119,13 @@ export function extractTestCases(spec: OpenAPI): TestCase[] {
       const pathParams: { name: string; fakerCode: string; schema?: Schema }[] = []
       const queryParams: { name: string; fakerCode: string; required: boolean }[] = []
       const headerParams: { name: string; fakerCode: string; required: boolean }[] = []
-      for (const param of op.parameters || []) {
-        if (param.$ref) continue
+      for (const rawParam of op.parameters || []) {
+        // Resolve $ref parameters from components
+        const param = rawParam.$ref
+          ? (spec.components?.parameters?.[rawParam.$ref.replace('#/components/parameters/', '')] ??
+            rawParam)
+          : rawParam
+        if (!param) continue
         const schema = param.schema || { type: 'string' }
         const fakerCode = schemaToFaker(schema, param.name)
         if (param.in === 'path') {
@@ -301,7 +306,8 @@ function makeAuthHeader(sec: SecurityRequirement): string {
 
 function makeTestCase(tc: TestCase, basePath = '/'): string {
   const basePathPrefix = basePath !== '/' ? basePath : ''
-  const fullPath = `${basePathPrefix}${tc.path}`
+  const fullPath =
+    tc.path === '/' && basePathPrefix ? basePathPrefix : `${basePathPrefix}${tc.path}`
   const testPath = tc.pathParams.reduce(
     (path, param) => path.replace(`{${param.name}}`, `\${${param.name}}`),
     fullPath,

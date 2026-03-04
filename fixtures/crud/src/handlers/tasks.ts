@@ -9,8 +9,8 @@ import type {
 import * as store from '../store'
 
 export const getTasksRouteHandler: RouteHandler<typeof getTasksRoute> = async (c) => {
-  const { status, limit, offset } = c.req.valid('query')
-  const result = store.listTasks(status, limit, offset)
+  const { status, limit, offset, cursor } = c.req.valid('query')
+  const result = store.listTasks(status, limit, offset, cursor)
   return c.json(result, 200)
 }
 

@@ -86,7 +86,9 @@ export function _enum(schema: Schema): string {
   }
   /* mixed / null only */
   if (schema.enum.length > 1) {
-    const parts = schema.enum.map(zLit)
+    const parts = schema.enum.map((v) =>
+      isPrimitive(v) ? `z.literal(${lit(v)})` : `z.custom<${JSON.stringify(v)}>()`,
+    )
     return `z.union([${parts.join(',')}]${errArg})`
   }
   return zLit(schema.enum[0])
