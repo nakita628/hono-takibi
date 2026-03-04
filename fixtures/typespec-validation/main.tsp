@@ -4,7 +4,7 @@ import "@typespec/openapi";
 using Http;
 using OpenAPI;
 
-@info({
+@info(#{
   title: "TypeSpec Validation Test API",
   version: "1.0.0",
 })

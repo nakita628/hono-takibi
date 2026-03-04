@@ -255,7 +255,9 @@ export * from './user'
       ['Contains "quotes"', '{error:"Contains \\"quotes\\""}'],
       // Arrow function expressions (Zod v4)
       [
+        // biome-ignore lint/suspicious/noTemplateCurlyInString: test data containing template literal code
         '()=>`[${Date.now()}]: Validation failure.`',
+        // biome-ignore lint/suspicious/noTemplateCurlyInString: test data containing template literal code
         '{error:()=>`[${Date.now()}]: Validation failure.`}',
       ],
       [

@@ -751,6 +751,12 @@ importers:
       '@types/node':
         specifier: ^22.15.21
         version: 22.19.13
+      '@typespec/compiler':
+        specifier: ^1.9.0
+        version: 1.9.0(@types/node@22.19.13)
+      '@typespec/http':
+        specifier: ^1.9.0
+        version: 1.9.1(@typespec/compiler@1.9.0(@types/node@22.19.13))
       '@typespec/openapi':
         specifier: ^1.9.0
         version: 1.9.0(@typespec/compiler@1.9.0(@types/node@22.19.13))(@typespec/http@1.9.1(@typespec/compiler@1.9.0(@types/node@22.19.13)))
