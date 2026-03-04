@@ -27,6 +27,20 @@ const CreateUserSchema = z
       })
       .min(1, { error: 'Priority must be >= 1' })
       .max(10, { error: 'Priority must be <= 10' }),
+    score: z.int().multipleOf(5, { error: 'Score must be a multiple of 5' }).exactOptional(),
+    role: z
+      .union(
+        [
+          z.literal('admin', { error: 'Select admin role' }),
+          z.literal('user', { error: 'Select user role' }),
+          z.literal('guest', { error: 'Select guest role' }),
+        ],
+        { error: 'Must be a valid role' },
+      )
+      .exactOptional(),
+  })
+  .refine((o) => !('password' in o) || ('code' in o), {
+    error: 'Code is required when password is provided',
   })
   .openapi({ required: ['name', 'email', 'age', 'tags', 'priority'] })
   .openapi('CreateUser')
@@ -40,6 +54,28 @@ const UserSchema = z
   })
   .openapi('User')
 
+const ValidateInputSchema = z
+  .object({
+    value: z.union([z.string(), z.int()], { error: 'Must be a string or integer' }),
+    category: z
+      .xor([z.string(), z.int()], { error: 'Must be exactly one type' })
+      .exactOptional(),
+    forbidden: z
+      .any()
+      .refine((v) => typeof v !== 'string', { error: 'Must not be a string' })
+      .exactOptional(),
+  })
+  .openapi({ required: ['value'] })
+  .openapi('ValidateInput')
+
+const MetadataSchema = z
+  .record(z.string(), z.string())
+  .refine(
+    (o) => Object.keys(o).every((k) => new RegExp('^[a-z_]+$').test(k)),
+    { error: 'Keys must be lowercase with underscores only' },
+  )
+  .openapi('Metadata')
+
 export const postUsersRoute = createRoute({
   method: 'post',
   path: '/users',
@@ -49,5 +85,29 @@ export const postUsersRoute = createRoute({
   },
   responses: {
     201: { description: 'Created', content: { 'application/json': { schema: UserSchema } } },
+  },
+})
+
+export const postValidateRoute = createRoute({
+  method: 'post',
+  path: '/validate',
+  operationId: 'validateData',
+  request: {
+    body: { content: { 'application/json': { schema: ValidateInputSchema } }, required: true },
+  },
+  responses: {
+    200: { description: 'OK' },
+  },
+})
+
+export const postMetadataRoute = createRoute({
+  method: 'post',
+  path: '/metadata',
+  operationId: 'createMetadata',
+  request: {
+    body: { content: { 'application/json': { schema: MetadataSchema } }, required: true },
+  },
+  responses: {
+    200: { description: 'OK' },
   },
 })

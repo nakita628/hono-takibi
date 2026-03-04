@@ -20,6 +20,30 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
+  /validate:
+    post:
+      operationId: validateData
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ValidateInput'
+      responses:
+        '200':
+          description: OK
+  /metadata:
+    post:
+      operationId: createMetadata
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Metadata'
+      responses:
+        '200':
+          description: OK
 components:
   schemas:
     CreateUser:
@@ -30,6 +54,10 @@ components:
         - age
         - tags
         - priority
+      dependentRequired:
+        password:
+          - code
+      x-dependentRequired-message: 'Code is required when password is provided'
       properties:
         name:
           type: string
@@ -77,6 +105,20 @@ components:
           x-error-message: '(iss) => iss.input === undefined ? "Priority is required" : "Priority must be an integer"'
           x-minimum-message: 'Priority must be >= 1'
           x-maximum-message: 'Priority must be <= 10'
+        # x-multipleOf-message
+        score:
+          type: integer
+          multipleOf: 5
+          x-multipleOf-message: 'Score must be a multiple of 5'
+        # x-enum-error-messages (per-value enum messages)
+        role:
+          type: string
+          enum: [admin, user, guest]
+          x-error-message: 'Must be a valid role'
+          x-enum-error-messages:
+            admin: 'Select admin role'
+            user: 'Select user role'
+            guest: 'Select guest role'
     User:
       type: object
       properties:
@@ -88,3 +130,31 @@ components:
           type: string
         age:
           type: integer
+    # x-anyOf-message, x-oneOf-message, x-not-message
+    ValidateInput:
+      type: object
+      required:
+        - value
+      properties:
+        value:
+          anyOf:
+            - type: string
+            - type: integer
+          x-anyOf-message: 'Must be a string or integer'
+        category:
+          oneOf:
+            - type: string
+            - type: integer
+          x-oneOf-message: 'Must be exactly one type'
+        forbidden:
+          not:
+            type: string
+          x-not-message: 'Must not be a string'
+    # x-propertyNames-message
+    Metadata:
+      type: object
+      additionalProperties:
+        type: string
+      propertyNames:
+        pattern: '^[a-z_]+$'
+      x-propertyNames-message: 'Keys must be lowercase with underscores only'

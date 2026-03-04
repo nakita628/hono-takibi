@@ -23,6 +23,22 @@ function postUsers(body: Record<string, unknown>) {
   })
 }
 
+function postValidate(body: Record<string, unknown>) {
+  return app.request('/validate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  })
+}
+
+function postMetadata(body: Record<string, unknown>) {
+  return app.request('/metadata', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  })
+}
+
 describe('Custom validation messages via x-* extensions', () => {
   it('accepts valid input', async () => {
     const res = await postUsers(validInput)
@@ -134,6 +150,116 @@ describe('Custom validation messages via x-* extensions', () => {
     expect(res.status).toBe(422)
     const body = await res.json()
     expect(body.errors).toStrictEqual([{ pointer: '/priority', detail: 'Priority must be <= 10' }])
+  })
+
+  // ── x-multipleOf-message ─────────────────────────────────
+  it('rejects non-multiple score with x-multipleOf-message', async () => {
+    const res = await postUsers({ ...validInput, score: 7 })
+    expect(res.status).toBe(422)
+    const body = await res.json()
+    expect(body.errors).toStrictEqual([
+      { pointer: '/score', detail: 'Score must be a multiple of 5' },
+    ])
+  })
+
+  it('accepts valid multiple score', async () => {
+    const res = await postUsers({ ...validInput, score: 10 })
+    expect(res.status).toBe(201)
+  })
+
+  // ── x-enum-error-messages ────────────────────────────────
+  it('rejects invalid role with x-enum-error-messages (union-level)', async () => {
+    const res = await postUsers({ ...validInput, role: 'unknown' })
+    expect(res.status).toBe(422)
+    const body = await res.json()
+    expect(body.errors).toStrictEqual([
+      { pointer: '/role', detail: 'Must be a valid role' },
+    ])
+  })
+
+  it('accepts valid role', async () => {
+    const res = await postUsers({ ...validInput, role: 'admin' })
+    expect(res.status).toBe(201)
+  })
+
+  // ── x-dependentRequired-message ──────────────────────────
+  it('rejects password without code with x-dependentRequired-message', async () => {
+    const res = await postUsers({ ...validInput, password: 'StrongPass1' })
+    expect(res.status).toBe(422)
+    const body = await res.json()
+    expect(body.errors).toStrictEqual([
+      { pointer: '/', detail: 'Code is required when password is provided' },
+    ])
+  })
+
+  it('accepts password with code', async () => {
+    const res = await postUsers({ ...validInput, password: 'StrongPass1', code: 'ABCDE' })
+    expect(res.status).toBe(201)
+  })
+
+  // ── x-anyOf-message ──────────────────────────────────────
+  it('rejects invalid anyOf value with x-anyOf-message', async () => {
+    const res = await postValidate({ value: true })
+    expect(res.status).toBe(422)
+    const body = await res.json()
+    expect(body.errors).toStrictEqual([
+      { pointer: '/value', detail: 'Must be a string or integer' },
+    ])
+  })
+
+  it('accepts string value for anyOf', async () => {
+    const res = await postValidate({ value: 'hello' })
+    expect(res.status).toBe(200)
+  })
+
+  it('accepts integer value for anyOf', async () => {
+    const res = await postValidate({ value: 42 })
+    expect(res.status).toBe(200)
+  })
+
+  // ── x-oneOf-message ──────────────────────────────────────
+  it('rejects invalid oneOf value with x-oneOf-message', async () => {
+    const res = await postValidate({ value: 'ok', category: true })
+    expect(res.status).toBe(422)
+    const body = await res.json()
+    expect(body.errors).toStrictEqual([
+      { pointer: '/category', detail: 'Must be exactly one type' },
+    ])
+  })
+
+  it('accepts string category for oneOf', async () => {
+    const res = await postValidate({ value: 'ok', category: 'text' })
+    expect(res.status).toBe(200)
+  })
+
+  // ── x-not-message ────────────────────────────────────────
+  it('rejects string value with x-not-message', async () => {
+    const res = await postValidate({ value: 'ok', forbidden: 'text' })
+    expect(res.status).toBe(422)
+    const body = await res.json()
+    expect(body.errors).toStrictEqual([
+      { pointer: '/forbidden', detail: 'Must not be a string' },
+    ])
+  })
+
+  it('accepts non-string value for not', async () => {
+    const res = await postValidate({ value: 'ok', forbidden: 42 })
+    expect(res.status).toBe(200)
+  })
+
+  // ── x-propertyNames-message ──────────────────────────────
+  it('rejects invalid key names with x-propertyNames-message', async () => {
+    const res = await postMetadata({ ValidKey: 'value' })
+    expect(res.status).toBe(422)
+    const body = await res.json()
+    expect(body.errors).toStrictEqual([
+      { pointer: '/', detail: 'Keys must be lowercase with underscores only' },
+    ])
+  })
+
+  it('accepts valid lowercase keys', async () => {
+    const res = await postMetadata({ valid_key: 'value', another: 'value' })
+    expect(res.status).toBe(200)
   })
 
   // ── Multiple violations ─────────────────────────────────

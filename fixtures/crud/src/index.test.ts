@@ -75,8 +75,13 @@ describe('Crude CRUD API', () => {
     })
     describe('GET /api/tasks/{taskId}', () => {
       it('should return 200 - Get task by ID', async () => {
-        const taskId = faker.string.alpha({ length: { min: 5, max: 20 } })
-        const res = await app.request(`/api/tasks/${taskId}`, { method: 'GET' })
+        const createRes = await app.request(`/api/tasks`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(mockCreateTask()),
+        })
+        const created = await createRes.json()
+        const res = await app.request(`/api/tasks/${created.id}`, { method: 'GET' })
         expect(res.status).toBe(200)
       })
       it('should return 404 for non-existent resource', async () => {
@@ -86,9 +91,14 @@ describe('Crude CRUD API', () => {
     })
     describe('PUT /api/tasks/{taskId}', () => {
       it('should return 200 - Update task', async () => {
-        const taskId = faker.string.alpha({ length: { min: 5, max: 20 } })
+        const createRes = await app.request(`/api/tasks`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(mockCreateTask()),
+        })
+        const created = await createRes.json()
         const body = mockUpdateTask()
-        const res = await app.request(`/api/tasks/${taskId}`, {
+        const res = await app.request(`/api/tasks/${created.id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(body),
@@ -107,8 +117,13 @@ describe('Crude CRUD API', () => {
     })
     describe('DELETE /api/tasks/{taskId}', () => {
       it('should return 204 - Delete task', async () => {
-        const taskId = faker.string.alpha({ length: { min: 5, max: 20 } })
-        const res = await app.request(`/api/tasks/${taskId}`, { method: 'DELETE' })
+        const createRes = await app.request(`/api/tasks`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(mockCreateTask()),
+        })
+        const created = await createRes.json()
+        const res = await app.request(`/api/tasks/${created.id}`, { method: 'DELETE' })
         expect(res.status).toBe(204)
       })
       it('should return 404 for non-existent resource', async () => {
