@@ -1,7 +1,12 @@
-import { useQuery, useMutation, queryOptions } from '@tanstack/vue-query'
-import type { UseQueryOptions, QueryFunctionContext, UseMutationOptions } from '@tanstack/vue-query'
-import { unref } from 'vue'
-import type { MaybeRef } from 'vue'
+import { useQuery, useInfiniteQuery, useMutation, queryOptions } from '@tanstack/vue-query'
+import type {
+  UseQueryOptions,
+  QueryFunctionContext,
+  UseInfiniteQueryOptions,
+  UseMutationOptions,
+} from '@tanstack/vue-query'
+import { toValue } from 'vue'
+import type { MaybeRefOrGetter } from 'vue'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
@@ -26,11 +31,11 @@ export async function getTags(options?: ClientRequestOptions) {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetTagsQueryOptions(clientOptions?: ClientRequestOptions) {
+export function getGetTagsQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getGetTagsQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return getTags({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+      return getTags({ ...options, init: { ...options?.init, signal } })
     },
   })
 }
@@ -40,10 +45,44 @@ export function getGetTagsQueryOptions(clientOptions?: ClientRequestOptions) {
  */
 export function useGetTags(options?: {
   query?: UseQueryOptions<Awaited<ReturnType<typeof getTags>>, Error>
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { query: queryOpts, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetTagsQueryOptions(clientOptions), ...queryOpts })
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useQuery({ ...getGetTagsQueryOptions(clientOptions), ...queryOptions })
+}
+
+/**
+ * Generates Vue Query infinite query cache key for GET /tags
+ * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ */
+export function getGetTagsInfiniteQueryKey() {
+  return ['tags', 'GET', '/tags', 'infinite'] as const
+}
+
+/**
+ * Returns Vue Query infinite query options for GET /tags
+ *
+ * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
+ * Requires initialPageParam and getNextPageParam to be provided separately.
+ */
+export function getGetTagsInfiniteQueryOptions(options?: ClientRequestOptions) {
+  return {
+    queryKey: getGetTagsInfiniteQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getTags({ ...options, init: { ...options?.init, signal } })
+    },
+  }
+}
+
+/**
+ * GET /tags
+ */
+export function useInfiniteGetTags(options: {
+  query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getTags>>, Error>
+  options?: ClientRequestOptions
+}) {
+  const { query: queryOptions, options: clientOptions } = options
+  return useInfiniteQuery({ ...getGetTagsInfiniteQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -69,11 +108,11 @@ export async function postTags(
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export function getPostTagsMutationOptions(clientOptions?: ClientRequestOptions) {
+export function getPostTagsMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: getPostTagsMutationKey(),
-    async mutationFn(args: Parameters<typeof postTags>[0]) {
-      return postTags(args, clientOptions)
+    async mutationFn(args: InferRequestType<typeof client.tags.$post>) {
+      return postTags(args, options)
     },
   }
 }
@@ -85,20 +124,22 @@ export function usePostTags(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postTags>>,
     Error,
-    Parameters<typeof postTags>[0]
+    InferRequestType<typeof client.tags.$post>
   >
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { mutation: mutationOpts, client: clientOptions } = options ?? {}
-  return useMutation({ ...getPostTagsMutationOptions(clientOptions), ...mutationOpts })
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
+  return useMutation({ ...getPostTagsMutationOptions(clientOptions), ...mutationOptions })
 }
 
 /**
  * Generates Vue Query cache key for GET /settings
  * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetSettingsQueryKey(args: MaybeRef<Parameters<typeof getSettings>[0]>) {
-  return ['settings', 'GET', '/settings', unref(args)] as const
+export function getGetSettingsQueryKey(
+  args: MaybeRefOrGetter<InferRequestType<typeof client.settings.$get>>,
+) {
+  return ['settings', 'GET', '/settings', args] as const
 }
 
 /**
@@ -117,13 +158,13 @@ export async function getSettings(
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetSettingsQueryOptions(
-  args: Parameters<typeof getSettings>[0],
-  clientOptions?: ClientRequestOptions,
+  args: MaybeRefOrGetter<InferRequestType<typeof client.settings.$get>>,
+  options?: ClientRequestOptions,
 ) {
   return queryOptions({
     queryKey: getGetSettingsQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
-      return getSettings(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
+      return getSettings(toValue(args), { ...options, init: { ...options?.init, signal } })
     },
   })
 }
@@ -132,14 +173,59 @@ export function getGetSettingsQueryOptions(
  * GET /settings
  */
 export function useGetSettings(
-  args: Parameters<typeof getSettings>[0],
+  args: MaybeRefOrGetter<InferRequestType<typeof client.settings.$get>>,
   options?: {
     query?: UseQueryOptions<Awaited<ReturnType<typeof getSettings>>, Error>
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
-  const { query: queryOpts, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetSettingsQueryOptions(args, clientOptions), ...queryOpts })
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useQuery({ ...getGetSettingsQueryOptions(args, clientOptions), ...queryOptions })
+}
+
+/**
+ * Generates Vue Query infinite query cache key for GET /settings
+ * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
+ */
+export function getGetSettingsInfiniteQueryKey(
+  args: MaybeRefOrGetter<InferRequestType<typeof client.settings.$get>>,
+) {
+  return ['settings', 'GET', '/settings', args, 'infinite'] as const
+}
+
+/**
+ * Returns Vue Query infinite query options for GET /settings
+ *
+ * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
+ * Requires initialPageParam and getNextPageParam to be provided separately.
+ */
+export function getGetSettingsInfiniteQueryOptions(
+  args: MaybeRefOrGetter<InferRequestType<typeof client.settings.$get>>,
+  options?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetSettingsInfiniteQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getSettings(toValue(args), { ...options, init: { ...options?.init, signal } })
+    },
+  }
+}
+
+/**
+ * GET /settings
+ */
+export function useInfiniteGetSettings(
+  args: MaybeRefOrGetter<InferRequestType<typeof client.settings.$get>>,
+  options: {
+    query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getSettings>>, Error>
+    options?: ClientRequestOptions
+  },
+) {
+  const { query: queryOptions, options: clientOptions } = options
+  return useInfiniteQuery({
+    ...getGetSettingsInfiniteQueryOptions(args, clientOptions),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -165,11 +251,11 @@ export async function putSettings(
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export function getPutSettingsMutationOptions(clientOptions?: ClientRequestOptions) {
+export function getPutSettingsMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: getPutSettingsMutationKey(),
-    async mutationFn(args: Parameters<typeof putSettings>[0]) {
-      return putSettings(args, clientOptions)
+    async mutationFn(args: InferRequestType<typeof client.settings.$put>) {
+      return putSettings(args, options)
     },
   }
 }
@@ -181,12 +267,12 @@ export function usePutSettings(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof putSettings>>,
     Error,
-    Parameters<typeof putSettings>[0]
+    InferRequestType<typeof client.settings.$put>
   >
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { mutation: mutationOpts, client: clientOptions } = options ?? {}
-  return useMutation({ ...getPutSettingsMutationOptions(clientOptions), ...mutationOpts })
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
+  return useMutation({ ...getPutSettingsMutationOptions(clientOptions), ...mutationOptions })
 }
 
 /**
@@ -212,11 +298,11 @@ export async function postConfig(
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export function getPostConfigMutationOptions(clientOptions?: ClientRequestOptions) {
+export function getPostConfigMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: getPostConfigMutationKey(),
-    async mutationFn(args: Parameters<typeof postConfig>[0]) {
-      return postConfig(args, clientOptions)
+    async mutationFn(args: InferRequestType<typeof client.config.$post>) {
+      return postConfig(args, options)
     },
   }
 }
@@ -228,12 +314,12 @@ export function usePostConfig(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postConfig>>,
     Error,
-    Parameters<typeof postConfig>[0]
+    InferRequestType<typeof client.config.$post>
   >
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { mutation: mutationOpts, client: clientOptions } = options ?? {}
-  return useMutation({ ...getPostConfigMutationOptions(clientOptions), ...mutationOpts })
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
+  return useMutation({ ...getPostConfigMutationOptions(clientOptions), ...mutationOptions })
 }
 
 /**
@@ -259,11 +345,11 @@ export async function postPayment(
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export function getPostPaymentMutationOptions(clientOptions?: ClientRequestOptions) {
+export function getPostPaymentMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: getPostPaymentMutationKey(),
-    async mutationFn(args: Parameters<typeof postPayment>[0]) {
-      return postPayment(args, clientOptions)
+    async mutationFn(args: InferRequestType<typeof client.payment.$post>) {
+      return postPayment(args, options)
     },
   }
 }
@@ -275,10 +361,10 @@ export function usePostPayment(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postPayment>>,
     Error,
-    Parameters<typeof postPayment>[0]
+    InferRequestType<typeof client.payment.$post>
   >
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { mutation: mutationOpts, client: clientOptions } = options ?? {}
-  return useMutation({ ...getPostPaymentMutationOptions(clientOptions), ...mutationOpts })
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
+  return useMutation({ ...getPostPaymentMutationOptions(clientOptions), ...mutationOptions })
 }

@@ -1,5 +1,8 @@
 import useSWR from 'swr'
+import useSWRImmutable from 'swr/immutable'
 import type { Key, SWRConfiguration } from 'swr'
+import useSWRInfinite from 'swr/infinite'
+import type { SWRInfiniteConfiguration, SWRInfiniteKeyLoader } from 'swr/infinite'
 import useSWRMutation from 'swr/mutation'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
@@ -36,18 +39,18 @@ export function usePostOrders(options?: {
     Awaited<ReturnType<typeof postOrders>>,
     Error,
     Key,
-    Parameters<typeof postOrders>[0]
+    InferRequestType<typeof client.orders.$post>
   > & { swrKey?: Key }
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey = customKey ?? getPostOrdersMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
-      async (_: Key, { arg }: { arg: Parameters<typeof postOrders>[0] }) =>
+      async (_: Key, { arg }: { arg: InferRequestType<typeof client.orders.$post> }) =>
         postOrders(arg, clientOptions),
       restMutationOptions,
     ),
@@ -84,18 +87,18 @@ export function usePostPayments(options?: {
     Awaited<ReturnType<typeof postPayments>>,
     Error,
     Key,
-    Parameters<typeof postPayments>[0]
+    InferRequestType<typeof client.payments.$post>
   > & { swrKey?: Key }
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey = customKey ?? getPostPaymentsMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
-      async (_: Key, { arg }: { arg: Parameters<typeof postPayments>[0] }) =>
+      async (_: Key, { arg }: { arg: InferRequestType<typeof client.payments.$post> }) =>
         postPayments(arg, clientOptions),
       restMutationOptions,
     ),
@@ -126,11 +129,51 @@ export async function getItems(options?: ClientRequestOptions) {
  */
 export function useGetItems(options?: {
   swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
-  const isEnabled = enabled !== false
-  const swrKey = isEnabled ? (customKey ?? getGetItemsKey()) : null
+  const swrKey = enabled !== false ? (customKey ?? getGetItemsKey()) : null
   return { swrKey, ...useSWR(swrKey, async () => getItems(clientOptions), restSwrOptions) }
+}
+
+/**
+ * GET /items
+ *
+ * List items (no callbacks)
+ */
+export function useImmutableGetItems(options?: {
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
+  options?: ClientRequestOptions
+}) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const swrKey = enabled !== false ? (customKey ?? getGetItemsKey()) : null
+  return { swrKey, ...useSWRImmutable(swrKey, async () => getItems(clientOptions), restSwrOptions) }
+}
+
+/**
+ * Generates SWR infinite query cache key for GET /items
+ * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ */
+export function getGetItemsInfiniteKey() {
+  return ['items', 'GET', '/items', 'infinite'] as const
+}
+
+/**
+ * GET /items
+ *
+ * List items (no callbacks)
+ */
+export function useInfiniteGetItems(options: {
+  swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getItems>>, Error> & {
+    swrKey?: SWRInfiniteKeyLoader
+  }
+  options?: ClientRequestOptions
+}) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
+  const keyLoader =
+    customKeyLoader ?? ((index: number) => [...getGetItemsInfiniteKey(), index] as const)
+  return useSWRInfinite(keyLoader, async () => getItems(clientOptions), restSwrOptions)
 }

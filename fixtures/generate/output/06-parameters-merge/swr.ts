@@ -1,5 +1,8 @@
 import useSWR from 'swr'
+import useSWRImmutable from 'swr/immutable'
 import type { Key, SWRConfiguration } from 'swr'
+import useSWRInfinite from 'swr/infinite'
+import type { SWRInfiniteConfiguration, SWRInfiniteKeyLoader } from 'swr/infinite'
 import useSWRMutation from 'swr/mutation'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
@@ -10,7 +13,9 @@ import { client } from './client'
  * Generates SWR cache key for GET /items/{itemId}
  * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetItemsItemIdKey(args: Parameters<typeof getItemsItemId>[0]) {
+export function getGetItemsItemIdKey(
+  args: InferRequestType<(typeof client.items)[':itemId']['$get']>,
+) {
   return ['items', 'GET', '/items/:itemId', args] as const
 }
 
@@ -28,20 +33,67 @@ export async function getItemsItemId(
  * GET /items/{itemId}
  */
 export function useGetItemsItemId(
-  args: Parameters<typeof getItemsItemId>[0],
+  args: InferRequestType<(typeof client.items)[':itemId']['$get']>,
   options?: {
     swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
-  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
-  const isEnabled = enabled !== false
-  const swrKey = isEnabled ? (customKey ?? getGetItemsItemIdKey(args)) : null
+  const swrKey = enabled !== false ? (customKey ?? getGetItemsItemIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(swrKey, async () => getItemsItemId(args, clientOptions), restSwrOptions),
   }
+}
+
+/**
+ * GET /items/{itemId}
+ */
+export function useImmutableGetItemsItemId(
+  args: InferRequestType<(typeof client.items)[':itemId']['$get']>,
+  options?: {
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
+    options?: ClientRequestOptions
+  },
+) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const swrKey = enabled !== false ? (customKey ?? getGetItemsItemIdKey(args)) : null
+  return {
+    swrKey,
+    ...useSWRImmutable(swrKey, async () => getItemsItemId(args, clientOptions), restSwrOptions),
+  }
+}
+
+/**
+ * Generates SWR infinite query cache key for GET /items/{itemId}
+ * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
+ */
+export function getGetItemsItemIdInfiniteKey(
+  args: InferRequestType<(typeof client.items)[':itemId']['$get']>,
+) {
+  return ['items', 'GET', '/items/:itemId', args, 'infinite'] as const
+}
+
+/**
+ * GET /items/{itemId}
+ */
+export function useInfiniteGetItemsItemId(
+  args: InferRequestType<(typeof client.items)[':itemId']['$get']>,
+  options: {
+    swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getItemsItemId>>, Error> & {
+      swrKey?: SWRInfiniteKeyLoader
+    }
+    options?: ClientRequestOptions
+  },
+) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
+  const keyLoader =
+    customKeyLoader ?? ((index: number) => [...getGetItemsItemIdInfiniteKey(args), index] as const)
+  return useSWRInfinite(keyLoader, async () => getItemsItemId(args, clientOptions), restSwrOptions)
 }
 
 /**
@@ -70,19 +122,21 @@ export function usePutItemsItemId(options?: {
     Awaited<ReturnType<typeof putItemsItemId>>,
     Error,
     Key,
-    Parameters<typeof putItemsItemId>[0]
+    InferRequestType<(typeof client.items)[':itemId']['$put']>
   > & { swrKey?: Key }
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey = customKey ?? getPutItemsItemIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
-      async (_: Key, { arg }: { arg: Parameters<typeof putItemsItemId>[0] }) =>
-        putItemsItemId(arg, clientOptions),
+      async (
+        _: Key,
+        { arg }: { arg: InferRequestType<(typeof client.items)[':itemId']['$put']> },
+      ) => putItemsItemId(arg, clientOptions),
       restMutationOptions,
     ),
   }
@@ -114,19 +168,21 @@ export function useDeleteItemsItemId(options?: {
     Awaited<ReturnType<typeof deleteItemsItemId>> | undefined,
     Error,
     Key,
-    Parameters<typeof deleteItemsItemId>[0]
+    InferRequestType<(typeof client.items)[':itemId']['$delete']>
   > & { swrKey?: Key }
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey = customKey ?? getDeleteItemsItemIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
-      async (_: Key, { arg }: { arg: Parameters<typeof deleteItemsItemId>[0] }) =>
-        deleteItemsItemId(arg, clientOptions),
+      async (
+        _: Key,
+        { arg }: { arg: InferRequestType<(typeof client.items)[':itemId']['$delete']> },
+      ) => deleteItemsItemId(arg, clientOptions),
       restMutationOptions,
     ),
   }
@@ -136,7 +192,7 @@ export function useDeleteItemsItemId(options?: {
  * Generates SWR cache key for GET /items
  * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetItemsKey(args: Parameters<typeof getItems>[0]) {
+export function getGetItemsKey(args: InferRequestType<typeof client.items.$get>) {
   return ['items', 'GET', '/items', args] as const
 }
 
@@ -154,15 +210,60 @@ export async function getItems(
  * GET /items
  */
 export function useGetItems(
-  args: Parameters<typeof getItems>[0],
+  args: InferRequestType<typeof client.items.$get>,
   options?: {
     swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
-  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
-  const isEnabled = enabled !== false
-  const swrKey = isEnabled ? (customKey ?? getGetItemsKey(args)) : null
+  const swrKey = enabled !== false ? (customKey ?? getGetItemsKey(args)) : null
   return { swrKey, ...useSWR(swrKey, async () => getItems(args, clientOptions), restSwrOptions) }
+}
+
+/**
+ * GET /items
+ */
+export function useImmutableGetItems(
+  args: InferRequestType<typeof client.items.$get>,
+  options?: {
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
+    options?: ClientRequestOptions
+  },
+) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const swrKey = enabled !== false ? (customKey ?? getGetItemsKey(args)) : null
+  return {
+    swrKey,
+    ...useSWRImmutable(swrKey, async () => getItems(args, clientOptions), restSwrOptions),
+  }
+}
+
+/**
+ * Generates SWR infinite query cache key for GET /items
+ * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
+ */
+export function getGetItemsInfiniteKey(args: InferRequestType<typeof client.items.$get>) {
+  return ['items', 'GET', '/items', args, 'infinite'] as const
+}
+
+/**
+ * GET /items
+ */
+export function useInfiniteGetItems(
+  args: InferRequestType<typeof client.items.$get>,
+  options: {
+    swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getItems>>, Error> & {
+      swrKey?: SWRInfiniteKeyLoader
+    }
+    options?: ClientRequestOptions
+  },
+) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
+  const keyLoader =
+    customKeyLoader ?? ((index: number) => [...getGetItemsInfiniteKey(args), index] as const)
+  return useSWRInfinite(keyLoader, async () => getItems(args, clientOptions), restSwrOptions)
 }

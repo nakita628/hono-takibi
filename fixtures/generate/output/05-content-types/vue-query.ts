@@ -27,11 +27,11 @@ export async function postJson(
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export function getPostJsonMutationOptions(clientOptions?: ClientRequestOptions) {
+export function getPostJsonMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: getPostJsonMutationKey(),
-    async mutationFn(args: Parameters<typeof postJson>[0]) {
-      return postJson(args, clientOptions)
+    async mutationFn(args: InferRequestType<typeof client.json.$post>) {
+      return postJson(args, options)
     },
   }
 }
@@ -43,12 +43,12 @@ export function usePostJson(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postJson>>,
     Error,
-    Parameters<typeof postJson>[0]
+    InferRequestType<typeof client.json.$post>
   >
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { mutation: mutationOpts, client: clientOptions } = options ?? {}
-  return useMutation({ ...getPostJsonMutationOptions(clientOptions), ...mutationOpts })
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
+  return useMutation({ ...getPostJsonMutationOptions(clientOptions), ...mutationOptions })
 }
 
 /**
@@ -74,11 +74,11 @@ export async function postForm(
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export function getPostFormMutationOptions(clientOptions?: ClientRequestOptions) {
+export function getPostFormMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: getPostFormMutationKey(),
-    async mutationFn(args: Parameters<typeof postForm>[0]) {
-      return postForm(args, clientOptions)
+    async mutationFn(args: InferRequestType<typeof client.form.$post>) {
+      return postForm(args, options)
     },
   }
 }
@@ -90,12 +90,12 @@ export function usePostForm(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postForm>>,
     Error,
-    Parameters<typeof postForm>[0]
+    InferRequestType<typeof client.form.$post>
   >
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { mutation: mutationOpts, client: clientOptions } = options ?? {}
-  return useMutation({ ...getPostFormMutationOptions(clientOptions), ...mutationOpts })
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
+  return useMutation({ ...getPostFormMutationOptions(clientOptions), ...mutationOptions })
 }
 
 /**
@@ -121,11 +121,11 @@ export async function postUpload(
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export function getPostUploadMutationOptions(clientOptions?: ClientRequestOptions) {
+export function getPostUploadMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: getPostUploadMutationKey(),
-    async mutationFn(args: Parameters<typeof postUpload>[0]) {
-      return postUpload(args, clientOptions)
+    async mutationFn(args: InferRequestType<typeof client.upload.$post>) {
+      return postUpload(args, options)
     },
   }
 }
@@ -137,12 +137,12 @@ export function usePostUpload(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postUpload>>,
     Error,
-    Parameters<typeof postUpload>[0]
+    InferRequestType<typeof client.upload.$post>
   >
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { mutation: mutationOpts, client: clientOptions } = options ?? {}
-  return useMutation({ ...getPostUploadMutationOptions(clientOptions), ...mutationOpts })
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
+  return useMutation({ ...getPostUploadMutationOptions(clientOptions), ...mutationOptions })
 }
 
 /**
@@ -168,11 +168,11 @@ export async function postText(
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export function getPostTextMutationOptions(clientOptions?: ClientRequestOptions) {
+export function getPostTextMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: getPostTextMutationKey(),
-    async mutationFn(args: Parameters<typeof postText>[0]) {
-      return postText(args, clientOptions)
+    async mutationFn(args: InferRequestType<typeof client.text.$post>) {
+      return postText(args, options)
     },
   }
 }
@@ -184,12 +184,12 @@ export function usePostText(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postText>>,
     Error,
-    Parameters<typeof postText>[0]
+    InferRequestType<typeof client.text.$post>
   >
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { mutation: mutationOpts, client: clientOptions } = options ?? {}
-  return useMutation({ ...getPostTextMutationOptions(clientOptions), ...mutationOpts })
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
+  return useMutation({ ...getPostTextMutationOptions(clientOptions), ...mutationOptions })
 }
 
 /**
@@ -215,11 +215,11 @@ export async function postMultiContent(
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export function getPostMultiContentMutationOptions(clientOptions?: ClientRequestOptions) {
+export function getPostMultiContentMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: getPostMultiContentMutationKey(),
-    async mutationFn(args: Parameters<typeof postMultiContent>[0]) {
-      return postMultiContent(args, clientOptions)
+    async mutationFn(args: InferRequestType<(typeof client)['multi-content']['$post']>) {
+      return postMultiContent(args, options)
     },
   }
 }
@@ -231,10 +231,10 @@ export function usePostMultiContent(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postMultiContent>>,
     Error,
-    Parameters<typeof postMultiContent>[0]
+    InferRequestType<(typeof client)['multi-content']['$post']>
   >
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { mutation: mutationOpts, client: clientOptions } = options ?? {}
-  return useMutation({ ...getPostMultiContentMutationOptions(clientOptions), ...mutationOpts })
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
+  return useMutation({ ...getPostMultiContentMutationOptions(clientOptions), ...mutationOptions })
 }

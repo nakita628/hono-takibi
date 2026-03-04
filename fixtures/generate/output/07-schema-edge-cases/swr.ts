@@ -1,5 +1,8 @@
 import useSWR from 'swr'
+import useSWRImmutable from 'swr/immutable'
 import type { Key, SWRConfiguration } from 'swr'
+import useSWRInfinite from 'swr/infinite'
+import type { SWRInfiniteConfiguration, SWRInfiniteKeyLoader } from 'swr/infinite'
 import useSWRMutation from 'swr/mutation'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
@@ -32,18 +35,18 @@ export function usePostNullable(options?: {
     Awaited<ReturnType<typeof postNullable>>,
     Error,
     Key,
-    Parameters<typeof postNullable>[0]
+    InferRequestType<typeof client.nullable.$post>
   > & { swrKey?: Key }
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey = customKey ?? getPostNullableMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
-      async (_: Key, { arg }: { arg: Parameters<typeof postNullable>[0] }) =>
+      async (_: Key, { arg }: { arg: InferRequestType<typeof client.nullable.$post> }) =>
         postNullable(arg, clientOptions),
       restMutationOptions,
     ),
@@ -76,18 +79,18 @@ export function usePostDiscriminated(options?: {
     Awaited<ReturnType<typeof postDiscriminated>>,
     Error,
     Key,
-    Parameters<typeof postDiscriminated>[0]
+    InferRequestType<typeof client.discriminated.$post>
   > & { swrKey?: Key }
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey = customKey ?? getPostDiscriminatedMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
-      async (_: Key, { arg }: { arg: Parameters<typeof postDiscriminated>[0] }) =>
+      async (_: Key, { arg }: { arg: InferRequestType<typeof client.discriminated.$post> }) =>
         postDiscriminated(arg, clientOptions),
       restMutationOptions,
     ),
@@ -114,13 +117,52 @@ export async function getComposed(options?: ClientRequestOptions) {
  */
 export function useGetComposed(options?: {
   swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
-  const isEnabled = enabled !== false
-  const swrKey = isEnabled ? (customKey ?? getGetComposedKey()) : null
+  const swrKey = enabled !== false ? (customKey ?? getGetComposedKey()) : null
   return { swrKey, ...useSWR(swrKey, async () => getComposed(clientOptions), restSwrOptions) }
+}
+
+/**
+ * GET /composed
+ */
+export function useImmutableGetComposed(options?: {
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
+  options?: ClientRequestOptions
+}) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const swrKey = enabled !== false ? (customKey ?? getGetComposedKey()) : null
+  return {
+    swrKey,
+    ...useSWRImmutable(swrKey, async () => getComposed(clientOptions), restSwrOptions),
+  }
+}
+
+/**
+ * Generates SWR infinite query cache key for GET /composed
+ * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ */
+export function getGetComposedInfiniteKey() {
+  return ['composed', 'GET', '/composed', 'infinite'] as const
+}
+
+/**
+ * GET /composed
+ */
+export function useInfiniteGetComposed(options: {
+  swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getComposed>>, Error> & {
+    swrKey?: SWRInfiniteKeyLoader
+  }
+  options?: ClientRequestOptions
+}) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
+  const keyLoader =
+    customKeyLoader ?? ((index: number) => [...getGetComposedInfiniteKey(), index] as const)
+  return useSWRInfinite(keyLoader, async () => getComposed(clientOptions), restSwrOptions)
 }
 
 /**
@@ -143,13 +185,52 @@ export async function getDeepNested(options?: ClientRequestOptions) {
  */
 export function useGetDeepNested(options?: {
   swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
-  const isEnabled = enabled !== false
-  const swrKey = isEnabled ? (customKey ?? getGetDeepNestedKey()) : null
+  const swrKey = enabled !== false ? (customKey ?? getGetDeepNestedKey()) : null
   return { swrKey, ...useSWR(swrKey, async () => getDeepNested(clientOptions), restSwrOptions) }
+}
+
+/**
+ * GET /deep-nested
+ */
+export function useImmutableGetDeepNested(options?: {
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
+  options?: ClientRequestOptions
+}) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const swrKey = enabled !== false ? (customKey ?? getGetDeepNestedKey()) : null
+  return {
+    swrKey,
+    ...useSWRImmutable(swrKey, async () => getDeepNested(clientOptions), restSwrOptions),
+  }
+}
+
+/**
+ * Generates SWR infinite query cache key for GET /deep-nested
+ * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ */
+export function getGetDeepNestedInfiniteKey() {
+  return ['deep-nested', 'GET', '/deep-nested', 'infinite'] as const
+}
+
+/**
+ * GET /deep-nested
+ */
+export function useInfiniteGetDeepNested(options: {
+  swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getDeepNested>>, Error> & {
+    swrKey?: SWRInfiniteKeyLoader
+  }
+  options?: ClientRequestOptions
+}) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
+  const keyLoader =
+    customKeyLoader ?? ((index: number) => [...getGetDeepNestedInfiniteKey(), index] as const)
+  return useSWRInfinite(keyLoader, async () => getDeepNested(clientOptions), restSwrOptions)
 }
 
 /**
@@ -172,14 +253,53 @@ export async function getAdditionalProps(options?: ClientRequestOptions) {
  */
 export function useGetAdditionalProps(options?: {
   swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
-  const isEnabled = enabled !== false
-  const swrKey = isEnabled ? (customKey ?? getGetAdditionalPropsKey()) : null
+  const swrKey = enabled !== false ? (customKey ?? getGetAdditionalPropsKey()) : null
   return {
     swrKey,
     ...useSWR(swrKey, async () => getAdditionalProps(clientOptions), restSwrOptions),
   }
+}
+
+/**
+ * GET /additional-props
+ */
+export function useImmutableGetAdditionalProps(options?: {
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
+  options?: ClientRequestOptions
+}) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const swrKey = enabled !== false ? (customKey ?? getGetAdditionalPropsKey()) : null
+  return {
+    swrKey,
+    ...useSWRImmutable(swrKey, async () => getAdditionalProps(clientOptions), restSwrOptions),
+  }
+}
+
+/**
+ * Generates SWR infinite query cache key for GET /additional-props
+ * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ */
+export function getGetAdditionalPropsInfiniteKey() {
+  return ['additional-props', 'GET', '/additional-props', 'infinite'] as const
+}
+
+/**
+ * GET /additional-props
+ */
+export function useInfiniteGetAdditionalProps(options: {
+  swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getAdditionalProps>>, Error> & {
+    swrKey?: SWRInfiniteKeyLoader
+  }
+  options?: ClientRequestOptions
+}) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
+  const keyLoader =
+    customKeyLoader ?? ((index: number) => [...getGetAdditionalPropsInfiniteKey(), index] as const)
+  return useSWRInfinite(keyLoader, async () => getAdditionalProps(clientOptions), restSwrOptions)
 }

@@ -24,13 +24,13 @@ const EventPayloadSchema = z
   .openapi({ required: ['event', 'timestamp'] })
   .openapi('EventPayload')
 
-export const GetSubscriptionLink = {
+export const GetSubscriptionLinkLink = {
   operationId: 'getSubscription',
   parameters: { id: '$response.body#/id' },
   description: 'Get the created subscription',
 }
 
-export const DeleteSubscriptionLink = {
+export const DeleteSubscriptionLinkLink = {
   operationId: 'deleteSubscription',
   parameters: { id: '$request.path.id' },
   description: 'Delete this subscription',
@@ -60,7 +60,7 @@ export const postSubscriptionsRoute = createRoute({
     201: {
       description: 'Created',
       content: { 'application/json': { schema: SubscriptionSchema } },
-      links: { GetSubscription: GetSubscriptionLink },
+      links: { GetSubscription: GetSubscriptionLinkLink },
     },
   },
   callbacks: { onEvent: SubscriptionEventCallback },
@@ -81,7 +81,7 @@ export const getSubscriptionsIdRoute = createRoute({
     200: {
       description: 'OK',
       content: { 'application/json': { schema: SubscriptionSchema } },
-      links: { DeleteSubscription: DeleteSubscriptionLink },
+      links: { DeleteSubscription: DeleteSubscriptionLinkLink },
     },
   },
 })

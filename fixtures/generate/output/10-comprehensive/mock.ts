@@ -142,14 +142,16 @@ const NotFoundResponse = {
   content: { 'application/json': { schema: ErrorSchema } },
 }
 
-const PageParamParamsSchema = z
-  .int()
+const PageParamParamsSchema = z.coerce
+  .number()
+  .pipe(z.int())
   .default(1)
   .exactOptional()
   .openapi({ param: { name: 'page', in: 'query', schema: { type: 'integer', default: 1 } } })
 
-const LimitParamParamsSchema = z
-  .int()
+const LimitParamParamsSchema = z.coerce
+  .number()
+  .pipe(z.int())
   .default(20)
   .exactOptional()
   .openapi({ param: { name: 'limit', in: 'query', schema: { type: 'integer', default: 20 } } })

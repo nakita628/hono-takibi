@@ -1,5 +1,10 @@
-import { useQuery, useMutation, queryOptions } from '@tanstack/vue-query'
-import type { UseQueryOptions, QueryFunctionContext, UseMutationOptions } from '@tanstack/vue-query'
+import { useQuery, useInfiniteQuery, useMutation, queryOptions } from '@tanstack/vue-query'
+import type {
+  UseQueryOptions,
+  QueryFunctionContext,
+  UseInfiniteQueryOptions,
+  UseMutationOptions,
+} from '@tanstack/vue-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
@@ -24,11 +29,11 @@ export async function getTree(options?: ClientRequestOptions) {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetTreeQueryOptions(clientOptions?: ClientRequestOptions) {
+export function getGetTreeQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getGetTreeQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return getTree({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+      return getTree({ ...options, init: { ...options?.init, signal } })
     },
   })
 }
@@ -38,10 +43,44 @@ export function getGetTreeQueryOptions(clientOptions?: ClientRequestOptions) {
  */
 export function useGetTree(options?: {
   query?: UseQueryOptions<Awaited<ReturnType<typeof getTree>>, Error>
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { query: queryOpts, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetTreeQueryOptions(clientOptions), ...queryOpts })
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useQuery({ ...getGetTreeQueryOptions(clientOptions), ...queryOptions })
+}
+
+/**
+ * Generates Vue Query infinite query cache key for GET /tree
+ * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ */
+export function getGetTreeInfiniteQueryKey() {
+  return ['tree', 'GET', '/tree', 'infinite'] as const
+}
+
+/**
+ * Returns Vue Query infinite query options for GET /tree
+ *
+ * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
+ * Requires initialPageParam and getNextPageParam to be provided separately.
+ */
+export function getGetTreeInfiniteQueryOptions(options?: ClientRequestOptions) {
+  return {
+    queryKey: getGetTreeInfiniteQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getTree({ ...options, init: { ...options?.init, signal } })
+    },
+  }
+}
+
+/**
+ * GET /tree
+ */
+export function useInfiniteGetTree(options: {
+  query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getTree>>, Error>
+  options?: ClientRequestOptions
+}) {
+  const { query: queryOptions, options: clientOptions } = options
+  return useInfiniteQuery({ ...getGetTreeInfiniteQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -67,11 +106,11 @@ export async function postTree(
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export function getPostTreeMutationOptions(clientOptions?: ClientRequestOptions) {
+export function getPostTreeMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: getPostTreeMutationKey(),
-    async mutationFn(args: Parameters<typeof postTree>[0]) {
-      return postTree(args, clientOptions)
+    async mutationFn(args: InferRequestType<typeof client.tree.$post>) {
+      return postTree(args, options)
     },
   }
 }
@@ -83,12 +122,12 @@ export function usePostTree(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postTree>>,
     Error,
-    Parameters<typeof postTree>[0]
+    InferRequestType<typeof client.tree.$post>
   >
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { mutation: mutationOpts, client: clientOptions } = options ?? {}
-  return useMutation({ ...getPostTreeMutationOptions(clientOptions), ...mutationOpts })
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
+  return useMutation({ ...getPostTreeMutationOptions(clientOptions), ...mutationOptions })
 }
 
 /**
@@ -111,11 +150,11 @@ export async function getGraph(options?: ClientRequestOptions) {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetGraphQueryOptions(clientOptions?: ClientRequestOptions) {
+export function getGetGraphQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getGetGraphQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return getGraph({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+      return getGraph({ ...options, init: { ...options?.init, signal } })
     },
   })
 }
@@ -125,8 +164,42 @@ export function getGetGraphQueryOptions(clientOptions?: ClientRequestOptions) {
  */
 export function useGetGraph(options?: {
   query?: UseQueryOptions<Awaited<ReturnType<typeof getGraph>>, Error>
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { query: queryOpts, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetGraphQueryOptions(clientOptions), ...queryOpts })
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useQuery({ ...getGetGraphQueryOptions(clientOptions), ...queryOptions })
+}
+
+/**
+ * Generates Vue Query infinite query cache key for GET /graph
+ * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ */
+export function getGetGraphInfiniteQueryKey() {
+  return ['graph', 'GET', '/graph', 'infinite'] as const
+}
+
+/**
+ * Returns Vue Query infinite query options for GET /graph
+ *
+ * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
+ * Requires initialPageParam and getNextPageParam to be provided separately.
+ */
+export function getGetGraphInfiniteQueryOptions(options?: ClientRequestOptions) {
+  return {
+    queryKey: getGetGraphInfiniteQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getGraph({ ...options, init: { ...options?.init, signal } })
+    },
+  }
+}
+
+/**
+ * GET /graph
+ */
+export function useInfiniteGetGraph(options: {
+  query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getGraph>>, Error>
+  options?: ClientRequestOptions
+}) {
+  const { query: queryOptions, options: clientOptions } = options
+  return useInfiniteQuery({ ...getGetGraphInfiniteQueryOptions(clientOptions), ...queryOptions })
 }

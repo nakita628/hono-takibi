@@ -27,11 +27,11 @@ export async function postJson(
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export function getPostJsonMutationOptions(clientOptions?: ClientRequestOptions) {
+export function getPostJsonMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: getPostJsonMutationKey(),
-    async mutationFn(args: Parameters<typeof postJson>[0]) {
-      return postJson(args, clientOptions)
+    async mutationFn(args: InferRequestType<typeof client.json.$post>) {
+      return postJson(args, options)
     },
   }
 }
@@ -44,14 +44,14 @@ export function createPostJson(
     mutation?: CreateMutationOptions<
       Awaited<ReturnType<typeof postJson>>,
       Error,
-      Parameters<typeof postJson>[0]
+      InferRequestType<typeof client.json.$post>
     >
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
   return createMutation(() => {
-    const opts = options?.()
-    return { ...getPostJsonMutationOptions(opts?.client), ...opts?.mutation }
+    const { mutation, options: clientOptions } = options?.() ?? {}
+    return { ...getPostJsonMutationOptions(clientOptions), ...mutation }
   })
 }
 
@@ -78,11 +78,11 @@ export async function postForm(
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export function getPostFormMutationOptions(clientOptions?: ClientRequestOptions) {
+export function getPostFormMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: getPostFormMutationKey(),
-    async mutationFn(args: Parameters<typeof postForm>[0]) {
-      return postForm(args, clientOptions)
+    async mutationFn(args: InferRequestType<typeof client.form.$post>) {
+      return postForm(args, options)
     },
   }
 }
@@ -95,14 +95,14 @@ export function createPostForm(
     mutation?: CreateMutationOptions<
       Awaited<ReturnType<typeof postForm>>,
       Error,
-      Parameters<typeof postForm>[0]
+      InferRequestType<typeof client.form.$post>
     >
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
   return createMutation(() => {
-    const opts = options?.()
-    return { ...getPostFormMutationOptions(opts?.client), ...opts?.mutation }
+    const { mutation, options: clientOptions } = options?.() ?? {}
+    return { ...getPostFormMutationOptions(clientOptions), ...mutation }
   })
 }
 
@@ -129,11 +129,11 @@ export async function postUpload(
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export function getPostUploadMutationOptions(clientOptions?: ClientRequestOptions) {
+export function getPostUploadMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: getPostUploadMutationKey(),
-    async mutationFn(args: Parameters<typeof postUpload>[0]) {
-      return postUpload(args, clientOptions)
+    async mutationFn(args: InferRequestType<typeof client.upload.$post>) {
+      return postUpload(args, options)
     },
   }
 }
@@ -146,14 +146,14 @@ export function createPostUpload(
     mutation?: CreateMutationOptions<
       Awaited<ReturnType<typeof postUpload>>,
       Error,
-      Parameters<typeof postUpload>[0]
+      InferRequestType<typeof client.upload.$post>
     >
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
   return createMutation(() => {
-    const opts = options?.()
-    return { ...getPostUploadMutationOptions(opts?.client), ...opts?.mutation }
+    const { mutation, options: clientOptions } = options?.() ?? {}
+    return { ...getPostUploadMutationOptions(clientOptions), ...mutation }
   })
 }
 
@@ -180,11 +180,11 @@ export async function postText(
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export function getPostTextMutationOptions(clientOptions?: ClientRequestOptions) {
+export function getPostTextMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: getPostTextMutationKey(),
-    async mutationFn(args: Parameters<typeof postText>[0]) {
-      return postText(args, clientOptions)
+    async mutationFn(args: InferRequestType<typeof client.text.$post>) {
+      return postText(args, options)
     },
   }
 }
@@ -197,14 +197,14 @@ export function createPostText(
     mutation?: CreateMutationOptions<
       Awaited<ReturnType<typeof postText>>,
       Error,
-      Parameters<typeof postText>[0]
+      InferRequestType<typeof client.text.$post>
     >
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
   return createMutation(() => {
-    const opts = options?.()
-    return { ...getPostTextMutationOptions(opts?.client), ...opts?.mutation }
+    const { mutation, options: clientOptions } = options?.() ?? {}
+    return { ...getPostTextMutationOptions(clientOptions), ...mutation }
   })
 }
 
@@ -231,11 +231,11 @@ export async function postMultiContent(
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export function getPostMultiContentMutationOptions(clientOptions?: ClientRequestOptions) {
+export function getPostMultiContentMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: getPostMultiContentMutationKey(),
-    async mutationFn(args: Parameters<typeof postMultiContent>[0]) {
-      return postMultiContent(args, clientOptions)
+    async mutationFn(args: InferRequestType<(typeof client)['multi-content']['$post']>) {
+      return postMultiContent(args, options)
     },
   }
 }
@@ -248,13 +248,13 @@ export function createPostMultiContent(
     mutation?: CreateMutationOptions<
       Awaited<ReturnType<typeof postMultiContent>>,
       Error,
-      Parameters<typeof postMultiContent>[0]
+      InferRequestType<(typeof client)['multi-content']['$post']>
     >
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
   return createMutation(() => {
-    const opts = options?.()
-    return { ...getPostMultiContentMutationOptions(opts?.client), ...opts?.mutation }
+    const { mutation, options: clientOptions } = options?.() ?? {}
+    return { ...getPostMultiContentMutationOptions(clientOptions), ...mutation }
   })
 }

@@ -1,7 +1,12 @@
-import { useQuery, useMutation, queryOptions } from '@tanstack/vue-query'
-import type { UseQueryOptions, QueryFunctionContext, UseMutationOptions } from '@tanstack/vue-query'
-import { unref } from 'vue'
-import type { MaybeRef } from 'vue'
+import { useQuery, useInfiniteQuery, useMutation, queryOptions } from '@tanstack/vue-query'
+import type {
+  UseQueryOptions,
+  QueryFunctionContext,
+  UseInfiniteQueryOptions,
+  UseMutationOptions,
+} from '@tanstack/vue-query'
+import { toValue } from 'vue'
+import type { MaybeRefOrGetter } from 'vue'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
@@ -11,9 +16,9 @@ import { client } from './client'
  * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetApiReverseGeocodeIndexQueryKey(
-  args: MaybeRef<Parameters<typeof getApiReverseGeocodeIndex>[0]>,
+  args: MaybeRefOrGetter<InferRequestType<typeof client.api.reverseGeocode.index.$get>>,
 ) {
-  return ['api', 'GET', '/api/reverseGeocode/', unref(args)] as const
+  return ['api', 'GET', '/api/reverseGeocode/', args] as const
 }
 
 /**
@@ -34,15 +39,15 @@ export async function getApiReverseGeocodeIndex(
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetApiReverseGeocodeIndexQueryOptions(
-  args: Parameters<typeof getApiReverseGeocodeIndex>[0],
-  clientOptions?: ClientRequestOptions,
+  args: MaybeRefOrGetter<InferRequestType<typeof client.api.reverseGeocode.index.$get>>,
+  options?: ClientRequestOptions,
 ) {
   return queryOptions({
     queryKey: getGetApiReverseGeocodeIndexQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
-      return getApiReverseGeocodeIndex(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
+      return getApiReverseGeocodeIndex(toValue(args), {
+        ...options,
+        init: { ...options?.init, signal },
       })
     },
   })
@@ -54,16 +59,66 @@ export function getGetApiReverseGeocodeIndexQueryOptions(
  * Reverse geocode lookup
  */
 export function useGetApiReverseGeocodeIndex(
-  args: Parameters<typeof getApiReverseGeocodeIndex>[0],
+  args: MaybeRefOrGetter<InferRequestType<typeof client.api.reverseGeocode.index.$get>>,
   options?: {
     query?: UseQueryOptions<Awaited<ReturnType<typeof getApiReverseGeocodeIndex>>, Error>
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
-  const { query: queryOpts, client: clientOptions } = options ?? {}
+  const { query: queryOptions, options: clientOptions } = options ?? {}
   return useQuery({
     ...getGetApiReverseGeocodeIndexQueryOptions(args, clientOptions),
-    ...queryOpts,
+    ...queryOptions,
+  })
+}
+
+/**
+ * Generates Vue Query infinite query cache key for GET /api/reverseGeocode/
+ * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
+ */
+export function getGetApiReverseGeocodeIndexInfiniteQueryKey(
+  args: MaybeRefOrGetter<InferRequestType<typeof client.api.reverseGeocode.index.$get>>,
+) {
+  return ['api', 'GET', '/api/reverseGeocode/', args, 'infinite'] as const
+}
+
+/**
+ * Returns Vue Query infinite query options for GET /api/reverseGeocode/
+ *
+ * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
+ * Requires initialPageParam and getNextPageParam to be provided separately.
+ */
+export function getGetApiReverseGeocodeIndexInfiniteQueryOptions(
+  args: MaybeRefOrGetter<InferRequestType<typeof client.api.reverseGeocode.index.$get>>,
+  options?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetApiReverseGeocodeIndexInfiniteQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getApiReverseGeocodeIndex(toValue(args), {
+        ...options,
+        init: { ...options?.init, signal },
+      })
+    },
+  }
+}
+
+/**
+ * GET /api/reverseGeocode/
+ *
+ * Reverse geocode lookup
+ */
+export function useInfiniteGetApiReverseGeocodeIndex(
+  args: MaybeRefOrGetter<InferRequestType<typeof client.api.reverseGeocode.index.$get>>,
+  options: {
+    query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getApiReverseGeocodeIndex>>, Error>
+    options?: ClientRequestOptions
+  },
+) {
+  const { query: queryOptions, options: clientOptions } = options
+  return useInfiniteQuery({
+    ...getGetApiReverseGeocodeIndexInfiniteQueryOptions(args, clientOptions),
+    ...queryOptions,
   })
 }
 
@@ -93,12 +148,16 @@ export async function postApiV2PublicBookingAccountRegisterOauthIndex(
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
 export function getPostApiV2PublicBookingAccountRegisterOauthIndexMutationOptions(
-  clientOptions?: ClientRequestOptions,
+  options?: ClientRequestOptions,
 ) {
   return {
     mutationKey: getPostApiV2PublicBookingAccountRegisterOauthIndexMutationKey(),
-    async mutationFn(args: Parameters<typeof postApiV2PublicBookingAccountRegisterOauthIndex>[0]) {
-      return postApiV2PublicBookingAccountRegisterOauthIndex(args, clientOptions)
+    async mutationFn(
+      args: InferRequestType<
+        typeof client.api.v2.public.booking.account.register.oauth.index.$post
+      >,
+    ) {
+      return postApiV2PublicBookingAccountRegisterOauthIndex(args, options)
     },
   }
 }
@@ -110,14 +169,14 @@ export function usePostApiV2PublicBookingAccountRegisterOauthIndex(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postApiV2PublicBookingAccountRegisterOauthIndex>>,
     Error,
-    Parameters<typeof postApiV2PublicBookingAccountRegisterOauthIndex>[0]
+    InferRequestType<typeof client.api.v2.public.booking.account.register.oauth.index.$post>
   >
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { mutation: mutationOpts, client: clientOptions } = options ?? {}
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   return useMutation({
     ...getPostApiV2PublicBookingAccountRegisterOauthIndexMutationOptions(clientOptions),
-    ...mutationOpts,
+    ...mutationOptions,
   })
 }
 
@@ -149,12 +208,14 @@ export async function postApiV2PublicBookingAccountRegisterEmail(
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
 export function getPostApiV2PublicBookingAccountRegisterEmailMutationOptions(
-  clientOptions?: ClientRequestOptions,
+  options?: ClientRequestOptions,
 ) {
   return {
     mutationKey: getPostApiV2PublicBookingAccountRegisterEmailMutationKey(),
-    async mutationFn(args: Parameters<typeof postApiV2PublicBookingAccountRegisterEmail>[0]) {
-      return postApiV2PublicBookingAccountRegisterEmail(args, clientOptions)
+    async mutationFn(
+      args: InferRequestType<typeof client.api.v2.public.booking.account.register.email.$post>,
+    ) {
+      return postApiV2PublicBookingAccountRegisterEmail(args, options)
     },
   }
 }
@@ -168,13 +229,13 @@ export function usePostApiV2PublicBookingAccountRegisterEmail(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postApiV2PublicBookingAccountRegisterEmail>>,
     Error,
-    Parameters<typeof postApiV2PublicBookingAccountRegisterEmail>[0]
+    InferRequestType<typeof client.api.v2.public.booking.account.register.email.$post>
   >
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { mutation: mutationOpts, client: clientOptions } = options ?? {}
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   return useMutation({
     ...getPostApiV2PublicBookingAccountRegisterEmailMutationOptions(clientOptions),
-    ...mutationOpts,
+    ...mutationOptions,
   })
 }

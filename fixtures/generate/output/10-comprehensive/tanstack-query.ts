@@ -1,7 +1,18 @@
-import { useQuery, useMutation, queryOptions, mutationOptions } from '@tanstack/react-query'
+import {
+  useQuery,
+  useSuspenseQuery,
+  useInfiniteQuery,
+  useSuspenseInfiniteQuery,
+  useMutation,
+  queryOptions,
+  mutationOptions,
+} from '@tanstack/react-query'
 import type {
   UseQueryOptions,
   QueryFunctionContext,
+  UseSuspenseQueryOptions,
+  UseInfiniteQueryOptions,
+  UseSuspenseInfiniteQueryOptions,
   UseMutationOptions,
 } from '@tanstack/react-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
@@ -12,7 +23,7 @@ import { client } from './client'
  * Generates TanStack Query cache key for GET /users
  * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetUsersQueryKey(args: Parameters<typeof getUsers>[0]) {
+export function getGetUsersQueryKey(args: InferRequestType<typeof client.users.$get>) {
   return ['users', 'GET', '/users', args] as const
 }
 
@@ -32,13 +43,13 @@ export async function getUsers(
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetUsersQueryOptions(
-  args: Parameters<typeof getUsers>[0],
-  clientOptions?: ClientRequestOptions,
+  args: InferRequestType<typeof client.users.$get>,
+  options?: ClientRequestOptions,
 ) {
   return queryOptions({
     queryKey: getGetUsersQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
-      return getUsers(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
+      return getUsers(args, { ...options, init: { ...options?.init, signal } })
     },
   })
 }
@@ -47,14 +58,88 @@ export function getGetUsersQueryOptions(
  * GET /users
  */
 export function useGetUsers(
-  args: Parameters<typeof getUsers>[0],
+  args: InferRequestType<typeof client.users.$get>,
   options?: {
     query?: UseQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
-  const { query: queryOpts, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetUsersQueryOptions(args, clientOptions), ...queryOpts })
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useQuery({ ...getGetUsersQueryOptions(args, clientOptions), ...queryOptions })
+}
+
+/**
+ * GET /users
+ */
+export function useSuspenseGetUsers(
+  args: InferRequestType<typeof client.users.$get>,
+  options?: {
+    query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
+    options?: ClientRequestOptions
+  },
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useSuspenseQuery({ ...getGetUsersQueryOptions(args, clientOptions), ...queryOptions })
+}
+
+/**
+ * Generates TanStack Query infinite query cache key for GET /users
+ * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
+ */
+export function getGetUsersInfiniteQueryKey(args: InferRequestType<typeof client.users.$get>) {
+  return ['users', 'GET', '/users', args, 'infinite'] as const
+}
+
+/**
+ * Returns TanStack Query infinite query options for GET /users
+ *
+ * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
+ * Requires initialPageParam and getNextPageParam to be provided separately.
+ */
+export function getGetUsersInfiniteQueryOptions(
+  args: InferRequestType<typeof client.users.$get>,
+  options?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetUsersInfiniteQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getUsers(args, { ...options, init: { ...options?.init, signal } })
+    },
+  }
+}
+
+/**
+ * GET /users
+ */
+export function useInfiniteGetUsers(
+  args: InferRequestType<typeof client.users.$get>,
+  options: {
+    query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
+    options?: ClientRequestOptions
+  },
+) {
+  const { query: queryOptions, options: clientOptions } = options
+  return useInfiniteQuery({
+    ...getGetUsersInfiniteQueryOptions(args, clientOptions),
+    ...queryOptions,
+  })
+}
+
+/**
+ * GET /users
+ */
+export function useSuspenseInfiniteGetUsers(
+  args: InferRequestType<typeof client.users.$get>,
+  options: {
+    query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
+    options?: ClientRequestOptions
+  },
+) {
+  const { query: queryOptions, options: clientOptions } = options
+  return useSuspenseInfiniteQuery({
+    ...getGetUsersInfiniteQueryOptions(args, clientOptions),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -80,11 +165,11 @@ export async function postUsers(
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export function getPostUsersMutationOptions(clientOptions?: ClientRequestOptions) {
+export function getPostUsersMutationOptions(options?: ClientRequestOptions) {
   return mutationOptions({
     mutationKey: getPostUsersMutationKey(),
-    async mutationFn(args: Parameters<typeof postUsers>[0]) {
-      return postUsers(args, clientOptions)
+    async mutationFn(args: InferRequestType<typeof client.users.$post>) {
+      return postUsers(args, options)
     },
   })
 }
@@ -96,19 +181,21 @@ export function usePostUsers(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postUsers>>,
     Error,
-    Parameters<typeof postUsers>[0]
+    InferRequestType<typeof client.users.$post>
   >
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { mutation: mutationOpts, client: clientOptions } = options ?? {}
-  return useMutation({ ...getPostUsersMutationOptions(clientOptions), ...mutationOpts })
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
+  return useMutation({ ...getPostUsersMutationOptions(clientOptions), ...mutationOptions })
 }
 
 /**
  * Generates TanStack Query cache key for GET /users/{userId}
  * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetUsersUserIdQueryKey(args: Parameters<typeof getUsersUserId>[0]) {
+export function getGetUsersUserIdQueryKey(
+  args: InferRequestType<(typeof client.users)[':userId']['$get']>,
+) {
   return ['users', 'GET', '/users/:userId', args] as const
 }
 
@@ -128,13 +215,13 @@ export async function getUsersUserId(
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetUsersUserIdQueryOptions(
-  args: Parameters<typeof getUsersUserId>[0],
-  clientOptions?: ClientRequestOptions,
+  args: InferRequestType<(typeof client.users)[':userId']['$get']>,
+  options?: ClientRequestOptions,
 ) {
   return queryOptions({
     queryKey: getGetUsersUserIdQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
-      return getUsersUserId(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
+      return getUsersUserId(args, { ...options, init: { ...options?.init, signal } })
     },
   })
 }
@@ -143,14 +230,93 @@ export function getGetUsersUserIdQueryOptions(
  * GET /users/{userId}
  */
 export function useGetUsersUserId(
-  args: Parameters<typeof getUsersUserId>[0],
+  args: InferRequestType<(typeof client.users)[':userId']['$get']>,
   options?: {
     query?: UseQueryOptions<Awaited<ReturnType<typeof getUsersUserId>>, Error>
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
-  const { query: queryOpts, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetUsersUserIdQueryOptions(args, clientOptions), ...queryOpts })
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useQuery({ ...getGetUsersUserIdQueryOptions(args, clientOptions), ...queryOptions })
+}
+
+/**
+ * GET /users/{userId}
+ */
+export function useSuspenseGetUsersUserId(
+  args: InferRequestType<(typeof client.users)[':userId']['$get']>,
+  options?: {
+    query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getUsersUserId>>, Error>
+    options?: ClientRequestOptions
+  },
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useSuspenseQuery({
+    ...getGetUsersUserIdQueryOptions(args, clientOptions),
+    ...queryOptions,
+  })
+}
+
+/**
+ * Generates TanStack Query infinite query cache key for GET /users/{userId}
+ * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
+ */
+export function getGetUsersUserIdInfiniteQueryKey(
+  args: InferRequestType<(typeof client.users)[':userId']['$get']>,
+) {
+  return ['users', 'GET', '/users/:userId', args, 'infinite'] as const
+}
+
+/**
+ * Returns TanStack Query infinite query options for GET /users/{userId}
+ *
+ * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
+ * Requires initialPageParam and getNextPageParam to be provided separately.
+ */
+export function getGetUsersUserIdInfiniteQueryOptions(
+  args: InferRequestType<(typeof client.users)[':userId']['$get']>,
+  options?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetUsersUserIdInfiniteQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getUsersUserId(args, { ...options, init: { ...options?.init, signal } })
+    },
+  }
+}
+
+/**
+ * GET /users/{userId}
+ */
+export function useInfiniteGetUsersUserId(
+  args: InferRequestType<(typeof client.users)[':userId']['$get']>,
+  options: {
+    query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsersUserId>>, Error>
+    options?: ClientRequestOptions
+  },
+) {
+  const { query: queryOptions, options: clientOptions } = options
+  return useInfiniteQuery({
+    ...getGetUsersUserIdInfiniteQueryOptions(args, clientOptions),
+    ...queryOptions,
+  })
+}
+
+/**
+ * GET /users/{userId}
+ */
+export function useSuspenseInfiniteGetUsersUserId(
+  args: InferRequestType<(typeof client.users)[':userId']['$get']>,
+  options: {
+    query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsersUserId>>, Error>
+    options?: ClientRequestOptions
+  },
+) {
+  const { query: queryOptions, options: clientOptions } = options
+  return useSuspenseInfiniteQuery({
+    ...getGetUsersUserIdInfiniteQueryOptions(args, clientOptions),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -176,11 +342,11 @@ export async function putUsersUserId(
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export function getPutUsersUserIdMutationOptions(clientOptions?: ClientRequestOptions) {
+export function getPutUsersUserIdMutationOptions(options?: ClientRequestOptions) {
   return mutationOptions({
     mutationKey: getPutUsersUserIdMutationKey(),
-    async mutationFn(args: Parameters<typeof putUsersUserId>[0]) {
-      return putUsersUserId(args, clientOptions)
+    async mutationFn(args: InferRequestType<(typeof client.users)[':userId']['$put']>) {
+      return putUsersUserId(args, options)
     },
   })
 }
@@ -192,12 +358,12 @@ export function usePutUsersUserId(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof putUsersUserId>>,
     Error,
-    Parameters<typeof putUsersUserId>[0]
+    InferRequestType<(typeof client.users)[':userId']['$put']>
   >
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { mutation: mutationOpts, client: clientOptions } = options ?? {}
-  return useMutation({ ...getPutUsersUserIdMutationOptions(clientOptions), ...mutationOpts })
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
+  return useMutation({ ...getPutUsersUserIdMutationOptions(clientOptions), ...mutationOptions })
 }
 
 /**
@@ -223,11 +389,11 @@ export async function deleteUsersUserId(
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export function getDeleteUsersUserIdMutationOptions(clientOptions?: ClientRequestOptions) {
+export function getDeleteUsersUserIdMutationOptions(options?: ClientRequestOptions) {
   return mutationOptions({
     mutationKey: getDeleteUsersUserIdMutationKey(),
-    async mutationFn(args: Parameters<typeof deleteUsersUserId>[0]) {
-      return deleteUsersUserId(args, clientOptions)
+    async mutationFn(args: InferRequestType<(typeof client.users)[':userId']['$delete']>) {
+      return deleteUsersUserId(args, options)
     },
   })
 }
@@ -239,19 +405,19 @@ export function useDeleteUsersUserId(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof deleteUsersUserId>> | undefined,
     Error,
-    Parameters<typeof deleteUsersUserId>[0]
+    InferRequestType<(typeof client.users)[':userId']['$delete']>
   >
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { mutation: mutationOpts, client: clientOptions } = options ?? {}
-  return useMutation({ ...getDeleteUsersUserIdMutationOptions(clientOptions), ...mutationOpts })
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
+  return useMutation({ ...getDeleteUsersUserIdMutationOptions(clientOptions), ...mutationOptions })
 }
 
 /**
  * Generates TanStack Query cache key for GET /products
  * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetProductsQueryKey(args: Parameters<typeof getProducts>[0]) {
+export function getGetProductsQueryKey(args: InferRequestType<typeof client.products.$get>) {
   return ['products', 'GET', '/products', args] as const
 }
 
@@ -271,13 +437,13 @@ export async function getProducts(
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetProductsQueryOptions(
-  args: Parameters<typeof getProducts>[0],
-  clientOptions?: ClientRequestOptions,
+  args: InferRequestType<typeof client.products.$get>,
+  options?: ClientRequestOptions,
 ) {
   return queryOptions({
     queryKey: getGetProductsQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
-      return getProducts(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
+      return getProducts(args, { ...options, init: { ...options?.init, signal } })
     },
   })
 }
@@ -286,14 +452,90 @@ export function getGetProductsQueryOptions(
  * GET /products
  */
 export function useGetProducts(
-  args: Parameters<typeof getProducts>[0],
+  args: InferRequestType<typeof client.products.$get>,
   options?: {
     query?: UseQueryOptions<Awaited<ReturnType<typeof getProducts>>, Error>
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
-  const { query: queryOpts, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetProductsQueryOptions(args, clientOptions), ...queryOpts })
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useQuery({ ...getGetProductsQueryOptions(args, clientOptions), ...queryOptions })
+}
+
+/**
+ * GET /products
+ */
+export function useSuspenseGetProducts(
+  args: InferRequestType<typeof client.products.$get>,
+  options?: {
+    query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getProducts>>, Error>
+    options?: ClientRequestOptions
+  },
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useSuspenseQuery({ ...getGetProductsQueryOptions(args, clientOptions), ...queryOptions })
+}
+
+/**
+ * Generates TanStack Query infinite query cache key for GET /products
+ * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
+ */
+export function getGetProductsInfiniteQueryKey(
+  args: InferRequestType<typeof client.products.$get>,
+) {
+  return ['products', 'GET', '/products', args, 'infinite'] as const
+}
+
+/**
+ * Returns TanStack Query infinite query options for GET /products
+ *
+ * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
+ * Requires initialPageParam and getNextPageParam to be provided separately.
+ */
+export function getGetProductsInfiniteQueryOptions(
+  args: InferRequestType<typeof client.products.$get>,
+  options?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetProductsInfiniteQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getProducts(args, { ...options, init: { ...options?.init, signal } })
+    },
+  }
+}
+
+/**
+ * GET /products
+ */
+export function useInfiniteGetProducts(
+  args: InferRequestType<typeof client.products.$get>,
+  options: {
+    query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getProducts>>, Error>
+    options?: ClientRequestOptions
+  },
+) {
+  const { query: queryOptions, options: clientOptions } = options
+  return useInfiniteQuery({
+    ...getGetProductsInfiniteQueryOptions(args, clientOptions),
+    ...queryOptions,
+  })
+}
+
+/**
+ * GET /products
+ */
+export function useSuspenseInfiniteGetProducts(
+  args: InferRequestType<typeof client.products.$get>,
+  options: {
+    query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getProducts>>, Error>
+    options?: ClientRequestOptions
+  },
+) {
+  const { query: queryOptions, options: clientOptions } = options
+  return useSuspenseInfiniteQuery({
+    ...getGetProductsInfiniteQueryOptions(args, clientOptions),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -319,11 +561,11 @@ export async function postProducts(
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export function getPostProductsMutationOptions(clientOptions?: ClientRequestOptions) {
+export function getPostProductsMutationOptions(options?: ClientRequestOptions) {
   return mutationOptions({
     mutationKey: getPostProductsMutationKey(),
-    async mutationFn(args: Parameters<typeof postProducts>[0]) {
-      return postProducts(args, clientOptions)
+    async mutationFn(args: InferRequestType<typeof client.products.$post>) {
+      return postProducts(args, options)
     },
   })
 }
@@ -335,19 +577,21 @@ export function usePostProducts(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postProducts>>,
     Error,
-    Parameters<typeof postProducts>[0]
+    InferRequestType<typeof client.products.$post>
   >
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { mutation: mutationOpts, client: clientOptions } = options ?? {}
-  return useMutation({ ...getPostProductsMutationOptions(clientOptions), ...mutationOpts })
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
+  return useMutation({ ...getPostProductsMutationOptions(clientOptions), ...mutationOptions })
 }
 
 /**
  * Generates TanStack Query cache key for GET /products/{productId}
  * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetProductsProductIdQueryKey(args: Parameters<typeof getProductsProductId>[0]) {
+export function getGetProductsProductIdQueryKey(
+  args: InferRequestType<(typeof client.products)[':productId']['$get']>,
+) {
   return ['products', 'GET', '/products/:productId', args] as const
 }
 
@@ -367,16 +611,13 @@ export async function getProductsProductId(
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetProductsProductIdQueryOptions(
-  args: Parameters<typeof getProductsProductId>[0],
-  clientOptions?: ClientRequestOptions,
+  args: InferRequestType<(typeof client.products)[':productId']['$get']>,
+  options?: ClientRequestOptions,
 ) {
   return queryOptions({
     queryKey: getGetProductsProductIdQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
-      return getProductsProductId(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      })
+      return getProductsProductId(args, { ...options, init: { ...options?.init, signal } })
     },
   })
 }
@@ -385,14 +626,93 @@ export function getGetProductsProductIdQueryOptions(
  * GET /products/{productId}
  */
 export function useGetProductsProductId(
-  args: Parameters<typeof getProductsProductId>[0],
+  args: InferRequestType<(typeof client.products)[':productId']['$get']>,
   options?: {
     query?: UseQueryOptions<Awaited<ReturnType<typeof getProductsProductId>>, Error>
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
-  const { query: queryOpts, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetProductsProductIdQueryOptions(args, clientOptions), ...queryOpts })
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useQuery({ ...getGetProductsProductIdQueryOptions(args, clientOptions), ...queryOptions })
+}
+
+/**
+ * GET /products/{productId}
+ */
+export function useSuspenseGetProductsProductId(
+  args: InferRequestType<(typeof client.products)[':productId']['$get']>,
+  options?: {
+    query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getProductsProductId>>, Error>
+    options?: ClientRequestOptions
+  },
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useSuspenseQuery({
+    ...getGetProductsProductIdQueryOptions(args, clientOptions),
+    ...queryOptions,
+  })
+}
+
+/**
+ * Generates TanStack Query infinite query cache key for GET /products/{productId}
+ * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
+ */
+export function getGetProductsProductIdInfiniteQueryKey(
+  args: InferRequestType<(typeof client.products)[':productId']['$get']>,
+) {
+  return ['products', 'GET', '/products/:productId', args, 'infinite'] as const
+}
+
+/**
+ * Returns TanStack Query infinite query options for GET /products/{productId}
+ *
+ * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
+ * Requires initialPageParam and getNextPageParam to be provided separately.
+ */
+export function getGetProductsProductIdInfiniteQueryOptions(
+  args: InferRequestType<(typeof client.products)[':productId']['$get']>,
+  options?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetProductsProductIdInfiniteQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getProductsProductId(args, { ...options, init: { ...options?.init, signal } })
+    },
+  }
+}
+
+/**
+ * GET /products/{productId}
+ */
+export function useInfiniteGetProductsProductId(
+  args: InferRequestType<(typeof client.products)[':productId']['$get']>,
+  options: {
+    query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getProductsProductId>>, Error>
+    options?: ClientRequestOptions
+  },
+) {
+  const { query: queryOptions, options: clientOptions } = options
+  return useInfiniteQuery({
+    ...getGetProductsProductIdInfiniteQueryOptions(args, clientOptions),
+    ...queryOptions,
+  })
+}
+
+/**
+ * GET /products/{productId}
+ */
+export function useSuspenseInfiniteGetProductsProductId(
+  args: InferRequestType<(typeof client.products)[':productId']['$get']>,
+  options: {
+    query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getProductsProductId>>, Error>
+    options?: ClientRequestOptions
+  },
+) {
+  const { query: queryOptions, options: clientOptions } = options
+  return useSuspenseInfiniteQuery({
+    ...getGetProductsProductIdInfiniteQueryOptions(args, clientOptions),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -418,11 +738,11 @@ export async function putProductsProductId(
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export function getPutProductsProductIdMutationOptions(clientOptions?: ClientRequestOptions) {
+export function getPutProductsProductIdMutationOptions(options?: ClientRequestOptions) {
   return mutationOptions({
     mutationKey: getPutProductsProductIdMutationKey(),
-    async mutationFn(args: Parameters<typeof putProductsProductId>[0]) {
-      return putProductsProductId(args, clientOptions)
+    async mutationFn(args: InferRequestType<(typeof client.products)[':productId']['$put']>) {
+      return putProductsProductId(args, options)
     },
   })
 }
@@ -434,12 +754,15 @@ export function usePutProductsProductId(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof putProductsProductId>>,
     Error,
-    Parameters<typeof putProductsProductId>[0]
+    InferRequestType<(typeof client.products)[':productId']['$put']>
   >
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { mutation: mutationOpts, client: clientOptions } = options ?? {}
-  return useMutation({ ...getPutProductsProductIdMutationOptions(clientOptions), ...mutationOpts })
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
+  return useMutation({
+    ...getPutProductsProductIdMutationOptions(clientOptions),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -447,7 +770,7 @@ export function usePutProductsProductId(options?: {
  * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetProductsProductIdReviewsQueryKey(
-  args: Parameters<typeof getProductsProductIdReviews>[0],
+  args: InferRequestType<(typeof client.products)[':productId']['reviews']['$get']>,
 ) {
   return ['products', 'GET', '/products/:productId/reviews', args] as const
 }
@@ -468,16 +791,13 @@ export async function getProductsProductIdReviews(
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetProductsProductIdReviewsQueryOptions(
-  args: Parameters<typeof getProductsProductIdReviews>[0],
-  clientOptions?: ClientRequestOptions,
+  args: InferRequestType<(typeof client.products)[':productId']['reviews']['$get']>,
+  options?: ClientRequestOptions,
 ) {
   return queryOptions({
     queryKey: getGetProductsProductIdReviewsQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
-      return getProductsProductIdReviews(args, {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      })
+      return getProductsProductIdReviews(args, { ...options, init: { ...options?.init, signal } })
     },
   })
 }
@@ -486,16 +806,98 @@ export function getGetProductsProductIdReviewsQueryOptions(
  * GET /products/{productId}/reviews
  */
 export function useGetProductsProductIdReviews(
-  args: Parameters<typeof getProductsProductIdReviews>[0],
+  args: InferRequestType<(typeof client.products)[':productId']['reviews']['$get']>,
   options?: {
     query?: UseQueryOptions<Awaited<ReturnType<typeof getProductsProductIdReviews>>, Error>
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
-  const { query: queryOpts, client: clientOptions } = options ?? {}
+  const { query: queryOptions, options: clientOptions } = options ?? {}
   return useQuery({
     ...getGetProductsProductIdReviewsQueryOptions(args, clientOptions),
-    ...queryOpts,
+    ...queryOptions,
+  })
+}
+
+/**
+ * GET /products/{productId}/reviews
+ */
+export function useSuspenseGetProductsProductIdReviews(
+  args: InferRequestType<(typeof client.products)[':productId']['reviews']['$get']>,
+  options?: {
+    query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getProductsProductIdReviews>>, Error>
+    options?: ClientRequestOptions
+  },
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useSuspenseQuery({
+    ...getGetProductsProductIdReviewsQueryOptions(args, clientOptions),
+    ...queryOptions,
+  })
+}
+
+/**
+ * Generates TanStack Query infinite query cache key for GET /products/{productId}/reviews
+ * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
+ */
+export function getGetProductsProductIdReviewsInfiniteQueryKey(
+  args: InferRequestType<(typeof client.products)[':productId']['reviews']['$get']>,
+) {
+  return ['products', 'GET', '/products/:productId/reviews', args, 'infinite'] as const
+}
+
+/**
+ * Returns TanStack Query infinite query options for GET /products/{productId}/reviews
+ *
+ * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
+ * Requires initialPageParam and getNextPageParam to be provided separately.
+ */
+export function getGetProductsProductIdReviewsInfiniteQueryOptions(
+  args: InferRequestType<(typeof client.products)[':productId']['reviews']['$get']>,
+  options?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetProductsProductIdReviewsInfiniteQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getProductsProductIdReviews(args, { ...options, init: { ...options?.init, signal } })
+    },
+  }
+}
+
+/**
+ * GET /products/{productId}/reviews
+ */
+export function useInfiniteGetProductsProductIdReviews(
+  args: InferRequestType<(typeof client.products)[':productId']['reviews']['$get']>,
+  options: {
+    query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getProductsProductIdReviews>>, Error>
+    options?: ClientRequestOptions
+  },
+) {
+  const { query: queryOptions, options: clientOptions } = options
+  return useInfiniteQuery({
+    ...getGetProductsProductIdReviewsInfiniteQueryOptions(args, clientOptions),
+    ...queryOptions,
+  })
+}
+
+/**
+ * GET /products/{productId}/reviews
+ */
+export function useSuspenseInfiniteGetProductsProductIdReviews(
+  args: InferRequestType<(typeof client.products)[':productId']['reviews']['$get']>,
+  options: {
+    query: UseSuspenseInfiniteQueryOptions<
+      Awaited<ReturnType<typeof getProductsProductIdReviews>>,
+      Error
+    >
+    options?: ClientRequestOptions
+  },
+) {
+  const { query: queryOptions, options: clientOptions } = options
+  return useSuspenseInfiniteQuery({
+    ...getGetProductsProductIdReviewsInfiniteQueryOptions(args, clientOptions),
+    ...queryOptions,
   })
 }
 
@@ -522,13 +924,13 @@ export async function postProductsProductIdReviews(
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export function getPostProductsProductIdReviewsMutationOptions(
-  clientOptions?: ClientRequestOptions,
-) {
+export function getPostProductsProductIdReviewsMutationOptions(options?: ClientRequestOptions) {
   return mutationOptions({
     mutationKey: getPostProductsProductIdReviewsMutationKey(),
-    async mutationFn(args: Parameters<typeof postProductsProductIdReviews>[0]) {
-      return postProductsProductIdReviews(args, clientOptions)
+    async mutationFn(
+      args: InferRequestType<(typeof client.products)[':productId']['reviews']['$post']>,
+    ) {
+      return postProductsProductIdReviews(args, options)
     },
   })
 }
@@ -540,14 +942,14 @@ export function usePostProductsProductIdReviews(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postProductsProductIdReviews>>,
     Error,
-    Parameters<typeof postProductsProductIdReviews>[0]
+    InferRequestType<(typeof client.products)[':productId']['reviews']['$post']>
   >
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { mutation: mutationOpts, client: clientOptions } = options ?? {}
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   return useMutation({
     ...getPostProductsProductIdReviewsMutationOptions(clientOptions),
-    ...mutationOpts,
+    ...mutationOptions,
   })
 }
 
@@ -555,7 +957,7 @@ export function usePostProductsProductIdReviews(options?: {
  * Generates TanStack Query cache key for GET /orders
  * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetOrdersQueryKey(args: Parameters<typeof getOrders>[0]) {
+export function getGetOrdersQueryKey(args: InferRequestType<typeof client.orders.$get>) {
   return ['orders', 'GET', '/orders', args] as const
 }
 
@@ -575,13 +977,13 @@ export async function getOrders(
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetOrdersQueryOptions(
-  args: Parameters<typeof getOrders>[0],
-  clientOptions?: ClientRequestOptions,
+  args: InferRequestType<typeof client.orders.$get>,
+  options?: ClientRequestOptions,
 ) {
   return queryOptions({
     queryKey: getGetOrdersQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
-      return getOrders(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
+      return getOrders(args, { ...options, init: { ...options?.init, signal } })
     },
   })
 }
@@ -590,14 +992,88 @@ export function getGetOrdersQueryOptions(
  * GET /orders
  */
 export function useGetOrders(
-  args: Parameters<typeof getOrders>[0],
+  args: InferRequestType<typeof client.orders.$get>,
   options?: {
     query?: UseQueryOptions<Awaited<ReturnType<typeof getOrders>>, Error>
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
-  const { query: queryOpts, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetOrdersQueryOptions(args, clientOptions), ...queryOpts })
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useQuery({ ...getGetOrdersQueryOptions(args, clientOptions), ...queryOptions })
+}
+
+/**
+ * GET /orders
+ */
+export function useSuspenseGetOrders(
+  args: InferRequestType<typeof client.orders.$get>,
+  options?: {
+    query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getOrders>>, Error>
+    options?: ClientRequestOptions
+  },
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useSuspenseQuery({ ...getGetOrdersQueryOptions(args, clientOptions), ...queryOptions })
+}
+
+/**
+ * Generates TanStack Query infinite query cache key for GET /orders
+ * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
+ */
+export function getGetOrdersInfiniteQueryKey(args: InferRequestType<typeof client.orders.$get>) {
+  return ['orders', 'GET', '/orders', args, 'infinite'] as const
+}
+
+/**
+ * Returns TanStack Query infinite query options for GET /orders
+ *
+ * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
+ * Requires initialPageParam and getNextPageParam to be provided separately.
+ */
+export function getGetOrdersInfiniteQueryOptions(
+  args: InferRequestType<typeof client.orders.$get>,
+  options?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetOrdersInfiniteQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getOrders(args, { ...options, init: { ...options?.init, signal } })
+    },
+  }
+}
+
+/**
+ * GET /orders
+ */
+export function useInfiniteGetOrders(
+  args: InferRequestType<typeof client.orders.$get>,
+  options: {
+    query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getOrders>>, Error>
+    options?: ClientRequestOptions
+  },
+) {
+  const { query: queryOptions, options: clientOptions } = options
+  return useInfiniteQuery({
+    ...getGetOrdersInfiniteQueryOptions(args, clientOptions),
+    ...queryOptions,
+  })
+}
+
+/**
+ * GET /orders
+ */
+export function useSuspenseInfiniteGetOrders(
+  args: InferRequestType<typeof client.orders.$get>,
+  options: {
+    query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getOrders>>, Error>
+    options?: ClientRequestOptions
+  },
+) {
+  const { query: queryOptions, options: clientOptions } = options
+  return useSuspenseInfiniteQuery({
+    ...getGetOrdersInfiniteQueryOptions(args, clientOptions),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -623,11 +1099,11 @@ export async function postOrders(
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export function getPostOrdersMutationOptions(clientOptions?: ClientRequestOptions) {
+export function getPostOrdersMutationOptions(options?: ClientRequestOptions) {
   return mutationOptions({
     mutationKey: getPostOrdersMutationKey(),
-    async mutationFn(args: Parameters<typeof postOrders>[0]) {
-      return postOrders(args, clientOptions)
+    async mutationFn(args: InferRequestType<typeof client.orders.$post>) {
+      return postOrders(args, options)
     },
   })
 }
@@ -639,19 +1115,21 @@ export function usePostOrders(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postOrders>>,
     Error,
-    Parameters<typeof postOrders>[0]
+    InferRequestType<typeof client.orders.$post>
   >
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { mutation: mutationOpts, client: clientOptions } = options ?? {}
-  return useMutation({ ...getPostOrdersMutationOptions(clientOptions), ...mutationOpts })
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
+  return useMutation({ ...getPostOrdersMutationOptions(clientOptions), ...mutationOptions })
 }
 
 /**
  * Generates TanStack Query cache key for GET /orders/{orderId}
  * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetOrdersOrderIdQueryKey(args: Parameters<typeof getOrdersOrderId>[0]) {
+export function getGetOrdersOrderIdQueryKey(
+  args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
+) {
   return ['orders', 'GET', '/orders/:orderId', args] as const
 }
 
@@ -671,13 +1149,13 @@ export async function getOrdersOrderId(
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetOrdersOrderIdQueryOptions(
-  args: Parameters<typeof getOrdersOrderId>[0],
-  clientOptions?: ClientRequestOptions,
+  args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
+  options?: ClientRequestOptions,
 ) {
   return queryOptions({
     queryKey: getGetOrdersOrderIdQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
-      return getOrdersOrderId(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
+      return getOrdersOrderId(args, { ...options, init: { ...options?.init, signal } })
     },
   })
 }
@@ -686,14 +1164,93 @@ export function getGetOrdersOrderIdQueryOptions(
  * GET /orders/{orderId}
  */
 export function useGetOrdersOrderId(
-  args: Parameters<typeof getOrdersOrderId>[0],
+  args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
   options?: {
     query?: UseQueryOptions<Awaited<ReturnType<typeof getOrdersOrderId>>, Error>
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
-  const { query: queryOpts, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetOrdersOrderIdQueryOptions(args, clientOptions), ...queryOpts })
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useQuery({ ...getGetOrdersOrderIdQueryOptions(args, clientOptions), ...queryOptions })
+}
+
+/**
+ * GET /orders/{orderId}
+ */
+export function useSuspenseGetOrdersOrderId(
+  args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
+  options?: {
+    query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getOrdersOrderId>>, Error>
+    options?: ClientRequestOptions
+  },
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useSuspenseQuery({
+    ...getGetOrdersOrderIdQueryOptions(args, clientOptions),
+    ...queryOptions,
+  })
+}
+
+/**
+ * Generates TanStack Query infinite query cache key for GET /orders/{orderId}
+ * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
+ */
+export function getGetOrdersOrderIdInfiniteQueryKey(
+  args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
+) {
+  return ['orders', 'GET', '/orders/:orderId', args, 'infinite'] as const
+}
+
+/**
+ * Returns TanStack Query infinite query options for GET /orders/{orderId}
+ *
+ * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
+ * Requires initialPageParam and getNextPageParam to be provided separately.
+ */
+export function getGetOrdersOrderIdInfiniteQueryOptions(
+  args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
+  options?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetOrdersOrderIdInfiniteQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getOrdersOrderId(args, { ...options, init: { ...options?.init, signal } })
+    },
+  }
+}
+
+/**
+ * GET /orders/{orderId}
+ */
+export function useInfiniteGetOrdersOrderId(
+  args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
+  options: {
+    query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getOrdersOrderId>>, Error>
+    options?: ClientRequestOptions
+  },
+) {
+  const { query: queryOptions, options: clientOptions } = options
+  return useInfiniteQuery({
+    ...getGetOrdersOrderIdInfiniteQueryOptions(args, clientOptions),
+    ...queryOptions,
+  })
+}
+
+/**
+ * GET /orders/{orderId}
+ */
+export function useSuspenseInfiniteGetOrdersOrderId(
+  args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
+  options: {
+    query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getOrdersOrderId>>, Error>
+    options?: ClientRequestOptions
+  },
+) {
+  const { query: queryOptions, options: clientOptions } = options
+  return useSuspenseInfiniteQuery({
+    ...getGetOrdersOrderIdInfiniteQueryOptions(args, clientOptions),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -716,11 +1273,11 @@ export async function getCategories(options?: ClientRequestOptions) {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetCategoriesQueryOptions(clientOptions?: ClientRequestOptions) {
+export function getGetCategoriesQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getGetCategoriesQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return getCategories({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+      return getCategories({ ...options, init: { ...options?.init, signal } })
     },
   })
 }
@@ -730,10 +1287,72 @@ export function getGetCategoriesQueryOptions(clientOptions?: ClientRequestOption
  */
 export function useGetCategories(options?: {
   query?: UseQueryOptions<Awaited<ReturnType<typeof getCategories>>, Error>
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { query: queryOpts, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetCategoriesQueryOptions(clientOptions), ...queryOpts })
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useQuery({ ...getGetCategoriesQueryOptions(clientOptions), ...queryOptions })
+}
+
+/**
+ * GET /categories
+ */
+export function useSuspenseGetCategories(options?: {
+  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getCategories>>, Error>
+  options?: ClientRequestOptions
+}) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useSuspenseQuery({ ...getGetCategoriesQueryOptions(clientOptions), ...queryOptions })
+}
+
+/**
+ * Generates TanStack Query infinite query cache key for GET /categories
+ * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ */
+export function getGetCategoriesInfiniteQueryKey() {
+  return ['categories', 'GET', '/categories', 'infinite'] as const
+}
+
+/**
+ * Returns TanStack Query infinite query options for GET /categories
+ *
+ * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
+ * Requires initialPageParam and getNextPageParam to be provided separately.
+ */
+export function getGetCategoriesInfiniteQueryOptions(options?: ClientRequestOptions) {
+  return {
+    queryKey: getGetCategoriesInfiniteQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getCategories({ ...options, init: { ...options?.init, signal } })
+    },
+  }
+}
+
+/**
+ * GET /categories
+ */
+export function useInfiniteGetCategories(options: {
+  query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getCategories>>, Error>
+  options?: ClientRequestOptions
+}) {
+  const { query: queryOptions, options: clientOptions } = options
+  return useInfiniteQuery({
+    ...getGetCategoriesInfiniteQueryOptions(clientOptions),
+    ...queryOptions,
+  })
+}
+
+/**
+ * GET /categories
+ */
+export function useSuspenseInfiniteGetCategories(options: {
+  query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getCategories>>, Error>
+  options?: ClientRequestOptions
+}) {
+  const { query: queryOptions, options: clientOptions } = options
+  return useSuspenseInfiniteQuery({
+    ...getGetCategoriesInfiniteQueryOptions(clientOptions),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -759,11 +1378,11 @@ export async function postUploadImage(
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export function getPostUploadImageMutationOptions(clientOptions?: ClientRequestOptions) {
+export function getPostUploadImageMutationOptions(options?: ClientRequestOptions) {
   return mutationOptions({
     mutationKey: getPostUploadImageMutationKey(),
-    async mutationFn(args: Parameters<typeof postUploadImage>[0]) {
-      return postUploadImage(args, clientOptions)
+    async mutationFn(args: InferRequestType<typeof client.upload.image.$post>) {
+      return postUploadImage(args, options)
     },
   })
 }
@@ -775,10 +1394,10 @@ export function usePostUploadImage(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postUploadImage>>,
     Error,
-    Parameters<typeof postUploadImage>[0]
+    InferRequestType<typeof client.upload.image.$post>
   >
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { mutation: mutationOpts, client: clientOptions } = options ?? {}
-  return useMutation({ ...getPostUploadImageMutationOptions(clientOptions), ...mutationOpts })
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
+  return useMutation({ ...getPostUploadImageMutationOptions(clientOptions), ...mutationOptions })
 }

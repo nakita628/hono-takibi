@@ -44,16 +44,19 @@ export const ServerErrorResponse = {
   content: { 'application/json': { schema: ErrorBodySchema } },
 } as const
 
-export const UserExample = {
+export const UserExampleExample = {
   summary: 'A sample user',
   value: { id: 'u-001', name: 'Alice', email: 'alice@example.com' },
 } as const
 
-export const UserAliasExample = UserExample
+export const UserAliasExample = UserExampleExample
 
-export const ItemExample = { summary: 'A sample item', value: { id: 1, title: 'Widget' } } as const
+export const ItemExampleExample = {
+  summary: 'A sample item',
+  value: { id: 1, title: 'Widget' },
+} as const
 
-export const ItemAliasExample = ItemExample
+export const ItemAliasExample = ItemExampleExample
 
 export const CreateUserRequestBody = {
   content: {

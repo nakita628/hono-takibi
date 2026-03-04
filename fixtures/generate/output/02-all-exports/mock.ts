@@ -8,13 +8,14 @@ const UserSchema = z
 
 const UserListSchema = z.array(UserSchema).openapi('UserList')
 
-const UserListResponse = {
+const UserListResponseResponse = {
   description: 'A list of users',
   content: { 'application/json': { schema: UserListSchema } },
 }
 
-const PageParamParamsSchema = z
-  .int()
+const PageParamParamsSchema = z.coerce
+  .number()
+  .pipe(z.int())
   .default(1)
   .exactOptional()
   .openapi({ param: { name: 'page', in: 'query', schema: { type: 'integer', default: 1 } } })
@@ -23,7 +24,7 @@ const UserIdParamParamsSchema = z
   .int()
   .openapi({ param: { name: 'id', in: 'path', required: true, schema: { type: 'integer' } } })
 
-const UserExample = {
+const UserExampleExample = {
   summary: 'Example user',
   value: { id: 1, name: 'Alice', email: 'alice@example.com' },
 }
@@ -46,7 +47,7 @@ const XRequestIdHeaderSchema = z
 
 const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' }
 
-const GetUserLink = {
+const GetUserLinkLink = {
   operationId: 'getUserById',
   parameters: { id: '$response.body#/id' },
   description: 'Get the created user',
@@ -76,7 +77,7 @@ export const getUsersRoute = createRoute({
   path: '/users',
   operationId: 'getUsers',
   request: { query: z.object({ page: PageParamParamsSchema }) },
-  responses: { 200: UserListResponse },
+  responses: { 200: UserListResponseResponse },
 })
 
 export const postUsersRoute = createRoute({
@@ -88,7 +89,7 @@ export const postUsersRoute = createRoute({
     201: {
       description: 'Created',
       content: { 'application/json': { schema: UserSchema } },
-      links: { GetUser: GetUserLink },
+      links: { GetUser: GetUserLinkLink },
     },
   },
 })

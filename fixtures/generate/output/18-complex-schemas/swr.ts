@@ -1,5 +1,8 @@
 import useSWR from 'swr'
+import useSWRImmutable from 'swr/immutable'
 import type { Key, SWRConfiguration } from 'swr'
+import useSWRInfinite from 'swr/infinite'
+import type { SWRInfiniteConfiguration, SWRInfiniteKeyLoader } from 'swr/infinite'
 import useSWRMutation from 'swr/mutation'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
@@ -36,18 +39,18 @@ export function usePostExpressions(options?: {
     Awaited<ReturnType<typeof postExpressions>>,
     Error,
     Key,
-    Parameters<typeof postExpressions>[0]
+    InferRequestType<typeof client.expressions.$post>
   > & { swrKey?: Key }
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey = customKey ?? getPostExpressionsMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
-      async (_: Key, { arg }: { arg: Parameters<typeof postExpressions>[0] }) =>
+      async (_: Key, { arg }: { arg: InferRequestType<typeof client.expressions.$post> }) =>
         postExpressions(arg, clientOptions),
       restMutationOptions,
     ),
@@ -84,18 +87,18 @@ export function usePostShapes(options?: {
     Awaited<ReturnType<typeof postShapes>>,
     Error,
     Key,
-    Parameters<typeof postShapes>[0]
+    InferRequestType<typeof client.shapes.$post>
   > & { swrKey?: Key }
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey = customKey ?? getPostShapesMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
-      async (_: Key, { arg }: { arg: Parameters<typeof postShapes>[0] }) =>
+      async (_: Key, { arg }: { arg: InferRequestType<typeof client.shapes.$post> }) =>
         postShapes(arg, clientOptions),
       restMutationOptions,
     ),
@@ -132,18 +135,18 @@ export function usePostDocuments(options?: {
     Awaited<ReturnType<typeof postDocuments>>,
     Error,
     Key,
-    Parameters<typeof postDocuments>[0]
+    InferRequestType<typeof client.documents.$post>
   > & { swrKey?: Key }
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey = customKey ?? getPostDocumentsMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
-      async (_: Key, { arg }: { arg: Parameters<typeof postDocuments>[0] }) =>
+      async (_: Key, { arg }: { arg: InferRequestType<typeof client.documents.$post> }) =>
         postDocuments(arg, clientOptions),
       restMutationOptions,
     ),
@@ -180,18 +183,18 @@ export function usePostConfigs(options?: {
     Awaited<ReturnType<typeof postConfigs>>,
     Error,
     Key,
-    Parameters<typeof postConfigs>[0]
+    InferRequestType<typeof client.configs.$post>
   > & { swrKey?: Key }
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey = customKey ?? getPostConfigsMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
-      async (_: Key, { arg }: { arg: Parameters<typeof postConfigs>[0] }) =>
+      async (_: Key, { arg }: { arg: InferRequestType<typeof client.configs.$post> }) =>
         postConfigs(arg, clientOptions),
       restMutationOptions,
     ),
@@ -222,13 +225,56 @@ export async function getNullableUnion(options?: ClientRequestOptions) {
  */
 export function useGetNullableUnion(options?: {
   swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
-  const isEnabled = enabled !== false
-  const swrKey = isEnabled ? (customKey ?? getGetNullableUnionKey()) : null
+  const swrKey = enabled !== false ? (customKey ?? getGetNullableUnionKey()) : null
   return { swrKey, ...useSWR(swrKey, async () => getNullableUnion(clientOptions), restSwrOptions) }
+}
+
+/**
+ * GET /nullable-union
+ *
+ * Nullable anyOf with mixed types
+ */
+export function useImmutableGetNullableUnion(options?: {
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
+  options?: ClientRequestOptions
+}) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const swrKey = enabled !== false ? (customKey ?? getGetNullableUnionKey()) : null
+  return {
+    swrKey,
+    ...useSWRImmutable(swrKey, async () => getNullableUnion(clientOptions), restSwrOptions),
+  }
+}
+
+/**
+ * Generates SWR infinite query cache key for GET /nullable-union
+ * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ */
+export function getGetNullableUnionInfiniteKey() {
+  return ['nullable-union', 'GET', '/nullable-union', 'infinite'] as const
+}
+
+/**
+ * GET /nullable-union
+ *
+ * Nullable anyOf with mixed types
+ */
+export function useInfiniteGetNullableUnion(options: {
+  swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getNullableUnion>>, Error> & {
+    swrKey?: SWRInfiniteKeyLoader
+  }
+  options?: ClientRequestOptions
+}) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
+  const keyLoader =
+    customKeyLoader ?? ((index: number) => [...getGetNullableUnionInfiniteKey(), index] as const)
+  return useSWRInfinite(keyLoader, async () => getNullableUnion(clientOptions), restSwrOptions)
 }
 
 /**
@@ -255,11 +301,54 @@ export async function getNestedCircular(options?: ClientRequestOptions) {
  */
 export function useGetNestedCircular(options?: {
   swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
-  const isEnabled = enabled !== false
-  const swrKey = isEnabled ? (customKey ?? getGetNestedCircularKey()) : null
+  const swrKey = enabled !== false ? (customKey ?? getGetNestedCircularKey()) : null
   return { swrKey, ...useSWR(swrKey, async () => getNestedCircular(clientOptions), restSwrOptions) }
+}
+
+/**
+ * GET /nested-circular
+ *
+ * Circular reference through allOf
+ */
+export function useImmutableGetNestedCircular(options?: {
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
+  options?: ClientRequestOptions
+}) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const swrKey = enabled !== false ? (customKey ?? getGetNestedCircularKey()) : null
+  return {
+    swrKey,
+    ...useSWRImmutable(swrKey, async () => getNestedCircular(clientOptions), restSwrOptions),
+  }
+}
+
+/**
+ * Generates SWR infinite query cache key for GET /nested-circular
+ * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ */
+export function getGetNestedCircularInfiniteKey() {
+  return ['nested-circular', 'GET', '/nested-circular', 'infinite'] as const
+}
+
+/**
+ * GET /nested-circular
+ *
+ * Circular reference through allOf
+ */
+export function useInfiniteGetNestedCircular(options: {
+  swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getNestedCircular>>, Error> & {
+    swrKey?: SWRInfiniteKeyLoader
+  }
+  options?: ClientRequestOptions
+}) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
+  const keyLoader =
+    customKeyLoader ?? ((index: number) => [...getGetNestedCircularInfiniteKey(), index] as const)
+  return useSWRInfinite(keyLoader, async () => getNestedCircular(clientOptions), restSwrOptions)
 }

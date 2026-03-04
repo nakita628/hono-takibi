@@ -1,7 +1,13 @@
-import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
+import {
+  createQuery,
+  createInfiniteQuery,
+  createMutation,
+  queryOptions,
+} from '@tanstack/svelte-query'
 import type {
   CreateQueryOptions,
   QueryFunctionContext,
+  CreateInfiniteQueryOptions,
   CreateMutationOptions,
 } from '@tanstack/svelte-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
@@ -28,11 +34,11 @@ export async function getTags(options?: ClientRequestOptions) {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetTagsQueryOptions(clientOptions?: ClientRequestOptions) {
+export function getGetTagsQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getGetTagsQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return getTags({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+      return getTags({ ...options, init: { ...options?.init, signal } })
     },
   })
 }
@@ -43,12 +49,50 @@ export function getGetTagsQueryOptions(clientOptions?: ClientRequestOptions) {
 export function createGetTags(
   options?: () => {
     query?: CreateQueryOptions<Awaited<ReturnType<typeof getTags>>, Error>
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
   return createQuery(() => {
-    const opts = options?.()
-    return { ...getGetTagsQueryOptions(opts?.client), ...opts?.query }
+    const { query, options: clientOptions } = options?.() ?? {}
+    return { ...getGetTagsQueryOptions(clientOptions), ...query }
+  })
+}
+
+/**
+ * Generates Svelte Query infinite query cache key for GET /tags
+ * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ */
+export function getGetTagsInfiniteQueryKey() {
+  return ['tags', 'GET', '/tags', 'infinite'] as const
+}
+
+/**
+ * Returns Svelte Query infinite query options for GET /tags
+ *
+ * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
+ * Requires initialPageParam and getNextPageParam to be provided separately.
+ */
+export function getGetTagsInfiniteQueryOptions(options?: ClientRequestOptions) {
+  return {
+    queryKey: getGetTagsInfiniteQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getTags({ ...options, init: { ...options?.init, signal } })
+    },
+  }
+}
+
+/**
+ * GET /tags
+ */
+export function createInfiniteGetTags(
+  options: () => {
+    query: CreateInfiniteQueryOptions<Awaited<ReturnType<typeof getTags>>, Error>
+    options?: ClientRequestOptions
+  },
+) {
+  return createInfiniteQuery(() => {
+    const { query, options: clientOptions } = options()
+    return { ...getGetTagsInfiniteQueryOptions(clientOptions), ...query }
   })
 }
 
@@ -75,11 +119,11 @@ export async function postTags(
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export function getPostTagsMutationOptions(clientOptions?: ClientRequestOptions) {
+export function getPostTagsMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: getPostTagsMutationKey(),
-    async mutationFn(args: Parameters<typeof postTags>[0]) {
-      return postTags(args, clientOptions)
+    async mutationFn(args: InferRequestType<typeof client.tags.$post>) {
+      return postTags(args, options)
     },
   }
 }
@@ -92,14 +136,14 @@ export function createPostTags(
     mutation?: CreateMutationOptions<
       Awaited<ReturnType<typeof postTags>>,
       Error,
-      Parameters<typeof postTags>[0]
+      InferRequestType<typeof client.tags.$post>
     >
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
   return createMutation(() => {
-    const opts = options?.()
-    return { ...getPostTagsMutationOptions(opts?.client), ...opts?.mutation }
+    const { mutation, options: clientOptions } = options?.() ?? {}
+    return { ...getPostTagsMutationOptions(clientOptions), ...mutation }
   })
 }
 
@@ -107,7 +151,7 @@ export function createPostTags(
  * Generates Svelte Query cache key for GET /settings
  * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetSettingsQueryKey(args: Parameters<typeof getSettings>[0]) {
+export function getGetSettingsQueryKey(args: InferRequestType<typeof client.settings.$get>) {
   return ['settings', 'GET', '/settings', args] as const
 }
 
@@ -127,13 +171,13 @@ export async function getSettings(
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
 export function getGetSettingsQueryOptions(
-  args: Parameters<typeof getSettings>[0],
-  clientOptions?: ClientRequestOptions,
+  args: InferRequestType<typeof client.settings.$get>,
+  options?: ClientRequestOptions,
 ) {
   return queryOptions({
     queryKey: getGetSettingsQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
-      return getSettings(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
+      return getSettings(args, { ...options, init: { ...options?.init, signal } })
     },
   })
 }
@@ -142,15 +186,59 @@ export function getGetSettingsQueryOptions(
  * GET /settings
  */
 export function createGetSettings(
-  args: Parameters<typeof getSettings>[0],
+  args: () => InferRequestType<typeof client.settings.$get>,
   options?: () => {
     query?: CreateQueryOptions<Awaited<ReturnType<typeof getSettings>>, Error>
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
   return createQuery(() => {
-    const opts = options?.()
-    return { ...getGetSettingsQueryOptions(args, opts?.client), ...opts?.query }
+    const { query, options: clientOptions } = options?.() ?? {}
+    return { ...getGetSettingsQueryOptions(args(), clientOptions), ...query }
+  })
+}
+
+/**
+ * Generates Svelte Query infinite query cache key for GET /settings
+ * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
+ */
+export function getGetSettingsInfiniteQueryKey(
+  args: InferRequestType<typeof client.settings.$get>,
+) {
+  return ['settings', 'GET', '/settings', args, 'infinite'] as const
+}
+
+/**
+ * Returns Svelte Query infinite query options for GET /settings
+ *
+ * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
+ * Requires initialPageParam and getNextPageParam to be provided separately.
+ */
+export function getGetSettingsInfiniteQueryOptions(
+  args: InferRequestType<typeof client.settings.$get>,
+  options?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetSettingsInfiniteQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getSettings(args, { ...options, init: { ...options?.init, signal } })
+    },
+  }
+}
+
+/**
+ * GET /settings
+ */
+export function createInfiniteGetSettings(
+  args: () => InferRequestType<typeof client.settings.$get>,
+  options: () => {
+    query: CreateInfiniteQueryOptions<Awaited<ReturnType<typeof getSettings>>, Error>
+    options?: ClientRequestOptions
+  },
+) {
+  return createInfiniteQuery(() => {
+    const { query, options: clientOptions } = options()
+    return { ...getGetSettingsInfiniteQueryOptions(args(), clientOptions), ...query }
   })
 }
 
@@ -177,11 +265,11 @@ export async function putSettings(
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export function getPutSettingsMutationOptions(clientOptions?: ClientRequestOptions) {
+export function getPutSettingsMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: getPutSettingsMutationKey(),
-    async mutationFn(args: Parameters<typeof putSettings>[0]) {
-      return putSettings(args, clientOptions)
+    async mutationFn(args: InferRequestType<typeof client.settings.$put>) {
+      return putSettings(args, options)
     },
   }
 }
@@ -194,14 +282,14 @@ export function createPutSettings(
     mutation?: CreateMutationOptions<
       Awaited<ReturnType<typeof putSettings>>,
       Error,
-      Parameters<typeof putSettings>[0]
+      InferRequestType<typeof client.settings.$put>
     >
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
   return createMutation(() => {
-    const opts = options?.()
-    return { ...getPutSettingsMutationOptions(opts?.client), ...opts?.mutation }
+    const { mutation, options: clientOptions } = options?.() ?? {}
+    return { ...getPutSettingsMutationOptions(clientOptions), ...mutation }
   })
 }
 
@@ -228,11 +316,11 @@ export async function postConfig(
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export function getPostConfigMutationOptions(clientOptions?: ClientRequestOptions) {
+export function getPostConfigMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: getPostConfigMutationKey(),
-    async mutationFn(args: Parameters<typeof postConfig>[0]) {
-      return postConfig(args, clientOptions)
+    async mutationFn(args: InferRequestType<typeof client.config.$post>) {
+      return postConfig(args, options)
     },
   }
 }
@@ -245,14 +333,14 @@ export function createPostConfig(
     mutation?: CreateMutationOptions<
       Awaited<ReturnType<typeof postConfig>>,
       Error,
-      Parameters<typeof postConfig>[0]
+      InferRequestType<typeof client.config.$post>
     >
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
   return createMutation(() => {
-    const opts = options?.()
-    return { ...getPostConfigMutationOptions(opts?.client), ...opts?.mutation }
+    const { mutation, options: clientOptions } = options?.() ?? {}
+    return { ...getPostConfigMutationOptions(clientOptions), ...mutation }
   })
 }
 
@@ -279,11 +367,11 @@ export async function postPayment(
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export function getPostPaymentMutationOptions(clientOptions?: ClientRequestOptions) {
+export function getPostPaymentMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: getPostPaymentMutationKey(),
-    async mutationFn(args: Parameters<typeof postPayment>[0]) {
-      return postPayment(args, clientOptions)
+    async mutationFn(args: InferRequestType<typeof client.payment.$post>) {
+      return postPayment(args, options)
     },
   }
 }
@@ -296,13 +384,13 @@ export function createPostPayment(
     mutation?: CreateMutationOptions<
       Awaited<ReturnType<typeof postPayment>>,
       Error,
-      Parameters<typeof postPayment>[0]
+      InferRequestType<typeof client.payment.$post>
     >
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
   return createMutation(() => {
-    const opts = options?.()
-    return { ...getPostPaymentMutationOptions(opts?.client), ...opts?.mutation }
+    const { mutation, options: clientOptions } = options?.() ?? {}
+    return { ...getPostPaymentMutationOptions(clientOptions), ...mutation }
   })
 }

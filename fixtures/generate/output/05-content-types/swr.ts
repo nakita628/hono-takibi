@@ -31,18 +31,18 @@ export function usePostJson(options?: {
     Awaited<ReturnType<typeof postJson>>,
     Error,
     Key,
-    Parameters<typeof postJson>[0]
+    InferRequestType<typeof client.json.$post>
   > & { swrKey?: Key }
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey = customKey ?? getPostJsonMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
-      async (_: Key, { arg }: { arg: Parameters<typeof postJson>[0] }) =>
+      async (_: Key, { arg }: { arg: InferRequestType<typeof client.json.$post> }) =>
         postJson(arg, clientOptions),
       restMutationOptions,
     ),
@@ -75,18 +75,18 @@ export function usePostForm(options?: {
     Awaited<ReturnType<typeof postForm>>,
     Error,
     Key,
-    Parameters<typeof postForm>[0]
+    InferRequestType<typeof client.form.$post>
   > & { swrKey?: Key }
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey = customKey ?? getPostFormMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
-      async (_: Key, { arg }: { arg: Parameters<typeof postForm>[0] }) =>
+      async (_: Key, { arg }: { arg: InferRequestType<typeof client.form.$post> }) =>
         postForm(arg, clientOptions),
       restMutationOptions,
     ),
@@ -119,18 +119,18 @@ export function usePostUpload(options?: {
     Awaited<ReturnType<typeof postUpload>>,
     Error,
     Key,
-    Parameters<typeof postUpload>[0]
+    InferRequestType<typeof client.upload.$post>
   > & { swrKey?: Key }
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey = customKey ?? getPostUploadMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
-      async (_: Key, { arg }: { arg: Parameters<typeof postUpload>[0] }) =>
+      async (_: Key, { arg }: { arg: InferRequestType<typeof client.upload.$post> }) =>
         postUpload(arg, clientOptions),
       restMutationOptions,
     ),
@@ -163,18 +163,18 @@ export function usePostText(options?: {
     Awaited<ReturnType<typeof postText>>,
     Error,
     Key,
-    Parameters<typeof postText>[0]
+    InferRequestType<typeof client.text.$post>
   > & { swrKey?: Key }
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey = customKey ?? getPostTextMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
-      async (_: Key, { arg }: { arg: Parameters<typeof postText>[0] }) =>
+      async (_: Key, { arg }: { arg: InferRequestType<typeof client.text.$post> }) =>
         postText(arg, clientOptions),
       restMutationOptions,
     ),
@@ -207,19 +207,21 @@ export function usePostMultiContent(options?: {
     Awaited<ReturnType<typeof postMultiContent>>,
     Error,
     Key,
-    Parameters<typeof postMultiContent>[0]
+    InferRequestType<(typeof client)['multi-content']['$post']>
   > & { swrKey?: Key }
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey = customKey ?? getPostMultiContentMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
-      async (_: Key, { arg }: { arg: Parameters<typeof postMultiContent>[0] }) =>
-        postMultiContent(arg, clientOptions),
+      async (
+        _: Key,
+        { arg }: { arg: InferRequestType<(typeof client)['multi-content']['$post']> },
+      ) => postMultiContent(arg, clientOptions),
       restMutationOptions,
     ),
   }

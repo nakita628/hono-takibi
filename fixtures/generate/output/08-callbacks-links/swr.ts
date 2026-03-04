@@ -1,5 +1,8 @@
 import useSWR from 'swr'
+import useSWRImmutable from 'swr/immutable'
 import type { Key, SWRConfiguration } from 'swr'
+import useSWRInfinite from 'swr/infinite'
+import type { SWRInfiniteConfiguration, SWRInfiniteKeyLoader } from 'swr/infinite'
 import useSWRMutation from 'swr/mutation'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
@@ -32,18 +35,18 @@ export function usePostSubscriptions(options?: {
     Awaited<ReturnType<typeof postSubscriptions>>,
     Error,
     Key,
-    Parameters<typeof postSubscriptions>[0]
+    InferRequestType<typeof client.subscriptions.$post>
   > & { swrKey?: Key }
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey = customKey ?? getPostSubscriptionsMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
-      async (_: Key, { arg }: { arg: Parameters<typeof postSubscriptions>[0] }) =>
+      async (_: Key, { arg }: { arg: InferRequestType<typeof client.subscriptions.$post> }) =>
         postSubscriptions(arg, clientOptions),
       restMutationOptions,
     ),
@@ -54,7 +57,9 @@ export function usePostSubscriptions(options?: {
  * Generates SWR cache key for GET /subscriptions/{id}
  * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function getGetSubscriptionsIdKey(args: Parameters<typeof getSubscriptionsId>[0]) {
+export function getGetSubscriptionsIdKey(
+  args: InferRequestType<(typeof client.subscriptions)[':id']['$get']>,
+) {
   return ['subscriptions', 'GET', '/subscriptions/:id', args] as const
 }
 
@@ -72,20 +77,72 @@ export async function getSubscriptionsId(
  * GET /subscriptions/{id}
  */
 export function useGetSubscriptionsId(
-  args: Parameters<typeof getSubscriptionsId>[0],
+  args: InferRequestType<(typeof client.subscriptions)[':id']['$get']>,
   options?: {
     swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
-  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
-  const isEnabled = enabled !== false
-  const swrKey = isEnabled ? (customKey ?? getGetSubscriptionsIdKey(args)) : null
+  const swrKey = enabled !== false ? (customKey ?? getGetSubscriptionsIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(swrKey, async () => getSubscriptionsId(args, clientOptions), restSwrOptions),
   }
+}
+
+/**
+ * GET /subscriptions/{id}
+ */
+export function useImmutableGetSubscriptionsId(
+  args: InferRequestType<(typeof client.subscriptions)[':id']['$get']>,
+  options?: {
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
+    options?: ClientRequestOptions
+  },
+) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const swrKey = enabled !== false ? (customKey ?? getGetSubscriptionsIdKey(args)) : null
+  return {
+    swrKey,
+    ...useSWRImmutable(swrKey, async () => getSubscriptionsId(args, clientOptions), restSwrOptions),
+  }
+}
+
+/**
+ * Generates SWR infinite query cache key for GET /subscriptions/{id}
+ * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
+ */
+export function getGetSubscriptionsIdInfiniteKey(
+  args: InferRequestType<(typeof client.subscriptions)[':id']['$get']>,
+) {
+  return ['subscriptions', 'GET', '/subscriptions/:id', args, 'infinite'] as const
+}
+
+/**
+ * GET /subscriptions/{id}
+ */
+export function useInfiniteGetSubscriptionsId(
+  args: InferRequestType<(typeof client.subscriptions)[':id']['$get']>,
+  options: {
+    swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getSubscriptionsId>>, Error> & {
+      swrKey?: SWRInfiniteKeyLoader
+    }
+    options?: ClientRequestOptions
+  },
+) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
+  const keyLoader =
+    customKeyLoader ??
+    ((index: number) => [...getGetSubscriptionsIdInfiniteKey(args), index] as const)
+  return useSWRInfinite(
+    keyLoader,
+    async () => getSubscriptionsId(args, clientOptions),
+    restSwrOptions,
+  )
 }
 
 /**
@@ -114,19 +171,21 @@ export function useDeleteSubscriptionsId(options?: {
     Awaited<ReturnType<typeof deleteSubscriptionsId>> | undefined,
     Error,
     Key,
-    Parameters<typeof deleteSubscriptionsId>[0]
+    InferRequestType<(typeof client.subscriptions)[':id']['$delete']>
   > & { swrKey?: Key }
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey = customKey ?? getDeleteSubscriptionsIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
-      async (_: Key, { arg }: { arg: Parameters<typeof deleteSubscriptionsId>[0] }) =>
-        deleteSubscriptionsId(arg, clientOptions),
+      async (
+        _: Key,
+        { arg }: { arg: InferRequestType<(typeof client.subscriptions)[':id']['$delete']> },
+      ) => deleteSubscriptionsId(arg, clientOptions),
       restMutationOptions,
     ),
   }
@@ -158,18 +217,18 @@ export function usePostWebhooksTest(options?: {
     Awaited<ReturnType<typeof postWebhooksTest>>,
     Error,
     Key,
-    Parameters<typeof postWebhooksTest>[0]
+    InferRequestType<typeof client.webhooks.test.$post>
   > & { swrKey?: Key }
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey = customKey ?? getPostWebhooksTestMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
-      async (_: Key, { arg }: { arg: Parameters<typeof postWebhooksTest>[0] }) =>
+      async (_: Key, { arg }: { arg: InferRequestType<typeof client.webhooks.test.$post> }) =>
         postWebhooksTest(arg, clientOptions),
       restMutationOptions,
     ),

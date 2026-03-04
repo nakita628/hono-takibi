@@ -1,5 +1,9 @@
-import { useQuery, queryOptions } from '@tanstack/vue-query'
-import type { UseQueryOptions, QueryFunctionContext } from '@tanstack/vue-query'
+import { useQuery, useInfiniteQuery, queryOptions } from '@tanstack/vue-query'
+import type {
+  UseQueryOptions,
+  QueryFunctionContext,
+  UseInfiniteQueryOptions,
+} from '@tanstack/vue-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
@@ -24,11 +28,11 @@ export async function getPublic(options?: ClientRequestOptions) {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetPublicQueryOptions(clientOptions?: ClientRequestOptions) {
+export function getGetPublicQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getGetPublicQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return getPublic({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+      return getPublic({ ...options, init: { ...options?.init, signal } })
     },
   })
 }
@@ -38,10 +42,44 @@ export function getGetPublicQueryOptions(clientOptions?: ClientRequestOptions) {
  */
 export function useGetPublic(options?: {
   query?: UseQueryOptions<Awaited<ReturnType<typeof getPublic>>, Error>
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { query: queryOpts, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetPublicQueryOptions(clientOptions), ...queryOpts })
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useQuery({ ...getGetPublicQueryOptions(clientOptions), ...queryOptions })
+}
+
+/**
+ * Generates Vue Query infinite query cache key for GET /public
+ * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ */
+export function getGetPublicInfiniteQueryKey() {
+  return ['public', 'GET', '/public', 'infinite'] as const
+}
+
+/**
+ * Returns Vue Query infinite query options for GET /public
+ *
+ * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
+ * Requires initialPageParam and getNextPageParam to be provided separately.
+ */
+export function getGetPublicInfiniteQueryOptions(options?: ClientRequestOptions) {
+  return {
+    queryKey: getGetPublicInfiniteQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getPublic({ ...options, init: { ...options?.init, signal } })
+    },
+  }
+}
+
+/**
+ * GET /public
+ */
+export function useInfiniteGetPublic(options: {
+  query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getPublic>>, Error>
+  options?: ClientRequestOptions
+}) {
+  const { query: queryOptions, options: clientOptions } = options
+  return useInfiniteQuery({ ...getGetPublicInfiniteQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -64,11 +102,11 @@ export async function getBearerProtected(options?: ClientRequestOptions) {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetBearerProtectedQueryOptions(clientOptions?: ClientRequestOptions) {
+export function getGetBearerProtectedQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getGetBearerProtectedQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return getBearerProtected({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+      return getBearerProtected({ ...options, init: { ...options?.init, signal } })
     },
   })
 }
@@ -78,10 +116,47 @@ export function getGetBearerProtectedQueryOptions(clientOptions?: ClientRequestO
  */
 export function useGetBearerProtected(options?: {
   query?: UseQueryOptions<Awaited<ReturnType<typeof getBearerProtected>>, Error>
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { query: queryOpts, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetBearerProtectedQueryOptions(clientOptions), ...queryOpts })
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useQuery({ ...getGetBearerProtectedQueryOptions(clientOptions), ...queryOptions })
+}
+
+/**
+ * Generates Vue Query infinite query cache key for GET /bearer-protected
+ * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ */
+export function getGetBearerProtectedInfiniteQueryKey() {
+  return ['bearer-protected', 'GET', '/bearer-protected', 'infinite'] as const
+}
+
+/**
+ * Returns Vue Query infinite query options for GET /bearer-protected
+ *
+ * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
+ * Requires initialPageParam and getNextPageParam to be provided separately.
+ */
+export function getGetBearerProtectedInfiniteQueryOptions(options?: ClientRequestOptions) {
+  return {
+    queryKey: getGetBearerProtectedInfiniteQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getBearerProtected({ ...options, init: { ...options?.init, signal } })
+    },
+  }
+}
+
+/**
+ * GET /bearer-protected
+ */
+export function useInfiniteGetBearerProtected(options: {
+  query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getBearerProtected>>, Error>
+  options?: ClientRequestOptions
+}) {
+  const { query: queryOptions, options: clientOptions } = options
+  return useInfiniteQuery({
+    ...getGetBearerProtectedInfiniteQueryOptions(clientOptions),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -104,11 +179,11 @@ export async function getApiKeyProtected(options?: ClientRequestOptions) {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetApiKeyProtectedQueryOptions(clientOptions?: ClientRequestOptions) {
+export function getGetApiKeyProtectedQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getGetApiKeyProtectedQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return getApiKeyProtected({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+      return getApiKeyProtected({ ...options, init: { ...options?.init, signal } })
     },
   })
 }
@@ -118,10 +193,47 @@ export function getGetApiKeyProtectedQueryOptions(clientOptions?: ClientRequestO
  */
 export function useGetApiKeyProtected(options?: {
   query?: UseQueryOptions<Awaited<ReturnType<typeof getApiKeyProtected>>, Error>
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { query: queryOpts, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetApiKeyProtectedQueryOptions(clientOptions), ...queryOpts })
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useQuery({ ...getGetApiKeyProtectedQueryOptions(clientOptions), ...queryOptions })
+}
+
+/**
+ * Generates Vue Query infinite query cache key for GET /api-key-protected
+ * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ */
+export function getGetApiKeyProtectedInfiniteQueryKey() {
+  return ['api-key-protected', 'GET', '/api-key-protected', 'infinite'] as const
+}
+
+/**
+ * Returns Vue Query infinite query options for GET /api-key-protected
+ *
+ * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
+ * Requires initialPageParam and getNextPageParam to be provided separately.
+ */
+export function getGetApiKeyProtectedInfiniteQueryOptions(options?: ClientRequestOptions) {
+  return {
+    queryKey: getGetApiKeyProtectedInfiniteQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getApiKeyProtected({ ...options, init: { ...options?.init, signal } })
+    },
+  }
+}
+
+/**
+ * GET /api-key-protected
+ */
+export function useInfiniteGetApiKeyProtected(options: {
+  query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getApiKeyProtected>>, Error>
+  options?: ClientRequestOptions
+}) {
+  const { query: queryOptions, options: clientOptions } = options
+  return useInfiniteQuery({
+    ...getGetApiKeyProtectedInfiniteQueryOptions(clientOptions),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -144,11 +256,11 @@ export async function getBasicProtected(options?: ClientRequestOptions) {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetBasicProtectedQueryOptions(clientOptions?: ClientRequestOptions) {
+export function getGetBasicProtectedQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getGetBasicProtectedQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return getBasicProtected({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+      return getBasicProtected({ ...options, init: { ...options?.init, signal } })
     },
   })
 }
@@ -158,10 +270,47 @@ export function getGetBasicProtectedQueryOptions(clientOptions?: ClientRequestOp
  */
 export function useGetBasicProtected(options?: {
   query?: UseQueryOptions<Awaited<ReturnType<typeof getBasicProtected>>, Error>
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { query: queryOpts, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetBasicProtectedQueryOptions(clientOptions), ...queryOpts })
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useQuery({ ...getGetBasicProtectedQueryOptions(clientOptions), ...queryOptions })
+}
+
+/**
+ * Generates Vue Query infinite query cache key for GET /basic-protected
+ * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ */
+export function getGetBasicProtectedInfiniteQueryKey() {
+  return ['basic-protected', 'GET', '/basic-protected', 'infinite'] as const
+}
+
+/**
+ * Returns Vue Query infinite query options for GET /basic-protected
+ *
+ * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
+ * Requires initialPageParam and getNextPageParam to be provided separately.
+ */
+export function getGetBasicProtectedInfiniteQueryOptions(options?: ClientRequestOptions) {
+  return {
+    queryKey: getGetBasicProtectedInfiniteQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getBasicProtected({ ...options, init: { ...options?.init, signal } })
+    },
+  }
+}
+
+/**
+ * GET /basic-protected
+ */
+export function useInfiniteGetBasicProtected(options: {
+  query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getBasicProtected>>, Error>
+  options?: ClientRequestOptions
+}) {
+  const { query: queryOptions, options: clientOptions } = options
+  return useInfiniteQuery({
+    ...getGetBasicProtectedInfiniteQueryOptions(clientOptions),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -184,11 +333,11 @@ export async function getOauthProtected(options?: ClientRequestOptions) {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetOauthProtectedQueryOptions(clientOptions?: ClientRequestOptions) {
+export function getGetOauthProtectedQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getGetOauthProtectedQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return getOauthProtected({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+      return getOauthProtected({ ...options, init: { ...options?.init, signal } })
     },
   })
 }
@@ -198,10 +347,47 @@ export function getGetOauthProtectedQueryOptions(clientOptions?: ClientRequestOp
  */
 export function useGetOauthProtected(options?: {
   query?: UseQueryOptions<Awaited<ReturnType<typeof getOauthProtected>>, Error>
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { query: queryOpts, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetOauthProtectedQueryOptions(clientOptions), ...queryOpts })
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useQuery({ ...getGetOauthProtectedQueryOptions(clientOptions), ...queryOptions })
+}
+
+/**
+ * Generates Vue Query infinite query cache key for GET /oauth-protected
+ * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ */
+export function getGetOauthProtectedInfiniteQueryKey() {
+  return ['oauth-protected', 'GET', '/oauth-protected', 'infinite'] as const
+}
+
+/**
+ * Returns Vue Query infinite query options for GET /oauth-protected
+ *
+ * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
+ * Requires initialPageParam and getNextPageParam to be provided separately.
+ */
+export function getGetOauthProtectedInfiniteQueryOptions(options?: ClientRequestOptions) {
+  return {
+    queryKey: getGetOauthProtectedInfiniteQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getOauthProtected({ ...options, init: { ...options?.init, signal } })
+    },
+  }
+}
+
+/**
+ * GET /oauth-protected
+ */
+export function useInfiniteGetOauthProtected(options: {
+  query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getOauthProtected>>, Error>
+  options?: ClientRequestOptions
+}) {
+  const { query: queryOptions, options: clientOptions } = options
+  return useInfiniteQuery({
+    ...getGetOauthProtectedInfiniteQueryOptions(clientOptions),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -224,11 +410,11 @@ export async function getMultiAuth(options?: ClientRequestOptions) {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetMultiAuthQueryOptions(clientOptions?: ClientRequestOptions) {
+export function getGetMultiAuthQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getGetMultiAuthQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return getMultiAuth({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+      return getMultiAuth({ ...options, init: { ...options?.init, signal } })
     },
   })
 }
@@ -238,8 +424,45 @@ export function getGetMultiAuthQueryOptions(clientOptions?: ClientRequestOptions
  */
 export function useGetMultiAuth(options?: {
   query?: UseQueryOptions<Awaited<ReturnType<typeof getMultiAuth>>, Error>
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { query: queryOpts, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetMultiAuthQueryOptions(clientOptions), ...queryOpts })
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useQuery({ ...getGetMultiAuthQueryOptions(clientOptions), ...queryOptions })
+}
+
+/**
+ * Generates Vue Query infinite query cache key for GET /multi-auth
+ * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ */
+export function getGetMultiAuthInfiniteQueryKey() {
+  return ['multi-auth', 'GET', '/multi-auth', 'infinite'] as const
+}
+
+/**
+ * Returns Vue Query infinite query options for GET /multi-auth
+ *
+ * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
+ * Requires initialPageParam and getNextPageParam to be provided separately.
+ */
+export function getGetMultiAuthInfiniteQueryOptions(options?: ClientRequestOptions) {
+  return {
+    queryKey: getGetMultiAuthInfiniteQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getMultiAuth({ ...options, init: { ...options?.init, signal } })
+    },
+  }
+}
+
+/**
+ * GET /multi-auth
+ */
+export function useInfiniteGetMultiAuth(options: {
+  query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getMultiAuth>>, Error>
+  options?: ClientRequestOptions
+}) {
+  const { query: queryOptions, options: clientOptions } = options
+  return useInfiniteQuery({
+    ...getGetMultiAuthInfiniteQueryOptions(clientOptions),
+    ...queryOptions,
+  })
 }

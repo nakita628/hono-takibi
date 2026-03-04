@@ -8,10 +8,9 @@ const ItemSchema = z
 
 const ItemUpdateSchema = z.object({ name: z.string().exactOptional() }).openapi('ItemUpdate')
 
-const LimitParamParamsSchema = z
-  .int()
-  .min(1)
-  .max(100)
+const LimitParamParamsSchema = z.coerce
+  .number()
+  .pipe(z.int().min(1).max(100))
   .default(20)
   .exactOptional()
   .openapi({
@@ -22,9 +21,9 @@ const LimitParamParamsSchema = z
     },
   })
 
-const OffsetParamParamsSchema = z
-  .int()
-  .min(0)
+const OffsetParamParamsSchema = z.coerce
+  .number()
+  .pipe(z.int().min(0))
   .default(0)
   .exactOptional()
   .openapi({

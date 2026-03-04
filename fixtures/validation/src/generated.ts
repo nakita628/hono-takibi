@@ -39,7 +39,7 @@ const CreateUserSchema = z
       )
       .exactOptional(),
   })
-  .refine((o) => !('password' in o) || ('code' in o), {
+  .refine((o) => !('password' in o) || 'code' in o, {
     error: 'Code is required when password is provided',
   })
   .openapi({ required: ['name', 'email', 'age', 'tags', 'priority'] })
@@ -57,9 +57,7 @@ const UserSchema = z
 const ValidateInputSchema = z
   .object({
     value: z.union([z.string(), z.int()], { error: 'Must be a string or integer' }),
-    category: z
-      .xor([z.string(), z.int()], { error: 'Must be exactly one type' })
-      .exactOptional(),
+    category: z.xor([z.string(), z.int()], { error: 'Must be exactly one type' }).exactOptional(),
     forbidden: z
       .any()
       .refine((v) => typeof v !== 'string', { error: 'Must not be a string' })
@@ -70,10 +68,9 @@ const ValidateInputSchema = z
 
 const MetadataSchema = z
   .record(z.string(), z.string())
-  .refine(
-    (o) => Object.keys(o).every((k) => new RegExp('^[a-z_]+$').test(k)),
-    { error: 'Keys must be lowercase with underscores only' },
-  )
+  .refine((o) => Object.keys(o).every((k) => new RegExp('^[a-z_]+$').test(k)), {
+    error: 'Keys must be lowercase with underscores only',
+  })
   .openapi('Metadata')
 
 export const postUsersRoute = createRoute({
@@ -95,9 +92,7 @@ export const postValidateRoute = createRoute({
   request: {
     body: { content: { 'application/json': { schema: ValidateInputSchema } }, required: true },
   },
-  responses: {
-    200: { description: 'OK' },
-  },
+  responses: { 200: { description: 'OK' } },
 })
 
 export const postMetadataRoute = createRoute({
@@ -107,7 +102,5 @@ export const postMetadataRoute = createRoute({
   request: {
     body: { content: { 'application/json': { schema: MetadataSchema } }, required: true },
   },
-  responses: {
-    200: { description: 'OK' },
-  },
+  responses: { 200: { description: 'OK' } },
 })

@@ -1,7 +1,13 @@
-import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
+import {
+  createQuery,
+  createInfiniteQuery,
+  createMutation,
+  queryOptions,
+} from '@tanstack/svelte-query'
 import type {
   CreateQueryOptions,
   QueryFunctionContext,
+  CreateInfiniteQueryOptions,
   CreateMutationOptions,
 } from '@tanstack/svelte-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
@@ -31,11 +37,11 @@ export async function postNullable(
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export function getPostNullableMutationOptions(clientOptions?: ClientRequestOptions) {
+export function getPostNullableMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: getPostNullableMutationKey(),
-    async mutationFn(args: Parameters<typeof postNullable>[0]) {
-      return postNullable(args, clientOptions)
+    async mutationFn(args: InferRequestType<typeof client.nullable.$post>) {
+      return postNullable(args, options)
     },
   }
 }
@@ -48,14 +54,14 @@ export function createPostNullable(
     mutation?: CreateMutationOptions<
       Awaited<ReturnType<typeof postNullable>>,
       Error,
-      Parameters<typeof postNullable>[0]
+      InferRequestType<typeof client.nullable.$post>
     >
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
   return createMutation(() => {
-    const opts = options?.()
-    return { ...getPostNullableMutationOptions(opts?.client), ...opts?.mutation }
+    const { mutation, options: clientOptions } = options?.() ?? {}
+    return { ...getPostNullableMutationOptions(clientOptions), ...mutation }
   })
 }
 
@@ -82,11 +88,11 @@ export async function postDiscriminated(
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export function getPostDiscriminatedMutationOptions(clientOptions?: ClientRequestOptions) {
+export function getPostDiscriminatedMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: getPostDiscriminatedMutationKey(),
-    async mutationFn(args: Parameters<typeof postDiscriminated>[0]) {
-      return postDiscriminated(args, clientOptions)
+    async mutationFn(args: InferRequestType<typeof client.discriminated.$post>) {
+      return postDiscriminated(args, options)
     },
   }
 }
@@ -99,14 +105,14 @@ export function createPostDiscriminated(
     mutation?: CreateMutationOptions<
       Awaited<ReturnType<typeof postDiscriminated>>,
       Error,
-      Parameters<typeof postDiscriminated>[0]
+      InferRequestType<typeof client.discriminated.$post>
     >
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
   return createMutation(() => {
-    const opts = options?.()
-    return { ...getPostDiscriminatedMutationOptions(opts?.client), ...opts?.mutation }
+    const { mutation, options: clientOptions } = options?.() ?? {}
+    return { ...getPostDiscriminatedMutationOptions(clientOptions), ...mutation }
   })
 }
 
@@ -130,11 +136,11 @@ export async function getComposed(options?: ClientRequestOptions) {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetComposedQueryOptions(clientOptions?: ClientRequestOptions) {
+export function getGetComposedQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getGetComposedQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return getComposed({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+      return getComposed({ ...options, init: { ...options?.init, signal } })
     },
   })
 }
@@ -145,12 +151,50 @@ export function getGetComposedQueryOptions(clientOptions?: ClientRequestOptions)
 export function createGetComposed(
   options?: () => {
     query?: CreateQueryOptions<Awaited<ReturnType<typeof getComposed>>, Error>
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
   return createQuery(() => {
-    const opts = options?.()
-    return { ...getGetComposedQueryOptions(opts?.client), ...opts?.query }
+    const { query, options: clientOptions } = options?.() ?? {}
+    return { ...getGetComposedQueryOptions(clientOptions), ...query }
+  })
+}
+
+/**
+ * Generates Svelte Query infinite query cache key for GET /composed
+ * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ */
+export function getGetComposedInfiniteQueryKey() {
+  return ['composed', 'GET', '/composed', 'infinite'] as const
+}
+
+/**
+ * Returns Svelte Query infinite query options for GET /composed
+ *
+ * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
+ * Requires initialPageParam and getNextPageParam to be provided separately.
+ */
+export function getGetComposedInfiniteQueryOptions(options?: ClientRequestOptions) {
+  return {
+    queryKey: getGetComposedInfiniteQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getComposed({ ...options, init: { ...options?.init, signal } })
+    },
+  }
+}
+
+/**
+ * GET /composed
+ */
+export function createInfiniteGetComposed(
+  options: () => {
+    query: CreateInfiniteQueryOptions<Awaited<ReturnType<typeof getComposed>>, Error>
+    options?: ClientRequestOptions
+  },
+) {
+  return createInfiniteQuery(() => {
+    const { query, options: clientOptions } = options()
+    return { ...getGetComposedInfiniteQueryOptions(clientOptions), ...query }
   })
 }
 
@@ -174,11 +218,11 @@ export async function getDeepNested(options?: ClientRequestOptions) {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetDeepNestedQueryOptions(clientOptions?: ClientRequestOptions) {
+export function getGetDeepNestedQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getGetDeepNestedQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return getDeepNested({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+      return getDeepNested({ ...options, init: { ...options?.init, signal } })
     },
   })
 }
@@ -189,12 +233,50 @@ export function getGetDeepNestedQueryOptions(clientOptions?: ClientRequestOption
 export function createGetDeepNested(
   options?: () => {
     query?: CreateQueryOptions<Awaited<ReturnType<typeof getDeepNested>>, Error>
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
   return createQuery(() => {
-    const opts = options?.()
-    return { ...getGetDeepNestedQueryOptions(opts?.client), ...opts?.query }
+    const { query, options: clientOptions } = options?.() ?? {}
+    return { ...getGetDeepNestedQueryOptions(clientOptions), ...query }
+  })
+}
+
+/**
+ * Generates Svelte Query infinite query cache key for GET /deep-nested
+ * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ */
+export function getGetDeepNestedInfiniteQueryKey() {
+  return ['deep-nested', 'GET', '/deep-nested', 'infinite'] as const
+}
+
+/**
+ * Returns Svelte Query infinite query options for GET /deep-nested
+ *
+ * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
+ * Requires initialPageParam and getNextPageParam to be provided separately.
+ */
+export function getGetDeepNestedInfiniteQueryOptions(options?: ClientRequestOptions) {
+  return {
+    queryKey: getGetDeepNestedInfiniteQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getDeepNested({ ...options, init: { ...options?.init, signal } })
+    },
+  }
+}
+
+/**
+ * GET /deep-nested
+ */
+export function createInfiniteGetDeepNested(
+  options: () => {
+    query: CreateInfiniteQueryOptions<Awaited<ReturnType<typeof getDeepNested>>, Error>
+    options?: ClientRequestOptions
+  },
+) {
+  return createInfiniteQuery(() => {
+    const { query, options: clientOptions } = options()
+    return { ...getGetDeepNestedInfiniteQueryOptions(clientOptions), ...query }
   })
 }
 
@@ -218,11 +300,11 @@ export async function getAdditionalProps(options?: ClientRequestOptions) {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetAdditionalPropsQueryOptions(clientOptions?: ClientRequestOptions) {
+export function getGetAdditionalPropsQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getGetAdditionalPropsQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return getAdditionalProps({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+      return getAdditionalProps({ ...options, init: { ...options?.init, signal } })
     },
   })
 }
@@ -233,11 +315,49 @@ export function getGetAdditionalPropsQueryOptions(clientOptions?: ClientRequestO
 export function createGetAdditionalProps(
   options?: () => {
     query?: CreateQueryOptions<Awaited<ReturnType<typeof getAdditionalProps>>, Error>
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
   return createQuery(() => {
-    const opts = options?.()
-    return { ...getGetAdditionalPropsQueryOptions(opts?.client), ...opts?.query }
+    const { query, options: clientOptions } = options?.() ?? {}
+    return { ...getGetAdditionalPropsQueryOptions(clientOptions), ...query }
+  })
+}
+
+/**
+ * Generates Svelte Query infinite query cache key for GET /additional-props
+ * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ */
+export function getGetAdditionalPropsInfiniteQueryKey() {
+  return ['additional-props', 'GET', '/additional-props', 'infinite'] as const
+}
+
+/**
+ * Returns Svelte Query infinite query options for GET /additional-props
+ *
+ * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
+ * Requires initialPageParam and getNextPageParam to be provided separately.
+ */
+export function getGetAdditionalPropsInfiniteQueryOptions(options?: ClientRequestOptions) {
+  return {
+    queryKey: getGetAdditionalPropsInfiniteQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getAdditionalProps({ ...options, init: { ...options?.init, signal } })
+    },
+  }
+}
+
+/**
+ * GET /additional-props
+ */
+export function createInfiniteGetAdditionalProps(
+  options: () => {
+    query: CreateInfiniteQueryOptions<Awaited<ReturnType<typeof getAdditionalProps>>, Error>
+    options?: ClientRequestOptions
+  },
+) {
+  return createInfiniteQuery(() => {
+    const { query, options: clientOptions } = options()
+    return { ...getGetAdditionalPropsInfiniteQueryOptions(clientOptions), ...query }
   })
 }

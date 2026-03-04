@@ -1,7 +1,13 @@
-import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
+import {
+  createQuery,
+  createInfiniteQuery,
+  createMutation,
+  queryOptions,
+} from '@tanstack/svelte-query'
 import type {
   CreateQueryOptions,
   QueryFunctionContext,
+  CreateInfiniteQueryOptions,
   CreateMutationOptions,
 } from '@tanstack/svelte-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
@@ -31,11 +37,11 @@ export async function postOneOf(
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export function getPostOneOfMutationOptions(clientOptions?: ClientRequestOptions) {
+export function getPostOneOfMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: getPostOneOfMutationKey(),
-    async mutationFn(args: Parameters<typeof postOneOf>[0]) {
-      return postOneOf(args, clientOptions)
+    async mutationFn(args: InferRequestType<(typeof client)['one-of']['$post']>) {
+      return postOneOf(args, options)
     },
   }
 }
@@ -48,14 +54,14 @@ export function createPostOneOf(
     mutation?: CreateMutationOptions<
       Awaited<ReturnType<typeof postOneOf>>,
       Error,
-      Parameters<typeof postOneOf>[0]
+      InferRequestType<(typeof client)['one-of']['$post']>
     >
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
   return createMutation(() => {
-    const opts = options?.()
-    return { ...getPostOneOfMutationOptions(opts?.client), ...opts?.mutation }
+    const { mutation, options: clientOptions } = options?.() ?? {}
+    return { ...getPostOneOfMutationOptions(clientOptions), ...mutation }
   })
 }
 
@@ -82,11 +88,11 @@ export async function postAnyOf(
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export function getPostAnyOfMutationOptions(clientOptions?: ClientRequestOptions) {
+export function getPostAnyOfMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: getPostAnyOfMutationKey(),
-    async mutationFn(args: Parameters<typeof postAnyOf>[0]) {
-      return postAnyOf(args, clientOptions)
+    async mutationFn(args: InferRequestType<(typeof client)['any-of']['$post']>) {
+      return postAnyOf(args, options)
     },
   }
 }
@@ -99,14 +105,14 @@ export function createPostAnyOf(
     mutation?: CreateMutationOptions<
       Awaited<ReturnType<typeof postAnyOf>>,
       Error,
-      Parameters<typeof postAnyOf>[0]
+      InferRequestType<(typeof client)['any-of']['$post']>
     >
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
   return createMutation(() => {
-    const opts = options?.()
-    return { ...getPostAnyOfMutationOptions(opts?.client), ...opts?.mutation }
+    const { mutation, options: clientOptions } = options?.() ?? {}
+    return { ...getPostAnyOfMutationOptions(clientOptions), ...mutation }
   })
 }
 
@@ -133,11 +139,11 @@ export async function postAllOf(
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export function getPostAllOfMutationOptions(clientOptions?: ClientRequestOptions) {
+export function getPostAllOfMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: getPostAllOfMutationKey(),
-    async mutationFn(args: Parameters<typeof postAllOf>[0]) {
-      return postAllOf(args, clientOptions)
+    async mutationFn(args: InferRequestType<(typeof client)['all-of']['$post']>) {
+      return postAllOf(args, options)
     },
   }
 }
@@ -150,14 +156,14 @@ export function createPostAllOf(
     mutation?: CreateMutationOptions<
       Awaited<ReturnType<typeof postAllOf>>,
       Error,
-      Parameters<typeof postAllOf>[0]
+      InferRequestType<(typeof client)['all-of']['$post']>
     >
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
   return createMutation(() => {
-    const opts = options?.()
-    return { ...getPostAllOfMutationOptions(opts?.client), ...opts?.mutation }
+    const { mutation, options: clientOptions } = options?.() ?? {}
+    return { ...getPostAllOfMutationOptions(clientOptions), ...mutation }
   })
 }
 
@@ -184,11 +190,11 @@ export async function postNot(
  *
  * Use with useMutation, setMutationDefaults, or isMutating.
  */
-export function getPostNotMutationOptions(clientOptions?: ClientRequestOptions) {
+export function getPostNotMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: getPostNotMutationKey(),
-    async mutationFn(args: Parameters<typeof postNot>[0]) {
-      return postNot(args, clientOptions)
+    async mutationFn(args: InferRequestType<typeof client.not.$post>) {
+      return postNot(args, options)
     },
   }
 }
@@ -201,14 +207,14 @@ export function createPostNot(
     mutation?: CreateMutationOptions<
       Awaited<ReturnType<typeof postNot>>,
       Error,
-      Parameters<typeof postNot>[0]
+      InferRequestType<typeof client.not.$post>
     >
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
   return createMutation(() => {
-    const opts = options?.()
-    return { ...getPostNotMutationOptions(opts?.client), ...opts?.mutation }
+    const { mutation, options: clientOptions } = options?.() ?? {}
+    return { ...getPostNotMutationOptions(clientOptions), ...mutation }
   })
 }
 
@@ -232,11 +238,11 @@ export async function getNotRef(options?: ClientRequestOptions) {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetNotRefQueryOptions(clientOptions?: ClientRequestOptions) {
+export function getGetNotRefQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getGetNotRefQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return getNotRef({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+      return getNotRef({ ...options, init: { ...options?.init, signal } })
     },
   })
 }
@@ -247,12 +253,50 @@ export function getGetNotRefQueryOptions(clientOptions?: ClientRequestOptions) {
 export function createGetNotRef(
   options?: () => {
     query?: CreateQueryOptions<Awaited<ReturnType<typeof getNotRef>>, Error>
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
   return createQuery(() => {
-    const opts = options?.()
-    return { ...getGetNotRefQueryOptions(opts?.client), ...opts?.query }
+    const { query, options: clientOptions } = options?.() ?? {}
+    return { ...getGetNotRefQueryOptions(clientOptions), ...query }
+  })
+}
+
+/**
+ * Generates Svelte Query infinite query cache key for GET /not-ref
+ * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ */
+export function getGetNotRefInfiniteQueryKey() {
+  return ['not-ref', 'GET', '/not-ref', 'infinite'] as const
+}
+
+/**
+ * Returns Svelte Query infinite query options for GET /not-ref
+ *
+ * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
+ * Requires initialPageParam and getNextPageParam to be provided separately.
+ */
+export function getGetNotRefInfiniteQueryOptions(options?: ClientRequestOptions) {
+  return {
+    queryKey: getGetNotRefInfiniteQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getNotRef({ ...options, init: { ...options?.init, signal } })
+    },
+  }
+}
+
+/**
+ * GET /not-ref
+ */
+export function createInfiniteGetNotRef(
+  options: () => {
+    query: CreateInfiniteQueryOptions<Awaited<ReturnType<typeof getNotRef>>, Error>
+    options?: ClientRequestOptions
+  },
+) {
+  return createInfiniteQuery(() => {
+    const { query, options: clientOptions } = options()
+    return { ...getGetNotRefInfiniteQueryOptions(clientOptions), ...query }
   })
 }
 
@@ -276,11 +320,11 @@ export async function getNotEnum(options?: ClientRequestOptions) {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetNotEnumQueryOptions(clientOptions?: ClientRequestOptions) {
+export function getGetNotEnumQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getGetNotEnumQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return getNotEnum({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+      return getNotEnum({ ...options, init: { ...options?.init, signal } })
     },
   })
 }
@@ -291,12 +335,50 @@ export function getGetNotEnumQueryOptions(clientOptions?: ClientRequestOptions) 
 export function createGetNotEnum(
   options?: () => {
     query?: CreateQueryOptions<Awaited<ReturnType<typeof getNotEnum>>, Error>
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
   return createQuery(() => {
-    const opts = options?.()
-    return { ...getGetNotEnumQueryOptions(opts?.client), ...opts?.query }
+    const { query, options: clientOptions } = options?.() ?? {}
+    return { ...getGetNotEnumQueryOptions(clientOptions), ...query }
+  })
+}
+
+/**
+ * Generates Svelte Query infinite query cache key for GET /not-enum
+ * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ */
+export function getGetNotEnumInfiniteQueryKey() {
+  return ['not-enum', 'GET', '/not-enum', 'infinite'] as const
+}
+
+/**
+ * Returns Svelte Query infinite query options for GET /not-enum
+ *
+ * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
+ * Requires initialPageParam and getNextPageParam to be provided separately.
+ */
+export function getGetNotEnumInfiniteQueryOptions(options?: ClientRequestOptions) {
+  return {
+    queryKey: getGetNotEnumInfiniteQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getNotEnum({ ...options, init: { ...options?.init, signal } })
+    },
+  }
+}
+
+/**
+ * GET /not-enum
+ */
+export function createInfiniteGetNotEnum(
+  options: () => {
+    query: CreateInfiniteQueryOptions<Awaited<ReturnType<typeof getNotEnum>>, Error>
+    options?: ClientRequestOptions
+  },
+) {
+  return createInfiniteQuery(() => {
+    const { query, options: clientOptions } = options()
+    return { ...getGetNotEnumInfiniteQueryOptions(clientOptions), ...query }
   })
 }
 
@@ -320,11 +402,11 @@ export async function getNotConst(options?: ClientRequestOptions) {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetNotConstQueryOptions(clientOptions?: ClientRequestOptions) {
+export function getGetNotConstQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getGetNotConstQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return getNotConst({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+      return getNotConst({ ...options, init: { ...options?.init, signal } })
     },
   })
 }
@@ -335,12 +417,50 @@ export function getGetNotConstQueryOptions(clientOptions?: ClientRequestOptions)
 export function createGetNotConst(
   options?: () => {
     query?: CreateQueryOptions<Awaited<ReturnType<typeof getNotConst>>, Error>
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
   return createQuery(() => {
-    const opts = options?.()
-    return { ...getGetNotConstQueryOptions(opts?.client), ...opts?.query }
+    const { query, options: clientOptions } = options?.() ?? {}
+    return { ...getGetNotConstQueryOptions(clientOptions), ...query }
+  })
+}
+
+/**
+ * Generates Svelte Query infinite query cache key for GET /not-const
+ * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ */
+export function getGetNotConstInfiniteQueryKey() {
+  return ['not-const', 'GET', '/not-const', 'infinite'] as const
+}
+
+/**
+ * Returns Svelte Query infinite query options for GET /not-const
+ *
+ * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
+ * Requires initialPageParam and getNextPageParam to be provided separately.
+ */
+export function getGetNotConstInfiniteQueryOptions(options?: ClientRequestOptions) {
+  return {
+    queryKey: getGetNotConstInfiniteQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getNotConst({ ...options, init: { ...options?.init, signal } })
+    },
+  }
+}
+
+/**
+ * GET /not-const
+ */
+export function createInfiniteGetNotConst(
+  options: () => {
+    query: CreateInfiniteQueryOptions<Awaited<ReturnType<typeof getNotConst>>, Error>
+    options?: ClientRequestOptions
+  },
+) {
+  return createInfiniteQuery(() => {
+    const { query, options: clientOptions } = options()
+    return { ...getGetNotConstInfiniteQueryOptions(clientOptions), ...query }
   })
 }
 
@@ -364,11 +484,11 @@ export async function getNotComposition(options?: ClientRequestOptions) {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetNotCompositionQueryOptions(clientOptions?: ClientRequestOptions) {
+export function getGetNotCompositionQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getGetNotCompositionQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return getNotComposition({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+      return getNotComposition({ ...options, init: { ...options?.init, signal } })
     },
   })
 }
@@ -379,12 +499,50 @@ export function getGetNotCompositionQueryOptions(clientOptions?: ClientRequestOp
 export function createGetNotComposition(
   options?: () => {
     query?: CreateQueryOptions<Awaited<ReturnType<typeof getNotComposition>>, Error>
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
   return createQuery(() => {
-    const opts = options?.()
-    return { ...getGetNotCompositionQueryOptions(opts?.client), ...opts?.query }
+    const { query, options: clientOptions } = options?.() ?? {}
+    return { ...getGetNotCompositionQueryOptions(clientOptions), ...query }
+  })
+}
+
+/**
+ * Generates Svelte Query infinite query cache key for GET /not-composition
+ * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ */
+export function getGetNotCompositionInfiniteQueryKey() {
+  return ['not-composition', 'GET', '/not-composition', 'infinite'] as const
+}
+
+/**
+ * Returns Svelte Query infinite query options for GET /not-composition
+ *
+ * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
+ * Requires initialPageParam and getNextPageParam to be provided separately.
+ */
+export function getGetNotCompositionInfiniteQueryOptions(options?: ClientRequestOptions) {
+  return {
+    queryKey: getGetNotCompositionInfiniteQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getNotComposition({ ...options, init: { ...options?.init, signal } })
+    },
+  }
+}
+
+/**
+ * GET /not-composition
+ */
+export function createInfiniteGetNotComposition(
+  options: () => {
+    query: CreateInfiniteQueryOptions<Awaited<ReturnType<typeof getNotComposition>>, Error>
+    options?: ClientRequestOptions
+  },
+) {
+  return createInfiniteQuery(() => {
+    const { query, options: clientOptions } = options()
+    return { ...getGetNotCompositionInfiniteQueryOptions(clientOptions), ...query }
   })
 }
 
@@ -408,11 +566,11 @@ export async function getAllOfSibling(options?: ClientRequestOptions) {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetAllOfSiblingQueryOptions(clientOptions?: ClientRequestOptions) {
+export function getGetAllOfSiblingQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getGetAllOfSiblingQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return getAllOfSibling({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+      return getAllOfSibling({ ...options, init: { ...options?.init, signal } })
     },
   })
 }
@@ -423,12 +581,50 @@ export function getGetAllOfSiblingQueryOptions(clientOptions?: ClientRequestOpti
 export function createGetAllOfSibling(
   options?: () => {
     query?: CreateQueryOptions<Awaited<ReturnType<typeof getAllOfSibling>>, Error>
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
   return createQuery(() => {
-    const opts = options?.()
-    return { ...getGetAllOfSiblingQueryOptions(opts?.client), ...opts?.query }
+    const { query, options: clientOptions } = options?.() ?? {}
+    return { ...getGetAllOfSiblingQueryOptions(clientOptions), ...query }
+  })
+}
+
+/**
+ * Generates Svelte Query infinite query cache key for GET /all-of-sibling
+ * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ */
+export function getGetAllOfSiblingInfiniteQueryKey() {
+  return ['all-of-sibling', 'GET', '/all-of-sibling', 'infinite'] as const
+}
+
+/**
+ * Returns Svelte Query infinite query options for GET /all-of-sibling
+ *
+ * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
+ * Requires initialPageParam and getNextPageParam to be provided separately.
+ */
+export function getGetAllOfSiblingInfiniteQueryOptions(options?: ClientRequestOptions) {
+  return {
+    queryKey: getGetAllOfSiblingInfiniteQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getAllOfSibling({ ...options, init: { ...options?.init, signal } })
+    },
+  }
+}
+
+/**
+ * GET /all-of-sibling
+ */
+export function createInfiniteGetAllOfSibling(
+  options: () => {
+    query: CreateInfiniteQueryOptions<Awaited<ReturnType<typeof getAllOfSibling>>, Error>
+    options?: ClientRequestOptions
+  },
+) {
+  return createInfiniteQuery(() => {
+    const { query, options: clientOptions } = options()
+    return { ...getGetAllOfSiblingInfiniteQueryOptions(clientOptions), ...query }
   })
 }
 
@@ -452,11 +648,11 @@ export async function getNullableOneOf(options?: ClientRequestOptions) {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetNullableOneOfQueryOptions(clientOptions?: ClientRequestOptions) {
+export function getGetNullableOneOfQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getGetNullableOneOfQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return getNullableOneOf({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+      return getNullableOneOf({ ...options, init: { ...options?.init, signal } })
     },
   })
 }
@@ -467,12 +663,50 @@ export function getGetNullableOneOfQueryOptions(clientOptions?: ClientRequestOpt
 export function createGetNullableOneOf(
   options?: () => {
     query?: CreateQueryOptions<Awaited<ReturnType<typeof getNullableOneOf>>, Error>
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
   return createQuery(() => {
-    const opts = options?.()
-    return { ...getGetNullableOneOfQueryOptions(opts?.client), ...opts?.query }
+    const { query, options: clientOptions } = options?.() ?? {}
+    return { ...getGetNullableOneOfQueryOptions(clientOptions), ...query }
+  })
+}
+
+/**
+ * Generates Svelte Query infinite query cache key for GET /nullable-one-of
+ * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ */
+export function getGetNullableOneOfInfiniteQueryKey() {
+  return ['nullable-one-of', 'GET', '/nullable-one-of', 'infinite'] as const
+}
+
+/**
+ * Returns Svelte Query infinite query options for GET /nullable-one-of
+ *
+ * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
+ * Requires initialPageParam and getNextPageParam to be provided separately.
+ */
+export function getGetNullableOneOfInfiniteQueryOptions(options?: ClientRequestOptions) {
+  return {
+    queryKey: getGetNullableOneOfInfiniteQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getNullableOneOf({ ...options, init: { ...options?.init, signal } })
+    },
+  }
+}
+
+/**
+ * GET /nullable-one-of
+ */
+export function createInfiniteGetNullableOneOf(
+  options: () => {
+    query: CreateInfiniteQueryOptions<Awaited<ReturnType<typeof getNullableOneOf>>, Error>
+    options?: ClientRequestOptions
+  },
+) {
+  return createInfiniteQuery(() => {
+    const { query, options: clientOptions } = options()
+    return { ...getGetNullableOneOfInfiniteQueryOptions(clientOptions), ...query }
   })
 }
 
@@ -496,11 +730,11 @@ export async function getAnyOfThree(options?: ClientRequestOptions) {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetAnyOfThreeQueryOptions(clientOptions?: ClientRequestOptions) {
+export function getGetAnyOfThreeQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getGetAnyOfThreeQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return getAnyOfThree({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+      return getAnyOfThree({ ...options, init: { ...options?.init, signal } })
     },
   })
 }
@@ -511,12 +745,50 @@ export function getGetAnyOfThreeQueryOptions(clientOptions?: ClientRequestOption
 export function createGetAnyOfThree(
   options?: () => {
     query?: CreateQueryOptions<Awaited<ReturnType<typeof getAnyOfThree>>, Error>
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
   return createQuery(() => {
-    const opts = options?.()
-    return { ...getGetAnyOfThreeQueryOptions(opts?.client), ...opts?.query }
+    const { query, options: clientOptions } = options?.() ?? {}
+    return { ...getGetAnyOfThreeQueryOptions(clientOptions), ...query }
+  })
+}
+
+/**
+ * Generates Svelte Query infinite query cache key for GET /any-of-three
+ * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ */
+export function getGetAnyOfThreeInfiniteQueryKey() {
+  return ['any-of-three', 'GET', '/any-of-three', 'infinite'] as const
+}
+
+/**
+ * Returns Svelte Query infinite query options for GET /any-of-three
+ *
+ * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
+ * Requires initialPageParam and getNextPageParam to be provided separately.
+ */
+export function getGetAnyOfThreeInfiniteQueryOptions(options?: ClientRequestOptions) {
+  return {
+    queryKey: getGetAnyOfThreeInfiniteQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getAnyOfThree({ ...options, init: { ...options?.init, signal } })
+    },
+  }
+}
+
+/**
+ * GET /any-of-three
+ */
+export function createInfiniteGetAnyOfThree(
+  options: () => {
+    query: CreateInfiniteQueryOptions<Awaited<ReturnType<typeof getAnyOfThree>>, Error>
+    options?: ClientRequestOptions
+  },
+) {
+  return createInfiniteQuery(() => {
+    const { query, options: clientOptions } = options()
+    return { ...getGetAnyOfThreeInfiniteQueryOptions(clientOptions), ...query }
   })
 }
 
@@ -540,11 +812,11 @@ export async function getAnyOfRef(options?: ClientRequestOptions) {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetAnyOfRefQueryOptions(clientOptions?: ClientRequestOptions) {
+export function getGetAnyOfRefQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getGetAnyOfRefQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return getAnyOfRef({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+      return getAnyOfRef({ ...options, init: { ...options?.init, signal } })
     },
   })
 }
@@ -555,11 +827,49 @@ export function getGetAnyOfRefQueryOptions(clientOptions?: ClientRequestOptions)
 export function createGetAnyOfRef(
   options?: () => {
     query?: CreateQueryOptions<Awaited<ReturnType<typeof getAnyOfRef>>, Error>
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
   return createQuery(() => {
-    const opts = options?.()
-    return { ...getGetAnyOfRefQueryOptions(opts?.client), ...opts?.query }
+    const { query, options: clientOptions } = options?.() ?? {}
+    return { ...getGetAnyOfRefQueryOptions(clientOptions), ...query }
+  })
+}
+
+/**
+ * Generates Svelte Query infinite query cache key for GET /any-of-ref
+ * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ */
+export function getGetAnyOfRefInfiniteQueryKey() {
+  return ['any-of-ref', 'GET', '/any-of-ref', 'infinite'] as const
+}
+
+/**
+ * Returns Svelte Query infinite query options for GET /any-of-ref
+ *
+ * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
+ * Requires initialPageParam and getNextPageParam to be provided separately.
+ */
+export function getGetAnyOfRefInfiniteQueryOptions(options?: ClientRequestOptions) {
+  return {
+    queryKey: getGetAnyOfRefInfiniteQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getAnyOfRef({ ...options, init: { ...options?.init, signal } })
+    },
+  }
+}
+
+/**
+ * GET /any-of-ref
+ */
+export function createInfiniteGetAnyOfRef(
+  options: () => {
+    query: CreateInfiniteQueryOptions<Awaited<ReturnType<typeof getAnyOfRef>>, Error>
+    options?: ClientRequestOptions
+  },
+) {
+  return createInfiniteQuery(() => {
+    const { query, options: clientOptions } = options()
+    return { ...getGetAnyOfRefInfiniteQueryOptions(clientOptions), ...query }
   })
 }
