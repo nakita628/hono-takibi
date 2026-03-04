@@ -1,5 +1,5 @@
 import type { Schema } from '../../../openapi/index.js'
-import { makeSafeKey } from '../../../utils/index.js'
+import { error, makeSafeKey } from '../../../utils/index.js'
 import { zodToOpenAPI } from '../index.js'
 
 /**
@@ -40,6 +40,12 @@ export function object(schema: Schema, readonly?: boolean): string {
     return zodToOpenAPI(schema, undefined, readonly)
   }
 
+  // Read vendor extensions for error messages
+  const sizeMessage = schema['x-size-message']
+  const sizeErrArg = sizeMessage ? `,${error(sizeMessage)}` : ''
+  const patternMessage = schema['x-pattern-message']
+  const patternErrArg = patternMessage ? `,${error(patternMessage)}` : ''
+
   // additionalProperties as Schema → record type
   if (typeof schema.additionalProperties === 'object') {
     const record = `z.record(z.string(),${zodToOpenAPI(schema.additionalProperties, undefined, readonly)})`
@@ -47,12 +53,12 @@ export function object(schema: Schema, readonly?: boolean): string {
       ? Object.entries(schema.patternProperties)
           .map(([pattern, propSchema]) => {
             const zodSchema = zodToOpenAPI(propSchema, undefined, readonly)
-            return `.refine((o)=>Object.entries(o).every(([k,v])=>!new RegExp(${JSON.stringify(pattern)}).test(k)||${zodSchema}.safeParse(v).success))`
+            return `.refine((o)=>Object.entries(o).every(([k,v])=>!new RegExp(${JSON.stringify(pattern)}).test(k)||${zodSchema}.safeParse(v).success)${patternErrArg})`
           })
           .join('')
       : ''
     const recordPropNames = schema.propertyNames?.pattern
-      ? `.refine((o)=>Object.keys(o).every((k)=>new RegExp(${JSON.stringify(schema.propertyNames.pattern)}).test(k)))`
+      ? `.refine((o)=>Object.keys(o).every((k)=>new RegExp(${JSON.stringify(schema.propertyNames.pattern)}).test(k))${patternErrArg})`
       : ''
     return `${record}${recordPropNames}${recordPatternProps}${readonly ? '.readonly()' : ''}`
   }
@@ -84,24 +90,24 @@ export function object(schema: Schema, readonly?: boolean): string {
   const base = `z.${objectType}({${propertiesCode}})`
   const minP =
     typeof schema.minProperties === 'number'
-      ? `.refine((o)=>Object.keys(o).length>=${schema.minProperties})`
+      ? `.refine((o)=>Object.keys(o).length>=${schema.minProperties}${sizeErrArg})`
       : ''
   const maxP =
     typeof schema.maxProperties === 'number'
-      ? `.refine((o)=>Object.keys(o).length<=${schema.maxProperties})`
+      ? `.refine((o)=>Object.keys(o).length<=${schema.maxProperties}${sizeErrArg})`
       : ''
   // propertyNames: validate that all keys match the given schema constraints
   const propNames = schema.propertyNames?.pattern
-    ? `.refine((o)=>Object.keys(o).every((k)=>new RegExp(${JSON.stringify(schema.propertyNames.pattern)}).test(k)))`
+    ? `.refine((o)=>Object.keys(o).every((k)=>new RegExp(${JSON.stringify(schema.propertyNames.pattern)}).test(k))${patternErrArg})`
     : schema.propertyNames?.enum
-      ? `.refine((o)=>Object.keys(o).every((k)=>${JSON.stringify(schema.propertyNames.enum)}.includes(k)))`
+      ? `.refine((o)=>Object.keys(o).every((k)=>${JSON.stringify(schema.propertyNames.enum)}.includes(k))${patternErrArg})`
       : ''
   // patternProperties: validate values match schema per key pattern
   const patternProps = schema.patternProperties
     ? Object.entries(schema.patternProperties)
         .map(([pattern, propSchema]) => {
           const zodSchema = zodToOpenAPI(propSchema, undefined, readonly)
-          return `.refine((o)=>Object.entries(o).every(([k,v])=>!new RegExp(${JSON.stringify(pattern)}).test(k)||${zodSchema}.safeParse(v).success))`
+          return `.refine((o)=>Object.entries(o).every(([k,v])=>!new RegExp(${JSON.stringify(pattern)}).test(k)||${zodSchema}.safeParse(v).success)${patternErrArg})`
         })
         .join('')
     : ''

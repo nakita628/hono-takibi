@@ -1,5 +1,5 @@
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
-import { isOperation, isRecord, isRefObject } from '../guard/index.js'
+import { isOperation, isParameter, isRecord, isRefObject } from '../guard/index.js'
 import type {
   Callbacks,
   Content,
@@ -649,9 +649,8 @@ function makeOperationParameters(parameters: readonly (Parameter | Reference)[])
     if (isRefObject(param)) {
       return makeRef(param.$ref)
     }
-    const p = param as Parameter
-    if (p.schema) {
-      return zodToOpenAPI(p.schema, { parameters: p })
+    if (isParameter(param) && param.schema) {
+      return zodToOpenAPI(param.schema, { parameters: param })
     }
     return JSON.stringify(param)
   })

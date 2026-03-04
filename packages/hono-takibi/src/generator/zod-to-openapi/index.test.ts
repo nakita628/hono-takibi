@@ -953,6 +953,26 @@ describe('zodToOpenAPI', () => {
             { enum: ['A', 'B'], 'x-error-message': '無効な値' },
             'z.enum(["A","B"],{error:"無効な値"})',
           ],
+          // x-error-message on single string enum → z.literal
+          [
+            { enum: ['only'], 'x-error-message': 'onlyのみ' },
+            `z.literal('only',{error:"onlyのみ"})`,
+          ],
+          // x-error-message on number enum → z.union
+          [
+            { enum: [1, 2, 3], 'x-error-message': '1-3のみ' },
+            'z.union([z.literal(1),z.literal(2),z.literal(3)],{error:"1-3のみ"})',
+          ],
+          // x-error-message on single number enum → z.literal
+          [
+            { type: 'number', enum: [42], 'x-error-message': '42のみ' },
+            'z.literal(42,{error:"42のみ"})',
+          ],
+          // x-error-message on boolean enum → z.union
+          [
+            { type: 'boolean', enum: [true, false], 'x-error-message': 'ブール値' },
+            'z.union([z.literal(true),z.literal(false)],{error:"ブール値"})',
+          ],
         ])('zodToOpenAPI(%o) → %s', (input, expected) => {
           expect(zodToOpenAPI(input)).toBe(expected)
         })
@@ -999,6 +1019,55 @@ describe('zodToOpenAPI', () => {
               'x-size-message': 'At most 5',
             },
             'z.array(z.number()).max(5,{error:"At most 5"})',
+          ],
+        ])('zodToOpenAPI(%o) → %s', (input, expected) => {
+          expect(zodToOpenAPI(input)).toBe(expected)
+        })
+      })
+
+      // x-size-message on object
+      describe('x-size-message on object', () => {
+        it.concurrent.each<[Schema, string]>([
+          [
+            { type: 'object', minProperties: 1, 'x-size-message': 'At least 1' },
+            'z.object({}).refine((o)=>Object.keys(o).length>=1,{error:"At least 1"})',
+          ],
+          [
+            { type: 'object', maxProperties: 5, 'x-size-message': 'At most 5' },
+            'z.object({}).refine((o)=>Object.keys(o).length<=5,{error:"At most 5"})',
+          ],
+          [
+            {
+              type: 'object',
+              minProperties: 2,
+              maxProperties: 10,
+              'x-size-message': '2-10 properties',
+            },
+            'z.object({}).refine((o)=>Object.keys(o).length>=2,{error:"2-10 properties"}).refine((o)=>Object.keys(o).length<=10,{error:"2-10 properties"})',
+          ],
+        ])('zodToOpenAPI(%o) → %s', (input, expected) => {
+          expect(zodToOpenAPI(input)).toBe(expected)
+        })
+      })
+
+      // x-pattern-message on object
+      describe('x-pattern-message on object', () => {
+        it.concurrent.each<[Schema, string]>([
+          [
+            {
+              type: 'object',
+              propertyNames: { pattern: '^[a-z]+$' },
+              'x-pattern-message': 'lowercase keys',
+            },
+            'z.object({}).refine((o)=>Object.keys(o).every((k)=>new RegExp("^[a-z]+$").test(k)),{error:"lowercase keys"})',
+          ],
+          [
+            {
+              type: 'object',
+              patternProperties: { '^S_': { type: 'string' } },
+              'x-pattern-message': 'S_ keys must be strings',
+            },
+            'z.object({}).refine((o)=>Object.entries(o).every(([k,v])=>!new RegExp("^S_").test(k)||z.string().safeParse(v).success),{error:"S_ keys must be strings"})',
           ],
         ])('zodToOpenAPI(%o) → %s', (input, expected) => {
           expect(zodToOpenAPI(input)).toBe(expected)

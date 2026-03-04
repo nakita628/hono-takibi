@@ -1,9 +1,11 @@
 import { STATUS_CODES } from 'node:http'
 import {
   isMedia,
+  isOAuthFlowValue,
   isRecord,
   isRefObject,
   isRequestBody,
+  isResponses,
   isSecurityArray,
   isSecurityScheme,
 } from '../../guard/index.js'
@@ -109,7 +111,7 @@ function refName(ref: string): string {
 function resolveResponse(response: Responses, components: Components | undefined): Responses {
   if (!response.$ref) return response
   const resolved = resolveRef(response.$ref, components)
-  return resolved && typeof resolved === 'object' ? (resolved as Responses) : response
+  return isResponses(resolved) ? resolved : response
 }
 
 // ---------------------------------------------------------------------------
@@ -291,24 +293,19 @@ function makeAuthenticationSection(
       lines.push(`- oAuth2 authentication. ${desc}`.trimEnd(), '')
       if (scheme.flows && typeof scheme.flows === 'object') {
         for (const [flowName, flowValue] of Object.entries(scheme.flows)) {
-          if (!flowValue || typeof flowValue !== 'object') continue
-          const flow = flowValue as {
-            readonly authorizationUrl?: string
-            readonly tokenUrl?: string
-            readonly scopes?: { readonly [k: string]: string }
-          }
+          if (!isOAuthFlowValue(flowValue)) continue
           lines.push(`    - Flow: ${flowName}`)
-          if (flow.authorizationUrl) {
+          if (flowValue.authorizationUrl) {
             lines.push(
-              `    - Authorization URL = [${flow.authorizationUrl}](${flow.authorizationUrl})`,
+              `    - Authorization URL = [${flowValue.authorizationUrl}](${flowValue.authorizationUrl})`,
             )
           }
-          if (flow.tokenUrl) {
-            lines.push(`    - Token URL = [${flow.tokenUrl}](${flow.tokenUrl})`)
+          if (flowValue.tokenUrl) {
+            lines.push(`    - Token URL = [${flowValue.tokenUrl}](${flowValue.tokenUrl})`)
           }
-          if (flow.scopes && Object.keys(flow.scopes).length > 0) {
+          if (flowValue.scopes && Object.keys(flowValue.scopes).length > 0) {
             lines.push('', '|Scope|Scope Description|', '|---|---|')
-            for (const [scope, scopeDesc] of Object.entries(flow.scopes)) {
+            for (const [scope, scopeDesc] of Object.entries(flowValue.scopes)) {
               lines.push(`|${scope}|${scopeDesc}|`)
             }
           }

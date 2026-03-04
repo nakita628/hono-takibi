@@ -47,6 +47,43 @@ export function wrap(
   const hasNotProperty = (v: unknown): v is { not: unknown } =>
     typeof v === 'object' && v !== null && 'not' in v
 
+  // Type guard for makeExamples parameter (record of non-array objects)
+  const isExamplesInput = (
+    v: unknown,
+  ): v is {
+    readonly [k: string]:
+      | {
+          readonly summary?: string
+          readonly description?: string
+          readonly defaultValue?: unknown
+          readonly serializedValue?: string
+          readonly externalValue?: string
+          readonly value?: unknown
+        }
+      | {
+          readonly $ref?:
+            | `#/components/schemas/${string}`
+            | `#/components/parameters/${string}`
+            | `#/components/securitySchemes/${string}`
+            | `#/components/requestBodies/${string}`
+            | `#/components/responses/${string}`
+            | `#/components/headers/${string}`
+            | `#/components/examples/${string}`
+            | `#/components/links/${string}`
+            | `#/components/callbacks/${string}`
+            | `#/components/pathItems/${string}`
+            | `#/components/mediaTypes/${string}`
+          readonly summary?: string
+          readonly description?: string
+        }
+  } =>
+    typeof v === 'object' &&
+    v !== null &&
+    !Array.isArray(v) &&
+    Object.values(v).every(
+      (entry) => typeof entry === 'object' && entry !== null && !Array.isArray(entry),
+    )
+
   const filterUnsupportedProps = (obj: unknown): unknown => {
     if (obj === null || typeof obj !== 'object') {
       return obj
@@ -203,8 +240,8 @@ export function wrap(
     const restEntries = Object.entries(mediaRest).map(
       ([k, v]) => `${JSON.stringify(k)}:${JSON.stringify(v)}`,
     )
-    const examplesEntry = isRecord(mediaExamples)
-      ? `"examples":${makeExamples(mediaExamples as Parameters<typeof makeExamples>[0])}`
+    const examplesEntry = isExamplesInput(mediaExamples)
+      ? `"examples":${makeExamples(mediaExamples)}`
       : undefined
     const entries = examplesEntry ? [...restEntries, examplesEntry] : restEntries
     return `{${entries.join(',')}}`
@@ -225,8 +262,8 @@ export function wrap(
    */
   const serializeParam = (param: Parameter): string => {
     const entries = Object.entries(param).map(([key, value]) => {
-      if (key === 'examples' && isRecord(value)) {
-        return `"examples":${makeExamples(value as Parameters<typeof makeExamples>[0])}`
+      if (key === 'examples' && isExamplesInput(value)) {
+        return `"examples":${makeExamples(value)}`
       }
       if (key === 'content' && isRecord(value)) {
         return `"content":${serializeContent(value)}`
