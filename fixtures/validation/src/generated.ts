@@ -4,8 +4,8 @@ const CreateUserSchema = z
   .object({
     name: z
       .string()
-      .min(3, { error: 'Name must be 3-20 characters' })
-      .max(20, { error: 'Name must be 3-20 characters' }),
+      .min(3, { error: 'Name must be at least 3 characters' })
+      .max(20, { error: 'Name must be at most 20 characters' }),
     email: z.email({ error: 'Invalid email address' }),
     age: z.int().min(0, { error: 'Age must be >= 0' }).max(150, { error: 'Age must be <= 150' }),
     password: z
@@ -16,11 +16,19 @@ const CreateUserSchema = z
       .exactOptional(),
     code: z.string().length(5, { error: 'Code must be exactly 5 characters' }).exactOptional(),
     tags: z
-      .array(z.string())
+      .array(z.string(), { error: 'Must have 1-5 tags' })
       .min(1, { error: 'Must have 1-5 tags' })
       .max(5, { error: 'Must have 1-5 tags' }),
+    nickname: z.string({ error: () => 'Nickname is invalid' }).exactOptional(),
+    priority: z
+      .int({
+        error: (iss) =>
+          iss.input === undefined ? 'Priority is required' : 'Priority must be an integer',
+      })
+      .min(1, { error: 'Priority must be >= 1' })
+      .max(10, { error: 'Priority must be <= 10' }),
   })
-  .openapi({ required: ['name', 'email', 'age', 'tags'] })
+  .openapi({ required: ['name', 'email', 'age', 'tags', 'priority'] })
   .openapi('CreateUser')
 
 const UserSchema = z

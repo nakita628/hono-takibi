@@ -29,12 +29,14 @@ components:
         - email
         - age
         - tags
+        - priority
       properties:
         name:
           type: string
           minLength: 3
           maxLength: 20
-          x-size-message: 'Name must be 3-20 characters'
+          x-minimum-message: 'Name must be at least 3 characters'
+          x-maximum-message: 'Name must be at most 20 characters'
         email:
           type: string
           format: email
@@ -60,7 +62,21 @@ components:
             type: string
           minItems: 1
           maxItems: 5
-          x-size-message: 'Must have 1-5 tags'
+          x-error-message: 'Must have 1-5 tags'
+          x-minimum-message: 'Must have 1-5 tags'
+          x-maximum-message: 'Must have 1-5 tags'
+        # Arrow function error message (no args) — Zod v4
+        nickname:
+          type: string
+          x-error-message: '()=>"Nickname is invalid"'
+        # Arrow function error message (iss arg) — Zod v4
+        priority:
+          type: integer
+          minimum: 1
+          maximum: 10
+          x-error-message: '(iss) => iss.input === undefined ? "Priority is required" : "Priority must be an integer"'
+          x-minimum-message: 'Priority must be >= 1'
+          x-maximum-message: 'Priority must be <= 10'
     User:
       type: object
       properties:

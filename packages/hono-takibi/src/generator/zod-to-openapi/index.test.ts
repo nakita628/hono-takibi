@@ -986,7 +986,11 @@ describe('zodToOpenAPI', () => {
           ],
           // x-minimum-message with arrow function (issue arg)
           [
-            { type: 'number', minimum: 0, 'x-minimum-message': '(iss)=>iss.input===undefined?"required":"invalid"' },
+            {
+              type: 'number',
+              minimum: 0,
+              'x-minimum-message': '(iss)=>iss.input===undefined?"required":"invalid"',
+            },
             'z.number().min(0,{error:(iss)=>iss.input===undefined?"required":"invalid"})',
           ],
         ])('zodToOpenAPI(%o) → %s', (input, expected) => {
@@ -1158,14 +1162,8 @@ describe('zodToOpenAPI', () => {
             { const: 'fixed', 'x-error-message': 'fixedのみ' },
             `z.literal("fixed",{error:"fixedのみ"})`,
           ],
-          [
-            { const: 42, 'x-error-message': '42のみ' },
-            'z.literal(42,{error:"42のみ"})',
-          ],
-          [
-            { const: true, 'x-error-message': 'trueのみ' },
-            'z.literal(true,{error:"trueのみ"})',
-          ],
+          [{ const: 42, 'x-error-message': '42のみ' }, 'z.literal(42,{error:"42のみ"})'],
+          [{ const: true, 'x-error-message': 'trueのみ' }, 'z.literal(true,{error:"trueのみ"})'],
           // No x-error-message → existing behavior
           [{ const: 'fixed' }, `z.literal("fixed")`],
         ])('zodToOpenAPI(%o) → %s', (input, expected) => {
@@ -1196,10 +1194,7 @@ describe('zodToOpenAPI', () => {
       // x-error-message on date
       describe('x-error-message on date', () => {
         it.concurrent.each<[Schema, string]>([
-          [
-            { type: 'date', 'x-error-message': '日付必須' },
-            'z.date({error:"日付必須"})',
-          ],
+          [{ type: 'date', 'x-error-message': '日付必須' }, 'z.date({error:"日付必須"})'],
           // No x-error-message → existing behavior
           [{ type: 'date' }, 'z.date()'],
         ])('zodToOpenAPI(%o) → %s', (input, expected) => {

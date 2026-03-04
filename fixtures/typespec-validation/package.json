@@ -1,5 +1,5 @@
 {
-  "name": "@fixtures/validation",
+  "name": "@fixtures/typespec-validation",
   "version": "1.0.0",
   "type": "module",
   "private": true,
@@ -13,8 +13,9 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "hono-takibi": "workspace:^",
     "@types/node": "^22.15.21",
+    "@typespec/openapi": "^1.9.0",
+    "hono-takibi": "workspace:^",
     "vitest": "^4.0.18"
   }
 }
