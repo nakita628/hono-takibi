@@ -13,8 +13,7 @@ import * as PostService from '@/backend/services/post'
  * flowchart TD
  *   A[createComment] --> B[findPost]
  *   B --> C[createNotification]
- *   C --> D[updateHasNotification]
- *   D --> E[validate + return]
+ *   C --> D[safeParse + return]
  * ```
  */
 export function create(userId: string, body: string, postId: string) {
@@ -26,16 +25,14 @@ export function create(userId: string, body: string, postId: string) {
       yield* NotificationService.createAndNotify('Someone replied to your tweet', post.userId)
     }
 
-    const data = {
+    const valid = CommentSchema.safeParse({
       id: comment.id,
       body: comment.body,
       createdAt: comment.createdAt.toISOString(),
       updatedAt: comment.updatedAt.toISOString(),
       userId: comment.userId,
       postId: comment.postId,
-    }
-
-    const valid = CommentSchema.safeParse(data)
+    })
     if (!valid.success) {
       return yield* Effect.fail(new ContractViolationError({ message: 'Invalid comment data' }))
     }

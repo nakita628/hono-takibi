@@ -14,20 +14,18 @@ import * as UserService from '@/backend/services/user'
  *   B -- yes --> C[fail Conflict]
  *   B -- no --> D[AuthService.signUpEmail]
  *   D --> E[createProfile]
- *   E --> F[validate + return]
+ *   E --> F[safeParse + return]
  * ```
  */
 export function create(email: string, name: string, username: string, password: string) {
   return Effect.gen(function* () {
     yield* UserService.exists(email)
 
-    const signUpResult = yield* AuthService.signUpEmail(email, password, name)
-
-    const user = signUpResult.user
+    const { user } = yield* AuthService.signUpEmail(email, password, name)
 
     yield* UserService.createProfile(user.id, username)
 
-    const data = {
+    const valid = UserSchema.safeParse({
       id: user.id,
       name: user.name,
       username,
@@ -39,8 +37,7 @@ export function create(email: string, name: string, username: string, password: 
       profileImage: null,
       createdAt: user.createdAt.toISOString(),
       updatedAt: user.updatedAt.toISOString(),
-    }
-    const valid = UserSchema.safeParse(data)
+    })
     if (!valid.success) {
       return yield* Effect.fail(new ContractViolationError({ message: 'Invalid user data' }))
     }

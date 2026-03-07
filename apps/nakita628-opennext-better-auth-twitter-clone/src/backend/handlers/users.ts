@@ -1,6 +1,5 @@
 import type { RouteHandler } from '@hono/zod-openapi'
 import { Effect } from 'effect'
-import { ContractViolationError, DatabaseError, NotFoundError } from '@/backend/domain'
 import type { getUsersRoute, getUsersUserIdRoute } from '@/backend/routes'
 import * as UsersTransaction from '@/backend/transactions/users'
 import { AuthType, DBLive } from '@/infra'
@@ -12,7 +11,7 @@ import { AuthType, DBLive } from '@/infra'
  * ```
  * flowchart LR
  *   A[param userId] --> B[UsersTransaction.getById]
- *   B --> C{match}
+ *   B --> C{catchTags}
  *   C --> D[200 OK]
  *   C --> E[404 Not Found]
  *   C --> F[503 DB error]
@@ -27,14 +26,11 @@ export const getUsersUserIdRouteHandler: RouteHandler<
   return Effect.runPromise(
     UsersTransaction.getById(userId).pipe(
       Effect.provide(DBLive),
-      Effect.match({
-        onSuccess: (user) => c.json(user, 200),
-        onFailure: (e) => {
-          if (e instanceof NotFoundError) return c.json({ message: e.message }, 404)
-          if (e instanceof ContractViolationError) return c.json({ message: e.message }, 500)
-          if (e instanceof DatabaseError) return c.json({ message: e.message }, 503)
-          return c.json({ message: 'Internal server error' }, 500)
-        },
+      Effect.map((user) => c.json(user, 200)),
+      Effect.catchTags({
+        NotFoundError: (e) => Effect.succeed(c.json({ message: e.message }, 404)),
+        ContractViolationError: (e) => Effect.succeed(c.json({ message: e.message }, 500)),
+        DatabaseError: (e) => Effect.succeed(c.json({ message: e.message }, 503)),
       }),
     ),
   )
@@ -47,7 +43,7 @@ export const getUsersUserIdRouteHandler: RouteHandler<
  * ```
  * flowchart LR
  *   A[query params] --> B[UsersTransaction.getAll]
- *   B --> C{match}
+ *   B --> C{catchTags}
  *   C --> D[200 OK]
  *   C --> E[503 DB error]
  * ```
@@ -61,13 +57,10 @@ export const getUsersRouteHandler: RouteHandler<
   return Effect.runPromise(
     UsersTransaction.getAll(page ?? 1, limit ?? 20).pipe(
       Effect.provide(DBLive),
-      Effect.match({
-        onSuccess: (users) => c.json(users, 200),
-        onFailure: (e) => {
-          if (e instanceof ContractViolationError) return c.json({ message: e.message }, 500)
-          if (e instanceof DatabaseError) return c.json({ message: e.message }, 503)
-          return c.json({ message: 'Internal server error' }, 500)
-        },
+      Effect.map((users) => c.json(users, 200)),
+      Effect.catchTags({
+        ContractViolationError: (e) => Effect.succeed(c.json({ message: e.message }, 500)),
+        DatabaseError: (e) => Effect.succeed(c.json({ message: e.message }, 503)),
       }),
     ),
   )

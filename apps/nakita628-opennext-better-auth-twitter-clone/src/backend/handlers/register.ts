@@ -1,6 +1,5 @@
 import type { RouteHandler } from '@hono/zod-openapi'
 import { Effect } from 'effect'
-import { ConflictError, ContractViolationError, DatabaseError } from '@/backend/domain'
 import type { postRegisterRoute } from '@/backend/routes'
 import * as UserTransaction from '@/backend/transactions/register'
 import { AuthType, DBLive } from '@/infra'
@@ -12,7 +11,7 @@ import { AuthType, DBLive } from '@/infra'
  * ```
  * flowchart LR
  *   A[validate body] --> B[UserTransaction.create]
- *   B --> C{match}
+ *   B --> C{catchTags}
  *   C --> D[201 Created]
  *   C --> E[409 Conflict]
  *   C --> F[503 DB error]
@@ -27,14 +26,11 @@ export const postRegisterRouteHandler: RouteHandler<
   return Effect.runPromise(
     UserTransaction.create(email, name, username, password).pipe(
       Effect.provide(DBLive),
-      Effect.match({
-        onSuccess: (user) => c.json(user, 201),
-        onFailure: (e) => {
-          if (e instanceof ConflictError) return c.json({ message: e.message }, 409)
-          if (e instanceof ContractViolationError) return c.json({ message: e.message }, 500)
-          if (e instanceof DatabaseError) return c.json({ message: e.message }, 503)
-          return c.json({ message: 'Internal server error' }, 500)
-        },
+      Effect.map((user) => c.json(user, 201)),
+      Effect.catchTags({
+        ConflictError: (e) => Effect.succeed(c.json({ message: e.message }, 409)),
+        ContractViolationError: (e) => Effect.succeed(c.json({ message: e.message }, 500)),
+        DatabaseError: (e) => Effect.succeed(c.json({ message: e.message }, 503)),
       }),
     ),
   )

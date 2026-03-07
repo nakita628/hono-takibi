@@ -139,15 +139,15 @@ export function findAllWithRelations(userId?: string) {
 
 /** Batch-fetch comment and like counts for a set of post IDs. */
 export function getCountsForPostIds(postIds: string[]) {
+  if (postIds.length === 0) {
+    return Effect.succeed({
+      commentCounts: {} as Record<string, number>,
+      likeCounts: {} as Record<string, number>,
+    })
+  }
+
   return Effect.gen(function* () {
-    if (postIds.length === 0) {
-      const commentCounts: Record<string, number> = {}
-      const likeCounts: Record<string, number> = {}
-      return { commentCounts, likeCounts }
-    }
-
     const db = yield* DB
-
     const [commentRows, likeRows] = yield* Effect.tryPromise({
       try: () =>
         Promise.all([
@@ -164,26 +164,15 @@ export function getCountsForPostIds(postIds: string[]) {
         ]),
       catch: () => new DatabaseError({ message: 'Database error' }),
     })
-
-    const commentCounts: Record<string, number> = {}
-    for (const row of commentRows) {
-      commentCounts[row.postId] = row.count
+    return {
+      commentCounts: Object.fromEntries(commentRows.map((r) => [r.postId, r.count])),
+      likeCounts: Object.fromEntries(likeRows.map((r) => [r.postId, r.count])),
     }
-
-    const likeCounts: Record<string, number> = {}
-    for (const row of likeRows) {
-      likeCounts[row.postId] = row.count
-    }
-
-    return { commentCounts, likeCounts }
   })
 }
 
 /**
  * Paginated post query with aggregated comment/like counts.
- *
- * Runs parallel queries: posts with user/profile, total count,
- * then batch-fetches comment and like counts for returned post IDs.
  *
  * @mermaid
  * ```

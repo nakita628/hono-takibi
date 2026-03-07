@@ -1,5 +1,5 @@
 import { Effect } from 'effect'
-import { ContractViolationError, NotFoundError } from '@/backend/domain'
+import { ContractViolationError, makeFormatPublicUser, NotFoundError } from '@/backend/domain'
 import { PaginatedUsersSchema, UserWithFollowCountSchema } from '@/backend/routes'
 import * as UserService from '@/backend/services/user'
 
@@ -12,40 +12,38 @@ import * as UserService from '@/backend/services/user'
  *   A[findByIdWithFollowCount] --> B{user?}
  *   B -- no --> C[fail NotFound]
  *   B -- yes --> D[format with _count]
- *   D --> E[validate + return]
+ *   D --> E[safeParse + return]
  * ```
  */
 export function getById(userId: string) {
-  return Effect.gen(function* () {
-    const user = yield* UserService.findByIdWithFollowCount(userId)
-    if (!user) {
-      return yield* Effect.fail(new NotFoundError({ message: 'User not found' }))
-    }
-
-    const profile = user.userProfile
-
-    const data = {
-      id: user.id,
-      name: user.name,
-      username: profile?.username ?? '',
-      bio: profile?.bio ?? null,
-      image: user.image ?? null,
-      coverImage: profile?.coverImage ?? null,
-      profileImage: profile?.profileImage ?? null,
-      createdAt: user.createdAt.toISOString(),
-      updatedAt: user.updatedAt.toISOString(),
-      _count: {
-        followers: user.followersCount,
-        following: user.followingCount,
-      },
-    }
-
-    const valid = UserWithFollowCountSchema.safeParse(data)
-    if (!valid.success) {
-      return yield* Effect.fail(new ContractViolationError({ message: 'Invalid user data' }))
-    }
-    return valid.data
-  })
+  return UserService.findByIdWithFollowCount(userId).pipe(
+    Effect.filterOrFail(
+      (u): u is NonNullable<typeof u> => u != null,
+      () => new NotFoundError({ message: 'User not found' }),
+    ),
+    Effect.andThen((user) => {
+      const profile = user.userProfile
+      const valid = UserWithFollowCountSchema.safeParse({
+        id: user.id,
+        name: user.name,
+        username: profile?.username ?? '',
+        bio: profile?.bio ?? null,
+        image: user.image ?? null,
+        coverImage: profile?.coverImage ?? null,
+        profileImage: profile?.profileImage ?? null,
+        createdAt: user.createdAt.toISOString(),
+        updatedAt: user.updatedAt.toISOString(),
+        _count: {
+          followers: user.followersCount,
+          following: user.followingCount,
+        },
+      })
+      if (!valid.success) {
+        return Effect.fail(new ContractViolationError({ message: 'Invalid user data' }))
+      }
+      return Effect.succeed(valid.data)
+    }),
+  )
 }
 
 /**
@@ -57,41 +55,27 @@ export function getById(userId: string) {
  *   A[compute offset] --> B[findAllPaginated]
  *   B --> C[format users]
  *   C --> D[buildMeta page/limit/total]
- *   D --> E[validate + return]
+ *   D --> E[safeParse + return]
  * ```
  */
 export function getAll(page: number, limit: number) {
-  return Effect.gen(function* () {
-    const offset = (page - 1) * limit
-    const result = yield* UserService.findAllPaginated(limit, offset)
+  const offset = (page - 1) * limit
 
-    const data = {
-      data: result.users.map((user) => {
-        const profile = user.userProfile
-        return {
-          id: user.id,
-          name: user.name,
-          username: profile?.username ?? '',
-          bio: profile?.bio ?? null,
-          image: user.image ?? null,
-          coverImage: profile?.coverImage ?? null,
-          profileImage: profile?.profileImage ?? null,
-          createdAt: user.createdAt.toISOString(),
-          updatedAt: user.updatedAt.toISOString(),
-        }
-      }),
-      meta: {
-        page,
-        limit,
-        total: result.total,
-        totalPages: Math.ceil(result.total / limit),
-      },
-    }
-
-    const valid = PaginatedUsersSchema.safeParse(data)
-    if (!valid.success) {
-      return yield* Effect.fail(new ContractViolationError({ message: 'Invalid users data' }))
-    }
-    return valid.data
-  })
+  return UserService.findAllPaginated(limit, offset).pipe(
+    Effect.andThen((result) => {
+      const valid = PaginatedUsersSchema.safeParse({
+        data: result.users.map((user) => makeFormatPublicUser(user)),
+        meta: {
+          page,
+          limit,
+          total: result.total,
+          totalPages: Math.ceil(result.total / limit),
+        },
+      })
+      if (!valid.success) {
+        return Effect.fail(new ContractViolationError({ message: 'Invalid users data' }))
+      }
+      return Effect.succeed(valid.data)
+    }),
+  )
 }

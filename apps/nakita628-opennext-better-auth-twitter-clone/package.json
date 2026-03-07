@@ -27,6 +27,7 @@
     "drizzle-orm": "^0.45.1",
     "effect": "^3.0.0",
     "hono": "^4.11.9",
+    "hono-rate-limiter": "^0.5.3",
     "next": "^16.1.6",
     "nuqs": "^2.8.8",
     "react": "^19.2.4",

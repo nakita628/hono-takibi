@@ -9,22 +9,24 @@ import * as UserService from '@/backend/services/user'
  * @mermaid
  * ```
  * flowchart TD
- *   A[findByIdWithFollowCount] --> B{user?}
+ *   A[findByIdWithFollows] --> B{user?}
  *   B -- no --> C[fail Unauthorized]
  *   B -- yes --> D[format followers/following]
- *   D --> E[validate + return]
+ *   D --> E[safeParse + return]
  * ```
  */
 export function get(userId: string) {
   return Effect.gen(function* () {
-    const user = yield* UserService.findByIdWithFollows(userId)
-    if (!user) {
-      return yield* Effect.fail(new UnauthorizedError({ message: 'Unauthorized' }))
-    }
+    const user = yield* UserService.findByIdWithFollows(userId).pipe(
+      Effect.filterOrFail(
+        (u): u is NonNullable<typeof u> => u != null,
+        () => new UnauthorizedError({ message: 'Unauthorized' }),
+      ),
+    )
 
     const profile = user.userProfile
 
-    const data = {
+    const valid = CurrentUserSchema.safeParse({
       id: user.id,
       name: user.name,
       username: profile?.username ?? '',
@@ -46,13 +48,9 @@ export function get(userId: string) {
         createdAt: f.createdAt.toISOString(),
       })),
       hasNotification: profile?.hasNotification ?? null,
-    }
-
-    const valid = CurrentUserSchema.safeParse(data)
+    })
     if (!valid.success) {
-      return yield* Effect.fail(
-        new ContractViolationError({ message: 'Invalid current user data' }),
-      )
+      return yield* Effect.fail(new ContractViolationError({ message: 'Invalid current user data' }))
     }
     return valid.data
   })

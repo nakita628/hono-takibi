@@ -1,6 +1,5 @@
 import { Effect } from 'effect'
-import { ConflictError, ContractViolationError, NotFoundError } from '@/backend/domain'
-import * as PostDomain from '@/backend/domain/post'
+import { ConflictError, ContractViolationError, makeFormatPostWithLikes, NotFoundError } from '@/backend/domain'
 import { PostWithLikesSchema } from '@/backend/routes'
 import * as LikeService from '@/backend/services/like'
 import * as NotificationService from '@/backend/services/notification'
@@ -15,19 +14,20 @@ import * as PostService from '@/backend/services/post'
  *   A[findPostWithLikes] --> B{post?}
  *   B -- no --> C[fail NotFound]
  *   B -- yes --> D{already liked?}
- *   D -- yes --> E[fail Validation]
+ *   D -- yes --> E[fail Conflict]
  *   D -- no --> F[createLike]
  *   F --> G[notify owner]
- *   G --> H[refetch post]
- *   H --> I[validate + return]
+ *   G --> H[safeParse + return]
  * ```
  */
 export function create(userId: string, postId: string) {
   return Effect.gen(function* () {
-    const post = yield* PostService.findByIdWithLikes(postId)
-    if (!post) {
-      return yield* Effect.fail(new NotFoundError({ message: 'Post not found' }))
-    }
+    const post = yield* PostService.findByIdWithLikes(postId).pipe(
+      Effect.filterOrFail(
+        (p): p is NonNullable<typeof p> => p != null,
+        () => new NotFoundError({ message: 'Post not found' }),
+      ),
+    )
 
     if (post.likes.some((like) => like.userId === userId)) {
       return yield* Effect.fail(new ConflictError({ message: 'Already liked' }))
@@ -40,8 +40,10 @@ export function create(userId: string, postId: string) {
     }
 
     const updatedLikes = [...post.likes, { userId, postId, createdAt: new Date() }]
-    const data = PostDomain.makeFormatPostWithLikes({ ...post, likes: updatedLikes })
-    const valid = PostWithLikesSchema.safeParse(data)
+
+    const valid = PostWithLikesSchema.safeParse(
+      makeFormatPostWithLikes({ ...post, likes: updatedLikes }),
+    )
     if (!valid.success) {
       return yield* Effect.fail(new ContractViolationError({ message: 'Invalid post data' }))
     }
@@ -56,20 +58,21 @@ export function create(userId: string, postId: string) {
  * ```
  * flowchart TD
  *   A[removeLike] --> B[refetch post]
- *   B --> C[validate + return]
+ *   B --> C[safeParse + return]
  * ```
  */
 export function remove(userId: string, postId: string) {
   return Effect.gen(function* () {
     yield* LikeService.remove(userId, postId)
 
-    const updated = yield* PostService.findByIdWithLikes(postId)
-    if (!updated) {
-      return yield* Effect.fail(new NotFoundError({ message: 'Post not found' }))
-    }
+    const updated = yield* PostService.findByIdWithLikes(postId).pipe(
+      Effect.filterOrFail(
+        (p): p is NonNullable<typeof p> => p != null,
+        () => new NotFoundError({ message: 'Post not found' }),
+      ),
+    )
 
-    const data = PostDomain.makeFormatPostWithLikes(updated)
-    const valid = PostWithLikesSchema.safeParse(data)
+    const valid = PostWithLikesSchema.safeParse(makeFormatPostWithLikes(updated))
     if (!valid.success) {
       return yield* Effect.fail(new ContractViolationError({ message: 'Invalid post data' }))
     }

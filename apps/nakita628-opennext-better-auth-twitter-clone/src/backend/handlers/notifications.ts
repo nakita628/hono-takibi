@@ -1,6 +1,5 @@
 import type { RouteHandler } from '@hono/zod-openapi'
 import { Effect } from 'effect'
-import { ContractViolationError, DatabaseError } from '@/backend/domain'
 import type { getNotificationsUserIdRoute, postNotificationsRoute } from '@/backend/routes'
 import * as NotificationsTransaction from '@/backend/transactions/notifications'
 import { AuthType, DBLive } from '@/infra'
@@ -12,7 +11,7 @@ import { AuthType, DBLive } from '@/infra'
  * ```
  * flowchart LR
  *   A[param userId] --> B[NotificationsTransaction.getByUserId]
- *   B --> C{match}
+ *   B --> C{catchTags}
  *   C --> D[200 OK]
  *   C --> E[503 DB error]
  * ```
@@ -36,13 +35,10 @@ export const getNotificationsUserIdRouteHandler: RouteHandler<
   return Effect.runPromise(
     NotificationsTransaction.getByUserId(userId).pipe(
       Effect.provide(DBLive),
-      Effect.match({
-        onSuccess: (notifications) => c.json(notifications, 200),
-        onFailure: (e) => {
-          if (e instanceof ContractViolationError) return c.json({ message: e.message }, 500)
-          if (e instanceof DatabaseError) return c.json({ message: e.message }, 503)
-          return c.json({ message: 'Internal server error' }, 500)
-        },
+      Effect.map((notifications) => c.json(notifications, 200)),
+      Effect.catchTags({
+        ContractViolationError: (e) => Effect.succeed(c.json({ message: e.message }, 500)),
+        DatabaseError: (e) => Effect.succeed(c.json({ message: e.message }, 503)),
       }),
     ),
   )
@@ -55,7 +51,7 @@ export const getNotificationsUserIdRouteHandler: RouteHandler<
  * ```
  * flowchart LR
  *   A[body userId] --> B[NotificationsTransaction.markAsRead]
- *   B --> C{match}
+ *   B --> C{catchTags}
  *   C --> D[200 OK]
  *   C --> E[503 DB error]
  * ```
@@ -70,18 +66,13 @@ export const postNotificationsRouteHandler: RouteHandler<
     return c.json({ message: 'Unauthorized' }, 401)
   }
 
-  const userId = user.id
-
   return Effect.runPromise(
-    NotificationsTransaction.markAsRead(userId).pipe(
+    NotificationsTransaction.markAsRead(user.id).pipe(
       Effect.provide(DBLive),
-      Effect.match({
-        onSuccess: (result) => c.json(result, 200),
-        onFailure: (e) => {
-          if (e instanceof ContractViolationError) return c.json({ message: e.message }, 500)
-          if (e instanceof DatabaseError) return c.json({ message: e.message }, 503)
-          return c.json({ message: 'Internal server error' }, 500)
-        },
+      Effect.map((result) => c.json(result, 200)),
+      Effect.catchTags({
+        ContractViolationError: (e) => Effect.succeed(c.json({ message: e.message }, 500)),
+        DatabaseError: (e) => Effect.succeed(c.json({ message: e.message }, 503)),
       }),
     ),
   )

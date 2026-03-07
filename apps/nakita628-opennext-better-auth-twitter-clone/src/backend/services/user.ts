@@ -43,8 +43,7 @@ export function findByEmail(email: string) {
           .get(),
       catch: () => new DatabaseError({ message: 'Database error' }),
     })
-    if (!row) return undefined
-    return { ...row.user, userProfile: row.user_profile }
+    return row ? { ...row.user, userProfile: row.user_profile } : undefined
   })
 }
 
@@ -91,8 +90,7 @@ export function findById(id: string) {
           .get(),
       catch: () => new DatabaseError({ message: 'Database error' }),
     })
-    if (!row) return undefined
-    return { ...row.user, userProfile: row.user_profile }
+    return row ? { ...row.user, userProfile: row.user_profile } : undefined
   })
 }
 
@@ -204,8 +202,10 @@ export function findAllPaginated(limit: number, offset: number) {
         ]),
       catch: () => new DatabaseError({ message: 'Database error' }),
     })
-    const users = rows.map((row) => ({ ...row.user, userProfile: row.user_profile }))
-    return { users, total }
+    return {
+      users: rows.map((row) => ({ ...row.user, userProfile: row.user_profile })),
+      total,
+    }
   })
 }
 

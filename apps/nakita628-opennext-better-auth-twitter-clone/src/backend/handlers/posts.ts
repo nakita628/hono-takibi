@@ -1,6 +1,5 @@
 import type { RouteHandler } from '@hono/zod-openapi'
 import { Effect } from 'effect'
-import { ContractViolationError, DatabaseError, NotFoundError } from '@/backend/domain'
 import type { getPostsPostIdRoute, getPostsRoute, postPostsRoute } from '@/backend/routes'
 import * as PostsTransaction from '@/backend/transactions/posts'
 import { AuthType, DBLive } from '@/infra'
@@ -12,7 +11,7 @@ import { AuthType, DBLive } from '@/infra'
  * ```
  * flowchart LR
  *   A[query params] --> B[PostsTransaction.getAll]
- *   B --> C{match}
+ *   B --> C{catchTags}
  *   C --> D[200 OK]
  *   C --> E[503 DB error]
  * ```
@@ -26,13 +25,10 @@ export const getPostsRouteHandler: RouteHandler<
   return Effect.runPromise(
     PostsTransaction.getAll(page ?? 1, limit ?? 20, userId).pipe(
       Effect.provide(DBLive),
-      Effect.match({
-        onSuccess: (posts) => c.json(posts, 200),
-        onFailure: (e) => {
-          if (e instanceof ContractViolationError) return c.json({ message: e.message }, 500)
-          if (e instanceof DatabaseError) return c.json({ message: e.message }, 503)
-          return c.json({ message: 'Internal server error' }, 500)
-        },
+      Effect.map((posts) => c.json(posts, 200)),
+      Effect.catchTags({
+        ContractViolationError: (e) => Effect.succeed(c.json({ message: e.message }, 500)),
+        DatabaseError: (e) => Effect.succeed(c.json({ message: e.message }, 503)),
       }),
     ),
   )
@@ -44,7 +40,7 @@ export const getPostsRouteHandler: RouteHandler<
  * @mermaid
  * ```
  * flowchart LR
- *   A[PostsTransaction.create] --> B{match}
+ *   A[PostsTransaction.create] --> B{catchTags}
  *   B --> C[200 OK]
  *   B --> D[503 DB error]
  * ```
@@ -59,20 +55,15 @@ export const postPostsRouteHandler: RouteHandler<
     return c.json({ message: 'Unauthorized' }, 401)
   }
 
-  const userId = user.id
-
   const { body } = c.req.valid('json')
 
   return Effect.runPromise(
-    PostsTransaction.create(userId, body).pipe(
+    PostsTransaction.create(user.id, body).pipe(
       Effect.provide(DBLive),
-      Effect.match({
-        onSuccess: (post) => c.json(post, 200),
-        onFailure: (e) => {
-          if (e instanceof ContractViolationError) return c.json({ message: e.message }, 500)
-          if (e instanceof DatabaseError) return c.json({ message: e.message }, 503)
-          return c.json({ message: 'Internal server error' }, 500)
-        },
+      Effect.map((post) => c.json(post, 200)),
+      Effect.catchTags({
+        ContractViolationError: (e) => Effect.succeed(c.json({ message: e.message }, 500)),
+        DatabaseError: (e) => Effect.succeed(c.json({ message: e.message }, 503)),
       }),
     ),
   )
@@ -85,7 +76,7 @@ export const postPostsRouteHandler: RouteHandler<
  * ```
  * flowchart LR
  *   A[param postId] --> B[PostsTransaction.getById]
- *   B --> C{match}
+ *   B --> C{catchTags}
  *   C --> D[200 OK]
  *   C --> E[404 Not Found]
  *   C --> F[503 DB error]
@@ -100,14 +91,11 @@ export const getPostsPostIdRouteHandler: RouteHandler<
   return Effect.runPromise(
     PostsTransaction.getById(postId).pipe(
       Effect.provide(DBLive),
-      Effect.match({
-        onSuccess: (post) => c.json(post, 200),
-        onFailure: (e) => {
-          if (e instanceof NotFoundError) return c.json({ message: e.message }, 404)
-          if (e instanceof ContractViolationError) return c.json({ message: e.message }, 500)
-          if (e instanceof DatabaseError) return c.json({ message: e.message }, 503)
-          return c.json({ message: 'Internal server error' }, 500)
-        },
+      Effect.map((post) => c.json(post, 200)),
+      Effect.catchTags({
+        NotFoundError: (e) => Effect.succeed(c.json({ message: e.message }, 404)),
+        ContractViolationError: (e) => Effect.succeed(c.json({ message: e.message }, 500)),
+        DatabaseError: (e) => Effect.succeed(c.json({ message: e.message }, 503)),
       }),
     ),
   )

@@ -12,7 +12,7 @@ export type UserWithProfile = UserRow & { userProfile: UserProfileRow | null }
  *
  * Omits sensitive fields (email, emailVerified) for public display.
  */
-export const makeFormatPublicUser = (user: UserWithProfile) => {
+export function makeFormatPublicUser(user: UserWithProfile) {
   const profile = user.userProfile
   return {
     id: user.id,
@@ -34,7 +34,7 @@ export const makeFormatPublicUser = (user: UserWithProfile) => {
  * and serialises `Date` fields to ISO strings. Includes sensitive fields for
  * authenticated user responses (edit, register, current).
  */
-export const makeFormatUser = (user: UserWithProfile) => {
+export function makeFormatUser(user: UserWithProfile) {
   const profile = user.userProfile
   return {
     ...makeFormatPublicUser(user),

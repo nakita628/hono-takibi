@@ -15,7 +15,7 @@ import * as UserService from '@/backend/services/user'
  *   B -- no --> C[fail NotFound]
  *   B -- yes --> D[createFollow]
  *   D --> E[createNotification]
- *   E --> F[validate + return]
+ *   E --> F[safeParse + return]
  * ```
  */
 export function create(userId: string, targetUserId: string) {
@@ -24,17 +24,17 @@ export function create(userId: string, targetUserId: string) {
       return yield* Effect.fail(new ConflictError({ message: 'Cannot follow yourself' }))
     }
 
-    const targetUser = yield* UserService.findById(targetUserId)
-    if (!targetUser) {
-      return yield* Effect.fail(new NotFoundError({ message: 'User not found' }))
-    }
+    yield* UserService.findById(targetUserId).pipe(
+      Effect.filterOrFail(
+        (u): u is NonNullable<typeof u> => u != null,
+        () => new NotFoundError({ message: 'User not found' }),
+      ),
+    )
 
     yield* FollowService.create(userId, targetUserId)
-
     yield* NotificationService.createAndNotify('Someone followed you!', targetUserId)
 
-    const data = { message: 'Success' }
-    const valid = MessageResponseSchema.safeParse(data)
+    const valid = MessageResponseSchema.safeParse({ message: 'Success' })
     if (!valid.success) {
       return yield* Effect.fail(new ContractViolationError({ message: 'Invalid response data' }))
     }
@@ -48,18 +48,17 @@ export function create(userId: string, targetUserId: string) {
  * @mermaid
  * ```
  * flowchart TD
- *   A[removeFollow] --> B[validate + return]
+ *   A[removeFollow] --> B[safeParse + return]
  * ```
  */
 export function remove(userId: string, targetUserId: string) {
-  return Effect.gen(function* () {
-    yield* FollowService.remove(userId, targetUserId)
-
-    const data = { message: 'Success' }
-    const valid = MessageResponseSchema.safeParse(data)
-    if (!valid.success) {
-      return yield* Effect.fail(new ContractViolationError({ message: 'Invalid response data' }))
-    }
-    return valid.data
-  })
+  return FollowService.remove(userId, targetUserId).pipe(
+    Effect.andThen(() => {
+      const valid = MessageResponseSchema.safeParse({ message: 'Success' })
+      if (!valid.success) {
+        return Effect.fail(new ContractViolationError({ message: 'Invalid response data' }))
+      }
+      return Effect.succeed(valid.data)
+    }),
+  )
 }

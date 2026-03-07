@@ -12,9 +12,4 @@ const dbEffect = Effect.sync(() => getDb())
 
 export class DB extends Context.Tag('DB')<DB, Effect.Effect.Success<typeof dbEffect>>() {}
 
-export const DBLive = Layer.effect(
-  DB,
-  Effect.gen(function* () {
-    return yield* dbEffect
-  }),
-)
+export const DBLive = Layer.effect(DB, dbEffect)

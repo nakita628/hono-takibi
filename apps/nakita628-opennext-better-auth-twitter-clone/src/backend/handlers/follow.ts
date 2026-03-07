@@ -1,11 +1,5 @@
 import type { RouteHandler } from '@hono/zod-openapi'
 import { Effect } from 'effect'
-import {
-  ConflictError,
-  ContractViolationError,
-  DatabaseError,
-  NotFoundError,
-} from '@/backend/domain'
 import type { deleteFollowRoute, postFollowRoute } from '@/backend/routes'
 import * as FollowTransaction from '@/backend/transactions/follow'
 import { AuthType, DBLive } from '@/infra'
@@ -16,7 +10,7 @@ import { AuthType, DBLive } from '@/infra'
  * @mermaid
  * ```
  * flowchart LR
- *   A[FollowTransaction.create] --> B{match}
+ *   A[FollowTransaction.create] --> B{catchTags}
  *   B --> C[200 OK]
  *   B --> D[404 Not Found]
  *   B --> E[503 DB error]
@@ -32,21 +26,17 @@ export const postFollowRouteHandler: RouteHandler<
     return c.json({ message: 'Unauthorized' }, 401)
   }
 
-  const userId = user.id
   const { userId: targetUserId } = c.req.valid('json')
 
   return Effect.runPromise(
-    FollowTransaction.create(userId, targetUserId).pipe(
+    FollowTransaction.create(user.id, targetUserId).pipe(
       Effect.provide(DBLive),
-      Effect.match({
-        onSuccess: (result) => c.json(result, 200),
-        onFailure: (e) => {
-          if (e instanceof ConflictError) return c.json({ message: e.message }, 409)
-          if (e instanceof NotFoundError) return c.json({ message: e.message }, 404)
-          if (e instanceof ContractViolationError) return c.json({ message: e.message }, 500)
-          if (e instanceof DatabaseError) return c.json({ message: e.message }, 503)
-          return c.json({ message: 'Internal server error' }, 500)
-        },
+      Effect.map((result) => c.json(result, 200)),
+      Effect.catchTags({
+        ConflictError: (e) => Effect.succeed(c.json({ message: e.message }, 409)),
+        NotFoundError: (e) => Effect.succeed(c.json({ message: e.message }, 404)),
+        ContractViolationError: (e) => Effect.succeed(c.json({ message: e.message }, 500)),
+        DatabaseError: (e) => Effect.succeed(c.json({ message: e.message }, 503)),
       }),
     ),
   )
@@ -58,7 +48,7 @@ export const postFollowRouteHandler: RouteHandler<
  * @mermaid
  * ```
  * flowchart LR
- *   A[FollowTransaction.remove] --> B{match}
+ *   A[FollowTransaction.remove] --> B{catchTags}
  *   B --> C[200 OK]
  *   B --> D[503 DB error]
  * ```
@@ -73,19 +63,15 @@ export const deleteFollowRouteHandler: RouteHandler<
     return c.json({ message: 'Unauthorized' }, 401)
   }
 
-  const userId = user.id
   const { userId: targetUserId } = c.req.valid('json')
 
   return Effect.runPromise(
-    FollowTransaction.remove(userId, targetUserId).pipe(
+    FollowTransaction.remove(user.id, targetUserId).pipe(
       Effect.provide(DBLive),
-      Effect.match({
-        onSuccess: (result) => c.json(result, 200),
-        onFailure: (e) => {
-          if (e instanceof ContractViolationError) return c.json({ message: e.message }, 500)
-          if (e instanceof DatabaseError) return c.json({ message: e.message }, 503)
-          return c.json({ message: 'Internal server error' }, 500)
-        },
+      Effect.map((result) => c.json(result, 200)),
+      Effect.catchTags({
+        ContractViolationError: (e) => Effect.succeed(c.json({ message: e.message }, 500)),
+        DatabaseError: (e) => Effect.succeed(c.json({ message: e.message }, 503)),
       }),
     ),
   )

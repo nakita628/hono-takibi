@@ -1,6 +1,5 @@
 import type { RouteHandler } from '@hono/zod-openapi'
 import { Effect } from 'effect'
-import { ContractViolationError, DatabaseError } from '@/backend/domain'
 import type { getSearchRoute } from '@/backend/routes'
 import * as SearchTransaction from '@/backend/transactions/search'
 import { AuthType, DBLive } from '@/infra'
@@ -12,7 +11,7 @@ import { AuthType, DBLive } from '@/infra'
  * ```
  * flowchart LR
  *   A[query params] --> B[SearchTransaction.search]
- *   B --> C{match}
+ *   B --> C{catchTags}
  *   C --> D[200 OK]
  *   C --> E[503 DB error]
  * ```
@@ -26,13 +25,10 @@ export const getSearchRouteHandler: RouteHandler<
   return Effect.runPromise(
     SearchTransaction.search(q, page ?? 1, limit ?? 20).pipe(
       Effect.provide(DBLive),
-      Effect.match({
-        onSuccess: (results) => c.json(results, 200),
-        onFailure: (e) => {
-          if (e instanceof ContractViolationError) return c.json({ message: e.message }, 500)
-          if (e instanceof DatabaseError) return c.json({ message: e.message }, 503)
-          return c.json({ message: 'Internal server error' }, 500)
-        },
+      Effect.map((results) => c.json(results, 200)),
+      Effect.catchTags({
+        ContractViolationError: (e) => Effect.succeed(c.json({ message: e.message }, 500)),
+        DatabaseError: (e) => Effect.succeed(c.json({ message: e.message }, 503)),
       }),
     ),
   )

@@ -1,11 +1,5 @@
 import type { RouteHandler } from '@hono/zod-openapi'
 import { Effect } from 'effect'
-import {
-  ConflictError,
-  ContractViolationError,
-  DatabaseError,
-  UnauthorizedError,
-} from '@/backend/domain'
 import type { patchEditRoute } from '@/backend/routes'
 import * as EditTransaction from '@/backend/transactions/edit'
 import { AuthType, DBLive } from '@/infra'
@@ -16,7 +10,7 @@ import { AuthType, DBLive } from '@/infra'
  * @mermaid
  * ```
  * flowchart LR
- *   A[EditTransaction.update] --> B{match}
+ *   A[EditTransaction.update] --> B{catchTags}
  *   B --> C[200 OK]
  *   B --> D[401 Unauthorized]
  *   B --> E[503 DB error]
@@ -32,22 +26,17 @@ export const patchEditRouteHandler: RouteHandler<
     return c.json({ message: 'Unauthorized' }, 401)
   }
 
-  const userId = user.id
-
   const body = c.req.valid('json')
 
   return Effect.runPromise(
-    EditTransaction.update(userId, body).pipe(
+    EditTransaction.update(user.id, body).pipe(
       Effect.provide(DBLive),
-      Effect.match({
-        onSuccess: (user) => c.json(user, 200),
-        onFailure: (e) => {
-          if (e instanceof UnauthorizedError) return c.json({ message: e.message }, 401)
-          if (e instanceof ConflictError) return c.json({ message: e.message }, 409)
-          if (e instanceof ContractViolationError) return c.json({ message: e.message }, 500)
-          if (e instanceof DatabaseError) return c.json({ message: e.message }, 503)
-          return c.json({ message: 'Internal server error' }, 500)
-        },
+      Effect.map((user) => c.json(user, 200)),
+      Effect.catchTags({
+        UnauthorizedError: (e) => Effect.succeed(c.json({ message: e.message }, 401)),
+        ConflictError: (e) => Effect.succeed(c.json({ message: e.message }, 409)),
+        ContractViolationError: (e) => Effect.succeed(c.json({ message: e.message }, 500)),
+        DatabaseError: (e) => Effect.succeed(c.json({ message: e.message }, 503)),
       }),
     ),
   )

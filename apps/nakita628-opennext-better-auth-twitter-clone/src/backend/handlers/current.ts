@@ -1,6 +1,5 @@
 import type { RouteHandler } from '@hono/zod-openapi'
 import { Effect } from 'effect'
-import { ContractViolationError, DatabaseError, UnauthorizedError } from '@/backend/domain'
 import type { getCurrentRoute } from '@/backend/routes'
 import * as CurrentTransaction from '@/backend/transactions/current'
 import { AuthType, DBLive } from '@/infra'
@@ -11,7 +10,7 @@ import { AuthType, DBLive } from '@/infra'
  * @mermaid
  * ```
  * flowchart LR
- *   A[CurrentTransaction.get] --> B{match}
+ *   A[CurrentTransaction.get] --> B{catchTags}
  *   B --> C[200 OK]
  *   B --> D[401 Unauthorized]
  *   B --> E[503 DB error]
@@ -27,19 +26,14 @@ export const getCurrentRouteHandler: RouteHandler<
     return c.json({ message: 'Unauthorized' }, 401)
   }
 
-  const userId = user.id
-
   return Effect.runPromise(
-    CurrentTransaction.get(userId).pipe(
+    CurrentTransaction.get(user.id).pipe(
       Effect.provide(DBLive),
-      Effect.match({
-        onSuccess: (user) => c.json(user, 200),
-        onFailure: (e) => {
-          if (e instanceof UnauthorizedError) return c.json({ message: e.message }, 401)
-          if (e instanceof ContractViolationError) return c.json({ message: e.message }, 500)
-          if (e instanceof DatabaseError) return c.json({ message: e.message }, 503)
-          return c.json({ message: 'Internal server error' }, 500)
-        },
+      Effect.map((user) => c.json(user, 200)),
+      Effect.catchTags({
+        UnauthorizedError: (e) => Effect.succeed(c.json({ message: e.message }, 401)),
+        ContractViolationError: (e) => Effect.succeed(c.json({ message: e.message }, 500)),
+        DatabaseError: (e) => Effect.succeed(c.json({ message: e.message }, 503)),
       }),
     ),
   )

@@ -15,7 +15,7 @@ import * as UserService from '@/backend/services/user'
  *   D -- yes --> E[updateName]
  *   D -- no --> F[updateProfile]
  *   E --> F
- *   F --> G[validate + return]
+ *   F --> G[safeParse + return]
  * ```
  */
 export function update(
@@ -29,20 +29,20 @@ export function update(
   },
 ) {
   return Effect.gen(function* () {
-    const user = yield* UserService.findById(userId)
-    if (!user) {
-      return yield* Effect.fail(new UnauthorizedError({ message: 'Not signed in' }))
-    }
+    const user = yield* UserService.findById(userId).pipe(
+      Effect.filterOrFail(
+        (u): u is NonNullable<typeof u> => u != null,
+        () => new UnauthorizedError({ message: 'Not signed in' }),
+      ),
+    )
 
     const profile = user.userProfile
     const newUsername = args.username ?? profile?.username ?? ''
 
-    // Update name on user table if provided
     if (args.name && args.name !== user.name) {
       yield* UserService.updateName(user.id, args.name)
     }
 
-    // Upsert profile fields on userProfile table
     const updatedProfile = yield* UserService.updateProfile(user.id, {
       username: newUsername,
       bio: args.bio ?? profile?.bio,
@@ -50,7 +50,7 @@ export function update(
       profileImage: args.profileImage !== undefined ? args.profileImage : profile?.profileImage,
     })
 
-    const data = {
+    const valid = UserSchema.safeParse({
       id: user.id,
       name: args.name ?? user.name,
       username: updatedProfile.username,
@@ -62,9 +62,7 @@ export function update(
       profileImage: updatedProfile.profileImage,
       createdAt: user.createdAt.toISOString(),
       updatedAt: user.updatedAt.toISOString(),
-    }
-
-    const valid = UserSchema.safeParse(data)
+    })
     if (!valid.success) {
       return yield* Effect.fail(new ContractViolationError({ message: 'Invalid user data' }))
     }

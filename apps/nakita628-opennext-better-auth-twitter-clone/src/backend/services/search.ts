@@ -22,10 +22,10 @@ import { DB } from '@/infra'
  *   E --> F
  */
 export function searchPosts(query: string, limit: number, offset: number) {
+  const whereClause = like(schema.posts.body, `%${query}%`)
+
   return Effect.gen(function* () {
     const db = yield* DB
-    const whereClause = like(schema.posts.body, `%${query}%`)
-
     const [postRows, [{ total }]] = yield* Effect.tryPromise({
       try: () =>
         Promise.all([
@@ -43,13 +43,13 @@ export function searchPosts(query: string, limit: number, offset: number) {
         ]),
       catch: () => new DatabaseError({ message: 'Database error' }),
     })
-
-    const posts = postRows.map((row) => ({
-      ...row.posts,
-      user: { ...row.user, userProfile: row.user_profile },
-    }))
-
-    return { posts, total }
+    return {
+      posts: postRows.map((row) => ({
+        ...row.posts,
+        user: { ...row.user, userProfile: row.user_profile },
+      })),
+      total,
+    }
   })
 }
 
@@ -62,10 +62,10 @@ export function searchPosts(query: string, limit: number, offset: number) {
  * @returns Effect yielding `{ users, total }`
  */
 export function searchUsers(query: string, limit: number, offset: number) {
+  const whereClause = like(schema.user.name, `%${query}%`)
+
   return Effect.gen(function* () {
     const db = yield* DB
-    const whereClause = like(schema.user.name, `%${query}%`)
-
     const [userRows, [{ total }]] = yield* Effect.tryPromise({
       try: () =>
         Promise.all([
@@ -82,9 +82,9 @@ export function searchUsers(query: string, limit: number, offset: number) {
         ]),
       catch: () => new DatabaseError({ message: 'Database error' }),
     })
-
-    const users = userRows.map((row) => ({ ...row.user, userProfile: row.user_profile }))
-
-    return { users, total }
+    return {
+      users: userRows.map((row) => ({ ...row.user, userProfile: row.user_profile })),
+      total,
+    }
   })
 }
