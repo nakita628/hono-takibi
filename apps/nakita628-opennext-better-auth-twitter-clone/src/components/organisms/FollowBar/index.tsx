@@ -4,6 +4,18 @@ import { AvatarLink } from '@/components/molecules/AvatarLink'
 import { SearchBarContainer } from '@/components/molecules/SearchBarContainer'
 import { useGetUsers } from '@/hooks'
 
+/**
+ * FollowBar — "Who to follow" sidebar widget
+ *
+ * ||| SWR Data Flow |||
+ *
+ *   useGetUsers({ query: {} })
+ *     Key: ['users', 'GET', '/users', { query: {} }]
+ *     → Fetches the first page of users (default pagination)
+ *     → Displays user avatars and names
+ *
+ * Only visible on large screens (lg:block).
+ */
 export function FollowBar() {
   const { data: result } = useGetUsers({ query: {} })
   const users = result?.data ?? []

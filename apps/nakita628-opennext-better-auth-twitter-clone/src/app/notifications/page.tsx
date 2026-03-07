@@ -7,6 +7,12 @@ import { Header } from '@/components/atoms/Header'
 import { NotificationsFeed } from '@/components/organisms/NotificationsFeed'
 import { useGetCurrent } from '@/hooks'
 
+/**
+ * Notifications Page — List of notifications
+ *
+ * Auth-gated: redirects to / if not logged in.
+ * The NotificationsFeed component handles fetching and display.
+ */
 export default function Notifications() {
   const router = useRouter()
   const { data: currentUser, isLoading } = useGetCurrent()

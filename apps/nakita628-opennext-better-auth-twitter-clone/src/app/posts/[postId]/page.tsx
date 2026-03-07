@@ -9,6 +9,18 @@ import { Form } from '@/components/organisms/Form'
 import { PostItem } from '@/components/organisms/PostItem'
 import { useGetCurrent, useGetPostsPostId } from '@/hooks'
 
+/**
+ * Post Detail Page — Single post with comments
+ *
+ * ||| Data Dependencies |||
+ *
+ *   useGetCurrent()     → auth check (redirects to / if not logged in)
+ *   useGetPostsPostId() → post detail (enabled only after auth confirmed)
+ *     Key: ['posts', 'GET', '/posts/:postId', { param: { postId } }]
+ *
+ * The `enabled: !!currentUser` option prevents fetching the post
+ * before we know the user is authenticated.
+ */
 export default function PostView() {
   const router = useRouter()
   const params = useParams()

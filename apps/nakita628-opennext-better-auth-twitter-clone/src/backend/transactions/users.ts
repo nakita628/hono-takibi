@@ -4,16 +4,34 @@ import { PaginatedUsersSchema, UserWithFollowCountSchema } from '@/backend/route
 import * as UserService from '@/backend/services/user'
 
 /**
- * Fetch a user by ID with follower/following counts.
+ * Fetch user detail with follower/following counts.
  *
- * @mermaid
- * ```
- * flowchart TD
- *   A[findByIdWithFollowCount] --> B{user?}
- *   B -- no --> C[fail NotFound]
- *   B -- yes --> D[format with _count]
- *   D --> E[safeParse + return]
- * ```
+ * ||| What It Does |||
+ *   Loads a user's public profile along with how many followers
+ *   and how many people they follow (counts, not full lists).
+ *
+ * ||| Flow |||
+ *   1. UserService.findByIdWithFollowCount(userId)
+ *      → SELECT * FROM user LEFT JOIN user_profile WHERE user.id = :userId
+ *      → SELECT COUNT(*) FROM follows WHERE followingId = :userId  (followers)
+ *      → SELECT COUNT(*) FROM follows WHERE followerId  = :userId  (following)
+ *   2. If not found → NotFoundError
+ *   3. Validate via UserWithFollowCountSchema.safeParse()
+ *
+ * ||| Table → Response Mapping |||
+ *
+ *   +---------------------------+---+--------------------+
+ *   | Source                    |   | Response Field     |
+ *   +---------------------------+---+--------------------+
+ *   | user.id                   | → | id                 |
+ *   | user.name                 | → | name               |
+ *   | user_profile.username     | → | username           |
+ *   | user_profile.bio          | → | bio                |
+ *   | user_profile.coverImage   | → | coverImage         |
+ *   | user_profile.profileImage | → | profileImage       |
+ *   | COUNT(follows.followingId)| → | _count.followers   |
+ *   | COUNT(follows.followerId) | → | _count.following   |
+ *   +---------------------------+---+--------------------+
  */
 export function getById(userId: string) {
   return Effect.gen(function* () {
@@ -47,14 +65,20 @@ export function getById(userId: string) {
 /**
  * List all users with pagination.
  *
- * @mermaid
- * ```
- * flowchart TD
- *   A[compute offset] --> B[findAllPaginated]
- *   B --> C[format users]
- *   C --> D[buildMeta page/limit/total]
- *   D --> E[safeParse + return]
- * ```
+ * ||| What It Does |||
+ *   Returns a page of users with their profiles, formatted for
+ *   public display (emails are stripped out).
+ *
+ * ||| Flow |||
+ *   1. Calculate offset = (page - 1) * limit
+ *   2. UserService.findAllPaginated(limit, offset)
+ *      → SELECT * FROM user LEFT JOIN user_profile ORDER BY createdAt DESC LIMIT/OFFSET
+ *      → SELECT COUNT(*) FROM user
+ *   3. Format each user via makeFormatPublicUser() (strips email)
+ *   4. Validate via PaginatedUsersSchema.safeParse({ data, meta })
+ *
+ * ||| Returns |||
+ *   { data: PublicUser[], meta: { page, limit, total, totalPages } }
  */
 export function getAll(page: number, limit: number) {
   return Effect.gen(function* () {

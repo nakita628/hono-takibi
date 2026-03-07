@@ -107,22 +107,24 @@ describe('Posts', () => {
     })
 
     it('should pass pagination params to transaction', async () => {
-      mockGetSession.mockResolvedValue(mockSession())
+      const session = mockSession()
+      mockGetSession.mockResolvedValue(session)
       vi.mocked(PostsTransaction.getAll).mockReturnValue(Effect.succeed(mockPaginatedPosts()))
 
       await app.request('/api/posts?page=2&limit=10', { method: 'GET' })
 
-      expect(PostsTransaction.getAll).toHaveBeenCalledWith(2, 10, undefined)
+      expect(PostsTransaction.getAll).toHaveBeenCalledWith(2, 10, undefined, session.user.id)
     })
 
     it('should pass userId filter to transaction', async () => {
-      mockGetSession.mockResolvedValue(mockSession())
+      const session = mockSession()
+      mockGetSession.mockResolvedValue(session)
       vi.mocked(PostsTransaction.getAll).mockReturnValue(Effect.succeed(mockPaginatedPosts()))
 
       const userId = faker.string.uuid()
       await app.request(`/api/posts?userId=${userId}`, { method: 'GET' })
 
-      expect(PostsTransaction.getAll).toHaveBeenCalledWith(1, 20, userId)
+      expect(PostsTransaction.getAll).toHaveBeenCalledWith(1, 20, userId, session.user.id)
     })
 
     it('should return 500 on ContractViolationError', async () => {

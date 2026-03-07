@@ -5,17 +5,34 @@ import * as AuthService from '@/backend/services/auth'
 import * as UserService from '@/backend/services/user'
 
 /**
- * Register a new user account with Better Auth and create a profile.
+ * Register a new user (Better Auth + profile creation).
  *
- * @mermaid
- * ```
- * flowchart TD
- *   A[exists check] --> B{duplicate?}
- *   B -- yes --> C[fail Conflict]
- *   B -- no --> D[AuthService.signUpEmail]
- *   D --> E[createProfile]
- *   E --> F[safeParse + return]
- * ```
+ * ||| What It Does |||
+ *   Creates a complete user account: auth credentials, user row,
+ *   and application profile — all in one transaction.
+ *
+ * ||| Flow |||
+ *   1. UserService.exists(email) → duplicate check
+ *      → SELECT * FROM user WHERE email = :email
+ *      → found → ConflictError "Email already exists"
+ *   2. AuthService.signUpEmail(email, password, name)
+ *      Better Auth internally executes:
+ *      → INSERT INTO user (id, name, email, ...) VALUES (...)
+ *      → INSERT INTO account (id, userId, providerId: "credential", password: hash, ...) VALUES (...)
+ *   3. UserService.createProfile(user.id, username)
+ *      → INSERT INTO user_profile (userId, username, ...) VALUES (...) RETURNING *
+ *   4. Validate response via UserSchema.safeParse()
+ *
+ * ||| Table Relationship (Registration) |||
+ *
+ *   +------+---1:1---+--------------+
+ *   | user |         | user_profile |  (userId FK)
+ *   +------+---1:N---+---------+----+
+ *                    | account |       (userId FK, credential provider)
+ *                    +---------+
+ *
+ * ||| Returns |||
+ *   { id, name, username, bio, email, image, coverImage, profileImage, ... }
  */
 export function create(email: string, name: string, username: string, password: string) {
   return Effect.gen(function* () {

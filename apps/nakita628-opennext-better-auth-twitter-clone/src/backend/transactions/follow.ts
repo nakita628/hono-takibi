@@ -6,17 +6,16 @@ import * as NotificationService from '@/backend/services/notification'
 import * as UserService from '@/backend/services/user'
 
 /**
- * Follow a user and send a notification to the target.
+ * Follow a user + send notification
  *
- * @mermaid
- * ```
- * flowchart TD
- *   A[findTargetUser] --> B{exists?}
- *   B -- no --> C[fail NotFound]
- *   B -- yes --> D[createFollow]
- *   D --> E[createNotification]
- *   E --> F[safeParse + return]
- * ```
+ * --- Flow ---
+ * 1. Self-follow → ConflictError
+ * 2. UserService.findById(targetUserId) → verify exists (null → NotFoundError)
+ * 3. FollowService.create(userId, targetUserId)
+ *    ||| INSERT INTO follows (followerId, followingId, createdAt) VALUES (:me, :target, ...)
+ * 4. NotificationService.createAndNotify("Someone followed you!", targetUserId)
+ *    ||| INSERT INTO notifications + UPDATE user_profile SET hasNotification = true
+ * 5. MessageResponseSchema.safeParse({ message: "Success" })
  */
 export function create(userId: string, targetUserId: string) {
   return Effect.gen(function* () {
@@ -27,6 +26,11 @@ export function create(userId: string, targetUserId: string) {
     const targetUser = yield* UserService.findById(targetUserId)
     if (targetUser == null) {
       return yield* new NotFoundError({ message: 'User not found' })
+    }
+
+    const existing = yield* FollowService.findByUsers(userId, targetUserId)
+    if (existing) {
+      return yield* new ConflictError({ message: 'Already following' })
     }
 
     yield* FollowService.create(userId, targetUserId)
@@ -41,13 +45,12 @@ export function create(userId: string, targetUserId: string) {
 }
 
 /**
- * Unfollow a user.
+ * Unfollow a user
  *
- * @mermaid
- * ```
- * flowchart TD
- *   A[removeFollow] --> B[safeParse + return]
- * ```
+ * --- Flow ---
+ * 1. FollowService.remove(userId, targetUserId)
+ *    ||| DELETE FROM follows WHERE followerId = :me AND followingId = :target
+ * 2. MessageResponseSchema.safeParse({ message: "Success" })
  */
 export function remove(userId: string, targetUserId: string) {
   return Effect.gen(function* () {

@@ -12,6 +12,30 @@ import { SidebarItemContainer } from '@/components/molecules/SidebarItemContaine
 import { getGetCurrentKey, useGetCurrent } from '@/hooks'
 import { authClient } from '@/infra/auth-client'
 
+/**
+ * Sidebar — Main navigation with sign out
+ *
+ * ||| SWR Data Flow |||
+ *
+ *   useGetCurrent() → determines logged-in state
+ *     - Logged in: show Notifications, Profile, Logout items
+ *     - Logged out: show only Home
+ *
+ * ||| Sign Out Flow |||
+ *
+ *   1. authClient.signOut() → clears session cookie
+ *   2. mutate(getGetCurrentKey(), undefined, { revalidate: false })
+ *      → Sets current user cache to undefined WITHOUT refetching
+ *      → This immediately shows the logged-out UI
+ *   3. router.push('/') + router.refresh()
+ *      → Navigate home and refresh server components
+ *
+ * ||| Notification Badge |||
+ *
+ *   currentUser.hasNotification → shows alert dot on bell icon
+ *   (Set to true when someone likes/comments/follows)
+ *   (Cleared when user visits /notifications page)
+ */
 export function Sidebar() {
   const router = useRouter()
   const { data: currentUser } = useGetCurrent()

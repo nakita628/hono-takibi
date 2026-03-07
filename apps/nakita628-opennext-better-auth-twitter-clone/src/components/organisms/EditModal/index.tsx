@@ -25,6 +25,29 @@ function postsInfiniteKey(userId?: string) {
   )
 }
 
+/**
+ * EditModal — Profile editing form
+ *
+ * ||| SWR Data Flow |||
+ *
+ *   useGetCurrent()  → pre-fill form with current user data
+ *   usePatchEdit()   → mutation: PATCH /edit (update name, username, bio, images)
+ *
+ * ||| Cache Invalidation After Save |||
+ *
+ *   Revalidates multiple caches in parallel because profile data appears in many places:
+ *     getGetCurrentKey()                    → refresh sidebar & auth state
+ *     postsInfiniteKey()                    → refresh post feed (author name/avatar)
+ *     getGetUsersKey({ query: {} })         → refresh "Who to follow" list
+ *     getGetUsersUserIdKey({ userId })      → refresh user profile page
+ *     postsInfiniteKey(currentUser.id)      → refresh user's own post feed
+ *
+ * ||| postsInfiniteKey(userId?) |||
+ *
+ *   Uses `unstable_serialize` from swr/infinite.
+ *   Without userId: invalidates the global post feed.
+ *   With userId: invalidates the user-specific post feed (on /users/:userId page).
+ */
 export function EditModal() {
   const { data: currentUser } = useGetCurrent()
   const editModal = useEditModal()

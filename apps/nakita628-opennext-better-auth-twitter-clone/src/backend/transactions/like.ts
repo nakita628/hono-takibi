@@ -6,19 +6,19 @@ import * as NotificationService from '@/backend/services/notification'
 import * as PostService from '@/backend/services/post'
 
 /**
- * Like a post (with duplicate check) and notify the post owner.
+ * Like a post (with duplicate check + notification)
  *
- * @mermaid
- * ```
- * flowchart TD
- *   A[findPostWithLikes] --> B{post?}
- *   B -- no --> C[fail NotFound]
- *   B -- yes --> D{already liked?}
- *   D -- yes --> E[fail Conflict]
- *   D -- no --> F[createLike]
- *   F --> G[notify owner]
- *   G --> H[safeParse + return]
- * ```
+ * --- Flow ---
+ * 1. PostService.findByIdWithLikes(postId)
+ *    ||| SELECT * FROM posts WHERE id = :postId
+ *    ||| SELECT * FROM likes WHERE postId = :postId
+ *    → null → NotFoundError
+ * 2. likes.some(l => l.userId === userId) → ConflictError "Already liked"
+ * 3. LikeService.create(userId, postId)
+ *    ||| INSERT INTO likes (userId, postId, createdAt) VALUES (:me, :postId, ...)
+ * 4. NotificationService.createAndNotify("Someone liked your tweet", post.userId)
+ *    ||| INSERT INTO notifications + UPDATE user_profile SET hasNotification = true
+ * 5. Append new like to existing likes and validate via PostWithLikesSchema.safeParse()
  */
 export function create(userId: string, postId: string) {
   return Effect.gen(function* () {
@@ -33,7 +33,7 @@ export function create(userId: string, postId: string) {
 
     yield* LikeService.create(userId, postId)
 
-    if (post.userId) {
+    if (post.userId && post.userId !== userId) {
       yield* NotificationService.createAndNotify('Someone liked your tweet', post.userId)
     }
 
@@ -50,14 +50,16 @@ export function create(userId: string, postId: string) {
 }
 
 /**
- * Unlike a post and return the updated post with likes.
+ * Unlike a post
  *
- * @mermaid
- * ```
- * flowchart TD
- *   A[removeLike] --> B[refetch post]
- *   B --> C[safeParse + return]
- * ```
+ * --- Flow ---
+ * 1. LikeService.remove(userId, postId)
+ *    ||| DELETE FROM likes WHERE userId = :me AND postId = :postId
+ * 2. PostService.findByIdWithLikes(postId) → re-fetch updated state
+ *    ||| SELECT * FROM posts WHERE id = :postId
+ *    ||| SELECT * FROM likes WHERE postId = :postId
+ *    → null → NotFoundError
+ * 3. Validate via PostWithLikesSchema.safeParse(updated)
  */
 export function remove(userId: string, postId: string) {
   return Effect.gen(function* () {

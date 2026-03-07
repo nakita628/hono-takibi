@@ -3,6 +3,16 @@ import { ContractViolationError, makeFormatPublicUser, NotFoundError } from '@/b
 import { PaginatedPostsSchema, PostDetailSchema, PostSchema } from '@/backend/routes'
 import * as PostService from '@/backend/services/post'
 
+/**
+ * Create a new post (tweet).
+ *
+ * ||| Flow |||
+ *   1. PostService.create(body, userId) → INSERT INTO posts
+ *   2. Validate via PostSchema.safeParse()
+ *
+ * ||| Returns |||
+ *   { id, body, createdAt, updatedAt, userId }
+ */
 export function create(userId: string, body: string) {
   return Effect.gen(function* () {
     const post = yield* PostService.create(body, userId)
@@ -20,10 +30,30 @@ export function create(userId: string, body: string) {
   })
 }
 
-export function getAll(page: number, limit: number, userId?: string) {
+/**
+ * Get paginated post feed with author info and comment/like counts.
+ *
+ * ||| Flow |||
+ *   1. Calculate offset from page number
+ *   2. PostService.findAllPaginated(limit, offset, userId?)
+ *      → posts with user/profile JOINs + total count
+ *      → batch comment/like counts for all returned post IDs
+ *   3. Format each post with makeFormatPublicUser() (strips email from author)
+ *   4. Validate via PaginatedPostsSchema.safeParse()
+ *
+ * ||| Returns |||
+ *   { data: PostSummary[], meta: { page, limit, total, totalPages } }
+ */
+export function getAll(page: number, limit: number, userId?: string, currentUserId?: string) {
   return Effect.gen(function* () {
     const offset = (page - 1) * limit
     const result = yield* PostService.findAllPaginated(limit, offset, userId)
+
+    const postIds = result.posts.map((post) => post.id)
+    const likedPostIds = currentUserId
+      ? yield* PostService.getLikedPostIds(currentUserId, postIds)
+      : new Set<string>()
+
     const valid = PaginatedPostsSchema.safeParse({
       data: result.posts.map((post) => ({
         id: post.id,
@@ -34,6 +64,7 @@ export function getAll(page: number, limit: number, userId?: string) {
         user: makeFormatPublicUser(post.user),
         commentCount: result.commentCounts[post.id] ?? 0,
         likeCount: result.likeCounts[post.id] ?? 0,
+        hasLiked: likedPostIds.has(post.id),
       })),
       meta: {
         page,
@@ -49,6 +80,19 @@ export function getAll(page: number, limit: number, userId?: string) {
   })
 }
 
+/**
+ * Get a single post with full details (author, comments, likes).
+ *
+ * ||| Flow |||
+ *   1. PostService.findByIdWithRelations(postId)
+ *      → post + author + comments + likes (3 SQL queries)
+ *   2. If not found → NotFoundError
+ *   3. Format author and commenter users with makeFormatPublicUser()
+ *   4. Validate via PostDetailSchema.safeParse()
+ *
+ * ||| Returns |||
+ *   { ...post, user, comments[{ ...comment, user }], likes[{ userId }], _count }
+ */
 export function getById(postId: string) {
   return Effect.gen(function* () {
     const post = yield* PostService.findByIdWithRelations(postId)

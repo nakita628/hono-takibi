@@ -6,8 +6,10 @@ import { useCallback, useMemo } from 'react'
 import toast from 'react-hot-toast'
 import { AiFillHeart, AiOutlineHeart, AiOutlineMessage } from 'react-icons/ai'
 import { mutate } from 'swr'
+import { unstable_serialize } from 'swr/infinite'
 import { AvatarLink } from '@/components/molecules/AvatarLink'
 import {
+  getGetPostsKey,
   getGetPostsPostIdKey,
   useDeleteLike,
   useGetCurrent,
@@ -30,6 +32,7 @@ type PostSummaryData = {
   user: PostItemUser
   commentCount: number
   likeCount: number
+  hasLiked: boolean
 }
 
 type PostDetailComment = {
@@ -56,18 +59,56 @@ type Props = {
   data: PostSummaryData | PostDetailData
 }
 
+/**
+ * PostItem — Renders a single post (tweet) card
+ *
+ * Handles two data shapes:
+ *   - PostSummaryData: from post feed (has commentCount, likeCount, hasLiked)
+ *   - PostDetailData: from post detail page (has full comments[], likes[] arrays)
+ *
+ * ||| Like Status |||
+ *
+ *   PostSummaryData (feed): uses `hasLiked` from the API response (no extra fetch)
+ *   PostDetailData (detail page): uses `likes[]` array to check against current user
+ *
+ * ||| Like Toggle Flow |||
+ *
+ *   User clicks heart icon
+ *       |
+ *       v
+ *   Is logged in? ─ No ──→ Open login modal
+ *       | Yes
+ *       v
+ *   Already liked? ─ Yes ──→ unlike({ postId })
+ *       | No                     |
+ *       v                       v
+ *   like({ postId })       Invalidate caches:
+ *       |                    - posts/:postId (detail)
+ *       v                    - posts infinite (feed, to refresh hasLiked)
+ *   Invalidate caches
+ */
 export function PostItem({ data }: Props) {
   const router = useRouter()
   const loginModal = useLoginModal()
   const { data: currentUser } = useGetCurrent()
-  const { data: fetchedPost } = useGetPostsPostId({ param: { postId: data.id } })
   const { trigger: like } = usePostLike()
   const { trigger: unlike } = useDeleteLike()
 
+  // For PostDetailData (detail page): fetch full post to stay fresh
+  // For PostSummaryData (feed): don't fetch — use hasLiked from the API response
+  const isDetailData = 'likes' in data
+  const { data: fetchedPost } = useGetPostsPostId(
+    { param: { postId: data.id } },
+    { swr: { enabled: isDetailData } },
+  )
+
   const hasLiked = useMemo(() => {
-    const likes = fetchedPost?.likes || []
-    return likes.some((l) => l.userId === currentUser?.id)
-  }, [fetchedPost?.likes, currentUser?.id])
+    if (isDetailData) {
+      const likes = fetchedPost?.likes ?? (data as PostDetailData).likes
+      return likes.some((l) => l.userId === currentUser?.id)
+    }
+    return (data as PostSummaryData).hasLiked
+  }, [isDetailData, data, fetchedPost?.likes, currentUser?.id])
 
   const toggleLike = useCallback(async () => {
     if (!currentUser) {
@@ -81,7 +122,13 @@ export function PostItem({ data }: Props) {
         await like({ json: { postId: data.id } })
       }
 
-      await mutate(getGetPostsPostIdKey({ param: { postId: data.id } }))
+      // Invalidate both the detail cache and the feed cache
+      await Promise.all([
+        mutate(getGetPostsPostIdKey({ param: { postId: data.id } })),
+        mutate(
+          unstable_serialize((index) => getGetPostsKey({ query: { page: index + 1 } })),
+        ),
+      ])
       toast.success(hasLiked ? 'Unliked' : 'Liked')
     } catch {
       toast.error('Something went wrong')

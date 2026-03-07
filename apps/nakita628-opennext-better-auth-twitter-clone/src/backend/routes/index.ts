@@ -201,6 +201,7 @@ export const PostSummarySchema = z
     user: PublicUserSchema,
     commentCount: z.number(),
     likeCount: z.number(),
+    hasLiked: z.boolean(),
   })
   .openapi({
     required: [
@@ -212,6 +213,7 @@ export const PostSummarySchema = z
       'user',
       'commentCount',
       'likeCount',
+      'hasLiked',
     ],
   })
   .openapi('PostSummary')

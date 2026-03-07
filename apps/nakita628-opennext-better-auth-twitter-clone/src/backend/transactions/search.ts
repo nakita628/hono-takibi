@@ -4,7 +4,7 @@ import { SearchResultsSchema } from '@/backend/routes'
 import * as PostService from '@/backend/services/post'
 import * as SearchService from '@/backend/services/search'
 
-export function search(query: string, page: number, limit: number) {
+export function search(query: string, page: number, limit: number, currentUserId?: string) {
   return Effect.gen(function* () {
     const offset = (page - 1) * limit
 
@@ -16,6 +16,10 @@ export function search(query: string, page: number, limit: number) {
     const postIds = postsResult.posts.map((p) => p.id)
     const { commentCounts, likeCounts } = yield* PostService.getCountsForPostIds(postIds)
 
+    const likedPostIds = currentUserId
+      ? yield* PostService.getLikedPostIds(currentUserId, postIds)
+      : new Set<string>()
+
     const result = {
       posts: postsResult.posts.map((post) => ({
         id: post.id,
@@ -26,6 +30,7 @@ export function search(query: string, page: number, limit: number) {
         user: makeFormatPublicUser(post.user),
         commentCount: commentCounts[post.id] ?? 0,
         likeCount: likeCounts[post.id] ?? 0,
+        hasLiked: likedPostIds.has(post.id),
       })),
       users: usersResult.users.map((user) => makeFormatPublicUser(user)),
     }

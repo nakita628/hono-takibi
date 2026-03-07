@@ -10,7 +10,7 @@ export function create(userId: string, body: string, postId: string) {
     const comment = yield* CommentService.create(body, userId, postId)
 
     const post = yield* PostService.findById(postId)
-    if (post?.userId) {
+    if (post?.userId && post.userId !== userId) {
       yield* NotificationService.createAndNotify('Someone replied to your tweet', post.userId)
     }
 

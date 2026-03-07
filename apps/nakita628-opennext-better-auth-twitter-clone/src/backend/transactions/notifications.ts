@@ -7,12 +7,17 @@ import * as NotificationService from '@/backend/services/notification'
 /**
  * Fetch all notifications for a user.
  *
- * @mermaid
- * ```
- * flowchart LR
- *   A[findByUserId] --> B[format dates]
- *   B --> C[safeParse + return]
- * ```
+ * ||| What It Does |||
+ *   Retrieves the user's notification list, newest first.
+ *
+ * ||| Flow |||
+ *   1. NotificationService.findByUserId(userId)
+ *      → SELECT * FROM notifications WHERE userId = :userId ORDER BY createdAt DESC
+ *   2. Convert each notification's createdAt to ISO string
+ *   3. Validate via z.array(NotificationSchema).safeParse()
+ *
+ * ||| Returns |||
+ *   Notification[] — array of { id, body, userId, createdAt }
  */
 export function getByUserId(userId: string) {
   return Effect.gen(function* () {
@@ -33,13 +38,19 @@ export function getByUserId(userId: string) {
 }
 
 /**
- * Mark all notifications as read for a user.
+ * Mark notifications as read.
  *
- * @mermaid
- * ```
- * flowchart LR
- *   A[updateHasNotification false] --> B[safeParse + return]
- * ```
+ * ||| What It Does |||
+ *   Clears the "new notification" badge for this user by setting
+ *   hasNotification = false on their profile.
+ *
+ * ||| Flow |||
+ *   1. NotificationService.updateUserHasNotification(userId, false)
+ *      → UPDATE user_profile SET hasNotification = false WHERE userId = :userId
+ *   2. Validate response via MessageResponseSchema.safeParse()
+ *
+ * ||| Returns |||
+ *   { message: "Notifications updated" }
  */
 export function markAsRead(userId: string) {
   return Effect.gen(function* () {

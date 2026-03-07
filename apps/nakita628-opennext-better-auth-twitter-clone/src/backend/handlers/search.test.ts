@@ -86,7 +86,7 @@ describe('Search', () => {
 
       await app.request('/api/search?q=test', { method: 'GET' })
 
-      expect(SearchTransaction.search).toHaveBeenCalledWith('test', 1, 20)
+      expect(SearchTransaction.search).toHaveBeenCalledWith('test', 1, 20, undefined)
     })
 
     it('should pass custom pagination to transaction', async () => {
@@ -94,7 +94,7 @@ describe('Search', () => {
 
       await app.request('/api/search?q=test&page=2&limit=10', { method: 'GET' })
 
-      expect(SearchTransaction.search).toHaveBeenCalledWith('test', 2, 10)
+      expect(SearchTransaction.search).toHaveBeenCalledWith('test', 2, 10, undefined)
     })
 
     it('should return 500 on ContractViolationError', async () => {
