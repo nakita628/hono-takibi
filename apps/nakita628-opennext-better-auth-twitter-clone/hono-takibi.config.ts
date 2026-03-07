@@ -20,7 +20,7 @@ export default defineConfig({
     entry: 'src/app/api/[[...route]]/route.ts',
   },
   swr: {
-    output: 'src/hooks/swr.ts',
+    output: 'src/hooks/index.ts',
     import: '@/lib',
     client: 'client',
   },

@@ -18,24 +18,13 @@ function mockUserResponse() {
     name: 'Updated User',
     username: 'updated',
     bio: 'Hello',
+    email: 'test@example.com',
+    emailVerified: null,
     image: null,
     coverImage: null,
     profileImage: null,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
-  }
-}
-
-function mockEditUserRequest() {
-  return {
-    name: faker.helpers.arrayElement([faker.person.fullName(), undefined]),
-    username: faker.helpers.arrayElement([faker.internet.username(), undefined]),
-    bio: faker.helpers.arrayElement([
-      faker.string.alpha({ length: { min: 5, max: 20 } }),
-      undefined,
-    ]),
-    coverImage: faker.helpers.arrayElement([faker.internet.url(), null]),
-    profileImage: faker.helpers.arrayElement([faker.internet.url(), null]),
   }
 }
 

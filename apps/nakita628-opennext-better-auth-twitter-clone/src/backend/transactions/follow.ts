@@ -21,22 +21,20 @@ import * as UserService from '@/backend/services/user'
 export function create(userId: string, targetUserId: string) {
   return Effect.gen(function* () {
     if (userId === targetUserId) {
-      return yield* Effect.fail(new ConflictError({ message: 'Cannot follow yourself' }))
+      return yield* new ConflictError({ message: 'Cannot follow yourself' })
     }
 
-    yield* UserService.findById(targetUserId).pipe(
-      Effect.filterOrFail(
-        (u): u is NonNullable<typeof u> => u != null,
-        () => new NotFoundError({ message: 'User not found' }),
-      ),
-    )
+    const targetUser = yield* UserService.findById(targetUserId)
+    if (targetUser == null) {
+      return yield* new NotFoundError({ message: 'User not found' })
+    }
 
     yield* FollowService.create(userId, targetUserId)
     yield* NotificationService.createAndNotify('Someone followed you!', targetUserId)
 
     const valid = MessageResponseSchema.safeParse({ message: 'Success' })
     if (!valid.success) {
-      return yield* Effect.fail(new ContractViolationError({ message: 'Invalid response data' }))
+      return yield* new ContractViolationError({ message: 'Invalid response data' })
     }
     return valid.data
   })
@@ -52,13 +50,13 @@ export function create(userId: string, targetUserId: string) {
  * ```
  */
 export function remove(userId: string, targetUserId: string) {
-  return FollowService.remove(userId, targetUserId).pipe(
-    Effect.andThen(() => {
-      const valid = MessageResponseSchema.safeParse({ message: 'Success' })
-      if (!valid.success) {
-        return Effect.fail(new ContractViolationError({ message: 'Invalid response data' }))
-      }
-      return Effect.succeed(valid.data)
-    }),
-  )
+  return Effect.gen(function* () {
+    yield* FollowService.remove(userId, targetUserId)
+
+    const valid = MessageResponseSchema.safeParse({ message: 'Success' })
+    if (!valid.success) {
+      return yield* new ContractViolationError({ message: 'Invalid response data' })
+    }
+    return valid.data
+  })
 }

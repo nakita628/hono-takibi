@@ -11,7 +11,7 @@ function SearchContent() {
   const searchParams = useSearchParams()
   const query = searchParams.get('q') ?? ''
   const { data, isLoading } = useGetSearch(
-    { query: { q: query, page: 1 } },
+    { query: { q: query } },
     { swr: { enabled: !!query } },
   )
 
@@ -31,8 +31,8 @@ function SearchContent() {
     )
   }
 
-  const posts = data?.posts.data ?? []
-  const users = data?.users.data ?? []
+  const posts = data?.posts ?? []
+  const users = data?.users ?? []
 
   return (
     <div>

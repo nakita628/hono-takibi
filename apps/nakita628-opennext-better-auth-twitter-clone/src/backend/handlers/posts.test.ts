@@ -112,10 +112,7 @@ describe('Posts', () => {
 
       await app.request('/api/posts?page=2&limit=10', { method: 'GET' })
 
-      expect(PostsTransaction.getAll).toHaveBeenCalledWith({
-        page: 2,
-        limit: 10,
-      })
+      expect(PostsTransaction.getAll).toHaveBeenCalledWith(2, 10, undefined)
     })
 
     it('should pass userId filter to transaction', async () => {
@@ -125,11 +122,7 @@ describe('Posts', () => {
       const userId = faker.string.uuid()
       await app.request(`/api/posts?userId=${userId}`, { method: 'GET' })
 
-      expect(PostsTransaction.getAll).toHaveBeenCalledWith({
-        userId,
-        page: 1,
-        limit: 20,
-      })
+      expect(PostsTransaction.getAll).toHaveBeenCalledWith(1, 20, userId)
     })
 
     it('should return 500 on ContractViolationError', async () => {
@@ -247,9 +240,7 @@ describe('Posts', () => {
         body: JSON.stringify({ body: 'Test post' }),
       })
 
-      expect(PostsTransaction.create).toHaveBeenCalledWith(session.user.id, {
-        body: 'Test post',
-      })
+      expect(PostsTransaction.create).toHaveBeenCalledWith(session.user.id, 'Test post')
     })
   })
 

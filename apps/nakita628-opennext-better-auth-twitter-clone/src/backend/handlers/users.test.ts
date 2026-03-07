@@ -74,10 +74,7 @@ describe('Users', () => {
 
       await app.request('/api/users?page=3&limit=50', { method: 'GET' })
 
-      expect(UsersTransaction.getAll).toHaveBeenCalledWith({
-        page: 3,
-        limit: 50,
-      })
+      expect(UsersTransaction.getAll).toHaveBeenCalledWith(3, 50)
     })
 
     it('should use default pagination when no params', async () => {
@@ -86,10 +83,7 @@ describe('Users', () => {
 
       await app.request('/api/users', { method: 'GET' })
 
-      expect(UsersTransaction.getAll).toHaveBeenCalledWith({
-        page: 1,
-        limit: 20,
-      })
+      expect(UsersTransaction.getAll).toHaveBeenCalledWith(1, 20)
     })
 
     it('should return 500 on ContractViolationError', async () => {

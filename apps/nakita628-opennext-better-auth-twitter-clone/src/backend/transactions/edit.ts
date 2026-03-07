@@ -29,12 +29,10 @@ export function update(
   },
 ) {
   return Effect.gen(function* () {
-    const user = yield* UserService.findById(userId).pipe(
-      Effect.filterOrFail(
-        (u): u is NonNullable<typeof u> => u != null,
-        () => new UnauthorizedError({ message: 'Not signed in' }),
-      ),
-    )
+    const user = yield* UserService.findById(userId)
+    if (user == null) {
+      return yield* new UnauthorizedError({ message: 'Not signed in' })
+    }
 
     const profile = user.userProfile
     const newUsername = args.username ?? profile?.username ?? ''
@@ -64,7 +62,7 @@ export function update(
       updatedAt: user.updatedAt.toISOString(),
     })
     if (!valid.success) {
-      return yield* Effect.fail(new ContractViolationError({ message: 'Invalid user data' }))
+      return yield* new ContractViolationError({ message: 'Invalid user data' })
     }
     return valid.data
   })

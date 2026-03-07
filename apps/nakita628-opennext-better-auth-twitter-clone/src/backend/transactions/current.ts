@@ -17,12 +17,10 @@ import * as UserService from '@/backend/services/user'
  */
 export function get(userId: string) {
   return Effect.gen(function* () {
-    const user = yield* UserService.findByIdWithFollows(userId).pipe(
-      Effect.filterOrFail(
-        (u): u is NonNullable<typeof u> => u != null,
-        () => new UnauthorizedError({ message: 'Unauthorized' }),
-      ),
-    )
+    const user = yield* UserService.findByIdWithFollows(userId)
+    if (user == null) {
+      return yield* new UnauthorizedError({ message: 'Unauthorized' })
+    }
 
     const profile = user.userProfile
 
@@ -50,7 +48,7 @@ export function get(userId: string) {
       hasNotification: profile?.hasNotification ?? null,
     })
     if (!valid.success) {
-      return yield* Effect.fail(new ContractViolationError({ message: 'Invalid current user data' }))
+      return yield* new ContractViolationError({ message: 'Invalid current user data' })
     }
     return valid.data
   })

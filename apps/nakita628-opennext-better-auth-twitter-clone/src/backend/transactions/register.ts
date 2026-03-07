@@ -39,7 +39,7 @@ export function create(email: string, name: string, username: string, password: 
       updatedAt: user.updatedAt.toISOString(),
     })
     if (!valid.success) {
-      return yield* Effect.fail(new ContractViolationError({ message: 'Invalid user data' }))
+      return yield* new ContractViolationError({ message: 'Invalid user data' })
     }
     return valid.data
   })

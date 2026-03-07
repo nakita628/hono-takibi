@@ -200,8 +200,8 @@ model RegisterRequest {
 }
 
 model SearchResults {
-  posts: PaginatedPosts;
-  users: PaginatedUsers;
+  posts: PostSummary[];
+  users: PublicUser[];
 }
 
 model ValidationErrorDetail {

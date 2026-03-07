@@ -1,16 +1,12 @@
 'use client'
 
-import { parseResponse } from 'hono/client'
 import { useCallback, useRef } from 'react'
 import { ClipLoader } from 'react-spinners'
 import useSWRInfinite from 'swr/infinite'
 import { PostItem } from '@/components/organisms/PostItem'
-import { getGetPostsKey } from '@/hooks'
-import { client } from '@/lib'
+import { getGetPostsKey, getPosts } from '@/hooks'
 
-type PostsResponse = Awaited<
-  ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.posts.$get>>>>
->
+type PostsResponse = Awaited<ReturnType<typeof getPosts>>
 
 type Props = {
   userId?: string
@@ -25,7 +21,7 @@ export function PostFeed({ userId }: Props) {
 
   const { data, isLoading, size, setSize } = useSWRInfinite(
     getKey,
-    async ([, , , args]) => parseResponse(client.posts.$get(args)),
+    async ([, , , args]) => getPosts(args),
     { revalidateFirstPage: true },
   )
 

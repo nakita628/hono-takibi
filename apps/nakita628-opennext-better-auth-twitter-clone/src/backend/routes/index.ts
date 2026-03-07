@@ -302,7 +302,7 @@ export const PaginatedUsersSchema = z
   .openapi('PaginatedUsers')
 
 export const SearchResultsSchema = z
-  .object({ posts: PaginatedPostsSchema, users: PaginatedUsersSchema })
+  .object({ posts: z.array(PostSummarySchema), users: z.array(PublicUserSchema) })
   .openapi({ required: ['posts', 'users'] })
   .openapi('SearchResults')
 

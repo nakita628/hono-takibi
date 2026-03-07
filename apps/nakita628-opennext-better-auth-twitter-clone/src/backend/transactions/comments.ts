@@ -5,17 +5,6 @@ import * as CommentService from '@/backend/services/comment'
 import * as NotificationService from '@/backend/services/notification'
 import * as PostService from '@/backend/services/post'
 
-/**
- * Create a comment and notify the post owner.
- *
- * @mermaid
- * ```
- * flowchart TD
- *   A[createComment] --> B[findPost]
- *   B --> C[createNotification]
- *   C --> D[safeParse + return]
- * ```
- */
 export function create(userId: string, body: string, postId: string) {
   return Effect.gen(function* () {
     const comment = yield* CommentService.create(body, userId, postId)
@@ -34,7 +23,7 @@ export function create(userId: string, body: string, postId: string) {
       postId: comment.postId,
     })
     if (!valid.success) {
-      return yield* Effect.fail(new ContractViolationError({ message: 'Invalid comment data' }))
+      return yield* new ContractViolationError({ message: 'Invalid comment data' })
     }
     return valid.data
   })

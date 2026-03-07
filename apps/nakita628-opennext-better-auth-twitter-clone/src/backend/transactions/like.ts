@@ -22,15 +22,13 @@ import * as PostService from '@/backend/services/post'
  */
 export function create(userId: string, postId: string) {
   return Effect.gen(function* () {
-    const post = yield* PostService.findByIdWithLikes(postId).pipe(
-      Effect.filterOrFail(
-        (p): p is NonNullable<typeof p> => p != null,
-        () => new NotFoundError({ message: 'Post not found' }),
-      ),
-    )
+    const post = yield* PostService.findByIdWithLikes(postId)
+    if (post == null) {
+      return yield* new NotFoundError({ message: 'Post not found' })
+    }
 
     if (post.likes.some((like) => like.userId === userId)) {
-      return yield* Effect.fail(new ConflictError({ message: 'Already liked' }))
+      return yield* new ConflictError({ message: 'Already liked' })
     }
 
     yield* LikeService.create(userId, postId)
@@ -45,7 +43,7 @@ export function create(userId: string, postId: string) {
       makeFormatPostWithLikes({ ...post, likes: updatedLikes }),
     )
     if (!valid.success) {
-      return yield* Effect.fail(new ContractViolationError({ message: 'Invalid post data' }))
+      return yield* new ContractViolationError({ message: 'Invalid post data' })
     }
     return valid.data
   })
@@ -65,16 +63,14 @@ export function remove(userId: string, postId: string) {
   return Effect.gen(function* () {
     yield* LikeService.remove(userId, postId)
 
-    const updated = yield* PostService.findByIdWithLikes(postId).pipe(
-      Effect.filterOrFail(
-        (p): p is NonNullable<typeof p> => p != null,
-        () => new NotFoundError({ message: 'Post not found' }),
-      ),
-    )
+    const updated = yield* PostService.findByIdWithLikes(postId)
+    if (updated == null) {
+      return yield* new NotFoundError({ message: 'Post not found' })
+    }
 
     const valid = PostWithLikesSchema.safeParse(makeFormatPostWithLikes(updated))
     if (!valid.success) {
-      return yield* Effect.fail(new ContractViolationError({ message: 'Invalid post data' }))
+      return yield* new ContractViolationError({ message: 'Invalid post data' })
     }
     return valid.data
   })

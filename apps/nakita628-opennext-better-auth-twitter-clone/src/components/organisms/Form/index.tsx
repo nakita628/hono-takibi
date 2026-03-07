@@ -6,7 +6,13 @@ import { mutate } from 'swr'
 import { unstable_serialize } from 'swr/infinite'
 import { Button } from '@/components/atoms/Button'
 import { AvatarLink } from '@/components/molecules/AvatarLink'
-import { getGetPostsKey, useGetCurrent, usePostComments, usePostPosts } from '@/hooks'
+import {
+  getGetPostsKey,
+  getGetPostsPostIdKey,
+  useGetCurrent,
+  usePostComments,
+  usePostPosts,
+} from '@/hooks'
 import { useLoginModal, useRegisterModal } from '@/stores'
 
 function postsInfiniteKey() {
@@ -37,14 +43,18 @@ export function Form({ placeholder, isComment, postId }: Props) {
 
       if (isComment && postId) {
         await createComment({ query: { postId }, json: { body } })
+        toast.success('Comment posted')
+        setBody('')
+        await Promise.all([
+          mutate(getGetPostsPostIdKey({ param: { postId } })),
+          mutate(postsInfiniteKey()),
+        ])
       } else {
         await createPost({ json: { body } })
+        toast.success('Tweet created')
+        setBody('')
+        await mutate(postsInfiniteKey())
       }
-
-      toast.success(isComment ? 'Comment posted' : 'Tweet created')
-      setBody('')
-
-      await mutate(postsInfiniteKey())
     } catch {
       toast.error(isComment ? 'Failed to post comment' : 'Failed to create post')
     } finally {
