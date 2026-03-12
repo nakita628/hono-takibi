@@ -4,8 +4,10 @@ import {
   findSchemaRefs,
   makeSchemaCode,
   makeSchemaInfo,
+  makeSchemaInfos,
   makeSplitSchemaFile,
   makeTypeDefinition,
+  makeTypeDefinitions,
 } from './schema.js'
 
 describe('findSchemaRefs', () => {
@@ -361,5 +363,194 @@ describe('makeTypeDefinition', () => {
     const typeDef = makeTypeDefinition(info, analysis.cyclicGroupPascal)
 
     expect(typeDef).toBe('type NodeType={value?:string;children?:NodeType[]}')
+  })
+
+  it.concurrent('should generate readonly type definition', () => {
+    const selfRefSchemas = {
+      Node: {
+        type: 'object',
+        properties: {
+          value: { type: 'string' },
+          children: { type: 'array', items: { $ref: '#/components/schemas/Node' } },
+        },
+      },
+    } as const
+
+    const schemaNames = Object.keys(selfRefSchemas)
+    const analysis = analyzeCircularSchemas(selfRefSchemas, schemaNames, true)
+    const info = makeSchemaInfo('Node', selfRefSchemas.Node, analysis)
+    const typeDef = makeTypeDefinition(info, analysis.cyclicGroupPascal, true)
+
+    expect(typeDef).toBe(
+      'type NodeType={readonly value?:string;readonly children?:readonly NodeType[]}',
+    )
+  })
+})
+
+/* ═══════════════════════════════════ makeSchemaInfos ═══════════════════════════════════ */
+
+describe('makeSchemaInfos', () => {
+  const schemas = {
+    User: { type: 'object', properties: { name: { type: 'string' } } },
+    Post: {
+      type: 'object',
+      properties: {
+        title: { type: 'string' },
+        author: { $ref: '#/components/schemas/User' },
+      },
+    },
+    Comment: {
+      type: 'object',
+      properties: {
+        text: { type: 'string' },
+        replies: { type: 'array', items: { $ref: '#/components/schemas/Comment' } },
+      },
+    },
+  } as const
+
+  it.concurrent('should create infos for multiple schemas', () => {
+    const schemaNames = ['User', 'Post', 'Comment']
+    const analysis = analyzeCircularSchemas(schemas, schemaNames)
+    const infos = makeSchemaInfos(schemas, schemaNames, analysis)
+
+    expect(infos.length).toBe(3)
+    expect(infos[0].schemaName).toBe('User')
+    expect(infos[0].variableName).toBe('UserSchema')
+    expect(infos[1].schemaName).toBe('Post')
+    expect(infos[1].variableName).toBe('PostSchema')
+    expect(infos[2].schemaName).toBe('Comment')
+    expect(infos[2].variableName).toBe('CommentSchema')
+  })
+
+  it.concurrent('should correctly identify circular schemas', () => {
+    const schemaNames = ['User', 'Post', 'Comment']
+    const analysis = analyzeCircularSchemas(schemas, schemaNames)
+    const infos = makeSchemaInfos(schemas, schemaNames, analysis)
+
+    expect(infos[0].needsLazy).toBe(false)
+    expect(infos[0].needsTypeDef).toBe(false)
+    expect(infos[1].needsLazy).toBe(false)
+    expect(infos[1].needsTypeDef).toBe(false)
+    expect(infos[2].needsLazy).toBe(true)
+    expect(infos[2].needsTypeDef).toBe(true)
+  })
+
+  it.concurrent('should return empty array for empty schema names', () => {
+    const analysis = analyzeCircularSchemas(schemas, [])
+    const infos = makeSchemaInfos(schemas, [], analysis)
+
+    expect(infos).toStrictEqual([])
+  })
+
+  it.concurrent('should handle single schema', () => {
+    const analysis = analyzeCircularSchemas(schemas, ['User'])
+    const infos = makeSchemaInfos(schemas, ['User'], analysis)
+
+    expect(infos.length).toBe(1)
+    expect(infos[0].schemaName).toBe('User')
+    expect(infos[0].safeSchemaName).toBe('User')
+    expect(infos[0].variableName).toBe('UserSchema')
+  })
+})
+
+/* ═══════════════════════════════════ makeTypeDefinitions ═══════════════════════════════════ */
+
+describe('makeTypeDefinitions', () => {
+  it.concurrent('should return empty array when no schemas need type definitions', () => {
+    const schemas = {
+      User: { type: 'object', properties: { name: { type: 'string' } } },
+    } as const
+    const schemaNames = Object.keys(schemas)
+    const analysis = analyzeCircularSchemas(schemas, schemaNames)
+    const infos = makeSchemaInfos(schemas, schemaNames, analysis)
+    const typeDefs = makeTypeDefinitions(infos, schemas, analysis.cyclicGroupPascal)
+
+    expect(typeDefs).toStrictEqual([])
+  })
+
+  it.concurrent('should generate type definitions for self-referencing schemas', () => {
+    const schemas = {
+      Node: {
+        type: 'object',
+        properties: {
+          value: { type: 'string' },
+          children: { type: 'array', items: { $ref: '#/components/schemas/Node' } },
+        },
+      },
+    } as const
+    const schemaNames = Object.keys(schemas)
+    const analysis = analyzeCircularSchemas(schemas, schemaNames)
+    const infos = makeSchemaInfos(schemas, schemaNames, analysis)
+    const typeDefs = makeTypeDefinitions(infos, schemas, analysis.cyclicGroupPascal)
+
+    expect(typeDefs.length).toBe(1)
+    expect(typeDefs[0]).toBe('type NodeType={value?:string;children?:NodeType[]}')
+  })
+
+  it.concurrent('should generate type definitions with mutual references', () => {
+    const schemas = {
+      A: {
+        type: 'object',
+        properties: {
+          b: { $ref: '#/components/schemas/B' },
+        },
+      },
+      B: {
+        type: 'object',
+        properties: {
+          a: { $ref: '#/components/schemas/A' },
+        },
+      },
+    } as const
+    const schemaNames = Object.keys(schemas)
+    const analysis = analyzeCircularSchemas(schemas, schemaNames)
+    const infos = makeSchemaInfos(schemas, schemaNames, analysis)
+    const typeDefs = makeTypeDefinitions(infos, schemas, analysis.cyclicGroupPascal)
+
+    expect(typeDefs.length).toBeGreaterThanOrEqual(2)
+    expect(typeDefs.some((td) => td.includes('AType'))).toBe(true)
+    expect(typeDefs.some((td) => td.includes('BType'))).toBe(true)
+  })
+
+  it.concurrent('should generate readonly type definitions', () => {
+    const schemas = {
+      Node: {
+        type: 'object',
+        properties: {
+          value: { type: 'string' },
+          children: { type: 'array', items: { $ref: '#/components/schemas/Node' } },
+        },
+      },
+    } as const
+    const schemaNames = Object.keys(schemas)
+    const analysis = analyzeCircularSchemas(schemas, schemaNames, true)
+    const infos = makeSchemaInfos(schemas, schemaNames, analysis)
+    const typeDefs = makeTypeDefinitions(infos, schemas, analysis.cyclicGroupPascal, true)
+
+    expect(typeDefs.length).toBe(1)
+    expect(typeDefs[0]).toBe(
+      'type NodeType={readonly value?:string;readonly children?:readonly NodeType[]}',
+    )
+  })
+
+  it.concurrent('should handle mixed cyclic and non-cyclic schemas', () => {
+    const schemas = {
+      User: { type: 'object', properties: { name: { type: 'string' } } },
+      Node: {
+        type: 'object',
+        properties: {
+          value: { type: 'string' },
+          children: { type: 'array', items: { $ref: '#/components/schemas/Node' } },
+        },
+      },
+    } as const
+    const schemaNames = Object.keys(schemas)
+    const analysis = analyzeCircularSchemas(schemas, schemaNames)
+    const infos = makeSchemaInfos(schemas, schemaNames, analysis)
+    const typeDefs = makeTypeDefinitions(infos, schemas, analysis.cyclicGroupPascal)
+
+    // Only Node should have a type definition (self-referencing)
+    expect(typeDefs.length).toBe(1)
+    expect(typeDefs[0]).toBe('type NodeType={value?:string;children?:NodeType[]}')
   })
 })

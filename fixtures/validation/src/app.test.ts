@@ -87,7 +87,7 @@ describe('Custom validation messages via x-* extensions', () => {
   })
 
   it('rejects weak password with x-pattern-message', async () => {
-    const res = await postUsers({ ...validInput, password: 'weak' })
+    const res = await postUsers({ ...validInput, password: 'weak', code: 'ABCDE' })
     expect(res.status).toBe(422)
     const body = await res.json()
     expect(body.errors).toStrictEqual([

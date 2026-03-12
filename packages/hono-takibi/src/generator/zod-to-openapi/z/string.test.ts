@@ -139,4 +139,90 @@ describe('string', () => {
       expect(string(input)).toBe(expected)
     })
   })
+
+  describe('multi-constraint combinations', () => {
+    it.concurrent.each<[Schema, string]>([
+      // minLength + pattern (no format)
+      [
+        { type: 'string', minLength: 3, pattern: '^[a-z]+$' },
+        'z.string().regex(/^[a-z]+$/).min(3)',
+      ],
+      // maxLength + pattern
+      [{ type: 'string', maxLength: 50, pattern: '^\\w+$' }, 'z.string().regex(/^\\w+$/).max(50)'],
+      // minLength + maxLength + pattern
+      [
+        { type: 'string', minLength: 1, maxLength: 100, pattern: '^[A-Z]' },
+        'z.string().regex(/^[A-Z]/).min(1).max(100)',
+      ],
+      // format + pattern
+      [
+        { type: 'string', format: 'email', pattern: '^.+@example\\.com$' },
+        'z.email().regex(/^.+@example\\.com$/)',
+      ],
+      // format + minLength
+      [{ type: 'string', format: 'uuid', minLength: 36 }, 'z.uuid().min(36)'],
+      // format + fixed length
+      [{ type: 'string', format: 'nanoid', minLength: 21, maxLength: 21 }, 'z.nanoid().length(21)'],
+      // format + pattern + minLength + maxLength with all messages
+      [
+        {
+          type: 'string',
+          format: 'uri',
+          pattern: '^https://',
+          minLength: 10,
+          maxLength: 2000,
+          'x-error-message': 'URL不正',
+          'x-pattern-message': 'httpsのみ',
+          'x-minimum-message': '10文字以上',
+          'x-maximum-message': '2000文字以下',
+        },
+        'z.url({error:"URL不正"}).regex(/^https:\\/\\//,{error:"httpsのみ"}).min(10,{error:"10文字以上"}).max(2000,{error:"2000文字以下"})',
+      ],
+      // transform format + minLength (transform ignores x-error-message but length still applies)
+      [{ type: 'string', format: 'trim', minLength: 1 }, 'z.trim().min(1)'],
+      // transform format + pattern
+      [
+        { type: 'string', format: 'toLowerCase', pattern: '^[a-z]+$' },
+        'z.toLowerCase().regex(/^[a-z]+$/)',
+      ],
+    ])('string(%o) → %s', (input, expected) => {
+      expect(string(input)).toBe(expected)
+    })
+  })
+
+  describe('additional formats', () => {
+    it.concurrent.each<[Schema, string]>([
+      // formats not in initial test list
+      [{ type: 'string', format: 'uuidv6' }, 'z.uuidv6()'],
+      [{ type: 'string', format: 'base64url' }, 'z.base64url()'],
+      [{ type: 'string', format: 'hex' }, 'z.hex()'],
+      [{ type: 'string', format: 'mac' }, 'z.mac()'],
+      // unknown format falls back to z.string()
+      [{ type: 'string', format: 'unknown-format' }, 'z.string()'],
+      // empty format string falls back to z.string()
+      [{ type: 'string', format: '' }, 'z.string()'],
+    ])('string(%o) → %s', (input, expected) => {
+      expect(string(input)).toBe(expected)
+    })
+  })
+
+  describe('edge cases', () => {
+    it.concurrent.each<[Schema, string]>([
+      // only minLength
+      [{ type: 'string', minLength: 0 }, 'z.string().min(0)'],
+      // only maxLength
+      [{ type: 'string', maxLength: 0 }, 'z.string().max(0)'],
+      // fixed length 0
+      [{ type: 'string', minLength: 0, maxLength: 0 }, 'z.string().length(0)'],
+      // fixed length 1
+      [{ type: 'string', minLength: 1, maxLength: 1 }, 'z.string().length(1)'],
+      // pattern with forward slashes (should be escaped)
+      [
+        { type: 'string', pattern: '^https://example\\.com/' },
+        'z.string().regex(/^https:\\/\\/example\\.com\\//)',
+      ],
+    ])('string(%o) → %s', (input, expected) => {
+      expect(string(input)).toBe(expected)
+    })
+  })
 })

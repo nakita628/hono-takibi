@@ -4,6 +4,7 @@ import {
   isHttpMethod,
   isMedia,
   isMediaWithSchema,
+  isOAuthFlowValue,
   isOpenAPIPaths,
   isOperation,
   isOperationLike,
@@ -15,6 +16,7 @@ import {
   isRefObject,
   isRequestBody,
   isRequestBodyOrRef,
+  isResponses,
   isSchemaArray,
   isSchemaProperty,
   isSecurityArray,
@@ -563,5 +565,114 @@ describe('isSecurityArray', () => {
 
   it.concurrent('returns false for string', () => {
     expect(isSecurityArray('security')).toBe(false)
+  })
+})
+
+/* ═══════════════════════════════════ Responses Guards ═══════════════════════════════════ */
+
+describe('isResponses', () => {
+  it.concurrent('returns true for response with $ref', () => {
+    expect(isResponses({ $ref: '#/components/responses/NotFound' })).toBe(true)
+  })
+
+  it.concurrent('returns true for response with description', () => {
+    expect(isResponses({ description: 'Successful response' })).toBe(true)
+  })
+
+  it.concurrent('returns true for response with content', () => {
+    expect(isResponses({ content: { 'application/json': { schema: { type: 'object' } } } })).toBe(
+      true,
+    )
+  })
+
+  it.concurrent('returns true for response with headers', () => {
+    expect(isResponses({ headers: { 'X-Rate-Limit': { schema: { type: 'integer' } } } })).toBe(true)
+  })
+
+  it.concurrent('returns true for response with links', () => {
+    expect(isResponses({ links: { GetUser: { operationId: 'getUser' } } })).toBe(true)
+  })
+
+  it.concurrent('returns true for response with description and content', () => {
+    expect(
+      isResponses({
+        description: 'OK',
+        content: { 'application/json': { schema: { type: 'string' } } },
+      }),
+    ).toBe(true)
+  })
+
+  it.concurrent('returns false for empty object', () => {
+    expect(isResponses({})).toBe(false)
+  })
+
+  it.concurrent('returns false for null', () => {
+    expect(isResponses(null)).toBe(false)
+  })
+
+  it.concurrent('returns false for array', () => {
+    expect(isResponses([])).toBe(false)
+  })
+
+  it.concurrent('returns false for string', () => {
+    expect(isResponses('response')).toBe(false)
+  })
+
+  it.concurrent('returns false for number', () => {
+    expect(isResponses(200)).toBe(false)
+  })
+
+  it.concurrent('returns false for object without response keys', () => {
+    expect(isResponses({ summary: 'test', type: 'object' })).toBe(false)
+  })
+})
+
+/* ═══════════════════════════════════ OAuth Flow Guards ═══════════════════════════════════ */
+
+describe('isOAuthFlowValue', () => {
+  it.concurrent('returns true for flow with authorizationUrl', () => {
+    expect(isOAuthFlowValue({ authorizationUrl: 'https://example.com/auth' })).toBe(true)
+  })
+
+  it.concurrent('returns true for flow with tokenUrl', () => {
+    expect(isOAuthFlowValue({ tokenUrl: 'https://example.com/token' })).toBe(true)
+  })
+
+  it.concurrent('returns true for flow with scopes', () => {
+    expect(isOAuthFlowValue({ scopes: { 'read:users': 'Read users' } })).toBe(true)
+  })
+
+  it.concurrent('returns true for complete OAuth flow', () => {
+    expect(
+      isOAuthFlowValue({
+        authorizationUrl: 'https://example.com/auth',
+        tokenUrl: 'https://example.com/token',
+        scopes: { 'read:users': 'Read users', 'write:users': 'Write users' },
+      }),
+    ).toBe(true)
+  })
+
+  it.concurrent('returns false for null', () => {
+    expect(isOAuthFlowValue(null)).toBe(false)
+  })
+
+  it.concurrent('returns false for array', () => {
+    expect(isOAuthFlowValue([])).toBe(false)
+  })
+
+  it.concurrent('returns false for string', () => {
+    expect(isOAuthFlowValue('oauth')).toBe(false)
+  })
+
+  it.concurrent('returns false for empty object', () => {
+    expect(isOAuthFlowValue({})).toBe(false)
+  })
+
+  it.concurrent('returns false for object without OAuth keys', () => {
+    expect(isOAuthFlowValue({ type: 'oauth2', scheme: 'bearer' })).toBe(false)
+  })
+
+  it.concurrent('returns false for undefined', () => {
+    expect(isOAuthFlowValue(undefined)).toBe(false)
   })
 })

@@ -420,7 +420,11 @@ async function removeStaleFiles(
   const readdirResult = await readdir(handlerPath)
   if (!readdirResult.ok) {
     // Directory doesn't exist yet (first generation) — nothing to clean
-    return { ok: true, value: undefined }
+    if (readdirResult.notFound) {
+      return { ok: true, value: undefined }
+    }
+    // Other errors (e.g., EACCES): propagate so callers are aware
+    return { ok: false, error: readdirResult.error }
   }
 
   const staleFiles = readdirResult.value.filter(

@@ -308,6 +308,206 @@ describe('makeTypeString', () => {
     })
   })
 
+  describe('readonly types', () => {
+    it('should generate readonly array type', () => {
+      expect(
+        makeTypeString({ type: 'array', items: { type: 'string' } }, 'Test', undefined, true),
+      ).toBe('readonly string[]')
+    })
+
+    it('should generate readonly object type', () => {
+      const result = makeTypeString(
+        {
+          type: 'object',
+          properties: {
+            id: { type: 'integer' },
+            name: { type: 'string' },
+          },
+          required: ['id'],
+        },
+        'Test',
+        undefined,
+        true,
+      )
+      expect(result).toBe('{readonly id:number;readonly name?:string}')
+    })
+
+    it('should generate readonly nested array', () => {
+      const result = makeTypeString(
+        {
+          type: 'array',
+          items: { type: 'array', items: { type: 'string' } },
+        },
+        'Test',
+        undefined,
+        true,
+      )
+      expect(result).toBe('readonly (readonly string[])[]')
+    })
+
+    it('should generate readonly tuple', () => {
+      const result = makeTypeString(
+        { type: 'array', items: [{ type: 'string' }, { type: 'number' }] },
+        'Test',
+        undefined,
+        true,
+      )
+      expect(result).toBe('readonly [string,number]')
+    })
+
+    it('should generate readonly object with additionalProperties', () => {
+      expect(
+        makeTypeString(
+          { type: 'object', additionalProperties: { type: 'string' } },
+          'Test',
+          undefined,
+          true,
+        ),
+      ).toBe('{readonly [key:string]:string}')
+    })
+
+    it('should generate readonly self-referencing array', () => {
+      expect(
+        makeTypeString(
+          { type: 'array', items: { $ref: '#/components/schemas/Node' } },
+          'Node',
+          undefined,
+          true,
+        ),
+      ).toBe('readonly NodeType[]')
+    })
+
+    it('should generate readonly array with $ref', () => {
+      expect(
+        makeTypeString(
+          { type: 'array', items: { $ref: '#/components/schemas/User' } },
+          'Test',
+          undefined,
+          true,
+        ),
+      ).toBe('readonly z.infer<typeof UserSchema>[]')
+    })
+
+    it('should generate readonly nullable string', () => {
+      expect(makeTypeString({ type: 'string', nullable: true }, 'Test', undefined, true)).toBe(
+        '(string|null)',
+      )
+    })
+  })
+
+  describe('allOf intersection types', () => {
+    it('should generate intersection with two objects', () => {
+      const result = makeTypeString(
+        {
+          allOf: [
+            {
+              type: 'object',
+              properties: { id: { type: 'integer' } },
+              required: ['id'],
+            },
+            {
+              type: 'object',
+              properties: { name: { type: 'string' } },
+              required: ['name'],
+            },
+          ],
+        },
+        'Test',
+      )
+      expect(result).toBe('({id:number}&{name:string})')
+    })
+
+    it('should generate intersection with $ref', () => {
+      const result = makeTypeString(
+        {
+          allOf: [
+            { $ref: '#/components/schemas/Base' },
+            { type: 'object', properties: { extra: { type: 'string' } } },
+          ],
+        },
+        'Test',
+      )
+      expect(result).toBe('(z.infer<typeof BaseSchema>&{extra?:string})')
+    })
+
+    it('should handle single allOf item', () => {
+      const result = makeTypeString({ allOf: [{ type: 'string' }] }, 'Test')
+      expect(result).toBe('string')
+    })
+  })
+
+  describe('complex nested types', () => {
+    it('should handle object with array property containing $ref', () => {
+      const result = makeTypeString(
+        {
+          type: 'object',
+          properties: {
+            tags: { type: 'array', items: { type: 'string' } },
+            author: { $ref: '#/components/schemas/User' },
+          },
+          required: ['tags', 'author'],
+        },
+        'Post',
+      )
+      expect(result).toBe('{tags:string[];author:z.infer<typeof UserSchema>}')
+    })
+
+    it('should handle oneOf with $ref and primitive', () => {
+      const result = makeTypeString(
+        {
+          oneOf: [{ $ref: '#/components/schemas/User' }, { type: 'null' }],
+        },
+        'Test',
+      )
+      expect(result).toBe('(z.infer<typeof UserSchema>|({[key:string]:unknown}|null))')
+    })
+
+    it('should handle nullable array of objects', () => {
+      const result = makeTypeString(
+        {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: { name: { type: 'string' } },
+          },
+          nullable: true,
+        },
+        'Test',
+      )
+      expect(result).toBe('({name?:string}[]|null)')
+    })
+
+    it('should handle object with all optional properties', () => {
+      const result = makeTypeString(
+        {
+          type: 'object',
+          properties: {
+            a: { type: 'string' },
+            b: { type: 'number' },
+            c: { type: 'boolean' },
+          },
+        },
+        'Test',
+      )
+      expect(result).toBe('{a?:string;b?:number;c?:boolean}')
+    })
+
+    it('should handle object with all required properties', () => {
+      const result = makeTypeString(
+        {
+          type: 'object',
+          properties: {
+            a: { type: 'string' },
+            b: { type: 'number' },
+          },
+          required: ['a', 'b'],
+        },
+        'Test',
+      )
+      expect(result).toBe('{a:string;b:number}')
+    })
+  })
+
   describe('edge cases', () => {
     it('should handle undefined schema', () => {
       expect(makeTypeString(undefined as never, 'Test')).toBe('unknown')
@@ -320,6 +520,60 @@ describe('makeTypeString', () => {
     it('should handle multiple types', () => {
       const result = makeTypeString({ type: ['string', 'number'] }, 'Test')
       expect(result).toBe('string|number')
+    })
+
+    it('should handle empty enum array', () => {
+      const result = makeTypeString({ type: ['string', 'number', 'null'] }, 'Test')
+      expect(result).toBe('(string|number|null)')
+    })
+
+    it('should handle unknown type fallback', () => {
+      const result = makeTypeString({ type: 'any' as 'string' }, 'Test')
+      expect(result).toBe('unknown')
+    })
+
+    it('should handle array without items returns unknown[]', () => {
+      expect(makeTypeString({ type: 'array' }, 'Test')).toBe('unknown[]')
+    })
+
+    it('should handle readonly array without items', () => {
+      expect(makeTypeString({ type: 'array' }, 'Test', undefined, true)).toBe('readonly unknown[]')
+    })
+
+    it('should handle empty oneOf array', () => {
+      expect(makeTypeString({ oneOf: [] }, 'Test')).toBe('{[key:string]:unknown}')
+    })
+
+    it('should handle empty anyOf array', () => {
+      expect(makeTypeString({ anyOf: [] }, 'Test')).toBe('{[key:string]:unknown}')
+    })
+
+    it('should handle empty allOf array', () => {
+      expect(makeTypeString({ allOf: [] }, 'Test')).toBe('{[key:string]:unknown}')
+    })
+
+    it('should handle URL-encoded $ref with special characters', () => {
+      expect(makeTypeString({ $ref: '#/components/schemas/My%20Schema' }, 'Test')).toBe(
+        'z.infer<typeof MySchemaSchema>',
+      )
+    })
+
+    it('should handle properties $ref for array items', () => {
+      expect(
+        makeTypeString(
+          { type: 'array', items: { $ref: '#/components/schemas/User/properties/tags' } },
+          'Test',
+        ),
+      ).toBe('z.infer<typeof UserSchema>[]')
+    })
+
+    it('should handle properties $ref for self-referencing array items', () => {
+      expect(
+        makeTypeString(
+          { type: 'array', items: { $ref: '#/components/schemas/Node/properties/children' } },
+          'Node',
+        ),
+      ).toBe('NodeType[]')
     })
   })
 })

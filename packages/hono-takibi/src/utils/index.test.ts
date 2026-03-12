@@ -151,6 +151,59 @@ describe('utils', () => {
     ])('requestParamsArray(%o) -> %o', (input, expected) => {
       expect(requestParamsArray(input)).toStrictEqual(expected)
     })
+
+    it.concurrent('maps header section to headers key', () => {
+      const result = requestParamsArray({
+        header: { 'X-API-Key': 'z.string()' },
+      })
+      expect(result).toStrictEqual(['headers:z.object({X-API-Key:z.string()})'])
+    })
+
+    it.concurrent('maps cookie section to cookies key', () => {
+      const result = requestParamsArray({
+        cookie: { session: 'z.string()' },
+      })
+      expect(result).toStrictEqual(['cookies:z.object({session:z.string()})'])
+    })
+
+    it.concurrent('filters out empty sections', () => {
+      const result = requestParamsArray({
+        query: { page: 'z.string()' },
+        path: {},
+      })
+      expect(result).toStrictEqual(['query:z.object({page:z.string()})'])
+    })
+
+    it.concurrent('handles multiple fields in one section', () => {
+      const result = requestParamsArray({
+        query: { page: 'z.string()', limit: 'z.number()' },
+      })
+      expect(result).toStrictEqual(['query:z.object({page:z.string(),limit:z.number()})'])
+    })
+
+    it.concurrent('returns empty array for all empty sections', () => {
+      const result = requestParamsArray({
+        query: {},
+        path: {},
+        header: {},
+      })
+      expect(result).toStrictEqual([])
+    })
+
+    it.concurrent('handles all four section types simultaneously', () => {
+      const result = requestParamsArray({
+        query: { page: 'z.string()' },
+        path: { id: 'z.string()' },
+        header: { 'X-Token': 'z.string()' },
+        cookie: { session: 'z.string()' },
+      })
+      expect(result).toStrictEqual([
+        'query:z.object({page:z.string()})',
+        'params:z.object({id:z.string()})',
+        'headers:z.object({X-Token:z.string()})',
+        'cookies:z.object({session:z.string()})',
+      ])
+    })
   })
   // makeSafeKey
   describe('makeSafeKey', () => {
@@ -403,6 +456,81 @@ export * from './user'
     it.concurrent('zodToOpenAPISchema --export-schema false --export-type false', () => {
       const result = zodToOpenAPISchema('TestSchema', 'z.object({test:z.string()})', false, false)
       const expected = `const TestSchema=z.object({test:z.string()}).openapi('Test')`
+      expect(result).toBe(expected)
+    })
+    // #5: readonly=true, exportSchema=true, exportType=true
+    it.concurrent('zodToOpenAPISchema with readonly modifier', () => {
+      const result = zodToOpenAPISchema(
+        'TestSchema',
+        'z.object({test:z.string()})',
+        true,
+        true,
+        false,
+        true,
+      )
+      const expected = `export const TestSchema=z.object({test:z.string()}).readonly().openapi('Test')\n\nexport type Test=z.infer<typeof TestSchema>`
+      expect(result).toBe(expected)
+    })
+    // #6: readonly=true, exportSchema=false, exportType=false
+    it.concurrent('zodToOpenAPISchema with readonly and no exports', () => {
+      const result = zodToOpenAPISchema(
+        'TestSchema',
+        'z.object({test:z.string()})',
+        false,
+        false,
+        false,
+        true,
+      )
+      const expected = `const TestSchema=z.object({test:z.string()}).readonly().openapi('Test')`
+      expect(result).toBe(expected)
+    })
+    // #7: notComponentSchema=true (no .openapi() suffix)
+    it.concurrent('zodToOpenAPISchema with notComponentSchema skips openapi call', () => {
+      const result = zodToOpenAPISchema(
+        'IdParamsSchema',
+        'z.object({id:z.string()})',
+        true,
+        false,
+        true,
+      )
+      const expected = 'export const IdParamsSchema=z.object({id:z.string()})'
+      expect(result).toBe(expected)
+    })
+    // #8: notComponentSchema=true with exportType
+    it.concurrent('zodToOpenAPISchema with notComponentSchema and type export', () => {
+      const result = zodToOpenAPISchema(
+        'IdParamsSchema',
+        'z.object({id:z.string()})',
+        true,
+        true,
+        true,
+      )
+      const expected =
+        'export const IdParamsSchema=z.object({id:z.string()})\n\nexport type IdParams=z.infer<typeof IdParamsSchema>'
+      expect(result).toBe(expected)
+    })
+    // #9: notComponentSchema=true with readonly
+    it.concurrent('zodToOpenAPISchema with notComponentSchema and readonly', () => {
+      const result = zodToOpenAPISchema(
+        'HeaderSchema',
+        'z.object({auth:z.string()})',
+        true,
+        false,
+        true,
+        true,
+      )
+      const expected = 'export const HeaderSchema=z.object({auth:z.string()}).readonly()'
+      expect(result).toBe(expected)
+    })
+    // #10: complex schema name with nested suffix stripping
+    it.concurrent('zodToOpenAPISchema strips only trailing Schema for type name', () => {
+      const result = zodToOpenAPISchema(
+        'UserProfileSchema',
+        'z.object({name:z.string()})',
+        true,
+        true,
+      )
+      const expected = `export const UserProfileSchema=z.object({name:z.string()}).openapi('UserProfile')\n\nexport type UserProfile=z.infer<typeof UserProfileSchema>`
       expect(result).toBe(expected)
     })
   })

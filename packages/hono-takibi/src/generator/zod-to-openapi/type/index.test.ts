@@ -103,5 +103,248 @@ describe('zodType', () => {
       )
       expect(result).toBe('type TreeNodeType = {[key:string]:TreeNodeType}')
     })
+
+    it.concurrent('uses normal path for record-like outside cyclic group', () => {
+      const result = zodType(
+        {
+          type: 'object',
+          additionalProperties: { type: 'string' },
+        },
+        'Config',
+      )
+      expect(result).toBe('type ConfigType={[key:string]:string}')
+    })
+
+    it.concurrent('uses normal path for record-like with empty cyclic group', () => {
+      const result = zodType(
+        {
+          type: 'object',
+          additionalProperties: { type: 'number' },
+        },
+        'Scores',
+        new Set(),
+      )
+      expect(result).toBe('type ScoresType={[key:string]:number}')
+    })
+
+    it.concurrent('non-record-like object in cyclic group uses normal path', () => {
+      const cyclicGroup = new Set(['User'])
+      const result = zodType(
+        {
+          type: 'object',
+          properties: {
+            name: { type: 'string' },
+            friend: { $ref: '#/components/schemas/User' },
+          },
+        },
+        'User',
+        cyclicGroup,
+      )
+      expect(result).toBe('type UserType={name?:string;friend?:UserType}')
+    })
+  })
+
+  describe('readonly types', () => {
+    it.concurrent('generates readonly array type', () => {
+      expect(zodType({ type: 'array', items: { type: 'number' } }, 'Ids', undefined, true)).toBe(
+        'type IdsType=readonly number[]',
+      )
+    })
+
+    it.concurrent('generates readonly object type', () => {
+      const result = zodType(
+        {
+          type: 'object',
+          properties: {
+            name: { type: 'string' },
+            age: { type: 'integer' },
+          },
+          required: ['name'],
+        },
+        'User',
+        undefined,
+        true,
+      )
+      expect(result).toBe('type UserType={readonly name:string;readonly age?:number}')
+    })
+
+    it.concurrent('generates readonly nested array type', () => {
+      const result = zodType(
+        {
+          type: 'array',
+          items: { type: 'array', items: { type: 'string' } },
+        },
+        'Matrix',
+        undefined,
+        true,
+      )
+      expect(result).toBe('type MatrixType=readonly (readonly string[])[]')
+    })
+
+    it.concurrent('generates readonly tuple type', () => {
+      const result = zodType(
+        {
+          type: 'array',
+          items: [{ type: 'string' }, { type: 'number' }],
+        },
+        'Pair',
+        undefined,
+        true,
+      )
+      expect(result).toBe('type PairType=readonly [string,number]')
+    })
+  })
+
+  describe('additionalProperties as boolean', () => {
+    it.concurrent('generates record type with additionalProperties: true (no cyclic)', () => {
+      const result = zodType(
+        {
+          type: 'object',
+          additionalProperties: true,
+        },
+        'Settings',
+      )
+      expect(result).toBe('type SettingsType={[key:string]:unknown}')
+    })
+
+    it.concurrent('generates type with properties + additionalProperties: true', () => {
+      const result = zodType(
+        {
+          type: 'object',
+          properties: { name: { type: 'string' } },
+          required: ['name'],
+          additionalProperties: true,
+        },
+        'Config',
+      )
+      // additionalProperties: true with properties → looseObject, type omits index sig
+      expect(result).toBe('type ConfigType={name:string}')
+    })
+  })
+
+  describe('record-like in cyclic group edge cases', () => {
+    it.concurrent('generates inline index signature for additionalProperties: true in cyclic group', () => {
+      const cyclicGroup = new Set(['Metadata'])
+      const result = zodType(
+        {
+          type: 'object',
+          additionalProperties: true,
+        },
+        'Metadata',
+        cyclicGroup,
+      )
+      // additionalProperties: true → isRecordLike, valueSchema falls back to {} → {[key:string]:unknown}
+      expect(result).toBe('type MetadataType = {[key:string]:{[key:string]:unknown}}')
+    })
+
+    it.concurrent('generates readonly record-like in cyclic group', () => {
+      const cyclicGroup = new Set(['Cache'])
+      const result = zodType(
+        {
+          type: 'object',
+          additionalProperties: { type: 'number' },
+        },
+        'Cache',
+        cyclicGroup,
+        true,
+      )
+      expect(result).toBe('type CacheType = {[key:string]:number}')
+    })
+
+    it.concurrent('non-record object with additionalProperties + properties is NOT record-like', () => {
+      const cyclicGroup = new Set(['Mixed'])
+      const result = zodType(
+        {
+          type: 'object',
+          properties: { id: { type: 'integer' } },
+          required: ['id'],
+          additionalProperties: { type: 'string' },
+        },
+        'Mixed',
+        cyclicGroup,
+      )
+      // has properties so isRecordLike = false, takes normal path (type ignores additionalProperties)
+      expect(result).toBe('type MixedType={id:number}')
+    })
+  })
+
+  describe('type array notation', () => {
+    it.concurrent('generates nullable object type from type array', () => {
+      const result = zodType({ type: ['string', 'null'] }, 'Maybe')
+      expect(result).toBe('type MaybeType=(string|null)')
+    })
+  })
+
+  describe('complex use cases', () => {
+    it.concurrent('generates type for self-referencing tree structure', () => {
+      const result = zodType(
+        {
+          type: 'object',
+          properties: {
+            value: { type: 'string' },
+            children: { type: 'array', items: { $ref: '#/components/schemas/Node' } },
+          },
+          required: ['value'],
+        },
+        'Node',
+      )
+      expect(result).toBe('type NodeType={value:string;children?:NodeType[]}')
+    })
+
+    it.concurrent('generates type for enum schema', () => {
+      expect(zodType({ enum: ['active', 'inactive', 'banned'] }, 'Status')).toBe(
+        "type StatusType='active'|'inactive'|'banned'",
+      )
+    })
+
+    it.concurrent('generates type for const schema', () => {
+      expect(zodType({ const: 'fixed_value' }, 'Tag')).toBe("type TagType='fixed_value'")
+    })
+
+    it.concurrent('generates type for nullable number', () => {
+      expect(zodType({ type: 'number', nullable: true }, 'Score')).toBe(
+        'type ScoreType=(number|null)',
+      )
+    })
+
+    it.concurrent('generates type for oneOf union', () => {
+      const result = zodType(
+        {
+          oneOf: [{ type: 'string' }, { type: 'number' }],
+        },
+        'Value',
+      )
+      expect(result).toBe('type ValueType=(string|number)')
+    })
+
+    it.concurrent('generates type for allOf intersection', () => {
+      const result = zodType(
+        {
+          allOf: [
+            { type: 'object', properties: { id: { type: 'integer' } }, required: ['id'] },
+            { type: 'object', properties: { name: { type: 'string' } }, required: ['name'] },
+          ],
+        },
+        'Named',
+      )
+      expect(result).toBe('type NamedType=({id:number}&{name:string})')
+    })
+
+    it.concurrent('generates type for array of $ref', () => {
+      expect(
+        zodType({ type: 'array', items: { $ref: '#/components/schemas/User' } }, 'UserList'),
+      ).toBe('type UserListType=z.infer<typeof UserSchema>[]')
+    })
+
+    it.concurrent('generates readonly type for array of $ref', () => {
+      expect(
+        zodType(
+          { type: 'array', items: { $ref: '#/components/schemas/User' } },
+          'UserList',
+          undefined,
+          true,
+        ),
+      ).toBe('type UserListType=readonly z.infer<typeof UserSchema>[]')
+    })
   })
 })

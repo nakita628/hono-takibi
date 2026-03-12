@@ -7,12 +7,30 @@ import { Project, type SourceFile, type VariableStatement } from 'ts-morph'
  *
  * Scans from `start`, counting opening/closing characters,
  * and returns the position just after the matching closing character.
+ * Skips string literals (single/double/backtick) so that brackets
+ * inside strings are not counted.
  */
 function findBalancedEnd(code: string, start: number, open: string, close: string): number {
   let pos = start
   let depth = 0
   while (pos < code.length) {
     const ch = code[pos]
+    // Skip string/template literals
+    if (ch === "'" || ch === '"' || ch === '`') {
+      pos++
+      while (pos < code.length) {
+        if (code[pos] === '\\') {
+          pos += 2
+          continue
+        }
+        if (code[pos] === ch) {
+          pos++
+          break
+        }
+        pos++
+      }
+      continue
+    }
     depth += ch === open ? 1 : ch === close ? -1 : 0
     if (ch === close && depth === 0) return pos + 1
     pos++

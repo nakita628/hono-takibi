@@ -26,6 +26,13 @@ describe('fsp', () => {
       expect(result).toEqual({ ok: true, value: undefined })
     })
 
+    it('creates nested directories', async () => {
+      const deepPath = path.join(TEST_DIR, 'a', 'b', 'c')
+      const result = await mkdir(deepPath)
+      expect(result).toStrictEqual({ ok: true, value: undefined })
+      expect(fs.existsSync(deepPath)).toBe(true)
+    })
+
     it('returns err for invalid path', async () => {
       const filePath = path.join(TEST_DIR, 'foo.txt')
       await fsp.mkdir(TEST_DIR, { recursive: true })
@@ -56,14 +63,22 @@ describe('fsp', () => {
       }
     })
 
-    it('returns err for non-existent directory', async () => {
+    it('returns err with notFound flag for non-existent directory', async () => {
       const nonExist = path.join(TEST_DIR, 'no-such-dir')
       const result = await readdir(nonExist)
       expect(result.ok).toBe(false)
       if (!result.ok) {
         expect(typeof result.error).toBe('string')
         expect(result.error.length).toBeGreaterThan(0)
+        expect(result.notFound).toBe(true)
       }
+    })
+
+    it('returns empty array for empty directory', async () => {
+      const emptyDir = path.join(TEST_DIR, 'empty-dir')
+      await fsp.mkdir(emptyDir, { recursive: true })
+      const result = await readdir(emptyDir)
+      expect(result).toStrictEqual({ ok: true, value: [] })
     })
   })
 
@@ -93,6 +108,21 @@ describe('fsp', () => {
         expect(typeof result.error).toBe('string')
         expect(result.error.length).toBeGreaterThan(0)
       }
+    })
+
+    it('reads empty file correctly', async () => {
+      const filePath = path.join(TEST_DIR, 'empty-read.txt')
+      await fsp.writeFile(filePath, '')
+      const result = await readFile(filePath)
+      expect(result).toStrictEqual({ ok: true, value: '' })
+    })
+
+    it('reads unicode content correctly', async () => {
+      const filePath = path.join(TEST_DIR, 'unicode-read.txt')
+      const content = '日本語テスト 🎉'
+      await fsp.writeFile(filePath, content)
+      const result = await readFile(filePath)
+      expect(result).toStrictEqual({ ok: true, value: content })
     })
   })
 
@@ -137,6 +167,53 @@ describe('fsp', () => {
       expect(result.ok).toBe(true)
       const text = await fsp.readFile(filePath, 'utf-8')
       expect(text).toBe('hello')
+    })
+
+    it('skips writing when file content is identical', async () => {
+      const filePath = path.join(TEST_DIR, 'identical.txt')
+      await fsp.writeFile(filePath, 'same content')
+      const statBefore = await fsp.stat(filePath)
+      // Small delay to ensure mtime would differ if written
+      await new Promise((r) => setTimeout(r, 50))
+      const result = await writeFile(filePath, 'same content')
+      expect(result).toStrictEqual({ ok: true, value: undefined })
+      const statAfter = await fsp.stat(filePath)
+      // mtime should NOT change since content is identical
+      expect(statAfter.mtimeMs).toBe(statBefore.mtimeMs)
+    })
+
+    it('overwrites when file content differs', async () => {
+      const filePath = path.join(TEST_DIR, 'differ.txt')
+      await fsp.writeFile(filePath, 'old content')
+      const result = await writeFile(filePath, 'new content')
+      expect(result).toStrictEqual({ ok: true, value: undefined })
+      const text = await fsp.readFile(filePath, 'utf-8')
+      expect(text).toBe('new content')
+    })
+
+    it('creates file when it does not exist', async () => {
+      const filePath = path.join(TEST_DIR, 'new-file.txt')
+      const result = await writeFile(filePath, 'brand new')
+      expect(result).toStrictEqual({ ok: true, value: undefined })
+      const text = await fsp.readFile(filePath, 'utf-8')
+      expect(text).toBe('brand new')
+    })
+
+    it('handles empty string content', async () => {
+      const filePath = path.join(TEST_DIR, 'empty.txt')
+      const result = await writeFile(filePath, '')
+      expect(result).toStrictEqual({ ok: true, value: undefined })
+      const text = await fsp.readFile(filePath, 'utf-8')
+      expect(text).toBe('')
+    })
+
+    it('handles unicode content', async () => {
+      const filePath = path.join(TEST_DIR, 'unicode.txt')
+      const content = '日本語テスト 🎉 émojis'
+      const result = await writeFile(filePath, content)
+      expect(result).toStrictEqual({ ok: true, value: undefined })
+      const text = await fsp.readFile(filePath, 'utf-8')
+      expect(text).toBe(content)
     })
 
     it('returns err for invalid path', async () => {
