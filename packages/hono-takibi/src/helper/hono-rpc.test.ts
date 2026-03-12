@@ -362,4 +362,243 @@ describe('operationHasArgs', () => {
     const op = { parameters: [{ name: 'X-API-Key', in: 'header' }], responses: {} }
     expect(operationHasArgs(item, op, deps)).toBe(true)
   })
+
+  it.concurrent('returns true when cookie parameters exist', () => {
+    const deps = makeOperationDeps('client', {}, {})
+    const item = {}
+    const op = { parameters: [{ name: 'session', in: 'cookie' }], responses: {} }
+    expect(operationHasArgs(item, op, deps)).toBe(true)
+  })
+
+  it.concurrent('returns true when both path and op params exist', () => {
+    const deps = makeOperationDeps('client', {}, {})
+    const item = { parameters: [{ name: 'id', in: 'path', required: true }] }
+    const op = { parameters: [{ name: 'page', in: 'query' }], responses: {} }
+    expect(operationHasArgs(item, op, deps)).toBe(true)
+  })
+
+  it.concurrent('returns true for form body', () => {
+    const deps = makeOperationDeps('client', {}, {})
+    const item = {}
+    const op = {
+      requestBody: {
+        content: { 'multipart/form-data': { schema: { type: 'object' } } },
+      },
+      responses: {},
+    }
+    expect(operationHasArgs(item, op, deps)).toBe(true)
+  })
+
+  it.concurrent('returns false for $ref requestBody with missing component', () => {
+    const deps = makeOperationDeps('client', {}, {})
+    const item = {}
+    const op = {
+      requestBody: { $ref: '#/components/requestBodies/NonExistent' },
+      responses: {},
+    }
+    expect(operationHasArgs(item, op, deps)).toBe(false)
+  })
+
+  it.concurrent('returns true for $ref parameters resolved from components', () => {
+    const deps = makeOperationDeps(
+      'client',
+      { pageParam: { name: 'page', in: 'query' } },
+      {},
+    )
+    const item = {}
+    const op = {
+      parameters: [{ $ref: '#/components/parameters/pageParam' }],
+      responses: {},
+    }
+    expect(operationHasArgs(item, op, deps)).toBe(true)
+  })
+
+  it.concurrent('returns false when parameters array is empty', () => {
+    const deps = makeOperationDeps('client', {}, {})
+    const item = { parameters: [] }
+    const op = { parameters: [], responses: {} }
+    expect(operationHasArgs(item, op, deps)).toBe(false)
+  })
+})
+
+/* ═══════════════════════════════════ Use Case: REST API CRUD ═══════════════════════════════════ */
+
+describe('Use Case: REST API CRUD patterns', () => {
+  it.concurrent('formats typical CRUD paths correctly', () => {
+    // List endpoint
+    expect(formatPath('/api/v1/users')).toStrictEqual({
+      runtimePath: '.api.v1.users',
+      typeofPrefix: '.api.v1.users',
+      bracketSuffix: '',
+      hasBracket: false,
+    })
+
+    // Single resource endpoint
+    expect(formatPath('/api/v1/users/{id}')).toStrictEqual({
+      runtimePath: ".api.v1.users[':id']",
+      typeofPrefix: '.api.v1.users',
+      bracketSuffix: "[':id']",
+      hasBracket: true,
+    })
+
+    // Nested resource
+    expect(formatPath('/api/v1/users/{userId}/posts/{postId}/comments')).toStrictEqual({
+      runtimePath: ".api.v1.users[':userId'].posts[':postId'].comments",
+      typeofPrefix: '.api.v1.users',
+      bracketSuffix: "[':userId']['posts'][':postId']['comments']",
+      hasBracket: true,
+    })
+  })
+
+  it.concurrent('generates correct response types for various methods', () => {
+    const pathResult = formatPath('/api/v1/users/{id}')
+
+    expect(makeParseResponseType('client', pathResult, 'get')).toBe(
+      "Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.api.v1.users[':id']['$get']>>>>>",
+    )
+
+    expect(makeParseResponseType('client', pathResult, 'put')).toBe(
+      "Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.api.v1.users[':id']['$put']>>>>>",
+    )
+
+    expect(makeParseResponseType('client', pathResult, 'delete')).toBe(
+      "Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.api.v1.users[':id']['$delete']>>>>>",
+    )
+  })
+
+  it.concurrent('detects CRUD operations with bodies vs without', () => {
+    const deps = makeOperationDeps('client', {}, {})
+
+    // GET (no body) with path param → has args
+    const getOp = { parameters: [{ name: 'id', in: 'path', required: true }], responses: {} }
+    expect(operationHasArgs({ parameters: [] }, getOp, deps)).toBe(true)
+
+    // POST with JSON body → has args
+    const postOp = {
+      requestBody: {
+        content: { 'application/json': { schema: { type: 'object' } } },
+      },
+      responses: {},
+    }
+    expect(operationHasArgs({}, postOp, deps)).toBe(true)
+
+    // DELETE with no params or body → no args
+    const deleteOp = { responses: {} }
+    expect(operationHasArgs({}, deleteOp, deps)).toBe(false)
+  })
+
+  it.concurrent('detects 204 No Content for DELETE operations', () => {
+    expect(hasNoContentResponse({ responses: { '204': {} } })).toBe(true)
+    expect(hasNoContentResponse({ responses: { '200': {} } })).toBe(false)
+    expect(hasNoContentResponse({ responses: { '200': {}, '204': {} } })).toBe(true)
+  })
+})
+
+/* ═══════════════════════════════════ Use Case: File Upload API ═══════════════════════════════════ */
+
+describe('Use Case: File upload with multipart form', () => {
+  it.concurrent('detects form-data and url-encoded body types', () => {
+    const deps = makeOperationDeps('client', {}, {})
+
+    // multipart/form-data
+    const multipartOp = {
+      requestBody: {
+        content: { 'multipart/form-data': { schema: { type: 'object' } } },
+      },
+      responses: {},
+    }
+    const multipartResult = deps.pickAllBodyInfo(multipartOp)
+    expect(multipartResult).toStrictEqual({
+      form: [{ contentType: 'multipart/form-data' }],
+      json: [],
+    })
+
+    // application/x-www-form-urlencoded
+    const urlencodedOp = {
+      requestBody: {
+        content: { 'application/x-www-form-urlencoded': { schema: { type: 'object' } } },
+      },
+      responses: {},
+    }
+    const urlencodedResult = deps.pickAllBodyInfo(urlencodedOp)
+    expect(urlencodedResult).toStrictEqual({
+      form: [{ contentType: 'application/x-www-form-urlencoded' }],
+      json: [],
+    })
+  })
+
+  it.concurrent('handles mixed content types', () => {
+    const deps = makeOperationDeps('client', {}, {})
+    const mixedOp = {
+      requestBody: {
+        content: {
+          'application/json': { schema: { type: 'object' } },
+          'multipart/form-data': { schema: { type: 'object' } },
+        },
+      },
+      responses: {},
+    }
+    const result = deps.pickAllBodyInfo(mixedOp)
+    expect(result).toStrictEqual({
+      form: [{ contentType: 'multipart/form-data' }],
+      json: [{ contentType: 'application/json' }],
+    })
+  })
+})
+
+/* ═══════════════════════════════════ Use Case: parsePathItem for OpenAPI spec ═══════════════════════════════════ */
+
+describe('Use Case: OpenAPI path item parsing', () => {
+  it.concurrent('parses a complete RESTful resource path item', () => {
+    const rawItem = {
+      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
+      get: { summary: 'Get resource', responses: { '200': {} } },
+      put: { summary: 'Update resource', responses: { '200': {} } },
+      delete: { summary: 'Delete resource', responses: { '204': {} } },
+      // non-operation fields should be ignored
+      summary: 'Resource operations',
+      description: 'CRUD operations',
+    }
+    const result = parsePathItem(rawItem)
+
+    expect(result.get).toStrictEqual({ summary: 'Get resource', responses: { '200': {} } })
+    expect(result.put).toStrictEqual({ summary: 'Update resource', responses: { '200': {} } })
+    expect(result.delete).toStrictEqual({ summary: 'Delete resource', responses: { '204': {} } })
+    expect(result.post).toBe(undefined)
+    expect(result.patch).toBe(undefined)
+    expect(result.options).toBe(undefined)
+    expect(result.head).toBe(undefined)
+    expect(result.trace).toBe(undefined)
+    expect(result.parameters).toStrictEqual([
+      { name: 'id', in: 'path', required: true, schema: { type: 'string' } },
+    ])
+  })
+
+  it.concurrent('parses empty path item', () => {
+    const result = parsePathItem({})
+    expect(result).toStrictEqual({
+      parameters: undefined,
+      get: undefined,
+      put: undefined,
+      post: undefined,
+      delete: undefined,
+      options: undefined,
+      head: undefined,
+      patch: undefined,
+      trace: undefined,
+    })
+  })
+
+  it.concurrent('ignores invalid operation values', () => {
+    const result = parsePathItem({
+      get: 'not an operation',
+      post: 42,
+      put: null,
+      delete: [],
+    })
+    expect(result.get).toBe(undefined)
+    expect(result.post).toBe(undefined)
+    expect(result.put).toBe(undefined)
+    expect(result.delete).toBe(undefined)
+  })
 })
