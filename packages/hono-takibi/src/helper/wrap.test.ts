@@ -535,50 +535,54 @@ describe('wrap', () => {
 
   describe('unsupported properties filtering', () => {
     it.concurrent('should filter out contains property', () => {
-      const result = wrap('z.array(z.string())', {
+      const schema = {
         type: 'array',
         items: { type: 'string' },
         contains: { type: 'number' },
         description: 'arr',
-      } as any)
+      } as unknown as Schema
+      const result = wrap('z.array(z.string())', schema)
       expect(result).toBe('z.array(z.string()).openapi({"description":"arr"})')
     })
 
     it.concurrent('should filter out $schema property', () => {
-      const result = wrap('z.string()', {
+      const schema = {
         type: 'string',
         $schema: 'http://json-schema.org/draft-07/schema#',
         description: 'test',
-      } as any)
+      } as unknown as Schema
+      const result = wrap('z.string()', schema)
       expect(result).toBe('z.string().openapi({"description":"test"})')
     })
 
     it.concurrent('should filter out contentEncoding property', () => {
-      const result = wrap('z.string()', {
+      const schema = {
         type: 'string',
         contentEncoding: 'base64',
         description: 'encoded',
-      } as any)
+      } as unknown as Schema
+      const result = wrap('z.string()', schema)
       expect(result).toBe('z.string().openapi({"description":"encoded"})')
     })
 
     it.concurrent('should filter out if/then/else properties', () => {
-      const result = wrap('z.object({})', {
+      const schema = {
         type: 'object',
         if: { type: 'string' },
+        // biome-ignore lint/suspicious/noThenProperty: testing JSON Schema if/then/else filtering
         then: { minLength: 1 },
         else: { maxLength: 0 },
         description: 'conditional',
-      } as any)
+      } as unknown as Schema
+      const result = wrap('z.object({})', schema)
       expect(result).toBe('z.object({}).openapi({"description":"conditional"})')
     })
   })
 
   describe('date type default', () => {
     it.concurrent('formats date default with new Date()', () => {
-      expect(wrap('z.date()', { type: 'date', default: '2024-01-01' } as any)).toBe(
-        'z.date().default(new Date("2024-01-01"))',
-      )
+      const schema = { type: 'date', default: '2024-01-01' } as unknown as Schema
+      expect(wrap('z.date()', schema)).toBe('z.date().default(new Date("2024-01-01"))')
     })
   })
 

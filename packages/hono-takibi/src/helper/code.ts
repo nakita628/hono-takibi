@@ -155,6 +155,35 @@ export function makeExportConst(
  * // → "import{z}from'@hono/zod-openapi'\n\n..."
  * ```
  */
+/** Valid JavaScript identifier pattern (e.g., `UserSchema`, `_private`, `$special`) */
+const JS_IDENT = '[A-Za-z_$][A-Za-z0-9_$]*'
+
+/**
+ * Regex patterns for OpenAPI component types.
+ * Ordered per OpenAPI 3.0 specification.
+ * Note: (?<!Params)(?<!Header) excludes ParamsSchema/HeaderSchema from generic Schema matches
+ *
+ * Hoisted to module scope to avoid re-creating RegExp objects on every call.
+ */
+const IMPORT_PATTERNS: ReadonlyArray<{ readonly pattern: RegExp; readonly key: string }> = [
+  {
+    pattern: new RegExp(`\\b(${JS_IDENT}(?<!Params)(?<!Header)(?<!MediaType)Schema)\\b`, 'g'),
+    key: 'schemas',
+  },
+  { pattern: new RegExp(`\\b(${JS_IDENT}ParamsSchema)\\b`, 'g'), key: 'parameters' },
+  { pattern: new RegExp(`\\b(${JS_IDENT}SecurityScheme)\\b`, 'g'), key: 'securitySchemes' },
+  { pattern: new RegExp(`\\b(${JS_IDENT}RequestBody)\\b`, 'g'), key: 'requestBodies' },
+  { pattern: new RegExp(`\\b(${JS_IDENT}Response)\\b`, 'g'), key: 'responses' },
+  { pattern: new RegExp(`\\b(${JS_IDENT}HeaderSchema)\\b`, 'g'), key: 'headers' },
+  { pattern: new RegExp(`\\b(${JS_IDENT}Example)\\b`, 'g'), key: 'examples' },
+  { pattern: new RegExp(`\\b(${JS_IDENT}Link)\\b`, 'g'), key: 'links' },
+  { pattern: new RegExp(`\\b(${JS_IDENT}Callback)\\b`, 'g'), key: 'callbacks' },
+  { pattern: new RegExp(`\\b(${JS_IDENT}MediaTypeSchema)\\b`, 'g'), key: 'mediaTypes' },
+]
+
+/** Pattern to find locally exported constants */
+const EXPORT_CONST_PATTERN = new RegExp(`export\\s+const\\s+(${JS_IDENT})\\s*=`, 'g')
+
 export function makeImports(
   code: string,
   fromFile: string,
@@ -169,33 +198,6 @@ export function makeImports(
     | undefined,
   split = false,
 ): string {
-  /** Valid JavaScript identifier pattern (e.g., `UserSchema`, `_private`, `$special`) */
-  const JS_IDENT = '[A-Za-z_$][A-Za-z0-9_$]*'
-
-  /**
-   * Regex patterns for OpenAPI component types.
-   * Ordered per OpenAPI 3.0 specification.
-   * Note: (?<!Params)(?<!Header) excludes ParamsSchema/HeaderSchema from generic Schema matches
-   */
-  const IMPORT_PATTERNS: ReadonlyArray<{ readonly pattern: RegExp; readonly key: string }> = [
-    {
-      pattern: new RegExp(`\\b(${JS_IDENT}(?<!Params)(?<!Header)(?<!MediaType)Schema)\\b`, 'g'),
-      key: 'schemas',
-    },
-    { pattern: new RegExp(`\\b(${JS_IDENT}ParamsSchema)\\b`, 'g'), key: 'parameters' },
-    { pattern: new RegExp(`\\b(${JS_IDENT}SecurityScheme)\\b`, 'g'), key: 'securitySchemes' },
-    { pattern: new RegExp(`\\b(${JS_IDENT}RequestBody)\\b`, 'g'), key: 'requestBodies' },
-    { pattern: new RegExp(`\\b(${JS_IDENT}Response)\\b`, 'g'), key: 'responses' },
-    { pattern: new RegExp(`\\b(${JS_IDENT}HeaderSchema)\\b`, 'g'), key: 'headers' },
-    { pattern: new RegExp(`\\b(${JS_IDENT}Example)\\b`, 'g'), key: 'examples' },
-    { pattern: new RegExp(`\\b(${JS_IDENT}Link)\\b`, 'g'), key: 'links' },
-    { pattern: new RegExp(`\\b(${JS_IDENT}Callback)\\b`, 'g'), key: 'callbacks' },
-    { pattern: new RegExp(`\\b(${JS_IDENT}MediaTypeSchema)\\b`, 'g'), key: 'mediaTypes' },
-  ]
-
-  /** Pattern to find locally exported constants */
-  const EXPORT_CONST_PATTERN = new RegExp(`export\\s+const\\s+(${JS_IDENT})\\s*=`, 'g')
-
   const fallbackPrefix = split ? '..' : '.'
 
   // Resolve import path for a component type

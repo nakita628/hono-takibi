@@ -63,13 +63,14 @@ describe('fsp', () => {
       }
     })
 
-    it('returns err for non-existent directory', async () => {
+    it('returns err with notFound flag for non-existent directory', async () => {
       const nonExist = path.join(TEST_DIR, 'no-such-dir')
       const result = await readdir(nonExist)
       expect(result.ok).toBe(false)
       if (!result.ok) {
         expect(typeof result.error).toBe('string')
         expect(result.error.length).toBeGreaterThan(0)
+        expect(result.notFound).toBe(true)
       }
     })
 

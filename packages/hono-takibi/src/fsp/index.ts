@@ -62,11 +62,14 @@ export async function mkdir(dir: string): Promise<
  *
  * @param dir - Directory to read.
  * @returns A `Result` with the file list on success, otherwise an error message.
+ *   When the directory does not exist (ENOENT), the error result includes `notFound: true`
+ *   so callers can distinguish missing directories from other failures (e.g., EACCES).
  */
 export async function readdir(dir: string): Promise<
   | {
       readonly ok: false
-      error: string
+      readonly error: string
+      readonly notFound?: true
     }
   | {
       readonly ok: true
@@ -77,6 +80,9 @@ export async function readdir(dir: string): Promise<
     const files = await fsp.readdir(dir)
     return { ok: true, value: files }
   } catch (e) {
+    if (e instanceof Error && 'code' in e && e.code === 'ENOENT') {
+      return { ok: false, error: e.message, notFound: true }
+    }
     return {
       ok: false,
       error: e instanceof Error ? e.message : String(e),
