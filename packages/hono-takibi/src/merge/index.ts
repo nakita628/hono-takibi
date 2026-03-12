@@ -37,10 +37,11 @@ function getBodyStart(file: SourceFile): number {
  */
 function applyRangeOps(
   code: string,
-  cursor: number,
+  startPos: number,
   ops: readonly (readonly [number, number, string])[],
 ): string {
   const slices: string[] = []
+  let cursor = startPos
   for (const [start, end, replacement] of ops) {
     slices.push(code.slice(cursor, start), replacement)
     cursor = end
@@ -122,7 +123,8 @@ export function mergeHandlerFile(existingCode: string, generatedCode: string): s
   const mergeOps: BodyOp[] = [...existingHandlers.entries()]
     .filter(([name]) => isInlineHandlerName(name) && generatedHandlers.has(name))
     .flatMap(([name, stmt]): BodyOp[] => {
-      const genStmt = generatedHandlers.get(name)!
+      const genStmt = generatedHandlers.get(name)
+      if (!genStmt) return []
       const merged = mergeInlineHandler(stmt.getText(), genStmt.getText())
       if (merged === stmt.getText()) return []
       return [[stmt.getStart(), stmt.getEnd(), merged]]
