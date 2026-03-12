@@ -310,9 +310,9 @@ describe('makeTypeString', () => {
 
   describe('readonly types', () => {
     it('should generate readonly array type', () => {
-      expect(makeTypeString({ type: 'array', items: { type: 'string' } }, 'Test', undefined, true)).toBe(
-        'readonly string[]',
-      )
+      expect(
+        makeTypeString({ type: 'array', items: { type: 'string' } }, 'Test', undefined, true),
+      ).toBe('readonly string[]')
     })
 
     it('should generate readonly object type', () => {
@@ -357,7 +357,12 @@ describe('makeTypeString', () => {
 
     it('should generate readonly object with additionalProperties', () => {
       expect(
-        makeTypeString({ type: 'object', additionalProperties: { type: 'string' } }, 'Test', undefined, true),
+        makeTypeString(
+          { type: 'object', additionalProperties: { type: 'string' } },
+          'Test',
+          undefined,
+          true,
+        ),
       ).toBe('{readonly [key:string]:string}')
     })
 
@@ -384,9 +389,9 @@ describe('makeTypeString', () => {
     })
 
     it('should generate readonly nullable string', () => {
-      expect(
-        makeTypeString({ type: 'string', nullable: true }, 'Test', undefined, true),
-      ).toBe('(string|null)')
+      expect(makeTypeString({ type: 'string', nullable: true }, 'Test', undefined, true)).toBe(
+        '(string|null)',
+      )
     })
   })
 
@@ -426,10 +431,7 @@ describe('makeTypeString', () => {
     })
 
     it('should handle single allOf item', () => {
-      const result = makeTypeString(
-        { allOf: [{ type: 'string' }] },
-        'Test',
-      )
+      const result = makeTypeString({ allOf: [{ type: 'string' }] }, 'Test')
       expect(result).toBe('string')
     })
   })
@@ -453,10 +455,7 @@ describe('makeTypeString', () => {
     it('should handle oneOf with $ref and primitive', () => {
       const result = makeTypeString(
         {
-          oneOf: [
-            { $ref: '#/components/schemas/User' },
-            { type: 'null' },
-          ],
+          oneOf: [{ $ref: '#/components/schemas/User' }, { type: 'null' }],
         },
         'Test',
       )
@@ -554,9 +553,9 @@ describe('makeTypeString', () => {
     })
 
     it('should handle URL-encoded $ref with special characters', () => {
-      expect(
-        makeTypeString({ $ref: '#/components/schemas/My%20Schema' }, 'Test'),
-      ).toBe('z.infer<typeof MySchemaSchema>')
+      expect(makeTypeString({ $ref: '#/components/schemas/My%20Schema' }, 'Test')).toBe(
+        'z.infer<typeof MySchemaSchema>',
+      )
     })
 
     it('should handle properties $ref for array items', () => {

@@ -381,7 +381,9 @@ describe('makeTypeDefinition', () => {
     const info = makeSchemaInfo('Node', selfRefSchemas.Node, analysis)
     const typeDef = makeTypeDefinition(info, analysis.cyclicGroupPascal, true)
 
-    expect(typeDef).toBe('type NodeType={readonly value?:string;readonly children?:readonly NodeType[]}')
+    expect(typeDef).toBe(
+      'type NodeType={readonly value?:string;readonly children?:readonly NodeType[]}',
+    )
   })
 })
 
@@ -526,7 +528,9 @@ describe('makeTypeDefinitions', () => {
     const typeDefs = makeTypeDefinitions(infos, schemas, analysis.cyclicGroupPascal, true)
 
     expect(typeDefs.length).toBe(1)
-    expect(typeDefs[0]).toBe('type NodeType={readonly value?:string;readonly children?:readonly NodeType[]}')
+    expect(typeDefs[0]).toBe(
+      'type NodeType={readonly value?:string;readonly children?:readonly NodeType[]}',
+    )
   })
 
   it.concurrent('should handle mixed cyclic and non-cyclic schemas', () => {

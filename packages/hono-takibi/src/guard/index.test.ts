@@ -580,15 +580,13 @@ describe('isResponses', () => {
   })
 
   it.concurrent('returns true for response with content', () => {
-    expect(
-      isResponses({ content: { 'application/json': { schema: { type: 'object' } } } }),
-    ).toBe(true)
+    expect(isResponses({ content: { 'application/json': { schema: { type: 'object' } } } })).toBe(
+      true,
+    )
   })
 
   it.concurrent('returns true for response with headers', () => {
-    expect(isResponses({ headers: { 'X-Rate-Limit': { schema: { type: 'integer' } } } })).toBe(
-      true,
-    )
+    expect(isResponses({ headers: { 'X-Rate-Limit': { schema: { type: 'integer' } } } })).toBe(true)
   })
 
   it.concurrent('returns true for response with links', () => {

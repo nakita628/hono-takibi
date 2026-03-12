@@ -143,9 +143,7 @@ export * from './zebra.ts'
     )
 
     const content = fs.readFileSync(`${testDir}/examples/pet.ts`, 'utf-8')
-    expect(content).toBe(
-      "export const PetExample = { value: { name: 'Fido', type: 'dog' } }\n",
-    )
+    expect(content).toBe("export const PetExample = { value: { name: 'Fido', type: 'dog' } }\n")
   })
 
   it('should generate correct file content with as const for readonly', async () => {
@@ -194,7 +192,9 @@ export * from './zebra.ts'
       const result = await makeExports({ Test: {} }, suffix, dir)
       expect(result.ok).toBe(true)
       if (result.ok) {
-        expect(result.value).toBe(`Generated ${suffix} code written to ${dir}/*.ts (index.ts included)`)
+        expect(result.value).toBe(
+          `Generated ${suffix} code written to ${dir}/*.ts (index.ts included)`,
+        )
       }
     }
   })

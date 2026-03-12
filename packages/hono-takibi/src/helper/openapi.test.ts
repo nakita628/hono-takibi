@@ -1137,9 +1137,7 @@ describe('openapi helper', () => {
 
   describe('makePathParameters', () => {
     it.concurrent('generates array with $ref parameter', () => {
-      const result = makePathParameters([
-        { $ref: '#/components/parameters/UserId' },
-      ])
+      const result = makePathParameters([{ $ref: '#/components/parameters/UserId' }])
       expect(result).toBe('[UserIdParamsSchema]')
     })
 
@@ -1147,9 +1145,7 @@ describe('openapi helper', () => {
       const result = makePathParameters([
         { name: 'id', in: 'path', required: true, schema: { type: 'string' } },
       ])
-      expect(result).toBe(
-        '[{"name":"id","in":"path","required":true,"schema":{"type":"string"}}]',
-      )
+      expect(result).toBe('[{"name":"id","in":"path","required":true,"schema":{"type":"string"}}]')
     })
 
     it.concurrent('generates array with mixed $ref and inline parameters', () => {

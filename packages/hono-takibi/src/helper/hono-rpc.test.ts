@@ -400,11 +400,7 @@ describe('operationHasArgs', () => {
   })
 
   it.concurrent('returns true for $ref parameters resolved from components', () => {
-    const deps = makeOperationDeps(
-      'client',
-      { pageParam: { name: 'page', in: 'query' } },
-      {},
-    )
+    const deps = makeOperationDeps('client', { pageParam: { name: 'page', in: 'query' } }, {})
     const item = {}
     const op = {
       parameters: [{ $ref: '#/components/parameters/pageParam' }],

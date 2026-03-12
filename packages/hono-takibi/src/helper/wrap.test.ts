@@ -535,49 +535,41 @@ describe('wrap', () => {
 
   describe('unsupported properties filtering', () => {
     it.concurrent('should filter out contains property', () => {
-      const result = wrap(
-        'z.array(z.string())',
-        {
-          type: 'array',
-          items: { type: 'string' },
-          contains: { type: 'number' },
-          description: 'arr',
-        } as any,
-      )
+      const result = wrap('z.array(z.string())', {
+        type: 'array',
+        items: { type: 'string' },
+        contains: { type: 'number' },
+        description: 'arr',
+      } as any)
       expect(result).toBe('z.array(z.string()).openapi({"description":"arr"})')
     })
 
     it.concurrent('should filter out $schema property', () => {
-      const result = wrap(
-        'z.string()',
-        {
-          type: 'string',
-          $schema: 'http://json-schema.org/draft-07/schema#',
-          description: 'test',
-        } as any,
-      )
+      const result = wrap('z.string()', {
+        type: 'string',
+        $schema: 'http://json-schema.org/draft-07/schema#',
+        description: 'test',
+      } as any)
       expect(result).toBe('z.string().openapi({"description":"test"})')
     })
 
     it.concurrent('should filter out contentEncoding property', () => {
-      const result = wrap(
-        'z.string()',
-        { type: 'string', contentEncoding: 'base64', description: 'encoded' } as any,
-      )
+      const result = wrap('z.string()', {
+        type: 'string',
+        contentEncoding: 'base64',
+        description: 'encoded',
+      } as any)
       expect(result).toBe('z.string().openapi({"description":"encoded"})')
     })
 
     it.concurrent('should filter out if/then/else properties', () => {
-      const result = wrap(
-        'z.object({})',
-        {
-          type: 'object',
-          if: { type: 'string' },
-          then: { minLength: 1 },
-          else: { maxLength: 0 },
-          description: 'conditional',
-        } as any,
-      )
+      const result = wrap('z.object({})', {
+        type: 'object',
+        if: { type: 'string' },
+        then: { minLength: 1 },
+        else: { maxLength: 0 },
+        description: 'conditional',
+      } as any)
       expect(result).toBe('z.object({}).openapi({"description":"conditional"})')
     })
   })
@@ -606,9 +598,7 @@ describe('wrap', () => {
     it.concurrent('should handle header with allowReserved property', () => {
       const testHeader = { description: 'Reserved header', required: true, allowReserved: true }
       const result = wrap('z.string()', { type: 'string' }, { headers: testHeader })
-      expect(result).toBe(
-        'z.string().openapi({description:"Reserved header",allowReserved:true})',
-      )
+      expect(result).toBe('z.string().openapi({description:"Reserved header",allowReserved:true})')
     })
   })
 
@@ -629,11 +619,7 @@ describe('wrap', () => {
   describe('combined nullable + default + isOptional', () => {
     it.concurrent('should handle nullable + default + isOptional combined', () => {
       expect(
-        wrap(
-          'z.string()',
-          { type: 'string', nullable: true, default: 'hi' },
-          { isOptional: true },
-        ),
+        wrap('z.string()', { type: 'string', nullable: true, default: 'hi' }, { isOptional: true }),
       ).toBe('z.string().nullable().default("hi").exactOptional()')
     })
   })

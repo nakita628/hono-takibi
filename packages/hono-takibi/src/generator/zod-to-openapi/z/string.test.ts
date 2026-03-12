@@ -148,10 +148,7 @@ describe('string', () => {
         'z.string().regex(/^[a-z]+$/).min(3)',
       ],
       // maxLength + pattern
-      [
-        { type: 'string', maxLength: 50, pattern: '^\\w+$' },
-        'z.string().regex(/^\\w+$/).max(50)',
-      ],
+      [{ type: 'string', maxLength: 50, pattern: '^\\w+$' }, 'z.string().regex(/^\\w+$/).max(50)'],
       // minLength + maxLength + pattern
       [
         { type: 'string', minLength: 1, maxLength: 100, pattern: '^[A-Z]' },
@@ -163,15 +160,9 @@ describe('string', () => {
         'z.email().regex(/^.+@example\\.com$/)',
       ],
       // format + minLength
-      [
-        { type: 'string', format: 'uuid', minLength: 36 },
-        'z.uuid().min(36)',
-      ],
+      [{ type: 'string', format: 'uuid', minLength: 36 }, 'z.uuid().min(36)'],
       // format + fixed length
-      [
-        { type: 'string', format: 'nanoid', minLength: 21, maxLength: 21 },
-        'z.nanoid().length(21)',
-      ],
+      [{ type: 'string', format: 'nanoid', minLength: 21, maxLength: 21 }, 'z.nanoid().length(21)'],
       // format + pattern + minLength + maxLength with all messages
       [
         {
@@ -188,10 +179,7 @@ describe('string', () => {
         'z.url({error:"URL不正"}).regex(/^https:\\/\\//,{error:"httpsのみ"}).min(10,{error:"10文字以上"}).max(2000,{error:"2000文字以下"})',
       ],
       // transform format + minLength (transform ignores x-error-message but length still applies)
-      [
-        { type: 'string', format: 'trim', minLength: 1 },
-        'z.trim().min(1)',
-      ],
+      [{ type: 'string', format: 'trim', minLength: 1 }, 'z.trim().min(1)'],
       // transform format + pattern
       [
         { type: 'string', format: 'toLowerCase', pattern: '^[a-z]+$' },
@@ -229,7 +217,10 @@ describe('string', () => {
       // fixed length 1
       [{ type: 'string', minLength: 1, maxLength: 1 }, 'z.string().length(1)'],
       // pattern with forward slashes (should be escaped)
-      [{ type: 'string', pattern: '^https://example\\.com/' }, 'z.string().regex(/^https:\\/\\/example\\.com\\//)'],
+      [
+        { type: 'string', pattern: '^https://example\\.com/' },
+        'z.string().regex(/^https:\\/\\/example\\.com\\//)',
+      ],
     ])('string(%o) → %s', (input, expected) => {
       expect(string(input)).toBe(expected)
     })

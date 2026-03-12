@@ -87,21 +87,12 @@ describe('makeExportConst', () => {
   })
 
   it.concurrent('generates multiple export consts separated by double newline', () => {
-    const result = makeExportConst(
-      { user: { id: 1 }, post: { title: 'Hello' } },
-      'Data',
-    )
-    expect(result).toBe(
-      'export const UserData={"id":1}\n\nexport const PostData={"title":"Hello"}',
-    )
+    const result = makeExportConst({ user: { id: 1 }, post: { title: 'Hello' } }, 'Data')
+    expect(result).toBe('export const UserData={"id":1}\n\nexport const PostData={"title":"Hello"}')
   })
 
   it.concurrent('generates multiple export consts with as const', () => {
-    const result = makeExportConst(
-      { user: { id: 1 }, post: { title: 'Hello' } },
-      'Data',
-      true,
-    )
+    const result = makeExportConst({ user: { id: 1 }, post: { title: 'Hello' } }, 'Data', true)
     expect(result).toBe(
       'export const UserData={"id":1} as const\n\nexport const PostData={"title":"Hello"} as const',
     )
@@ -118,15 +109,11 @@ describe('makeExportConst', () => {
   })
 
   it.concurrent('handles array value', () => {
-    expect(makeExportConst({ tags: [1, 2, 3] }, 'Example')).toBe(
-      'export const TagsExample=[1,2,3]',
-    )
+    expect(makeExportConst({ tags: [1, 2, 3] }, 'Example')).toBe('export const TagsExample=[1,2,3]')
   })
 
   it.concurrent('handles null value', () => {
-    expect(makeExportConst({ empty: null }, 'Example')).toBe(
-      'export const EmptyExample=null',
-    )
+    expect(makeExportConst({ empty: null }, 'Example')).toBe('export const EmptyExample=null')
   })
 
   it.concurrent('handles nested object value', () => {
@@ -142,15 +129,11 @@ describe('makeExportConst', () => {
   })
 
   it.concurrent('without readonly flag defaults to no as const', () => {
-    expect(makeExportConst({ item: 42 }, 'Value', false)).toBe(
-      'export const ItemValue=42',
-    )
+    expect(makeExportConst({ item: 42 }, 'Value', false)).toBe('export const ItemValue=42')
   })
 
   it.concurrent('with undefined readonly flag defaults to no as const', () => {
-    expect(makeExportConst({ item: 42 }, 'Value', undefined)).toBe(
-      'export const ItemValue=42',
-    )
+    expect(makeExportConst({ item: 42 }, 'Value', undefined)).toBe('export const ItemValue=42')
   })
 })
 
@@ -167,7 +150,7 @@ describe('makeImports', () => {
     const code = 'const route = createRoute({ method: "get" })'
     const result = makeImports(code, '/src/routes/user.ts', undefined)
     expect(result).toBe(
-      "import{createRoute}from'@hono/zod-openapi'\n\n\nconst route = createRoute({ method: \"get\" })",
+      'import{createRoute}from\'@hono/zod-openapi\'\n\n\nconst route = createRoute({ method: "get" })',
     )
   })
 
@@ -200,11 +183,12 @@ describe('makeImports', () => {
   })
 
   it.concurrent('excludes locally defined exports from imports', () => {
-    const code = 'export const UserSchema = z.object({})\nconst route = createRoute({ body: UserSchema })'
+    const code =
+      'export const UserSchema = z.object({})\nconst route = createRoute({ body: UserSchema })'
     const result = makeImports(code, '/src/routes/user.ts', {
       schemas: { output: '/src/schemas.ts' },
     })
-    expect(result.includes("import{UserSchema}")).toBe(false)
+    expect(result.includes('import{UserSchema}')).toBe(false)
   })
 
   it.concurrent('handles ParamsSchema pattern for parameters', () => {
@@ -212,9 +196,7 @@ describe('makeImports', () => {
     const result = makeImports(code, '/src/routes/user.ts', {
       parameters: { output: '/src/parameters.ts' },
     })
-    expect(result).toBe(
-      "import{IdParamsSchema}from'../parameters'\n\n\nIdParamsSchema",
-    )
+    expect(result).toBe("import{IdParamsSchema}from'../parameters'\n\n\nIdParamsSchema")
   })
 
   it.concurrent('handles Response pattern', () => {
@@ -222,9 +204,7 @@ describe('makeImports', () => {
     const result = makeImports(code, '/src/routes/user.ts', {
       responses: { output: '/src/responses.ts' },
     })
-    expect(result).toBe(
-      "import{UserResponse}from'../responses'\n\n\nUserResponse",
-    )
+    expect(result).toBe("import{UserResponse}from'../responses'\n\n\nUserResponse")
   })
 
   it.concurrent('handles HeaderSchema pattern', () => {
@@ -232,9 +212,7 @@ describe('makeImports', () => {
     const result = makeImports(code, '/src/routes/user.ts', {
       headers: { output: '/src/headers.ts' },
     })
-    expect(result).toBe(
-      "import{AuthHeaderSchema}from'../headers'\n\n\nAuthHeaderSchema",
-    )
+    expect(result).toBe("import{AuthHeaderSchema}from'../headers'\n\n\nAuthHeaderSchema")
   })
 
   it.concurrent('handles Example pattern', () => {
@@ -242,9 +220,7 @@ describe('makeImports', () => {
     const result = makeImports(code, '/src/routes/user.ts', {
       examples: { output: '/src/examples.ts' },
     })
-    expect(result).toBe(
-      "import{UserExample}from'../examples'\n\n\nUserExample",
-    )
+    expect(result).toBe("import{UserExample}from'../examples'\n\n\nUserExample")
   })
 
   it.concurrent('handles SecurityScheme pattern', () => {
@@ -252,9 +228,7 @@ describe('makeImports', () => {
     const result = makeImports(code, '/src/routes/user.ts', {
       securitySchemes: { output: '/src/security.ts' },
     })
-    expect(result).toBe(
-      "import{BearerSecurityScheme}from'../security'\n\n\nBearerSecurityScheme",
-    )
+    expect(result).toBe("import{BearerSecurityScheme}from'../security'\n\n\nBearerSecurityScheme")
   })
 
   it.concurrent('handles RequestBody pattern', () => {
@@ -272,9 +246,7 @@ describe('makeImports', () => {
     const result = makeImports(code, '/src/routes/user.ts', {
       links: { output: '/src/links.ts' },
     })
-    expect(result).toBe(
-      "import{GetUserLink}from'../links'\n\n\nGetUserLink",
-    )
+    expect(result).toBe("import{GetUserLink}from'../links'\n\n\nGetUserLink")
   })
 
   it.concurrent('handles Callback pattern', () => {
@@ -282,25 +254,19 @@ describe('makeImports', () => {
     const result = makeImports(code, '/src/routes/user.ts', {
       callbacks: { output: '/src/callbacks.ts' },
     })
-    expect(result).toBe(
-      "import{WebhookCallback}from'../callbacks'\n\n\nWebhookCallback",
-    )
+    expect(result).toBe("import{WebhookCallback}from'../callbacks'\n\n\nWebhookCallback")
   })
 
   it.concurrent('uses fallback path when component not in config', () => {
     const code = 'UserSchema'
     const result = makeImports(code, '/src/routes/user.ts', undefined)
-    expect(result).toBe(
-      "import{UserSchema}from'./schemas'\n\n\nUserSchema",
-    )
+    expect(result).toBe("import{UserSchema}from'./schemas'\n\n\nUserSchema")
   })
 
   it.concurrent('uses split fallback prefix when split is true', () => {
     const code = 'UserSchema'
     const result = makeImports(code, '/src/routes/user.ts', undefined, true)
-    expect(result).toBe(
-      "import{UserSchema}from'../schemas'\n\n\nUserSchema",
-    )
+    expect(result).toBe("import{UserSchema}from'../schemas'\n\n\nUserSchema")
   })
 
   it.concurrent('uses custom import path from component config', () => {
@@ -308,9 +274,7 @@ describe('makeImports', () => {
     const result = makeImports(code, '/src/routes/user.ts', {
       schemas: { output: '/src/schemas.ts', import: '@/schemas' },
     })
-    expect(result).toBe(
-      "import{UserSchema}from'@/schemas'\n\n\nUserSchema",
-    )
+    expect(result).toBe("import{UserSchema}from'@/schemas'\n\n\nUserSchema")
   })
 
   it.concurrent('returns code without imports when no patterns match', () => {
@@ -342,9 +306,7 @@ describe('makeImports', () => {
     const result = makeImports(code, '/src/routes/user.ts', {
       mediaTypes: { output: '/src/media-types.ts' },
     })
-    expect(result).toBe(
-      "import{JsonMediaTypeSchema}from'../media-types'\n\n\nJsonMediaTypeSchema",
-    )
+    expect(result).toBe("import{JsonMediaTypeSchema}from'../media-types'\n\n\nJsonMediaTypeSchema")
   })
 
   it.concurrent('MediaTypeSchema is not matched as generic Schema', () => {
