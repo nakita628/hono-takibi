@@ -282,10 +282,7 @@ export function getLikedPostIds(currentUserId: string, postIds: string[]) {
           .select({ postId: schema.likes.postId })
           .from(schema.likes)
           .where(
-            and(
-              eq(schema.likes.userId, currentUserId),
-              inArray(schema.likes.postId, postIds),
-            ),
+            and(eq(schema.likes.userId, currentUserId), inArray(schema.likes.postId, postIds)),
           ),
       catch: () => new DatabaseError({ message: 'Database error' }),
     })

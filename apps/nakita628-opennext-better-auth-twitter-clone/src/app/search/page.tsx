@@ -21,10 +21,7 @@ import { useGetSearch } from '@/hooks'
 function SearchContent() {
   const searchParams = useSearchParams()
   const query = searchParams.get('q') ?? ''
-  const { data, isLoading } = useGetSearch(
-    { query: { q: query } },
-    { swr: { enabled: !!query } },
-  )
+  const { data, isLoading } = useGetSearch({ query: { q: query } }, { swr: { enabled: !!query } })
 
   if (!query) {
     return (

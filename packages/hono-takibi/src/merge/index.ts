@@ -253,8 +253,7 @@ function mergeImports(existingFile: SourceFile, generatedFile: SourceFile): stri
   const generatedImports = parseDeclarations(generatedFile)
 
   // Detect if a name is auto-generated (Route or Handler suffix)
-  const isAutoName = (name: string): boolean =>
-    name.endsWith('Route') || name.endsWith('Handler')
+  const isAutoName = (name: string): boolean => name.endsWith('Route') || name.endsWith('Handler')
 
   // Collect auto-generated names as source of truth
   const generatedAutoNames = new Set<string>()
@@ -318,7 +317,9 @@ function mergeImports(existingFile: SourceFile, generatedFile: SourceFile): stri
       const prevTypeOnly = mergedNamedImports.get(namedImport.name)
       mergedNamedImports.set(
         namedImport.name,
-        prevTypeOnly === undefined ? namedImport.isTypeOnly : prevTypeOnly && namedImport.isTypeOnly,
+        prevTypeOnly === undefined
+          ? namedImport.isTypeOnly
+          : prevTypeOnly && namedImport.isTypeOnly,
       )
     }
 

@@ -352,22 +352,30 @@ export * from './user'
   // makeInferRequestType
   describe('makeInferRequestType', () => {
     it.concurrent('generates type for simple path', () => {
-      const result = makeInferRequestType('api', {
-        runtimePath: '.users',
-        typeofPrefix: '',
-        bracketSuffix: '',
-        hasBracket: false,
-      }, 'get')
-      expect(result).toBe("InferRequestType<typeof api.users.$get>")
+      const result = makeInferRequestType(
+        'api',
+        {
+          runtimePath: '.users',
+          typeofPrefix: '',
+          bracketSuffix: '',
+          hasBracket: false,
+        },
+        'get',
+      )
+      expect(result).toBe('InferRequestType<typeof api.users.$get>')
     })
 
     it.concurrent('generates type for bracket path', () => {
-      const result = makeInferRequestType('api', {
-        runtimePath: '',
-        typeofPrefix: '.users',
-        bracketSuffix: "[':id']",
-        hasBracket: true,
-      }, 'post')
+      const result = makeInferRequestType(
+        'api',
+        {
+          runtimePath: '',
+          typeofPrefix: '.users',
+          bracketSuffix: "[':id']",
+          hasBracket: true,
+        },
+        'post',
+      )
       expect(result).toBe("InferRequestType<typeof api.users[':id']['$post']>")
     })
   })

@@ -125,9 +125,7 @@ export function PostItem({ data }: Props) {
       // Invalidate both the detail cache and the feed cache
       await Promise.all([
         mutate(getGetPostsPostIdKey({ param: { postId: data.id } })),
-        mutate(
-          unstable_serialize((index) => getGetPostsKey({ query: { page: index + 1 } })),
-        ),
+        mutate(unstable_serialize((index) => getGetPostsKey({ query: { page: index + 1 } }))),
       ])
       toast.success(hasLiked ? 'Unliked' : 'Liked')
     } catch {

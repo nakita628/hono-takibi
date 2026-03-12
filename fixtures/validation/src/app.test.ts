@@ -172,9 +172,7 @@ describe('Custom validation messages via x-* extensions', () => {
     const res = await postUsers({ ...validInput, role: 'unknown' })
     expect(res.status).toBe(422)
     const body = await res.json()
-    expect(body.errors).toStrictEqual([
-      { pointer: '/role', detail: 'Must be a valid role' },
-    ])
+    expect(body.errors).toStrictEqual([{ pointer: '/role', detail: 'Must be a valid role' }])
   })
 
   it('accepts valid role', async () => {
@@ -237,9 +235,7 @@ describe('Custom validation messages via x-* extensions', () => {
     const res = await postValidate({ value: 'ok', forbidden: 'text' })
     expect(res.status).toBe(422)
     const body = await res.json()
-    expect(body.errors).toStrictEqual([
-      { pointer: '/forbidden', detail: 'Must not be a string' },
-    ])
+    expect(body.errors).toStrictEqual([{ pointer: '/forbidden', detail: 'Must not be a string' }])
   })
 
   it('accepts non-string value for not', async () => {

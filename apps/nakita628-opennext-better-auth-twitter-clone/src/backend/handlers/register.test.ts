@@ -143,6 +143,11 @@ describe('POST /api/register', () => {
       body: JSON.stringify(body),
     })
 
-    expect(RegisterTransaction.create).toHaveBeenCalledWith(body.email, body.name, body.username, body.password)
+    expect(RegisterTransaction.create).toHaveBeenCalledWith(
+      body.email,
+      body.name,
+      body.username,
+      body.password,
+    )
   })
 })
