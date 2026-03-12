@@ -1,3 +1,23 @@
+/**
+ * Modal State Management (Zustand)
+ *
+ * Each modal has its own independent store with { isOpen, onOpen, onClose }.
+ * Components import the specific modal hook they need.
+ *
+ * ||| Modal Triggers |||
+ *
+ *   useLoginModal      ← Sidebar, PostItem, UserBio (when not logged in)
+ *   useRegisterModal   ← Form (welcome screen), LoginModal (toggle)
+ *   useEditModal       ← UserBio (own profile "Edit" button)
+ *   useChangePasswordModal ← EditModal ("Change Password" link)
+ *
+ * ||| Open/Close Flow |||
+ *
+ *   Component calls onOpen() → isOpen = true → Modal renders
+ *   User clicks submit/close → onClose() → isOpen = false → Modal hides
+ *
+ * LoginModal ↔ RegisterModal can toggle between each other.
+ */
 import { create } from 'zustand'
 
 type ModalStore = {

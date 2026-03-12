@@ -4,18 +4,42 @@ import { useEffect } from 'react'
 import { BsTwitter } from 'react-icons/bs'
 import { ClipLoader } from 'react-spinners'
 import { mutate } from 'swr'
-import { getGetCurrentKey, useGetCurrent, useGetNotificationsUserId } from '@/hooks'
+import {
+  getGetCurrentKey,
+  useGetCurrent,
+  useGetNotificationsUserId,
+  usePostNotifications,
+} from '@/hooks'
 
+/**
+ * NotificationsFeed — Displays the user's notifications
+ *
+ * ||| SWR Data Flow |||
+ *
+ *   useGetCurrent()                → get current user's ID
+ *   useGetNotificationsUserId()    → fetch notifications for that user
+ *     Key: ['notifications', 'GET', '/notifications/:userId', { param }]
+ *     enabled: only when currentUser.id exists
+ *
+ * ||| On Mount: Mark Notifications as Read |||
+ *
+ *   useEffect → POST /notifications (mark as read)
+ *            → mutate(getGetCurrentKey()) (refresh current user to clear badge)
+ *   This sets hasNotification = false in user_profile, clearing the bell badge.
+ */
 export function NotificationsFeed() {
   const { data: currentUser } = useGetCurrent()
   const { data: fetchedNotifications, isLoading } = useGetNotificationsUserId(
     { param: { userId: currentUser?.id ?? '' } },
     { swr: { enabled: !!currentUser?.id } },
   )
+  const { trigger: markAsRead } = usePostNotifications()
 
   useEffect(() => {
-    mutate(getGetCurrentKey())
-  }, [])
+    if (currentUser?.id) {
+      markAsRead({ body: '' }).then(() => mutate(getGetCurrentKey()))
+    }
+  }, [currentUser?.id, markAsRead])
 
   if (isLoading) {
     return (

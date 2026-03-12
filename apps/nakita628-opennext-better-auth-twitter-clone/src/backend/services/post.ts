@@ -1,21 +1,40 @@
-import { count, desc, eq, inArray } from 'drizzle-orm'
+import { and, count, desc, eq, inArray } from 'drizzle-orm'
 import { Effect } from 'effect'
 import { DatabaseError } from '@/backend/domain'
 import { schema } from '@/db'
 import { DB } from '@/infra'
 
-/** Insert a new post row and return the created record. */
-export function create(args: { body: string; userId: string }) {
+/**
+ * Insert a new post and return the created record.
+ *
+ * ||| SQL |||
+ *   INSERT INTO posts (id, body, userId, createdAt, updatedAt)
+ *     VALUES (uuid(), :body, :userId, now(), now())
+ *     RETURNING *
+ *
+ * ||| Used By |||
+ *   POST /posts — create a tweet
+ */
+export function create(body: string, userId: string) {
   return Effect.gen(function* () {
     const db = yield* DB
     return yield* Effect.tryPromise({
-      try: () => db.insert(schema.posts).values(args).returning().get(),
+      try: () => db.insert(schema.posts).values({ body, userId }).returning().get(),
       catch: () => new DatabaseError({ message: 'Database error' }),
     })
   })
 }
 
-/** Find a post by its ID (no relations). */
+/**
+ * Find a single post by ID (no joins, no relations).
+ *
+ * ||| SQL |||
+ *   SELECT * FROM posts WHERE id = :id
+ *
+ * ||| Used By |||
+ *   POST /comments — to verify the post exists before commenting
+ *   POST /like     — to get the post owner for notification
+ */
 export function findById(id: string) {
   return Effect.gen(function* () {
     const db = yield* DB
@@ -27,12 +46,35 @@ export function findById(id: string) {
 }
 
 /**
- * Find a post by ID with user, comments (+ their users), and likes.
+ * Find a post by ID with all related data: author, comments, and likes.
+ * Executes 3 SQL queries to assemble the full picture.
  *
- * Executes three SQL queries:
- * 1. Post + author (user + profile)
- * 2. Comments + each commenter (user + profile)
- * 3. Likes
+ * ||| Query 1 — Post + Author |||
+ *
+ *   +--------+ INNER JOIN +------+ LEFT JOIN +--------------+
+ *   | posts  |----------->| user |---------->| user_profile |
+ *   +--------+            +------+           +--------------+
+ *   WHERE posts.id = :id
+ *
+ * ||| Query 2 — Comments + Commenters (parallel with Query 3) |||
+ *
+ *   +----------+ INNER JOIN +------+ LEFT JOIN +--------------+
+ *   | comments |----------->| user |---------->| user_profile |
+ *   +----------+            +------+           +--------------+
+ *   WHERE comments.postId = :id ORDER BY createdAt DESC
+ *
+ * ||| Query 3 — Likes |||
+ *
+ *   +-------+
+ *   | likes | WHERE postId = :id
+ *   +-------+
+ *
+ * ||| Returns |||
+ *   { ...post, user: { ...user, userProfile }, comments[], likes[] }
+ *   or undefined if post not found
+ *
+ * ||| Used By |||
+ *   GET /posts/:postId — post detail page
  */
 export function findByIdWithRelations(id: string) {
   return Effect.gen(function* () {
@@ -79,7 +121,19 @@ export function findByIdWithRelations(id: string) {
   })
 }
 
-/** Find a post by ID with its likes relation. */
+/**
+ * Find a post by ID with its likes (but no comments or author).
+ *
+ * ||| SQL (2 queries) |||
+ *   Query 1: SELECT * FROM posts WHERE id = :id
+ *   Query 2: SELECT * FROM likes WHERE postId = :id
+ *
+ * ||| Returns |||
+ *   { ...post, likes[] } or undefined if post not found
+ *
+ * ||| Used By |||
+ *   DELETE /like — to get updated likes after removing one
+ */
 export function findByIdWithLikes(id: string) {
   return Effect.gen(function* () {
     const db = yield* DB
@@ -98,7 +152,25 @@ export function findByIdWithLikes(id: string) {
   })
 }
 
-/** Fetch all posts (optionally filtered by userId) with user, comments, and likes. */
+/**
+ * Fetch all posts with author, comments, and likes.
+ * Optionally filtered by userId (to show only one user's posts).
+ *
+ * ||| SQL (2 queries) |||
+ *   Query 1: posts + author + profile
+ *     SELECT * FROM posts
+ *       INNER JOIN user ON posts.userId = user.id
+ *       LEFT JOIN user_profile ON user.id = user_profile.userId
+ *       [WHERE posts.userId = :userId]
+ *       ORDER BY posts.createdAt DESC
+ *
+ *   Query 2: batch-fetch comments + likes for all post IDs
+ *     SELECT * FROM comments WHERE postId IN (:ids)
+ *     SELECT * FROM likes    WHERE postId IN (:ids)
+ *
+ * ||| Returns |||
+ *   Array of { ...post, user, comments[], likes[] }
+ */
 export function findAllWithRelations(userId?: string) {
   return Effect.gen(function* () {
     const db = yield* DB
@@ -137,18 +209,30 @@ export function findAllWithRelations(userId?: string) {
   })
 }
 
-/** Batch-fetch comment and like counts for a set of post IDs. */
+/**
+ * Batch-count comments and likes for multiple posts at once.
+ * Much more efficient than counting per-post (N+1 → 2 queries).
+ *
+ * ||| SQL (2 queries in parallel) |||
+ *   SELECT postId, COUNT(*) FROM comments WHERE postId IN (:ids) GROUP BY postId
+ *   SELECT postId, COUNT(*) FROM likes    WHERE postId IN (:ids) GROUP BY postId
+ *
+ * ||| Returns |||
+ *   { commentCounts: { [postId]: number }, likeCounts: { [postId]: number } }
+ *
+ * ||| Used By |||
+ *   GET /posts — paginated feed (shows count badges, not full arrays)
+ */
 export function getCountsForPostIds(postIds: string[]) {
+  if (postIds.length === 0) {
+    return Effect.succeed({
+      commentCounts: {} as Record<string, number>,
+      likeCounts: {} as Record<string, number>,
+    })
+  }
+
   return Effect.gen(function* () {
-    if (postIds.length === 0) {
-      return {
-        commentCounts: {} as Record<string, number>,
-        likeCounts: {} as Record<string, number>,
-      }
-    }
-
     const db = yield* DB
-
     const [commentRows, likeRows] = yield* Effect.tryPromise({
       try: () =>
         Promise.all([
@@ -165,41 +249,76 @@ export function getCountsForPostIds(postIds: string[]) {
         ]),
       catch: () => new DatabaseError({ message: 'Database error' }),
     })
-
-    const commentCounts: Record<string, number> = {}
-    for (const row of commentRows) {
-      commentCounts[row.postId] = row.count
+    return {
+      commentCounts: Object.fromEntries(commentRows.map((r) => [r.postId, r.count])),
+      likeCounts: Object.fromEntries(likeRows.map((r) => [r.postId, r.count])),
     }
-
-    const likeCounts: Record<string, number> = {}
-    for (const row of likeRows) {
-      likeCounts[row.postId] = row.count
-    }
-
-    return { commentCounts, likeCounts }
   })
 }
 
 /**
- * Paginated post query with aggregated comment/like counts.
+ * Batch-check which posts a user has liked.
+ * Returns a Set of postIds that the user has liked.
  *
- * Runs parallel queries: posts with user/profile, total count,
- * then batch-fetches comment and like counts for returned post IDs.
+ * ||| SQL |||
+ *   SELECT postId FROM likes WHERE userId = :userId AND postId IN (:ids)
  *
- * @mermaid
- * ```
- * flowchart TD
- *   A[Build where clause] --> B[Parallel: select+join + count]
- *   B --> C{posts empty?}
- *   C -- yes --> D[Return empty]
- *   C -- no --> E[Batch: comment + like counts]
- *   E --> F[Return posts + counts]
- * ```
+ * ||| Returns |||
+ *   Set<string> of liked postIds
+ *
+ * ||| Used By |||
+ *   GET /posts — to populate hasLiked in PostSummary
  */
-export function findAllPaginated(args: { userId?: string; limit: number; offset: number }) {
+export function getLikedPostIds(currentUserId: string, postIds: string[]) {
+  if (postIds.length === 0) {
+    return Effect.succeed(new Set<string>())
+  }
+
   return Effect.gen(function* () {
     const db = yield* DB
-    const whereClause = args.userId ? eq(schema.posts.userId, args.userId) : undefined
+    const rows = yield* Effect.tryPromise({
+      try: () =>
+        db
+          .select({ postId: schema.likes.postId })
+          .from(schema.likes)
+          .where(
+            and(eq(schema.likes.userId, currentUserId), inArray(schema.likes.postId, postIds)),
+          ),
+      catch: () => new DatabaseError({ message: 'Database error' }),
+    })
+    return new Set(rows.map((r) => r.postId))
+  })
+}
+
+/**
+ * Paginated post query with author info and aggregated counts.
+ * This is the main query for the post feed.
+ *
+ * ||| Step 1 — Fetch posts + authors (parallel with total count) |||
+ *
+ *   +--------+ INNER JOIN +------+ LEFT JOIN +--------------+
+ *   | posts  |----------->| user |---------->| user_profile |
+ *   +--------+            +------+           +--------------+
+ *   [WHERE posts.userId = :userId] ORDER BY createdAt DESC
+ *   LIMIT :limit OFFSET :offset
+ *
+ *   + SELECT COUNT(*) FROM posts [WHERE userId = :userId]
+ *
+ * ||| Step 2 — Batch-count comments and likes |||
+ *   (only runs if Step 1 returned any posts)
+ *
+ *   getCountsForPostIds(postIds) → { commentCounts, likeCounts }
+ *
+ * ||| Returns |||
+ *   { posts: [{ ...post, user }], total, commentCounts, likeCounts }
+ *
+ * ||| Used By |||
+ *   GET /posts — paginated post feed
+ */
+export function findAllPaginated(limit: number, offset: number, userId?: string) {
+  return Effect.gen(function* () {
+    const db = yield* DB
+    const whereClause = userId ? eq(schema.posts.userId, userId) : undefined
 
     const [postRows, [{ total }]] = yield* Effect.tryPromise({
       try: () =>
@@ -211,8 +330,8 @@ export function findAllPaginated(args: { userId?: string; limit: number; offset:
             .leftJoin(schema.userProfile, eq(schema.user.id, schema.userProfile.userId))
             .where(whereClause)
             .orderBy(desc(schema.posts.createdAt))
-            .limit(args.limit)
-            .offset(args.offset)
+            .limit(limit)
+            .offset(offset)
             .all(),
           db.select({ total: count() }).from(schema.posts).where(whereClause),
         ]),

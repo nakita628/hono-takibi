@@ -68,7 +68,7 @@ const ValidateInputSchema = z
 
 const MetadataSchema = z
   .record(z.string(), z.string())
-  .refine((o) => Object.keys(o).every((k) => new RegExp('^[a-z_]+$').test(k)), {
+  .refine((o) => Object.keys(o).every((k) => /^[a-z_]+$/.test(k)), {
     error: 'Keys must be lowercase with underscores only',
   })
   .openapi('Metadata')

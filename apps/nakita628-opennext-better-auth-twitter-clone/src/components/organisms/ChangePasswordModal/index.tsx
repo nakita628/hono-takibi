@@ -7,6 +7,15 @@ import { Modal } from '@/components/molecules/Modal'
 import { authClient } from '@/infra/auth-client'
 import { useChangePasswordModal } from '@/stores'
 
+/**
+ * ChangePasswordModal — Change password form
+ *
+ * Uses Better Auth directly (not our API hooks):
+ *   authClient.changePassword({ currentPassword, newPassword })
+ *
+ * No SWR cache invalidation needed — password changes don't affect UI data.
+ * Opened from the EditModal via "Change Password" link.
+ */
 export function ChangePasswordModal() {
   const changePasswordModal = useChangePasswordModal()
   const [currentPassword, setCurrentPassword] = useState('')

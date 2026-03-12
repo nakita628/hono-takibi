@@ -2,12 +2,12 @@ import { createRoute, z } from '@hono/zod-openapi'
 
 export const CommentSchema = z
   .object({
-    id: z.uuid(),
+    id: z.uuid({ error: 'Comment ID must be a valid UUID' }),
     body: z.string(),
-    createdAt: z.iso.datetime(),
-    updatedAt: z.iso.datetime(),
-    userId: z.uuid(),
-    postId: z.uuid(),
+    createdAt: z.iso.datetime({ error: 'Created date must be a valid datetime' }),
+    updatedAt: z.iso.datetime({ error: 'Updated date must be a valid datetime' }),
+    userId: z.uuid({ error: 'User ID must be a valid UUID' }),
+    postId: z.uuid({ error: 'Post ID must be a valid UUID' }),
   })
   .openapi({ required: ['id', 'body', 'createdAt', 'updatedAt', 'userId', 'postId'] })
   .openapi('Comment')
@@ -34,27 +34,31 @@ export const ValidationErrorSchema = z
   .openapi('ValidationError')
 
 export const CreateCommentRequestSchema = z
-  .object({ body: z.string() })
+  .object({ body: z.string().min(1, { error: 'Comment must not be empty' }) })
   .openapi({ required: ['body'] })
   .openapi('CreateCommentRequest')
 
 export const FollowSchema = z
-  .object({ followerId: z.uuid(), followingId: z.uuid(), createdAt: z.iso.datetime() })
+  .object({
+    followerId: z.uuid({ error: 'Follower ID must be a valid UUID' }),
+    followingId: z.uuid({ error: 'Following ID must be a valid UUID' }),
+    createdAt: z.iso.datetime({ error: 'Created date must be a valid datetime' }),
+  })
   .openapi({ required: ['followerId', 'followingId', 'createdAt'] })
   .openapi('Follow')
 
 export const CurrentUserSchema = z
   .object({
-    id: z.uuid(),
+    id: z.uuid({ error: 'User ID must be a valid UUID' }),
     name: z.string(),
     username: z.string(),
     bio: z.string().nullable().exactOptional(),
-    email: z.email(),
-    image: z.url().nullable(),
-    coverImage: z.url().nullable(),
-    profileImage: z.url().nullable(),
-    createdAt: z.iso.datetime(),
-    updatedAt: z.iso.datetime(),
+    email: z.email({ error: 'Must be a valid email address' }),
+    image: z.url({ error: 'Image must be a valid URL' }).nullable(),
+    coverImage: z.url({ error: 'Cover image must be a valid URL' }).nullable(),
+    profileImage: z.url({ error: 'Profile image must be a valid URL' }).nullable(),
+    createdAt: z.iso.datetime({ error: 'Created date must be a valid datetime' }),
+    updatedAt: z.iso.datetime({ error: 'Updated date must be a valid datetime' }),
     followers: z.array(FollowSchema),
     following: z.array(FollowSchema),
     hasNotification: z.boolean().nullable(),
@@ -77,17 +81,101 @@ export const CurrentUserSchema = z
   })
   .openapi('CurrentUser')
 
-export const PublicUserSchema = z
+export const UserSchema = z
   .object({
-    id: z.uuid(),
+    id: z.uuid({ error: 'User ID must be a valid UUID' }),
     name: z.string(),
     username: z.string(),
     bio: z.string().nullable().exactOptional(),
-    image: z.url().nullable(),
-    coverImage: z.url().nullable(),
-    profileImage: z.url().nullable(),
-    createdAt: z.iso.datetime(),
-    updatedAt: z.iso.datetime(),
+    image: z.url({ error: 'Image must be a valid URL' }).nullable(),
+    coverImage: z.url({ error: 'Cover image must be a valid URL' }).nullable(),
+    profileImage: z.url({ error: 'Profile image must be a valid URL' }).nullable(),
+    createdAt: z.iso.datetime({ error: 'Created date must be a valid datetime' }),
+    updatedAt: z.iso.datetime({ error: 'Updated date must be a valid datetime' }),
+    email: z.email({ error: 'Must be a valid email address' }),
+    emailVerified: z.iso
+      .datetime({ error: 'Email verified date must be a valid datetime' })
+      .nullable(),
+    hasNotification: z.boolean().nullable().exactOptional(),
+  })
+  .openapi({
+    required: [
+      'id',
+      'name',
+      'username',
+      'image',
+      'coverImage',
+      'profileImage',
+      'createdAt',
+      'updatedAt',
+      'email',
+      'emailVerified',
+    ],
+  })
+  .openapi('User')
+
+export const EditUserRequestSchema = z
+  .object({
+    name: z.string().exactOptional(),
+    username: z.string().exactOptional(),
+    bio: z.string().exactOptional(),
+    coverImage: z.url({ error: 'Cover image must be a valid URL' }).nullable().exactOptional(),
+    profileImage: z.url({ error: 'Profile image must be a valid URL' }).nullable().exactOptional(),
+  })
+  .openapi('EditUserRequest')
+
+export const FollowUserRequestSchema = z
+  .object({ userId: z.uuid({ error: 'User ID must be a valid UUID' }) })
+  .openapi({ required: ['userId'] })
+  .openapi('FollowUserRequest')
+
+export const LikeSchema = z
+  .object({
+    userId: z.uuid({ error: 'User ID must be a valid UUID' }),
+    postId: z.uuid({ error: 'Post ID must be a valid UUID' }),
+    createdAt: z.iso.datetime({ error: 'Created date must be a valid datetime' }),
+  })
+  .openapi({ required: ['userId', 'postId', 'createdAt'] })
+  .openapi('Like')
+
+export const PostWithLikesSchema = z
+  .object({
+    id: z.uuid({ error: 'Post ID must be a valid UUID' }),
+    body: z.string(),
+    createdAt: z.iso.datetime({ error: 'Created date must be a valid datetime' }),
+    updatedAt: z.iso.datetime({ error: 'Updated date must be a valid datetime' }),
+    userId: z.uuid({ error: 'User ID must be a valid UUID' }),
+    likes: z.array(LikeSchema),
+  })
+  .openapi({ required: ['id', 'body', 'createdAt', 'updatedAt', 'userId', 'likes'] })
+  .openapi('PostWithLikes')
+
+export const LikePostRequestSchema = z
+  .object({ postId: z.uuid({ error: 'Post ID must be a valid UUID' }) })
+  .openapi({ required: ['postId'] })
+  .openapi('LikePostRequest')
+
+export const NotificationSchema = z
+  .object({
+    id: z.uuid({ error: 'Notification ID must be a valid UUID' }),
+    body: z.string(),
+    userId: z.uuid({ error: 'User ID must be a valid UUID' }),
+    createdAt: z.iso.datetime({ error: 'Created date must be a valid datetime' }),
+  })
+  .openapi({ required: ['id', 'body', 'userId', 'createdAt'] })
+  .openapi('Notification')
+
+export const PublicUserSchema = z
+  .object({
+    id: z.uuid({ error: 'User ID must be a valid UUID' }),
+    name: z.string(),
+    username: z.string(),
+    bio: z.string().nullable().exactOptional(),
+    image: z.url({ error: 'Image must be a valid URL' }).nullable(),
+    coverImage: z.url({ error: 'Cover image must be a valid URL' }).nullable(),
+    profileImage: z.url({ error: 'Profile image must be a valid URL' }).nullable(),
+    createdAt: z.iso.datetime({ error: 'Created date must be a valid datetime' }),
+    updatedAt: z.iso.datetime({ error: 'Updated date must be a valid datetime' }),
   })
   .openapi({
     required: [
@@ -103,89 +191,17 @@ export const PublicUserSchema = z
   })
   .openapi('PublicUser')
 
-export const UserSchema = z
-  .object({
-    id: z.uuid(),
-    name: z.string(),
-    username: z.string(),
-    bio: z.string().nullable().exactOptional(),
-    email: z.email(),
-    emailVerified: z.iso.datetime().nullable(),
-    image: z.url().nullable(),
-    coverImage: z.url().nullable(),
-    profileImage: z.url().nullable(),
-    createdAt: z.iso.datetime(),
-    updatedAt: z.iso.datetime(),
-    hasNotification: z.boolean().nullable().exactOptional(),
-  })
-  .openapi({
-    required: [
-      'id',
-      'name',
-      'username',
-      'email',
-      'emailVerified',
-      'image',
-      'coverImage',
-      'profileImage',
-      'createdAt',
-      'updatedAt',
-    ],
-  })
-  .openapi('User')
-
-export const EditUserRequestSchema = z
-  .object({
-    name: z.string().exactOptional(),
-    username: z.string().exactOptional(),
-    bio: z.string().exactOptional(),
-    coverImage: z.url().nullable().exactOptional(),
-    profileImage: z.url().nullable().exactOptional(),
-  })
-  .openapi('EditUserRequest')
-
-export const FollowUserRequestSchema = z
-  .object({ userId: z.uuid() })
-  .openapi({ required: ['userId'] })
-  .openapi('FollowUserRequest')
-
-export const LikeSchema = z
-  .object({ userId: z.uuid(), postId: z.uuid(), createdAt: z.iso.datetime() })
-  .openapi({ required: ['userId', 'postId', 'createdAt'] })
-  .openapi('Like')
-
-export const PostWithLikesSchema = z
-  .object({
-    id: z.uuid(),
-    body: z.string(),
-    createdAt: z.iso.datetime(),
-    updatedAt: z.iso.datetime(),
-    userId: z.uuid(),
-    likes: z.array(LikeSchema),
-  })
-  .openapi({ required: ['id', 'body', 'createdAt', 'updatedAt', 'userId', 'likes'] })
-  .openapi('PostWithLikes')
-
-export const LikePostRequestSchema = z
-  .object({ postId: z.uuid() })
-  .openapi({ required: ['postId'] })
-  .openapi('LikePostRequest')
-
-export const NotificationSchema = z
-  .object({ id: z.uuid(), body: z.string(), userId: z.uuid(), createdAt: z.iso.datetime() })
-  .openapi({ required: ['id', 'body', 'userId', 'createdAt'] })
-  .openapi('Notification')
-
 export const PostSummarySchema = z
   .object({
-    id: z.uuid(),
+    id: z.uuid({ error: 'Post ID must be a valid UUID' }),
     body: z.string(),
-    createdAt: z.iso.datetime(),
-    updatedAt: z.iso.datetime(),
-    userId: z.uuid(),
+    createdAt: z.iso.datetime({ error: 'Created date must be a valid datetime' }),
+    updatedAt: z.iso.datetime({ error: 'Updated date must be a valid datetime' }),
+    userId: z.uuid({ error: 'User ID must be a valid UUID' }),
     user: PublicUserSchema,
     commentCount: z.number(),
     likeCount: z.number(),
+    hasLiked: z.boolean(),
   })
   .openapi({
     required: [
@@ -197,6 +213,7 @@ export const PostSummarySchema = z
       'user',
       'commentCount',
       'likeCount',
+      'hasLiked',
     ],
   })
   .openapi('PostSummary')
@@ -213,28 +230,28 @@ export const PaginatedPostsSchema = z
 
 export const PostSchema = z
   .object({
-    id: z.uuid(),
+    id: z.uuid({ error: 'Post ID must be a valid UUID' }),
     body: z.string(),
-    createdAt: z.iso.datetime(),
-    updatedAt: z.iso.datetime(),
-    userId: z.uuid(),
+    createdAt: z.iso.datetime({ error: 'Created date must be a valid datetime' }),
+    updatedAt: z.iso.datetime({ error: 'Updated date must be a valid datetime' }),
+    userId: z.uuid({ error: 'User ID must be a valid UUID' }),
   })
   .openapi({ required: ['id', 'body', 'createdAt', 'updatedAt', 'userId'] })
   .openapi('Post')
 
 export const CreatePostRequestSchema = z
-  .object({ body: z.string() })
+  .object({ body: z.string().min(1, { error: 'Post must not be empty' }) })
   .openapi({ required: ['body'] })
   .openapi('CreatePostRequest')
 
 export const CommentWithUserSchema = z
   .object({
-    id: z.uuid(),
+    id: z.uuid({ error: 'Comment ID must be a valid UUID' }),
     body: z.string(),
-    createdAt: z.iso.datetime(),
-    updatedAt: z.iso.datetime(),
-    userId: z.uuid(),
-    postId: z.uuid(),
+    createdAt: z.iso.datetime({ error: 'Created date must be a valid datetime' }),
+    updatedAt: z.iso.datetime({ error: 'Updated date must be a valid datetime' }),
+    userId: z.uuid({ error: 'User ID must be a valid UUID' }),
+    postId: z.uuid({ error: 'Post ID must be a valid UUID' }),
     user: PublicUserSchema,
   })
   .openapi({ required: ['id', 'body', 'createdAt', 'updatedAt', 'userId', 'postId', 'user'] })
@@ -242,14 +259,18 @@ export const CommentWithUserSchema = z
 
 export const PostDetailSchema = z
   .object({
-    id: z.uuid(),
+    id: z.uuid({ error: 'Post ID must be a valid UUID' }),
     body: z.string(),
-    createdAt: z.iso.datetime(),
-    updatedAt: z.iso.datetime(),
-    userId: z.uuid(),
+    createdAt: z.iso.datetime({ error: 'Created date must be a valid datetime' }),
+    updatedAt: z.iso.datetime({ error: 'Updated date must be a valid datetime' }),
+    userId: z.uuid({ error: 'User ID must be a valid UUID' }),
     user: PublicUserSchema,
     comments: z.array(CommentWithUserSchema),
-    likes: z.array(z.object({ userId: z.uuid() }).openapi({ required: ['userId'] })),
+    likes: z.array(
+      z
+        .object({ userId: z.uuid({ error: 'User ID must be a valid UUID' }) })
+        .openapi({ required: ['userId'] }),
+    ),
     _count: z.object({ likes: z.number() }).openapi({ required: ['likes'] }),
   })
   .openapi({
@@ -268,7 +289,12 @@ export const PostDetailSchema = z
   .openapi('PostDetail')
 
 export const RegisterRequestSchema = z
-  .object({ email: z.email(), name: z.string(), username: z.string(), password: z.string() })
+  .object({
+    email: z.email({ error: 'Must be a valid email address' }),
+    name: z.string().min(1, { error: 'Name must not be empty' }),
+    username: z.string().min(1, { error: 'Username must not be empty' }),
+    password: z.string().min(1, { error: 'Password must not be empty' }),
+  })
   .openapi({ required: ['email', 'name', 'username', 'password'] })
   .openapi('RegisterRequest')
 
@@ -278,21 +304,21 @@ export const PaginatedUsersSchema = z
   .openapi('PaginatedUsers')
 
 export const SearchResultsSchema = z
-  .object({ posts: PaginatedPostsSchema, users: PaginatedUsersSchema })
+  .object({ posts: z.array(PostSummarySchema), users: z.array(PublicUserSchema) })
   .openapi({ required: ['posts', 'users'] })
   .openapi('SearchResults')
 
 export const UserWithFollowCountSchema = z
   .object({
-    id: z.uuid(),
+    id: z.uuid({ error: 'User ID must be a valid UUID' }),
     name: z.string(),
     username: z.string(),
     bio: z.string().nullable().exactOptional(),
-    image: z.url().nullable(),
-    coverImage: z.url().nullable(),
-    profileImage: z.url().nullable(),
-    createdAt: z.iso.datetime(),
-    updatedAt: z.iso.datetime(),
+    image: z.url({ error: 'Image must be a valid URL' }).nullable(),
+    coverImage: z.url({ error: 'Cover image must be a valid URL' }).nullable(),
+    profileImage: z.url({ error: 'Profile image must be a valid URL' }).nullable(),
+    createdAt: z.iso.datetime({ error: 'Created date must be a valid datetime' }),
+    updatedAt: z.iso.datetime({ error: 'Updated date must be a valid datetime' }),
     _count: z
       .object({ followers: z.number(), following: z.number() })
       .openapi({ required: ['followers', 'following'] }),
@@ -314,11 +340,11 @@ export const UserWithFollowCountSchema = z
 
 export const PostWithDetailsSchema = z
   .object({
-    id: z.uuid(),
+    id: z.uuid({ error: 'Post ID must be a valid UUID' }),
     body: z.string(),
-    createdAt: z.iso.datetime(),
-    updatedAt: z.iso.datetime(),
-    userId: z.uuid(),
+    createdAt: z.iso.datetime({ error: 'Created date must be a valid datetime' }),
+    updatedAt: z.iso.datetime({ error: 'Updated date must be a valid datetime' }),
+    userId: z.uuid({ error: 'User ID must be a valid UUID' }),
     user: PublicUserSchema,
     comments: z.array(CommentSchema),
     likes: z.array(LikeSchema),
@@ -329,77 +355,105 @@ export const PostWithDetailsSchema = z
   .openapi('PostWithDetails')
 
 const ParametersPostIdQueryParamsSchema = z
-  .uuid()
+  .uuid({ error: 'Post ID must be a valid UUID' })
   .openapi({
     param: {
       name: 'postId',
       in: 'query',
       required: true,
-      schema: { type: 'string', format: 'uuid' },
+      schema: { type: 'string', format: 'uuid', 'x-error-message': 'Post ID must be a valid UUID' },
+      'x-error-message': 'Post ID must be a valid UUID',
     },
   })
 
 const ParametersUserIdPathParamsSchema = z
-  .uuid()
+  .uuid({ error: 'User ID must be a valid UUID' })
   .openapi({
     param: {
       name: 'userId',
       in: 'path',
       required: true,
-      schema: { type: 'string', format: 'uuid' },
+      schema: { type: 'string', format: 'uuid', 'x-error-message': 'User ID must be a valid UUID' },
+      'x-error-message': 'User ID must be a valid UUID',
     },
   })
 
 const ParametersUserIdQueryParamsSchema = z
-  .uuid()
+  .uuid({ error: 'User ID must be a valid UUID' })
   .exactOptional()
   .openapi({
     param: {
       name: 'userId',
       in: 'query',
       required: false,
-      schema: { type: 'string', format: 'uuid' },
+      schema: { type: 'string', format: 'uuid', 'x-error-message': 'User ID must be a valid UUID' },
+      'x-error-message': 'User ID must be a valid UUID',
     },
   })
 
 const ParametersPaginationQueryPageParamsSchema = z.coerce
   .number()
-  .min(1)
+  .min(1, { error: 'Page must be at least 1' })
   .exactOptional()
   .openapi({
-    param: { name: 'page', in: 'query', required: false, schema: { type: 'number', minimum: 1 } },
+    param: {
+      name: 'page',
+      in: 'query',
+      required: false,
+      schema: { type: 'number', minimum: 1, 'x-minimum-message': 'Page must be at least 1' },
+      'x-minimum-message': 'Page must be at least 1',
+    },
   })
 
 const ParametersPaginationQueryLimitParamsSchema = z.coerce
   .number()
-  .min(1)
-  .max(100)
+  .min(1, { error: 'Limit must be at least 1' })
+  .max(100, { error: 'Limit must be at most 100' })
   .exactOptional()
   .openapi({
     param: {
       name: 'limit',
       in: 'query',
       required: false,
-      schema: { type: 'number', minimum: 1, maximum: 100 },
+      schema: {
+        type: 'number',
+        minimum: 1,
+        maximum: 100,
+        'x-maximum-message': 'Limit must be at most 100',
+        'x-minimum-message': 'Limit must be at least 1',
+      },
+      'x-maximum-message': 'Limit must be at most 100',
+      'x-minimum-message': 'Limit must be at least 1',
     },
   })
 
 const ParametersPostIdPathParamsSchema = z
-  .uuid()
+  .uuid({ error: 'Post ID must be a valid UUID' })
   .openapi({
     param: {
       name: 'postId',
       in: 'path',
       required: true,
-      schema: { type: 'string', format: 'uuid' },
+      schema: { type: 'string', format: 'uuid', 'x-error-message': 'Post ID must be a valid UUID' },
+      'x-error-message': 'Post ID must be a valid UUID',
     },
   })
 
 const ParametersSearchQueryParamsSchema = z
   .string()
-  .min(1)
+  .min(1, { error: 'Search query must not be empty' })
   .openapi({
-    param: { name: 'q', in: 'query', required: true, schema: { type: 'string', minLength: 1 } },
+    param: {
+      name: 'q',
+      in: 'query',
+      required: true,
+      schema: {
+        type: 'string',
+        minLength: 1,
+        'x-minimum-message': 'Search query must not be empty',
+      },
+      'x-minimum-message': 'Search query must not be empty',
+    },
   })
 
 export const postCommentsRoute = createRoute({

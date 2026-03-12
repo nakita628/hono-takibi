@@ -20,6 +20,27 @@ type Props = {
   userId: string
 }
 
+/**
+ * UserBio — User profile information and follow/edit actions
+ *
+ * ||| SWR Data Flow |||
+ *
+ *   useGetCurrent()         → current user (check if viewing own profile)
+ *   useGetUsersUserId()     → fetched user profile (name, bio, counts)
+ *   usePostFollow()         → mutation: follow user
+ *   useDeleteFollow()       → mutation: unfollow user
+ *
+ * ||| Follow Toggle Cache Invalidation |||
+ *
+ *   After follow/unfollow:
+ *     mutate(getGetCurrentKey())              → refresh current user's following list
+ *     mutate(getGetUsersUserIdKey({ userId })) → refresh target user's follower count
+ *
+ * ||| Own Profile vs Other User |||
+ *
+ *   currentUser.id === userId → show "Edit" button (opens EditModal)
+ *   currentUser.id !== userId → show "Follow"/"Unfollow" button
+ */
 export function UserBio({ userId }: Props) {
   const { data: currentUser } = useGetCurrent()
   const { data: fetchedUser } = useGetUsersUserId({ param: { userId } })

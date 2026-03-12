@@ -8,6 +8,22 @@ import { Modal } from '@/components/molecules/Modal'
 import { authClient } from '@/infra/auth-client'
 import { useLoginModal, useRegisterModal } from '@/stores'
 
+/**
+ * LoginModal — Email/password sign in form
+ *
+ * ||| Auth Flow |||
+ *
+ *   1. User enters email + password
+ *   2. authClient.signIn.email({ email, password })
+ *      → Better Auth sets session cookie
+ *   3. mutate(() => true)
+ *      → Global revalidation: refetches ALL SWR cached data
+ *      → This ensures every component sees the logged-in state
+ *
+ * ||| Modal Toggle |||
+ *
+ *   "Create an account" link → closes LoginModal, opens RegisterModal
+ */
 export function LoginModal() {
   const loginModal = useLoginModal()
   const registerModal = useRegisterModal()

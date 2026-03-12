@@ -7,13 +7,21 @@ import { AvatarLink } from '@/components/molecules/AvatarLink'
 import { PostItem } from '@/components/organisms/PostItem'
 import { useGetSearch } from '@/hooks'
 
+/**
+ * Search Page — Search results for posts and users
+ *
+ * ||| SWR Data Flow |||
+ *
+ *   useGetSearch({ query: { q } })
+ *     Key: ['search', 'GET', '/search', { query: { q } }]
+ *     enabled: only when query string `q` is non-empty
+ *
+ * Wrapped in Suspense because useSearchParams() requires it in Next.js App Router.
+ */
 function SearchContent() {
   const searchParams = useSearchParams()
   const query = searchParams.get('q') ?? ''
-  const { data, isLoading } = useGetSearch(
-    { query: { q: query, page: 1 } },
-    { swr: { enabled: !!query } },
-  )
+  const { data, isLoading } = useGetSearch({ query: { q: query } }, { swr: { enabled: !!query } })
 
   if (!query) {
     return (
@@ -31,8 +39,8 @@ function SearchContent() {
     )
   }
 
-  const posts = data?.posts.data ?? []
-  const users = data?.users.data ?? []
+  const posts = data?.posts ?? []
+  const users = data?.users ?? []
 
   return (
     <div>

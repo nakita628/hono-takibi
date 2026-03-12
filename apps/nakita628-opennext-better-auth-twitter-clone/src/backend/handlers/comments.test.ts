@@ -136,9 +136,6 @@ describe('POST /api/comments', () => {
       body: JSON.stringify({ body: 'Test comment' }),
     })
 
-    expect(CommentsTransaction.create).toHaveBeenCalledWith(session.user.id, {
-      body: 'Test comment',
-      postId,
-    })
+    expect(CommentsTransaction.create).toHaveBeenCalledWith(session.user.id, 'Test comment', postId)
   })
 })

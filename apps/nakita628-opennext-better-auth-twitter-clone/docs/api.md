@@ -50,8 +50,8 @@ hono request \
 {
   "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
   "body": "string",
-  "createdAt": "string",
-  "updatedAt": "string",
+  "createdAt": "1970-01-01T00:00:00Z",
+  "updatedAt": "1970-01-01T00:00:00Z",
   "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
   "postId": "497f6eca-6276-4993-bfeb-53cbbbba6f08"
 }
@@ -144,8 +144,8 @@ hono request \
   "image": "http://example.com",
   "coverImage": "http://example.com",
   "profileImage": "http://example.com",
-  "createdAt": "string",
-  "updatedAt": "string",
+  "createdAt": "1970-01-01T00:00:00Z",
+  "updatedAt": "1970-01-01T00:00:00Z",
   "followers": [
     {
       "followerId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
@@ -256,18 +256,26 @@ hono request \
   "name": "string",
   "username": "string",
   "bio": "string",
-  "email": "user@example.com",
-  "emailVerified": "string",
   "image": "http://example.com",
   "coverImage": "http://example.com",
   "profileImage": "http://example.com",
-  "createdAt": "string",
-  "updatedAt": "string",
+  "createdAt": "1970-01-01T00:00:00Z",
+  "updatedAt": "1970-01-01T00:00:00Z",
+  "email": "user@example.com",
+  "emailVerified": "1970-01-01T00:00:00Z",
   "hasNotification": true
 }
 ```
 
 > 401 Response
+
+```json
+{
+  "message": "string"
+}
+```
+
+> 409 Response
 
 ```json
 {
@@ -314,6 +322,7 @@ hono request \
 |---|---|---|---|
 |200|OK|The request has succeeded.|[User](#schemauser)|
 |401|Unauthorized|Access is unauthorized.|[MessageResponse](#schemamessageresponse)|
+|409|Conflict|The request conflicts with the current state of the server.|[MessageResponse](#schemamessageresponse)|
 |422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
 |500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
 |503|Service Unavailable|Service unavailable.|[MessageResponse](#schemamessageresponse)|
@@ -587,14 +596,14 @@ hono request \
 {
   "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
   "body": "string",
-  "createdAt": "string",
-  "updatedAt": "string",
+  "createdAt": "1970-01-01T00:00:00Z",
+  "updatedAt": "1970-01-01T00:00:00Z",
   "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
   "likes": [
     {
       "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
       "postId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-      "createdAt": "string"
+      "createdAt": "1970-01-01T00:00:00Z"
     }
   ]
 }
@@ -716,14 +725,14 @@ hono request \
 {
   "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
   "body": "string",
-  "createdAt": "string",
-  "updatedAt": "string",
+  "createdAt": "1970-01-01T00:00:00Z",
+  "updatedAt": "1970-01-01T00:00:00Z",
   "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
   "likes": [
     {
       "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
       "postId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-      "createdAt": "string"
+      "createdAt": "1970-01-01T00:00:00Z"
     }
   ]
 }
@@ -827,7 +836,7 @@ hono request \
     "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
     "body": "string",
     "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-    "createdAt": "string"
+    "createdAt": "1970-01-01T00:00:00Z"
   }
 ]
 ```
@@ -893,7 +902,7 @@ Status Code **200**
 |» id|string(uuid)|true|none|none|
 |» body|string|true|none|none|
 |» userId|string(uuid)|true|none|none|
-|» createdAt|string|true|none|none|
+|» createdAt|string(date-time)|true|none|none|
 
 <aside class="success">
 This operation does not require authentication
@@ -1016,22 +1025,19 @@ hono request \
     {
       "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
       "body": "string",
-      "createdAt": "string",
-      "updatedAt": "string",
+      "createdAt": "1970-01-01T00:00:00Z",
+      "updatedAt": "1970-01-01T00:00:00Z",
       "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
       "user": {
         "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
         "name": "string",
         "username": "string",
         "bio": "string",
-        "email": "user@example.com",
-        "emailVerified": "string",
         "image": "http://example.com",
         "coverImage": "http://example.com",
         "profileImage": "http://example.com",
-        "createdAt": "string",
-        "updatedAt": "string",
-        "hasNotification": true
+        "createdAt": "1970-01-01T00:00:00Z",
+        "updatedAt": "1970-01-01T00:00:00Z"
       },
       "commentCount": 0,
       "likeCount": 0
@@ -1135,8 +1141,8 @@ hono request \
 {
   "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
   "body": "string",
-  "createdAt": "string",
-  "updatedAt": "string",
+  "createdAt": "1970-01-01T00:00:00Z",
+  "updatedAt": "1970-01-01T00:00:00Z",
   "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08"
 }
 ```
@@ -1226,29 +1232,26 @@ hono request \
 {
   "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
   "body": "string",
-  "createdAt": "string",
-  "updatedAt": "string",
+  "createdAt": "1970-01-01T00:00:00Z",
+  "updatedAt": "1970-01-01T00:00:00Z",
   "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
   "user": {
     "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
     "name": "string",
     "username": "string",
     "bio": "string",
-    "email": "user@example.com",
-    "emailVerified": "string",
     "image": "http://example.com",
     "coverImage": "http://example.com",
     "profileImage": "http://example.com",
-    "createdAt": "string",
-    "updatedAt": "string",
-    "hasNotification": true
+    "createdAt": "1970-01-01T00:00:00Z",
+    "updatedAt": "1970-01-01T00:00:00Z"
   },
   "comments": [
     {
       "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
       "body": "string",
-      "createdAt": "string",
-      "updatedAt": "string",
+      "createdAt": "1970-01-01T00:00:00Z",
+      "updatedAt": "1970-01-01T00:00:00Z",
       "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
       "postId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
       "user": {}
@@ -1376,13 +1379,13 @@ hono request \
   "name": "string",
   "username": "string",
   "bio": "string",
-  "email": "user@example.com",
-  "emailVerified": "string",
   "image": "http://example.com",
   "coverImage": "http://example.com",
   "profileImage": "http://example.com",
-  "createdAt": "string",
-  "updatedAt": "string",
+  "createdAt": "1970-01-01T00:00:00Z",
+  "updatedAt": "1970-01-01T00:00:00Z",
+  "email": "user@example.com",
+  "emailVerified": "1970-01-01T00:00:00Z",
   "hasNotification": true
 }
 ```
@@ -1488,22 +1491,19 @@ hono request \
       {
         "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
         "body": "string",
-        "createdAt": "string",
-        "updatedAt": "string",
+        "createdAt": "1970-01-01T00:00:00Z",
+        "updatedAt": "1970-01-01T00:00:00Z",
         "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
         "user": {
           "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
           "name": "string",
           "username": "string",
           "bio": "string",
-          "email": "user@example.com",
-          "emailVerified": "string",
           "image": "http://example.com",
           "coverImage": "http://example.com",
           "profileImage": "http://example.com",
-          "createdAt": "string",
-          "updatedAt": "string",
-          "hasNotification": true
+          "createdAt": "1970-01-01T00:00:00Z",
+          "updatedAt": "1970-01-01T00:00:00Z"
         },
         "commentCount": 0,
         "likeCount": 0
@@ -1605,14 +1605,11 @@ hono request \
   "name": "string",
   "username": "string",
   "bio": "string",
-  "email": "user@example.com",
-  "emailVerified": "string",
   "image": "http://example.com",
   "coverImage": "http://example.com",
   "profileImage": "http://example.com",
-  "createdAt": "string",
-  "updatedAt": "string",
-  "hasNotification": true,
+  "createdAt": "1970-01-01T00:00:00Z",
+  "updatedAt": "1970-01-01T00:00:00Z",
   "_count": {
     "followers": 0,
     "following": 0
@@ -1710,14 +1707,11 @@ hono request \
       "name": "string",
       "username": "string",
       "bio": "string",
-      "email": "user@example.com",
-      "emailVerified": "string",
       "image": "http://example.com",
       "coverImage": "http://example.com",
       "profileImage": "http://example.com",
-      "createdAt": "string",
-      "updatedAt": "string",
-      "hasNotification": true
+      "createdAt": "1970-01-01T00:00:00Z",
+      "updatedAt": "1970-01-01T00:00:00Z"
     }
   ],
   "meta": {
@@ -1770,8 +1764,8 @@ This operation does not require authentication
 {
   "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
   "body": "string",
-  "createdAt": "string",
-  "updatedAt": "string",
+  "createdAt": "1970-01-01T00:00:00Z",
+  "updatedAt": "1970-01-01T00:00:00Z",
   "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
   "postId": "497f6eca-6276-4993-bfeb-53cbbbba6f08"
 }
@@ -1783,8 +1777,8 @@ This operation does not require authentication
 |---|---|---|---|---|
 |id|string(uuid)|true|none|none|
 |body|string|true|none|none|
-|createdAt|string|true|none|none|
-|updatedAt|string|true|none|none|
+|createdAt|string(date-time)|true|none|none|
+|updatedAt|string(date-time)|true|none|none|
 |userId|string(uuid)|true|none|none|
 |postId|string(uuid)|true|none|none|
 
@@ -1928,8 +1922,8 @@ This operation does not require authentication
   "image": "http://example.com",
   "coverImage": "http://example.com",
   "profileImage": "http://example.com",
-  "createdAt": "string",
-  "updatedAt": "string",
+  "createdAt": "1970-01-01T00:00:00Z",
+  "updatedAt": "1970-01-01T00:00:00Z",
   "followers": [
     {
       "followerId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
@@ -1956,8 +1950,8 @@ This operation does not require authentication
 |image|string(uri)|true|none|none|
 |coverImage|string(uri)|true|none|none|
 |profileImage|string(uri)|true|none|none|
-|createdAt|string|true|none|none|
-|updatedAt|string|true|none|none|
+|createdAt|string(date-time)|true|none|none|
+|updatedAt|string(date-time)|true|none|none|
 |followers|[[Follow](#schemafollow)]|true|none|none|
 |following|[[Follow](#schemafollow)]|true|none|none|
 |hasNotification|boolean|true|none|none|
@@ -1975,13 +1969,13 @@ This operation does not require authentication
   "name": "string",
   "username": "string",
   "bio": "string",
-  "email": "user@example.com",
-  "emailVerified": "string",
   "image": "http://example.com",
   "coverImage": "http://example.com",
   "profileImage": "http://example.com",
-  "createdAt": "string",
-  "updatedAt": "string",
+  "createdAt": "1970-01-01T00:00:00Z",
+  "updatedAt": "1970-01-01T00:00:00Z",
+  "email": "user@example.com",
+  "emailVerified": "1970-01-01T00:00:00Z",
   "hasNotification": true
 }
 ```
@@ -1994,13 +1988,13 @@ This operation does not require authentication
 |name|string|true|none|none|
 |username|string|true|none|none|
 |bio|string|false|none|none|
-|email|string(email)|true|none|none|
-|emailVerified|string|true|none|none|
 |image|string(uri)|true|none|none|
 |coverImage|string(uri)|true|none|none|
 |profileImage|string(uri)|true|none|none|
-|createdAt|string|true|none|none|
-|updatedAt|string|true|none|none|
+|createdAt|string(date-time)|true|none|none|
+|updatedAt|string(date-time)|true|none|none|
+|email|string(email)|true|none|none|
+|emailVerified|string(date-time)|true|none|none|
 |hasNotification|boolean|false|none|none|
 
 <h2 id="tocS_EditUserRequest">EditUserRequest</h2>
@@ -2060,7 +2054,7 @@ This operation does not require authentication
 {
   "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
   "postId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-  "createdAt": "string"
+  "createdAt": "1970-01-01T00:00:00Z"
 }
 ```
 
@@ -2070,7 +2064,7 @@ This operation does not require authentication
 |---|---|---|---|---|
 |userId|string(uuid)|true|none|none|
 |postId|string(uuid)|true|none|none|
-|createdAt|string|true|none|none|
+|createdAt|string(date-time)|true|none|none|
 
 <h2 id="tocS_PostWithLikes">PostWithLikes</h2>
 <!-- backwards compatibility -->
@@ -2083,14 +2077,14 @@ This operation does not require authentication
 {
   "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
   "body": "string",
-  "createdAt": "string",
-  "updatedAt": "string",
+  "createdAt": "1970-01-01T00:00:00Z",
+  "updatedAt": "1970-01-01T00:00:00Z",
   "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
   "likes": [
     {
       "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
       "postId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-      "createdAt": "string"
+      "createdAt": "1970-01-01T00:00:00Z"
     }
   ]
 }
@@ -2102,8 +2096,8 @@ This operation does not require authentication
 |---|---|---|---|---|
 |id|string(uuid)|true|none|none|
 |body|string|true|none|none|
-|createdAt|string|true|none|none|
-|updatedAt|string|true|none|none|
+|createdAt|string(date-time)|true|none|none|
+|updatedAt|string(date-time)|true|none|none|
 |userId|string(uuid)|true|none|none|
 |likes|[[Like](#schemalike)]|true|none|none|
 
@@ -2138,7 +2132,7 @@ This operation does not require authentication
   "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
   "body": "string",
   "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-  "createdAt": "string"
+  "createdAt": "1970-01-01T00:00:00Z"
 }
 ```
 
@@ -2149,7 +2143,42 @@ This operation does not require authentication
 |id|string(uuid)|true|none|none|
 |body|string|true|none|none|
 |userId|string(uuid)|true|none|none|
-|createdAt|string|true|none|none|
+|createdAt|string(date-time)|true|none|none|
+
+<h2 id="tocS_PublicUser">PublicUser</h2>
+<!-- backwards compatibility -->
+<a id="schemapublicuser"></a>
+<a id="schema_PublicUser"></a>
+<a id="tocSpublicuser"></a>
+<a id="tocspublicuser"></a>
+
+```json
+{
+  "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+  "name": "string",
+  "username": "string",
+  "bio": "string",
+  "image": "http://example.com",
+  "coverImage": "http://example.com",
+  "profileImage": "http://example.com",
+  "createdAt": "1970-01-01T00:00:00Z",
+  "updatedAt": "1970-01-01T00:00:00Z"
+}
+```
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|id|string(uuid)|true|none|none|
+|name|string|true|none|none|
+|username|string|true|none|none|
+|bio|string|false|none|none|
+|image|string(uri)|true|none|none|
+|coverImage|string(uri)|true|none|none|
+|profileImage|string(uri)|true|none|none|
+|createdAt|string(date-time)|true|none|none|
+|updatedAt|string(date-time)|true|none|none|
 
 <h2 id="tocS_PostSummary">PostSummary</h2>
 <!-- backwards compatibility -->
@@ -2162,22 +2191,19 @@ This operation does not require authentication
 {
   "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
   "body": "string",
-  "createdAt": "string",
-  "updatedAt": "string",
+  "createdAt": "1970-01-01T00:00:00Z",
+  "updatedAt": "1970-01-01T00:00:00Z",
   "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
   "user": {
     "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
     "name": "string",
     "username": "string",
     "bio": "string",
-    "email": "user@example.com",
-    "emailVerified": "string",
     "image": "http://example.com",
     "coverImage": "http://example.com",
     "profileImage": "http://example.com",
-    "createdAt": "string",
-    "updatedAt": "string",
-    "hasNotification": true
+    "createdAt": "1970-01-01T00:00:00Z",
+    "updatedAt": "1970-01-01T00:00:00Z"
   },
   "commentCount": 0,
   "likeCount": 0
@@ -2190,10 +2216,10 @@ This operation does not require authentication
 |---|---|---|---|---|
 |id|string(uuid)|true|none|none|
 |body|string|true|none|none|
-|createdAt|string|true|none|none|
-|updatedAt|string|true|none|none|
+|createdAt|string(date-time)|true|none|none|
+|updatedAt|string(date-time)|true|none|none|
 |userId|string(uuid)|true|none|none|
-|user|[User](#schemauser)|true|none|none|
+|user|[PublicUser](#schemapublicuser)|true|none|none|
 |commentCount|number|true|none|none|
 |likeCount|number|true|none|none|
 
@@ -2235,22 +2261,19 @@ This operation does not require authentication
     {
       "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
       "body": "string",
-      "createdAt": "string",
-      "updatedAt": "string",
+      "createdAt": "1970-01-01T00:00:00Z",
+      "updatedAt": "1970-01-01T00:00:00Z",
       "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
       "user": {
         "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
         "name": "string",
         "username": "string",
         "bio": "string",
-        "email": "user@example.com",
-        "emailVerified": "string",
         "image": "http://example.com",
         "coverImage": "http://example.com",
         "profileImage": "http://example.com",
-        "createdAt": "string",
-        "updatedAt": "string",
-        "hasNotification": true
+        "createdAt": "1970-01-01T00:00:00Z",
+        "updatedAt": "1970-01-01T00:00:00Z"
       },
       "commentCount": 0,
       "likeCount": 0
@@ -2283,8 +2306,8 @@ This operation does not require authentication
 {
   "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
   "body": "string",
-  "createdAt": "string",
-  "updatedAt": "string",
+  "createdAt": "1970-01-01T00:00:00Z",
+  "updatedAt": "1970-01-01T00:00:00Z",
   "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08"
 }
 ```
@@ -2295,8 +2318,8 @@ This operation does not require authentication
 |---|---|---|---|---|
 |id|string(uuid)|true|none|none|
 |body|string|true|none|none|
-|createdAt|string|true|none|none|
-|updatedAt|string|true|none|none|
+|createdAt|string(date-time)|true|none|none|
+|updatedAt|string(date-time)|true|none|none|
 |userId|string(uuid)|true|none|none|
 
 <h2 id="tocS_CreatePostRequest">CreatePostRequest</h2>
@@ -2329,8 +2352,8 @@ This operation does not require authentication
 {
   "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
   "body": "string",
-  "createdAt": "string",
-  "updatedAt": "string",
+  "createdAt": "1970-01-01T00:00:00Z",
+  "updatedAt": "1970-01-01T00:00:00Z",
   "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
   "postId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
   "user": {
@@ -2338,14 +2361,11 @@ This operation does not require authentication
     "name": "string",
     "username": "string",
     "bio": "string",
-    "email": "user@example.com",
-    "emailVerified": "string",
     "image": "http://example.com",
     "coverImage": "http://example.com",
     "profileImage": "http://example.com",
-    "createdAt": "string",
-    "updatedAt": "string",
-    "hasNotification": true
+    "createdAt": "1970-01-01T00:00:00Z",
+    "updatedAt": "1970-01-01T00:00:00Z"
   }
 }
 ```
@@ -2356,11 +2376,11 @@ This operation does not require authentication
 |---|---|---|---|---|
 |id|string(uuid)|true|none|none|
 |body|string|true|none|none|
-|createdAt|string|true|none|none|
-|updatedAt|string|true|none|none|
+|createdAt|string(date-time)|true|none|none|
+|updatedAt|string(date-time)|true|none|none|
 |userId|string(uuid)|true|none|none|
 |postId|string(uuid)|true|none|none|
-|user|[User](#schemauser)|true|none|none|
+|user|[PublicUser](#schemapublicuser)|true|none|none|
 
 <h2 id="tocS_PostDetail">PostDetail</h2>
 <!-- backwards compatibility -->
@@ -2373,29 +2393,26 @@ This operation does not require authentication
 {
   "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
   "body": "string",
-  "createdAt": "string",
-  "updatedAt": "string",
+  "createdAt": "1970-01-01T00:00:00Z",
+  "updatedAt": "1970-01-01T00:00:00Z",
   "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
   "user": {
     "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
     "name": "string",
     "username": "string",
     "bio": "string",
-    "email": "user@example.com",
-    "emailVerified": "string",
     "image": "http://example.com",
     "coverImage": "http://example.com",
     "profileImage": "http://example.com",
-    "createdAt": "string",
-    "updatedAt": "string",
-    "hasNotification": true
+    "createdAt": "1970-01-01T00:00:00Z",
+    "updatedAt": "1970-01-01T00:00:00Z"
   },
   "comments": [
     {
       "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
       "body": "string",
-      "createdAt": "string",
-      "updatedAt": "string",
+      "createdAt": "1970-01-01T00:00:00Z",
+      "updatedAt": "1970-01-01T00:00:00Z",
       "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
       "postId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
       "user": {}
@@ -2418,10 +2435,10 @@ This operation does not require authentication
 |---|---|---|---|---|
 |id|string(uuid)|true|none|none|
 |body|string|true|none|none|
-|createdAt|string|true|none|none|
-|updatedAt|string|true|none|none|
+|createdAt|string(date-time)|true|none|none|
+|updatedAt|string(date-time)|true|none|none|
 |userId|string(uuid)|true|none|none|
-|user|[User](#schemauser)|true|none|none|
+|user|[PublicUser](#schemapublicuser)|true|none|none|
 |comments|[[CommentWithUser](#schemacommentwithuser)]|true|none|none|
 |likes|[object]|true|none|none|
 |_count|object|true|none|none|
@@ -2466,14 +2483,11 @@ This operation does not require authentication
       "name": "string",
       "username": "string",
       "bio": "string",
-      "email": "user@example.com",
-      "emailVerified": "string",
       "image": "http://example.com",
       "coverImage": "http://example.com",
       "profileImage": "http://example.com",
-      "createdAt": "string",
-      "updatedAt": "string",
-      "hasNotification": true
+      "createdAt": "1970-01-01T00:00:00Z",
+      "updatedAt": "1970-01-01T00:00:00Z"
     }
   ],
   "meta": {
@@ -2489,7 +2503,7 @@ This operation does not require authentication
 
 |Name|Type|Required|Restrictions|Description|
 |---|---|---|---|---|
-|data|[[User](#schemauser)]|true|none|none|
+|data|[[PublicUser](#schemapublicuser)]|true|none|none|
 |meta|[PaginationMeta](#schemapaginationmeta)|true|none|none|
 
 <h2 id="tocS_SearchResults">SearchResults</h2>
@@ -2506,22 +2520,19 @@ This operation does not require authentication
       {
         "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
         "body": "string",
-        "createdAt": "string",
-        "updatedAt": "string",
+        "createdAt": "1970-01-01T00:00:00Z",
+        "updatedAt": "1970-01-01T00:00:00Z",
         "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
         "user": {
           "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
           "name": "string",
           "username": "string",
           "bio": "string",
-          "email": "user@example.com",
-          "emailVerified": "string",
           "image": "http://example.com",
           "coverImage": "http://example.com",
           "profileImage": "http://example.com",
-          "createdAt": "string",
-          "updatedAt": "string",
-          "hasNotification": true
+          "createdAt": "1970-01-01T00:00:00Z",
+          "updatedAt": "1970-01-01T00:00:00Z"
         },
         "commentCount": 0,
         "likeCount": 0
@@ -2563,14 +2574,11 @@ This operation does not require authentication
   "name": "string",
   "username": "string",
   "bio": "string",
-  "email": "user@example.com",
-  "emailVerified": "string",
   "image": "http://example.com",
   "coverImage": "http://example.com",
   "profileImage": "http://example.com",
-  "createdAt": "string",
-  "updatedAt": "string",
-  "hasNotification": true,
+  "createdAt": "1970-01-01T00:00:00Z",
+  "updatedAt": "1970-01-01T00:00:00Z",
   "_count": {
     "followers": 0,
     "following": 0
@@ -2586,14 +2594,11 @@ This operation does not require authentication
 |name|string|true|none|none|
 |username|string|true|none|none|
 |bio|string|false|none|none|
-|email|string(email)|true|none|none|
-|emailVerified|string|true|none|none|
 |image|string(uri)|true|none|none|
 |coverImage|string(uri)|true|none|none|
 |profileImage|string(uri)|true|none|none|
-|createdAt|string|true|none|none|
-|updatedAt|string|true|none|none|
-|hasNotification|boolean|false|none|none|
+|createdAt|string(date-time)|true|none|none|
+|updatedAt|string(date-time)|true|none|none|
 |_count|object|true|none|none|
 
 <h2 id="tocS_PostWithDetails">PostWithDetails</h2>
@@ -2607,29 +2612,26 @@ This operation does not require authentication
 {
   "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
   "body": "string",
-  "createdAt": "string",
-  "updatedAt": "string",
+  "createdAt": "1970-01-01T00:00:00Z",
+  "updatedAt": "1970-01-01T00:00:00Z",
   "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
   "user": {
     "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
     "name": "string",
     "username": "string",
     "bio": "string",
-    "email": "user@example.com",
-    "emailVerified": "string",
     "image": "http://example.com",
     "coverImage": "http://example.com",
     "profileImage": "http://example.com",
-    "createdAt": "string",
-    "updatedAt": "string",
-    "hasNotification": true
+    "createdAt": "1970-01-01T00:00:00Z",
+    "updatedAt": "1970-01-01T00:00:00Z"
   },
   "comments": [
     {
       "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
       "body": "string",
-      "createdAt": "string",
-      "updatedAt": "string",
+      "createdAt": "1970-01-01T00:00:00Z",
+      "updatedAt": "1970-01-01T00:00:00Z",
       "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
       "postId": "497f6eca-6276-4993-bfeb-53cbbbba6f08"
     }
@@ -2638,7 +2640,7 @@ This operation does not require authentication
     {
       "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
       "postId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-      "createdAt": "string"
+      "createdAt": "1970-01-01T00:00:00Z"
     }
   ]
 }
@@ -2650,9 +2652,9 @@ This operation does not require authentication
 |---|---|---|---|---|
 |id|string(uuid)|true|none|none|
 |body|string|true|none|none|
-|createdAt|string|true|none|none|
-|updatedAt|string|true|none|none|
+|createdAt|string(date-time)|true|none|none|
+|updatedAt|string(date-time)|true|none|none|
 |userId|string(uuid)|true|none|none|
-|user|[User](#schemauser)|true|none|none|
+|user|[PublicUser](#schemapublicuser)|true|none|none|
 |comments|[[Comment](#schemacomment)]|true|none|none|
 |likes|[[Like](#schemalike)]|true|none|none|

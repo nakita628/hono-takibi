@@ -1,4 +1,5 @@
 import { OpenAPIHono } from '@hono/zod-openapi'
+import { formatZodErrors } from '@/backend/domain'
 import {
   deleteFollowRouteHandler,
   deleteLikeRouteHandler,
@@ -17,7 +18,6 @@ import {
   postPostsRouteHandler,
   postRegisterRouteHandler,
 } from '@/backend/handlers'
-import { formatZodErrors } from '@/backend/lib/error'
 import { rateLimit } from '@/backend/middleware/rateLimit'
 import {
   deleteFollowRoute,

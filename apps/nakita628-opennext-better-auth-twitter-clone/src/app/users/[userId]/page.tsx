@@ -9,6 +9,17 @@ import { PostFeed } from '@/components/organisms/PostFeed'
 import { UserBio } from '@/components/organisms/UserBio'
 import { useGetCurrent, useGetUsersUserId } from '@/hooks'
 
+/**
+ * User Profile Page — User info + their posts
+ *
+ * ||| Data Dependencies |||
+ *
+ *   useGetCurrent()       → auth check (redirects to / if not logged in)
+ *   useGetUsersUserId()   → user profile (enabled only after auth confirmed)
+ *     Key: ['users', 'GET', '/users/:userId', { param: { userId } }]
+ *
+ * UserBio handles follow/edit. PostFeed shows the user's posts (filtered by userId).
+ */
 export default function UserView() {
   const router = useRouter()
   const params = useParams()

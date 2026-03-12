@@ -1,21 +1,50 @@
 'use client'
 
-import { parseResponse } from 'hono/client'
 import { useCallback, useRef } from 'react'
 import { ClipLoader } from 'react-spinners'
 import useSWRInfinite from 'swr/infinite'
 import { PostItem } from '@/components/organisms/PostItem'
-import { getGetPostsKey } from '@/hooks'
-import { client } from '@/lib'
+import { getGetPostsKey, getPosts } from '@/hooks'
 
-type PostsResponse = Awaited<
-  ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.posts.$get>>>>
->
+type PostsResponse = Awaited<ReturnType<typeof getPosts>>
 
 type Props = {
   userId?: string
 }
 
+/**
+ * PostFeed — Infinite-scrolling post list
+ *
+ * Uses `useSWRInfinite` for paginated loading.
+ *
+ * ||| How Infinite Scroll Works |||
+ *
+ *   1. getKey(pageIndex, previousPageData)
+ *      - Returns the SWR key for each page: ['posts', 'GET', '/posts', { query }]
+ *      - Returns `null` when all pages are loaded (stops fetching)
+ *
+ *   2. useSWRInfinite(getKey, fetcher)
+ *      - `data` is an array of pages: [Page0, Page1, Page2, ...]
+ *      - `size` is the number of pages loaded so far
+ *      - `setSize(n)` triggers loading page n
+ *
+ *   3. IntersectionObserver (sentinel element)
+ *      - A hidden `<div>` at the bottom of the list
+ *      - When it enters the viewport → setSize(prev + 1) → loads next page
+ *      - rootMargin: '200px' → starts loading 200px before reaching the bottom
+ *
+ * ||| SWR Key for Each Page |||
+ *
+ *   Page 0 → ['posts', 'GET', '/posts', { query: { page: 1 } }]
+ *   Page 1 → ['posts', 'GET', '/posts', { query: { page: 2 } }]
+ *   ...
+ *   Last   → null (when page >= totalPages)
+ *
+ * ||| Cache Invalidation |||
+ *
+ *   After creating a post or comment, the Form component calls:
+ *     mutate(unstable_serialize(getKey)) → revalidates ALL pages
+ */
 export function PostFeed({ userId }: Props) {
   const getKey = (pageIndex: number, previousPageData: PostsResponse | null) => {
     if (previousPageData && pageIndex + 1 > previousPageData.meta.totalPages) return null
@@ -25,7 +54,7 @@ export function PostFeed({ userId }: Props) {
 
   const { data, isLoading, size, setSize } = useSWRInfinite(
     getKey,
-    async ([, , , args]) => parseResponse(client.posts.$get(args)),
+    async ([, , , args]) => getPosts(args),
     { revalidateFirstPage: true },
   )
 

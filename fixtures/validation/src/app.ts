@@ -1,5 +1,5 @@
 import { OpenAPIHono } from '@hono/zod-openapi'
-import { postUsersRoute, postValidateRoute, postMetadataRoute } from './generated.ts'
+import { postMetadataRoute, postUsersRoute, postValidateRoute } from './generated.ts'
 
 const app = new OpenAPIHono({
   defaultHook: (result, c) => {

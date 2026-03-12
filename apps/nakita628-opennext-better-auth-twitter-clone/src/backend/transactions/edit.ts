@@ -4,19 +4,31 @@ import { UserSchema } from '@/backend/routes'
 import * as UserService from '@/backend/services/user'
 
 /**
- * Update user name and/or profile fields.
+ * Update user profile (name + profile fields)
  *
- * @mermaid
- * ```
- * flowchart TD
- *   A[findById] --> B{user?}
- *   B -- no --> C[fail Unauthorized]
- *   B -- yes --> D{name changed?}
- *   D -- yes --> E[updateName]
- *   D -- no --> F[updateProfile]
- *   E --> F
- *   F --> G[validate + return]
- * ```
+ * --- Flow ---
+ * 1. UserService.findById(userId) → verify exists (null → UnauthorizedError)
+ * 2. If name changed → UserService.updateName(id, name)
+ *    ||| UPDATE user SET name = :name WHERE id = :userId
+ * 3. UserService.updateProfile(userId, { username, bio, coverImage, profileImage })
+ *    ||| INSERT INTO user_profile ... ON CONFLICT(userId) DO UPDATE SET ...
+ * 4. Validate response via UserSchema.safeParse()
+ *
+ * ||| Table → Response Mapping |||
+ *
+ *   +------------------------+---+------------------+
+ *   | Source Column           |   | Response Field   |
+ *   +------------------------+---+------------------+
+ *   | user.id                 | → | id               |
+ *   | user.name / args.name   | → | name             |
+ *   | user.email              | → | email            |
+ *   | user.emailVerified      | → | emailVerified    |
+ *   | user.image              | → | image            |
+ *   | user_profile.username   | → | username         |
+ *   | user_profile.bio        | → | bio              |
+ *   | user_profile.coverImage | → | coverImage       |
+ *   | user_profile.profileImage| →| profileImage     |
+ *   +------------------------+---+------------------+
  */
 export function update(
   userId: string,
@@ -30,19 +42,17 @@ export function update(
 ) {
   return Effect.gen(function* () {
     const user = yield* UserService.findById(userId)
-    if (!user) {
-      return yield* Effect.fail(new UnauthorizedError({ message: 'Not signed in' }))
+    if (user == null) {
+      return yield* new UnauthorizedError({ message: 'Not signed in' })
     }
 
     const profile = user.userProfile
     const newUsername = args.username ?? profile?.username ?? ''
 
-    // Update name on user table if provided
     if (args.name && args.name !== user.name) {
       yield* UserService.updateName(user.id, args.name)
     }
 
-    // Upsert profile fields on userProfile table
     const updatedProfile = yield* UserService.updateProfile(user.id, {
       username: newUsername,
       bio: args.bio ?? profile?.bio,
@@ -50,7 +60,7 @@ export function update(
       profileImage: args.profileImage !== undefined ? args.profileImage : profile?.profileImage,
     })
 
-    const data = {
+    const valid = UserSchema.safeParse({
       id: user.id,
       name: args.name ?? user.name,
       username: updatedProfile.username,
@@ -62,11 +72,9 @@ export function update(
       profileImage: updatedProfile.profileImage,
       createdAt: user.createdAt.toISOString(),
       updatedAt: user.updatedAt.toISOString(),
-    }
-
-    const valid = UserSchema.safeParse(data)
+    })
     if (!valid.success) {
-      return yield* Effect.fail(new ContractViolationError({ message: 'Invalid user data' }))
+      return yield* new ContractViolationError({ message: 'Invalid user data' })
     }
     return valid.data
   })

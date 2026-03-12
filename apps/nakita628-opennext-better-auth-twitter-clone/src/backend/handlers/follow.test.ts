@@ -134,7 +134,7 @@ describe('Follow', () => {
         body: JSON.stringify({ userId }),
       })
 
-      expect(FollowTransaction.create).toHaveBeenCalledWith(session.user.id, { userId })
+      expect(FollowTransaction.create).toHaveBeenCalledWith(session.user.id, userId)
     })
   })
 

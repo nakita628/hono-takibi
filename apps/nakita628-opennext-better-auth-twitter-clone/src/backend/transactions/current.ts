@@ -4,27 +4,56 @@ import { CurrentUserSchema } from '@/backend/routes'
 import * as UserService from '@/backend/services/user'
 
 /**
- * Fetch the current authenticated user with follow lists.
+ * Fetch the authenticated user's full profile.
  *
- * @mermaid
- * ```
- * flowchart TD
- *   A[findByIdWithFollowCount] --> B{user?}
- *   B -- no --> C[fail Unauthorized]
- *   B -- yes --> D[format followers/following]
- *   D --> E[validate + return]
- * ```
+ * ||| Flow |||
+ *   1. UserService.findByIdWithFollows(userId)
+ *      → 2 SQL queries: user+profile, then followers+following arrays
+ *   2. If not found → UnauthorizedError
+ *   3. Map database columns to response fields (see table below)
+ *   4. Validate via CurrentUserSchema.safeParse()
+ *
+ * ||| What the Query Looks Like |||
+ *
+ *   +------+ LEFT JOIN +--------------+
+ *   | user |---------->| user_profile |
+ *   +------+           +--------------+
+ *       |
+ *       | then separately:
+ *       v
+ *   +---------+
+ *   | follows | WHERE followingId = me  → followers[]
+ *   | follows | WHERE followerId  = me  → following[]
+ *   +---------+
+ *
+ * ||| Table → Response Mapping |||
+ *
+ *   +---------------------------+---+---------------------------+
+ *   | Database Column           |   | Response Field            |
+ *   +---------------------------+---+---------------------------+
+ *   | user.id                   | → | id                        |
+ *   | user.name                 | → | name                      |
+ *   | user.email                | → | email                     |
+ *   | user.image                | → | image                     |
+ *   | user_profile.username     | → | username                  |
+ *   | user_profile.bio          | → | bio                       |
+ *   | user_profile.coverImage   | → | coverImage                |
+ *   | user_profile.profileImage | → | profileImage              |
+ *   | user_profile.hasNotification | → | hasNotification        |
+ *   | follows[] (followingId=me)| → | followers[]               |
+ *   | follows[] (followerId=me) | → | following[]               |
+ *   +---------------------------+---+---------------------------+
  */
 export function get(userId: string) {
   return Effect.gen(function* () {
     const user = yield* UserService.findByIdWithFollows(userId)
-    if (!user) {
-      return yield* Effect.fail(new UnauthorizedError({ message: 'Unauthorized' }))
+    if (user == null) {
+      return yield* new UnauthorizedError({ message: 'Unauthorized' })
     }
 
     const profile = user.userProfile
 
-    const data = {
+    const valid = CurrentUserSchema.safeParse({
       id: user.id,
       name: user.name,
       username: profile?.username ?? '',
@@ -46,13 +75,9 @@ export function get(userId: string) {
         createdAt: f.createdAt.toISOString(),
       })),
       hasNotification: profile?.hasNotification ?? null,
-    }
-
-    const valid = CurrentUserSchema.safeParse(data)
+    })
     if (!valid.success) {
-      return yield* Effect.fail(
-        new ContractViolationError({ message: 'Invalid current user data' }),
-      )
+      return yield* new ContractViolationError({ message: 'Invalid current user data' })
     }
     return valid.data
   })

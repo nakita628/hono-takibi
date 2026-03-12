@@ -6,7 +6,13 @@ import { mutate } from 'swr'
 import { unstable_serialize } from 'swr/infinite'
 import { Button } from '@/components/atoms/Button'
 import { AvatarLink } from '@/components/molecules/AvatarLink'
-import { getGetPostsKey, useGetCurrent, usePostComments, usePostPosts } from '@/hooks'
+import {
+  getGetPostsKey,
+  getGetPostsPostIdKey,
+  useGetCurrent,
+  usePostComments,
+  usePostPosts,
+} from '@/hooks'
 import { useLoginModal, useRegisterModal } from '@/stores'
 
 function postsInfiniteKey() {
@@ -21,6 +27,33 @@ type Props = {
   postId?: string
 }
 
+/**
+ * Form — Post/comment creation form
+ *
+ * Used in two modes:
+ *   - Post mode (default): creates a new tweet on the home page
+ *   - Comment mode (isComment=true, postId=xxx): replies to a specific post
+ *
+ * ||| SWR Cache Invalidation After Submit |||
+ *
+ *   Create Post:
+ *     mutate(postsInfiniteKey()) → revalidates all pages of the post feed
+ *
+ *   Create Comment:
+ *     mutate(posts/:postId key)  → refetch the post detail (new comment appears)
+ *     mutate(postsInfiniteKey()) → update comment count in the feed
+ *
+ * ||| postsInfiniteKey() |||
+ *
+ *   Uses `unstable_serialize` from swr/infinite to generate the cache key
+ *   for ALL pages of the infinite scroll. This is needed because useSWRInfinite
+ *   stores each page under a different key, and we need to revalidate them all.
+ *
+ * ||| Guest View |||
+ *
+ *   When not logged in, shows "Welcome to Twitter" with Login/Register buttons
+ *   instead of the text input.
+ */
 export function Form({ placeholder, isComment, postId }: Props) {
   const loginModal = useLoginModal()
   const registerModal = useRegisterModal()
@@ -37,14 +70,18 @@ export function Form({ placeholder, isComment, postId }: Props) {
 
       if (isComment && postId) {
         await createComment({ query: { postId }, json: { body } })
+        toast.success('Comment posted')
+        setBody('')
+        await Promise.all([
+          mutate(getGetPostsPostIdKey({ param: { postId } })),
+          mutate(postsInfiniteKey()),
+        ])
       } else {
         await createPost({ json: { body } })
+        toast.success('Tweet created')
+        setBody('')
+        await mutate(postsInfiniteKey())
       }
-
-      toast.success(isComment ? 'Comment posted' : 'Tweet created')
-      setBody('')
-
-      await mutate(postsInfiniteKey())
     } catch {
       toast.error(isComment ? 'Failed to post comment' : 'Failed to create post')
     } finally {

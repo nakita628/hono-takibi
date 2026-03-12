@@ -1,75 +1,43 @@
 import { Effect } from 'effect'
-import * as UserDomain from '@/backend/domain'
-import { ContractViolationError } from '@/backend/domain'
+import { ContractViolationError, makeFormatPublicUser } from '@/backend/domain'
 import { SearchResultsSchema } from '@/backend/routes'
 import * as PostService from '@/backend/services/post'
 import * as SearchService from '@/backend/services/search'
 
-/**
- * Transaction that orchestrates post and user search with pagination.
- *
- * @param args - Search parameters
- * @param args.query - Search keyword
- * @param args.page - Current page number
- * @param args.limit - Results per page
- * @returns Effect yielding validated `SearchResults`
- *
- * @mermaid
- * graph TD
- *   A[search] --> B[Calculate offset]
- *   B --> C[Effect.all parallel]
- *   C --> D[searchPosts]
- *   C --> E[searchUsers]
- *   D --> F[Build response with meta]
- *   E --> F
- *   F --> G[SearchResultsSchema.safeParse]
- *   G -- valid --> H[return data]
- *   G -- invalid --> I[ContractViolationError]
- */
-export function search(args: { query: string; page: number; limit: number }) {
+export function search(query: string, page: number, limit: number, currentUserId?: string) {
   return Effect.gen(function* () {
-    const offset = (args.page - 1) * args.limit
+    const offset = (page - 1) * limit
 
     const [postsResult, usersResult] = yield* Effect.all([
-      SearchService.searchPosts({ query: args.query, limit: args.limit, offset }),
-      SearchService.searchUsers({ query: args.query, limit: args.limit, offset }),
+      SearchService.searchPosts(query, limit, offset),
+      SearchService.searchUsers(query, limit, offset),
     ])
 
     const postIds = postsResult.posts.map((p) => p.id)
     const { commentCounts, likeCounts } = yield* PostService.getCountsForPostIds(postIds)
 
-    const posts = {
-      data: postsResult.posts.map((post) => ({
+    const likedPostIds = currentUserId
+      ? yield* PostService.getLikedPostIds(currentUserId, postIds)
+      : new Set<string>()
+
+    const result = {
+      posts: postsResult.posts.map((post) => ({
         id: post.id,
         body: post.body,
         createdAt: post.createdAt.toISOString(),
         updatedAt: post.updatedAt.toISOString(),
         userId: post.userId,
-        user: UserDomain.makeFormatPublicUser(post.user),
+        user: makeFormatPublicUser(post.user),
         commentCount: commentCounts[post.id] ?? 0,
         likeCount: likeCounts[post.id] ?? 0,
+        hasLiked: likedPostIds.has(post.id),
       })),
-      meta: {
-        page: args.page,
-        limit: args.limit,
-        total: postsResult.total,
-        totalPages: Math.ceil(postsResult.total / args.limit),
-      },
+      users: usersResult.users.map((user) => makeFormatPublicUser(user)),
     }
 
-    const users = {
-      data: usersResult.users.map((user) => UserDomain.makeFormatPublicUser(user)),
-      meta: {
-        page: args.page,
-        limit: args.limit,
-        total: usersResult.total,
-        totalPages: Math.ceil(usersResult.total / args.limit),
-      },
-    }
-
-    const valid = SearchResultsSchema.safeParse({ posts, users })
+    const valid = SearchResultsSchema.safeParse(result)
     if (!valid.success) {
-      return yield* Effect.fail(new ContractViolationError({ message: 'Invalid search results' }))
+      return yield* new ContractViolationError({ message: 'Invalid search results' })
     }
     return valid.data
   })

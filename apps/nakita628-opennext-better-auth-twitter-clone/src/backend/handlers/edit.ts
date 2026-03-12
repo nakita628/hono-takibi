@@ -1,26 +1,58 @@
 import type { RouteHandler } from '@hono/zod-openapi'
 import { Effect } from 'effect'
-import {
-  ConflictError,
-  ContractViolationError,
-  DatabaseError,
-  UnauthorizedError,
-} from '@/backend/domain'
 import type { patchEditRoute } from '@/backend/routes'
 import * as EditTransaction from '@/backend/transactions/edit'
 import { AuthType, DBLive } from '@/infra'
 
 /**
- * Handle `PATCH /edit` — update the authenticated user's profile.
+ * PATCH /edit — Update the authenticated user's profile
  *
- * @mermaid
- * ```
- * flowchart LR
- *   A[EditTransaction.update] --> B{match}
- *   B --> C[200 OK]
- *   B --> D[401 Unauthorized]
- *   B --> E[503 DB error]
- * ```
+ * ||| What happens step by step |||
+ *   1. Check the user is logged in (401 if not)
+ *   2. Read the fields to update from the request body
+ *   3. Verify the user exists in the database
+ *   4. Update display name on the user table (if changed)
+ *   5. Upsert profile fields (username, bio, images) on user_profile
+ *   6. Return the updated user
+ *
+ * --- Business Logic ---
+ * 1. auth: session user required (401 if missing)
+ * 2. body: { name?, username?, bio?, coverImage?, profileImage? }
+ * 3. EditTransaction.update(userId, body)
+ *    Updates the user table (name) and upserts the user_profile table.
+ *
+ * ||| Tables Involved |||
+ *
+ *  Step 1 — Verify user exists:
+ *  +------+ LEFT JOIN +--------------+
+ *  | user |---------->| user_profile |  <-- SELECT WHERE user.id = :userId
+ *  +------+           +--------------+
+ *
+ *  Step 2 — Update name (only if changed):
+ *  +------+
+ *  | user | <-- UPDATE SET name = :name WHERE id = :userId
+ *  +------+
+ *
+ *  Step 3 — Upsert profile:
+ *  +--------------+
+ *  | user_profile | <-- INSERT ... ON CONFLICT(userId) DO UPDATE
+ *  +--------------+     SET { username, bio, coverImage, profileImage }
+ *
+ * ||| SQL Flow |||
+ *   SELECT * FROM user LEFT JOIN user_profile ON ... WHERE user.id = :userId
+ *   |||
+ *   UPDATE user SET name = :name WHERE id = :userId RETURNING *   -- if name changed
+ *   |||
+ *   INSERT INTO user_profile (userId, username, bio, coverImage, profileImage)
+ *     VALUES (:userId, :username, :bio, :coverImage, :profileImage)
+ *     ON CONFLICT(userId) DO UPDATE SET username=..., bio=..., coverImage=..., profileImage=...
+ *     RETURNING *
+ *
+ * --- Response ---
+ *   200: User (updated)
+ *   401: Unauthorized
+ *   409: Username already taken (UNIQUE constraint violation)
+ *   503: Database error
  */
 export const patchEditRouteHandler: RouteHandler<
   typeof patchEditRoute,
@@ -32,22 +64,17 @@ export const patchEditRouteHandler: RouteHandler<
     return c.json({ message: 'Unauthorized' }, 401)
   }
 
-  const userId = user.id
-
   const body = c.req.valid('json')
 
   return Effect.runPromise(
-    EditTransaction.update(userId, body).pipe(
+    EditTransaction.update(user.id, body).pipe(
       Effect.provide(DBLive),
-      Effect.match({
-        onSuccess: (user) => c.json(user, 200),
-        onFailure: (e) => {
-          if (e instanceof UnauthorizedError) return c.json({ message: e.message }, 401)
-          if (e instanceof ConflictError) return c.json({ message: e.message }, 409)
-          if (e instanceof ContractViolationError) return c.json({ message: e.message }, 500)
-          if (e instanceof DatabaseError) return c.json({ message: e.message }, 503)
-          return c.json({ message: 'Internal server error' }, 500)
-        },
+      Effect.map((user) => c.json(user, 200)),
+      Effect.catchTags({
+        UnauthorizedError: (e) => Effect.succeed(c.json({ message: e.message }, 401)),
+        ConflictError: (e) => Effect.succeed(c.json({ message: e.message }, 409)),
+        ContractViolationError: (e) => Effect.succeed(c.json({ message: e.message }, 500)),
+        DatabaseError: (e) => Effect.succeed(c.json({ message: e.message }, 503)),
       }),
     ),
   )

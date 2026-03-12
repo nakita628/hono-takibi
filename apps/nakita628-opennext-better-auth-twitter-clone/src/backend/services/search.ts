@@ -7,10 +7,9 @@ import { DB } from '@/infra'
 /**
  * Search posts by body content using LIKE query.
  *
- * @param args - Search parameters
- * @param args.query - Search keyword
- * @param args.limit - Max results per page
- * @param args.offset - Pagination offset
+ * @param query - Search keyword
+ * @param limit - Max results per page
+ * @param offset - Pagination offset
  * @returns Effect yielding `{ posts, total }`
  *
  * @mermaid
@@ -22,11 +21,11 @@ import { DB } from '@/infra'
  *   D --> F[return posts + total]
  *   E --> F
  */
-export function searchPosts(args: { query: string; limit: number; offset: number }) {
+export function searchPosts(query: string, limit: number, offset: number) {
+  const whereClause = like(schema.posts.body, `%${query}%`)
+
   return Effect.gen(function* () {
     const db = yield* DB
-    const whereClause = like(schema.posts.body, `%${args.query}%`)
-
     const [postRows, [{ total }]] = yield* Effect.tryPromise({
       try: () =>
         Promise.all([
@@ -37,37 +36,36 @@ export function searchPosts(args: { query: string; limit: number; offset: number
             .leftJoin(schema.userProfile, eq(schema.user.id, schema.userProfile.userId))
             .where(whereClause)
             .orderBy(desc(schema.posts.createdAt))
-            .limit(args.limit)
-            .offset(args.offset)
+            .limit(limit)
+            .offset(offset)
             .all(),
           db.select({ total: count() }).from(schema.posts).where(whereClause),
         ]),
       catch: () => new DatabaseError({ message: 'Database error' }),
     })
-
-    const posts = postRows.map((row) => ({
-      ...row.posts,
-      user: { ...row.user, userProfile: row.user_profile },
-    }))
-
-    return { posts, total }
+    return {
+      posts: postRows.map((row) => ({
+        ...row.posts,
+        user: { ...row.user, userProfile: row.user_profile },
+      })),
+      total,
+    }
   })
 }
 
 /**
  * Search users by name using LIKE query.
  *
- * @param args - Search parameters
- * @param args.query - Search keyword
- * @param args.limit - Max results per page
- * @param args.offset - Pagination offset
+ * @param query - Search keyword
+ * @param limit - Max results per page
+ * @param offset - Pagination offset
  * @returns Effect yielding `{ users, total }`
  */
-export function searchUsers(args: { query: string; limit: number; offset: number }) {
+export function searchUsers(query: string, limit: number, offset: number) {
+  const whereClause = like(schema.user.name, `%${query}%`)
+
   return Effect.gen(function* () {
     const db = yield* DB
-    const whereClause = like(schema.user.name, `%${args.query}%`)
-
     const [userRows, [{ total }]] = yield* Effect.tryPromise({
       try: () =>
         Promise.all([
@@ -77,16 +75,16 @@ export function searchUsers(args: { query: string; limit: number; offset: number
             .leftJoin(schema.userProfile, eq(schema.user.id, schema.userProfile.userId))
             .where(whereClause)
             .orderBy(desc(schema.user.createdAt))
-            .limit(args.limit)
-            .offset(args.offset)
+            .limit(limit)
+            .offset(offset)
             .all(),
           db.select({ total: count() }).from(schema.user).where(whereClause),
         ]),
       catch: () => new DatabaseError({ message: 'Database error' }),
     })
-
-    const users = userRows.map((row) => ({ ...row.user, userProfile: row.user_profile }))
-
-    return { users, total }
+    return {
+      users: userRows.map((row) => ({ ...row.user, userProfile: row.user_profile })),
+      total,
+    }
   })
 }

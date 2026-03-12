@@ -1,6 +1,68 @@
 import { relations, sql } from 'drizzle-orm'
 import { index, integer, primaryKey, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 
+/**
+ * ============================================================
+ *  Database Schema — Twitter Clone (SQLite / Cloudflare D1)
+ * ============================================================
+ *
+ * ||| Entity-Relationship Diagram |||
+ *
+ *  +----------+       +---------------+
+ *  |   user   |1----1 |  user_profile |
+ *  |----------|       |---------------|
+ *  | id (PK)  |<------| userId (FK,UQ)|
+ *  | name     |       | username (UQ) |
+ *  | email(UQ)|       | bio           |
+ *  | image    |       | coverImage    |
+ *  +----+-----+       | profileImage  |
+ *       |             | hasNotification|
+ *       |             +---------------+
+ *       |
+ *       |1---N  +-----------+          +-----------+
+ *       +------>|   posts   |1---N---->|  comments |
+ *       |       |-----------|          |-----------|
+ *       |       | id (PK)   |<---------| postId(FK)|
+ *       |       | body      |          | id (PK)   |
+ *       |       | userId(FK)|          | body      |
+ *       |       +-----+-----+          | userId(FK)|
+ *       |             |               +-----------+
+ *       |             |1---N
+ *       |             v
+ *       |       +-----------+
+ *       |       |   likes   |
+ *       |       |-----------|
+ *       +------>| userId(FK)|  (composite PK: userId + postId)
+ *       |       | postId(FK)|
+ *       |       +-----------+
+ *       |
+ *       |1---N  +----------------+
+ *       +------>| notifications  |
+ *       |       |----------------|
+ *       |       | id (PK)        |
+ *       |       | body           |
+ *       |       | userId (FK)    |
+ *       |       +----------------+
+ *       |
+ *       |N---M  +-----------+
+ *       +------>|  follows   |
+ *               |-----------|
+ *               |followerId | (composite PK: followerId + followingId)
+ *               |followingId| both FK → user.id
+ *               +-----------+
+ *
+ *  Better Auth managed tables (not shown above):
+ *    session      — 1:N from user (session tokens)
+ *    account      — 1:N from user (credential / OAuth providers)
+ *    verification — email verification tokens
+ *
+ * ||| Cascade Rules |||
+ *
+ *  user   DELETE → CASCADE to: session, account, user_profile,
+ *                              posts, comments, likes, notifications, follows
+ *  posts  DELETE → CASCADE to: comments, likes
+ */
+
 // Better Auth core tables
 export const user = sqliteTable('user', {
   id: text().primaryKey(),

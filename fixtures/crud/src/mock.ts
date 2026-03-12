@@ -1,5 +1,5 @@
-import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
+import { createRoute, OpenAPIHono, type RouteHandler, z } from '@hono/zod-openapi'
 
 const TaskSchema = z
   .object({

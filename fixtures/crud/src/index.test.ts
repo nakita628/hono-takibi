@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest'
 import { faker } from '@faker-js/faker'
+import { describe, expect, it } from 'vitest'
 import app from './index'
 
 function mockCreateTask() {
@@ -40,7 +40,7 @@ describe('Crude CRUD API', () => {
   describe('default', () => {
     describe('GET /api', () => {
       it('should return 200 - Health check', async () => {
-        const res = await app.request(`/api`, { method: 'GET' })
+        const res = await app.request('/api', { method: 'GET' })
         expect(res.status).toBe(200)
       })
     })
@@ -65,7 +65,7 @@ describe('Crude CRUD API', () => {
     describe('POST /api/tasks', () => {
       it('should return 201 - Create task', async () => {
         const body = mockCreateTask()
-        const res = await app.request(`/api/tasks`, {
+        const res = await app.request('/api/tasks', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(body),
@@ -75,7 +75,7 @@ describe('Crude CRUD API', () => {
     })
     describe('GET /api/tasks/{taskId}', () => {
       it('should return 200 - Get task by ID', async () => {
-        const createRes = await app.request(`/api/tasks`, {
+        const createRes = await app.request('/api/tasks', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(mockCreateTask()),
@@ -85,13 +85,13 @@ describe('Crude CRUD API', () => {
         expect(res.status).toBe(200)
       })
       it('should return 404 for non-existent resource', async () => {
-        const res = await app.request(`/api/tasks/__non_existent__`, { method: 'GET' })
+        const res = await app.request('/api/tasks/__non_existent__', { method: 'GET' })
         expect(res.status).toBe(404)
       })
     })
     describe('PUT /api/tasks/{taskId}', () => {
       it('should return 200 - Update task', async () => {
-        const createRes = await app.request(`/api/tasks`, {
+        const createRes = await app.request('/api/tasks', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(mockCreateTask()),
@@ -107,7 +107,7 @@ describe('Crude CRUD API', () => {
       })
       it('should return 404 for non-existent resource', async () => {
         const body = mockUpdateTask()
-        const res = await app.request(`/api/tasks/__non_existent__`, {
+        const res = await app.request('/api/tasks/__non_existent__', {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(body),
@@ -117,7 +117,7 @@ describe('Crude CRUD API', () => {
     })
     describe('DELETE /api/tasks/{taskId}', () => {
       it('should return 204 - Delete task', async () => {
-        const createRes = await app.request(`/api/tasks`, {
+        const createRes = await app.request('/api/tasks', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(mockCreateTask()),
@@ -127,7 +127,7 @@ describe('Crude CRUD API', () => {
         expect(res.status).toBe(204)
       })
       it('should return 404 for non-existent resource', async () => {
-        const res = await app.request(`/api/tasks/__non_existent__`, { method: 'DELETE' })
+        const res = await app.request('/api/tasks/__non_existent__', { method: 'DELETE' })
         expect(res.status).toBe(404)
       })
     })

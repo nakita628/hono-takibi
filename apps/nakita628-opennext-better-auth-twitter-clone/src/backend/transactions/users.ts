@@ -1,30 +1,46 @@
 import { Effect } from 'effect'
-import { ContractViolationError, NotFoundError } from '@/backend/domain'
+import { ContractViolationError, makeFormatPublicUser, NotFoundError } from '@/backend/domain'
 import { PaginatedUsersSchema, UserWithFollowCountSchema } from '@/backend/routes'
 import * as UserService from '@/backend/services/user'
 
 /**
- * Fetch a user by ID with follower/following counts.
+ * Fetch user detail with follower/following counts.
  *
- * @mermaid
- * ```
- * flowchart TD
- *   A[findByIdWithFollowCount] --> B{user?}
- *   B -- no --> C[fail NotFound]
- *   B -- yes --> D[format with _count]
- *   D --> E[validate + return]
- * ```
+ * ||| What It Does |||
+ *   Loads a user's public profile along with how many followers
+ *   and how many people they follow (counts, not full lists).
+ *
+ * ||| Flow |||
+ *   1. UserService.findByIdWithFollowCount(userId)
+ *      → SELECT * FROM user LEFT JOIN user_profile WHERE user.id = :userId
+ *      → SELECT COUNT(*) FROM follows WHERE followingId = :userId  (followers)
+ *      → SELECT COUNT(*) FROM follows WHERE followerId  = :userId  (following)
+ *   2. If not found → NotFoundError
+ *   3. Validate via UserWithFollowCountSchema.safeParse()
+ *
+ * ||| Table → Response Mapping |||
+ *
+ *   +---------------------------+---+--------------------+
+ *   | Source                    |   | Response Field     |
+ *   +---------------------------+---+--------------------+
+ *   | user.id                   | → | id                 |
+ *   | user.name                 | → | name               |
+ *   | user_profile.username     | → | username           |
+ *   | user_profile.bio          | → | bio                |
+ *   | user_profile.coverImage   | → | coverImage         |
+ *   | user_profile.profileImage | → | profileImage       |
+ *   | COUNT(follows.followingId)| → | _count.followers   |
+ *   | COUNT(follows.followerId) | → | _count.following   |
+ *   +---------------------------+---+--------------------+
  */
 export function getById(userId: string) {
   return Effect.gen(function* () {
     const user = yield* UserService.findByIdWithFollowCount(userId)
-    if (!user) {
-      return yield* Effect.fail(new NotFoundError({ message: 'User not found' }))
+    if (user == null) {
+      return yield* new NotFoundError({ message: 'User not found' })
     }
-
     const profile = user.userProfile
-
-    const data = {
+    const valid = UserWithFollowCountSchema.safeParse({
       id: user.id,
       name: user.name,
       username: profile?.username ?? '',
@@ -38,11 +54,9 @@ export function getById(userId: string) {
         followers: user.followersCount,
         following: user.followingCount,
       },
-    }
-
-    const valid = UserWithFollowCountSchema.safeParse(data)
+    })
     if (!valid.success) {
-      return yield* Effect.fail(new ContractViolationError({ message: 'Invalid user data' }))
+      return yield* new ContractViolationError({ message: 'Invalid user data' })
     }
     return valid.data
   })
@@ -51,46 +65,36 @@ export function getById(userId: string) {
 /**
  * List all users with pagination.
  *
- * @mermaid
- * ```
- * flowchart TD
- *   A[compute offset] --> B[findAllPaginated]
- *   B --> C[format users]
- *   C --> D[buildMeta page/limit/total]
- *   D --> E[validate + return]
- * ```
+ * ||| What It Does |||
+ *   Returns a page of users with their profiles, formatted for
+ *   public display (emails are stripped out).
+ *
+ * ||| Flow |||
+ *   1. Calculate offset = (page - 1) * limit
+ *   2. UserService.findAllPaginated(limit, offset)
+ *      → SELECT * FROM user LEFT JOIN user_profile ORDER BY createdAt DESC LIMIT/OFFSET
+ *      → SELECT COUNT(*) FROM user
+ *   3. Format each user via makeFormatPublicUser() (strips email)
+ *   4. Validate via PaginatedUsersSchema.safeParse({ data, meta })
+ *
+ * ||| Returns |||
+ *   { data: PublicUser[], meta: { page, limit, total, totalPages } }
  */
-export function getAll(args: { page: number; limit: number }) {
+export function getAll(page: number, limit: number) {
   return Effect.gen(function* () {
-    const offset = (args.page - 1) * args.limit
-    const result = yield* UserService.findAllPaginated({ limit: args.limit, offset })
-
-    const data = {
-      data: result.users.map((user) => {
-        const profile = user.userProfile
-        return {
-          id: user.id,
-          name: user.name,
-          username: profile?.username ?? '',
-          bio: profile?.bio ?? null,
-          image: user.image ?? null,
-          coverImage: profile?.coverImage ?? null,
-          profileImage: profile?.profileImage ?? null,
-          createdAt: user.createdAt.toISOString(),
-          updatedAt: user.updatedAt.toISOString(),
-        }
-      }),
+    const offset = (page - 1) * limit
+    const result = yield* UserService.findAllPaginated(limit, offset)
+    const valid = PaginatedUsersSchema.safeParse({
+      data: result.users.map((user) => makeFormatPublicUser(user)),
       meta: {
-        page: args.page,
-        limit: args.limit,
+        page,
+        limit,
         total: result.total,
-        totalPages: Math.ceil(result.total / args.limit),
+        totalPages: Math.ceil(result.total / limit),
       },
-    }
-
-    const valid = PaginatedUsersSchema.safeParse(data)
+    })
     if (!valid.success) {
-      return yield* Effect.fail(new ContractViolationError({ message: 'Invalid users data' }))
+      return yield* new ContractViolationError({ message: 'Invalid users data' })
     }
     return valid.data
   })

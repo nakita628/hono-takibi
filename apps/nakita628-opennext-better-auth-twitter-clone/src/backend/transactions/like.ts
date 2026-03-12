@@ -1,80 +1,83 @@
 import { Effect } from 'effect'
-import { ConflictError, ContractViolationError, NotFoundError } from '@/backend/domain'
-import * as PostDomain from '@/backend/domain/post'
+import {
+  ConflictError,
+  ContractViolationError,
+  makeFormatPostWithLikes,
+  NotFoundError,
+} from '@/backend/domain'
 import { PostWithLikesSchema } from '@/backend/routes'
 import * as LikeService from '@/backend/services/like'
 import * as NotificationService from '@/backend/services/notification'
 import * as PostService from '@/backend/services/post'
 
 /**
- * Like a post (with duplicate check) and notify the post owner.
+ * Like a post (with duplicate check + notification)
  *
- * @mermaid
- * ```
- * flowchart TD
- *   A[findPostWithLikes] --> B{post?}
- *   B -- no --> C[fail NotFound]
- *   B -- yes --> D{already liked?}
- *   D -- yes --> E[fail Validation]
- *   D -- no --> F[createLike]
- *   F --> G[notify owner]
- *   G --> H[refetch post]
- *   H --> I[validate + return]
- * ```
+ * --- Flow ---
+ * 1. PostService.findByIdWithLikes(postId)
+ *    ||| SELECT * FROM posts WHERE id = :postId
+ *    ||| SELECT * FROM likes WHERE postId = :postId
+ *    → null → NotFoundError
+ * 2. likes.some(l => l.userId === userId) → ConflictError "Already liked"
+ * 3. LikeService.create(userId, postId)
+ *    ||| INSERT INTO likes (userId, postId, createdAt) VALUES (:me, :postId, ...)
+ * 4. NotificationService.createAndNotify("Someone liked your tweet", post.userId)
+ *    ||| INSERT INTO notifications + UPDATE user_profile SET hasNotification = true
+ * 5. Append new like to existing likes and validate via PostWithLikesSchema.safeParse()
  */
-export function create(userId: string, args: { postId: string }) {
+export function create(userId: string, postId: string) {
   return Effect.gen(function* () {
-    const post = yield* PostService.findByIdWithLikes(args.postId)
-    if (!post) {
-      return yield* Effect.fail(new NotFoundError({ message: 'Post not found' }))
+    const post = yield* PostService.findByIdWithLikes(postId)
+    if (post == null) {
+      return yield* new NotFoundError({ message: 'Post not found' })
     }
 
     if (post.likes.some((like) => like.userId === userId)) {
-      return yield* Effect.fail(new ConflictError({ message: 'Already liked' }))
+      return yield* new ConflictError({ message: 'Already liked' })
     }
 
-    yield* LikeService.create({ userId, postId: args.postId })
+    yield* LikeService.create(userId, postId)
 
-    if (post.userId) {
-      yield* NotificationService.createAndNotify({
-        body: 'Someone liked your tweet',
-        userId: post.userId,
-      })
+    if (post.userId && post.userId !== userId) {
+      yield* NotificationService.createAndNotify('Someone liked your tweet', post.userId)
     }
 
-    const updatedLikes = [...post.likes, { userId, postId: args.postId, createdAt: new Date() }]
-    const data = PostDomain.makeFormatPostWithLikes({ ...post, likes: updatedLikes })
-    const valid = PostWithLikesSchema.safeParse(data)
+    const updatedLikes = [...post.likes, { userId, postId, createdAt: new Date() }]
+
+    const valid = PostWithLikesSchema.safeParse(
+      makeFormatPostWithLikes({ ...post, likes: updatedLikes }),
+    )
     if (!valid.success) {
-      return yield* Effect.fail(new ContractViolationError({ message: 'Invalid post data' }))
+      return yield* new ContractViolationError({ message: 'Invalid post data' })
     }
     return valid.data
   })
 }
 
 /**
- * Unlike a post and return the updated post with likes.
+ * Unlike a post
  *
- * @mermaid
- * ```
- * flowchart TD
- *   A[removeLike] --> B[refetch post]
- *   B --> C[validate + return]
- * ```
+ * --- Flow ---
+ * 1. LikeService.remove(userId, postId)
+ *    ||| DELETE FROM likes WHERE userId = :me AND postId = :postId
+ * 2. PostService.findByIdWithLikes(postId) → re-fetch updated state
+ *    ||| SELECT * FROM posts WHERE id = :postId
+ *    ||| SELECT * FROM likes WHERE postId = :postId
+ *    → null → NotFoundError
+ * 3. Validate via PostWithLikesSchema.safeParse(updated)
  */
-export function remove(userId: string, args: { postId: string }) {
+export function remove(userId: string, postId: string) {
   return Effect.gen(function* () {
-    yield* LikeService.remove({ userId, postId: args.postId })
+    yield* LikeService.remove(userId, postId)
 
-    const updated = yield* PostService.findByIdWithLikes(args.postId)
-    if (!updated) {
-      return yield* Effect.fail(new NotFoundError({ message: 'Post not found' }))
+    const updated = yield* PostService.findByIdWithLikes(postId)
+    if (updated == null) {
+      return yield* new NotFoundError({ message: 'Post not found' })
     }
 
-    const data = PostDomain.makeFormatPostWithLikes(updated)
-    const valid = PostWithLikesSchema.safeParse(data)
+    const valid = PostWithLikesSchema.safeParse(makeFormatPostWithLikes(updated))
     if (!valid.success) {
-      return yield* Effect.fail(new ContractViolationError({ message: 'Invalid post data' }))
+      return yield* new ContractViolationError({ message: 'Invalid post data' })
     }
     return valid.data
   })

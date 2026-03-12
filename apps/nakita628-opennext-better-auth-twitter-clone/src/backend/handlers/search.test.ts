@@ -7,34 +7,14 @@ import * as SearchTransaction from '@/backend/transactions/search'
 
 function mockSearchResults() {
   return {
-    posts: {
-      data: [
-        {
-          id: faker.string.uuid(),
-          body: 'Hello world',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-          userId: faker.string.uuid(),
-          user: {
-            id: faker.string.uuid(),
-            name: 'Test User',
-            username: 'testuser',
-            bio: null,
-            image: null,
-            coverImage: null,
-            profileImage: null,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-          },
-          commentCount: 0,
-          likeCount: 0,
-        },
-      ],
-      meta: { page: 1, limit: 20, total: 1, totalPages: 1 },
-    },
-    users: {
-      data: [
-        {
+    posts: [
+      {
+        id: faker.string.uuid(),
+        body: 'Hello world',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        userId: faker.string.uuid(),
+        user: {
           id: faker.string.uuid(),
           name: 'Test User',
           username: 'testuser',
@@ -45,16 +25,30 @@ function mockSearchResults() {
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         },
-      ],
-      meta: { page: 1, limit: 20, total: 1, totalPages: 1 },
-    },
+        commentCount: 0,
+        likeCount: 0,
+      },
+    ],
+    users: [
+      {
+        id: faker.string.uuid(),
+        name: 'Test User',
+        username: 'testuser',
+        bio: null,
+        image: null,
+        coverImage: null,
+        profileImage: null,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+    ],
   }
 }
 
 function mockEmptySearchResults() {
   return {
-    posts: { data: [], meta: { page: 1, limit: 20, total: 0, totalPages: 0 } },
-    users: { data: [], meta: { page: 1, limit: 20, total: 0, totalPages: 0 } },
+    posts: [],
+    users: [],
   }
 }
 
@@ -92,11 +86,7 @@ describe('Search', () => {
 
       await app.request('/api/search?q=test', { method: 'GET' })
 
-      expect(SearchTransaction.search).toHaveBeenCalledWith({
-        query: 'test',
-        page: 1,
-        limit: 20,
-      })
+      expect(SearchTransaction.search).toHaveBeenCalledWith('test', 1, 20, undefined)
     })
 
     it('should pass custom pagination to transaction', async () => {
@@ -104,11 +94,7 @@ describe('Search', () => {
 
       await app.request('/api/search?q=test&page=2&limit=10', { method: 'GET' })
 
-      expect(SearchTransaction.search).toHaveBeenCalledWith({
-        query: 'test',
-        page: 2,
-        limit: 10,
-      })
+      expect(SearchTransaction.search).toHaveBeenCalledWith('test', 2, 10, undefined)
     })
 
     it('should return 500 on ContractViolationError', async () => {
