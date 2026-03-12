@@ -93,12 +93,16 @@ export function mergeHandlerFile(existingCode: string, generatedCode: string): s
           ),
     )
     .flatMap((stmt): BodyOp[] => {
-      const decl = stmt.getDeclarations().find((d) => isInlineHandlerName(d.getName()))
-      if (!decl) return []
-      const name = decl.getName()
+      const declaration = stmt.getDeclarations().find((decl) => isInlineHandlerName(decl.getName()))
+      if (!declaration) return []
+      const name = declaration.getName()
       const genStmt = generatedFile
         .getVariableStatements()
-        .find((s) => s.isExported() && s.getDeclarations().some((d) => d.getName() === name))
+        .find(
+          (generatedStmt) =>
+            generatedStmt.isExported() &&
+            generatedStmt.getDeclarations().some((decl) => decl.getName() === name),
+        )
       if (!genStmt) return []
       const merged = mergeInlineHandler(stmt.getText(), genStmt.getText())
       if (merged === stmt.getText()) return []
@@ -246,14 +250,14 @@ function mergeImports(existingCode: string, generatedCode: string): string[] {
 
   // Parse raw import declarations from a single file
   const parseDeclarations = (file: ReturnType<typeof project.createSourceFile>) =>
-    file.getImportDeclarations().map((imp) => ({
-      moduleSpecifier: imp.getModuleSpecifierValue(),
-      isTypeOnlyImport: imp.isTypeOnly(),
-      defaultImport: imp.getDefaultImport()?.getText(),
-      namespaceImport: imp.getNamespaceImport()?.getText(),
-      namedImports: imp.getNamedImports().map((n) => ({
-        name: n.getName(),
-        isTypeOnly: n.isTypeOnly(),
+    file.getImportDeclarations().map((importDeclaration) => ({
+      moduleSpecifier: importDeclaration.getModuleSpecifierValue(),
+      isTypeOnlyImport: importDeclaration.isTypeOnly(),
+      defaultImport: importDeclaration.getDefaultImport()?.getText(),
+      namespaceImport: importDeclaration.getNamespaceImport()?.getText(),
+      namedImports: importDeclaration.getNamedImports().map((namedImport) => ({
+        name: namedImport.getName(),
+        isTypeOnly: namedImport.isTypeOnly(),
       })),
     }))
 
@@ -270,14 +274,14 @@ function mergeImports(existingCode: string, generatedCode: string): string[] {
   const generatedAutoNameModules = new Map<string, string>()
   // Map: default import name → module specifier in generated code (canonical path)
   const generatedDefaultImportModules = new Map<string, string>()
-  for (const imp of generatedImports) {
-    if (imp.defaultImport) {
-      generatedDefaultImportModules.set(imp.defaultImport, imp.moduleSpecifier)
+  for (const importEntry of generatedImports) {
+    if (importEntry.defaultImport) {
+      generatedDefaultImportModules.set(importEntry.defaultImport, importEntry.moduleSpecifier)
     }
-    for (const n of imp.namedImports) {
-      if (isAutoName(n.name)) {
-        generatedAutoNames.add(n.name)
-        generatedAutoNameModules.set(n.name, imp.moduleSpecifier)
+    for (const namedImport of importEntry.namedImports) {
+      if (isAutoName(namedImport.name)) {
+        generatedAutoNames.add(namedImport.name)
+        generatedAutoNameModules.set(namedImport.name, importEntry.moduleSpecifier)
       }
     }
   }
@@ -286,23 +290,23 @@ function mergeImports(existingCode: string, generatedCode: string): string[] {
   // - Remove auto-names not in generated (deleted routes)
   // - Remove auto-names imported from a different module specifier (path-alias changed)
   // - Clear default imports when the same name is generated from a different module specifier
-  const filteredExistingImports = existingImports.map((imp) => {
+  const filteredExistingImports = existingImports.map((importEntry) => {
     // Clear default import if generated code imports the same name from a different path
     const defaultImport =
-      imp.defaultImport !== undefined &&
-      generatedDefaultImportModules.has(imp.defaultImport) &&
-      generatedDefaultImportModules.get(imp.defaultImport) !== imp.moduleSpecifier
+      importEntry.defaultImport !== undefined &&
+      generatedDefaultImportModules.has(importEntry.defaultImport) &&
+      generatedDefaultImportModules.get(importEntry.defaultImport) !== importEntry.moduleSpecifier
         ? undefined
-        : imp.defaultImport
+        : importEntry.defaultImport
 
     return {
-      ...imp,
+      ...importEntry,
       defaultImport,
-      namedImports: imp.namedImports.filter((n) => {
-        if (!isAutoName(n.name)) return true
-        if (!generatedAutoNames.has(n.name)) return false
-        const canonicalModule = generatedAutoNameModules.get(n.name)
-        return canonicalModule === undefined || canonicalModule === imp.moduleSpecifier
+      namedImports: importEntry.namedImports.filter((namedImport) => {
+        if (!isAutoName(namedImport.name)) return true
+        if (!generatedAutoNames.has(namedImport.name)) return false
+        const canonicalModule = generatedAutoNameModules.get(namedImport.name)
+        return canonicalModule === undefined || canonicalModule === importEntry.moduleSpecifier
       }),
     }
   })
@@ -322,11 +326,11 @@ function mergeImports(existingCode: string, generatedCode: string): string[] {
     const prev = importMap.get(entry.moduleSpecifier)
 
     const mergedNamedImports = new Map(prev?.namedImports ?? [])
-    for (const n of entry.namedImports) {
-      const prevTypeOnly = mergedNamedImports.get(n.name)
+    for (const namedImport of entry.namedImports) {
+      const prevTypeOnly = mergedNamedImports.get(namedImport.name)
       mergedNamedImports.set(
-        n.name,
-        prevTypeOnly === undefined ? n.isTypeOnly : prevTypeOnly && n.isTypeOnly,
+        namedImport.name,
+        prevTypeOnly === undefined ? namedImport.isTypeOnly : prevTypeOnly && namedImport.isTypeOnly,
       )
     }
 
@@ -581,7 +585,7 @@ export function mergeTestFile(existingCode: string, generatedCode: string): stri
       ? [
           ...lines.slice(0, insertLineIndex),
           '',
-          ...newBlocks.map((b) => `  ${b}`),
+          ...newBlocks.map((block) => `  ${block}`),
           ...lines.slice(insertLineIndex),
         ]
       : [...lines, '', ...newBlocks]
