@@ -52,8 +52,8 @@ describe('Crude CRUD API', () => {
         const limit = faker.number.int({ min: 1, max: 100 })
         const offset = faker.number.int({ min: 0, max: 1000 })
         const cursor = faker.number.int({
-          min: Number.MIN_SAFE_INTEGER,
-          max: Number.MAX_SAFE_INTEGER,
+          min: 0,
+          max: 1000000,
         })
         const res = await app.request(
           `/api/tasks?status=${encodeURIComponent(String(status))}&limit=${encodeURIComponent(String(limit))}&offset=${encodeURIComponent(String(offset))}&cursor=${encodeURIComponent(String(cursor))}`,

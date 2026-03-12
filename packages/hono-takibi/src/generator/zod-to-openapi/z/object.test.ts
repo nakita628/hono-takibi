@@ -393,6 +393,196 @@ describe('object', () => {
     })
   })
 
+  describe('additionalProperties as schema (record type)', () => {
+    it.concurrent.each<[Schema, string]>([
+      // record with string values
+      [
+        { type: 'object', additionalProperties: { type: 'string' } },
+        'z.record(z.string(),z.string())',
+      ],
+      // record with number values
+      [
+        { type: 'object', additionalProperties: { type: 'number' } },
+        'z.record(z.string(),z.number())',
+      ],
+      // record with integer values
+      [
+        { type: 'object', additionalProperties: { type: 'integer' } },
+        'z.record(z.string(),z.int())',
+      ],
+      // record with boolean values
+      [
+        { type: 'object', additionalProperties: { type: 'boolean' } },
+        'z.record(z.string(),z.boolean())',
+      ],
+      // record with nested object values (inner required triggers .openapi)
+      [
+        {
+          type: 'object',
+          additionalProperties: {
+            type: 'object',
+            properties: { name: { type: 'string' } },
+            required: ['name'],
+          },
+        },
+        'z.record(z.string(),z.object({name:z.string()}).openapi({"required":["name"]}))',
+      ],
+      // record with array values
+      [
+        {
+          type: 'object',
+          additionalProperties: { type: 'array', items: { type: 'string' } },
+        },
+        'z.record(z.string(),z.array(z.string()))',
+      ],
+    ])('object(%o) → %s', (input, expected) => {
+      expect(object(input)).toBe(expected)
+    })
+  })
+
+  describe('readonly modifier', () => {
+    it.concurrent.each<[Schema, boolean | undefined, string]>([
+      // readonly on simple object
+      [
+        {
+          type: 'object',
+          properties: { name: { type: 'string' } },
+          required: ['name'],
+        },
+        true,
+        'z.object({name:z.string()}).readonly()',
+      ],
+      // readonly on object with optional property
+      [
+        {
+          type: 'object',
+          properties: { name: { type: 'string' }, age: { type: 'integer' } },
+          required: ['name'],
+        },
+        true,
+        'z.object({name:z.string(),age:z.int().exactOptional()}).readonly()',
+      ],
+      // readonly on strict object
+      [
+        {
+          type: 'object',
+          properties: { id: { type: 'integer' } },
+          required: ['id'],
+          additionalProperties: false,
+        },
+        true,
+        'z.strictObject({id:z.int()}).readonly()',
+      ],
+      // readonly on loose object
+      [
+        {
+          type: 'object',
+          properties: { id: { type: 'integer' } },
+          required: ['id'],
+          additionalProperties: true,
+        },
+        true,
+        'z.looseObject({id:z.int()}).readonly()',
+      ],
+      // readonly on record type
+      [
+        { type: 'object', additionalProperties: { type: 'string' } },
+        true,
+        'z.record(z.string(),z.string()).readonly()',
+      ],
+      // readonly false should not add .readonly()
+      [
+        {
+          type: 'object',
+          properties: { name: { type: 'string' } },
+          required: ['name'],
+        },
+        false,
+        'z.object({name:z.string()})',
+      ],
+      // readonly undefined should not add .readonly()
+      [
+        {
+          type: 'object',
+          properties: { name: { type: 'string' } },
+          required: ['name'],
+        },
+        undefined,
+        'z.object({name:z.string()})',
+      ],
+    ])('object(%o, %s) → %s', (input, readonly, expected) => {
+      expect(object(input, readonly)).toBe(expected)
+    })
+  })
+
+  describe('nested objects', () => {
+    it.concurrent.each<[Schema, string]>([
+      // nested object with required property (inner required triggers .openapi)
+      [
+        {
+          type: 'object',
+          properties: {
+            address: {
+              type: 'object',
+              properties: {
+                street: { type: 'string' },
+                city: { type: 'string' },
+              },
+              required: ['street', 'city'],
+            },
+          },
+          required: ['address'],
+        },
+        'z.object({address:z.object({street:z.string(),city:z.string()}).openapi({"required":["street","city"]})})',
+      ],
+      // nested object as optional property
+      [
+        {
+          type: 'object',
+          properties: {
+            metadata: {
+              type: 'object',
+              properties: {
+                key: { type: 'string' },
+              },
+            },
+          },
+        },
+        'z.object({metadata:z.object({key:z.string().exactOptional()}).exactOptional()})',
+      ],
+      // multiple properties with mixed types (no inner required array)
+      [
+        {
+          type: 'object',
+          properties: {
+            id: { type: 'integer' },
+            name: { type: 'string' },
+            active: { type: 'boolean' },
+            score: { type: 'number' },
+            tags: { type: 'array', items: { type: 'string' } },
+          },
+          required: ['id', 'name'],
+        },
+        'z.object({id:z.int(),name:z.string(),active:z.boolean().exactOptional(),score:z.number().exactOptional(),tags:z.array(z.string()).exactOptional()})',
+      ],
+    ])('object(%o) → %s', (input, expected) => {
+      expect(object(input)).toBe(expected)
+    })
+  })
+
+  describe('empty object', () => {
+    it.concurrent.each<[Schema, string]>([
+      // empty object with no properties
+      [{ type: 'object' }, 'z.object({})'],
+      // empty strict object
+      [{ type: 'object', additionalProperties: false }, 'z.strictObject({})'],
+      // empty loose object
+      [{ type: 'object', additionalProperties: true }, 'z.looseObject({})'],
+    ])('object(%o) → %s', (input, expected) => {
+      expect(object(input)).toBe(expected)
+    })
+  })
+
   describe('combined x-* messages', () => {
     it.concurrent.each<[Schema, string]>([
       // all constraints with separate messages

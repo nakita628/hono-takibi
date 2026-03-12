@@ -195,6 +195,86 @@ describe('zodType', () => {
     })
   })
 
+  describe('additionalProperties as boolean', () => {
+    it.concurrent('generates record type with additionalProperties: true (no cyclic)', () => {
+      const result = zodType(
+        {
+          type: 'object',
+          additionalProperties: true,
+        },
+        'Settings',
+      )
+      expect(result).toBe('type SettingsType={[key:string]:unknown}')
+    })
+
+    it.concurrent('generates type with properties + additionalProperties: true', () => {
+      const result = zodType(
+        {
+          type: 'object',
+          properties: { name: { type: 'string' } },
+          required: ['name'],
+          additionalProperties: true,
+        },
+        'Config',
+      )
+      // additionalProperties: true with properties → looseObject, type omits index sig
+      expect(result).toBe('type ConfigType={name:string}')
+    })
+  })
+
+  describe('record-like in cyclic group edge cases', () => {
+    it.concurrent('generates inline index signature for additionalProperties: true in cyclic group', () => {
+      const cyclicGroup = new Set(['Metadata'])
+      const result = zodType(
+        {
+          type: 'object',
+          additionalProperties: true,
+        },
+        'Metadata',
+        cyclicGroup,
+      )
+      // additionalProperties: true → isRecordLike, valueSchema falls back to {} → {[key:string]:unknown}
+      expect(result).toBe('type MetadataType = {[key:string]:{[key:string]:unknown}}')
+    })
+
+    it.concurrent('generates readonly record-like in cyclic group', () => {
+      const cyclicGroup = new Set(['Cache'])
+      const result = zodType(
+        {
+          type: 'object',
+          additionalProperties: { type: 'number' },
+        },
+        'Cache',
+        cyclicGroup,
+        true,
+      )
+      expect(result).toBe('type CacheType = {[key:string]:number}')
+    })
+
+    it.concurrent('non-record object with additionalProperties + properties is NOT record-like', () => {
+      const cyclicGroup = new Set(['Mixed'])
+      const result = zodType(
+        {
+          type: 'object',
+          properties: { id: { type: 'integer' } },
+          required: ['id'],
+          additionalProperties: { type: 'string' },
+        },
+        'Mixed',
+        cyclicGroup,
+      )
+      // has properties so isRecordLike = false, takes normal path (type ignores additionalProperties)
+      expect(result).toBe('type MixedType={id:number}')
+    })
+  })
+
+  describe('type array notation', () => {
+    it.concurrent('generates nullable object type from type array', () => {
+      const result = zodType({ type: ['string', 'null'] }, 'Maybe')
+      expect(result).toBe('type MaybeType=(string|null)')
+    })
+  })
+
   describe('complex use cases', () => {
     it.concurrent('generates type for self-referencing tree structure', () => {
       const result = zodType(

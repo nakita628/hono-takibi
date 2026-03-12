@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  makeCallback,
   makeCallbacks,
   makeContent,
   makeEncoding,
@@ -8,9 +9,12 @@ import {
   makeHeadersAndReferences,
   makeLinkOrReference,
   makeMedia,
+  makeOperation,
   makeOperationCallbacks,
   makeOperationResponses,
   makeParameters,
+  makePathItem,
+  makePathParameters,
   makeRef,
   makeRequest,
   makeRequestBody,
@@ -974,6 +978,206 @@ describe('openapi helper', () => {
         onError: { summary: 'Error' },
       })
       expect(result).toBe('{"onSuccess":{summary:"Success"},"onError":{summary:"Error"}}')
+    })
+  })
+
+  describe('makeCallback', () => {
+    it.concurrent('generates callback with $ref pathItem', () => {
+      const result = makeCallback({
+        '{$request.body#/callbackUrl}': { $ref: '#/components/pathItems/WebhookPath' },
+      })
+      expect(result).toBe('"{$request.body#/callbackUrl}":WebhookPathPathItem')
+    })
+
+    it.concurrent('generates callback with inline pathItem containing post operation', () => {
+      const result = makeCallback({
+        '{$callback}': {
+          post: { responses: { 200: { description: 'OK' } } },
+        },
+      })
+      expect(result).toBe('"{$callback}":{post:{responses:{200:{description:"OK"}}}}')
+    })
+
+    it.concurrent('generates multiple callbacks', () => {
+      const result = makeCallback({
+        onSuccess: { $ref: '#/components/pathItems/SuccessPath' },
+        onFailure: {
+          post: { responses: { 500: { description: 'Error' } } },
+        },
+      })
+      expect(result).toBe(
+        '"onSuccess":SuccessPathPathItem,"onFailure":{post:{responses:{500:{description:"Error"}}}}',
+      )
+    })
+  })
+
+  describe('makeOperation', () => {
+    it.concurrent('generates minimal operation with responses only', () => {
+      const result = makeOperation({
+        responses: { 200: { description: 'Success' } },
+      })
+      expect(result).toBe('{responses:{200:{description:"Success"}}}')
+    })
+
+    it.concurrent('generates operation with tags and operationId', () => {
+      const result = makeOperation({
+        tags: ['users'],
+        operationId: 'getUsers',
+        responses: { 200: { description: 'Success' } },
+      })
+      expect(result).toBe(
+        '{tags:["users"],operationId:"getUsers",responses:{200:{description:"Success"}}}',
+      )
+    })
+
+    it.concurrent('generates operation with summary and description', () => {
+      const result = makeOperation({
+        summary: 'Get users',
+        description: 'Returns a list of users',
+        responses: { 200: { description: 'Success' } },
+      })
+      expect(result).toBe(
+        '{summary:"Get users",description:"Returns a list of users",responses:{200:{description:"Success"}}}',
+      )
+    })
+
+    it.concurrent('generates operation with deprecated flag', () => {
+      const result = makeOperation({
+        deprecated: true,
+        responses: { 200: { description: 'OK' } },
+      })
+      expect(result).toBe('{responses:{200:{description:"OK"}},deprecated:true}')
+    })
+
+    it.concurrent('generates operation with security', () => {
+      const result = makeOperation({
+        security: [{ bearerAuth: [] }],
+        responses: { 200: { description: 'OK' } },
+      })
+      expect(result).toBe('{responses:{200:{description:"OK"}},security:[{"bearerAuth":[]}]}')
+    })
+
+    it.concurrent('generates operation with externalDocs', () => {
+      const result = makeOperation({
+        externalDocs: { url: 'https://example.com/docs' },
+        responses: { 200: { description: 'OK' } },
+      })
+      expect(result).toBe(
+        '{externalDocs:{"url":"https://example.com/docs"},responses:{200:{description:"OK"}}}',
+      )
+    })
+
+    it.concurrent('generates operation with servers', () => {
+      const result = makeOperation({
+        servers: [{ url: 'https://api.example.com' }],
+        responses: { 200: { description: 'OK' } },
+      })
+      expect(result).toBe(
+        '{responses:{200:{description:"OK"}},servers:[{"url":"https://api.example.com"}]}',
+      )
+    })
+
+    it.concurrent('generates empty operation', () => {
+      const result = makeOperation({})
+      expect(result).toBe('{}')
+    })
+  })
+
+  describe('makePathItem', () => {
+    it.concurrent('generates pathItem with single GET operation', () => {
+      const result = makePathItem({
+        get: { responses: { 200: { description: 'OK' } } },
+      })
+      expect(result).toBe('{get:{responses:{200:{description:"OK"}}}}')
+    })
+
+    it.concurrent('generates pathItem with multiple methods', () => {
+      const result = makePathItem({
+        get: { responses: { 200: { description: 'List' } } },
+        post: { responses: { 201: { description: 'Created' } } },
+      })
+      expect(result).toBe(
+        '{get:{responses:{200:{description:"List"}}},post:{responses:{201:{description:"Created"}}}}',
+      )
+    })
+
+    it.concurrent('generates pathItem with summary and description', () => {
+      const result = makePathItem({
+        summary: 'Users endpoint',
+        description: 'Manages users',
+        get: { responses: { 200: { description: 'OK' } } },
+      })
+      expect(result).toBe(
+        '{summary:"Users endpoint",description:"Manages users",get:{responses:{200:{description:"OK"}}}}',
+      )
+    })
+
+    it.concurrent('generates pathItem with $ref', () => {
+      const result = makePathItem({
+        $ref: '#/components/pathItems/Users',
+      })
+      expect(result).toBe('{$ref:UsersPathItem}')
+    })
+
+    it.concurrent('generates pathItem with servers', () => {
+      const result = makePathItem({
+        servers: [{ url: 'https://api.example.com' }],
+        get: { responses: { 200: { description: 'OK' } } },
+      })
+      expect(result).toBe(
+        '{get:{responses:{200:{description:"OK"}}},servers:[{"url":"https://api.example.com"}]}',
+      )
+    })
+
+    it.concurrent('generates empty pathItem', () => {
+      const result = makePathItem({})
+      expect(result).toBe('{}')
+    })
+  })
+
+  describe('makePathParameters', () => {
+    it.concurrent('generates array with $ref parameter', () => {
+      const result = makePathParameters([
+        { $ref: '#/components/parameters/UserId' },
+      ])
+      expect(result).toBe('[UserIdParamsSchema]')
+    })
+
+    it.concurrent('generates array with inline parameter', () => {
+      const result = makePathParameters([
+        { name: 'id', in: 'path', required: true, schema: { type: 'string' } },
+      ])
+      expect(result).toBe(
+        '[{"name":"id","in":"path","required":true,"schema":{"type":"string"}}]',
+      )
+    })
+
+    it.concurrent('generates array with mixed $ref and inline parameters', () => {
+      const result = makePathParameters([
+        { $ref: '#/components/parameters/UserId' },
+        { name: 'page', in: 'query', schema: { type: 'integer' } },
+      ])
+      expect(result).toBe(
+        '[UserIdParamsSchema,{"name":"page","in":"query","schema":{"type":"integer"}}]',
+      )
+    })
+
+    it.concurrent('generates empty array', () => {
+      const result = makePathParameters([])
+      expect(result).toBe('[]')
+    })
+
+    it.concurrent('generates array with nested object parameter', () => {
+      const result = makePathParameters([
+        {
+          name: 'filter',
+          in: 'query',
+          schema: { type: 'object', properties: { status: { type: 'string' } } },
+        },
+      ])
+      expect(result).toBe(
+        '[{"name":"filter","in":"query","schema":{"type":"object","properties":{"status":{"type":"string"}}}}]',
+      )
     })
   })
 })

@@ -1327,4 +1327,140 @@ describe('zodToOpenAPI', () => {
       })
     })
   })
+
+  describe('readonly parameter', () => {
+    it.concurrent.each<[Schema, string]>([
+      // readonly array of strings
+      [
+        { type: 'array', items: { type: 'string' } },
+        'z.array(z.string()).readonly()',
+      ],
+      // readonly array of numbers
+      [
+        { type: 'array', items: { type: 'number' } },
+        'z.array(z.number()).readonly()',
+      ],
+      // readonly array of refs
+      [
+        { type: 'array', items: { $ref: '#/components/schemas/Item' } },
+        'z.array(ItemSchema).readonly()',
+      ],
+      // readonly tuple (prefixItems)
+      [
+        {
+          type: 'array',
+          prefixItems: [{ type: 'string' }, { type: 'number' }],
+        },
+        'z.tuple([z.string(),z.number()]).readonly()',
+      ],
+      // readonly object (required array triggers .openapi)
+      [
+        {
+          type: 'object',
+          properties: { name: { type: 'string' } },
+          required: ['name'],
+        },
+        'z.object({name:z.string()}).readonly().openapi({"required":["name"]})',
+      ],
+      // readonly does not affect primitives
+      [{ type: 'string' }, 'z.string()'],
+      [{ type: 'number' }, 'z.number()'],
+      [{ type: 'boolean' }, 'z.boolean()'],
+    ])('zodToOpenAPI(%o, undefined, true) → %s', (input, expected) => {
+      expect(zodToOpenAPI(input, undefined, true)).toBe(expected)
+    })
+  })
+
+  describe('meta parameter', () => {
+    it.concurrent('passes isOptional to wrap', () => {
+      const result = zodToOpenAPI({ type: 'string' }, { isOptional: true })
+      expect(result).toBe('z.string().exactOptional()')
+    })
+
+    it.concurrent('isOptional does not affect nested schemas', () => {
+      const result = zodToOpenAPI(
+        {
+          type: 'object',
+          properties: {
+            name: { type: 'string' },
+          },
+          required: ['name'],
+        },
+        { isOptional: true },
+      )
+      expect(result).toBe('z.object({name:z.string()}).exactOptional().openapi({"required":["name"]})')
+    })
+
+    it.concurrent('ref with isOptional', () => {
+      const result = zodToOpenAPI(
+        { $ref: '#/components/schemas/User' },
+        { isOptional: true },
+      )
+      expect(result).toBe('UserSchema.exactOptional()')
+    })
+  })
+
+  describe('edge cases', () => {
+    it.concurrent('throws on undefined schema', () => {
+      expect(() => zodToOpenAPI(undefined as unknown as Schema)).toThrow(
+        'Schema is undefined',
+      )
+    })
+
+    it.concurrent('empty oneOf returns z.any()', () => {
+      expect(zodToOpenAPI({ oneOf: [] })).toBe('z.any()')
+    })
+
+    it.concurrent('empty anyOf returns z.any()', () => {
+      expect(zodToOpenAPI({ anyOf: [] })).toBe('z.any()')
+    })
+
+    it.concurrent('const with object value', () => {
+      const result = zodToOpenAPI({ const: { key: 'value' } })
+      expect(result).toBe('z.custom<{"key":"value"}>()')
+    })
+
+    it.concurrent('const with array value', () => {
+      const result = zodToOpenAPI({ const: [1, 2, 3] })
+      expect(result).toBe('z.custom<[1,2,3]>()')
+    })
+
+    it.concurrent('const with string value', () => {
+      expect(zodToOpenAPI({ const: 'hello' })).toBe('z.literal("hello")')
+    })
+
+    it.concurrent('const with number value', () => {
+      expect(zodToOpenAPI({ const: 42 })).toBe('z.literal(42)')
+    })
+
+    it.concurrent('const with boolean value', () => {
+      expect(zodToOpenAPI({ const: true })).toBe('z.literal(true)')
+    })
+
+    it.concurrent('const with null value', () => {
+      expect(zodToOpenAPI({ const: null })).toBe('z.literal(null)')
+    })
+
+    it.concurrent('array with minItems and maxItems', () => {
+      expect(
+        zodToOpenAPI({ type: 'array', items: { type: 'string' }, minItems: 1, maxItems: 10 }),
+      ).toBe('z.array(z.string()).min(1).max(10)')
+    })
+
+    it.concurrent('array with uniqueItems', () => {
+      expect(
+        zodToOpenAPI({ type: 'array', items: { type: 'number' }, uniqueItems: true }),
+      ).toBe('z.array(z.number()).refine((items)=>new Set(items).size===items.length)')
+    })
+
+    it.concurrent('readonly array with minItems', () => {
+      expect(
+        zodToOpenAPI({ type: 'array', items: { type: 'string' }, minItems: 1 }, undefined, true),
+      ).toBe('z.array(z.string()).min(1).readonly()')
+    })
+
+    it.concurrent('type null', () => {
+      expect(zodToOpenAPI({ type: 'null' })).toBe('z.null().nullable()')
+    })
+  })
 })

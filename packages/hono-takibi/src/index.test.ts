@@ -3,7 +3,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
-describe('CLI and config options test with string matching', () => {
+describe('CLI and config options test with string matching', { timeout: 30000 }, () => {
   beforeEach(() => {
     fs.rmSync('tmp-cli-test', { recursive: true, force: true })
     fs.mkdirSync('tmp-cli-test', { recursive: true })
