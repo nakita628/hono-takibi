@@ -500,6 +500,22 @@ importers:
         specifier: ^4.3.6
         version: 4.3.6
 
+  fixtures/openapi-hono:
+    dependencies:
+      '@hono/zod-openapi':
+        specifier: ^1.1.0
+        version: 1.2.2(hono@4.12.7)(zod@4.3.6)
+      hono:
+        specifier: ^4.9.5
+        version: 4.12.7
+      hono-takibi:
+        specifier: workspace:^
+        version: link:../../packages/hono-takibi
+    devDependencies:
+      '@types/node':
+        specifier: ^24.2.1
+        version: 24.12.0
+
   fixtures/path-alias:
     dependencies:
       '@hono/zod-openapi':
