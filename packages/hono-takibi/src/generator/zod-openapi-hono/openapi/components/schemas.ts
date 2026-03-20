@@ -47,7 +47,7 @@ export function schemasCode(
     makeSchemaCode(info, {
       exportKeyword: exportSchemas ? 'export ' : '',
       exportType: exportSchemasTypes,
-      readonly,
+      ...(readonly !== undefined ? { readonly } : {}),
     }),
   )
 

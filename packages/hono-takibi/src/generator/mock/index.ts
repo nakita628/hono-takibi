@@ -311,7 +311,7 @@ export function makeMock(
   openapi: OpenAPI,
   basePath: string,
   options: {
-    readonly readonly?: boolean | undefined
+    readonly readonly?: boolean
   } = {},
 ): string {
   // Filter to JSON-only content types to work around @hono/zod-openapi issue
@@ -415,7 +415,7 @@ export function makeMock(
         exportPathItems: false,
         exportMediaTypes: false,
         exportMediaTypesTypes: false,
-        readonly: options.readonly,
+        ...(options.readonly !== undefined ? { readonly: options.readonly } : {}),
       })
     : ''
 

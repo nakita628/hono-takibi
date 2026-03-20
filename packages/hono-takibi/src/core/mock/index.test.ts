@@ -1,7 +1,9 @@
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-import { afterEach, describe, expect, it } from 'vitest'
+
+import { afterEach, describe, expect, it } from 'vite-plus/test'
+
 import type { OpenAPI } from '../../openapi/index.js'
 import { mock } from './index.js'
 

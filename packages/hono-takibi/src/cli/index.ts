@@ -1,5 +1,6 @@
 import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
+
 import { readConfig } from '../config/index.js'
 import {
   callbacks,
@@ -124,7 +125,9 @@ export async function honoTakibi(): Promise<
   const results = await Promise.all([
     config['zod-openapi']?.output
       ? takibi(openAPI, config['zod-openapi'].output, {
-          readonly: config['zod-openapi'].readonly,
+          ...(config['zod-openapi'].readonly !== undefined
+            ? { readonly: config['zod-openapi'].readonly }
+            : {}),
           // OpenAPI Components Object order
           exportSchemas: config['zod-openapi'].exportSchemas ?? false,
           exportSchemasTypes: config['zod-openapi'].exportSchemasTypes ?? false,

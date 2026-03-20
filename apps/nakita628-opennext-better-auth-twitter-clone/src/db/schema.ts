@@ -70,8 +70,12 @@ export const user = sqliteTable('user', {
   email: text().notNull().unique(),
   emailVerified: integer({ mode: 'boolean' }).notNull().default(false),
   image: text(),
-  createdAt: integer({ mode: 'timestamp' }).notNull().default(sql`(unixepoch())`),
-  updatedAt: integer({ mode: 'timestamp' }).notNull().default(sql`(unixepoch())`),
+  createdAt: integer({ mode: 'timestamp' })
+    .notNull()
+    .default(sql`(unixepoch())`),
+  updatedAt: integer({ mode: 'timestamp' })
+    .notNull()
+    .default(sql`(unixepoch())`),
 })
 
 export const session = sqliteTable('session', {
@@ -83,8 +87,12 @@ export const session = sqliteTable('session', {
   expiresAt: integer({ mode: 'timestamp' }).notNull(),
   ipAddress: text(),
   userAgent: text(),
-  createdAt: integer({ mode: 'timestamp' }).notNull().default(sql`(unixepoch())`),
-  updatedAt: integer({ mode: 'timestamp' }).notNull().default(sql`(unixepoch())`),
+  createdAt: integer({ mode: 'timestamp' })
+    .notNull()
+    .default(sql`(unixepoch())`),
+  updatedAt: integer({ mode: 'timestamp' })
+    .notNull()
+    .default(sql`(unixepoch())`),
 })
 
 export const account = sqliteTable('account', {
@@ -101,8 +109,12 @@ export const account = sqliteTable('account', {
   refreshTokenExpiresAt: integer({ mode: 'timestamp' }),
   scope: text(),
   password: text(),
-  createdAt: integer({ mode: 'timestamp' }).notNull().default(sql`(unixepoch())`),
-  updatedAt: integer({ mode: 'timestamp' }).notNull().default(sql`(unixepoch())`),
+  createdAt: integer({ mode: 'timestamp' })
+    .notNull()
+    .default(sql`(unixepoch())`),
+  updatedAt: integer({ mode: 'timestamp' })
+    .notNull()
+    .default(sql`(unixepoch())`),
 })
 
 export const verification = sqliteTable('verification', {
@@ -127,7 +139,9 @@ export const userProfile = sqliteTable(
     coverImage: text('cover_image'),
     profileImage: text('profile_image'),
     hasNotification: integer('has_notification', { mode: 'boolean' }).default(false),
-    createdAt: integer('created_at', { mode: 'timestamp' }).notNull().default(sql`(unixepoch())`),
+    createdAt: integer('created_at', { mode: 'timestamp' })
+      .notNull()
+      .default(sql`(unixepoch())`),
     updatedAt: integer('updated_at', { mode: 'timestamp' })
       .notNull()
       .default(sql`(unixepoch())`)
@@ -143,7 +157,9 @@ export const posts = sqliteTable(
       .primaryKey()
       .$defaultFn(() => crypto.randomUUID()),
     body: text().notNull(),
-    createdAt: integer({ mode: 'timestamp' }).notNull().default(sql`(unixepoch())`),
+    createdAt: integer({ mode: 'timestamp' })
+      .notNull()
+      .default(sql`(unixepoch())`),
     updatedAt: integer({ mode: 'timestamp' })
       .notNull()
       .default(sql`(unixepoch())`)
@@ -164,7 +180,9 @@ export const follows = sqliteTable(
     followingId: text()
       .notNull()
       .references(() => user.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
-    createdAt: integer({ mode: 'timestamp' }).notNull().default(sql`(unixepoch())`),
+    createdAt: integer({ mode: 'timestamp' })
+      .notNull()
+      .default(sql`(unixepoch())`),
   },
   (t) => [
     primaryKey({ columns: [t.followerId, t.followingId] }),
@@ -181,7 +199,9 @@ export const likes = sqliteTable(
     postId: text()
       .notNull()
       .references(() => posts.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
-    createdAt: integer({ mode: 'timestamp' }).notNull().default(sql`(unixepoch())`),
+    createdAt: integer({ mode: 'timestamp' })
+      .notNull()
+      .default(sql`(unixepoch())`),
   },
   (t) => [primaryKey({ columns: [t.userId, t.postId] }), index('likes_postId_idx').on(t.postId)],
 )
@@ -193,7 +213,9 @@ export const comments = sqliteTable(
       .primaryKey()
       .$defaultFn(() => crypto.randomUUID()),
     body: text().notNull(),
-    createdAt: integer({ mode: 'timestamp' }).notNull().default(sql`(unixepoch())`),
+    createdAt: integer({ mode: 'timestamp' })
+      .notNull()
+      .default(sql`(unixepoch())`),
     updatedAt: integer({ mode: 'timestamp' })
       .notNull()
       .default(sql`(unixepoch())`)
@@ -221,7 +243,9 @@ export const notifications = sqliteTable(
     userId: text()
       .notNull()
       .references(() => user.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
-    createdAt: integer({ mode: 'timestamp' }).notNull().default(sql`(unixepoch())`),
+    createdAt: integer({ mode: 'timestamp' })
+      .notNull()
+      .default(sql`(unixepoch())`),
   },
   (table) => [index('notifications_userId_idx').on(table.userId)],
 )

@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import { type FormEvent, useCallback, useState } from 'react'
+
 import { SearchBar } from '@/components/atoms/SearchBar'
 
 export function SearchBarContainer() {

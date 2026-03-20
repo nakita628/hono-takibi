@@ -25,7 +25,7 @@ import type { Components, PathItem } from '../../../../openapi/index.js'
 export function pathItemsCode(
   components: Components,
   exportPathItems: boolean,
-  readonly?: boolean | undefined,
+  readonly?: boolean,
 ): string {
   const { pathItems } = components
   if (!pathItems) return ''

@@ -1,4 +1,5 @@
 import path from 'node:path'
+
 import { makeConst } from '../../helper/code.js'
 import { core, makeCallback, makeImports } from '../../helper/index.js'
 import type { Callbacks, Components } from '../../openapi/index.js'
@@ -43,12 +44,12 @@ export async function callbacks(
   split: boolean,
   components?: {
     readonly [k: string]: {
-      readonly output: string | `${string}.ts`
+      readonly output: string
       readonly split?: boolean
       readonly import?: string
     }
   },
-  readonly?: boolean | undefined,
+  readonly?: boolean,
 ): Promise<
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {

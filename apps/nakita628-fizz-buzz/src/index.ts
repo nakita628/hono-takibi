@@ -1,4 +1,5 @@
 import { OpenAPIHono } from '@hono/zod-openapi'
+
 import { fizzBuzzHandler } from './handlers'
 
 const app = new OpenAPIHono()

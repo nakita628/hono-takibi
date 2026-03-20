@@ -1,25 +1,24 @@
 {
   "name": "hono-takibi-monorepo",
-  "type": "module",
   "private": true,
   "license": "MIT",
+  "type": "module",
   "scripts": {
     "deps": "mkdir -p /tmp/pnpm-store && pnpm config set store-dir /tmp/pnpm-store &&rm -rf node_modules && rm -rf pnpm-lock.yaml && rm -rf ~/.pnpm-store && pnpm store prune && pnpm install --no-prefer-frozen-lockfile",
     "doc": "pnpm -F @docs/hono-takibi dev",
     "hono-takibi-deps": "pnpm -F hono-takibi deps",
-    "check": "pnpm biome check --write ./",
+    "check": "vp check --fix",
     "build": "pnpm -F hono-takibi build",
-    "typecheck": "pnpm -F hono-takibi typecheck",
     "release": "pnpm -F hono-takibi release",
     "fixtures-typecheck": "pnpm -F @fixtures/generate typecheck",
     "fixtures-all": "pnpm -F @fixtures/generate all",
     "tsgo": "pnpm -F @fixtures/generate typecheck",
-    "test": "vitest run",
-    "coverage": "vitest run --coverage"
+    "test": "vp test",
+    "coverage": "vp test --coverage"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.4.6",
-    "@vitest/coverage-v8": "^4.0.18",
-    "vitest": "^4.0.18"
-  }
+    "@vitest/coverage-v8": "^4.1.0",
+    "vite-plus": "^0.1.12"
+  },
+  "packageManager": "pnpm@10.32.1"
 }

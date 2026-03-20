@@ -30,7 +30,7 @@ export function mediaTypesCode(
   components: Components,
   exportMediaTypes: boolean,
   exportMediaTypesTypes: boolean,
-  readonly?: boolean | undefined,
+  readonly?: boolean,
 ): string {
   const { mediaTypes } = components
   if (!mediaTypes) return ''

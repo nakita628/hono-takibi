@@ -1,4 +1,5 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
+
 import type { Schema } from '../../openapi/index.js'
 import { zodToOpenAPI } from './index.js'
 
@@ -492,11 +493,12 @@ describe('zodToOpenAPI', () => {
       })
 
       describe('not fallback', () => {
-        it.concurrent.each<[Schema, string]>([
-          [{ not: {} }, 'z.any()'],
-        ])('zodToOpenAPI(%o) → %s', (input, expected) => {
-          expect(zodToOpenAPI(input as Schema)).toBe(expected)
-        })
+        it.concurrent.each<[Schema, string]>([[{ not: {} }, 'z.any()']])(
+          'zodToOpenAPI(%o) → %s',
+          (input, expected) => {
+            expect(zodToOpenAPI(input as Schema)).toBe(expected)
+          },
+        )
       })
 
       describe('x-not-message', () => {

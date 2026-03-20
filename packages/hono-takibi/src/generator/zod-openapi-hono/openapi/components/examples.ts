@@ -18,7 +18,7 @@ import type { Components } from '../../../../openapi/index.js'
 export function examplesCode(
   components: Components,
   exportExamples: boolean,
-  readonly?: boolean | undefined,
+  readonly?: boolean,
 ): string {
   const { examples } = components
   if (!examples) return ''

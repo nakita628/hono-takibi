@@ -1,6 +1,7 @@
 import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
+
 import { register } from 'tsx/esm/api'
 import * as z from 'zod'
 
@@ -136,7 +137,7 @@ const ConfigSchema = z
         exportMediaTypesTypes: z.boolean().exactOptional(),
         routes: z
           .object({
-            output: z.custom<string | `${string}.ts`>((v) => typeof v === 'string'),
+            output: z.custom<string>((v) => typeof v === 'string'),
             split: z.boolean().exactOptional(),
             import: z.string().exactOptional(),
           })
@@ -148,7 +149,7 @@ const ConfigSchema = z
           .object({
             schemas: z
               .object({
-                output: z.custom<string | `${string}.ts`>((v) => typeof v === 'string'),
+                output: z.custom<string>((v) => typeof v === 'string'),
                 exportTypes: z.boolean().exactOptional(),
                 split: z.boolean().exactOptional(),
                 import: z.string().exactOptional(),
@@ -159,7 +160,7 @@ const ConfigSchema = z
               .exactOptional(),
             parameters: z
               .object({
-                output: z.custom<string | `${string}.ts`>((v) => typeof v === 'string'),
+                output: z.custom<string>((v) => typeof v === 'string'),
                 exportTypes: z.boolean().exactOptional(),
                 split: z.boolean().exactOptional(),
                 import: z.string().exactOptional(),
@@ -170,7 +171,7 @@ const ConfigSchema = z
               .exactOptional(),
             headers: z
               .object({
-                output: z.custom<string | `${string}.ts`>((v) => typeof v === 'string'),
+                output: z.custom<string>((v) => typeof v === 'string'),
                 exportTypes: z.boolean().exactOptional(),
                 split: z.boolean().exactOptional(),
                 import: z.string().exactOptional(),
@@ -181,7 +182,7 @@ const ConfigSchema = z
               .exactOptional(),
             securitySchemes: z
               .object({
-                output: z.custom<string | `${string}.ts`>((v) => typeof v === 'string'),
+                output: z.custom<string>((v) => typeof v === 'string'),
                 split: z.boolean().exactOptional(),
                 import: z.string().exactOptional(),
               })
@@ -191,7 +192,7 @@ const ConfigSchema = z
               .exactOptional(),
             requestBodies: z
               .object({
-                output: z.custom<string | `${string}.ts`>((v) => typeof v === 'string'),
+                output: z.custom<string>((v) => typeof v === 'string'),
                 split: z.boolean().exactOptional(),
                 import: z.string().exactOptional(),
               })
@@ -201,7 +202,7 @@ const ConfigSchema = z
               .exactOptional(),
             responses: z
               .object({
-                output: z.custom<string | `${string}.ts`>((v) => typeof v === 'string'),
+                output: z.custom<string>((v) => typeof v === 'string'),
                 split: z.boolean().exactOptional(),
                 import: z.string().exactOptional(),
               })
@@ -211,7 +212,7 @@ const ConfigSchema = z
               .exactOptional(),
             examples: z
               .object({
-                output: z.custom<string | `${string}.ts`>((v) => typeof v === 'string'),
+                output: z.custom<string>((v) => typeof v === 'string'),
                 split: z.boolean().exactOptional(),
                 import: z.string().exactOptional(),
               })
@@ -221,7 +222,7 @@ const ConfigSchema = z
               .exactOptional(),
             links: z
               .object({
-                output: z.custom<string | `${string}.ts`>((v) => typeof v === 'string'),
+                output: z.custom<string>((v) => typeof v === 'string'),
                 split: z.boolean().exactOptional(),
                 import: z.string().exactOptional(),
               })
@@ -231,7 +232,7 @@ const ConfigSchema = z
               .exactOptional(),
             callbacks: z
               .object({
-                output: z.custom<string | `${string}.ts`>((v) => typeof v === 'string'),
+                output: z.custom<string>((v) => typeof v === 'string'),
                 split: z.boolean().exactOptional(),
                 import: z.string().exactOptional(),
               })
@@ -241,7 +242,7 @@ const ConfigSchema = z
               .exactOptional(),
             pathItems: z
               .object({
-                output: z.custom<string | `${string}.ts`>((v) => typeof v === 'string'),
+                output: z.custom<string>((v) => typeof v === 'string'),
                 split: z.boolean().exactOptional(),
                 import: z.string().exactOptional(),
               })
@@ -251,7 +252,7 @@ const ConfigSchema = z
               .exactOptional(),
             mediaTypes: z
               .object({
-                output: z.custom<string | `${string}.ts`>((v) => typeof v === 'string'),
+                output: z.custom<string>((v) => typeof v === 'string'),
                 exportTypes: z.boolean().exactOptional(),
                 split: z.boolean().exactOptional(),
                 import: z.string().exactOptional(),
@@ -262,7 +263,7 @@ const ConfigSchema = z
               .exactOptional(),
             webhooks: z
               .object({
-                output: z.custom<string | `${string}.ts`>((v) => typeof v === 'string'),
+                output: z.custom<string>((v) => typeof v === 'string'),
                 split: z.boolean().exactOptional(),
                 import: z.string().exactOptional(),
               })
@@ -285,7 +286,7 @@ const ConfigSchema = z
       .exactOptional(),
     rpc: z
       .object({
-        output: z.custom<string | `${string}.ts`>((v) => typeof v === 'string'),
+        output: z.custom<string>((v) => typeof v === 'string'),
         import: z.string(),
         split: z.boolean().exactOptional(),
         client: z.string().exactOptional(),
@@ -297,7 +298,7 @@ const ConfigSchema = z
       .exactOptional(),
     swr: z
       .object({
-        output: z.custom<string | `${string}.ts`>((v) => typeof v === 'string'),
+        output: z.custom<string>((v) => typeof v === 'string'),
         import: z.string(),
         split: z.boolean().exactOptional(),
         client: z.string().exactOptional(),
@@ -308,7 +309,7 @@ const ConfigSchema = z
       .exactOptional(),
     'tanstack-query': z
       .object({
-        output: z.custom<string | `${string}.ts`>((v) => typeof v === 'string'),
+        output: z.custom<string>((v) => typeof v === 'string'),
         import: z.string(),
         split: z.boolean().exactOptional(),
         client: z.string().exactOptional(),
@@ -319,7 +320,7 @@ const ConfigSchema = z
       .exactOptional(),
     'svelte-query': z
       .object({
-        output: z.custom<string | `${string}.ts`>((v) => typeof v === 'string'),
+        output: z.custom<string>((v) => typeof v === 'string'),
         import: z.string(),
         split: z.boolean().exactOptional(),
         client: z.string().exactOptional(),
@@ -330,7 +331,7 @@ const ConfigSchema = z
       .exactOptional(),
     'vue-query': z
       .object({
-        output: z.custom<string | `${string}.ts`>((v) => typeof v === 'string'),
+        output: z.custom<string>((v) => typeof v === 'string'),
         import: z.string(),
         split: z.boolean().exactOptional(),
         client: z.string().exactOptional(),
@@ -341,14 +342,14 @@ const ConfigSchema = z
       .exactOptional(),
     test: z
       .object({
-        output: z.custom<string | `${string}.ts`>((v) => typeof v === 'string'),
+        output: z.custom<string>((v) => typeof v === 'string'),
         import: z.string(),
         framework: z.enum(['vitest', 'bun']).default('vitest').exactOptional(),
       })
       .exactOptional(),
     mock: z
       .object({
-        output: z.custom<string | `${string}.ts`>((v) => typeof v === 'string'),
+        output: z.custom<string>((v) => typeof v === 'string'),
       })
       .exactOptional(),
     docs: z

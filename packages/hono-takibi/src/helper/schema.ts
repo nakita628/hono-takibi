@@ -97,7 +97,7 @@ export function makeSchemaCode(
   options: {
     readonly exportKeyword: string
     readonly exportType: boolean
-    readonly readonly?: boolean | undefined
+    readonly readonly?: boolean
   },
 ): string {
   const zExpr = info.needsLazy ? `z.lazy(()=>${info.zSchema})` : info.zSchema
@@ -251,7 +251,11 @@ export function makeSplitSchemaFile(
     ? `${makeTypeDefinition(info, analysis.cyclicGroupPascal, readonly)}\n\n`
     : ''
 
-  const schemaCode = makeSchemaCode(info, { exportKeyword: 'export ', exportType, readonly })
+  const schemaCode = makeSchemaCode(info, {
+    exportKeyword: 'export ',
+    exportType,
+    ...(readonly !== undefined ? { readonly } : {}),
+  })
   const content = `${typeDefinition}${schemaCode}`
 
   const deps = findSchemaRefs(content, schemaName).filter((d) => d in schemas)

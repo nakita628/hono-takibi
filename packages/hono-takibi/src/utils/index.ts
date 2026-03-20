@@ -131,12 +131,12 @@ export function toIdentifierPascalCase(text: string): string {
   // Fallback if result is empty or only underscores (e.g. all non-ASCII input like Japanese)
   if (!result || /^_+$/.test(result)) {
     const hash = Array.from(text).reduce((acc, c) => acc + c.charCodeAt(0), 0)
-    return `Unnamed${hash}`
+    return `Unnamed${String(hash)}`
   }
   // If text contained non-ASCII, append hash for uniqueness
   if (hasNonAscii) {
     const hash = Array.from(text).reduce((acc, c) => acc + c.charCodeAt(0), 0)
-    return `${result}${hash}`
+    return `${result}${String(hash)}`
   }
   return result
 }
@@ -253,7 +253,7 @@ export function zodToOpenAPISchema(
   exportSchema: boolean,
   exportType: boolean,
   notComponentSchema?: boolean,
-  readonly?: boolean | undefined,
+  readonly?: boolean,
 ): string {
   const readonlyModifier = readonly ? '.readonly()' : ''
   const schemaCode = exportSchema

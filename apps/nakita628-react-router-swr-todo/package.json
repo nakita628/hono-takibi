@@ -1,7 +1,7 @@
 {
   "name": "nakita628-react-router-swr-todo",
-  "type": "module",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "vite --host --port 8787",
     "build": "vite build",
@@ -29,10 +29,10 @@
     "@cloudflare/workers-types": "^4.20260121.0",
     "@types/react": "^19.2.9",
     "@types/react-dom": "^19.2.3",
+    "@typescript/native-preview": "7.0.0-dev.20260107.1",
     "@typespec/http": "^1.8.0",
     "@typespec/openapi3": "^1.8.0",
     "@typespec/versioning": "^0.78.0",
-    "@typescript/native-preview": "7.0.0-dev.20260107.1",
     "@vitejs/plugin-react": "^5.1.2",
     "hono-takibi": "workspace:^",
     "vite": "^7.3.1",

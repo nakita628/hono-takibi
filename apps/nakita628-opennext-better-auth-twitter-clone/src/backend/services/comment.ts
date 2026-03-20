@@ -1,4 +1,5 @@
 import { Effect } from 'effect'
+
 import { DatabaseError } from '@/backend/domain'
 import { schema } from '@/db'
 import { DB } from '@/infra'

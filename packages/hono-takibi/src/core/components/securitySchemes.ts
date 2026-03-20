@@ -1,4 +1,5 @@
 import path from 'node:path'
+
 import { makeExportConst } from '../../helper/code.js'
 import { core, makeExports } from '../../helper/index.js'
 import type { Components } from '../../openapi/index.js'
@@ -34,7 +35,7 @@ export async function securitySchemes(
   securitySchemes: Components['securitySchemes'],
   output: string,
   split: boolean,
-  readonly?: boolean | undefined,
+  readonly?: boolean,
 ): Promise<
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {

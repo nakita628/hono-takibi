@@ -1,4 +1,5 @@
 import path from 'node:path'
+
 import { ensureSuffix, renderNamedImport, toIdentifierPascalCase } from '../utils/index.js'
 
 /**
@@ -34,7 +35,7 @@ import { ensureSuffix, renderNamedImport, toIdentifierPascalCase } from '../util
  */
 export function makeModuleSpec(
   fromFile: string,
-  target: { readonly output: string | `${string}.ts`; readonly split?: boolean },
+  target: { readonly output: string; readonly split?: boolean },
 ): string {
   const rel = path.relative(path.dirname(fromFile), target.output).replace(/\\/g, '/')
   const stripped = rel.replace(/\.ts$/, '').replace(/\/index$/, '')
@@ -98,7 +99,7 @@ export function makeConst(exportVariable: boolean, text: string, suffix: string)
 export function makeExportConst(
   value: { readonly [k: string]: unknown },
   suffix: string,
-  readonly?: boolean | undefined,
+  readonly?: boolean,
 ): string {
   const asConst = readonly ? ' as const' : ''
   return Object.keys(value)
@@ -190,7 +191,7 @@ export function makeImports(
   components:
     | {
         readonly [k: string]: {
-          readonly output: string | `${string}.ts`
+          readonly output: string
           readonly split?: boolean
           readonly import?: string
         }

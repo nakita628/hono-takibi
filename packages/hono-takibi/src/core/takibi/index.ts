@@ -1,4 +1,5 @@
 import path from 'node:path'
+
 import { zodOpenAPIHono } from '../../generator/zod-openapi-hono/openapi/index.js'
 import { core } from '../../helper/index.js'
 import type { OpenAPI } from '../../openapi/index.js'
@@ -8,7 +9,7 @@ export async function takibi(
   openAPI: OpenAPI,
   output: `${string}.ts`,
   componentsOptions: {
-    readonly readonly?: boolean | undefined
+    readonly readonly?: boolean
     // OpenAPI Components Object order
     readonly exportSchemas: boolean
     readonly exportSchemasTypes: boolean

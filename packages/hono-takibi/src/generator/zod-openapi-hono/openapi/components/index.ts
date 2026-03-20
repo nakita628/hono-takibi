@@ -32,7 +32,7 @@ import { securitySchemesCode } from './securitySchemes.js'
 export function componentsCode(
   components: Components,
   options: {
-    readonly readonly?: boolean | undefined
+    readonly readonly?: boolean
     // OpenAPI Components Object order
     readonly exportSchemas: boolean
     readonly exportSchemasTypes: boolean

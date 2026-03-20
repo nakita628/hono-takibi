@@ -1,5 +1,8 @@
 import fs from 'node:fs'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+
+import { afterEach, beforeEach, describe, expect, it } from 'vite-plus/test'
+
+import type { OpenAPI } from '../openapi/index.js'
 import { makeQueryHooks } from './query.js'
 
 const defaultConfig = {
@@ -42,7 +45,7 @@ describe('Query Hook Generation Shared Module', () => {
   describe('makeQueryHooks - error cases', () => {
     it.concurrent('should return error when paths property is missing', async () => {
       const result = await makeQueryHooks(
-        { openapi: '3.0.0', info: { title: 'Test', version: '1.0.0' } },
+        { openapi: '3.0.0', info: { title: 'Test', version: '1.0.0' } } as unknown as OpenAPI,
         '/tmp/test.ts',
         './client',
         defaultConfig,
@@ -58,8 +61,8 @@ describe('Query Hook Generation Shared Module', () => {
         {
           openapi: '3.0.0',
           info: { title: 'Test', version: '1.0.0' },
-          paths: null as unknown as Record<string, unknown>,
-        },
+          paths: null as unknown as OpenAPI['paths'],
+        } as unknown as OpenAPI,
         '/tmp/test.ts',
         './client',
         defaultConfig,
@@ -75,8 +78,8 @@ describe('Query Hook Generation Shared Module', () => {
         {
           openapi: '3.0.0',
           info: { title: 'Test', version: '1.0.0' },
-          paths: 'invalid' as unknown as Record<string, unknown>,
-        },
+          paths: 'invalid' as unknown as OpenAPI['paths'],
+        } as unknown as OpenAPI,
         '/tmp/test.ts',
         './client',
         defaultConfig,
@@ -92,8 +95,8 @@ describe('Query Hook Generation Shared Module', () => {
         {
           openapi: '3.0.0',
           info: { title: 'Test', version: '1.0.0' },
-          paths: [] as unknown as Record<string, unknown>,
-        },
+          paths: [] as unknown as OpenAPI['paths'],
+        } as unknown as OpenAPI,
         '/tmp/test.ts',
         './client',
         defaultConfig,

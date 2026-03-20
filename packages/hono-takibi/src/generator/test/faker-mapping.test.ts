@@ -1,4 +1,5 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
+
 import {
   FORMAT_TO_FAKER,
   PROPERTY_NAME_TO_FAKER,

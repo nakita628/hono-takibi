@@ -1,5 +1,7 @@
 import fs from 'node:fs'
-import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+
+import { afterAll, beforeAll, describe, expect, it } from 'vite-plus/test'
+
 import { honoTakibi } from './index.js'
 
 const openapi = {

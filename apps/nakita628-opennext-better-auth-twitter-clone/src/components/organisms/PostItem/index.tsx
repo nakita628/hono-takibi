@@ -7,6 +7,7 @@ import toast from 'react-hot-toast'
 import { AiFillHeart, AiOutlineHeart, AiOutlineMessage } from 'react-icons/ai'
 import { mutate } from 'swr'
 import { unstable_serialize } from 'swr/infinite'
+
 import { AvatarLink } from '@/components/molecules/AvatarLink'
 import {
   getGetPostsKey,
@@ -164,45 +165,45 @@ export function PostItem({ data }: Props) {
 
   return (
     <button
-      type='button'
+      type="button"
       onClick={goToPost}
-      className='border-b border-neutral-800 p-5 cursor-pointer hover:bg-neutral-900 transition w-full text-left'
+      className="border-b border-neutral-800 p-5 cursor-pointer hover:bg-neutral-900 transition w-full text-left"
     >
-      <div className='flex flex-row items-start gap-3'>
+      <div className="flex flex-row items-start gap-3">
         <AvatarLink
           userId={data.user.id}
           src={data.user.profileImage || '/images/placeholder.png'}
         />
         <div>
-          <div className='flex flex-row items-center gap-2'>
+          <div className="flex flex-row items-center gap-2">
             <button
-              type='button'
+              type="button"
               onClick={goToUser}
-              className='text-white font-semibold cursor-pointer hover:underline'
+              className="text-white font-semibold cursor-pointer hover:underline"
             >
               {data.user.name}
             </button>
             <button
-              type='button'
+              type="button"
               onClick={goToUser}
-              className='text-neutral-500 cursor-pointer hover:underline hidden md:block'
+              className="text-neutral-500 cursor-pointer hover:underline hidden md:block"
             >
               @{data.user.username}
             </button>
-            <span className='text-neutral-500 text-sm'>{createdAt}</span>
+            <span className="text-neutral-500 text-sm">{createdAt}</span>
           </div>
-          <div className='text-white mt-1'>{data.body}</div>
-          <div className='flex flex-row items-center mt-3 gap-10'>
-            <div className='flex flex-row items-center text-neutral-500 gap-2 cursor-pointer transition hover:text-sky-500'>
+          <div className="text-white mt-1">{data.body}</div>
+          <div className="flex flex-row items-center mt-3 gap-10">
+            <div className="flex flex-row items-center text-neutral-500 gap-2 cursor-pointer transition hover:text-sky-500">
               <AiOutlineMessage size={20} />
               <p>{'commentCount' in data ? data.commentCount : data.comments.length}</p>
             </div>
             <button
-              type='button'
+              type="button"
               onClick={onLike}
-              className='flex flex-row items-center text-neutral-500 gap-2 cursor-pointer transition hover:text-red-500'
+              className="flex flex-row items-center text-neutral-500 gap-2 cursor-pointer transition hover:text-red-500"
             >
-              {hasLiked ? <AiFillHeart size={20} color='red' /> : <AiOutlineHeart size={20} />}
+              {hasLiked ? <AiFillHeart size={20} color="red" /> : <AiOutlineHeart size={20} />}
               <p>{'likeCount' in data ? data.likeCount : data.likes.length}</p>
             </button>
           </div>

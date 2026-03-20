@@ -21,6 +21,7 @@
  *   Backend API  (Hono route handler)
  */
 import { hc } from 'hono/client'
+
 import type { api } from '@/backend'
 
 type Client = ReturnType<typeof hc<typeof api>>

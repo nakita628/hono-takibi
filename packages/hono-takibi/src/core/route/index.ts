@@ -1,4 +1,5 @@
 import path from 'node:path'
+
 import { routeCode } from '../../generator/zod-openapi-hono/openapi/routes/index.js'
 import { core, makeImports } from '../../helper/index.js'
 import type { OpenAPI } from '../../openapi/index.js'
@@ -16,17 +17,17 @@ import { makeBarrel, uncapitalize } from '../../utils/index.js'
 export async function route(
   openAPI: OpenAPI,
   routes?: {
-    readonly output: string | `${string}.ts`
+    readonly output: string
     readonly split?: boolean
   },
   components?: {
     readonly [k: string]: {
-      readonly output: string | `${string}.ts`
+      readonly output: string
       readonly split?: boolean
       readonly import?: string
     }
   },
-  readonly?: boolean | undefined,
+  readonly?: boolean,
 ): Promise<
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {

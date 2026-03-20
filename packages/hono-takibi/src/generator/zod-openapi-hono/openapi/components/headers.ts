@@ -29,7 +29,7 @@ export function headersCode(
   components: Components,
   exportHeaders: boolean,
   exportHeadersTypes: boolean,
-  readonly?: boolean | undefined,
+  readonly?: boolean,
 ) {
   const { headers } = components
   if (!headers) return ''
@@ -68,7 +68,7 @@ export function headersCode(
           const content = makeContent(header.content)
           return zodToOpenAPISchema(
             schemaName,
-            `{${content}}`,
+            `{${content.join(',')}}`,
             exportHeaders,
             exportHeadersTypes,
             true,

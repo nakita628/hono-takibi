@@ -25,7 +25,7 @@ import type { Components } from '../../../../openapi/index.js'
 export function requestBodiesCode(
   components: Components,
   exportRequestBodies: boolean,
-  readonly?: boolean | undefined,
+  readonly?: boolean,
 ): string {
   const requestBodies = components.requestBodies
   if (!requestBodies) return ''

@@ -30,7 +30,7 @@ export function parametersCode(
   components: Components,
   exportParameters: boolean,
   exportParametersTypes: boolean,
-  readonly?: boolean | undefined,
+  readonly?: boolean,
 ): string {
   const { parameters } = components
   if (!parameters) return ''

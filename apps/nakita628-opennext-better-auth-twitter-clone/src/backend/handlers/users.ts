@@ -1,5 +1,6 @@
 import type { RouteHandler } from '@hono/zod-openapi'
 import { Effect } from 'effect'
+
 import type { getUsersRoute, getUsersUserIdRoute } from '@/backend/routes'
 import * as UsersTransaction from '@/backend/transactions/users'
 import { AuthType, DBLive } from '@/infra'

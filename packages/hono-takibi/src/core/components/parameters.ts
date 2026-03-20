@@ -1,4 +1,5 @@
 import path from 'node:path'
+
 import { parametersCode } from '../../generator/zod-openapi-hono/openapi/components/parameters.js'
 import { core, makeImports } from '../../helper/index.js'
 import type { Components } from '../../openapi/index.js'
@@ -42,12 +43,12 @@ export async function parameters(
   exportType: boolean,
   components?: {
     readonly [k: string]: {
-      readonly output: string | `${string}.ts`
+      readonly output: string
       readonly split?: boolean
       readonly import?: string
     }
   },
-  readonly?: boolean | undefined,
+  readonly?: boolean,
 ): Promise<
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {

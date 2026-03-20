@@ -1,4 +1,5 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
+
 import type { OpenAPI } from '../../openapi/index.js'
 import { makeDocs } from './index.js'
 

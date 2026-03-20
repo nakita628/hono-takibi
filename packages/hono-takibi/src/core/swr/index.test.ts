@@ -1,7 +1,9 @@
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-import { describe, expect, it } from 'vitest'
+
+import { describe, expect, it } from 'vite-plus/test'
+
 import type { OpenAPI } from '../../openapi/index.js'
 import { swr } from './index.js'
 
@@ -1173,11 +1175,11 @@ describe('swr (invalid paths)', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-swr-invalid-'))
     try {
       const out = path.join(dir, 'index.ts')
-      const invalidOpenAPI: OpenAPI = {
+      const invalidOpenAPI = {
         openapi: '3.0.3',
         info: { title: 'Test', version: '1.0.0' },
         // paths is undefined
-      }
+      } as unknown as OpenAPI
 
       const result = await swr(invalidOpenAPI, out, '../client', false)
 

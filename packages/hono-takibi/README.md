@@ -32,14 +32,14 @@ npx hono-takibi path/to/input.{yaml,json,tsp} -o path/to/output.ts
 Create `hono-takibi.config.ts`:
 
 ```ts
-import { defineConfig } from "hono-takibi/config";
+import { defineConfig } from 'hono-takibi/config'
 
 export default defineConfig({
-  input: "openapi.yaml",
-  "zod-openapi": {
-    output: "./src/routes.ts",
+  input: 'openapi.yaml',
+  'zod-openapi': {
+    output: './src/routes.ts',
   },
-});
+})
 ```
 
 ```bash
@@ -78,28 +78,28 @@ paths:
 output:
 
 ```ts
-import { createRoute, z } from "@hono/zod-openapi";
+import { createRoute, z } from '@hono/zod-openapi'
 
 export const getRoute = createRoute({
-  method: "get",
-  path: "/",
-  summary: "Welcome",
-  description: "Returns a welcome message from Hono Takibi.",
+  method: 'get',
+  path: '/',
+  summary: 'Welcome',
+  description: 'Returns a welcome message from Hono Takibi.',
   responses: {
     200: {
-      description: "OK",
+      description: 'OK',
       content: {
-        "application/json": {
+        'application/json': {
           schema: z
             .object({
-              message: z.string().openapi({ example: "Hono Takibi🔥" }),
+              message: z.string().openapi({ example: 'Hono Takibi🔥' }),
             })
-            .openapi({ required: ["message"] }),
+            .openapi({ required: ['message'] }),
         },
       },
     },
   },
-});
+})
 ```
 
 ## Custom Validation Error Messages
@@ -110,29 +110,29 @@ Use `x-*` vendor extensions to customize Zod error messages:
 name:
   type: string
   minLength: 1
-  x-error-message: "Name is required"
-  x-minimum-message: "Name cannot be empty"
+  x-error-message: 'Name is required'
+  x-minimum-message: 'Name cannot be empty'
 ```
 
 ```ts
 // Generated output
-z.string({ error: "Name is required" }).min(1, { error: "Name cannot be empty" });
+z.string({ error: 'Name is required' }).min(1, { error: 'Name cannot be empty' })
 ```
 
-| Extension | Applies to |
-|-----------|-----------|
-| `x-error-message` | Schema constructor (`z.string()`, `z.number()`, `z.enum()`, etc.) |
-| `x-minimum-message` | `.min()`, `.gte()` |
-| `x-maximum-message` | `.max()`, `.lte()` |
-| `x-size-message` | `.length()` |
-| `x-pattern-message` | `.regex()` |
-| `x-multipleOf-message` | `.multipleOf()` |
-| `x-enum-error-messages` | Per-value enum messages (`{ "value": "message" }`) |
-| `x-anyOf-message` | `anyOf` |
-| `x-oneOf-message` | `oneOf` |
-| `x-not-message` | `not` |
-| `x-propertyNames-message` | `propertyNames` |
-| `x-dependentRequired-message` | `dependentRequired` |
+| Extension                     | Applies to                                                        |
+| ----------------------------- | ----------------------------------------------------------------- |
+| `x-error-message`             | Schema constructor (`z.string()`, `z.number()`, `z.enum()`, etc.) |
+| `x-minimum-message`           | `.min()`, `.gte()`                                                |
+| `x-maximum-message`           | `.max()`, `.lte()`                                                |
+| `x-size-message`              | `.length()`                                                       |
+| `x-pattern-message`           | `.regex()`                                                        |
+| `x-multipleOf-message`        | `.multipleOf()`                                                   |
+| `x-enum-error-messages`       | Per-value enum messages (`{ "value": "message" }`)                |
+| `x-anyOf-message`             | `anyOf`                                                           |
+| `x-oneOf-message`             | `oneOf`                                                           |
+| `x-not-message`               | `not`                                                             |
+| `x-propertyNames-message`     | `propertyNames`                                                   |
+| `x-dependentRequired-message` | `dependentRequired`                                               |
 
 ## Vite Plugin
 
@@ -142,12 +142,12 @@ Requires `hono-takibi.config.ts` in your project root.
 
 ```ts
 // vite.config.ts
-import { honoTakibiVite } from "hono-takibi/vite-plugin";
-import { defineConfig } from "vite";
+import { honoTakibiVite } from 'hono-takibi/vite-plugin'
+import { defineConfig } from 'vite'
 
 export default defineConfig({
   plugins: [honoTakibiVite()],
-});
+})
 ```
 
 ![](https://raw.githubusercontent.com/nakita628/hono-takibi/refs/heads/main/assets/vite/hono-takibi-vite.gif)
@@ -158,16 +158,16 @@ Generate a complete app structure with handler stubs and test files:
 
 ```ts
 export default defineConfig({
-  input: "openapi.yaml",
-  "zod-openapi": {
-    output: "./src/routes.ts",
+  input: 'openapi.yaml',
+  'zod-openapi': {
+    output: './src/routes.ts',
     template: {
       test: true,
-      pathAlias: "@/",
-      framework: "bun", // "vitest" (default) | "bun"
+      pathAlias: '@/',
+      framework: 'bun', // "vitest" (default) | "bun"
     },
   },
-});
+})
 ```
 
 This generates:
@@ -188,26 +188,26 @@ Each handler creates its own sub-router and registers routes:
 
 ```ts
 // src/handlers/health.ts
-import { OpenAPIHono } from "@hono/zod-openapi";
-import { getHealthRoute } from "@/routes";
+import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute } from '@/routes'
 
-const app = new OpenAPIHono();
+const app = new OpenAPIHono()
 
-export const healthHandler = app.openapi(getHealthRoute, (c) => {});
+export const healthHandler = app.openapi(getHealthRoute, (c) => {})
 ```
 
 The app mounts handlers via `.route()`:
 
 ```ts
 // src/index.ts
-import { OpenAPIHono } from "@hono/zod-openapi";
-import { healthHandler } from "./handlers";
+import { OpenAPIHono } from '@hono/zod-openapi'
+import { healthHandler } from './handlers'
 
-const app = new OpenAPIHono();
+const app = new OpenAPIHono()
 
-export const api = app.route("/", healthHandler);
+export const api = app.route('/', healthHandler)
 
-export default app;
+export default app
 ```
 
 #### `routeHandler: true`
@@ -216,18 +216,17 @@ Handlers export typed `RouteHandler` functions, and `index.ts` centralizes route
 
 ```ts
 // src/handlers/health.ts
-import type { RouteHandler } from "@hono/zod-openapi"
-import type { getHealthRoute } from "../routes"
+import type { RouteHandler } from '@hono/zod-openapi'
+import type { getHealthRoute } from '../routes'
 
-export const getHealthRouteHandler: RouteHandler<typeof getHealthRoute> =
-  async (c) => {}
+export const getHealthRouteHandler: RouteHandler<typeof getHealthRoute> = async (c) => {}
 ```
 
 ```ts
 // src/index.ts
-import { OpenAPIHono } from "@hono/zod-openapi"
-import { getHealthRoute } from "./routes"
-import { getHealthRouteHandler } from "./handlers"
+import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute } from './routes'
+import { getHealthRouteHandler } from './handlers'
 
 const app = new OpenAPIHono()
 
@@ -242,18 +241,18 @@ Supported: TanStack Query, SWR, Svelte Query, Vue Query, RPC Client.
 
 ```ts
 export default defineConfig({
-  input: "openapi.yaml",
-  "zod-openapi": {
-    output: "./src/routes.ts",
+  input: 'openapi.yaml',
+  'zod-openapi': {
+    output: './src/routes.ts',
     exportSchemas: true,
   },
-  "tanstack-query": {
-    output: "./src/tanstack-query",
-    import: "../client",
+  'tanstack-query': {
+    output: './src/tanstack-query',
+    import: '../client',
     split: true,
-    client: "client",
+    client: 'client',
   },
-});
+})
 ```
 
 ## Test & Mock Generation
@@ -262,31 +261,31 @@ export default defineConfig({
 
 ```ts
 export default defineConfig({
-  input: "openapi.yaml",
-  "zod-openapi": {
-    output: "./src/routes.ts",
+  input: 'openapi.yaml',
+  'zod-openapi': {
+    output: './src/routes.ts',
   },
   test: {
-    output: "./src/test.ts",
-    import: "../index",
-    framework: "bun", // "vitest" (default) | "bun"
+    output: './src/test.ts',
+    import: '../index',
+    framework: 'bun', // "vitest" (default) | "bun"
   },
-});
+})
 ```
 
 ### Mock Server Generation
 
 ```ts
 export default defineConfig({
-  input: "openapi.yaml",
-  "zod-openapi": {
-    output: "./src/routes.ts",
+  input: 'openapi.yaml',
+  'zod-openapi': {
+    output: './src/routes.ts',
     readonly: true,
   },
   mock: {
-    output: "./src/mock.ts",
+    output: './src/mock.ts',
   },
-});
+})
 ```
 
 ### API Reference Docs
@@ -295,35 +294,34 @@ Generate API reference Markdown with [hono-cli](https://github.com/honojs/cli) `
 
 ```ts
 export default defineConfig({
-  input: "openapi.yaml",
-  "zod-openapi": {
-    output: "./src/routes.ts",
+  input: 'openapi.yaml',
+  'zod-openapi': {
+    output: './src/routes.ts',
     readonly: true,
   },
   docs: {
-    output: "./docs/api.md",
-    entry: "src/index.ts",
+    output: './docs/api.md',
+    entry: 'src/index.ts',
   },
-});
+})
 ```
 
 To generate `curl` commands instead of `hono request`:
 
 ```ts
 export default defineConfig({
-  input: "openapi.yaml",
-  "zod-openapi": {
-    output: "./src/routes.ts",
+  input: 'openapi.yaml',
+  'zod-openapi': {
+    output: './src/routes.ts',
     readonly: true,
   },
   docs: {
-    output: "./docs/api.md",
+    output: './docs/api.md',
     curl: true,
-    baseUrl: "http://localhost:3000",
+    baseUrl: 'http://localhost:3000',
   },
-});
+})
 ```
-
 
 ## Full Config Reference
 
@@ -333,50 +331,50 @@ export default defineConfig({
 
 ```ts
 // hono-takibi.config.ts
-import { defineConfig } from "hono-takibi/config";
+import { defineConfig } from 'hono-takibi/config'
 
 export default defineConfig({
   // OpenAPI spec file (.yaml, .json, or .tsp)
-  input: "openapi.yaml",
+  input: 'openapi.yaml',
 
   // Base path prefix for all routes
-  basePath: "/api",
+  basePath: '/api',
 
   // oxfmt format options for generated code
   format: {
     printWidth: 100,
     tabWidth: 2,
     useTabs: false,
-    endOfLine: "lf",
+    endOfLine: 'lf',
     insertFinalNewline: true,
     semi: true,
     singleQuote: false,
     jsxSingleQuote: false,
-    quoteProps: "as-needed",
-    trailingComma: "all",
+    quoteProps: 'as-needed',
+    trailingComma: 'all',
     bracketSpacing: true,
     bracketSameLine: false,
-    objectWrap: "preserve",
-    arrowParens: "always",
+    objectWrap: 'preserve',
+    arrowParens: 'always',
     singleAttributePerLine: false,
-    proseWrap: "preserve",
-    htmlWhitespaceSensitivity: "css",
+    proseWrap: 'preserve',
+    htmlWhitespaceSensitivity: 'css',
     vueIndentScriptAndStyle: false,
-    embeddedLanguageFormatting: "auto",
+    embeddedLanguageFormatting: 'auto',
   },
 
   // Main code generation (Zod + OpenAPI + Hono)
-  "zod-openapi": {
+  'zod-openapi': {
     // Output: use 'output' for single file, or 'routes' for split mode (mutually exclusive)
-    output: "./src/routes.ts",
+    output: './src/routes.ts',
     readonly: true, // Add 'as const' to generated schemas
 
     // Template generation (app entry point + handler stubs + tests)
     template: {
       test: true, // Generate test files
       routeHandler: false, // false: inline .openapi() (default), true: RouteHandler exports
-      pathAlias: "@/", // TypeScript path alias for imports
-      framework: "vitest", // "vitest" (default) | "bun" — test import source
+      pathAlias: '@/', // TypeScript path alias for imports
+      framework: 'vitest', // "vitest" (default) | "bun" — test import source
     },
 
     // Export options (OpenAPI Components Object)
@@ -398,141 +396,141 @@ export default defineConfig({
 
     // Split routes into separate files
     routes: {
-      output: "./src/routes",
+      output: './src/routes',
       split: true,
-      import: "@packages/routes", // Custom import path (monorepo support)
+      import: '@packages/routes', // Custom import path (monorepo support)
     },
 
     // Split components into separate files
     components: {
       schemas: {
-        output: "./src/schemas",
+        output: './src/schemas',
         exportTypes: true,
         split: true,
-        import: "../schemas",
+        import: '../schemas',
       },
       responses: {
-        output: "./src/responses",
+        output: './src/responses',
         split: true,
-        import: "../responses",
+        import: '../responses',
       },
       parameters: {
-        output: "./src/parameters",
+        output: './src/parameters',
         exportTypes: true,
         split: true,
-        import: "../parameters",
+        import: '../parameters',
       },
       examples: {
-        output: "./src/examples",
+        output: './src/examples',
         split: true,
-        import: "../examples",
+        import: '../examples',
       },
       requestBodies: {
-        output: "./src/requestBodies",
+        output: './src/requestBodies',
         split: true,
-        import: "../requestBodies",
+        import: '../requestBodies',
       },
       headers: {
-        output: "./src/headers",
+        output: './src/headers',
         exportTypes: true,
         split: true,
-        import: "../headers",
+        import: '../headers',
       },
       securitySchemes: {
-        output: "./src/securitySchemes",
+        output: './src/securitySchemes',
         split: true,
-        import: "../securitySchemes",
+        import: '../securitySchemes',
       },
       links: {
-        output: "./src/links",
+        output: './src/links',
         split: true,
-        import: "../links",
+        import: '../links',
       },
       callbacks: {
-        output: "./src/callbacks",
+        output: './src/callbacks',
         split: true,
-        import: "../callbacks",
+        import: '../callbacks',
       },
       pathItems: {
-        output: "./src/pathItems",
+        output: './src/pathItems',
         split: true,
-        import: "../pathItems",
+        import: '../pathItems',
       },
       mediaTypes: {
-        output: "./src/mediaTypes",
+        output: './src/mediaTypes',
         exportTypes: true,
         split: true,
-        import: "../mediaTypes",
+        import: '../mediaTypes',
       },
       webhooks: {
-        output: "./src/webhooks",
+        output: './src/webhooks',
         split: true,
-        import: "../webhooks",
+        import: '../webhooks',
       },
     },
   },
 
   // TypeScript type generation
   type: {
-    output: "./src/types.ts",
+    output: './src/types.ts',
     readonly: true,
   },
 
   // RPC client generation
   rpc: {
-    output: "./src/rpc",
-    import: "../client", // Import path for the Hono RPC client
+    output: './src/rpc',
+    import: '../client', // Import path for the Hono RPC client
     split: true,
-    client: "client", // Export name of the client instance
+    client: 'client', // Export name of the client instance
     parseResponse: true, // Use parseResponse for type-safe responses
   },
 
   // Client library integrations (TanStack Query, SWR, Svelte Query, Vue Query)
-  "tanstack-query": {
-    output: "./src/tanstack-query",
-    import: "../client",
+  'tanstack-query': {
+    output: './src/tanstack-query',
+    import: '../client',
     split: true,
-    client: "client",
+    client: 'client',
   },
-  "svelte-query": {
-    output: "./src/svelte-query",
-    import: "../client",
+  'svelte-query': {
+    output: './src/svelte-query',
+    import: '../client',
     split: true,
-    client: "client",
+    client: 'client',
   },
   swr: {
-    output: "./src/swr",
-    import: "../client",
+    output: './src/swr',
+    import: '../client',
     split: true,
-    client: "client",
+    client: 'client',
   },
-  "vue-query": {
-    output: "./src/vue-query",
-    import: "../client",
+  'vue-query': {
+    output: './src/vue-query',
+    import: '../client',
     split: true,
-    client: "client",
+    client: 'client',
   },
 
   // Test generation
   test: {
-    output: "./src/test.ts",
-    import: "../index", // Import path for the app instance
-    framework: "vitest", // "vitest" (default) | "bun" — test import source
+    output: './src/test.ts',
+    import: '../index', // Import path for the app instance
+    framework: 'vitest', // "vitest" (default) | "bun" — test import source
   },
 
   // Mock server generation
   mock: {
-    output: "./src/mock.ts",
+    output: './src/mock.ts',
   },
 
   // API reference docs generation
   docs: {
-    output: "./docs/api.md",
-    entry: "src/index.ts", // App entry point for hono request commands
+    output: './docs/api.md',
+    entry: 'src/index.ts', // App entry point for hono request commands
     curl: false, // true: generate curl commands (requires baseUrl), false: hono request (default)
-    baseUrl: "http://localhost:3000", // Base URL for curl commands (required when curl: true)
+    baseUrl: 'http://localhost:3000', // Base URL for curl commands (required when curl: true)
   },
-});
+})
 ```
 
 ## Projects Using Hono Takibi

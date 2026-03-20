@@ -1,5 +1,7 @@
 import fs from 'node:fs'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+
+import { afterEach, beforeEach, describe, expect, it } from 'vite-plus/test'
+
 import { parseOpenAPI } from './index.js'
 
 describe('parseOpenAPI', () => {

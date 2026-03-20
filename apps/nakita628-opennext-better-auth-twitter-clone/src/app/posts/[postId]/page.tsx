@@ -3,6 +3,7 @@
 import { useParams, useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import { ClipLoader } from 'react-spinners'
+
 import { Header } from '@/components/atoms/Header'
 import { CommentFeed } from '@/components/organisms/CommentFeed'
 import { Form } from '@/components/organisms/Form'
@@ -44,17 +45,17 @@ export default function PostView() {
 
   if (isLoadingUser || isLoadingPost || !fetchedPost) {
     return (
-      <div className='flex justify-center items-center h-full'>
-        <ClipLoader color='lightblue' size={80} />
+      <div className="flex justify-center items-center h-full">
+        <ClipLoader color="lightblue" size={80} />
       </div>
     )
   }
 
   return (
     <>
-      <Header showBackArrow label='Post' onBack={() => router.back()} />
+      <Header showBackArrow label="Post" onBack={() => router.back()} />
       <PostItem data={fetchedPost} />
-      <Form postId={postId} isComment placeholder='Tweet your reply' />
+      <Form postId={postId} isComment placeholder="Tweet your reply" />
       <CommentFeed comments={fetchedPost.comments} />
     </>
   )

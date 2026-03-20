@@ -1,4 +1,5 @@
 import { Effect } from 'effect'
+
 import { ContractViolationError, makeFormatPublicUser } from '@/backend/domain'
 import { SearchResultsSchema } from '@/backend/routes'
 import * as PostService from '@/backend/services/post'

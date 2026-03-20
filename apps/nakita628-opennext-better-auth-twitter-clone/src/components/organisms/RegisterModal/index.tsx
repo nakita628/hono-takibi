@@ -3,6 +3,7 @@
 import { useCallback, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useSWRConfig } from 'swr'
+
 import { Input } from '@/components/atoms/Input'
 import { Modal } from '@/components/molecules/Modal'
 import { usePostRegister } from '@/hooks'
@@ -64,27 +65,27 @@ export function RegisterModal() {
   }, [email, username, name, password, register, registerModal, mutate])
 
   const bodyContent = (
-    <div className='flex flex-col gap-4'>
+    <div className="flex flex-col gap-4">
       <Input
-        placeholder='Email'
+        placeholder="Email"
         value={email}
         disabled={isLoading}
         onChange={(e) => setEmail(e.target.value)}
       />
       <Input
-        placeholder='Name'
+        placeholder="Name"
         value={name}
         disabled={isLoading}
         onChange={(e) => setName(e.target.value)}
       />
       <Input
-        placeholder='Username'
+        placeholder="Username"
         value={username}
         disabled={isLoading}
         onChange={(e) => setUsername(e.target.value)}
       />
       <Input
-        placeholder='Password'
+        placeholder="Password"
         value={password}
         disabled={isLoading}
         onChange={(e) => setPassword(e.target.value)}
@@ -93,13 +94,13 @@ export function RegisterModal() {
   )
 
   const footerContent = (
-    <div className='mt-4 text-center text-neutral-400'>
+    <div className="mt-4 text-center text-neutral-400">
       <p>
         Already have an account?{' '}
         <button
-          type='button'
+          type="button"
           onClick={onToggle}
-          className='text-white cursor-pointer hover:underline'
+          className="text-white cursor-pointer hover:underline"
         >
           Sign in
         </button>
@@ -111,8 +112,8 @@ export function RegisterModal() {
     <Modal
       disabled={isLoading}
       isOpen={registerModal.isOpen}
-      title='Create an account'
-      actionLabel='Register'
+      title="Create an account"
+      actionLabel="Register"
       onClose={registerModal.onClose}
       onSubmit={onSubmit}
       body={bodyContent}

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { mutate } from 'swr'
 import { unstable_serialize } from 'swr/infinite'
+
 import { ImageUpload } from '@/components/atoms/ImageUpload'
 import { Input } from '@/components/atoms/Input'
 import { Modal } from '@/components/molecules/Modal'
@@ -113,33 +114,33 @@ export function EditModal() {
   }, [editModal, changePasswordModal])
 
   const bodyContent = (
-    <div className='flex flex-col gap-4'>
+    <div className="flex flex-col gap-4">
       <ImageUpload
         value={profileImage}
         disabled={isLoading}
         onChange={(image) => setProfileImage(image)}
-        label='Upload profile image'
+        label="Upload profile image"
       />
       <ImageUpload
         value={coverImage}
         disabled={isLoading}
         onChange={(image) => setCoverImage(image)}
-        label='Upload cover image'
+        label="Upload cover image"
       />
       <Input
-        placeholder='Name'
+        placeholder="Name"
         onChange={(e) => setName(e.target.value)}
         value={name}
         disabled={isLoading}
       />
       <Input
-        placeholder='Username'
+        placeholder="Username"
         onChange={(e) => setUsername(e.target.value)}
         value={username}
         disabled={isLoading}
       />
       <Input
-        placeholder='Bio'
+        placeholder="Bio"
         onChange={(e) => setBio(e.target.value)}
         value={bio}
         disabled={isLoading}
@@ -148,11 +149,11 @@ export function EditModal() {
   )
 
   const footerContent = (
-    <div className='mt-4 text-center'>
+    <div className="mt-4 text-center">
       <button
-        type='button'
+        type="button"
         onClick={onChangePassword}
-        className='text-sky-500 cursor-pointer hover:underline text-sm'
+        className="text-sky-500 cursor-pointer hover:underline text-sm"
       >
         Change Password
       </button>
@@ -163,8 +164,8 @@ export function EditModal() {
     <Modal
       disabled={isLoading}
       isOpen={editModal.isOpen}
-      title='Edit Profile'
-      actionLabel='Save'
+      title="Edit Profile"
+      actionLabel="Save"
       onClose={editModal.onClose}
       onSubmit={onSubmit}
       body={bodyContent}

@@ -24,7 +24,7 @@ import type { Components } from '../../../../openapi/index.js'
 export function responsesCode(
   components: Components,
   exportResponses: boolean,
-  readonly?: boolean | undefined,
+  readonly?: boolean,
 ): string {
   const { responses } = components
   if (!responses) return ''

@@ -36,11 +36,11 @@ hono request \
 
 <h3 id="postcomments-parameters">Parameters</h3>
 
-|Name|In|Type|Required|Description|
-|---|---|---|---|---|
-|postId|query|string(uuid)|true|none|
-|body|body|[CreateCommentRequest](#schemacreatecommentrequest)|true|none|
-|» body|body|string|true|none|
+| Name   | In    | Type                                                | Required | Description |
+| ------ | ----- | --------------------------------------------------- | -------- | ----------- |
+| postId | query | string(uuid)                                        | true     | none        |
+| body   | body  | [CreateCommentRequest](#schemacreatecommentrequest) | true     | none        |
+| » body | body  | string                                              | true     | none        |
 
 > Example responses
 
@@ -100,13 +100,13 @@ hono request \
 
 <h3 id="postcomments-responses">Responses</h3>
 
-|Status|Meaning|Description|Schema|
-|---|---|---|---|
-|200|OK|The request has succeeded.|[Comment](#schemacomment)|
-|401|Unauthorized|Access is unauthorized.|[MessageResponse](#schemamessageresponse)|
-|422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
-|500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
-|503|Service Unavailable|Service unavailable.|[MessageResponse](#schemamessageresponse)|
+| Status | Meaning               | Description                | Schema                                    |
+| ------ | --------------------- | -------------------------- | ----------------------------------------- |
+| 200    | OK                    | The request has succeeded. | [Comment](#schemacomment)                 |
+| 401    | Unauthorized          | Access is unauthorized.    | [MessageResponse](#schemamessageresponse) |
+| 422    | Unprocessable Entity  | Client error               | [ValidationError](#schemavalidationerror) |
+| 500    | Internal Server Error | Server error               | [MessageResponse](#schemamessageresponse) |
+| 503    | Service Unavailable   | Service unavailable.       | [MessageResponse](#schemamessageresponse) |
 
 <aside class="success">
 This operation does not require authentication
@@ -153,9 +153,7 @@ hono request \
       "createdAt": "1970-01-01T00:00:00Z"
     }
   ],
-  "following": [
-    {}
-  ],
+  "following": [{}],
   "hasNotification": true
 }
 ```
@@ -186,12 +184,12 @@ hono request \
 
 <h3 id="getcurrentuser-responses">Responses</h3>
 
-|Status|Meaning|Description|Schema|
-|---|---|---|---|
-|200|OK|The request has succeeded.|[CurrentUser](#schemacurrentuser)|
-|401|Unauthorized|Access is unauthorized.|[MessageResponse](#schemamessageresponse)|
-|500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
-|503|Service Unavailable|Service unavailable.|[MessageResponse](#schemamessageresponse)|
+| Status | Meaning               | Description                | Schema                                    |
+| ------ | --------------------- | -------------------------- | ----------------------------------------- |
+| 200    | OK                    | The request has succeeded. | [CurrentUser](#schemacurrentuser)         |
+| 401    | Unauthorized          | Access is unauthorized.    | [MessageResponse](#schemamessageresponse) |
+| 500    | Internal Server Error | Server error               | [MessageResponse](#schemamessageresponse) |
+| 503    | Service Unavailable   | Service unavailable.       | [MessageResponse](#schemamessageresponse) |
 
 <aside class="success">
 This operation does not require authentication
@@ -237,14 +235,14 @@ hono request \
 
 <h3 id="patchedit-parameters">Parameters</h3>
 
-|Name|In|Type|Required|Description|
-|---|---|---|---|---|
-|body|body|[EditUserRequest](#schemaedituserrequest)|true|none|
-|» name|body|string|false|none|
-|» username|body|string|false|none|
-|» bio|body|string|false|none|
-|» coverImage|body|string(uri)|false|none|
-|» profileImage|body|string(uri)|false|none|
+| Name           | In   | Type                                      | Required | Description |
+| -------------- | ---- | ----------------------------------------- | -------- | ----------- |
+| body           | body | [EditUserRequest](#schemaedituserrequest) | true     | none        |
+| » name         | body | string                                    | false    | none        |
+| » username     | body | string                                    | false    | none        |
+| » bio          | body | string                                    | false    | none        |
+| » coverImage   | body | string(uri)                               | false    | none        |
+| » profileImage | body | string(uri)                               | false    | none        |
 
 > Example responses
 
@@ -318,14 +316,14 @@ hono request \
 
 <h3 id="patchedit-responses">Responses</h3>
 
-|Status|Meaning|Description|Schema|
-|---|---|---|---|
-|200|OK|The request has succeeded.|[User](#schemauser)|
-|401|Unauthorized|Access is unauthorized.|[MessageResponse](#schemamessageresponse)|
-|409|Conflict|The request conflicts with the current state of the server.|[MessageResponse](#schemamessageresponse)|
-|422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
-|500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
-|503|Service Unavailable|Service unavailable.|[MessageResponse](#schemamessageresponse)|
+| Status | Meaning               | Description                                                 | Schema                                    |
+| ------ | --------------------- | ----------------------------------------------------------- | ----------------------------------------- |
+| 200    | OK                    | The request has succeeded.                                  | [User](#schemauser)                       |
+| 401    | Unauthorized          | Access is unauthorized.                                     | [MessageResponse](#schemamessageresponse) |
+| 409    | Conflict              | The request conflicts with the current state of the server. | [MessageResponse](#schemamessageresponse) |
+| 422    | Unprocessable Entity  | Client error                                                | [ValidationError](#schemavalidationerror) |
+| 500    | Internal Server Error | Server error                                                | [MessageResponse](#schemamessageresponse) |
+| 503    | Service Unavailable   | Service unavailable.                                        | [MessageResponse](#schemamessageresponse) |
 
 <aside class="success">
 This operation does not require authentication
@@ -363,10 +361,10 @@ hono request \
 
 <h3 id="postfollowuserid-parameters">Parameters</h3>
 
-|Name|In|Type|Required|Description|
-|---|---|---|---|---|
-|body|body|[FollowUserRequest](#schemafollowuserrequest)|true|none|
-|» userId|body|string(uuid)|true|none|
+| Name     | In   | Type                                          | Required | Description |
+| -------- | ---- | --------------------------------------------- | -------- | ----------- |
+| body     | body | [FollowUserRequest](#schemafollowuserrequest) | true     | none        |
+| » userId | body | string(uuid)                                  | true     | none        |
 
 > Example responses
 
@@ -437,15 +435,15 @@ hono request \
 
 <h3 id="postfollowuserid-responses">Responses</h3>
 
-|Status|Meaning|Description|Schema|
-|---|---|---|---|
-|200|OK|The request has succeeded.|[MessageResponse](#schemamessageresponse)|
-|401|Unauthorized|Access is unauthorized.|[MessageResponse](#schemamessageresponse)|
-|404|Not Found|The server cannot find the requested resource.|[MessageResponse](#schemamessageresponse)|
-|409|Conflict|The request conflicts with the current state of the server.|[MessageResponse](#schemamessageresponse)|
-|422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
-|500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
-|503|Service Unavailable|Service unavailable.|[MessageResponse](#schemamessageresponse)|
+| Status | Meaning               | Description                                                 | Schema                                    |
+| ------ | --------------------- | ----------------------------------------------------------- | ----------------------------------------- |
+| 200    | OK                    | The request has succeeded.                                  | [MessageResponse](#schemamessageresponse) |
+| 401    | Unauthorized          | Access is unauthorized.                                     | [MessageResponse](#schemamessageresponse) |
+| 404    | Not Found             | The server cannot find the requested resource.              | [MessageResponse](#schemamessageresponse) |
+| 409    | Conflict              | The request conflicts with the current state of the server. | [MessageResponse](#schemamessageresponse) |
+| 422    | Unprocessable Entity  | Client error                                                | [ValidationError](#schemavalidationerror) |
+| 500    | Internal Server Error | Server error                                                | [MessageResponse](#schemamessageresponse) |
+| 503    | Service Unavailable   | Service unavailable.                                        | [MessageResponse](#schemamessageresponse) |
 
 <aside class="success">
 This operation does not require authentication
@@ -481,10 +479,10 @@ hono request \
 
 <h3 id="deletefollowuserid-parameters">Parameters</h3>
 
-|Name|In|Type|Required|Description|
-|---|---|---|---|---|
-|body|body|[FollowUserRequest](#schemafollowuserrequest)|true|none|
-|» userId|body|string(uuid)|true|none|
+| Name     | In   | Type                                          | Required | Description |
+| -------- | ---- | --------------------------------------------- | -------- | ----------- |
+| body     | body | [FollowUserRequest](#schemafollowuserrequest) | true     | none        |
+| » userId | body | string(uuid)                                  | true     | none        |
 
 > Example responses
 
@@ -539,13 +537,13 @@ hono request \
 
 <h3 id="deletefollowuserid-responses">Responses</h3>
 
-|Status|Meaning|Description|Schema|
-|---|---|---|---|
-|200|OK|The request has succeeded.|[MessageResponse](#schemamessageresponse)|
-|401|Unauthorized|Access is unauthorized.|[MessageResponse](#schemamessageresponse)|
-|422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
-|500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
-|503|Service Unavailable|Service unavailable.|[MessageResponse](#schemamessageresponse)|
+| Status | Meaning               | Description                | Schema                                    |
+| ------ | --------------------- | -------------------------- | ----------------------------------------- |
+| 200    | OK                    | The request has succeeded. | [MessageResponse](#schemamessageresponse) |
+| 401    | Unauthorized          | Access is unauthorized.    | [MessageResponse](#schemamessageresponse) |
+| 422    | Unprocessable Entity  | Client error               | [ValidationError](#schemavalidationerror) |
+| 500    | Internal Server Error | Server error               | [MessageResponse](#schemamessageresponse) |
+| 503    | Service Unavailable   | Service unavailable.       | [MessageResponse](#schemamessageresponse) |
 
 <aside class="success">
 This operation does not require authentication
@@ -583,10 +581,10 @@ hono request \
 
 <h3 id="postlikepostid-parameters">Parameters</h3>
 
-|Name|In|Type|Required|Description|
-|---|---|---|---|---|
-|body|body|[LikePostRequest](#schemalikepostrequest)|true|none|
-|» postId|body|string(uuid)|true|none|
+| Name     | In   | Type                                      | Required | Description |
+| -------- | ---- | ----------------------------------------- | -------- | ----------- |
+| body     | body | [LikePostRequest](#schemalikepostrequest) | true     | none        |
+| » postId | body | string(uuid)                              | true     | none        |
 
 > Example responses
 
@@ -668,15 +666,15 @@ hono request \
 
 <h3 id="postlikepostid-responses">Responses</h3>
 
-|Status|Meaning|Description|Schema|
-|---|---|---|---|
-|200|OK|The request has succeeded.|[PostWithLikes](#schemapostwithlikes)|
-|401|Unauthorized|Access is unauthorized.|[MessageResponse](#schemamessageresponse)|
-|404|Not Found|The server cannot find the requested resource.|[MessageResponse](#schemamessageresponse)|
-|409|Conflict|The request conflicts with the current state of the server.|[MessageResponse](#schemamessageresponse)|
-|422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
-|500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
-|503|Service Unavailable|Service unavailable.|[MessageResponse](#schemamessageresponse)|
+| Status | Meaning               | Description                                                 | Schema                                    |
+| ------ | --------------------- | ----------------------------------------------------------- | ----------------------------------------- |
+| 200    | OK                    | The request has succeeded.                                  | [PostWithLikes](#schemapostwithlikes)     |
+| 401    | Unauthorized          | Access is unauthorized.                                     | [MessageResponse](#schemamessageresponse) |
+| 404    | Not Found             | The server cannot find the requested resource.              | [MessageResponse](#schemamessageresponse) |
+| 409    | Conflict              | The request conflicts with the current state of the server. | [MessageResponse](#schemamessageresponse) |
+| 422    | Unprocessable Entity  | Client error                                                | [ValidationError](#schemavalidationerror) |
+| 500    | Internal Server Error | Server error                                                | [MessageResponse](#schemamessageresponse) |
+| 503    | Service Unavailable   | Service unavailable.                                        | [MessageResponse](#schemamessageresponse) |
 
 <aside class="success">
 This operation does not require authentication
@@ -712,10 +710,10 @@ hono request \
 
 <h3 id="deletelikepostid-parameters">Parameters</h3>
 
-|Name|In|Type|Required|Description|
-|---|---|---|---|---|
-|body|body|[LikePostRequest](#schemalikepostrequest)|true|none|
-|» postId|body|string(uuid)|true|none|
+| Name     | In   | Type                                      | Required | Description |
+| -------- | ---- | ----------------------------------------- | -------- | ----------- |
+| body     | body | [LikePostRequest](#schemalikepostrequest) | true     | none        |
+| » postId | body | string(uuid)                              | true     | none        |
 
 > Example responses
 
@@ -789,14 +787,14 @@ hono request \
 
 <h3 id="deletelikepostid-responses">Responses</h3>
 
-|Status|Meaning|Description|Schema|
-|---|---|---|---|
-|200|OK|The request has succeeded.|[PostWithLikes](#schemapostwithlikes)|
-|401|Unauthorized|Access is unauthorized.|[MessageResponse](#schemamessageresponse)|
-|404|Not Found|The server cannot find the requested resource.|[MessageResponse](#schemamessageresponse)|
-|422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
-|500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
-|503|Service Unavailable|Service unavailable.|[MessageResponse](#schemamessageresponse)|
+| Status | Meaning               | Description                                    | Schema                                    |
+| ------ | --------------------- | ---------------------------------------------- | ----------------------------------------- |
+| 200    | OK                    | The request has succeeded.                     | [PostWithLikes](#schemapostwithlikes)     |
+| 401    | Unauthorized          | Access is unauthorized.                        | [MessageResponse](#schemamessageresponse) |
+| 404    | Not Found             | The server cannot find the requested resource. | [MessageResponse](#schemamessageresponse) |
+| 422    | Unprocessable Entity  | Client error                                   | [ValidationError](#schemavalidationerror) |
+| 500    | Internal Server Error | Server error                                   | [MessageResponse](#schemamessageresponse) |
+| 503    | Service Unavailable   | Service unavailable.                           | [MessageResponse](#schemamessageresponse) |
 
 <aside class="success">
 This operation does not require authentication
@@ -822,9 +820,9 @@ hono request \
 
 <h3 id="getnotificationsuserid-parameters">Parameters</h3>
 
-|Name|In|Type|Required|Description|
-|---|---|---|---|---|
-|userId|path|string(uuid)|true|none|
+| Name   | In   | Type         | Required | Description |
+| ------ | ---- | ------------ | -------- | ----------- |
+| userId | path | string(uuid) | true     | none        |
 
 > Example responses
 
@@ -884,25 +882,25 @@ hono request \
 
 <h3 id="getnotificationsuserid-responses">Responses</h3>
 
-|Status|Meaning|Description|Schema|
-|---|---|---|---|
-|200|OK|The request has succeeded.|Inline|
-|401|Unauthorized|Access is unauthorized.|[MessageResponse](#schemamessageresponse)|
-|422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
-|500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
-|503|Service Unavailable|Service unavailable.|[MessageResponse](#schemamessageresponse)|
+| Status | Meaning               | Description                | Schema                                    |
+| ------ | --------------------- | -------------------------- | ----------------------------------------- |
+| 200    | OK                    | The request has succeeded. | Inline                                    |
+| 401    | Unauthorized          | Access is unauthorized.    | [MessageResponse](#schemamessageresponse) |
+| 422    | Unprocessable Entity  | Client error               | [ValidationError](#schemavalidationerror) |
+| 500    | Internal Server Error | Server error               | [MessageResponse](#schemamessageresponse) |
+| 503    | Service Unavailable   | Service unavailable.       | [MessageResponse](#schemamessageresponse) |
 
 <h3 id="getnotificationsuserid-responseschema">Response Schema</h3>
 
 Status Code **200**
 
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|*anonymous*|[[Notification](#schemanotification)]|false|none|none|
-|» id|string(uuid)|true|none|none|
-|» body|string|true|none|none|
-|» userId|string(uuid)|true|none|none|
-|» createdAt|string(date-time)|true|none|none|
+| Name        | Type                                  | Required | Restrictions | Description |
+| ----------- | ------------------------------------- | -------- | ------------ | ----------- |
+| _anonymous_ | [[Notification](#schemanotification)] | false    | none         | none        |
+| » id        | string(uuid)                          | true     | none         | none        |
+| » body      | string                                | true     | none         | none        |
+| » userId    | string(uuid)                          | true     | none         | none        |
+| » createdAt | string(date-time)                     | true     | none         | none        |
 
 <aside class="success">
 This operation does not require authentication
@@ -977,13 +975,13 @@ hono request \
 
 <h3 id="postnotificationsuserid-responses">Responses</h3>
 
-|Status|Meaning|Description|Schema|
-|---|---|---|---|
-|200|OK|The request has succeeded.|[MessageResponse](#schemamessageresponse)|
-|401|Unauthorized|Access is unauthorized.|[MessageResponse](#schemamessageresponse)|
-|422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
-|500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
-|503|Service Unavailable|Service unavailable.|[MessageResponse](#schemamessageresponse)|
+| Status | Meaning               | Description                | Schema                                    |
+| ------ | --------------------- | -------------------------- | ----------------------------------------- |
+| 200    | OK                    | The request has succeeded. | [MessageResponse](#schemamessageresponse) |
+| 401    | Unauthorized          | Access is unauthorized.    | [MessageResponse](#schemamessageresponse) |
+| 422    | Unprocessable Entity  | Client error               | [ValidationError](#schemavalidationerror) |
+| 500    | Internal Server Error | Server error               | [MessageResponse](#schemamessageresponse) |
+| 503    | Service Unavailable   | Service unavailable.       | [MessageResponse](#schemamessageresponse) |
 
 <aside class="success">
 This operation does not require authentication
@@ -1009,11 +1007,11 @@ hono request \
 
 <h3 id="getposts-parameters">Parameters</h3>
 
-|Name|In|Type|Required|Description|
-|---|---|---|---|---|
-|userId|query|string(uuid)|false|none|
-|page|query|number|false|none|
-|limit|query|number|false|none|
+| Name   | In    | Type         | Required | Description |
+| ------ | ----- | ------------ | -------- | ----------- |
+| userId | query | string(uuid) | false    | none        |
+| page   | query | number       | false    | none        |
+| limit  | query | number       | false    | none        |
 
 > Example responses
 
@@ -1087,12 +1085,12 @@ hono request \
 
 <h3 id="getposts-responses">Responses</h3>
 
-|Status|Meaning|Description|Schema|
-|---|---|---|---|
-|200|OK|The request has succeeded.|[PaginatedPosts](#schemapaginatedposts)|
-|422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
-|500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
-|503|Service Unavailable|Service unavailable.|[MessageResponse](#schemamessageresponse)|
+| Status | Meaning               | Description                | Schema                                    |
+| ------ | --------------------- | -------------------------- | ----------------------------------------- |
+| 200    | OK                    | The request has succeeded. | [PaginatedPosts](#schemapaginatedposts)   |
+| 422    | Unprocessable Entity  | Client error               | [ValidationError](#schemavalidationerror) |
+| 500    | Internal Server Error | Server error               | [MessageResponse](#schemamessageresponse) |
+| 503    | Service Unavailable   | Service unavailable.       | [MessageResponse](#schemamessageresponse) |
 
 <aside class="success">
 This operation does not require authentication
@@ -1128,10 +1126,10 @@ hono request \
 
 <h3 id="postposts-parameters">Parameters</h3>
 
-|Name|In|Type|Required|Description|
-|---|---|---|---|---|
-|body|body|[CreatePostRequest](#schemacreatepostrequest)|true|none|
-|» body|body|string|true|none|
+| Name   | In   | Type                                          | Required | Description |
+| ------ | ---- | --------------------------------------------- | -------- | ----------- |
+| body   | body | [CreatePostRequest](#schemacreatepostrequest) | true     | none        |
+| » body | body | string                                        | true     | none        |
 
 > Example responses
 
@@ -1190,13 +1188,13 @@ hono request \
 
 <h3 id="postposts-responses">Responses</h3>
 
-|Status|Meaning|Description|Schema|
-|---|---|---|---|
-|200|OK|The request has succeeded.|[Post](#schemapost)|
-|401|Unauthorized|Access is unauthorized.|[MessageResponse](#schemamessageresponse)|
-|422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
-|500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
-|503|Service Unavailable|Service unavailable.|[MessageResponse](#schemamessageresponse)|
+| Status | Meaning               | Description                | Schema                                    |
+| ------ | --------------------- | -------------------------- | ----------------------------------------- |
+| 200    | OK                    | The request has succeeded. | [Post](#schemapost)                       |
+| 401    | Unauthorized          | Access is unauthorized.    | [MessageResponse](#schemamessageresponse) |
+| 422    | Unprocessable Entity  | Client error               | [ValidationError](#schemavalidationerror) |
+| 500    | Internal Server Error | Server error               | [MessageResponse](#schemamessageresponse) |
+| 503    | Service Unavailable   | Service unavailable.       | [MessageResponse](#schemamessageresponse) |
 
 <aside class="success">
 This operation does not require authentication
@@ -1220,9 +1218,9 @@ hono request \
 
 <h3 id="getpostspostid-parameters">Parameters</h3>
 
-|Name|In|Type|Required|Description|
-|---|---|---|---|---|
-|postId|path|string(uuid)|true|none|
+| Name   | In   | Type         | Required | Description |
+| ------ | ---- | ------------ | -------- | ----------- |
+| postId | path | string(uuid) | true     | none        |
 
 > Example responses
 
@@ -1311,13 +1309,13 @@ hono request \
 
 <h3 id="getpostspostid-responses">Responses</h3>
 
-|Status|Meaning|Description|Schema|
-|---|---|---|---|
-|200|OK|The request has succeeded.|[PostDetail](#schemapostdetail)|
-|404|Not Found|The server cannot find the requested resource.|[MessageResponse](#schemamessageresponse)|
-|422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
-|500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
-|503|Service Unavailable|Service unavailable.|[MessageResponse](#schemamessageresponse)|
+| Status | Meaning               | Description                                    | Schema                                    |
+| ------ | --------------------- | ---------------------------------------------- | ----------------------------------------- |
+| 200    | OK                    | The request has succeeded.                     | [PostDetail](#schemapostdetail)           |
+| 404    | Not Found             | The server cannot find the requested resource. | [MessageResponse](#schemamessageresponse) |
+| 422    | Unprocessable Entity  | Client error                                   | [ValidationError](#schemavalidationerror) |
+| 500    | Internal Server Error | Server error                                   | [MessageResponse](#schemamessageresponse) |
+| 503    | Service Unavailable   | Service unavailable.                           | [MessageResponse](#schemamessageresponse) |
 
 <aside class="success">
 This operation does not require authentication
@@ -1361,13 +1359,13 @@ hono request \
 
 <h3 id="postregister-parameters">Parameters</h3>
 
-|Name|In|Type|Required|Description|
-|---|---|---|---|---|
-|body|body|[RegisterRequest](#schemaregisterrequest)|true|none|
-|» email|body|string(email)|true|none|
-|» name|body|string|true|none|
-|» username|body|string|true|none|
-|» password|body|string|true|none|
+| Name       | In   | Type                                      | Required | Description |
+| ---------- | ---- | ----------------------------------------- | -------- | ----------- |
+| body       | body | [RegisterRequest](#schemaregisterrequest) | true     | none        |
+| » email    | body | string(email)                             | true     | none        |
+| » name     | body | string                                    | true     | none        |
+| » username | body | string                                    | true     | none        |
+| » password | body | string                                    | true     | none        |
 
 > Example responses
 
@@ -1441,14 +1439,14 @@ hono request \
 
 <h3 id="postregister-responses">Responses</h3>
 
-|Status|Meaning|Description|Schema|
-|---|---|---|---|
-|201|Created|The request has succeeded and a new resource has been created as a result.|[User](#schemauser)|
-|404|Not Found|The server cannot find the requested resource.|[MessageResponse](#schemamessageresponse)|
-|409|Conflict|The request conflicts with the current state of the server.|[MessageResponse](#schemamessageresponse)|
-|422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
-|500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
-|503|Service Unavailable|Service unavailable.|[MessageResponse](#schemamessageresponse)|
+| Status | Meaning               | Description                                                                | Schema                                    |
+| ------ | --------------------- | -------------------------------------------------------------------------- | ----------------------------------------- |
+| 201    | Created               | The request has succeeded and a new resource has been created as a result. | [User](#schemauser)                       |
+| 404    | Not Found             | The server cannot find the requested resource.                             | [MessageResponse](#schemamessageresponse) |
+| 409    | Conflict              | The request conflicts with the current state of the server.                | [MessageResponse](#schemamessageresponse) |
+| 422    | Unprocessable Entity  | Client error                                                               | [ValidationError](#schemavalidationerror) |
+| 500    | Internal Server Error | Server error                                                               | [MessageResponse](#schemamessageresponse) |
+| 503    | Service Unavailable   | Service unavailable.                                                       | [MessageResponse](#schemamessageresponse) |
 
 <aside class="success">
 This operation does not require authentication
@@ -1474,11 +1472,11 @@ hono request \
 
 <h3 id="getsearch-parameters">Parameters</h3>
 
-|Name|In|Type|Required|Description|
-|---|---|---|---|---|
-|q|query|string|true|none|
-|page|query|number|false|none|
-|limit|query|number|false|none|
+| Name  | In    | Type   | Required | Description |
+| ----- | ----- | ------ | -------- | ----------- |
+| q     | query | string | true     | none        |
+| page  | query | number | false    | none        |
+| limit | query | number | false    | none        |
 
 > Example responses
 
@@ -1517,9 +1515,7 @@ hono request \
     }
   },
   "users": {
-    "data": [
-      {}
-    ],
+    "data": [{}],
     "meta": {}
   }
 }
@@ -1560,12 +1556,12 @@ hono request \
 
 <h3 id="getsearch-responses">Responses</h3>
 
-|Status|Meaning|Description|Schema|
-|---|---|---|---|
-|200|OK|The request has succeeded.|[SearchResults](#schemasearchresults)|
-|422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
-|500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
-|503|Service Unavailable|Service unavailable.|[MessageResponse](#schemamessageresponse)|
+| Status | Meaning               | Description                | Schema                                    |
+| ------ | --------------------- | -------------------------- | ----------------------------------------- |
+| 200    | OK                    | The request has succeeded. | [SearchResults](#schemasearchresults)     |
+| 422    | Unprocessable Entity  | Client error               | [ValidationError](#schemavalidationerror) |
+| 500    | Internal Server Error | Server error               | [MessageResponse](#schemamessageresponse) |
+| 503    | Service Unavailable   | Service unavailable.       | [MessageResponse](#schemamessageresponse) |
 
 <aside class="success">
 This operation does not require authentication
@@ -1591,9 +1587,9 @@ hono request \
 
 <h3 id="getuseruserid-parameters">Parameters</h3>
 
-|Name|In|Type|Required|Description|
-|---|---|---|---|---|
-|userId|path|string(uuid)|true|none|
+| Name   | In   | Type         | Required | Description |
+| ------ | ---- | ------------ | -------- | ----------- |
+| userId | path | string(uuid) | true     | none        |
 
 > Example responses
 
@@ -1660,13 +1656,13 @@ hono request \
 
 <h3 id="getuseruserid-responses">Responses</h3>
 
-|Status|Meaning|Description|Schema|
-|---|---|---|---|
-|200|OK|The request has succeeded.|[UserWithFollowCount](#schemauserwithfollowcount)|
-|404|Not Found|The server cannot find the requested resource.|[MessageResponse](#schemamessageresponse)|
-|422|Unprocessable Entity|Client error|[ValidationError](#schemavalidationerror)|
-|500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
-|503|Service Unavailable|Service unavailable.|[MessageResponse](#schemamessageresponse)|
+| Status | Meaning               | Description                                    | Schema                                            |
+| ------ | --------------------- | ---------------------------------------------- | ------------------------------------------------- |
+| 200    | OK                    | The request has succeeded.                     | [UserWithFollowCount](#schemauserwithfollowcount) |
+| 404    | Not Found             | The server cannot find the requested resource. | [MessageResponse](#schemamessageresponse)         |
+| 422    | Unprocessable Entity  | Client error                                   | [ValidationError](#schemavalidationerror)         |
+| 500    | Internal Server Error | Server error                                   | [MessageResponse](#schemamessageresponse)         |
+| 503    | Service Unavailable   | Service unavailable.                           | [MessageResponse](#schemamessageresponse)         |
 
 <aside class="success">
 This operation does not require authentication
@@ -1690,10 +1686,10 @@ hono request \
 
 <h3 id="getusers-parameters">Parameters</h3>
 
-|Name|In|Type|Required|Description|
-|---|---|---|---|---|
-|page|query|number|false|none|
-|limit|query|number|false|none|
+| Name  | In    | Type   | Required | Description |
+| ----- | ----- | ------ | -------- | ----------- |
+| page  | query | number | false    | none        |
+| limit | query | number | false    | none        |
 
 > Example responses
 
@@ -1741,11 +1737,11 @@ hono request \
 
 <h3 id="getusers-responses">Responses</h3>
 
-|Status|Meaning|Description|Schema|
-|---|---|---|---|
-|200|OK|The request has succeeded.|[PaginatedUsers](#schemapaginatedusers)|
-|500|Internal Server Error|Server error|[MessageResponse](#schemamessageresponse)|
-|503|Service Unavailable|Service unavailable.|[MessageResponse](#schemamessageresponse)|
+| Status | Meaning               | Description                | Schema                                    |
+| ------ | --------------------- | -------------------------- | ----------------------------------------- |
+| 200    | OK                    | The request has succeeded. | [PaginatedUsers](#schemapaginatedusers)   |
+| 500    | Internal Server Error | Server error               | [MessageResponse](#schemamessageresponse) |
+| 503    | Service Unavailable   | Service unavailable.       | [MessageResponse](#schemamessageresponse) |
 
 <aside class="success">
 This operation does not require authentication
@@ -1773,14 +1769,14 @@ This operation does not require authentication
 
 ### Properties
 
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|id|string(uuid)|true|none|none|
-|body|string|true|none|none|
-|createdAt|string(date-time)|true|none|none|
-|updatedAt|string(date-time)|true|none|none|
-|userId|string(uuid)|true|none|none|
-|postId|string(uuid)|true|none|none|
+| Name      | Type              | Required | Restrictions | Description |
+| --------- | ----------------- | -------- | ------------ | ----------- |
+| id        | string(uuid)      | true     | none         | none        |
+| body      | string            | true     | none         | none        |
+| createdAt | string(date-time) | true     | none         | none        |
+| updatedAt | string(date-time) | true     | none         | none        |
+| userId    | string(uuid)      | true     | none         | none        |
+| postId    | string(uuid)      | true     | none         | none        |
 
 <h2 id="tocS_MessageResponse">MessageResponse</h2>
 <!-- backwards compatibility -->
@@ -1797,9 +1793,9 @@ This operation does not require authentication
 
 ### Properties
 
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|message|string|true|none|none|
+| Name    | Type   | Required | Restrictions | Description |
+| ------- | ------ | -------- | ------------ | ----------- |
+| message | string | true     | none         | none        |
 
 <h2 id="tocS_ValidationErrorDetail">ValidationErrorDetail</h2>
 <!-- backwards compatibility -->
@@ -1817,10 +1813,10 @@ This operation does not require authentication
 
 ### Properties
 
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|pointer|string|true|none|none|
-|detail|string|true|none|none|
+| Name    | Type   | Required | Restrictions | Description |
+| ------- | ------ | -------- | ------------ | ----------- |
+| pointer | string | true     | none         | none        |
+| detail  | string | true     | none         | none        |
 
 <h2 id="tocS_ValidationError">ValidationError</h2>
 <!-- backwards compatibility -->
@@ -1846,22 +1842,22 @@ This operation does not require authentication
 
 ### Properties
 
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|type|string|true|none|none|
-|title|string|true|none|none|
-|status|number|true|none|none|
-|detail|string|true|none|none|
-|errors|[[ValidationErrorDetail](#schemavalidationerrordetail)]|true|none|none|
+| Name   | Type                                                    | Required | Restrictions | Description |
+| ------ | ------------------------------------------------------- | -------- | ------------ | ----------- |
+| type   | string                                                  | true     | none         | none        |
+| title  | string                                                  | true     | none         | none        |
+| status | number                                                  | true     | none         | none        |
+| detail | string                                                  | true     | none         | none        |
+| errors | [[ValidationErrorDetail](#schemavalidationerrordetail)] | true     | none         | none        |
 
 #### Enumerated Values
 
-|Property|Value|
-|---|---|
-|type|about:blank|
-|title|Unprocessable Content|
-|status|422|
-|detail|Request validation failed|
+| Property | Value                     |
+| -------- | ------------------------- |
+| type     | about:blank               |
+| title    | Unprocessable Content     |
+| status   | 422                       |
+| detail   | Request validation failed |
 
 <h2 id="tocS_CreateCommentRequest">CreateCommentRequest</h2>
 <!-- backwards compatibility -->
@@ -1878,9 +1874,9 @@ This operation does not require authentication
 
 ### Properties
 
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|body|string|true|none|none|
+| Name | Type   | Required | Restrictions | Description |
+| ---- | ------ | -------- | ------------ | ----------- |
+| body | string | true     | none         | none        |
 
 <h2 id="tocS_Follow">Follow</h2>
 <!-- backwards compatibility -->
@@ -1899,11 +1895,11 @@ This operation does not require authentication
 
 ### Properties
 
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|followerId|string(uuid)|true|none|none|
-|followingId|string(uuid)|true|none|none|
-|createdAt|string(date-time)|true|none|none|
+| Name        | Type              | Required | Restrictions | Description |
+| ----------- | ----------------- | -------- | ------------ | ----------- |
+| followerId  | string(uuid)      | true     | none         | none        |
+| followingId | string(uuid)      | true     | none         | none        |
+| createdAt   | string(date-time) | true     | none         | none        |
 
 <h2 id="tocS_CurrentUser">CurrentUser</h2>
 <!-- backwards compatibility -->
@@ -1931,30 +1927,28 @@ This operation does not require authentication
       "createdAt": "1970-01-01T00:00:00Z"
     }
   ],
-  "following": [
-    {}
-  ],
+  "following": [{}],
   "hasNotification": true
 }
 ```
 
 ### Properties
 
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|id|string(uuid)|true|none|none|
-|name|string|true|none|none|
-|username|string|true|none|none|
-|bio|string|false|none|none|
-|email|string(email)|true|none|none|
-|image|string(uri)|true|none|none|
-|coverImage|string(uri)|true|none|none|
-|profileImage|string(uri)|true|none|none|
-|createdAt|string(date-time)|true|none|none|
-|updatedAt|string(date-time)|true|none|none|
-|followers|[[Follow](#schemafollow)]|true|none|none|
-|following|[[Follow](#schemafollow)]|true|none|none|
-|hasNotification|boolean|true|none|none|
+| Name            | Type                      | Required | Restrictions | Description |
+| --------------- | ------------------------- | -------- | ------------ | ----------- |
+| id              | string(uuid)              | true     | none         | none        |
+| name            | string                    | true     | none         | none        |
+| username        | string                    | true     | none         | none        |
+| bio             | string                    | false    | none         | none        |
+| email           | string(email)             | true     | none         | none        |
+| image           | string(uri)               | true     | none         | none        |
+| coverImage      | string(uri)               | true     | none         | none        |
+| profileImage    | string(uri)               | true     | none         | none        |
+| createdAt       | string(date-time)         | true     | none         | none        |
+| updatedAt       | string(date-time)         | true     | none         | none        |
+| followers       | [[Follow](#schemafollow)] | true     | none         | none        |
+| following       | [[Follow](#schemafollow)] | true     | none         | none        |
+| hasNotification | boolean                   | true     | none         | none        |
 
 <h2 id="tocS_User">User</h2>
 <!-- backwards compatibility -->
@@ -1982,20 +1976,20 @@ This operation does not require authentication
 
 ### Properties
 
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|id|string(uuid)|true|none|none|
-|name|string|true|none|none|
-|username|string|true|none|none|
-|bio|string|false|none|none|
-|image|string(uri)|true|none|none|
-|coverImage|string(uri)|true|none|none|
-|profileImage|string(uri)|true|none|none|
-|createdAt|string(date-time)|true|none|none|
-|updatedAt|string(date-time)|true|none|none|
-|email|string(email)|true|none|none|
-|emailVerified|string(date-time)|true|none|none|
-|hasNotification|boolean|false|none|none|
+| Name            | Type              | Required | Restrictions | Description |
+| --------------- | ----------------- | -------- | ------------ | ----------- |
+| id              | string(uuid)      | true     | none         | none        |
+| name            | string            | true     | none         | none        |
+| username        | string            | true     | none         | none        |
+| bio             | string            | false    | none         | none        |
+| image           | string(uri)       | true     | none         | none        |
+| coverImage      | string(uri)       | true     | none         | none        |
+| profileImage    | string(uri)       | true     | none         | none        |
+| createdAt       | string(date-time) | true     | none         | none        |
+| updatedAt       | string(date-time) | true     | none         | none        |
+| email           | string(email)     | true     | none         | none        |
+| emailVerified   | string(date-time) | true     | none         | none        |
+| hasNotification | boolean           | false    | none         | none        |
 
 <h2 id="tocS_EditUserRequest">EditUserRequest</h2>
 <!-- backwards compatibility -->
@@ -2016,13 +2010,13 @@ This operation does not require authentication
 
 ### Properties
 
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|name|string|false|none|none|
-|username|string|false|none|none|
-|bio|string|false|none|none|
-|coverImage|string(uri)|false|none|none|
-|profileImage|string(uri)|false|none|none|
+| Name         | Type        | Required | Restrictions | Description |
+| ------------ | ----------- | -------- | ------------ | ----------- |
+| name         | string      | false    | none         | none        |
+| username     | string      | false    | none         | none        |
+| bio          | string      | false    | none         | none        |
+| coverImage   | string(uri) | false    | none         | none        |
+| profileImage | string(uri) | false    | none         | none        |
 
 <h2 id="tocS_FollowUserRequest">FollowUserRequest</h2>
 <!-- backwards compatibility -->
@@ -2039,9 +2033,9 @@ This operation does not require authentication
 
 ### Properties
 
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|userId|string(uuid)|true|none|none|
+| Name   | Type         | Required | Restrictions | Description |
+| ------ | ------------ | -------- | ------------ | ----------- |
+| userId | string(uuid) | true     | none         | none        |
 
 <h2 id="tocS_Like">Like</h2>
 <!-- backwards compatibility -->
@@ -2060,11 +2054,11 @@ This operation does not require authentication
 
 ### Properties
 
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|userId|string(uuid)|true|none|none|
-|postId|string(uuid)|true|none|none|
-|createdAt|string(date-time)|true|none|none|
+| Name      | Type              | Required | Restrictions | Description |
+| --------- | ----------------- | -------- | ------------ | ----------- |
+| userId    | string(uuid)      | true     | none         | none        |
+| postId    | string(uuid)      | true     | none         | none        |
+| createdAt | string(date-time) | true     | none         | none        |
 
 <h2 id="tocS_PostWithLikes">PostWithLikes</h2>
 <!-- backwards compatibility -->
@@ -2092,14 +2086,14 @@ This operation does not require authentication
 
 ### Properties
 
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|id|string(uuid)|true|none|none|
-|body|string|true|none|none|
-|createdAt|string(date-time)|true|none|none|
-|updatedAt|string(date-time)|true|none|none|
-|userId|string(uuid)|true|none|none|
-|likes|[[Like](#schemalike)]|true|none|none|
+| Name      | Type                  | Required | Restrictions | Description |
+| --------- | --------------------- | -------- | ------------ | ----------- |
+| id        | string(uuid)          | true     | none         | none        |
+| body      | string                | true     | none         | none        |
+| createdAt | string(date-time)     | true     | none         | none        |
+| updatedAt | string(date-time)     | true     | none         | none        |
+| userId    | string(uuid)          | true     | none         | none        |
+| likes     | [[Like](#schemalike)] | true     | none         | none        |
 
 <h2 id="tocS_LikePostRequest">LikePostRequest</h2>
 <!-- backwards compatibility -->
@@ -2116,9 +2110,9 @@ This operation does not require authentication
 
 ### Properties
 
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|postId|string(uuid)|true|none|none|
+| Name   | Type         | Required | Restrictions | Description |
+| ------ | ------------ | -------- | ------------ | ----------- |
+| postId | string(uuid) | true     | none         | none        |
 
 <h2 id="tocS_Notification">Notification</h2>
 <!-- backwards compatibility -->
@@ -2138,12 +2132,12 @@ This operation does not require authentication
 
 ### Properties
 
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|id|string(uuid)|true|none|none|
-|body|string|true|none|none|
-|userId|string(uuid)|true|none|none|
-|createdAt|string(date-time)|true|none|none|
+| Name      | Type              | Required | Restrictions | Description |
+| --------- | ----------------- | -------- | ------------ | ----------- |
+| id        | string(uuid)      | true     | none         | none        |
+| body      | string            | true     | none         | none        |
+| userId    | string(uuid)      | true     | none         | none        |
+| createdAt | string(date-time) | true     | none         | none        |
 
 <h2 id="tocS_PublicUser">PublicUser</h2>
 <!-- backwards compatibility -->
@@ -2168,17 +2162,17 @@ This operation does not require authentication
 
 ### Properties
 
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|id|string(uuid)|true|none|none|
-|name|string|true|none|none|
-|username|string|true|none|none|
-|bio|string|false|none|none|
-|image|string(uri)|true|none|none|
-|coverImage|string(uri)|true|none|none|
-|profileImage|string(uri)|true|none|none|
-|createdAt|string(date-time)|true|none|none|
-|updatedAt|string(date-time)|true|none|none|
+| Name         | Type              | Required | Restrictions | Description |
+| ------------ | ----------------- | -------- | ------------ | ----------- |
+| id           | string(uuid)      | true     | none         | none        |
+| name         | string            | true     | none         | none        |
+| username     | string            | true     | none         | none        |
+| bio          | string            | false    | none         | none        |
+| image        | string(uri)       | true     | none         | none        |
+| coverImage   | string(uri)       | true     | none         | none        |
+| profileImage | string(uri)       | true     | none         | none        |
+| createdAt    | string(date-time) | true     | none         | none        |
+| updatedAt    | string(date-time) | true     | none         | none        |
 
 <h2 id="tocS_PostSummary">PostSummary</h2>
 <!-- backwards compatibility -->
@@ -2212,16 +2206,16 @@ This operation does not require authentication
 
 ### Properties
 
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|id|string(uuid)|true|none|none|
-|body|string|true|none|none|
-|createdAt|string(date-time)|true|none|none|
-|updatedAt|string(date-time)|true|none|none|
-|userId|string(uuid)|true|none|none|
-|user|[PublicUser](#schemapublicuser)|true|none|none|
-|commentCount|number|true|none|none|
-|likeCount|number|true|none|none|
+| Name         | Type                            | Required | Restrictions | Description |
+| ------------ | ------------------------------- | -------- | ------------ | ----------- |
+| id           | string(uuid)                    | true     | none         | none        |
+| body         | string                          | true     | none         | none        |
+| createdAt    | string(date-time)               | true     | none         | none        |
+| updatedAt    | string(date-time)               | true     | none         | none        |
+| userId       | string(uuid)                    | true     | none         | none        |
+| user         | [PublicUser](#schemapublicuser) | true     | none         | none        |
+| commentCount | number                          | true     | none         | none        |
+| likeCount    | number                          | true     | none         | none        |
 
 <h2 id="tocS_PaginationMeta">PaginationMeta</h2>
 <!-- backwards compatibility -->
@@ -2241,12 +2235,12 @@ This operation does not require authentication
 
 ### Properties
 
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|page|number|true|none|none|
-|limit|number|true|none|none|
-|total|number|true|none|none|
-|totalPages|number|true|none|none|
+| Name       | Type   | Required | Restrictions | Description |
+| ---------- | ------ | -------- | ------------ | ----------- |
+| page       | number | true     | none         | none        |
+| limit      | number | true     | none         | none        |
+| total      | number | true     | none         | none        |
+| totalPages | number | true     | none         | none        |
 
 <h2 id="tocS_PaginatedPosts">PaginatedPosts</h2>
 <!-- backwards compatibility -->
@@ -2290,10 +2284,10 @@ This operation does not require authentication
 
 ### Properties
 
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|data|[[PostSummary](#schemapostsummary)]|true|none|none|
-|meta|[PaginationMeta](#schemapaginationmeta)|true|none|none|
+| Name | Type                                    | Required | Restrictions | Description |
+| ---- | --------------------------------------- | -------- | ------------ | ----------- |
+| data | [[PostSummary](#schemapostsummary)]     | true     | none         | none        |
+| meta | [PaginationMeta](#schemapaginationmeta) | true     | none         | none        |
 
 <h2 id="tocS_Post">Post</h2>
 <!-- backwards compatibility -->
@@ -2314,13 +2308,13 @@ This operation does not require authentication
 
 ### Properties
 
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|id|string(uuid)|true|none|none|
-|body|string|true|none|none|
-|createdAt|string(date-time)|true|none|none|
-|updatedAt|string(date-time)|true|none|none|
-|userId|string(uuid)|true|none|none|
+| Name      | Type              | Required | Restrictions | Description |
+| --------- | ----------------- | -------- | ------------ | ----------- |
+| id        | string(uuid)      | true     | none         | none        |
+| body      | string            | true     | none         | none        |
+| createdAt | string(date-time) | true     | none         | none        |
+| updatedAt | string(date-time) | true     | none         | none        |
+| userId    | string(uuid)      | true     | none         | none        |
 
 <h2 id="tocS_CreatePostRequest">CreatePostRequest</h2>
 <!-- backwards compatibility -->
@@ -2337,9 +2331,9 @@ This operation does not require authentication
 
 ### Properties
 
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|body|string|true|none|none|
+| Name | Type   | Required | Restrictions | Description |
+| ---- | ------ | -------- | ------------ | ----------- |
+| body | string | true     | none         | none        |
 
 <h2 id="tocS_CommentWithUser">CommentWithUser</h2>
 <!-- backwards compatibility -->
@@ -2372,15 +2366,15 @@ This operation does not require authentication
 
 ### Properties
 
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|id|string(uuid)|true|none|none|
-|body|string|true|none|none|
-|createdAt|string(date-time)|true|none|none|
-|updatedAt|string(date-time)|true|none|none|
-|userId|string(uuid)|true|none|none|
-|postId|string(uuid)|true|none|none|
-|user|[PublicUser](#schemapublicuser)|true|none|none|
+| Name      | Type                            | Required | Restrictions | Description |
+| --------- | ------------------------------- | -------- | ------------ | ----------- |
+| id        | string(uuid)                    | true     | none         | none        |
+| body      | string                          | true     | none         | none        |
+| createdAt | string(date-time)               | true     | none         | none        |
+| updatedAt | string(date-time)               | true     | none         | none        |
+| userId    | string(uuid)                    | true     | none         | none        |
+| postId    | string(uuid)                    | true     | none         | none        |
+| user      | [PublicUser](#schemapublicuser) | true     | none         | none        |
 
 <h2 id="tocS_PostDetail">PostDetail</h2>
 <!-- backwards compatibility -->
@@ -2431,17 +2425,17 @@ This operation does not require authentication
 
 ### Properties
 
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|id|string(uuid)|true|none|none|
-|body|string|true|none|none|
-|createdAt|string(date-time)|true|none|none|
-|updatedAt|string(date-time)|true|none|none|
-|userId|string(uuid)|true|none|none|
-|user|[PublicUser](#schemapublicuser)|true|none|none|
-|comments|[[CommentWithUser](#schemacommentwithuser)]|true|none|none|
-|likes|[object]|true|none|none|
-|_count|object|true|none|none|
+| Name      | Type                                        | Required | Restrictions | Description |
+| --------- | ------------------------------------------- | -------- | ------------ | ----------- |
+| id        | string(uuid)                                | true     | none         | none        |
+| body      | string                                      | true     | none         | none        |
+| createdAt | string(date-time)                           | true     | none         | none        |
+| updatedAt | string(date-time)                           | true     | none         | none        |
+| userId    | string(uuid)                                | true     | none         | none        |
+| user      | [PublicUser](#schemapublicuser)             | true     | none         | none        |
+| comments  | [[CommentWithUser](#schemacommentwithuser)] | true     | none         | none        |
+| likes     | [object]                                    | true     | none         | none        |
+| \_count   | object                                      | true     | none         | none        |
 
 <h2 id="tocS_RegisterRequest">RegisterRequest</h2>
 <!-- backwards compatibility -->
@@ -2461,12 +2455,12 @@ This operation does not require authentication
 
 ### Properties
 
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|email|string(email)|true|none|none|
-|name|string|true|none|none|
-|username|string|true|none|none|
-|password|string|true|none|none|
+| Name     | Type          | Required | Restrictions | Description |
+| -------- | ------------- | -------- | ------------ | ----------- |
+| email    | string(email) | true     | none         | none        |
+| name     | string        | true     | none         | none        |
+| username | string        | true     | none         | none        |
+| password | string        | true     | none         | none        |
 
 <h2 id="tocS_PaginatedUsers">PaginatedUsers</h2>
 <!-- backwards compatibility -->
@@ -2501,10 +2495,10 @@ This operation does not require authentication
 
 ### Properties
 
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|data|[[PublicUser](#schemapublicuser)]|true|none|none|
-|meta|[PaginationMeta](#schemapaginationmeta)|true|none|none|
+| Name | Type                                    | Required | Restrictions | Description |
+| ---- | --------------------------------------- | -------- | ------------ | ----------- |
+| data | [[PublicUser](#schemapublicuser)]       | true     | none         | none        |
+| meta | [PaginationMeta](#schemapaginationmeta) | true     | none         | none        |
 
 <h2 id="tocS_SearchResults">SearchResults</h2>
 <!-- backwards compatibility -->
@@ -2546,9 +2540,7 @@ This operation does not require authentication
     }
   },
   "users": {
-    "data": [
-      {}
-    ],
+    "data": [{}],
     "meta": {}
   }
 }
@@ -2556,10 +2548,10 @@ This operation does not require authentication
 
 ### Properties
 
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|posts|[PaginatedPosts](#schemapaginatedposts)|true|none|none|
-|users|[PaginatedUsers](#schemapaginatedusers)|true|none|none|
+| Name  | Type                                    | Required | Restrictions | Description |
+| ----- | --------------------------------------- | -------- | ------------ | ----------- |
+| posts | [PaginatedPosts](#schemapaginatedposts) | true     | none         | none        |
+| users | [PaginatedUsers](#schemapaginatedusers) | true     | none         | none        |
 
 <h2 id="tocS_UserWithFollowCount">UserWithFollowCount</h2>
 <!-- backwards compatibility -->
@@ -2588,18 +2580,18 @@ This operation does not require authentication
 
 ### Properties
 
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|id|string(uuid)|true|none|none|
-|name|string|true|none|none|
-|username|string|true|none|none|
-|bio|string|false|none|none|
-|image|string(uri)|true|none|none|
-|coverImage|string(uri)|true|none|none|
-|profileImage|string(uri)|true|none|none|
-|createdAt|string(date-time)|true|none|none|
-|updatedAt|string(date-time)|true|none|none|
-|_count|object|true|none|none|
+| Name         | Type              | Required | Restrictions | Description |
+| ------------ | ----------------- | -------- | ------------ | ----------- |
+| id           | string(uuid)      | true     | none         | none        |
+| name         | string            | true     | none         | none        |
+| username     | string            | true     | none         | none        |
+| bio          | string            | false    | none         | none        |
+| image        | string(uri)       | true     | none         | none        |
+| coverImage   | string(uri)       | true     | none         | none        |
+| profileImage | string(uri)       | true     | none         | none        |
+| createdAt    | string(date-time) | true     | none         | none        |
+| updatedAt    | string(date-time) | true     | none         | none        |
+| \_count      | object            | true     | none         | none        |
 
 <h2 id="tocS_PostWithDetails">PostWithDetails</h2>
 <!-- backwards compatibility -->
@@ -2648,13 +2640,13 @@ This operation does not require authentication
 
 ### Properties
 
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|id|string(uuid)|true|none|none|
-|body|string|true|none|none|
-|createdAt|string(date-time)|true|none|none|
-|updatedAt|string(date-time)|true|none|none|
-|userId|string(uuid)|true|none|none|
-|user|[PublicUser](#schemapublicuser)|true|none|none|
-|comments|[[Comment](#schemacomment)]|true|none|none|
-|likes|[[Like](#schemalike)]|true|none|none|
+| Name      | Type                            | Required | Restrictions | Description |
+| --------- | ------------------------------- | -------- | ------------ | ----------- |
+| id        | string(uuid)                    | true     | none         | none        |
+| body      | string                          | true     | none         | none        |
+| createdAt | string(date-time)               | true     | none         | none        |
+| updatedAt | string(date-time)               | true     | none         | none        |
+| userId    | string(uuid)                    | true     | none         | none        |
+| user      | [PublicUser](#schemapublicuser) | true     | none         | none        |
+| comments  | [[Comment](#schemacomment)]     | true     | none         | none        |
+| likes     | [[Like](#schemalike)]           | true     | none         | none        |

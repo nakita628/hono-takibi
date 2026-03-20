@@ -1,4 +1,5 @@
 import { Effect } from 'effect'
+
 import { ContractViolationError, makeFormatPublicUser, NotFoundError } from '@/backend/domain'
 import { PaginatedUsersSchema, UserWithFollowCountSchema } from '@/backend/routes'
 import * as UserService from '@/backend/services/user'

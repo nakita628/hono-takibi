@@ -6,6 +6,7 @@ import { BiLogOut } from 'react-icons/bi'
 import { BsBellFill, BsHouseFill } from 'react-icons/bs'
 import { FaUser } from 'react-icons/fa'
 import { useSWRConfig } from 'swr'
+
 import { SidebarLogo } from '@/components/atoms/SidebarLogo'
 import { SidebarTweetButton } from '@/components/atoms/SidebarTweetButton'
 import { SidebarItemContainer } from '@/components/molecules/SidebarItemContainer'
@@ -52,27 +53,27 @@ export function Sidebar() {
     {
       label: 'Home',
       href: '/',
-      icon: <BsHouseFill size={24} color='white' />,
+      icon: <BsHouseFill size={24} color="white" />,
     },
     {
       label: 'Notifications',
       href: '/notifications',
-      icon: <BsBellFill size={24} color='white' />,
+      icon: <BsBellFill size={24} color="white" />,
       auth: true,
       alert: currentUser?.hasNotification ?? undefined,
     },
     {
       label: 'Profile',
       href: currentUser ? `/users/${currentUser.id}` : '/',
-      icon: <FaUser size={24} color='white' />,
+      icon: <FaUser size={24} color="white" />,
       auth: true,
     },
   ]
 
   return (
-    <div className='col-span-1 h-full pr-4 md:pr-6'>
-      <div className='flex flex-col items-end'>
-        <div className='space-y-2 lg:w-[230px]'>
+    <div className="col-span-1 h-full pr-4 md:pr-6">
+      <div className="flex flex-col items-end">
+        <div className="space-y-2 lg:w-[230px]">
           <SidebarLogo onClick={() => router.push('/')} />
           {items.map((item) => (
             <SidebarItemContainer
@@ -87,8 +88,8 @@ export function Sidebar() {
           {currentUser && (
             <SidebarItemContainer
               onClick={handleSignOut}
-              icon={<BiLogOut size={24} color='white' />}
-              label='Logout'
+              icon={<BiLogOut size={24} color="white" />}
+              label="Logout"
             />
           )}
           <SidebarTweetButton onClick={() => router.push('/')} />
